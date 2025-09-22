@@ -63,8 +63,8 @@ class IdentifyActionImpl @Inject() (
       case optInternalId ~ optGroupId ~ enrolments =>
         val internalId: String = getOrElseFailWithUnauthorised(optInternalId, "Unable to retrieve internalId")
         val groupId: String    = getOrElseFailWithUnauthorised(optGroupId, "Unable to retrieve groupIdentifier")
-        val appaId             = getAppaId(enrolments)
-        block(IdentifierRequest(request, appaId, groupId, internalId))
+        val vpaId             = getVpaId(enrolments)
+        block(IdentifierRequest(request, vpaId, groupId, internalId))
     } recover {
       case e: AuthorisationException =>
         logger.debug(s"Got AuthorisationException:", e)
@@ -85,14 +85,15 @@ class IdentifyActionImpl @Inject() (
     case _                              => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
   }
 
-  private def getAppaId(enrolments: Enrolments): String = {
+  private def getVpaId(enrolments: Enrolments): String = {
     val adrEnrolments: Enrolment  = getOrElseFailWithUnauthorised(
       enrolments.enrolments.find(_.key == config.enrolmentServiceName),
       s"Unable to retrieve enrolment: ${config.enrolmentServiceName}"
     )
-    val appaIdOpt: Option[String] =
+    val vpaIdOpt: Option[String] =
       adrEnrolments.getIdentifier(config.enrolmentIdentifierKey).map(_.value)
-    getOrElseFailWithUnauthorised(appaIdOpt, "Unable to retrieve VPAID from enrolments")
+
+    getOrElseFailWithUnauthorised(vpaIdOpt, "Unable to retrieve VPAID from enrolments")
   }
 
   def getOrElseFailWithUnauthorised[T](o: Option[T], failureMessage: String): T =
