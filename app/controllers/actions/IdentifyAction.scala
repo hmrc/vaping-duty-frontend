@@ -61,10 +61,17 @@ class IdentifyActionImpl @Inject() (
 
     authorised(predicate).retrieve(internalId and groupIdentifier and allEnrolments) {
       case optInternalId ~ optGroupId ~ enrolments =>
-        val internalId: String = getOrElseFailWithUnauthorised(optInternalId, "Unable to retrieve internalId")
-        val groupId: String    = getOrElseFailWithUnauthorised(optGroupId, "Unable to retrieve groupIdentifier")
-        val vppaId             = getVpaId(enrolments)
-        block(IdentifierRequest(request, vppaId, groupId, internalId))
+        val indentifiers = for {
+          internalId <- optInternalId.toRight("Unable to retrieve internalId")
+          groupId <- optGroupId.toRight("Unable to retrieve groupIdentifier")
+          vppaId <- getApprovalId(enrolments)
+        } yield {
+          (internalId, groupId, vppaId)
+        }
+
+        indentifiers match
+          case Right((internalId, groupId, vppaId)) => block(IdentifierRequest(request, vppaId, groupId, internalId))
+          case Left(error) => throw AuthorisationException.fromString(error)
     } recover {
       case e: AuthorisationException =>
         logger.debug(s"Got AuthorisationException:", e)
@@ -85,20 +92,11 @@ class IdentifyActionImpl @Inject() (
     case _                              => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
   }
 
-  private def getVpaId(enrolments: Enrolments): String = {
-    val adrEnrolments: Enrolment  = getOrElseFailWithUnauthorised(
-      enrolments.enrolments.find(_.key == config.enrolmentServiceName),
-      s"Unable to retrieve enrolment: ${config.enrolmentServiceName}"
-    )
-    val vppaIdOpt: Option[String] =
-      adrEnrolments.getIdentifier(config.enrolmentIdentifierKey).map(_.value)
-
-    getOrElseFailWithUnauthorised(vppaIdOpt, "Unable to retrieve VPPAID from enrolments")
-  }
-
-  def getOrElseFailWithUnauthorised[T](o: Option[T], failureMessage: String): T =
-    o.getOrElse {
-      logger.warn(s"Identifier Action failed with error: $failureMessage")
-      throw new IllegalStateException(failureMessage)
-    }
+  private def getApprovalId(enrolments: Enrolments): Either[String, String] =
+    enrolments
+      .enrolments
+      .find(_.key == config.enrolmentServiceName)
+      .flatMap(_.getIdentifier(config.enrolmentIdentifierKey))
+      .map(_.value)
+      .toRight("Unable to retrieve VPPAID from enrolments")
 }
