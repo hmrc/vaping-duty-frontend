@@ -1,7 +1,7 @@
 
 # vaping-duty-frontend
 
-This is a placeholder README.md for a new repository
+Frontend microservice for managing vaping duties
 
 ### License
 
