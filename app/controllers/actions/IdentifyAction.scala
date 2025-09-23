@@ -21,16 +21,16 @@ import config.FrontendAppConfig
 import controllers.routes
 import models.requests.IdentifierRequest
 import play.api.Logging
-import play.api.mvc.Results._
-import play.api.mvc._
+import play.api.mvc.Results.*
+import play.api.mvc.*
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.CredentialStrength.strong
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, CredentialStrength, Enrolment, _}
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, CredentialStrength, Enrolment, *}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.*
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
+import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException, UpstreamErrorResponse}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -64,32 +64,28 @@ class IdentifyActionImpl @Inject() (
         val indentifiers = for {
           internalId <- optInternalId.toRight("Unable to retrieve internalId")
           groupId <- optGroupId.toRight("Unable to retrieve groupIdentifier")
-          vppaId <- getApprovalId(enrolments)
+          approvalId <- getApprovalId(enrolments)
         } yield {
-          (internalId, groupId, vppaId)
+          (internalId, groupId, approvalId)
         }
 
         indentifiers match
-          case Right((internalId, groupId, vppaId)) => block(IdentifierRequest(request, vppaId, groupId, internalId))
+          case Right((internalId, groupId, approvalId)) => block(IdentifierRequest(request, approvalId, groupId, internalId))
           case Left(error) => throw AuthorisationException.fromString(error)
+          
     } recover {
       case e: AuthorisationException =>
         logger.debug(s"Got AuthorisationException:", e)
-        handleAuthException(e)
+        handleAuthException(e) 
       case e: UnauthorizedException  =>
         logger.debug(s"Got UnauthorizedException:", e)
         Redirect(routes.UnauthorisedController.onPageLoad())
     }
   }
 
-  private def handleAuthException: PartialFunction[Throwable, Result] = {
-    case _: InsufficientEnrolments      => Redirect(routes.UnauthorisedController.onPageLoad())
-    case _: InsufficientConfidenceLevel => Redirect(routes.UnauthorisedController.onPageLoad())
-    case _: UnsupportedAuthProvider     => Redirect(routes.UnauthorisedController.onPageLoad())
-    case _: UnsupportedAffinityGroup    => Redirect(routes.UnauthorisedController.onPageLoad())
-    case _: UnsupportedCredentialRole   => Redirect(routes.UnauthorisedController.onPageLoad())
-    case _: IncorrectCredentialStrength => Redirect(routes.UnauthorisedController.onPageLoad())
-    case _                              => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+  private def handleAuthException: PartialFunction[AuthorisationException, Result] = {
+    case _: NoActiveSession => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+    case _                  => Redirect(routes.UnauthorisedController.onPageLoad())
   }
 
   private def getApprovalId(enrolments: Enrolments): Either[String, String] =
