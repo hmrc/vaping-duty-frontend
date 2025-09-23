@@ -17,7 +17,7 @@
 package data
 
   trait TestData {
-    val vpaId = "VPAID01"
+    val vppaId = "VPPAID01"
     val groupId: String = "groupid"
     val internalId: String = "id"
   }

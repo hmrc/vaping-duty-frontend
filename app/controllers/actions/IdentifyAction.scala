@@ -63,8 +63,8 @@ class IdentifyActionImpl @Inject() (
       case optInternalId ~ optGroupId ~ enrolments =>
         val internalId: String = getOrElseFailWithUnauthorised(optInternalId, "Unable to retrieve internalId")
         val groupId: String    = getOrElseFailWithUnauthorised(optGroupId, "Unable to retrieve groupIdentifier")
-        val vpaId             = getVpaId(enrolments)
-        block(IdentifierRequest(request, vpaId, groupId, internalId))
+        val vppaId             = getVpaId(enrolments)
+        block(IdentifierRequest(request, vppaId, groupId, internalId))
     } recover {
       case e: AuthorisationException =>
         logger.debug(s"Got AuthorisationException:", e)
@@ -90,10 +90,10 @@ class IdentifyActionImpl @Inject() (
       enrolments.enrolments.find(_.key == config.enrolmentServiceName),
       s"Unable to retrieve enrolment: ${config.enrolmentServiceName}"
     )
-    val vpaIdOpt: Option[String] =
+    val vppaIdOpt: Option[String] =
       adrEnrolments.getIdentifier(config.enrolmentIdentifierKey).map(_.value)
 
-    getOrElseFailWithUnauthorised(vpaIdOpt, "Unable to retrieve VPAID from enrolments")
+    getOrElseFailWithUnauthorised(vppaIdOpt, "Unable to retrieve VPPAID from enrolments")
   }
 
   def getOrElseFailWithUnauthorised[T](o: Option[T], failureMessage: String): T =
