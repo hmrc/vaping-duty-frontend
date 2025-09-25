@@ -94,5 +94,5 @@ class IdentifyActionImpl @Inject() (
       .find(_.key == config.enrolmentServiceName)
       .flatMap(_.getIdentifier(config.enrolmentIdentifierKey))
       .map(_.value)
-      .toRight("Unable to retrieve VPPAID from enrolments")
+      .toRight(s"Unable to retrieve ${config.enrolmentIdentifierKey} from enrolments")
 }
