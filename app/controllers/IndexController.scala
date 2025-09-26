@@ -18,8 +18,6 @@ package controllers
 
 import connectors.VapingDutyConnector
 import controllers.actions.IdentifyAction
-import cats.syntax.functor.*
-import cats.instances.future
 
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
@@ -37,6 +35,6 @@ class IndexController @Inject()(
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = identify.async(implicit request =>
-    vapingDutyConnector.ping().as(Ok(view()))
+    vapingDutyConnector.ping().map(_ => Ok(view()))
   )
 }
