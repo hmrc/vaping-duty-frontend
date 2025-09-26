@@ -20,12 +20,15 @@ import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class FrontendAppConfig @Inject() (configuration: Configuration) {
+class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig: ServicesConfig) {
 
   val host: String    = configuration.get[String]("host")
   val appName: String = configuration.get[String]("appName")
+
+  private val vdHost: String = servicesConfig.baseUrl("vaping-duty")
 
   private val contactHost = configuration.get[String]("contact-frontend.host")
   private val contactFormServiceIdentifier = "vaping-duty-frontend"
@@ -52,4 +55,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+
+  val enrolmentServiceName = configuration.get[String]("enrolment.serviceName")
+  val enrolmentIdentifierKey = configuration.get[String]("enrolment.identifierKey")
+
+  def vdrPingUrl(): String =
+    s"$vdHost/vaping-duty/ping"
 }

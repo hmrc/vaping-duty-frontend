@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package models.requests
+package connectors
 
-import play.api.mvc.{Request, WrappedRequest}
+import uk.gov.hmrc.http.HeaderCarrier
 
-case class IdentifierRequest[A](request: Request[A], vppaId: String, groupId: String, userId: String)
-  extends WrappedRequest[A](request)
+import scala.concurrent.Future
+
+trait VapingDutyConnector {
+  def ping()(implicit hc: HeaderCarrier): Future[Unit]
+}
+

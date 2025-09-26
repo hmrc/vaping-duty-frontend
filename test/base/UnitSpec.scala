@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package models.requests
+package base
 
-import play.api.mvc.{Request, WrappedRequest}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatestplus.mockito.MockitoSugar
 
-case class IdentifierRequest[A](request: Request[A], vppaId: String, groupId: String, userId: String)
-  extends WrappedRequest[A](request)
+trait UnitSpec extends AnyFreeSpec
+  with MockitoSugar
+  with Matchers

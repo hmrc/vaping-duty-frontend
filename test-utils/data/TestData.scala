@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package models.requests
+package data
 
-import play.api.mvc.{Request, WrappedRequest}
-
-case class IdentifierRequest[A](request: Request[A], vppaId: String, groupId: String, userId: String)
-  extends WrappedRequest[A](request)
+  trait TestData {
+    val vppaId = "VPPAID01"
+    val groupId: String = "groupid"
+    val internalId: String = "id"
+  }

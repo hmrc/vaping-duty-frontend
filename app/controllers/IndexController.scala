@@ -16,20 +16,25 @@
 
 package controllers
 
-import controllers.actions.IdentifierAction
+import connectors.VapingDutyConnector
+import controllers.actions.IdentifyAction
+
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.IndexView
 
-class IndexController @Inject()(
-                                 val controllerComponents: MessagesControllerComponents,
-                                 identify: IdentifierAction,
-                                 view: IndexView
-                               ) extends FrontendBaseController with I18nSupport {
+import scala.concurrent.ExecutionContext
 
-  def onPageLoad(): Action[AnyContent] = identify { implicit request =>
-    Ok(view())
-  }
+class IndexController @Inject()(
+  val controllerComponents: MessagesControllerComponents,
+  identify: IdentifyAction,
+  vapingDutyConnector: VapingDutyConnector,
+  view: IndexView
+)(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+
+  def onPageLoad(): Action[AnyContent] = identify.async(implicit request =>
+    vapingDutyConnector.ping().map(_ => Ok(view()))
+  )
 }

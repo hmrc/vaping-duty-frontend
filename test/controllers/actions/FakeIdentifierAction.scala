@@ -16,16 +16,18 @@
 
 package controllers.actions
 
+import data.TestData
+
 import javax.inject.Inject
 import models.requests.IdentifierRequest
-import play.api.mvc._
+import play.api.mvc.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeIdentifierAction @Inject()(bodyParsers: PlayBodyParsers) extends IdentifierAction {
+class FakeIdentifyAction @Inject()(bodyParsers: PlayBodyParsers) extends IdentifyAction with TestData {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(IdentifierRequest(request, "id"))
+    block(IdentifierRequest(request, vppaId, groupId, internalId))
 
   override def parser: BodyParser[AnyContent] =
     bodyParsers.default
