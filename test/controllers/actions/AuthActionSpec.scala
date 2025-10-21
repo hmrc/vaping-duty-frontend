@@ -42,6 +42,10 @@ class AuthActionSpec extends SpecBase {
     def onPageLoad(): Action[AnyContent] = authAction { _ => Results.Ok }
   }
 
+  class ExceptionThrowingHarness(authAction: IdentifyAction) {
+    def onPageLoad(): Action[AnyContent] = authAction { _ => throw new uk.gov.hmrc.http.UnauthorizedException("test exception") }
+  }
+
   "Auth Action" - {
 
     val appConfig = mock[FrontendAppConfig]
@@ -72,6 +76,28 @@ class AuthActionSpec extends SpecBase {
         val result = controller.onPageLoad()(FakeRequest())
 
         status(result) mustBe OK
+      }
+
+      "fails when the executed block throws an UnauthorisedException from a Connector " in {
+
+        val successfulAuthConnector = mock[AuthConnector]
+        when(
+          successfulAuthConnector.authorise(any[Predicate],
+                                            ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
+                                           )(any[HeaderCarrier], any[ExecutionContext])).
+            thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
+              Some("test-internal-id") and Some("test-group-id") and Enrolments(Set(
+                  Enrolment(
+                    key = "HMRC-VPD-ORG",
+                    identifiers = Seq(EnrolmentIdentifier(key = "VPPAID", value = "TestVpdId")),
+                    state = "TestState")))))
+
+        val authAction = new IdentifyActionImpl(successfulAuthConnector, appConfig, bodyParsers)
+        val controller = new ExceptionThrowingHarness(authAction)
+        val result = controller.onPageLoad()(FakeRequest())
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
       }
     }
 
