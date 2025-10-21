@@ -17,7 +17,6 @@
 package controllers.actions
 
 import base.SpecBase
-import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
 import org.mockito.Mockito.when
@@ -142,7 +141,7 @@ class AuthActionSpec extends SpecBase {
   }
 }
 
-class FakeFailingAuthConnector @Inject()(exceptionToReturn: Throwable) extends AuthConnector {
+class FakeFailingAuthConnector(exceptionToReturn: Throwable) extends AuthConnector {
   val serviceUrl: String = ""
 
   override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
