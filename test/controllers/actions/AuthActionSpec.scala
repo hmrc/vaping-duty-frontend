@@ -51,9 +51,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to log in " in {
 
-        val application = applicationBuilder(userAnswers = None).build()
-
-        running(application) {
+        {
           val bodyParsers = mock[BodyParsers.Default]
           val appConfig   = config
 
@@ -71,9 +69,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to log in " in {
 
-        val application = applicationBuilder(userAnswers = None).build()
-
-        running(application) {
+        {
           val bodyParsers = mock[BodyParsers.Default]
           val appConfig   = config
 
@@ -91,9 +87,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to the unauthorised page" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
-
-        running(application) {
+        {
           val bodyParsers = mock[BodyParsers.Default]
           val appConfig   = config
 
@@ -111,9 +105,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to the unauthorised page" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
-
-        running(application) {
+        {
           val bodyParsers = mock[BodyParsers.Default]
           val appConfig   = config
 
@@ -131,9 +123,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to the unauthorised page" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
-
-        running(application) {
+        {
           val bodyParsers = mock[BodyParsers.Default]
           val appConfig   = config
 
@@ -151,9 +141,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to the unauthorised page" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
-
-        running(application) {
+        {
           val bodyParsers = mock[BodyParsers.Default]
           val appConfig   = config
 
@@ -171,9 +159,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to the unauthorised page" in {
 
-        val application = applicationBuilder(userAnswers = None).build()
-
-        running(application) {
+        {
           val bodyParsers = mock[BodyParsers.Default]
           val appConfig   = config
 
