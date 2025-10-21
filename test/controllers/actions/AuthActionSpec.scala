@@ -19,14 +19,18 @@ package controllers.actions
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.Retrieval
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, groupIdentifier, internalId}
+import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
+import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -41,12 +45,33 @@ class AuthActionSpec extends SpecBase {
   "Auth Action" - {
 
     val appConfig = mock[FrontendAppConfig]
-//    when(config.enrolmentServiceName).thenReturn("HMRC-VPD-ORG")
-//    when(config.enrolmentIdentifierKey).thenReturn("VPPAID")
+    when(appConfig.enrolmentServiceName).thenReturn("HMRC-VPD-ORG")
+    when(appConfig.enrolmentIdentifierKey).thenReturn("VPPAID")
     when(appConfig.loginUrl).thenReturn("login-url")
     when(appConfig.loginContinueUrl).thenReturn("login-continue-url")
 
     val bodyParsers = mock[BodyParsers.Default]
+
+    "when authenticated and authorised" - {
+      "executes the block passed " in {
+
+        val successfulAuthConnector = mock[AuthConnector]
+        when(
+          successfulAuthConnector.authorise(any(), ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments))(any(), any())).
+            thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
+              Some("test-internal-id") and Some("test-group-id") and Enrolments(Set(
+                  Enrolment(
+                    key = "HMRC-VPD-ORG",
+                    identifiers = Seq(EnrolmentIdentifier(key = "VPPAID", value = "TestVpdId")),
+                    state = "TestState")))))
+
+        val authAction = new IdentifyActionImpl(successfulAuthConnector, appConfig, bodyParsers)
+        val controller = new Harness(authAction)
+        val result = controller.onPageLoad()(FakeRequest())
+
+        status(result) mustBe OK
+      }
+    }
 
     "when the user hasn't logged in" - {
 
