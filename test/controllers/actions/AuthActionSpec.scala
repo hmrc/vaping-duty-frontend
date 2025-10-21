@@ -77,9 +77,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to log in " in {
 
-        val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new MissingBearerToken), appConfig, bodyParsers)
-        val controller = new Harness(authAction)
-        val result = controller.onPageLoad()(FakeRequest())
+        val result = failingController(new MissingBearerToken).onPageLoad()(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value must startWith(appConfig.loginUrl)
@@ -90,9 +88,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to log in " in {
 
-        val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new BearerTokenExpired), appConfig, bodyParsers)
-        val controller = new Harness(authAction)
-        val result = controller.onPageLoad()(FakeRequest())
+        val result = failingController(new BearerTokenExpired).onPageLoad()(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value must startWith(appConfig.loginUrl)
@@ -103,9 +99,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to the unauthorised page" in {
 
-        val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new InsufficientEnrolments), appConfig, bodyParsers)
-        val controller = new Harness(authAction)
-        val result = controller.onPageLoad()(FakeRequest())
+        val result = failingController(new InsufficientEnrolments).onPageLoad()(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
@@ -116,9 +110,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to the unauthorised page" in {
 
-        val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new InsufficientConfidenceLevel), appConfig, bodyParsers)
-        val controller = new Harness(authAction)
-        val result = controller.onPageLoad()(FakeRequest())
+        val result = failingController(new InsufficientConfidenceLevel).onPageLoad()(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
@@ -129,9 +121,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to the unauthorised page" in {
 
-        val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new UnsupportedAuthProvider), appConfig, bodyParsers)
-        val controller = new Harness(authAction)
-        val result = controller.onPageLoad()(FakeRequest())
+        val result = failingController(new UnsupportedAuthProvider).onPageLoad()(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
@@ -142,9 +132,7 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to the unauthorised page" in {
 
-        val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new UnsupportedAffinityGroup), appConfig, bodyParsers)
-        val controller = new Harness(authAction)
-        val result = controller.onPageLoad()(FakeRequest())
+        val result = failingController(new UnsupportedAffinityGroup).onPageLoad()(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
@@ -155,14 +143,19 @@ class AuthActionSpec extends SpecBase {
 
       "must redirect the user to the unauthorised page" in {
 
-        val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new UnsupportedCredentialRole), appConfig, bodyParsers)
-        val controller = new Harness(authAction)
-        val result = controller.onPageLoad()(FakeRequest())
+        val result = failingController(new UnsupportedCredentialRole).onPageLoad()(FakeRequest())
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
       }
     }
+
+    def failingController(authorisationException: AuthorisationException) = {
+      new Harness(
+        new IdentifyActionImpl(
+          new FakeFailingAuthConnector(authorisationException), appConfig, bodyParsers))
+    }
+
   }
 }
 
