@@ -41,14 +41,13 @@ class AuthActionSpec extends SpecBase {
 
   "Auth Action" - {
 
-    val config = mock[FrontendAppConfig]
+    val appConfig = mock[FrontendAppConfig]
 //    when(config.enrolmentServiceName).thenReturn("HMRC-VPD-ORG")
 //    when(config.enrolmentIdentifierKey).thenReturn("VPPAID")
-    when(config.loginUrl).thenReturn("login-url")
-    when(config.loginContinueUrl).thenReturn("login-continue-url")
+    when(appConfig.loginUrl).thenReturn("login-url")
+    when(appConfig.loginContinueUrl).thenReturn("login-continue-url")
 
     val bodyParsers = mock[BodyParsers.Default]
-    val appConfig = config
 
     "when the user hasn't logged in" - {
 
