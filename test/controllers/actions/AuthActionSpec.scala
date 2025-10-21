@@ -47,14 +47,14 @@ class AuthActionSpec extends SpecBase {
     when(config.loginUrl).thenReturn("login-url")
     when(config.loginContinueUrl).thenReturn("login-continue-url")
 
+    val bodyParsers = mock[BodyParsers.Default]
+    val appConfig = config
+
     "when the user hasn't logged in" - {
 
       "must redirect the user to log in " in {
 
         {
-          val bodyParsers = mock[BodyParsers.Default]
-          val appConfig   = config
-
           val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new MissingBearerToken), appConfig, bodyParsers)
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
@@ -70,9 +70,6 @@ class AuthActionSpec extends SpecBase {
       "must redirect the user to log in " in {
 
         {
-          val bodyParsers = mock[BodyParsers.Default]
-          val appConfig   = config
-
           val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new BearerTokenExpired), appConfig, bodyParsers)
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
@@ -88,9 +85,6 @@ class AuthActionSpec extends SpecBase {
       "must redirect the user to the unauthorised page" in {
 
         {
-          val bodyParsers = mock[BodyParsers.Default]
-          val appConfig   = config
-
           val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new InsufficientEnrolments), appConfig, bodyParsers)
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
@@ -106,9 +100,6 @@ class AuthActionSpec extends SpecBase {
       "must redirect the user to the unauthorised page" in {
 
         {
-          val bodyParsers = mock[BodyParsers.Default]
-          val appConfig   = config
-
           val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new InsufficientConfidenceLevel), appConfig, bodyParsers)
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
@@ -124,9 +115,6 @@ class AuthActionSpec extends SpecBase {
       "must redirect the user to the unauthorised page" in {
 
         {
-          val bodyParsers = mock[BodyParsers.Default]
-          val appConfig   = config
-
           val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new UnsupportedAuthProvider), appConfig, bodyParsers)
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
@@ -142,9 +130,6 @@ class AuthActionSpec extends SpecBase {
       "must redirect the user to the unauthorised page" in {
 
         {
-          val bodyParsers = mock[BodyParsers.Default]
-          val appConfig   = config
-
           val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new UnsupportedAffinityGroup), appConfig, bodyParsers)
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
@@ -160,9 +145,6 @@ class AuthActionSpec extends SpecBase {
       "must redirect the user to the unauthorised page" in {
 
         {
-          val bodyParsers = mock[BodyParsers.Default]
-          val appConfig   = config
-
           val authAction = new IdentifyActionImpl(new FakeFailingAuthConnector(new UnsupportedCredentialRole), appConfig, bodyParsers)
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
