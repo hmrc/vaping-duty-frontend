@@ -167,8 +167,6 @@ class AuthActionSpec extends SpecBase {
 }
 
 class FakeFailingAuthConnector(exceptionToReturn: Throwable) extends AuthConnector {
-  val serviceUrl: String = ""
-
   override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
     Future.failed(exceptionToReturn)
 }
