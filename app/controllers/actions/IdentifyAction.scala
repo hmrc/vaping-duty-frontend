@@ -61,7 +61,7 @@ class IdentifyActionImpl @Inject() (
 
     authorised(predicate).retrieve(internalId and groupIdentifier and allEnrolments) {
       case optInternalId ~ optGroupId ~ enrolments =>
-        val indentifiers = for {
+      val identifiers = for {
           internalId <- optInternalId.toRight("Unable to retrieve internalId")
           groupId <- optGroupId.toRight("Unable to retrieve groupIdentifier")
           approvalId <- getApprovalId(enrolments)
@@ -69,7 +69,7 @@ class IdentifyActionImpl @Inject() (
           (internalId, groupId, approvalId)
         }
 
-        indentifiers match
+        identifiers match
           case Right((internalId, groupId, approvalId)) => block(IdentifierRequest(request, approvalId, groupId, internalId))
           case Left(error) => throw AuthorisationException.fromString(error)
           
