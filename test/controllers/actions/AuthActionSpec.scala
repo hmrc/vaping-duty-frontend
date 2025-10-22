@@ -57,7 +57,9 @@ class AuthActionSpec extends SpecBase {
 
         val successfulAuthConnector = mock[AuthConnector]
         when(
-          successfulAuthConnector.authorise(any(), ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments))(any(), any())).
+          successfulAuthConnector.authorise(any[Predicate],
+                                            ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
+                                           )(any[HeaderCarrier], any[ExecutionContext])).
             thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
               Some("test-internal-id") and Some("test-group-id") and Enrolments(Set(
                   Enrolment(
