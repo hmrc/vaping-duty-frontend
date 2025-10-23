@@ -71,8 +71,8 @@ class IdentifyActionImpl @Inject() (
 
         identifiers match
           case Right((internalId, groupId, approvalId)) => block(IdentifierRequest(request, approvalId, groupId, internalId))
-          case Left(error) => throw AuthorisationException.fromString(error)
-          
+          case Left(error) => Future.failed(AuthorisationException.fromString(error))
+
     } recover {
       case e: AuthorisationException =>
         logger.debug(s"Got AuthorisationException:", e)
