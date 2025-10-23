@@ -22,16 +22,19 @@ import controllers.routes
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalatest.concurrent.ScalaFutures.whenReady
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, groupIdentifier, internalId}
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
-import uk.gov.hmrc.auth.core.*
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -78,7 +81,7 @@ class AuthActionSpec extends SpecBase {
         status(result) mustBe OK
       }
 
-      "fails when the executed block throws an UnauthorisedException from a Connector " in {
+      "Allows UnauthorisedException from a Connector called from the executed block to pass through and be handled by the framework" in {
 
         val successfulAuthConnector = mock[AuthConnector]
         when(
@@ -94,10 +97,10 @@ class AuthActionSpec extends SpecBase {
 
         val authAction = new IdentifyActionImpl(successfulAuthConnector, appConfig, bodyParsers)
         val controller = new ExceptionThrowingHarness(authAction)
-        val result = controller.onPageLoad()(FakeRequest())
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
+        whenReady(controller.onPageLoad()(FakeRequest()).failed) { ex =>
+          ex shouldBe a[UnauthorizedException]
+        }
       }
     }
 
