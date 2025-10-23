@@ -39,13 +39,13 @@ import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthActionSpec extends SpecBase {
+ class ApprovedVapingManufacturerAuthActionSpec extends SpecBase {
 
-  class Harness(authAction: IdentifyAction) {
+  class Harness(authAction: ApprovedVapingManufacturerAuthAction) {
     def onPageLoad(): Action[AnyContent] = authAction { _ => Results.Ok }
   }
 
-  class ExceptionThrowingHarness(authAction: IdentifyAction) {
+  class ExceptionThrowingHarness(authAction: ApprovedVapingManufacturerAuthAction) {
     def onPageLoad(): Action[AnyContent] = authAction { _ => throw new uk.gov.hmrc.http.UnauthorizedException("test exception") }
   }
 
@@ -74,7 +74,7 @@ class AuthActionSpec extends SpecBase {
                     identifiers = Seq(EnrolmentIdentifier(key = "VPPAID", value = "TestVpdId")),
                     state = "TestState")))))
 
-        val authAction = new IdentifyActionImpl(successfulAuthConnector, appConfig, bodyParsers)
+        val authAction = new ApprovedVapingManufacturerAuthActionImpl(successfulAuthConnector, appConfig, bodyParsers)
         val controller = new Harness(authAction)
         val result = controller.onPageLoad()(FakeRequest())
 
@@ -95,7 +95,7 @@ class AuthActionSpec extends SpecBase {
                     identifiers = Seq(EnrolmentIdentifier(key = "VPPAID", value = "TestVpdId")),
                     state = "TestState")))))
 
-        val authAction = new IdentifyActionImpl(successfulAuthConnector, appConfig, bodyParsers)
+        val authAction = new ApprovedVapingManufacturerAuthActionImpl(successfulAuthConnector, appConfig, bodyParsers)
         val controller = new ExceptionThrowingHarness(authAction)
 
         whenReady(controller.onPageLoad()(FakeRequest()).failed) { ex =>
@@ -183,7 +183,7 @@ class AuthActionSpec extends SpecBase {
 
     def failingController(authorisationException: AuthorisationException) = {
       new Harness(
-        new IdentifyActionImpl(
+        new ApprovedVapingManufacturerAuthActionImpl(
           new FakeFailingAuthConnector(authorisationException), appConfig, bodyParsers))
     }
 
