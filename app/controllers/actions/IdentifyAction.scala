@@ -76,10 +76,7 @@ class IdentifyActionImpl @Inject() (
     } recover {
       case e: AuthorisationException =>
         logger.debug(s"Got AuthorisationException:", e)
-        handleAuthException(e) 
-      case e: UnauthorizedException  =>
-        logger.debug(s"Got UnauthorizedException:", e)
-        Redirect(routes.UnauthorisedController.onPageLoad())
+        handleAuthException(e)
     }
   }
 
