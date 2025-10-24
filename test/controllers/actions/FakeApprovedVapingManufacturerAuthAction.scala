@@ -24,7 +24,7 @@ import play.api.mvc.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeIdentifyAction @Inject()(bodyParsers: PlayBodyParsers) extends IdentifyAction with TestData {
+class FakeApprovedVapingManufacturerAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends ApprovedVapingManufacturerAuthAction with TestData {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
     block(IdentifierRequest(request, vppaId, groupId, internalId))

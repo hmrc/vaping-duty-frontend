@@ -17,7 +17,7 @@
 package controllers.auth
 
 import config.FrontendAppConfig
-import controllers.actions.IdentifyAction
+import controllers.actions.ApprovedVapingManufacturerAuthAction
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -28,13 +28,13 @@ import scala.concurrent.ExecutionContext
 
 
 class AuthController @Inject()(
-  val controllerComponents: MessagesControllerComponents,
-  config: FrontendAppConfig,
-  sessionRepository: SessionRepository,
-  identify: IdentifyAction
+                                val controllerComponents: MessagesControllerComponents,
+                                config: FrontendAppConfig,
+                                sessionRepository: SessionRepository,
+                                ifApprovedVapingManufacturer: ApprovedVapingManufacturerAuthAction
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def signOut(): Action[AnyContent] = identify.async {
+  def signOut(): Action[AnyContent] = ifApprovedVapingManufacturer.async {
     implicit request =>
       sessionRepository
         .clear(request.userId)
@@ -44,7 +44,7 @@ class AuthController @Inject()(
       }
   }
 
-  def signOutNoSurvey(): Action[AnyContent] = identify.async {
+  def signOutNoSurvey(): Action[AnyContent] = ifApprovedVapingManufacturer.async {
     implicit request =>
     sessionRepository
       .clear(request.userId)

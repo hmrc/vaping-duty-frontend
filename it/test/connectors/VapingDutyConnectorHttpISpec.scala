@@ -17,16 +17,11 @@
 package connectors
 
 import base.ISpecBase
-import models.UserAnswers
-import org.scalatest.OptionValues
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, urlMatching}
 import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, get, post, urlMatching}
+import play.api.http.Status.*
 import util.WireMockHelper
-import play.api.http.Status._
 
 class VapingDutyConnectorHttpISpec extends ISpecBase with WireMockHelper {
   override def fakeApplication(): Application = {
@@ -75,6 +70,23 @@ class VapingDutyConnectorHttpISpec extends ISpecBase with WireMockHelper {
             e.getMessage must include("Unexpected status code: 201")
           }
         }
+
+        "must fail with an Exception when an internal server error status code is returned" in new Setup {
+          server.stubFor(
+            get(urlMatching(pingUrl))
+              .willReturn(
+                aResponse()
+                  .withStatus(INTERNAL_SERVER_ERROR)
+                  .withStatusMessage("<test error message>")
+              )
+          )
+
+          whenReady(connector.ping().failed) { e =>
+            e.getMessage must include("Unexpected response")
+            e.getMessage must include("returned 500")
+          }
+        }
+
       }
     }
 

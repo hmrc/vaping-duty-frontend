@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions.{DataRetrievalAction, IdentifyAction}
+import controllers.actions.{DataRetrievalAction, ApprovedVapingManufacturerAuthAction}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -26,12 +26,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class KeepAliveController @Inject()(
                                      val controllerComponents: MessagesControllerComponents,
-                                     identify: IdentifyAction,
+                                     ifApprovedVapingManufacturer: ApprovedVapingManufacturerAuthAction,
                                      getData: DataRetrievalAction,
                                      sessionRepository: SessionRepository
                                    )(implicit ec: ExecutionContext) extends FrontendBaseController {
 
-  def keepAlive(): Action[AnyContent] = (identify andThen getData).async {
+  def keepAlive(): Action[AnyContent] = (ifApprovedVapingManufacturer andThen getData).async {
     implicit request =>
       request.userAnswers
         .map {
