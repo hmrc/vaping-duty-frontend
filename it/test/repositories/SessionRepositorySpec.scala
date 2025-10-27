@@ -29,11 +29,10 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.slf4j.MDC
 import play.api.libs.json.Json
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
-import uk.gov.hmrc.play.bootstrap.dispatchers.MDCPropagatingExecutorService
+import uk.gov.hmrc.mdc.{MdcExecutionContext}
 
 import java.time.{Clock, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
-import java.util.concurrent.Executors
 import scala.concurrent.{ExecutionContext, Future}
 
 class SessionRepositorySpec
@@ -53,11 +52,13 @@ class SessionRepositorySpec
   private val mockAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.cacheTtl) thenReturn 1L
 
+  implicit val mdcExecutionContextLikeProd: ExecutionContext = MdcExecutionContext()
+
   protected override val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,
     appConfig      = mockAppConfig,
     clock          = stubClock
-  )(scala.concurrent.ExecutionContext.Implicits.global)
+  )
 
   ".set" - {
 
@@ -150,14 +151,10 @@ class SessionRepositorySpec
 
   private def mustPreserveMdc[A](f: => Future[A])(implicit pos: Position): Unit =
     "must preserve MDC" in {
-
-      implicit lazy val ec: ExecutionContext =
-        ExecutionContext.fromExecutor(new MDCPropagatingExecutorService(Executors.newFixedThreadPool(2)))
-
       MDC.put("test", "foo")
 
       f.map { _ =>
-        MDC.get("test") mustEqual "foo"
-      }.futureValue
+        Option(MDC.get("test"))
+      }.futureValue mustEqual Some("foo")
     }
 }
