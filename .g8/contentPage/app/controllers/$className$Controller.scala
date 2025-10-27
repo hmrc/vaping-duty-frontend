@@ -9,7 +9,7 @@ import views.html.$className$View
 
 class $className$Controller @Inject()(
                                        override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
+                                       identify: ApprovedVapingManufacturerAuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
