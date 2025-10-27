@@ -21,30 +21,38 @@ import config.FrontendAppConfig
 import controllers.routes
 import models.requests.IdentifierRequest
 import play.api.Logging
-import play.api.mvc.Results.*
 import play.api.mvc.*
+import play.api.mvc.Results.*
+import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.CredentialStrength.strong
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, CredentialStrength, Enrolment, *}
+import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.*
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException, UpstreamErrorResponse}
+import uk.gov.hmrc.auth.core.*
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait IdentifyAction
+/**
+ * Authentication action to check the user is an approved manufacturer
+ * This requires authenticated GG user with
+ *    Credential Strength: Strong
+ *    Affinity Group: Organisation
+ *    Confidence Level: at least 50 (the lowest level - the only value for Organisation logins)
+ *    Enrolment: VPD enrolment showing an approved vaping manufacturer
+ */
+trait ApprovedVapingManufacturerAuthAction
     extends ActionBuilder[IdentifierRequest, AnyContent]
     with ActionFunction[Request, IdentifierRequest]
 
-class IdentifyActionImpl @Inject() (
+class ApprovedVapingManufacturerAuthActionImpl @Inject()(
   override val authConnector: AuthConnector,
   config: FrontendAppConfig,
   val parser: BodyParsers.Default
 )(implicit val executionContext: ExecutionContext)
-    extends IdentifyAction
+    extends ApprovedVapingManufacturerAuthAction
     with AuthorisedFunctions
     with Logging {
 
@@ -61,7 +69,7 @@ class IdentifyActionImpl @Inject() (
 
     authorised(predicate).retrieve(internalId and groupIdentifier and allEnrolments) {
       case optInternalId ~ optGroupId ~ enrolments =>
-        val indentifiers = for {
+      val identifiers = for {
           internalId <- optInternalId.toRight("Unable to retrieve internalId")
           groupId <- optGroupId.toRight("Unable to retrieve groupIdentifier")
           approvalId <- getApprovalId(enrolments)
@@ -69,17 +77,14 @@ class IdentifyActionImpl @Inject() (
           (internalId, groupId, approvalId)
         }
 
-        indentifiers match
+        identifiers match
           case Right((internalId, groupId, approvalId)) => block(IdentifierRequest(request, approvalId, groupId, internalId))
-          case Left(error) => throw AuthorisationException.fromString(error)
-          
+          case Left(error) => Future.failed(AuthorisationException.fromString(error))
+
     } recover {
       case e: AuthorisationException =>
         logger.debug(s"Got AuthorisationException:", e)
-        handleAuthException(e) 
-      case e: UnauthorizedException  =>
-        logger.debug(s"Got UnauthorizedException:", e)
-        Redirect(routes.UnauthorisedController.onPageLoad())
+        handleAuthException(e)
     }
   }
 
