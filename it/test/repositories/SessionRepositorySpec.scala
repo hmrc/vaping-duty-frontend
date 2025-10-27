@@ -149,12 +149,13 @@ class SessionRepositorySpec
     mustPreserveMdc(repository.keepAlive(userAnswers.id))
   }
 
+
   private def mustPreserveMdc[A](f: => Future[A])(implicit pos: Position): Unit =
     "must preserve MDC" in {
       MDC.put("test", "foo")
 
-      f.map { _ =>
+      (f.map { _ =>
         Option(MDC.get("test"))
-      }.futureValue mustEqual Some("foo")
+      }.futureValue) mustEqual Some("foo")
     }
 }

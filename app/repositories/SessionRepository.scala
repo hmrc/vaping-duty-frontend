@@ -37,7 +37,7 @@ class SessionRepository @Inject()(
                                    mongoComponent: MongoComponent,
                                    appConfig: FrontendAppConfig,
                                    clock: Clock
-                                 )(implicit mdcExecutionContextLikeProd: ExecutionContext = MdcExecutionContext())
+                                 )(implicit ec: ExecutionContext)
   extends PlayMongoRepository[UserAnswers](
     collectionName = "user-answers",
     mongoComponent = mongoComponent,
