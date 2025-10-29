@@ -154,8 +154,8 @@ class SessionRepositorySpec
     "must preserve MDC" in {
       MDC.put("test", "foo")
 
-      (f.map { _ =>
-        Option(MDC.get("test"))
-      }.futureValue) mustEqual Some("foo")
+      f.map { _ =>
+        MDC.get("test")
+      }.futureValue mustEqual "foo"
     }
 }
