@@ -33,7 +33,7 @@ import uk.gov.hmrc.mdc.{MdcExecutionContext}
 
 import java.time.{Clock, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class SessionRepositorySpec
   extends AnyFreeSpec
