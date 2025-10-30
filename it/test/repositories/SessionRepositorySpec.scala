@@ -63,7 +63,6 @@ class SessionRepositorySpec
 
     "must set the last updated time on the supplied user answers to `now`, and save them" in {
 
-      println("Exec: " + Thread.currentThread().getName())
       val expectedResult = userAnswers copy (lastUpdated = instant)
 
       repository.set(userAnswers).futureValue
@@ -80,7 +79,6 @@ class SessionRepositorySpec
     "when there is a record for this id" - {
 
       "must update the lastUpdated time and get the record" in {
-      println("Exec: " + Thread.currentThread().getName())
 
         insert(userAnswers).futureValue
 
@@ -94,7 +92,6 @@ class SessionRepositorySpec
     "when there is no record for this id" - {
 
       "must return None" in {
-      println("Exec: " + Thread.currentThread().getName())
 
         repository.get("id that does not exist").futureValue must not be defined
       }
@@ -107,7 +104,6 @@ class SessionRepositorySpec
 
     "must remove a record" in {
 
-      println("Exec: " + Thread.currentThread().getName())
       insert(userAnswers).futureValue
 
       repository.clear(userAnswers.id).futureValue
@@ -160,7 +156,6 @@ class SessionRepositorySpec
       MDC.put("test", "foo")
 
       f.map { _ =>
-        println("[def: mustPreserveMdc]<Get>" + Thread.currentThread().getName())
         MDC.get("test")
       }.futureValue mustEqual "foo"
     }
