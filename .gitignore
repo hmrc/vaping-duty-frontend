@@ -37,3 +37,4 @@ bin
 .vscode
 .bsp
 project/metals.sbt
+.bloop
