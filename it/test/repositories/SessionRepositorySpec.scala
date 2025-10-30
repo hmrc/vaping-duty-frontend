@@ -29,6 +29,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.slf4j.MDC
 import play.api.libs.json.Json
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
+import uk.gov.hmrc.mdc.MdcExecutionContext
 import uk.gov.hmrc.play.bootstrap.dispatchers.MDCPropagatingExecutorService
 
 import java.time.{Clock, Instant, ZoneId}
@@ -57,7 +58,7 @@ class SessionRepositorySpec
     mongoComponent = mongoComponent,
     appConfig      = mockAppConfig,
     clock          = stubClock
-  )(scala.concurrent.ExecutionContext.Implicits.global)
+  )(MdcExecutionContext())
 
   ".set" - {
 
@@ -150,9 +151,7 @@ class SessionRepositorySpec
 
   private def mustPreserveMdc[A](f: => Future[A])(implicit pos: Position): Unit =
     "must preserve MDC" in {
-
-      implicit lazy val ec: ExecutionContext =
-        ExecutionContext.fromExecutor(new MDCPropagatingExecutorService(Executors.newFixedThreadPool(2)))
+      implicit lazy val mdcExecutionContext = MdcExecutionContext()
 
       MDC.put("test", "foo")
 
