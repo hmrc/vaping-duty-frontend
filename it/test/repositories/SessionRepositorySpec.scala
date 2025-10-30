@@ -30,12 +30,10 @@ import org.slf4j.MDC
 import play.api.libs.json.Json
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.mdc.MdcExecutionContext
-import uk.gov.hmrc.play.bootstrap.dispatchers.MDCPropagatingExecutorService
 
 import java.time.{Clock, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
-import java.util.concurrent.Executors
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class SessionRepositorySpec
   extends AnyFreeSpec
