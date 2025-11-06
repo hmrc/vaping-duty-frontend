@@ -15,6 +15,7 @@
  */
 
 import play.api.libs.json._
+import scala.annotation.nowarn
 
 package object models {
 
@@ -108,6 +109,7 @@ package object models {
       }
     }
 
+    @nowarn("msg=not.*?exhaustive")
     def remove(path: JsPath): JsResult[JsValue] = {
 
       (path.path, jsValue) match {
