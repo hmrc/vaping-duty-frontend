@@ -39,6 +39,7 @@ lazy val microservice = (project in file("."))
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
     scalacOptions ++= Seq(
+      "-feature",
       "-Wconf:src=routes/.*:s,src=target/.*:s",
       "-Wconf:msg=Flag.*repeatedly:s"
     ),
