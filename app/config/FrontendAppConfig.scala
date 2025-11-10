@@ -29,6 +29,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val appName: String = configuration.get[String]("appName")
 
   private val vdHost: String = servicesConfig.baseUrl("vaping-duty")
+  private val vdStubsHost: String = servicesConfig.baseUrl("vaping-duty-stubs")
 
   private val contactHost = configuration.get[String]("contact-frontend.host")
   private val contactFormServiceIdentifier = "vaping-duty-frontend"
@@ -61,4 +62,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   def vdrPingUrl(): String =
     s"$vdHost/vaping-duty/ping"
+
+  def getStubsUrl(): String = 
+    s"$vdStubsHost/vaping-duty-stubs/ping"
 }

@@ -21,6 +21,8 @@ import connectors.{VapingDutyConnector, VapingDutyConnectorHttp}
 import controllers.actions.*
 
 import java.time.{Clock, ZoneOffset}
+import connectors.VapingDutyStubsConnector
+import connectors.VapingDutyStubsConnectorHttp
 
 class Module extends AbstractModule {
 
@@ -33,5 +35,6 @@ class Module extends AbstractModule {
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
 
     bind(classOf[VapingDutyConnector]).to(classOf[VapingDutyConnectorHttp]).asEagerSingleton()
+    bind(classOf[VapingDutyStubsConnector]).to(classOf[VapingDutyStubsConnectorHttp]).asEagerSingleton()
   }
 }
