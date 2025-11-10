@@ -17,6 +17,7 @@
 package controllers
 
 import connectors.VapingDutyConnector
+import connectors.VapingDutyStubsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 
 import javax.inject.Inject
@@ -31,11 +32,17 @@ class IndexController @Inject()(
                                  val controllerComponents: MessagesControllerComponents,
                                  ifApprovedVapingManufacturer: ApprovedVapingManufacturerAuthAction,
                                  vapingDutyConnector: VapingDutyConnector,
+                                 vapingDutyStubsConnector: VapingDutyStubsConnector,
                                  view: IndexView
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] =
     ifApprovedVapingManufacturer.async(implicit request =>
-      vapingDutyConnector.ping().map(_ => Ok(view()))
+      for {
+        _ <- vapingDutyConnector.ping()
+        _ <- vapingDutyStubsConnector.ping()
+      } yield {
+        Ok(view())
+      }
   )
 }
