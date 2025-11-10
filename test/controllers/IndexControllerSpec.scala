@@ -18,6 +18,7 @@ package controllers
 
 import base.SpecBase
 import connectors.VapingDutyConnector
+import connectors.VapingDutyStubsConnector
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
@@ -34,15 +35,18 @@ class IndexControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val mockConnector = mock[VapingDutyConnector]
+      val mockBackendConnector = mock[VapingDutyConnector]
+      val mockStubsConnector = mock[VapingDutyStubsConnector]
 
       val application = applicationBuilder(userAnswers = None)
-        .overrides(bind[VapingDutyConnector].toInstance(mockConnector))
+        .overrides(bind[VapingDutyConnector].toInstance(mockBackendConnector))
+        .overrides(bind[VapingDutyStubsConnector].toInstance(mockStubsConnector))
         .build()
       
       running(application) {
-        when(mockConnector.ping()(any())).thenReturn(Future.successful(()))
-        
+        when(mockBackendConnector.ping()(any())).thenReturn(Future.successful(()))
+        when(mockStubsConnector.ping()(any())).thenReturn(Future.successful(()))
+
         val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
 
         val result = route(application, request).value
