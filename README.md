@@ -25,15 +25,20 @@ sm2 --stop VAPING_DUTY_FRONTEND
 
 Start the service running locally:
 ```
-sbt 'run 8140'
+sbt run
 ```
 
 ## Test the application
 
-To test the application execute:
+To run the full set of test suites with coverage reports:
 
 ```
-sbt clean test it/test
+sbt runAllChecks
+```
+To run the unit test suites with coverage reports:
+
+```
+sbt runLocalChecks
 ```
 
 ### License
