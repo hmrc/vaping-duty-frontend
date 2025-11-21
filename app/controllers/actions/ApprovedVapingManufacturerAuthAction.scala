@@ -38,10 +38,10 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
  * Authentication action to check the user is an approved manufacturer
  * This requires authenticated GG user with
- * Credential Strength: Strong
- * Affinity Group: Organisation
- * Confidence Level: at least 50 (the lowest level - the only value for Organisation logins)
- * Enrolment: VPD enrolment showing an approved vaping manufacturer
+ *    Credential Strength: Strong
+ *    Affinity Group: Organisation
+ *    Confidence Level: at least 50 (the lowest level - the only value for Organisation logins)
+ *    Enrolment: VPD enrolment showing an approved vaping manufacturer
  */
 
 trait ApprovedVapingManufacturerAuthAction
