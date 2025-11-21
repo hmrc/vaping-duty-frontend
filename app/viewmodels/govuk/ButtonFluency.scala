@@ -19,6 +19,7 @@ package viewmodels.govuk
 import uk.gov.hmrc.govukfrontend.views.viewmodels.button.Button
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
 
+// scalastyle:off object.name
 object button extends ButtonFluency
 
 trait ButtonFluency {

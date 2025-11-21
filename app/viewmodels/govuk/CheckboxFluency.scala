@@ -26,6 +26,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
 import viewmodels.ErrorMessageAwareness
 
+// scalastyle:off object.name
 object checkbox extends CheckboxFluency
 
 trait CheckboxFluency {

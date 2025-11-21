@@ -20,6 +20,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.backlink.BackLink
 
+// scalastyle:off object.name
 object backlink extends BackLinkFluency
 
 trait BackLinkFluency {

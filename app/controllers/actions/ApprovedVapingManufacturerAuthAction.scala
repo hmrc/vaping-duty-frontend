@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,16 +43,16 @@ import scala.concurrent.{ExecutionContext, Future}
  *    Confidence Level: at least 50 (the lowest level - the only value for Organisation logins)
  *    Enrolment: VPD enrolment showing an approved vaping manufacturer
  */
+
 trait ApprovedVapingManufacturerAuthAction
-    extends ActionBuilder[IdentifierRequest, AnyContent]
+  extends ActionBuilder[IdentifierRequest, AnyContent]
     with ActionFunction[Request, IdentifierRequest]
 
-class ApprovedVapingManufacturerAuthActionImpl @Inject()(
-  override val authConnector: AuthConnector,
-  config: FrontendAppConfig,
-  val parser: BodyParsers.Default
-)(implicit val executionContext: ExecutionContext)
-    extends ApprovedVapingManufacturerAuthAction
+class ApprovedVapingManufacturerAuthActionImpl @Inject()(override val authConnector: AuthConnector,
+                                                         config: FrontendAppConfig,
+                                                         val parser: BodyParsers.Default)
+                                                        (implicit val executionContext: ExecutionContext)
+  extends ApprovedVapingManufacturerAuthAction
     with AuthorisedFunctions
     with Logging {
 
@@ -69,7 +69,7 @@ class ApprovedVapingManufacturerAuthActionImpl @Inject()(
 
     authorised(predicate).retrieve(internalId and groupIdentifier and allEnrolments) {
       case optInternalId ~ optGroupId ~ enrolments =>
-      val identifiers = for {
+        val identifiers = for {
           internalId <- optInternalId.toRight("Unable to retrieve internalId")
           groupId <- optGroupId.toRight("Unable to retrieve groupIdentifier")
           approvalId <- getApprovalId(enrolments)
@@ -77,9 +77,10 @@ class ApprovedVapingManufacturerAuthActionImpl @Inject()(
           (internalId, groupId, approvalId)
         }
 
-        identifiers match
+        identifiers match {
           case Right((internalId, groupId, approvalId)) => block(IdentifierRequest(request, approvalId, groupId, internalId))
           case Left(error) => Future.failed(AuthorisationException.fromString(error))
+        }
 
     } recover {
       case e: AuthorisationException =>

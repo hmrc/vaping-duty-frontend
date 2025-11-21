@@ -108,7 +108,7 @@ package object models {
           JsError(s"cannot set a key on $oldValue")
       }
     }
-
+    // scalastyle:off cyclomatic.complexity
     @nowarn("msg=not.*?exhaustive")
     def remove(path: JsPath): JsResult[JsValue] = {
 

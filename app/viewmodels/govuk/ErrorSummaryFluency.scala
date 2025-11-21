@@ -21,6 +21,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{Content, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.{ErrorLink, ErrorSummary}
 
+// scalastyle:off object.name
 object errorsummary extends ErrorSummaryFluency
 
 trait ErrorSummaryFluency {
