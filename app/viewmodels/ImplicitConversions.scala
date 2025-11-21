@@ -22,6 +22,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
 
 import scala.language.implicitConversions
 
+// scalastyle:off object.name
 object implicits extends ImplicitConversions
 
 trait ImplicitConversions {

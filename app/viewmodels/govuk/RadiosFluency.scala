@@ -25,6 +25,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.{RadioItem, Radios}
 import viewmodels.ErrorMessageAwareness
 
+// scalastyle:off object.name
 object radios extends RadiosFluency
 
 trait RadiosFluency {

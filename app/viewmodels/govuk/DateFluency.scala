@@ -24,6 +24,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.{Fieldset, Legend}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import viewmodels.ErrorMessageAwareness
 
+// scalastyle:off object.name
 object date extends DateFluency
 
 trait DateFluency {

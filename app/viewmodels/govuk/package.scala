@@ -16,6 +16,7 @@
 
 package viewmodels
 
+// scalastyle:off object.name
 package object govuk {
 
   object all

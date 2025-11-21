@@ -19,6 +19,7 @@ package viewmodels.govuk
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
 
+// scalastyle:off object.name
 object tag extends TagFluency
 
 trait TagFluency {

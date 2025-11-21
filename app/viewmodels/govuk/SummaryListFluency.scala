@@ -19,6 +19,7 @@ package viewmodels.govuk
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
+// scalastyle:off object.name
 object summarylist extends SummaryListFluency
 
 trait SummaryListFluency {

@@ -19,6 +19,7 @@ package viewmodels.govuk
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 
+// scalastyle:off object.name
 object hint extends HintFluency
 
 trait HintFluency {
