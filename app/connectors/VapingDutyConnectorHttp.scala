@@ -26,10 +26,10 @@ import uk.gov.hmrc.http.UnauthorizedException
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class VapingDutyConnectorHttp @Inject() (
-                                          config: FrontendAppConfig,
-                                          implicit val httpClient: HttpClientV2
-                                        )(implicit ec: ExecutionContext)
+class VapingDutyConnectorHttp @Inject()(
+                                         config: FrontendAppConfig,
+                                         implicit val httpClient: HttpClientV2
+                                       )(implicit ec: ExecutionContext)
   extends VapingDutyConnector
     with HttpReadsInstances
     with Logging {
