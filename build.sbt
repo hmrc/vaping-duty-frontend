@@ -59,6 +59,6 @@ lazy val it =
     .enablePlugins(PlayScala)
     .dependsOn(microservice % "test->test")
 
-addCommandAlias("runAllChecks", ";clean;compile;coverage;test;it/test;coverageReport")
+addCommandAlias("runAllChecks", ";clean;compile;coverage;test;it/test;scalastyle;coverageReport")
 
-addCommandAlias("runLocalChecks", ";clean;compile;coverage;test;coverageReport")
+addCommandAlias("runLocalChecks", ";clean;compile;coverage;test;scalastyle;coverageReport")
