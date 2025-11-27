@@ -3,7 +3,7 @@ This is the frontend microservice for the Vaping Duty service.
 
 Backend: https://github.com/hmrc/vaping-duty
 
-Stub: TCB
+Stub: https://github.com/hmrc/vaping-duty-stubs
 
 ## Requirements
 Written in Scala 3 with Play Framework and suitable to be run on JRE 21 or later.
