@@ -58,6 +58,11 @@ import scala.concurrent.{ExecutionContext, Future}
     when(appConfig.loginUrl).thenReturn("login-url")
     when(appConfig.loginContinueUrl).thenReturn("login-continue-url")
 
+    val enrolmentServiceName    = appConfig.enrolmentServiceName
+    val enrolmentIdentifierKey  = appConfig.enrolmentIdentifierKey
+    val loginUrl                = appConfig.loginUrl
+    val loginContinueUrl        = appConfig.loginContinueUrl
+
     val bodyParsers = mock[BodyParsers.Default]
 
     "when authenticated and authorised" - {
@@ -71,8 +76,8 @@ import scala.concurrent.{ExecutionContext, Future}
             thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
               Some("test-internal-id") and Some("test-group-id") and Enrolments(Set(
                   Enrolment(
-                    key = "HMRC-VPD-ORG",
-                    identifiers = Seq(EnrolmentIdentifier(key = "VPPAID", value = "TestVpdId")),
+                    key = enrolmentServiceName,
+                    identifiers = Seq(EnrolmentIdentifier(key = enrolmentIdentifierKey, value = "TestVpdId")),
                     state = "TestState")))))
 
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(successfulAuthConnector, appConfig, bodyParsers)
@@ -92,8 +97,8 @@ import scala.concurrent.{ExecutionContext, Future}
             thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
               Some("test-internal-id") and Some("test-group-id") and Enrolments(Set(
                   Enrolment(
-                    key = "HMRC-VPD-ORG",
-                    identifiers = Seq(EnrolmentIdentifier(key = "VPPAID", value = "TestVpdId")),
+                    key = enrolmentServiceName,
+                    identifiers = Seq(EnrolmentIdentifier(key = enrolmentIdentifierKey, value = "TestVpdId")),
                     state = "TestState")))))
 
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(successfulAuthConnector, appConfig, bodyParsers)
@@ -115,8 +120,8 @@ import scala.concurrent.{ExecutionContext, Future}
           thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
             None and Some("test-group-id") and Enrolments(Set(
                 Enrolment(
-                  key = "HMRC-VPD-ORG",
-                  identifiers = Seq(EnrolmentIdentifier(key = "VPPAID", value = "TestVpdId")),
+                  key = enrolmentServiceName,
+                  identifiers = Seq(EnrolmentIdentifier(key = enrolmentIdentifierKey, value = "TestVpdId")),
                   state = "TestState"
                 )
               ))
