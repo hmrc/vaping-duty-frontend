@@ -196,6 +196,35 @@ import scala.concurrent.{ExecutionContext, Future}
         status(result) shouldBe SEE_OTHER
       }
 
+      "must give SEE_OTHER when incorrect enrolment identifier key received " in {
+
+        val successfulAuthConnector = mock[AuthConnector]
+
+        when(
+          successfulAuthConnector.authorise(any[Predicate],
+            ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
+          )(any[HeaderCarrier], any[ExecutionContext])).
+          thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
+            Some("test-internal-id") and Some("test-group-id") and Enrolments(Set(
+                Enrolment(
+                  key = enrolmentServiceName,
+                  identifiers = Seq(EnrolmentIdentifier(key = "XPPAID", value = "TestId")),
+                  state = "TestState"
+                )
+              ))
+            )
+          )
+
+        val authAction = new ApprovedVapingManufacturerAuthActionImpl(successfulAuthConnector, appConfig, bodyParsers)
+
+        val result = authAction.invokeBlock(
+          request = FakeRequest(),
+          block = (_: IdentifierRequest[_]) => Future.successful(Results.Ok("Okay"))
+        )
+
+        status(result) shouldBe SEE_OTHER
+      }
+
     }
 
     "when the user hasn't logged in" - {
