@@ -50,37 +50,49 @@ import scala.concurrent.{ExecutionContext, Future}
     def onPageLoad(): Action[AnyContent] = authAction { _ => throw new uk.gov.hmrc.http.UnauthorizedException("test exception") }
   }
 
+   private val authConnector = mock[AuthConnector]
+
+   private def stubAuthResponse(authResponse: Option[String] ~ Option[String] ~ Enrolments) = {
+     when(
+       authConnector.authorise(any[Predicate],
+         ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
+       )(any[HeaderCarrier], any[ExecutionContext])).
+       thenReturn(Future.successful(authResponse))
+   }
+
   "Auth Action" - {
 
-    val appConfig = mock[FrontendAppConfig]
+    val appConfig                    = mock[FrontendAppConfig]
+
     when(appConfig.enrolmentServiceName).thenReturn("HMRC-VPD-ORG")
     when(appConfig.enrolmentIdentifierKey).thenReturn("VPPAID")
     when(appConfig.loginUrl).thenReturn("login-url")
     when(appConfig.loginContinueUrl).thenReturn("login-continue-url")
 
-    val enrolmentServiceName    = appConfig.enrolmentServiceName
-    val enrolmentIdentifierKey  = appConfig.enrolmentIdentifierKey
-    val loginUrl                = appConfig.loginUrl
-    val loginContinueUrl        = appConfig.loginContinueUrl
+    val HMRC_VPD_ORG_ENROLMENT_NAME  = appConfig.enrolmentServiceName
+    val VPD_ORG_IDENT_KEY            = appConfig.enrolmentIdentifierKey
+    val VPD_ORG_LOGIN_URL            = appConfig.loginUrl
+    val VPD_ORG_LOGIN_CONT_URL       = appConfig.loginContinueUrl
 
-    val bodyParsers = mock[BodyParsers.Default]
+    val INTERNAL_ID                  = "test-internal-id"
+    val GROUP_IDENTIFIER             = "test-group-id"
+    val ENROLMENT_STATE              = "test-state"
+
+    val bodyParsers                  = mock[BodyParsers.Default]
+
+    val VPD_ORG_VALID_ENROLMENT      = Enrolments(Set(Enrolment(
+      key = HMRC_VPD_ORG_ENROLMENT_NAME,
+      identifiers = Seq(EnrolmentIdentifier(key = VPD_ORG_IDENT_KEY, value = "test-value")),
+      state = ENROLMENT_STATE
+    )))
 
     "when authenticated and authorised" - {
+
       "executes the block passed " in {
 
-        val successfulAuthConnector = mock[AuthConnector]
-        when(
-          successfulAuthConnector.authorise(any[Predicate],
-                                            ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
-                                           )(any[HeaderCarrier], any[ExecutionContext])).
-            thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
-              Some("test-internal-id") and Some("test-group-id") and Enrolments(Set(
-                  Enrolment(
-                    key = enrolmentServiceName,
-                    identifiers = Seq(EnrolmentIdentifier(key = enrolmentIdentifierKey, value = "TestVpdId")),
-                    state = "TestState")))))
+        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
 
-        val authAction = new ApprovedVapingManufacturerAuthActionImpl(successfulAuthConnector, appConfig, bodyParsers)
+        val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
         val controller = new Harness(authAction)
         val result = controller.onPageLoad()(FakeRequest())
 
@@ -89,19 +101,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
       "Allows UnauthorisedException from a Connector called from the executed block to pass through and be handled by the framework" in {
 
-        val successfulAuthConnector = mock[AuthConnector]
-        when(
-          successfulAuthConnector.authorise(any[Predicate],
-                                            ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
-                                           )(any[HeaderCarrier], any[ExecutionContext])).
-            thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
-              Some("test-internal-id") and Some("test-group-id") and Enrolments(Set(
-                  Enrolment(
-                    key = enrolmentServiceName,
-                    identifiers = Seq(EnrolmentIdentifier(key = enrolmentIdentifierKey, value = "TestVpdId")),
-                    state = "TestState")))))
+        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
 
-        val authAction = new ApprovedVapingManufacturerAuthActionImpl(successfulAuthConnector, appConfig, bodyParsers)
+        val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
         val controller = new ExceptionThrowingHarness(authAction)
 
         whenReady(controller.onPageLoad()(FakeRequest()).failed) { ex =>
@@ -109,26 +111,11 @@ import scala.concurrent.{ExecutionContext, Future}
         }
       }
 
-      "must give SEE_OTHER when malformed auth data received " in {
+      "must give SEE_OTHER when missing auth data received " in {
 
-        val successfulAuthConnector = mock[AuthConnector]
+        stubAuthResponse(None and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
 
-        when(
-          successfulAuthConnector.authorise(any[Predicate],
-            ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
-          )(any[HeaderCarrier], any[ExecutionContext])).
-          thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
-            None and Some("test-group-id") and Enrolments(Set(
-                Enrolment(
-                  key = enrolmentServiceName,
-                  identifiers = Seq(EnrolmentIdentifier(key = enrolmentIdentifierKey, value = "TestVpdId")),
-                  state = "TestState"
-                )
-              ))
-            )
-          )
-
-        val authAction = new ApprovedVapingManufacturerAuthActionImpl(successfulAuthConnector, appConfig, bodyParsers)
+        val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
 
         val result = authAction.invokeBlock(
           request = FakeRequest(),
@@ -138,55 +125,17 @@ import scala.concurrent.{ExecutionContext, Future}
         status(result) shouldBe SEE_OTHER
       }
 
-      "must give SEE_OTHER when incorrect enrolment key received " in {
+      "must give SEE_OTHER when incorrect enrolment service name present " in {
 
-        val successfulAuthConnector = mock[AuthConnector]
-
-        when(
-          successfulAuthConnector.authorise(any[Predicate],
-            ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
-          )(any[HeaderCarrier], any[ExecutionContext])).
-          thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
-            Some("test-internal-id") and Some("test-group-id") and Enrolments(Set(
-                Enrolment(
-                  key = "HMRC-OTHER-ORG",
-                  identifiers = Seq(EnrolmentIdentifier(key = "XPPAID", value = "TestId")),
-                  state = "TestState"
-                )
-              ))
-            )
+        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and Enrolments(Set(
+          Enrolment(
+            key = "INCORRECT_ENROLMENT_SERVICE_NAME-ONLY",
+            identifiers = Seq(EnrolmentIdentifier(key = VPD_ORG_IDENT_KEY, value = "TestId")),
+            state = ENROLMENT_STATE
           )
+        )))
 
-        val authAction = new ApprovedVapingManufacturerAuthActionImpl(successfulAuthConnector, appConfig, bodyParsers)
-
-        val result = authAction.invokeBlock(
-          request = FakeRequest(),
-          block = (_: IdentifierRequest[_]) => Future.successful(Results.Ok("Okay"))
-        )
-
-        status(result) shouldBe SEE_OTHER
-      }
-
-      "must give SEE_OTHER when incorrect enrolment service name received " in {
-
-        val successfulAuthConnector = mock[AuthConnector]
-
-        when(
-          successfulAuthConnector.authorise(any[Predicate],
-            ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
-          )(any[HeaderCarrier], any[ExecutionContext])).
-          thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
-            Some("test-internal-id") and Some("test-group-id") and Enrolments(Set(
-                Enrolment(
-                  key = "HMRC-OTHER-ORG",
-                  identifiers = Seq(EnrolmentIdentifier(key = enrolmentIdentifierKey, value = "TestId")),
-                  state = "TestState"
-                )
-              ))
-            )
-          )
-
-        val authAction = new ApprovedVapingManufacturerAuthActionImpl(successfulAuthConnector, appConfig, bodyParsers)
+        val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
 
         val result = authAction.invokeBlock(
           request = FakeRequest(),
@@ -198,24 +147,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
       "must give SEE_OTHER when incorrect enrolment identifier key received " in {
 
-        val successfulAuthConnector = mock[AuthConnector]
-
-        when(
-          successfulAuthConnector.authorise(any[Predicate],
-            ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
-          )(any[HeaderCarrier], any[ExecutionContext])).
-          thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
-            Some("test-internal-id") and Some("test-group-id") and Enrolments(Set(
-                Enrolment(
-                  key = enrolmentServiceName,
-                  identifiers = Seq(EnrolmentIdentifier(key = "XPPAID", value = "TestId")),
-                  state = "TestState"
-                )
-              ))
-            )
+        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and Enrolments(Set(
+          Enrolment(
+            key = HMRC_VPD_ORG_ENROLMENT_NAME,
+            identifiers = Seq(EnrolmentIdentifier(key = "IncorrectEnrolmentIdent", value = "TestId")),
+            state = ENROLMENT_STATE
           )
+        )))
 
-        val authAction = new ApprovedVapingManufacturerAuthActionImpl(successfulAuthConnector, appConfig, bodyParsers)
+        val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
 
         val result = authAction.invokeBlock(
           request = FakeRequest(),
@@ -311,7 +251,8 @@ import scala.concurrent.{ExecutionContext, Future}
     }
 
   }
-}
+
+ }
 
 class FakeFailingAuthConnector(exceptionToReturn: Throwable) extends AuthConnector {
   override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
