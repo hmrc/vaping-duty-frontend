@@ -133,7 +133,7 @@ import scala.concurrent.{ExecutionContext, Future}
         status(result) shouldBe SEE_OTHER
       }
 
-      "must give SEE_OTHER when insufficient enrolments received " in {
+      "must give SEE_OTHER when incorrect enrolment key received " in {
 
         val successfulAuthConnector = mock[AuthConnector]
 
