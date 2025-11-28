@@ -19,6 +19,7 @@ package controllers.actions
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
+import models.requests.IdentifierRequest
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -102,6 +103,36 @@ import scala.concurrent.{ExecutionContext, Future}
           ex shouldBe a[UnauthorizedException]
         }
       }
+
+      "must give SEE_OTHER when malformed auth data received " in {
+
+        val successfulAuthConnector = mock[AuthConnector]
+
+        when(
+          successfulAuthConnector.authorise(any[Predicate],
+            ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
+          )(any[HeaderCarrier], any[ExecutionContext])).
+          thenReturn(Future.successful[Option[String] ~ Option[String] ~ Enrolments](
+            None and Some("test-group-id") and Enrolments(Set(
+                Enrolment(
+                  key = "HMRC-VPD-ORG",
+                  identifiers = Seq(EnrolmentIdentifier(key = "VPPAID", value = "TestVpdId")),
+                  state = "TestState"
+                )
+              ))
+            )
+          )
+
+        val authAction = new ApprovedVapingManufacturerAuthActionImpl(successfulAuthConnector, appConfig, bodyParsers)
+
+        val result = authAction.invokeBlock(
+          FakeRequest(),
+          block = (_: IdentifierRequest[_]) => Future.successful(Results.Ok("Okay"))
+        )
+
+        status(result) shouldBe SEE_OTHER
+      }
+
     }
 
     "when the user hasn't logged in" - {
