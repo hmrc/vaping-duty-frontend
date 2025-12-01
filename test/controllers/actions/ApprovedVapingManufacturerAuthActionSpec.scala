@@ -22,12 +22,12 @@ import controllers.routes
 import models.requests.IdentifierRequest
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures.whenReady
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
+import play.api.mvc.{Action, AnyContent, AnyContentAsEmpty, BodyParsers, Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
@@ -97,6 +97,20 @@ import scala.concurrent.{ExecutionContext, Future}
         val result = controller.onPageLoad()(FakeRequest())
 
         status(result) mustBe OK
+      }
+
+      "must pass expected retrievals to block" in {
+
+        val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
+
+        val request = FakeRequest()
+        val block = mock[IdentifierRequest[AnyContentAsEmpty.type] => Future[Result]]
+
+        authAction.invokeBlock(request, block)
+
+        verify(block).apply(
+          IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID)
+        )
       }
 
       "Allows UnauthorisedException from a Connector called from the executed block to pass through and be handled by the framework" in {
