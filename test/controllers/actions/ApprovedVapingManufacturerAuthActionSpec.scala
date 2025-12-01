@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
 import models.requests.IdentifierRequest
-import org.mockito.ArgumentMatchers
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures.whenReady
@@ -101,6 +101,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
       "must pass expected retrievals to block" in {
 
+        stubAuthResponse(
+          Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT
+        )
+
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
 
         val request = FakeRequest()
@@ -108,9 +112,16 @@ import scala.concurrent.{ExecutionContext, Future}
 
         authAction.invokeBlock(request, block)
 
-        verify(block).apply(
-          IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID)
-        )
+        val captor = ArgumentCaptor.forClass(classOf[IdentifierRequest[AnyContentAsEmpty.type]])
+
+        verify(block).apply(captor.capture())
+
+        val captured = captor.getValue
+
+        captured.groupId mustBe GROUP_IDENTIFIER
+        captured.userId mustBe INTERNAL_ID
+        captured.vppaId mustBe "test-value"
+
       }
 
       "Allows UnauthorisedException from a Connector called from the executed block to pass through and be handled by the framework" in {
