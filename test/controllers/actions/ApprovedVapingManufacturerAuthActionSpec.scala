@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
 import models.requests.IdentifierRequest
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures.whenReady
@@ -110,19 +110,16 @@ import scala.concurrent.{ExecutionContext, Future}
         val request = FakeRequest()
         val block = mock[IdentifierRequest[AnyContentAsEmpty.type] => Future[Result]]
 
-        authAction.invokeBlock(request, block)
+        when(block.apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID))).
+          thenReturn(Future.successful(Results.Ok))
 
-        val captor = ArgumentCaptor.forClass(classOf[IdentifierRequest[AnyContentAsEmpty.type]])
+        val result = authAction.invokeBlock(request, block)
+        await(result)
 
-        verify(block).apply(captor.capture())
-
-        val captured = captor.getValue
-
-        captured.groupId mustBe GROUP_IDENTIFIER
-        captured.userId mustBe INTERNAL_ID
-        captured.vppaId mustBe "test-value"
+        verify(block).apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID))
 
       }
+
 
       "Allows UnauthorisedException from a Connector called from the executed block to pass through and be handled by the framework" in {
 
