@@ -84,7 +84,7 @@ class ApprovedVapingManufacturerAuthActionImpl @Inject()(override val authConnec
 
     } recover {
       case e: AuthorisationException =>
-        logger.debug(s"Got AuthorisationException:", e)
+        logger.debug("Got AuthorisationException:", e)
         handleAuthException(e)
     }
   }
