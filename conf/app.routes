@@ -20,7 +20,7 @@ GET         /account/signed-out                          controllers.auth.Signed
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
-GET        /organisationSignIn                           controllers.OrganisationSignInController.onPageLoad()
+GET        /organisation-sign-in                         controllers.OrganisationSignInController.onPageLoad()
 
 GET        /user-has-approval-id                         controllers.UserHasApprovalIdController.onPageLoad(mode: Mode = NormalMode)
 POST       /user-has-approval-id                         controllers.UserHasApprovalIdController.onSubmit(mode: Mode = NormalMode)
