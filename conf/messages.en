@@ -47,3 +47,12 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+
+organisationSignIn.title = organisationSignIn
+organisationSignIn.heading = organisationSignIn
+
+userHasApprovalId.title = UserHasApprovalId
+userHasApprovalId.heading = UserHasApprovalId
+userHasApprovalId.checkYourAnswersLabel = UserHasApprovalId
+userHasApprovalId.error.required = Select yes if UserHasApprovalId
+userHasApprovalId.change.hidden = UserHasApprovalId
