@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.BooleanFieldBehaviours
+import forms.enrolment.UserHasApprovalIdFormProvider
 import play.api.data.FormError
 
 class UserHasApprovalIdFormProviderSpec extends BooleanFieldBehaviours {

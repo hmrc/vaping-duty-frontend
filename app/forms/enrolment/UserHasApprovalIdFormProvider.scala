@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package forms
-
-import javax.inject.Inject
+package forms.enrolment
 
 import forms.mappings.Mappings
 import play.api.data.Form
+
+import javax.inject.Inject
 
 class UserHasApprovalIdFormProvider @Inject() extends Mappings {
 

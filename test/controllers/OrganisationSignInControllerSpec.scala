@@ -19,7 +19,7 @@ package controllers
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import views.html.OrganisationSignInView
+import views.html.enrolment.OrganisationSignInView
 
 class OrganisationSignInControllerSpec extends SpecBase {
 
@@ -30,7 +30,7 @@ class OrganisationSignInControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.OrganisationSignInController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.enrolment.routes.OrganisationSignInController.onPageLoad().url)
 
         val result = route(application, request).value
 

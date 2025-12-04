@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package pages
+package pages.enrolment
 
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object UserHasApprovalIdPage extends QuestionPage[Boolean] {

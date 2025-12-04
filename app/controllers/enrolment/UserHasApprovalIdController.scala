@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.enrolment
 
 import controllers.actions.*
-import forms.UserHasApprovalIdFormProvider
-
-import javax.inject.Inject
+import forms.enrolment.UserHasApprovalIdFormProvider
 import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.UserHasApprovalIdPage
+import pages.enrolment.UserHasApprovalIdPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.UserHasApprovalIdView
+import views.html.enrolment.UserHasApprovalIdView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class UserHasApprovalIdController @Inject()(
