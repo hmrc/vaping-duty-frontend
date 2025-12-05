@@ -16,25 +16,28 @@
 
 package controllers.enrolment
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.enrolment.OrganisationSignInView
+import viewmodels.enrolment.OrganisationSignInViewModel
 
 import javax.inject.Inject
 
 class OrganisationSignInController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: ApprovedVapingManufacturerAuthAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: OrganisationSignInView
+                                       view: OrganisationSignInView,
+                                       config: FrontendAppConfig
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData) {
+  def onPageLoad: Action[AnyContent] = (identify) {
     implicit request =>
-      Ok(view())
+      val vm = OrganisationSignInViewModel(config)
+
+      Ok(view(vm))
   }
 }
