@@ -1,0 +1,26 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@this()
+
+@(id: String, text: String, href: String, newTab: Boolean = false, classes: String)
+
+<!--Tell Rob in the morning that you think it may be beneficial to have some kind of CssConstants-->
+<!--class like ADR, or at least find some documentation on where this stuff can be found on the frontend designs-->
+<!--probably the github repo but better off. Also that you had to use a <p></p> tag there and to have-->
+<!--class="..." option for all future components in case we need to specify a class for those-->
+
+<a class="@classes" href="@href" @if(newTab) { target="_blank" rel="noopener noreferrer" } id="@id">@text</a>
