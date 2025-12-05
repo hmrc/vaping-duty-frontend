@@ -16,6 +16,7 @@
 
 package controllers.enrolment
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import forms.enrolment.UserHasApprovalIdFormProvider
 import models.{Mode, UserAnswers}
@@ -39,7 +40,8 @@ class UserHasApprovalIdController @Inject()(
                                              requireData: DataRequiredAction,
                                              formProvider: UserHasApprovalIdFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
-                                             view: UserHasApprovalIdView
+                                             view: UserHasApprovalIdView,
+                                             config: FrontendAppConfig
                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form = formProvider()
@@ -63,11 +65,14 @@ class UserHasApprovalIdController @Inject()(
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
         value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(UserAnswers(request.userId))
-                                .set(UserHasApprovalIdPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(UserHasApprovalIdPage, mode, updatedAnswers))
+          if (value) { // user has appaId
+            Future.successful(Redirect(config.eacdRedirectUrl))
+          }
+          else { // user does not have appaId
+            Future.successful(
+              Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
+            )
+          }
       )
   }
 }
