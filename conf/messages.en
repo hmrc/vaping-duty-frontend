@@ -52,8 +52,7 @@ unauthorised.heading = You can’t access this service with this account
 enrolment.organisationSignIn.heading = You need an organisation account to use this service
 enrolment.organisationSignIn.signInWithOrgAcct = To use this service, you must sign out and sign back in using your organisation (vaping products manufacturer) account details.
 enrolment.organisationSignIn.youCan = You can
-enrolment.organisationSignIn.link.registerUrl = https://www.tax.service.gov.uk/account
-enrolment.organisationSignIn.link.text = create an organisation account (opens in new tab)
+enrolment.organisationSignIn.newAcct = create an organisation account
 enrolment.organisationId.p2.2 = if you do not already have one.
 enrolment.organisationSignIn.signIn = Sign in as an Organisation
 
