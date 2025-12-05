@@ -15,6 +15,7 @@
  *@
 
 @import components.{Paragraph, Heading, Link}
+@import viewmodels.enrolment.OrganisationSignInViewModel
 
 @this(
         layout: templates.Layout,
@@ -24,7 +25,7 @@
         h1: Heading
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(vm: OrganisationSignInViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("enrolment.organisationSignIn.heading"))) {
 
@@ -40,9 +41,9 @@
         ),
         HtmlContent(link(
             id = "register-for-vaping-duty",
-            text = messages("enrolment.organisationSignIn.link.text"),
-            href = messages("enrolment.organisationSignIn.link.registerUrl"),
-            newTab = true,
+            text = messages("enrolment.organisationSignIn.newAcct"),
+            href = vm.getGuidanceURL,
+            newTab = false,
             classes = "govuk-link--no-visited-state"
         )),
         HtmlContent(messages("enrolment.organisationId.p2.2"))
@@ -51,6 +52,6 @@
     <!-- Accessibility concerns - 1 amber - adjacent redundant links -->
 
     @govukButton(
-        ButtonViewModel(messages("enrolment.organisationSignIn.signIn")).asLink(messages("enrolment.organisationSignIn.link.registerUrl"))
+        ButtonViewModel(messages("enrolment.organisationSignIn.signIn")).asLink(vm.getOrgSignInURL)
     )
 }
