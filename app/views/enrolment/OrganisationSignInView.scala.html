@@ -14,14 +14,43 @@
  * limitations under the License.
  *@
 
+@import components.{Paragraph, Heading, Link}
+
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton
+        govukButton: GovukButton,
+        link: Link,
+        p: Paragraph,
+        h1: Heading
 )
 
 @()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("organisationSignIn.title"))) {
+@layout(pageTitle = titleNoForm(messages("enrolment.organisationSignIn.heading"))) {
 
-    <h1 class="govuk-heading-xl">@messages("organisationSignIn.heading")</h1>
+    @(h1(HtmlContent(messages("enrolment.organisationSignIn.heading"))))
+
+    @(p(Seq(HtmlContent(
+        messages("enrolment.organisationSignIn.signInWithOrgAcct")
+    ))))
+
+    @(p(Seq(
+        HtmlContent(
+            messages("enrolment.organisationSignIn.youCan")
+        ),
+        HtmlContent(link(
+            id = "register-for-vaping-duty",
+            text = messages("enrolment.organisationSignIn.link.text"),
+            href = messages("enrolment.organisationSignIn.link.registerUrl"),
+            newTab = true,
+            classes = "govuk-link--no-visited-state"
+        )),
+        HtmlContent(messages("enrolment.organisationId.p2.2"))
+    )))
+
+    <!-- Accessibility concerns - 1 amber - adjacent redundant links -->
+
+    @govukButton(
+        ButtonViewModel(messages("enrolment.organisationSignIn.signIn")).asLink(messages("enrolment.organisationSignIn.link.registerUrl"))
+    )
 }

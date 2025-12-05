@@ -14,28 +14,35 @@
  * limitations under the License.
  *@
 
+@import components.{Paragraph, Heading}
+
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukRadios: GovukRadios,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    p: Paragraph,
+    h1: Heading
 )
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("UserHasApprovalId.title"))) {
+@layout(pageTitle = title(form, messages("enrolment.userHasApprovalId.heading"))) {
 
     @formHelper(action = controllers.enrolment.routes.UserHasApprovalIdController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
-        @if(form.errors.nonEmpty) {
+        @if(form.errors.nonEmpty) {π
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
+
+        @h1(HtmlContent(messages("enrolment.userHasApprovalId.heading")))
+        @p(Seq(HtmlContent(messages("enrolment.userHasApprovalId.vapingIdFormat"))))
 
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("UserHasApprovalId.heading")).asPageHeading()
+                legend = LegendViewModel(messages("enrolment.userHasApprovalId.heading")).visuallyHidden()
             )
         )
 

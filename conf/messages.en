@@ -1,4 +1,4 @@
-service.name = vaping-duty-frontend
+service.name = Vaping Products Duty
 
 site.back = Back
 site.remove = Remove
@@ -48,11 +48,17 @@ signedOut.guidance = We did not save your answers.
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
-organisationSignIn.title = organisationSignIn
-organisationSignIn.heading = organisationSignIn
+# enrolment.organisationSignIn.title = You need an organisation account to use this service
+enrolment.organisationSignIn.heading = You need an organisation account to use this service
+enrolment.organisationSignIn.signInWithOrgAcct = To use this service, you must sign out and sign back in using your organisation (vaping products manufacturer) account details.
+enrolment.organisationSignIn.youCan = You can
+enrolment.organisationSignIn.link.registerUrl = https://www.tax.service.gov.uk/account
+enrolment.organisationSignIn.link.text = create an organisation account (opens in new tab)
+enrolment.organisationId.p2.2 = if you do not already have one.
+enrolment.organisationSignIn.signIn = Sign in as an Organisation
 
-userHasApprovalId.title = UserHasApprovalId
-userHasApprovalId.heading = UserHasApprovalId
-userHasApprovalId.checkYourAnswersLabel = UserHasApprovalId
-userHasApprovalId.error.required = Select yes if UserHasApprovalId
-userHasApprovalId.change.hidden = UserHasApprovalId
+
+# enrolment.userHasApprovalId.title = Do you have a vaping products ID? (duplicate of below)
+enrolment.userHasApprovalId.heading = Do you have a vaping products ID?
+enrolment.userHasApprovalId.vapingIdFormat = A vaping products ID has 13 characters, for example: GBWK 1234 567WK
+enrolment.userHasApprovalId.error.required = You must select Yes or No
