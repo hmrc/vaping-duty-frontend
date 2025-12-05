@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.enrolment
 
 import base.SpecBase
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import views.html.enrolment.OrganisationSignInView
+import viewmodels.enrolment.OrganisationSignInViewModel
 
 class OrganisationSignInControllerSpec extends SpecBase {
 
@@ -35,9 +36,10 @@ class OrganisationSignInControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[OrganisationSignInView]
+        val vm = application.injector.instanceOf[OrganisationSignInViewModel]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
       }
     }
   }

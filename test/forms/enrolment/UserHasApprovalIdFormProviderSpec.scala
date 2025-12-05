@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms
+package forms.enrolment
 
 import forms.behaviours.BooleanFieldBehaviours
 import forms.enrolment.UserHasApprovalIdFormProvider

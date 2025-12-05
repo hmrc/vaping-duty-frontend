@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.enrolment
 
 import base.SpecBase
+import config.FrontendAppConfig
 import forms.enrolment.UserHasApprovalIdFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -27,15 +28,13 @@ import pages.enrolment.UserHasApprovalIdPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
 import views.html.enrolment.UserHasApprovalIdView
 
 import scala.concurrent.Future
 
 class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
-
-  def onwardRoute = Call("GET", "/foo")
 
   val formProvider = new UserHasApprovalIdFormProvider()
   val form = formProvider()
@@ -78,18 +77,10 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+    "must redirect to EACD if user has approval id " in {
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
           .build()
 
       running(application) {
@@ -100,7 +91,26 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        // @todo update with real config value once EACD redirection URL received (VPD-1156)
+        redirectLocation(result).value mustEqual "http://localhost:8140/vaping-duty"
+      }
+    }
+
+    "must redirect to guidance page if user does not have approval id " in {
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, UserHasApprovalIdRoute)
+            .withFormUrlEncodedBody(("value", "false"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.enrolment.routes.OrganisationSignInController.onPageLoad().url
       }
     }
 
