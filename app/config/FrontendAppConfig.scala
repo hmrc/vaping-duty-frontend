@@ -36,15 +36,16 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
-  val loginUrl: String                     = configuration.get[String]("urls.login")
-  val loginContinueUrl: String             = configuration.get[String]("urls.loginContinue")
-  val signOutUrl: String                   = configuration.get[String]("urls.signOut")
-  val eacdRedirectUrl: String              = configuration.get[String]("urls.eacdRedirect")
-  val organisationSignInUrl: String        = configuration.get[String]("urls.organisationSignIn")
-  val organisationAcctGuidanceUrl: String  = configuration.get[String]("urls.organisationAcctGuidance")
+  val loginUrl: String                       = configuration.get[String]("urls.login")
+  val loginContinueUrl: String               = configuration.get[String]("urls.loginContinue")
+  val signOutUrl: String                     = configuration.get[String]("urls.signOut")
 
-  private val exitSurveyBaseUrl: String = configuration.get[String]("urls.feedback-frontend-base-url")
-  val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/vaping-duty-frontend"
+  val eacdEnrolmentClaimRedirectUrl: String  = configuration.get[String]("urls.eacdEnrolmentClaimRedirectUrl")
+  val organisationSignInUrl: String          = configuration.get[String]("urls.organisationSignIn")
+  val organisationAcctGuidanceUrl: String    = configuration.get[String]("urls.organisationAcctGuidance")
+
+  private val exitSurveyBaseUrl: String      = configuration.get[String]("urls.feedback-frontend-base-url")
+  val exitSurveyUrl: String                  = s"$exitSurveyBaseUrl/feedback/vaping-duty-frontend"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")

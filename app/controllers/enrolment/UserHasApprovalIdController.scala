@@ -54,7 +54,7 @@ class UserHasApprovalIdController @Inject()(
 
         value =>
           if (value) { // user has appaId
-            Future.successful(Redirect(config.eacdRedirectUrl))
+            Future.successful(Redirect(config.eacdEnrolmentClaimRedirectUrl))
           }
           else { // user does not have appaId
             Future.successful(
