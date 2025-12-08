@@ -27,8 +27,8 @@ class OrganisationSignInViewModelSpec extends UnitSpec {
   "OrganisationSignInViewModel" - {
 
     val config = mock[FrontendAppConfig]
-    when(config.organisationAcctGuidanceUrl).thenReturn("https://www.tax.service.gov.uk/account")
-    when(config.organisationSignInUrl).thenReturn("https://www.tax.service.gov.uk/account")
+    when(config.organisationAcctGuidanceUrl).thenReturn("gg-organisation-create-account-guidance")
+    when(config.organisationSignInUrl).thenReturn("gg-organisation-account-sign-in")
 
     val vm = OrganisationSignInViewModel(config)
 
