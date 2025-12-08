@@ -23,8 +23,10 @@ import javax.inject.Inject
 
 class UserHasApprovalIdFormProvider @Inject() extends Mappings {
 
+  private val requiredError = "enrolment.userHasApprovalId.error.required"
+
   def apply(): Form[Boolean] =
     Form(
-      "value" -> boolean("enrolment.userHasApprovalId.error.required")
+      "value" -> boolean(requiredError, requiredError)
     )
 }

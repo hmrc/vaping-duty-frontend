@@ -22,8 +22,8 @@ import play.api.data.FormError
 
 class UserHasApprovalIdFormProviderSpec extends BooleanFieldBehaviours {
 
-  val requiredKey = "userHasApprovalId.error.required"
-  val invalidKey = "error.boolean"
+  val requiredKey = "enrolment.userHasApprovalId.error.required"
+  val invalidKey = requiredKey
 
   val form = new UserHasApprovalIdFormProvider()()
 
