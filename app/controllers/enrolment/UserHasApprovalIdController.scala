@@ -53,10 +53,10 @@ class UserHasApprovalIdController @Inject()(
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
         value =>
-          if (value) { // user has appaId
+          if (value) { // user has vpdId
             Future.successful(Redirect(config.eacdEnrolmentClaimRedirectUrl))
           }
-          else { // user does not have appaId
+          else { // user does not have vpdId
             Future.successful(
               Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
             )
