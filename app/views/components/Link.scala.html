@@ -18,9 +18,4 @@
 
 @(id: String, text: String, href: String, newTab: Boolean = false, classes: String)
 
-<!--Tell Rob in the morning that you think it may be beneficial to have some kind of CssConstants-->
-<!--class like ADR, or at least find some documentation on where this stuff can be found on the frontend designs-->
-<!--probably the github repo but better off. Also that you had to use a <p></p> tag there and to have-->
-<!--class="..." option for all future components in case we need to specify a class for those-->
-
 <a class="@classes" href="@href" @if(newTab) { target="_blank" rel="noopener noreferrer" } id="@id">@text</a>
