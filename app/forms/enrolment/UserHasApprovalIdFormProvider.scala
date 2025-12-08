@@ -25,6 +25,6 @@ class UserHasApprovalIdFormProvider @Inject() extends Mappings {
 
   def apply(): Form[Boolean] =
     Form(
-      "value" -> boolean("userHasApprovalId.error.required")
+      "value" -> boolean("enrolment.userHasApprovalId.error.required")
     )
 }
