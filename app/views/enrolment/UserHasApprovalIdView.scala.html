@@ -32,7 +32,7 @@
 
     @formHelper(action = controllers.enrolment.routes.UserHasApprovalIdController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
-        @if(form.errors.nonEmpty) {π
+        @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
