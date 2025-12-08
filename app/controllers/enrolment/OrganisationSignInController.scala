@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 class OrganisationSignInController @Inject()(
                                        override val messagesApi: MessagesApi,
-                                       identify: ApprovedVapingManufacturerAuthAction,
+                                       identify: NoEnrolmentAuthAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: OrganisationSignInView,
                                        config: FrontendAppConfig

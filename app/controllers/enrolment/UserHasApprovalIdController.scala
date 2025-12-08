@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class UserHasApprovalIdController @Inject()(
                                              override val messagesApi: MessagesApi,
-                                             identify: ApprovedVapingManufacturerAuthAction,
+                                             identify: NoEnrolmentAuthAction,
                                              formProvider: UserHasApprovalIdFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
                                              view: UserHasApprovalIdView,
