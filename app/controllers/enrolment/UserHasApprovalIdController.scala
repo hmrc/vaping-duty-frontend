@@ -19,12 +19,9 @@ package controllers.enrolment
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.enrolment.UserHasApprovalIdFormProvider
-import models.{Mode, UserAnswers}
-import navigation.Navigator
-import pages.enrolment.UserHasApprovalIdPage
+import models.Mode
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.enrolment.UserHasApprovalIdView
 
@@ -33,11 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class UserHasApprovalIdController @Inject()(
                                              override val messagesApi: MessagesApi,
-                                             sessionRepository: SessionRepository,
-                                             navigator: Navigator,
                                              identify: ApprovedVapingManufacturerAuthAction,
-                                             getData: DataRetrievalAction,
-                                             requireData: DataRequiredAction,
                                              formProvider: UserHasApprovalIdFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
                                              view: UserHasApprovalIdView,
@@ -46,18 +39,12 @@ class UserHasApprovalIdController @Inject()(
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = identify {
     implicit request =>
-
-      val preparedForm = request.userAnswers.getOrElse(UserAnswers(request.userId)).get(UserHasApprovalIdPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
-
-      Ok(view(preparedForm, mode))
+      Ok(view(form, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = identify.async {
     implicit request =>
 
       form.bindFromRequest().fold(
