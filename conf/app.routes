@@ -19,3 +19,10 @@ GET         /account/sign-out                            controllers.auth.AuthCo
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+
+GET        /enrolment/organisation-sign-in               controllers.enrolment.OrganisationSignInController.onPageLoad()
+
+GET        /enrolment/approval-id                        controllers.enrolment.UserHasApprovalIdController.onPageLoad(mode: Mode = NormalMode)
+POST       /enrolment/approval-id                        controllers.enrolment.UserHasApprovalIdController.onSubmit(mode: Mode = NormalMode)
+GET        /enrolment/change-approval-id                 controllers.enrolment.UserHasApprovalIdController.onPageLoad(mode: Mode = CheckMode)
+POST       /enrolment/change-approval-id                 controllers.enrolment.UserHasApprovalIdController.onSubmit(mode: Mode = CheckMode)
