@@ -17,13 +17,13 @@
 package forms.enrolment
 
 import forms.behaviours.BooleanFieldBehaviours
-import forms.enrolment.UserHasApprovalIdFormProvider
 import play.api.data.FormError
 
 class UserHasApprovalIdFormProviderSpec extends BooleanFieldBehaviours {
-
+  
   val requiredKey = "enrolment.userHasApprovalId.error.required"
-  val invalidKey = requiredKey
+  // No text for invalidKey / errMsg for invalidKey currently same as requiredKey
+  val invalidKey = "enrolment.userHasApprovalId.error.required"
 
   val form = new UserHasApprovalIdFormProvider()()
 

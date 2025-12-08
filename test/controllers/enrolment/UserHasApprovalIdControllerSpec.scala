@@ -17,29 +17,20 @@
 package controllers.enrolment
 
 import base.SpecBase
-import config.FrontendAppConfig
 import forms.enrolment.UserHasApprovalIdFormProvider
-import models.{NormalMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import models.NormalMode
 import org.scalatestplus.mockito.MockitoSugar
-import pages.enrolment.UserHasApprovalIdPage
-import play.api.inject.bind
-import play.api.mvc.Call
+import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
 import views.html.enrolment.UserHasApprovalIdView
-
-import scala.concurrent.Future
 
 class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 
-  val formProvider = new UserHasApprovalIdFormProvider()
-  val form = formProvider()
+  val formProvider        = new UserHasApprovalIdFormProvider()
+  val form: Form[Boolean] = formProvider()
 
-  lazy val UserHasApprovalIdRoute = controllers.enrolment.routes.UserHasApprovalIdController.onPageLoad(NormalMode).url
+  lazy val UserHasApprovalIdRoute: String = controllers.enrolment.routes.UserHasApprovalIdController.onPageLoad(NormalMode).url
 
   "UserHasApprovalId Controller" - {
 

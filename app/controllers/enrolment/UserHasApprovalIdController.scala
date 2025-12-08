@@ -20,6 +20,7 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import forms.enrolment.UserHasApprovalIdFormProvider
 import models.Mode
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -37,7 +38,7 @@ class UserHasApprovalIdController @Inject()(
                                              config: FrontendAppConfig
                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = identify {
     implicit request =>
