@@ -65,7 +65,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         // @todo update with real config value once EACD redirection URL received (VPD-1156)
-        redirectLocation(result).value mustEqual "http://localhost:8140/vaping-duty"
+        redirectLocation(result).value mustEqual "#"
       }
     }
 
