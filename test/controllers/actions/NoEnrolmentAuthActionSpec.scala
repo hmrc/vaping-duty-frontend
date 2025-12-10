@@ -19,7 +19,7 @@ package controllers.actions
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
-import models.requests.IdentifierRequest
+import models.requests.NoEnrolmentIdentifierRequest
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -61,7 +61,7 @@ import scala.concurrent.{ExecutionContext, Future}
    }
 
 
-  "Auth Action" - {
+  "No Enrolment Auth Action" - {
 
     val appConfig                    = mock[FrontendAppConfig]
 
@@ -106,18 +106,18 @@ import scala.concurrent.{ExecutionContext, Future}
           Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT
         )
 
-        val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
+        val authAction = new NoEnrolmentAuthActionImpl(authConnector, appConfig, bodyParsers)
 
         val request = FakeRequest()
-        val block = mock[IdentifierRequest[AnyContentAsEmpty.type] => Future[Result]]
+        val block = mock[NoEnrolmentIdentifierRequest[AnyContentAsEmpty.type] => Future[Result]]
 
-        when(block.apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID))).
+        when(block.apply(NoEnrolmentIdentifierRequest(request, Some("test-value"), GROUP_IDENTIFIER, INTERNAL_ID))).
           thenReturn(Future.successful(Results.Ok))
 
         val result = authAction.invokeBlock(request, block)
         await(result)
 
-        verify(block).apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID))
+        verify(block).apply(NoEnrolmentIdentifierRequest(request, Some("test-value"), GROUP_IDENTIFIER, INTERNAL_ID))
 
       }
 
@@ -138,37 +138,17 @@ import scala.concurrent.{ExecutionContext, Future}
 
         stubAuthResponse(None and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
 
-        val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
+        val authAction = new NoEnrolmentAuthActionImpl(authConnector, appConfig, bodyParsers)
 
         val result = authAction.invokeBlock(
           request = FakeRequest(),
-          block = (_: IdentifierRequest[_]) => Future.successful(Results.Ok("Okay"))
+          block = (_: NoEnrolmentIdentifierRequest[_]) => Future.successful(Results.Ok("Okay"))
         )
 
         status(result) shouldBe SEE_OTHER
       }
 
-      "must give SEE_OTHER when incorrect enrolment service name present " in {
-
-        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and Enrolments(Set(
-          Enrolment(
-            key = "INCORRECT_ENROLMENT_SERVICE_NAME-ONLY",
-            identifiers = Seq(EnrolmentIdentifier(key = VPD_ORG_IDENT_KEY, value = "TestId")),
-            state = ENROLMENT_STATE
-          )
-        )))
-
-        val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
-
-        val result = authAction.invokeBlock(
-          request = FakeRequest(),
-          block = (_: IdentifierRequest[_]) => Future.successful(Results.Ok("Okay"))
-        )
-
-        status(result) shouldBe SEE_OTHER
-      }
-
-      "must give SEE_OTHER when incorrect enrolment identifier key received " in {
+      "must allow users to authenticate with an enrolment only for another service" in {
 
         stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and Enrolments(Set(
           Enrolment(
@@ -178,14 +158,28 @@ import scala.concurrent.{ExecutionContext, Future}
           )
         )))
 
-        val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
+        val authAction = new NoEnrolmentAuthActionImpl(authConnector, appConfig, bodyParsers)
 
         val result = authAction.invokeBlock(
           request = FakeRequest(),
-          block = (_: IdentifierRequest[_]) => Future.successful(Results.Ok("Okay"))
+          block = (_: NoEnrolmentIdentifierRequest[_]) => Future.successful(Results.Ok("Okay"))
         )
 
-        status(result) shouldBe SEE_OTHER
+        status(result) shouldBe OK
+      }
+
+      "must allow users to authenticate without any enrolment" in {
+
+        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and Enrolments(Set()))
+
+        val authAction = new NoEnrolmentAuthActionImpl(authConnector, appConfig, bodyParsers)
+
+        val result = authAction.invokeBlock(
+          request = FakeRequest(),
+          block = (_: NoEnrolmentIdentifierRequest[_]) => Future.successful(Results.Ok("Okay"))
+        )
+
+        status(result) shouldBe OK
       }
 
     }
