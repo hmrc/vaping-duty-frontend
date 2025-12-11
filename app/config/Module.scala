@@ -30,6 +30,7 @@ class Module extends AbstractModule {
     bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
     bind(classOf[ApprovedVapingManufacturerAuthAction]).to(classOf[ApprovedVapingManufacturerAuthActionImpl]).asEagerSingleton()
     bind(classOf[NoEnrolmentAuthAction]).to(classOf[NoEnrolmentAuthActionImpl]).asEagerSingleton()
+    bind(classOf[CheckEnrolmentAction]).to(classOf[CheckEnrolmentActionImpl]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
 

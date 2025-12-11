@@ -29,12 +29,13 @@ import javax.inject.Inject
 class OrganisationSignInController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: NoEnrolmentAuthAction,
+                                       checkEnrolment: CheckEnrolmentAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: OrganisationSignInView,
                                        config: FrontendAppConfig
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = identify {
+  def onPageLoad: Action[AnyContent] = (identify andThen checkEnrolment) {
     implicit request =>
       val vm = OrganisationSignInViewModel(config)
 

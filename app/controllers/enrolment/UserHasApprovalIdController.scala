@@ -32,6 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class UserHasApprovalIdController @Inject()(
                                              override val messagesApi: MessagesApi,
                                              identify: NoEnrolmentAuthAction,
+                                             checkEnrolment: CheckEnrolmentAction,
                                              formProvider: UserHasApprovalIdFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
                                              view: UserHasApprovalIdView,
@@ -40,26 +41,24 @@ class UserHasApprovalIdController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = identify {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkEnrolment) {
     implicit request =>
       Ok(view(form, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = identify.async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkEnrolment) {
     implicit request =>
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+          BadRequest(view(formWithErrors, mode)),
 
         userHasVpdEnrolmentId =>
           if (userHasVpdEnrolmentId) { // user has vpdId
-            Future.successful(Redirect(config.eacdEnrolmentClaimRedirectUrl))
+            Redirect(config.eacdEnrolmentClaimRedirectUrl)
           }
           else { // user does not have vpdId
-            Future.successful(
-              Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
-            )
+            Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
           }
       )
   }
