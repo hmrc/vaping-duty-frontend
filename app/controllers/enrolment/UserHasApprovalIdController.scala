@@ -27,7 +27,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.enrolment.UserHasApprovalIdView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
 class UserHasApprovalIdController @Inject()(
                                              override val messagesApi: MessagesApi,
@@ -37,7 +36,7 @@ class UserHasApprovalIdController @Inject()(
                                              val controllerComponents: MessagesControllerComponents,
                                              view: UserHasApprovalIdView,
                                              config: FrontendAppConfig
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                 )() extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 

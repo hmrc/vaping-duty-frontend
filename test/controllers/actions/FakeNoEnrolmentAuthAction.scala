@@ -16,7 +16,6 @@
 
 package controllers.actions
 
-import data.TestData
 import models.requests.NoEnrolmentIdentifierRequest
 import play.api.mvc.*
 
