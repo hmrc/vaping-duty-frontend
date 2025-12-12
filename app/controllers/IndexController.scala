@@ -17,7 +17,7 @@
 package controllers
 
 import connectors.VapingDutyConnector
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{OptEnrolmentAuthAction, HasEnrolmentAction}
 
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
@@ -29,13 +29,14 @@ import scala.concurrent.ExecutionContext
 
 class IndexController @Inject()(
                                  val controllerComponents: MessagesControllerComponents,
-                                 ifApprovedVapingManufacturer: ApprovedVapingManufacturerAuthAction,
+                                 isAuthenticated: OptEnrolmentAuthAction,
+                                 hasEnrolment: HasEnrolmentAction,
                                  vapingDutyConnector: VapingDutyConnector,
                                  view: IndexView
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] =
-    ifApprovedVapingManufacturer.async(implicit request =>
+    (isAuthenticated andThen hasEnrolment).async(implicit request =>
       vapingDutyConnector.ping().map(_ => Ok(view()))
   )
 }
