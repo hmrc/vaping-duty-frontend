@@ -44,15 +44,15 @@ import scala.concurrent.{ExecutionContext, Future}
  *    Enrolment: VPD enrolment showing an approved vaping manufacturer
  */
 
-trait NoEnrolmentAuthAction
+trait OptEnrolmentAuthAction
   extends ActionBuilder[NoEnrolmentIdentifierRequest, AnyContent]
     with ActionFunction[Request, NoEnrolmentIdentifierRequest]
 
-class NoEnrolmentAuthActionImpl @Inject()(override val authConnector: AuthConnector,
-                                                         config: FrontendAppConfig,
-                                                         val parser: BodyParsers.Default)
-                                                        (implicit val executionContext: ExecutionContext)
-  extends NoEnrolmentAuthAction
+class OptEnrolmentAuthActionImpl @Inject()(override val authConnector: AuthConnector,
+                                           config: FrontendAppConfig,
+                                           val parser: BodyParsers.Default)
+                                          (implicit val executionContext: ExecutionContext)
+  extends OptEnrolmentAuthAction
     with AuthorisedFunctions
     with Logging {
 
@@ -78,7 +78,7 @@ class NoEnrolmentAuthActionImpl @Inject()(override val authConnector: AuthConnec
 
         identifiers match {
           case Right((internalId, groupId, optApprovalId)) => block(NoEnrolmentIdentifierRequest(request, optApprovalId, groupId, internalId))
-          case Left(error) => Future.failed(AuthorisationException.fromString(error))
+          case Left(error)                                 => Future.failed(AuthorisationException.fromString(error))
         }
 
     } recover {
@@ -89,8 +89,9 @@ class NoEnrolmentAuthActionImpl @Inject()(override val authConnector: AuthConnec
   }
 
   private def handleAuthException: PartialFunction[AuthorisationException, Result] = {
-    case _: NoActiveSession => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
-    case _                  => Redirect(routes.UnauthorisedController.onPageLoad())
+    case _: UnsupportedAffinityGroup => Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
+    case _: NoActiveSession          => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+    case _                           => Redirect(routes.UnauthorisedController.onPageLoad())
   }
 
   private def getApprovalId(enrolments: Enrolments): Option[String] =
