@@ -19,7 +19,7 @@ package models.requests
 import play.api.mvc.{Request, WrappedRequest}
 
 case class NoEnrolmentIdentifierRequest[A](request: Request[A],
-                                           vppaId: Option[String],
+                                           enrolmentVpdId: Option[String],
                                            groupId: String,
                                            userId: String)
   extends WrappedRequest[A](request)
