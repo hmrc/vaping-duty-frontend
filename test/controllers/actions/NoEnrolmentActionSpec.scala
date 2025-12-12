@@ -26,9 +26,9 @@ import play.api.test.FakeRequest
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CheckEnrolmentActionSpec extends SpecBase with MockitoSugar {
+class NoEnrolmentActionSpec extends SpecBase with MockitoSugar {
 
-  class Harness extends CheckEnrolmentActionImpl {
+  class Harness extends NoEnrolmentActionImpl {
     def callRefine[A](request: NoEnrolmentIdentifierRequest[A]): Future[Either[Result, NoEnrolmentIdentifierRequest[A]]] = refine(request)
   }
 

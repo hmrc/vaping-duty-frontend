@@ -23,18 +23,18 @@ import play.api.mvc.{ActionRefiner, Result}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckEnrolmentActionImpl @Inject()(implicit val executionContext: ExecutionContext) extends CheckEnrolmentAction {
+class HasEnrolmentActionImpl @Inject()(implicit val executionContext: ExecutionContext) extends HasEnrolmentAction {
 
   override protected def refine[A](request: NoEnrolmentIdentifierRequest[A]): Future[Either[Result, NoEnrolmentIdentifierRequest[A]]] = {
 
-    request.vppaId match {
-      case Some(_) =>
-        // Placeholder redirect
-        Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))) // Our graceful failure page
+    request.enrolmentVpdId match {
+      case Some(vpdId) =>
+        Future.successful(Right(NoEnrolmentIdentifierRequest(request, Some(vpdId), request.groupId, request.userId)))
       case None =>
-        Future.successful(Right(NoEnrolmentIdentifierRequest(request, None, request.groupId, request.userId))) // Has no id so can load
+        // Placeholder redirect
+        Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))) // Our graceful failure page    }
     }
   }
 }
 
-trait CheckEnrolmentAction extends ActionRefiner[NoEnrolmentIdentifierRequest, NoEnrolmentIdentifierRequest]
+trait HasEnrolmentAction extends ActionRefiner[NoEnrolmentIdentifierRequest, NoEnrolmentIdentifierRequest]
