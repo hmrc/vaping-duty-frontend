@@ -83,7 +83,8 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.enrolment.routes.OrganisationSignInController.onPageLoad().url
+        // Temp redirect location until content is ready (reloads current page)
+        redirectLocation(result).value mustEqual controllers.enrolment.routes.UserHasApprovalIdController.onPageLoad(NormalMode).url
       }
     }
 

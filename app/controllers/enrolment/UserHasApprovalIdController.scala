@@ -19,7 +19,7 @@ package controllers.enrolment
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.enrolment.UserHasApprovalIdFormProvider
-import models.Mode
+import models.{Mode, NormalMode}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -30,8 +30,8 @@ import javax.inject.Inject
 
 class UserHasApprovalIdController @Inject()(
                                              override val messagesApi: MessagesApi,
-                                             identify: NoEnrolmentAuthAction,
-                                             checkEnrolment: CheckEnrolmentAction,
+                                             isAuthenticated: OptEnrolmentAuthAction,
+                                             hasNoEnrolment: NoEnrolmentAction,
                                              formProvider: UserHasApprovalIdFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
                                              view: UserHasApprovalIdView,
@@ -40,12 +40,12 @@ class UserHasApprovalIdController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkEnrolment) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment) {
     implicit request =>
       Ok(view(form, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkEnrolment) {
+  def onSubmit(mode: Mode): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment) {
     implicit request =>
 
       form.bindFromRequest().fold(
@@ -56,8 +56,8 @@ class UserHasApprovalIdController @Inject()(
           if (userHasVpdEnrolmentId) { // user has vpdId
             Redirect(config.eacdEnrolmentClaimRedirectUrl)
           }
-          else { // user does not have vpdId
-            Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
+          else { // user does not have vpdId, temporary redirect location
+            Redirect(controllers.enrolment.routes.UserHasApprovalIdController.onPageLoad(NormalMode))
           }
       )
   }
