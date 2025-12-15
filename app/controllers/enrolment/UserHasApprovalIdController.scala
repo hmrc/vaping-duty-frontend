@@ -52,11 +52,13 @@ class UserHasApprovalIdController @Inject()(
           BadRequest(view(formWithErrors)),
 
         userHasVpdEnrolmentId =>
-          if (userHasVpdEnrolmentId) { // user has vpdId
+          if (userHasVpdEnrolmentId) {
             Redirect(config.eacdEnrolmentClaimRedirectUrl)
           }
-          else { // user does not have vpdId, temporary redirect location
-            Redirect(controllers.enrolment.routes.UserHasApprovalIdController.onPageLoad(NormalMode))
+          else {
+            Redirect(
+              controllers.enrolment.routes.UserDoesNotHaveApprovalIdController.onPageLoad().url
+            )
           }
       )
   }
