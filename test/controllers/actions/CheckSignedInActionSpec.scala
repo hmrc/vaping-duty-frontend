@@ -78,7 +78,7 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "execute the block and return not signed in if no longer authorised or never logged in" in {
+    "send users to UnauthorisedController when not logged in to an account" in {
       List(
         BearerTokenExpired(),
         MissingBearerToken(),
@@ -98,12 +98,8 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
 
         val result: Future[Result] = checkSignedInAction.invokeBlock(FakeRequest(), testAction(signedInStore))
 
-        status(result)          mustBe OK
-        contentAsString(result) mustBe testContent
-
-        signedInStore.synchronized {
-          signedInStore(signedInKey) mustBe false
-        }
+        status(result)                 mustBe SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.UnauthorisedController.onPageLoad().url
       }
     }
   }

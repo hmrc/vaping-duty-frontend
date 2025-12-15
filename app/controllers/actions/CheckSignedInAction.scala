@@ -18,10 +18,12 @@ package controllers.actions
 
 import com.google.inject.Inject
 import models.requests.SignedInRequest
+import controllers.routes
 import play.api.Logging
-import play.api.mvc._
+import play.api.mvc.*
+import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
-import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -53,7 +55,7 @@ class CheckSignedInActionImpl @Inject() (
     authorised(predicate) {
       block(SignedInRequest(request, signedIn = true))
     } recoverWith { case _ =>
-      block(SignedInRequest(request, signedIn = false))
+      Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
   }
 }

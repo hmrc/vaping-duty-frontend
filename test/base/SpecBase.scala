@@ -49,6 +49,7 @@ trait SpecBase
         bind[ApprovedVapingManufacturerAuthAction].to[FakeApprovedVapingManufacturerAuthAction],
         bind[OptEnrolmentAuthAction].to[FakeOptEnrolmentAuthAction],
         bind[HasEnrolmentAction].to[FakeHasEnrolmentAction],
+        bind[CheckSignedInAction].to[FakeCheckSignedInAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
 }
