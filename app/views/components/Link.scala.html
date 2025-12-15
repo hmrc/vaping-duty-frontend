@@ -16,6 +16,6 @@
 
 @this()
 
-@(id: String, text: String, href: String, newTab: Boolean = false, classes: String, newTabText: String = "")
+@(id: String, text: String, href: String, classes: String, newTabText: Option[String] = None)
 
-<a class="@classes" href="@href" @if(newTab) { target="_blank" rel="noopener noreferrer" } id="@id">@text @if(newTab) {@newTabText}</a>
+<a class="@classes" href="@href" @if(newTabText.isDefined) { target="_blank" rel="noopener noreferrer" } id="@id">@text @if(newTabText.isDefined) {@newTabText}</a>
