@@ -18,7 +18,6 @@ package controllers.enrolment
 
 import base.SpecBase
 import forms.enrolment.UserHasApprovalIdFormProvider
-import models.NormalMode
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.Form
 import play.api.test.FakeRequest
@@ -30,7 +29,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
   val formProvider        = new UserHasApprovalIdFormProvider()
   val form: Form[Boolean] = formProvider()
 
-  lazy val UserHasApprovalIdRoute: String = controllers.enrolment.routes.UserHasApprovalIdController.onPageLoad(NormalMode).url
+  lazy val UserHasApprovalIdRoute: String = controllers.enrolment.routes.UserHasApprovalIdController.onPageLoad().url
 
   "UserHasApprovalId Controller" - {
 
@@ -46,7 +45,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[UserHasApprovalIdView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form)(request, messages(application)).toString
       }
     }
 
@@ -83,8 +82,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        // Temp redirect location until content is ready (reloads current page)
-        redirectLocation(result).value mustEqual controllers.enrolment.routes.UserHasApprovalIdController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual controllers.enrolment.routes.UserDoesNotHaveApprovalIdController.onPageLoad().url
       }
     }
 
@@ -104,7 +102,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
       }
     }
 
