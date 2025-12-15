@@ -19,7 +19,6 @@ package controllers.enrolment
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.enrolment.UserHasApprovalIdFormProvider
-import models.{Mode, NormalMode}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -40,17 +39,17 @@ class UserHasApprovalIdController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment) {
+  def onPageLoad(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment) {
     implicit request =>
-      Ok(view(form, mode))
+      Ok(view(form))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment) {
+  def onSubmit(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment) {
     implicit request =>
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          BadRequest(view(formWithErrors, mode)),
+          BadRequest(view(formWithErrors)),
 
         userHasVpdEnrolmentId =>
           if (userHasVpdEnrolmentId) { // user has vpdId
