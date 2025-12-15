@@ -20,9 +20,8 @@ GET         /account/signed-out                          controllers.auth.Signed
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
+# Enrolment claim
 GET        /enrolment/organisation-sign-in               controllers.enrolment.OrganisationSignInController.onPageLoad()
-
-GET        /enrolment/approval-id                        controllers.enrolment.UserHasApprovalIdController.onPageLoad(mode: Mode = NormalMode)
-POST       /enrolment/approval-id                        controllers.enrolment.UserHasApprovalIdController.onSubmit(mode: Mode = NormalMode)
-GET        /enrolment/change-approval-id                 controllers.enrolment.UserHasApprovalIdController.onPageLoad(mode: Mode = CheckMode)
-POST       /enrolment/change-approval-id                 controllers.enrolment.UserHasApprovalIdController.onSubmit(mode: Mode = CheckMode)
+GET        /enrolment/approval-id                        controllers.enrolment.UserHasApprovalIdController.onPageLoad()
+POST       /enrolment/approval-id                        controllers.enrolment.UserHasApprovalIdController.onSubmit()
+GET        /enrolment/no-approval-id                     controllers.enrolment.UserDoesNotHaveApprovalIdController.onPageLoad()
