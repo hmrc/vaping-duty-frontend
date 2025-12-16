@@ -43,8 +43,8 @@
             id = "register-for-vaping-duty",
             text = messages("enrolment.organisationSignIn.newAcct"),
             href = vm.getGuidanceURL,
-            newTab = false,
-            classes = "govuk-link--no-visited-state"
+            classes = "govuk-link--no-visited-state",
+            newTabText = Some(messages("site.newTab"))
         )),
         HtmlContent(messages("enrolment.organisationId.p2.2"))
     )))

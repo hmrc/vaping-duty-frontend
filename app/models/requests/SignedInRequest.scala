@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,4 @@ package models.requests
 
 import play.api.mvc.{Request, WrappedRequest}
 
-case class IdentifierRequest[A](request: Request[A],
-                                enrolmentVpdId: String,
-                                groupId: String,
-                                userId: String)
-  extends WrappedRequest[A](request)
+case class SignedInRequest[A](request: Request[A], signedIn: Boolean) extends WrappedRequest[A](request)

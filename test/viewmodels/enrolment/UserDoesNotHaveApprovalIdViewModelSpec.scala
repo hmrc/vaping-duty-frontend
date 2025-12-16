@@ -14,12 +14,24 @@
  * limitations under the License.
  */
 
-package models.requests
+package viewmodels.enrolment
 
-import play.api.mvc.{Request, WrappedRequest}
+import base.UnitSpec
+import config.FrontendAppConfig
+import org.mockito.Mockito.*
 
-case class IdentifierRequest[A](request: Request[A],
-                                enrolmentVpdId: String,
-                                groupId: String,
-                                userId: String)
-  extends WrappedRequest[A](request)
+
+class UserDoesNotHaveApprovalIdViewModelSpec extends UnitSpec {
+
+  "UserDoesNotHaveApprovalIdViewModel" - {
+
+    val config = mock[FrontendAppConfig]
+    when(config.applyForVpdIdGuidanceUrl).thenReturn("get-vppdid-guidance-url")
+
+    val vm = UserDoesNotHaveApprovalIdViewModel(config)
+
+    "returns correct URL for orgSignIn" in {
+        vm.getGuidanceUrl mustBe config.applyForVpdIdGuidanceUrl
+    }
+  }
+}

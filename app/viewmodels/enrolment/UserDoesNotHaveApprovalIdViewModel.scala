@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package models.requests
+package viewmodels.enrolment
 
-import play.api.mvc.{Request, WrappedRequest}
+import config.FrontendAppConfig
 
-case class IdentifierRequest[A](request: Request[A],
-                                enrolmentVpdId: String,
-                                groupId: String,
-                                userId: String)
-  extends WrappedRequest[A](request)
+import javax.inject.Inject
+
+case class UserDoesNotHaveApprovalIdViewModel @Inject()(config: FrontendAppConfig) {
+
+  def getGuidanceUrl: String  = config.applyForVpdIdGuidanceUrl
+}

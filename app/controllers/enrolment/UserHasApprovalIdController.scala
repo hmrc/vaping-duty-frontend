@@ -19,7 +19,6 @@ package controllers.enrolment
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.enrolment.UserHasApprovalIdFormProvider
-import models.Mode
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -27,38 +26,38 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.enrolment.UserHasApprovalIdView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
 class UserHasApprovalIdController @Inject()(
                                              override val messagesApi: MessagesApi,
-                                             identify: NoEnrolmentAuthAction,
+                                             isAuthenticated: OptEnrolmentAuthAction,
+                                             hasNoEnrolment: NoEnrolmentAction,
                                              formProvider: UserHasApprovalIdFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
                                              view: UserHasApprovalIdView,
                                              config: FrontendAppConfig
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                 )() extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = identify {
+  def onPageLoad(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment) {
     implicit request =>
-      Ok(view(form, mode))
+      Ok(view(form))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = identify.async {
+  def onSubmit(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment) {
     implicit request =>
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+          BadRequest(view(formWithErrors)),
 
         userHasVpdEnrolmentId =>
-          if (userHasVpdEnrolmentId) { // user has vpdId
-            Future.successful(Redirect(config.eacdEnrolmentClaimRedirectUrl))
+          if (userHasVpdEnrolmentId) {
+            Redirect(config.eacdEnrolmentClaimRedirectUrl)
           }
-          else { // user does not have vpdId
-            Future.successful(
-              Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
+          else {
+            Redirect(
+              controllers.enrolment.routes.UserDoesNotHaveApprovalIdController.onPageLoad().url
             )
           }
       )

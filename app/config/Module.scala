@@ -29,7 +29,10 @@ class Module extends AbstractModule {
     bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
     bind(classOf[ApprovedVapingManufacturerAuthAction]).to(classOf[ApprovedVapingManufacturerAuthActionImpl]).asEagerSingleton()
-    bind(classOf[NoEnrolmentAuthAction]).to(classOf[NoEnrolmentAuthActionImpl]).asEagerSingleton()
+    bind(classOf[OptEnrolmentAuthAction]).to(classOf[OptEnrolmentAuthActionImpl]).asEagerSingleton()
+    bind(classOf[NoEnrolmentAction]).to(classOf[NoEnrolmentActionImpl]).asEagerSingleton()
+    bind(classOf[HasEnrolmentAction]).to(classOf[HasEnrolmentActionImpl]).asEagerSingleton()
+    bind(classOf[CheckSignedInAction]).to(classOf[CheckSignedInActionImpl]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
 

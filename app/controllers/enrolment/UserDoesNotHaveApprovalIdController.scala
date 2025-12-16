@@ -21,22 +21,22 @@ import controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.enrolment.OrganisationSignInView
-import viewmodels.enrolment.OrganisationSignInViewModel
+import viewmodels.enrolment.UserDoesNotHaveApprovalIdViewModel
+import views.html.enrolment.UserDoesNotHaveApprovalIdView
 
 import javax.inject.Inject
 
-class OrganisationSignInController @Inject()(
+class UserDoesNotHaveApprovalIdController @Inject()(
                                        override val messagesApi: MessagesApi,
-                                       checkSignedIn: CheckSignedInAction,
+                                       signedIn: CheckSignedInAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: OrganisationSignInView,
+                                       view: UserDoesNotHaveApprovalIdView,
                                        config: FrontendAppConfig
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = checkSignedIn {
+  def onPageLoad: Action[AnyContent] = signedIn {
     implicit request =>
-      val vm = OrganisationSignInViewModel(config)
+      val vm = UserDoesNotHaveApprovalIdViewModel(config)
 
       Ok(view(vm))
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,17 @@
 
 package controllers.actions
 
-import data.TestData
-import models.requests.NoEnrolmentIdentifierRequest
-import play.api.mvc.*
+import models.requests.SignedInRequest
+import play.api.mvc._
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeNoEnrolmentAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends NoEnrolmentAuthAction {
-  
-  val optVpdId: Option[String] = None
-  val groupId: String = "groupid"
-  val internalId: String = "id"
-  
-  override def invokeBlock[A](request: Request[A], block: NoEnrolmentIdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(NoEnrolmentIdentifierRequest(request, optVpdId, groupId, internalId))
+class FakeCheckSignedInAction @Inject() (bodyParsers: PlayBodyParsers)
+    extends CheckSignedInAction {
+
+  override def invokeBlock[A](request: Request[A], block: SignedInRequest[A] => Future[Result]): Future[Result] =
+    block(SignedInRequest(request, true))
 
   override def parser: BodyParser[AnyContent] =
     bodyParsers.default

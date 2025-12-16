@@ -71,8 +71,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
     val HMRC_VPD_ORG_ENROLMENT_NAME  = appConfig.enrolmentServiceName
     val VPD_ORG_IDENT_KEY            = appConfig.enrolmentIdentifierKey
-    val VPD_ORG_LOGIN_URL            = appConfig.loginUrl
-    val VPD_ORG_LOGIN_CONT_URL       = appConfig.loginContinueUrl
 
     val INTERNAL_ID                  = "test-internal-id"
     val GROUP_IDENTIFIER             = "test-group-id"
