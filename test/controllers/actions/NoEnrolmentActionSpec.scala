@@ -36,14 +36,15 @@ class NoEnrolmentActionSpec extends SpecBase with MockitoSugar {
 
     "when a user has a VPDID" - {
 
-      // Placeholder description for now
-      "must redirect to guidance page" in {
+      "must redirect to BTA home page" in {
 
         val action = new Harness()
 
         val result = action.callRefine(NoEnrolmentIdentifierRequest(FakeRequest(), Some("vpdid"), "vpgroup", "id")).futureValue
 
-        result mustBe Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        result mustBe Left(Redirect(
+          controllers.enrolment.routes.UserAlreadyEnrolledController.onPageLoad()
+        ))
       }
     }
 

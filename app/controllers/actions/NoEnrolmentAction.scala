@@ -29,8 +29,9 @@ class NoEnrolmentActionImpl @Inject()(implicit val executionContext: ExecutionCo
 
     request.enrolmentVpdId match {
       case Some(_) =>
-        // Placeholder redirect
-        Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))) // Our graceful failure page
+        Future.successful(Left(Redirect(
+          controllers.enrolment.routes.UserAlreadyEnrolledController.onPageLoad().url
+        ))) // Our graceful failure (user already enrolled) page
       case None =>
         Future.successful(Right(NoEnrolmentIdentifierRequest(request, None, request.groupId, request.userId))) // Has no id so can load
     }
