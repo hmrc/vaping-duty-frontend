@@ -25,3 +25,4 @@ GET        /enrolment/organisation-sign-in               controllers.enrolment.O
 GET        /enrolment/approval-id                        controllers.enrolment.UserHasApprovalIdController.onPageLoad()
 POST       /enrolment/approval-id                        controllers.enrolment.UserHasApprovalIdController.onSubmit()
 GET        /enrolment/no-approval-id                     controllers.enrolment.UserDoesNotHaveApprovalIdController.onPageLoad()
+GET        /enrolment/already-enrolled                   controllers.enrolment.UserAlreadyEnrolledController.onPageLoad()
