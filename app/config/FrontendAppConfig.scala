@@ -44,7 +44,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val organisationSignInUrl: String          = configuration.get[String]("urls.organisationSignIn")
   val organisationAcctGuidanceUrl: String    = configuration.get[String]("urls.organisationAcctGuidance")
   val applyForVpdIdGuidanceUrl: String       = configuration.get[String]("urls.applyForVpdIdGuidanceUrl")
-
+  val continueToBta: String                  = configuration.get[String]("urls.continueToBta")
+  
   private val exitSurveyBaseUrl: String      = configuration.get[String]("urls.feedback-frontend-base-url")
   val exitSurveyUrl: String                  = s"$exitSurveyBaseUrl/feedback/vaping-duty-frontend"
 

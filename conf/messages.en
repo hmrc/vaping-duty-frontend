@@ -64,3 +64,6 @@ enrolment.userDoesNotHaveApprovalId.heading = You need a vaping products ID to a
 enrolment.userDoesNotHaveApprovalId.findIdHelp = You can find your vaping products ID on letters you have received from HMRC about Vaping Products Duty online service.
 enrolment.userDoesNotHaveApprovalId.howToApply = Find out how to apply for a vaping products ID if you do not have one.
 enrolment.userDoesNotHaveApprovalId.apply = Apply for approval
+
+enrolment.userAlreadyEnrolled.heading = You have already enrolled for this service
+enrolment.userAlreadyEnrolled.continue = Continue to your business tax account
