@@ -31,9 +31,9 @@ class NoEnrolmentActionImpl @Inject()(implicit val executionContext: ExecutionCo
       case Some(_) =>
         Future.successful(Left(Redirect(
           controllers.enrolment.routes.UserAlreadyEnrolledController.onPageLoad().url
-        ))) // Our graceful failure (user already enrolled) page
+        )))
       case None =>
-        Future.successful(Right(NoEnrolmentIdentifierRequest(request, None, request.groupId, request.userId))) // Has no id so can load
+        Future.successful(Right(NoEnrolmentIdentifierRequest(request, None, request.groupId, request.userId)))
     }
   }
 }
