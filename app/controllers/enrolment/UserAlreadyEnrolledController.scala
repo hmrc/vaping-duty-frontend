@@ -29,12 +29,12 @@ import javax.inject.Inject
 class UserAlreadyEnrolledController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        val config: FrontendAppConfig,
-                                       checkSignedIn: CheckSignedInAction,
+                                       authorised: OptEnrolmentAuthAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: UserAlreadyEnrolledView
                                      ) extends FrontendBaseController with I18nSupport {
   
-  def onPageLoad: Action[AnyContent] = checkSignedIn {
+  def onPageLoad: Action[AnyContent] = authorised {
     implicit request =>
       val vm = UserAlreadyEnrolledViewModel(config)
       
