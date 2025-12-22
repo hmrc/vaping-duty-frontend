@@ -29,7 +29,7 @@ import javax.inject.Inject
 class UserAlreadyEnrolledController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        val config: FrontendAppConfig,
-                                       authorised: OptEnrolmentAuthAction,
+                                       authorised: EnrolmentClaimAuthAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: UserAlreadyEnrolledView
                                      ) extends FrontendBaseController with I18nSupport {

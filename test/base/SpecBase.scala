@@ -47,7 +47,7 @@ trait SpecBase
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[ApprovedVapingManufacturerAuthAction].to[FakeApprovedVapingManufacturerAuthAction],
-        bind[OptEnrolmentAuthAction].to[FakeOptEnrolmentAuthAction],
+        bind[EnrolmentClaimAuthAction].to[FakeEnrolmentClaimAuthAction],
         bind[HasEnrolmentAction].to[FakeHasEnrolmentAction],
         bind[CheckSignedInAction].to[FakeCheckSignedInAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))

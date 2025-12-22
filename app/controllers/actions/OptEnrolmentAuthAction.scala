@@ -44,15 +44,15 @@ import scala.concurrent.{ExecutionContext, Future}
  *    Enrolment: VPD enrolment showing an approved vaping manufacturer
  */
 
-trait OptEnrolmentAuthAction
+trait EnrolmentClaimAuthAction
   extends ActionBuilder[NoEnrolmentIdentifierRequest, AnyContent]
     with ActionFunction[Request, NoEnrolmentIdentifierRequest]
 
-class OptEnrolmentAuthActionImpl @Inject()(override val authConnector: AuthConnector,
+class EnrolmentClaimAuthActionImpl @Inject()(override val authConnector: AuthConnector,
                                            config: FrontendAppConfig,
                                            val parser: BodyParsers.Default)
                                           (implicit val executionContext: ExecutionContext)
-  extends OptEnrolmentAuthAction
+  extends EnrolmentClaimAuthAction
     with AuthorisedFunctions
     with Logging {
 
