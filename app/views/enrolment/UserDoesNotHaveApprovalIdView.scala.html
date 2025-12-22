@@ -37,4 +37,10 @@
         ButtonViewModel(messages("enrolment.userDoesNotHaveApprovalId.apply"))
             .asLink(vm.getGuidanceUrl)
     )
+
+  @govukButton(
+        ButtonViewModel(messages("enrolment.userDoesNotHaveApprovalId.returnToLogin"))
+            .asLink(vm.organisationSignInUrl)
+            .asSecondaryButton()
+  )
 }
