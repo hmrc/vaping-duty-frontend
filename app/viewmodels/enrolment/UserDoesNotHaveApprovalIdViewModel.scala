@@ -23,4 +23,5 @@ import javax.inject.Inject
 case class UserDoesNotHaveApprovalIdViewModel @Inject()(config: FrontendAppConfig) {
 
   def getGuidanceUrl: String  = config.applyForVpdIdGuidanceUrl
+  def getOrganisationSignInUrl: String   = config.organisationSignInUrl;
 }
