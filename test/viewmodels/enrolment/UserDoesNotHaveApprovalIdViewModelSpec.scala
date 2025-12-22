@@ -27,11 +27,16 @@ class UserDoesNotHaveApprovalIdViewModelSpec extends UnitSpec {
 
     val config = mock[FrontendAppConfig]
     when(config.applyForVpdIdGuidanceUrl).thenReturn("get-vppdid-guidance-url")
-
+    when(config.organisationSignInUrl).thenReturn("gg-org-signin-url")
+    
     val vm = UserDoesNotHaveApprovalIdViewModel(config)
 
     "returns correct URL for orgSignIn" in {
         vm.getGuidanceUrl mustBe config.applyForVpdIdGuidanceUrl
+    }
+
+    "returns correct URL for returnToLogin" in {
+      vm.returnToLogin mustBe config.organisationSignInUrl
     }
   }
 }
