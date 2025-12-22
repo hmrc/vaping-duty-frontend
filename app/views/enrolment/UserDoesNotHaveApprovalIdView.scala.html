@@ -40,7 +40,7 @@
 
   @govukButton(
         ButtonViewModel(messages("enrolment.userDoesNotHaveApprovalId.returnToLogin"))
-            .asLink(vm.organisationSignInUrl)
+            .asLink(vm.getOrganisationSignInUrl)
             .asSecondaryButton()
   )
 }

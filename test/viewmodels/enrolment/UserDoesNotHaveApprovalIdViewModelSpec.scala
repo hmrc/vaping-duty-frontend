@@ -36,7 +36,7 @@ class UserDoesNotHaveApprovalIdViewModelSpec extends UnitSpec {
     }
 
     "returns correct URL for returnToLogin" in {
-      vm.returnToLogin mustBe config.organisationSignInUrl
+      vm.getOrganisationSignInUrl mustBe config.organisationSignInUrl
     }
   }
 }
