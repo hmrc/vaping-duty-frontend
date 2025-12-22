@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 class UserHasApprovalIdController @Inject()(
                                              override val messagesApi: MessagesApi,
-                                             isAuthenticated: OptEnrolmentAuthAction,
+                                             isAuthenticated: EnrolmentClaimAuthAction,
                                              hasNoEnrolment: NoEnrolmentAction,
                                              formProvider: UserHasApprovalIdFormProvider,
                                              val controllerComponents: MessagesControllerComponents,

@@ -22,7 +22,7 @@ import play.api.mvc.*
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeOptEnrolmentAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends OptEnrolmentAuthAction {
+class FakeEnrolmentClaimAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends EnrolmentClaimAuthAction {
   
   val optVpdId: Option[String] = None
   val groupId: String = "groupid"

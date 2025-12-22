@@ -40,13 +40,13 @@ import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
- class OptEnrolmentAuthActionSpec extends SpecBase {
+ class EnrolmentClaimAuthActionSpec extends SpecBase {
 
-  class Harness(authAction: OptEnrolmentAuthAction) {
+  class Harness(authAction: EnrolmentClaimAuthAction) {
     def onPageLoad(): Action[AnyContent] = authAction { _ => Results.Ok }
   }
 
-  class ExceptionThrowingHarness(authAction: OptEnrolmentAuthAction) {
+  class ExceptionThrowingHarness(authAction: EnrolmentClaimAuthAction) {
     def onPageLoad(): Action[AnyContent] = authAction { _ => throw new uk.gov.hmrc.http.UnauthorizedException("test exception") }
   }
 
@@ -91,7 +91,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
         stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
 
-        val authAction = new OptEnrolmentAuthActionImpl(authConnector, appConfig, bodyParsers)
+        val authAction = new EnrolmentClaimAuthActionImpl(authConnector, appConfig, bodyParsers)
         val controller = new Harness(authAction)
         val result = controller.onPageLoad()(FakeRequest())
 
@@ -104,7 +104,7 @@ import scala.concurrent.{ExecutionContext, Future}
           Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT
         )
 
-        val authAction = new OptEnrolmentAuthActionImpl(authConnector, appConfig, bodyParsers)
+        val authAction = new EnrolmentClaimAuthActionImpl(authConnector, appConfig, bodyParsers)
 
         val request = FakeRequest()
         val block = mock[NoEnrolmentIdentifierRequest[AnyContentAsEmpty.type] => Future[Result]]
@@ -124,7 +124,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
         stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
 
-        val authAction = new OptEnrolmentAuthActionImpl(authConnector, appConfig, bodyParsers)
+        val authAction = new EnrolmentClaimAuthActionImpl(authConnector, appConfig, bodyParsers)
         val controller = new ExceptionThrowingHarness(authAction)
 
         whenReady(controller.onPageLoad()(FakeRequest()).failed) { ex =>
@@ -136,7 +136,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
         stubAuthResponse(None and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
 
-        val authAction = new OptEnrolmentAuthActionImpl(authConnector, appConfig, bodyParsers)
+        val authAction = new EnrolmentClaimAuthActionImpl(authConnector, appConfig, bodyParsers)
 
         val result = authAction.invokeBlock(
           request = FakeRequest(),
@@ -156,7 +156,7 @@ import scala.concurrent.{ExecutionContext, Future}
           )
         )))
 
-        val authAction = new OptEnrolmentAuthActionImpl(authConnector, appConfig, bodyParsers)
+        val authAction = new EnrolmentClaimAuthActionImpl(authConnector, appConfig, bodyParsers)
 
         val result = authAction.invokeBlock(
           request = FakeRequest(),
@@ -170,7 +170,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
         stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and Enrolments(Set()))
 
-        val authAction = new OptEnrolmentAuthActionImpl(authConnector, appConfig, bodyParsers)
+        val authAction = new EnrolmentClaimAuthActionImpl(authConnector, appConfig, bodyParsers)
 
         val result = authAction.invokeBlock(
           request = FakeRequest(),
@@ -261,7 +261,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
     def failingController(authorisationException: AuthorisationException) = {
       new Harness(
-        new OptEnrolmentAuthActionImpl(
+        new EnrolmentClaimAuthActionImpl(
           new FakeFailingNoEnrolmentAuthConnector(authorisationException), appConfig, bodyParsers))
     }
 
