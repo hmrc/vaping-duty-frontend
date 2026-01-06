@@ -15,6 +15,7 @@
  *@
 
 @import components.{Paragraph, Heading}
+@import viewmodels.LegendSize
 
 @this(
     layout: templates.Layout,
@@ -36,14 +37,12 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        @h1(HtmlContent(messages("enrolment.userHasApprovalId.heading")))
-        @p(Seq(HtmlContent(messages("enrolment.userHasApprovalId.vapingIdFormat"))))
-
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("enrolment.userHasApprovalId.heading")).visuallyHidden()
-            )
+                legend = LegendViewModel(messages("enrolment.userHasApprovalId.heading"))
+                    .asPageHeading(LegendSize.Large)
+            ).withHint(Hint(content = HtmlContent(messages("enrolment.userHasApprovalId.vapingIdFormat"))))
         )
 
         @govukButton(

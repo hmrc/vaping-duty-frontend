@@ -56,9 +56,9 @@ enrolment.organisationSignIn.newAcct = create an organisation account
 enrolment.organisationId.p2.2 = if you do not already have one.
 enrolment.organisationSignIn.signIn = Sign in as an Organisation
 
-enrolment.userHasApprovalId.heading = Do you have a vaping products ID?
-enrolment.userHasApprovalId.vapingIdFormat = A vaping products ID has 13 characters, for example: GBWK 1234 567WK
-enrolment.userHasApprovalId.error.required = You must select Yes or No
+enrolment.userHasApprovalId.heading = Do you have a Vaping Products Duty (VPD) approval ID?
+enrolment.userHasApprovalId.vapingIdFormat = A VPD approval ID has 13 characters, for example, GBWK1234567WK
+enrolment.userHasApprovalId.error.required = Select yes if you have a Vaping Products Duty approval ID
 
 enrolment.userDoesNotHaveApprovalId.heading = You need a vaping products ID to access this service
 enrolment.userDoesNotHaveApprovalId.findIdHelp = You can find your vaping products ID on letters you have received from HMRC about Vaping Products Duty online service.
