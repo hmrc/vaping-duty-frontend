@@ -87,8 +87,6 @@ import scala.concurrent.{ExecutionContext, Future}
     val INTERNAL_ID                  = "test-internal-id"
     val GROUP_IDENTIFIER             = "test-group-id"
     val ENROLMENT_STATE              = "test-state"
-    val ADMIN_USER                   = User
-    val NON_ADMIN_USER               = Assistant
 
     val bodyParsers                  = mock[BodyParsers.Default]
 
