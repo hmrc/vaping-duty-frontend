@@ -61,6 +61,7 @@ class ApprovedVapingManufacturerAuthActionImpl @Inject()(override val authConnec
       Enrolment(config.enrolmentServiceName) and
       CredentialStrength(strong) and
       Organisation and
+      User and
       ConfidenceLevel.L50
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
@@ -90,8 +91,9 @@ class ApprovedVapingManufacturerAuthActionImpl @Inject()(override val authConnec
   }
 
   private def handleAuthException: PartialFunction[AuthorisationException, Result] = {
-    case _: NoActiveSession => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
-    case _                  => Redirect(routes.UnauthorisedController.onPageLoad())
+    case _: UnsupportedCredentialRole => Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
+    case _: NoActiveSession           => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+    case _                            => Redirect(routes.UnauthorisedController.onPageLoad())
   }
 
   private def getApprovalId(enrolments: Enrolments): Either[String, String] =

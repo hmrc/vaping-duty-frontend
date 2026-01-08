@@ -260,7 +260,7 @@ import scala.concurrent.{ExecutionContext, Future}
         val result = failingController(new UnsupportedCredentialRole).onPageLoad()(FakeRequest())
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+        redirectLocation(result) mustBe Some(controllers.enrolment.routes.OrganisationSignInController.onPageLoad().url)
       }
     }
 
