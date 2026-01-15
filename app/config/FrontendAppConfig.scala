@@ -33,6 +33,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   private val contactHost = configuration.get[String]("contact-frontend.host")
   private val contactFormServiceIdentifier = "vaping-duty-frontend"
+  private lazy val contactPreferencesHost: String = servicesConfig.baseUrl("vaping-duty-account")
 
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
@@ -47,7 +48,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val organisationAcctGuidanceUrl: String    = configuration.get[String]("urls.organisationAcctGuidance")
   val applyForVpdIdGuidanceUrl: String       = configuration.get[String]("urls.applyForVpdIdGuidanceUrl")
   val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount")
-  
+  val accessibilityStatementUrl: String = configuration.get[String]("accessibility-statement.host") ++
+    configuration.get[String]("accessibility-statement.url")
+
   private val exitSurveyBaseUrl: String      = configuration.get[String]("urls.feedback-frontend-base-url")
   val exitSurveyUrl: String                  = s"$exitSurveyBaseUrl/feedback/vaping-duty-frontend"
 
@@ -73,6 +76,38 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
-  def vdrPingUrl(): String =
-    s"$vdHost/vaping-duty/ping"
+  val enrolmentServiceName = configuration.get[String]("enrolment.serviceName")
+  val enrolmentIdentifierKey = configuration.get[String]("enrolment.identifierKey")
+
+  def vdrPingUrl(): String = s"$vdHost/vaping-duty/ping"
+
+  def ecpGetEmailVerificationUrl(credId: String): String =
+    s"$contactPreferencesHost/alcohol-duty-contact-preferences/get-email-verification/$credId"
+
+  def ecpSubmitContactPreferencesUrl(appaId: String): String =
+    s"$contactPreferencesHost/alcohol-duty-contact-preferences/submit-preferences/$appaId"
+
+  private val startEmailVerificationContinueBaseUrl: String   =
+      configuration.get[String]("microservice.services.contact-preferences-frontend.prefix")
+  private val startEmailVerificationContinueUrlSuffix: String =
+    configuration.get[String]("microservice.services.contact-preferences-frontend.url.checkYourAnswersPage")
+  private val startEmailVerificationBackUrlSuffix: String     =
+    configuration.get[String]("microservice.services.contact-preferences-frontend.url.enterEmailPage")
+
+  val startEmailVerificationContinueUrl: String =
+    s"$startEmailVerificationContinueBaseUrl$startEmailVerificationContinueUrlSuffix"
+  val startEmailVerificationBackUrl: String     =
+    s"$startEmailVerificationContinueBaseUrl$startEmailVerificationBackUrlSuffix"
+
+  private val startEmailVerificationJourneyBaseUrl: String   = servicesConfig.baseUrl("email-verification")
+  private val startEmailVerificationJourneyUrlSuffix: String =
+    configuration.get[String]("microservice.services.email-verification.url.startEmailVerificationJourney")
+
+  val startEmailVerificationJourneyUrl: String =
+    s"$startEmailVerificationJourneyBaseUrl$startEmailVerificationJourneyUrlSuffix"
+
+  val emailVerificationRedirectBaseUrl: String =
+    configuration.get[String]("microservice.services.email-verification-frontend.prefix")
+
+  val newServiceNavigationEnabled: Boolean = configuration.get[Boolean]("play-frontend-hmrc.forceServiceNavigation")
 }
