@@ -18,4 +18,4 @@
 
 @(id: String, text: String, href: String, classes: String, newTabText: Option[String] = None)
 
-<a class="@classes" href="@href" @if(newTabText.isDefined) { target="_blank" rel="noopener noreferrer" } id="@id">@text @if(newTabText.isDefined) {@newTabText}</a>
+<a class="@classes" href="@href" newTabText.map{ target="_blank" rel="noopener noreferrer" } id="@id">@text @newTabText.map(_.toString)</a>
