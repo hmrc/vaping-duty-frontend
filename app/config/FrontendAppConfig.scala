@@ -20,6 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
@@ -54,6 +55,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val eacdEnrolmentClaimRedirectUrl: String  =
     configuration.get[String]("urls.enrolmentManagementFrontend") +
       s"/$enrolmentServiceName/request-access-tax-scheme?continue=$continueToBta"
+
+  val orgSignInUrl: String = s"$organisationSignInUrl?continue=/vaping-duty/enrolment/approval-id" +
+    s"&affinityGroup=${AffinityGroup.Organisation}"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")

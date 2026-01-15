@@ -17,11 +17,11 @@
 package viewmodels.enrolment
 
 import javax.inject.Inject
-
 import config.FrontendAppConfig
 
 case class OrganisationSignInViewModel @Inject() (config: FrontendAppConfig) {
 
-  def getOrgSignInURL: String  = config.organisationSignInUrl
+  def getOrgSignInURL: String  = config.orgSignInUrl
+  
   def getGuidanceURL: String   = config.organisationAcctGuidanceUrl
 }
