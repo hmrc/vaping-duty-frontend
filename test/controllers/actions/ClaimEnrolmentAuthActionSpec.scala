@@ -66,7 +66,7 @@ import scala.concurrent.{ExecutionContext, Future}
     val appConfig                    = mock[FrontendAppConfig]
 
     when(appConfig.enrolmentServiceName).thenReturn("HMRC-VPD-ORG")
-    when(appConfig.enrolmentIdentifierKey).thenReturn("VPPAID")
+    when(appConfig.enrolmentIdentifierKey).thenReturn("ZVPD")
     when(appConfig.loginUrl).thenReturn("login-url")
     when(appConfig.loginContinueUrl).thenReturn("login-continue-url")
 
