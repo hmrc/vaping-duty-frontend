@@ -27,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class FakeApprovedVapingManufacturerAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends ApprovedVapingManufacturerAuthAction with TestData {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(IdentifierRequest(request, vpdId, groupId, internalId))
+    block(IdentifierRequest(request, vppaId, groupId, "internalId"))
 
   override def parser: BodyParser[AnyContent] =
     bodyParsers.default

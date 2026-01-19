@@ -81,11 +81,20 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   def vdrPingUrl(): String = s"$vdHost/vaping-duty/ping"
 
+  def ecpUserAnswersGetUrl(appaId: String): String =
+    s"$contactPreferencesHost/vaping-duty-account/user-answers/$appaId"
+
+  def ecpUserAnswersUrl(): String =
+    s"$contactPreferencesHost/vaping-duty-account/user-answers"
+
+  def ecpUserAnswersClearAllUrl(): String =
+    s"$contactPreferencesHost/vaping-duty-account/test-only/user-answers/clear-all"
+
   def ecpGetEmailVerificationUrl(credId: String): String =
-    s"$contactPreferencesHost/alcohol-duty-contact-preferences/get-email-verification/$credId"
+    s"$contactPreferencesHost/vaping-duty-account/get-email-verification/$credId"
 
   def ecpSubmitContactPreferencesUrl(appaId: String): String =
-    s"$contactPreferencesHost/alcohol-duty-contact-preferences/submit-preferences/$appaId"
+    s"$contactPreferencesHost/vaping-duty-account/submit-preferences/$appaId"
 
   private val startEmailVerificationContinueBaseUrl: String   =
       configuration.get[String]("microservice.services.contact-preferences-frontend.prefix")

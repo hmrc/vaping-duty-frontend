@@ -17,9 +17,10 @@
 package controllers.actions
 
 import base.SpecBase
-import models.UserAnswers
+import connectors.UserAnswersConnector
+import models.{ContactPreferenceUserAnswers, UserAnswers}
 import models.requests.{IdentifierRequest, OptionalDataRequest}
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import repositories.SessionRepository
@@ -29,7 +30,7 @@ import scala.concurrent.Future
 
 class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
 
-  class Harness(sessionRepository: SessionRepository) extends DataRetrievalActionImpl(sessionRepository) {
+  class Harness(contactPreferenceUserAnswersConnector: UserAnswersConnector) extends DataRetrievalActionImpl(contactPreferenceUserAnswersConnector) {
     def callTransform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = transform(request)
   }
 
@@ -39,13 +40,13 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
 
       "must set userAnswers to 'None' in the request" in {
 
-        val sessionRepository = mock[SessionRepository]
-        when(sessionRepository.get("id")) thenReturn Future(None)
+        val sessionRepository = mock[UserAnswersConnector]
+        when(sessionRepository.get("id")) thenReturn Future(Right(emptyUserAnswers))
         val action = new Harness(sessionRepository)
 
         val result = action.callTransform(IdentifierRequest(FakeRequest(), "vpid", "vpgroup", "id")).futureValue
 
-        result.userAnswers must not be defined
+        result.userAnswers mustBe Some(emptyUserAnswers)
       }
     }
 
@@ -53,8 +54,8 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
 
       "must build a userAnswers object and add it to the request" in {
 
-        val sessionRepository = mock[SessionRepository]
-        when(sessionRepository.get("id")) thenReturn Future(Some(UserAnswers("id")))
+        val sessionRepository = mock[UserAnswersConnector]
+        when(sessionRepository.get("id")) thenReturn Future(Right(userAnswers))
         val action = new Harness(sessionRepository)
 
         val result = action.callTransform(new IdentifierRequest(FakeRequest(), "vpid", "vpgroup", "id")).futureValue

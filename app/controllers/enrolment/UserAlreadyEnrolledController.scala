@@ -17,7 +17,10 @@
 package controllers.enrolment
 
 import config.FrontendAppConfig
+import connectors.{EmailVerificationConnector, SubmitPreferencesConnector, UserAnswersConnector}
 import controllers.actions.*
+import models.UserDetails
+import models.emailverification.{PaperlessPreferenceSubmission, VerificationDetails}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -31,13 +34,18 @@ class UserAlreadyEnrolledController @Inject()(
                                        val config: FrontendAppConfig,
                                        authorised: EnrolmentClaimAuthAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: UserAlreadyEnrolledView
+                                       view: UserAlreadyEnrolledView,
+                                       connector: UserAnswersConnector,
+                                       submitPreferencesConnector: SubmitPreferencesConnector,
+                                       emailVerificationConnector: EmailVerificationConnector
                                      ) extends FrontendBaseController with I18nSupport {
   
   def onPageLoad: Action[AnyContent] = authorised {
     implicit request =>
       val vm = UserAlreadyEnrolledViewModel(config)
-      
+      connector.createUserAnswers(UserDetails("XMADP1000100210", "userId"))
+      submitPreferencesConnector.submitContactPreferences(PaperlessPreferenceSubmission(true, None, Some(true), None), "XMADP1000100210")
+      emailVerificationConnector.getEmailVerification(VerificationDetails("1230"))
       Ok(view(vm))
   }
 }

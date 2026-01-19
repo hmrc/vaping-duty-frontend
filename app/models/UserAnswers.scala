@@ -73,9 +73,9 @@ object UserAnswers {
 
     (
       (__ \ "_id").read[String] and
-      (__ \ "data").read[JsObject] and
-      (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
-    ) (UserAnswers.apply _)
+        (__ \ "data").read[JsObject] and
+        (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
+      ) (UserAnswers.apply _)
   }
 
   val writes: OWrites[UserAnswers] = {
@@ -84,9 +84,9 @@ object UserAnswers {
 
     (
       (__ \ "_id").write[String] and
-      (__ \ "data").write[JsObject] and
-      (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
-    ) (ua => (ua.id, ua.data, ua.lastUpdated))
+        (__ \ "data").write[JsObject] and
+        (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
+      ) (ua => (ua.id, ua.data, ua.lastUpdated))
   }
 
   implicit val format: OFormat[UserAnswers] = OFormat(reads, writes)
