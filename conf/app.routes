@@ -18,11 +18,11 @@ GET         /account/sign-out-survey                     controllers.auth.AuthCo
 GET         /account/sign-out                            controllers.auth.AuthController.signOutNoSurvey()
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
-GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+GET         /you-cannot-access-this-page                 controllers.UnauthorisedController.onPageLoad()
 
 # Enrolment claim
-GET        /enrolment/organisation-sign-in               controllers.enrolment.OrganisationSignInController.onPageLoad()
-GET        /enrolment/approval-id                        controllers.enrolment.UserHasApprovalIdController.onPageLoad()
-POST       /enrolment/approval-id                        controllers.enrolment.UserHasApprovalIdController.onSubmit()
-GET        /enrolment/no-approval-id                     controllers.enrolment.UserDoesNotHaveApprovalIdController.onPageLoad()
+GET        /enrolment/sign-in                            controllers.enrolment.OrganisationSignInController.onPageLoad()
+GET        /enrolment/do-you-have-an-approval-id         controllers.enrolment.UserHasApprovalIdController.onPageLoad()
+POST       /enrolment/do-you-have-an-approval-id         controllers.enrolment.UserHasApprovalIdController.onSubmit()
+GET        /enrolment/you-need-an-approval-id            controllers.enrolment.UserDoesNotHaveApprovalIdController.onPageLoad()
 GET        /enrolment/already-enrolled                   controllers.enrolment.UserAlreadyEnrolledController.onPageLoad()
