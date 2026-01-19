@@ -30,7 +30,7 @@ class UserDoesNotHaveApprovalIdViewModelSpec extends UnitSpec {
 
     val vm = UserDoesNotHaveApprovalIdViewModel(config)
 
-    "returns correct URL for signIn" in {
+    "returns correct URL for orgSignIn" in {
         vm.getGuidanceUrl mustBe config.applyForVpdIdGuidanceUrl
     }
   }
