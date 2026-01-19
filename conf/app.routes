@@ -18,7 +18,7 @@ GET         /account/sign-out-survey                     controllers.auth.AuthCo
 GET         /account/sign-out                            controllers.auth.AuthController.signOutNoSurvey()
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
-GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+GET         /you-cannot-access-this-page                 controllers.UnauthorisedController.onPageLoad()
 
 # Enrolment claim
 GET        /enrolment/sign-in                            controllers.enrolment.OrganisationSignInController.onPageLoad()
