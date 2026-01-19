@@ -26,7 +26,7 @@ class UserDoesNotHaveApprovalIdViewModelSpec extends UnitSpec {
   "UserDoesNotHaveApprovalIdViewModel" - {
 
     val config = mock[FrontendAppConfig]
-    when(config.applyForVpdIdGuidanceUrl).thenReturn("get-vppdid-guidance-url")
+    when(config.applyForVpdIdGuidanceUrl).thenReturn("get-vpdid-guidance-url")
 
     val vm = UserDoesNotHaveApprovalIdViewModel(config)
 
