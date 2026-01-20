@@ -27,22 +27,23 @@ POST       /enrolment/do-you-have-an-approval-id         controllers.enrolment.U
 GET        /enrolment/you-need-an-approval-id            controllers.enrolment.UserDoesNotHaveApprovalIdController.onPageLoad()
 GET        /enrolment/already-enrolled                   controllers.enrolment.UserAlreadyEnrolledController.onPageLoad()
 
-GET        /confirmAddress                       controllers.ConfirmAddressController.onPageLoad()
+# Contact Preferences
+GET        /contact-preferences/review-confirm-address                          controllers.ConfirmAddressController.onPageLoad()
 
-GET        /continuePostalPreference                       controllers.ContinuePostalPreferenceController.onPageLoad()
+GET        /contact-preferences/post-continue                                   controllers.ContinuePostalPreferenceController.onPageLoad()
 
-GET        /emailConfirmation                       controllers.EmailConfirmationController.onPageLoad()
+GET        /contact-preferences/email-confirmation                              controllers.EmailConfirmationController.onPageLoad()
 
-GET        /enterEmail                        controllers.EnterEmailController.onPageLoad(mode: Mode = NormalMode)
-POST       /enterEmail                        controllers.EnterEmailController.onSubmit(mode: Mode = NormalMode)
-GET        /changeEnterEmail                  controllers.EnterEmailController.onPageLoad(mode: Mode = CheckMode)
-POST       /changeEnterEmail                  controllers.EnterEmailController.onSubmit(mode: Mode = CheckMode)
+GET        /contact-preferences/enter-email-address                             controllers.EnterEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /contact-preferences/enter-email-address                             controllers.EnterEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /contact-preferences/change-enter-email-address                      controllers.EnterEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /contact-preferences/change-enter-email-address                      controllers.EnterEmailController.onSubmit(mode: Mode = CheckMode)
 
-GET        /howToBeContacted                        controllers.HowToBeContactedController.onPageLoad(mode: Mode = NormalMode)
-POST       /howToBeContacted                        controllers.HowToBeContactedController.onSubmit(mode: Mode = NormalMode)
-GET        /changeHowToBeContacted                  controllers.HowToBeContactedController.onPageLoad(mode: Mode = CheckMode)
-POST       /changeHowToBeContacted                  controllers.HowToBeContactedController.onSubmit(mode: Mode = CheckMode)
+GET        /contact-preferences/how-do-you-want-to-be-contacted                 controllers.HowToBeContactedController.onPageLoad(mode: Mode = NormalMode)
+POST       /contact-preferences/how-do-you-want-to-be-contacted                 controllers.HowToBeContactedController.onSubmit(mode: Mode = NormalMode)
+GET        /contact-preferences/change-how-do-you-want-to-be-contacted          controllers.HowToBeContactedController.onPageLoad(mode: Mode = CheckMode)
+POST       /contact-preferences/change-how-do-you-want-to-be-contacted          controllers.HowToBeContactedController.onSubmit(mode: Mode = CheckMode)
 
-GET        /lockedEmail                       controllers.LockedEmailController.onPageLoad()
+GET        /contact-preferences/account-lock-out                                controllers.LockedEmailController.onPageLoad()
 
-GET        /postalConfirmation                       controllers.PostalConfirmationController.onPageLoad()
+GET        /contact-preferences/postal-address-confirmation                     controllers.PostalConfirmationController.onPageLoad()
