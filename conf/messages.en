@@ -75,8 +75,11 @@ confirmAddress.heading = confirmAddress
 continuePostalPreference.title = continuePostalPreference
 continuePostalPreference.heading = continuePostalPreference
 
-emailConfirmation.title = emailConfirmation
-emailConfirmation.heading = emailConfirmation
+emailConfirmation.title = Your contact preference has been updated
+emailConfirmation.preferenceUpdated = Your contact preference has been updated
+emailConfirmation.weWill = We will contact you using the email address {0}.
+emailConfirmation.someMessages = Some messages may still be sent by post to your registered address, if required by law.
+emailConfirmation.backToBta = Go back to your Business Tax Account
 
 enterEmail.title = What email address should we use to contact you?
 enterEmail.heading = What email address should we use to contact you?
