@@ -14,14 +14,35 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import components._
+
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton
+        govukButton: GovukButton,
+        govukPanel: GovukPanel,
+        p: Paragraph,
+        a: Link
 )
 
 @()(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("postalConfirmation.title"))) {
 
-    <h1 class="govuk-heading-xl">@messages("postalConfirmation.heading")</h1>
+    @govukPanel(Panel(
+        title = Text(messages("postalConfirmation.preferenceUpdated"))
+    ))
+
+    @p(Seq(HtmlContent(
+        messages("postalConfirmation.weWill")
+    )))
+
+    @p(Seq(HtmlContent(
+        a(
+            id = "bta-link",
+            text = messages("site.backToBta"),
+            href = "add a vm that gets this link from config",
+            classes = "govuk-link"
+        )
+    )))
 }

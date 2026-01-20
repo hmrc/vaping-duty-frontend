@@ -10,7 +10,8 @@ site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
-site.newTab = (opens in new tab)
+site.newTab = (opens in a new tab)
+site.backToBta = Go back to your Business Tax Account
 
 date.day = Day
 date.month = Month
@@ -100,5 +101,5 @@ howToBeContacted.change.hidden = HowToBeContacted
 lockedEmail.title = lockedEmail
 lockedEmail.heading = lockedEmail
 
-postalConfirmation.title = postalConfirmation
-postalConfirmation.heading = postalConfirmation
+postalConfirmation.preferenceUpdated = Your contact preference has been updated
+postalConfirmation.weWill = We will post letters to your registered address.
