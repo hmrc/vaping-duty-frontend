@@ -18,6 +18,7 @@ package connectors
 
 import config.FrontendAppConfig
 import models.{ContactPreferenceUserAnswers, UserDetails}
+import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -26,15 +27,10 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, String
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserAnswersConnector @Inject() (
-  config: FrontendAppConfig,
-  implicit val httpClient: HttpClientV2
-)(implicit ec: ExecutionContext)
-    extends HttpReadsInstances {
+class UserAnswersConnector @Inject() (config: FrontendAppConfig,implicit val httpClient: HttpClientV2)
+                                     (implicit ec: ExecutionContext) extends HttpReadsInstances {
 
-  def get(appaId: String)(implicit
-    hc: HeaderCarrier
-  ): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] =
+  def get(appaId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] =
     httpClient
       .get(url"${config.ecpUserAnswersGetUrl(appaId)}")
       .execute[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]]
@@ -46,12 +42,39 @@ class UserAnswersConnector @Inject() (
       .withBody(Json.toJson(userAnswers))
       .execute[HttpResponse]
 
-  def createUserAnswers(
-    userDetails: UserDetails
-  )(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] =
+  def createUserAnswers(userDetails: UserDetails)
+                       (implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] = {
     httpClient
       .post(url"${config.ecpUserAnswersUrl()}")
       .withBody(Json.toJson(userDetails))
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]]
+  }
+
+  def keepAlive(userId: String)(implicit hc: HeaderCarrier): Future[Unit] =
+    httpClient
+      .post(url"${config.ecpUserAnswersKeepAliveUrl()}")
+      .setHeader("Csrf-Token" -> "nocheck")
+      .execute[HttpResponse]
+      .flatMap { response =>
+        if (response.status == NO_CONTENT) {
+          Future.successful(())
+        } else {
+          Future.failed(UpstreamErrorResponse("", response.status))
+        }
+      }
+  
+  def clear(userId: String)(implicit hc: HeaderCarrier): Future[Unit] =
+    httpClient
+      .delete(url"${config.ecpUserAnswersClearUrl()}")
+      .setHeader("Csrf-Token" -> "nocheck")
+      .execute[HttpResponse]
+      .flatMap { response =>
+        if (response.status == NO_CONTENT) {
+          Future.successful(())
+        } else {
+          Future.failed(UpstreamErrorResponse("", response.status))
+        }
+      }
+
 }

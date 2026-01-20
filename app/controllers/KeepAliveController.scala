@@ -18,8 +18,8 @@ package controllers
 
 import connectors.UserAnswersConnector
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, DataRetrievalAction}
+import models.UserDetails
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
@@ -37,8 +37,7 @@ class KeepAliveController @Inject()(
       request.userAnswers
         .map {
           answers =>
-            //contactPreferenceConnector.keepAlive(answers.userId).map(_ => Ok)
-            Future.successful(Ok)
+            contactPreferenceConnector.keepAlive(answers.userId).map(_ => Ok)
         }
         .getOrElse(Future.successful(Ok))
   }

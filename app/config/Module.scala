@@ -17,7 +17,6 @@
 package config
 
 import com.google.inject.AbstractModule
-import connectors.{VapingDutyConnector, VapingDutyConnectorHttp}
 import controllers.actions.*
 import models.{BtaLink, GetBtaLink}
 
@@ -38,6 +37,6 @@ class Module extends AbstractModule {
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
 
-    bind(classOf[VapingDutyConnector]).to(classOf[VapingDutyConnectorHttp]).asEagerSingleton()
+    //bind(classOf[VapingDutyConnector]).to(classOf[VapingDutyConnectorHttp]).asEagerSingleton()
   }
 }

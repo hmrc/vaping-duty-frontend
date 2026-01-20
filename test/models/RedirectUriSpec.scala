@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package connectors
+package models
 
-import uk.gov.hmrc.http.HeaderCarrier
+import base.SpecBase
+import models.emailverification.RedirectUri
+import play.api.libs.json.Json
 
-import scala.concurrent.Future
+class RedirectUriSpec extends SpecBase {
+  val redirectUri: RedirectUri = RedirectUri("foo")
 
-trait VapingDutyConnector {
-  def ping()(implicit hc: HeaderCarrier): Future[Unit]
+  "EmailVerificationDetails" - {
+    val json = s"""{"redirectUri":"foo"}"""
+
+    "must serialise to json" in {
+      Json.toJson(redirectUri).toString() mustBe json
+    }
+
+    "must deserialise from json" in {
+      Json.parse(json).as[RedirectUri] mustBe redirectUri
+    }
+  }
 }
-

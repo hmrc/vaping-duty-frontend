@@ -49,7 +49,7 @@ class SubmitPreferencesConnector @Inject() (
             case Success(successResponse) => Right(successResponse)
             case Failure(_)               =>
               logger.warn(
-                s"[SubmitPreferencesConnector] [submitContactPreferences] Invalid JSON format, failed to parse as PaperlessPreferenceSubmittedResponse"
+                "[SubmitPreferencesConnector] [submitContactPreferences] Invalid JSON format, failed to parse as PaperlessPreferenceSubmittedResponse"
               )
               Left(
                 ErrorModel(

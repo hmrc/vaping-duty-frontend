@@ -45,13 +45,13 @@ class EmailVerificationConnector @Inject()(
       .flatMap {
         case Right(response)              => Try(response.json.as[GetVerificationStatusResponse]) match {
             case Success(successResponse) => Future.successful(Right(successResponse))
-            case Failure(_)               => logger.warn(s"[EmailVerificationConnector] [getEmailVerification] Invalid JSON format," +
-                                              s" failed to parse as GetVerificationStatusResponse")
+            case Failure(_)               =>
+              logger.warn("[EmailVerificationConnector] [getEmailVerification] Invalid JSON format, failed to parse as GetVerificationStatusResponse")
               Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "Invalid JSON format. Could not parse response as GetVerificationStatusResponse")))
           }
-        case Left(errorResponse)          => logger.warn(s"[EmailVerificationConnector] [getEmailVerification] Unexpected response when retrieving" +
-              s" email verification details. Status: ${errorResponse.statusCode}, Message: ${errorResponse.message}")
-            Future.successful(Left(ErrorModel(errorResponse.statusCode, s"Unexpected response. Status: ${errorResponse.statusCode}")))
+        case Left(errorResponse)          =>
+          logger.warn(s"[EmailVerificationConnector] [getEmailVerification] Unexpected response when retrieving email verification details. Status: ${errorResponse.statusCode}, Message: ${errorResponse.message}")
+          Future.successful(Left(ErrorModel(errorResponse.statusCode, s"Unexpected response. Status: ${errorResponse.statusCode}")))
       }
   }
 
@@ -71,12 +71,12 @@ class EmailVerificationConnector @Inject()(
             Try(response.json.as[RedirectUri]) match {
               case Success(successResponse) =>
                 logger.info(
-                  s"[EmailVerificationConnector] [startEmailVerification] Email verification url retrieved successfully"
+                  "[EmailVerificationConnector] [startEmailVerification] Email verification url retrieved successfully"
                 )
                 Right(successResponse)
               case Failure(_)               =>
                 logger.warn(
-                  s"[EmailVerificationConnector] [startEmailVerification] Invalid JSON format, failed to parse response as a RedirectUrl"
+                  "[EmailVerificationConnector] [startEmailVerification] Invalid JSON format, failed to parse response as a RedirectUrl"
                 )
                 Left(
                   ErrorModel(INTERNAL_SERVER_ERROR, "Invalid JSON format, failed to parse response as a RedirectUrl")

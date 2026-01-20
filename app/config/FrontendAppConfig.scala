@@ -87,6 +87,12 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def ecpUserAnswersUrl(): String =
     s"$contactPreferencesHost/vaping-duty-account/user-answers"
 
+  def ecpUserAnswersKeepAliveUrl(): String =
+    s"$contactPreferencesHost/vaping-duty-account/keep-alive"
+
+  def ecpUserAnswersClearUrl(): String =
+    s"$contactPreferencesHost/vaping-duty-account/clear"
+
   def ecpUserAnswersClearAllUrl(): String =
     s"$contactPreferencesHost/vaping-duty-account/test-only/user-answers/clear-all"
 

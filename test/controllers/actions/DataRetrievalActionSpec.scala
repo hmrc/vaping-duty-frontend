@@ -23,7 +23,7 @@ import models.requests.{IdentifierRequest, OptionalDataRequest}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
-import repositories.SessionRepository
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -41,12 +41,12 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
       "must set userAnswers to 'None' in the request" in {
 
         val sessionRepository = mock[UserAnswersConnector]
-        when(sessionRepository.get("id")) thenReturn Future(Right(emptyUserAnswers))
+        when(sessionRepository.get("id")) thenReturn Future(Left(UpstreamErrorResponse.Upstream4xxResponse))
         val action = new Harness(sessionRepository)
 
         val result = action.callTransform(IdentifierRequest(FakeRequest(), "vpid", "vpgroup", "id")).futureValue
 
-        result.userAnswers mustBe Some(emptyUserAnswers)
+        result.userAnswers must not be defined
       }
     }
 
