@@ -70,8 +70,8 @@ enrolment.userDoesNotHaveApprovalId.apply = Apply for approval
 enrolment.userAlreadyEnrolled.heading = You have already enrolled for this service
 enrolment.userAlreadyEnrolled.continue = Continue to your business tax account
 
-confirmAddress.title = confirmAddress
-confirmAddress.heading = confirmAddress
+confirmAddress.title = Confirm your postal address
+confirmAddress.heading = Confirm your postal address
 
 continuePostalPreference.title = continuePostalPreference
 continuePostalPreference.heading = continuePostalPreference

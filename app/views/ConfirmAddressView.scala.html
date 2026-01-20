@@ -14,14 +14,19 @@
  * limitations under the License.
  *@
 
+@import components._
+
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton
+        govukButton: GovukButton,
+        p: Paragraph
 )
 
 @()(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("confirmAddress.title"))) {
 
-    <h1 class="govuk-heading-xl">@messages("confirmAddress.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("confirmAddress.heading")</h1>
+
+    @p(Seq(HtmlContent("PASS VIEW A SEQUENCE WITH ADDRESS LINES")))
 }
