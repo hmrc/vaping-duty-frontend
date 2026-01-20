@@ -25,6 +25,8 @@ import pages.*
 import models.*
 import uk.gov.hmrc.http.HttpVerbs.POST
 
+import scala.util.Random
+
 @Singleton
 class Navigator @Inject()(config: FrontendAppConfig) {
 
@@ -43,6 +45,16 @@ class Navigator @Inject()(config: FrontendAppConfig) {
       case Some(HowToBeContacted.Email) => routes.EnterEmailController.onPageLoad(NormalMode)
       case Some(HowToBeContacted.Post)  => routes.ConfirmAddressController.onPageLoad()
       case _                            => routes.JourneyRecoveryController.onPageLoad()
+    }
+  }
+
+  def enterEmailPageRoute(ua: UserAnswers): Call = {
+    // TODO Update with real check against verified emails list
+    if (Random.nextBoolean()) {
+      // Email entered is already verified
+      routes.EmailConfirmationController.onPageLoad()
+    } else {
+      handoffToEmailVerification()
     }
   }
 
