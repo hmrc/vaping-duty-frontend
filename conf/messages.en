@@ -73,8 +73,9 @@ enrolment.userAlreadyEnrolled.continue = Continue to your business tax account
 confirmAddress.title = Confirm your postal address
 confirmAddress.heading = Confirm your postal address
 
-continuePostalPreference.title = continuePostalPreference
-continuePostalPreference.heading = continuePostalPreference
+continuePostalPreference.title = We will continue to send you letters by post
+continuePostalPreference.heading = We will continue to send you letters by post
+continuePostalPreference.weWillSend = We will send messages about your Vaping Products Duty return to your correspondence address.
 
 emailConfirmation.title = Your contact preference has been updated
 emailConfirmation.preferenceUpdated = Your contact preference has been updated

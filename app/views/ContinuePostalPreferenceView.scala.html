@@ -14,14 +14,32 @@
  * limitations under the License.
  *@
 
+@import components._
+
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton
+        govukButton: GovukButton,
+        h1: Heading,
+        p: Paragraph,
+        link: Link
 )
 
 @()(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("continuePostalPreference.title"))) {
 
-    <h1 class="govuk-heading-xl">@messages("continuePostalPreference.heading")</h1>
+    @h1(messages("continuePostalPreference.heading"))
+
+    @p(Seq(HtmlContent(
+        messages("continuePostalPreference.weWillSend")
+    )))
+
+    @p(Seq(HtmlContent(
+        link(
+            id = "bta-link",
+            text = messages("site.backToBta"),
+            href = "add a vm that gets this link from config",
+            classes = "govuk-link"
+        )
+    )))
 }
