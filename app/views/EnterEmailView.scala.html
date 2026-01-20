@@ -15,6 +15,7 @@
  *@
 
 @import viewmodels.InputWidth._
+@import viewmodels.LabelSize
 
 @this(
     layout: templates.Layout,
@@ -37,7 +38,7 @@
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("enterEmail.heading")).asPageHeading()
+                label = LabelViewModel(messages("enterEmail.heading")).asPageHeading(LabelSize.Large)
             )
             .withWidth(Full)
         )

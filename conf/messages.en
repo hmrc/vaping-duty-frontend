@@ -78,11 +78,11 @@ continuePostalPreference.heading = continuePostalPreference
 emailConfirmation.title = emailConfirmation
 emailConfirmation.heading = emailConfirmation
 
-enterEmail.title = enterEmail
-enterEmail.heading = enterEmail
+enterEmail.title = What email address should we use to contact you?
+enterEmail.heading = What email address should we use to contact you?
 enterEmail.checkYourAnswersLabel = enterEmail
 enterEmail.error.required = Enter enterEmail
-enterEmail.error.length = EnterEmail must be 100 characters or less
+enterEmail.error.length = Email must be 100 characters or less
 enterEmail.change.hidden = EnterEmail
 
 howToBeContacted.title = How would you like to be contacted?
