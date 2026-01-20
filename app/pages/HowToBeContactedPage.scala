@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package generators
+package pages
 
-import models._
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Arbitrary, Gen}
+import models.HowToBeContacted
+import play.api.libs.json.JsPath
 
-trait ModelGenerators {
+case object HowToBeContactedPage extends QuestionPage[HowToBeContacted] {
 
-  implicit lazy val arbitraryHowToBeContacted: Arbitrary[HowToBeContacted] =
-    Arbitrary {
-      Gen.oneOf(HowToBeContacted.values.toSeq)
-    }
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "howToBeContacted"
 }

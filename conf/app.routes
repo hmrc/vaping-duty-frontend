@@ -26,3 +26,23 @@ GET        /enrolment/do-you-have-an-approval-id         controllers.enrolment.U
 POST       /enrolment/do-you-have-an-approval-id         controllers.enrolment.UserHasApprovalIdController.onSubmit()
 GET        /enrolment/you-need-an-approval-id            controllers.enrolment.UserDoesNotHaveApprovalIdController.onPageLoad()
 GET        /enrolment/already-enrolled                   controllers.enrolment.UserAlreadyEnrolledController.onPageLoad()
+
+GET        /confirmAddress                       controllers.ConfirmAddressController.onPageLoad()
+
+GET        /continuePostalPreference                       controllers.ContinuePostalPreferenceController.onPageLoad()
+
+GET        /emailConfirmation                       controllers.EmailConfirmationController.onPageLoad()
+
+GET        /enterEmail                        controllers.EnterEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /enterEmail                        controllers.EnterEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /changeEnterEmail                  controllers.EnterEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeEnterEmail                  controllers.EnterEmailController.onSubmit(mode: Mode = CheckMode)
+
+GET        /howToBeContacted                        controllers.HowToBeContactedController.onPageLoad(mode: Mode = NormalMode)
+POST       /howToBeContacted                        controllers.HowToBeContactedController.onSubmit(mode: Mode = NormalMode)
+GET        /changeHowToBeContacted                  controllers.HowToBeContactedController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeHowToBeContacted                  controllers.HowToBeContactedController.onSubmit(mode: Mode = CheckMode)
+
+GET        /lockedEmail                       controllers.LockedEmailController.onPageLoad()
+
+GET        /postalConfirmation                       controllers.PostalConfirmationController.onPageLoad()
