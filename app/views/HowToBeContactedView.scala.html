@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import viewmodels.LegendSize
+
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
@@ -35,9 +37,9 @@
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("howToBeContacted.heading")).asPageHeading(),
+                legend = LegendViewModel(messages("howToBeContacted.heading")).asPageHeading(LegendSize.Large),
                 items  = HowToBeContacted.options
-            )
+            ).withHint(Hint(content = HtmlContent(messages("howToBeContacted.hint"))))
         )
 
         @govukButton(

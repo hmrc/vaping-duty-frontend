@@ -85,8 +85,9 @@ enterEmail.error.required = Enter enterEmail
 enterEmail.error.length = EnterEmail must be 100 characters or less
 enterEmail.change.hidden = EnterEmail
 
-howToBeContacted.title = howToBeContacted
-howToBeContacted.heading = howToBeContacted
+howToBeContacted.title = How would you like to be contacted?
+howToBeContacted.heading = How would you like to be contacted?
+howToBeContacted.hint = The method selected will be used for general enquiries and Vaping Products Duty information.
 howToBeContacted.email = Email
 howToBeContacted.post = Post
 howToBeContacted.checkYourAnswersLabel = howToBeContacted

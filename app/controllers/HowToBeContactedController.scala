@@ -16,10 +16,11 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
 import forms.HowToBeContactedFormProvider
+
 import javax.inject.Inject
-import models.Mode
+import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.HowToBeContactedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -44,10 +45,10 @@ class HowToBeContactedController @Inject()(
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(HowToBeContactedPage) match {
+      val preparedForm = request.userAnswers.getOrElse(UserAnswers(request.userId)).get(HowToBeContactedPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
@@ -55,7 +56,7 @@ class HowToBeContactedController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
@@ -64,7 +65,7 @@ class HowToBeContactedController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(HowToBeContactedPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(UserAnswers(request.userId)).set(HowToBeContactedPage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(HowToBeContactedPage, mode, updatedAnswers))
       )
