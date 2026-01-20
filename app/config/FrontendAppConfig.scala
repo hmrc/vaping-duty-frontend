@@ -44,7 +44,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val loginContinueUrl: String               = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String                     = configuration.get[String]("urls.signOut")
 
-  val organisationSignInUrl: String          = configuration.get[String]("urls.organisationSignIn")
   val organisationAcctGuidanceUrl: String    = configuration.get[String]("urls.organisationAcctGuidance")
   val applyForVpdIdGuidanceUrl: String       = configuration.get[String]("urls.applyForVpdIdGuidanceUrl")
   val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount")
@@ -56,8 +55,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     configuration.get[String]("urls.enrolmentManagementFrontend") +
       s"/$enrolmentServiceName/request-access-tax-scheme?continue=$continueToBta"
 
-  val orgSignInUrl: String = s"$organisationSignInUrl?continue=/vaping-duty/enrolment/approval-id" +
-    s"&affinityGroup=${AffinityGroup.Organisation}"
+  private val enrolmentContinuePath: String  = "/vaping-duty/enrolment/do-you-have-an-approval-id"
+
+  val orgSignInUrl: String =
+    s"$loginUrl?continue=${host + enrolmentContinuePath}&affinityGroup=${AffinityGroup.Organisation}"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
