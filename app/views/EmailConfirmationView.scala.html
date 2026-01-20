@@ -22,7 +22,7 @@
         govukButton: GovukButton,
         govukPanel: GovukPanel,
         p: Paragraph,
-        a: Link
+        link: Link
 )
 
 @()(implicit request: Request[_], messages: Messages)
@@ -42,7 +42,7 @@
     )))
 
     @p(Seq(HtmlContent(
-        a(
+        link(
             id = "bta-link",
             text = messages("site.backToBta"),
             href = "add a vm that gets this link from config",
