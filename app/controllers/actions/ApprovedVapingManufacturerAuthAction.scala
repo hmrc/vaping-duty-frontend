@@ -92,6 +92,7 @@ class ApprovedVapingManufacturerAuthActionImpl @Inject()(override val authConnec
 
   private def handleAuthException: PartialFunction[AuthorisationException, Result] = {
     case _: UnsupportedCredentialRole => Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
+    case _: UnsupportedAffinityGroup  => Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
     case _: NoActiveSession           => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
     case _                            => Redirect(routes.UnauthorisedController.onPageLoad())
   }
