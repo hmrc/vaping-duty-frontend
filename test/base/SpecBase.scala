@@ -16,12 +16,14 @@
 
 package base
 
-import controllers.actions._
+import config.FrontendAppConfig
+import controllers.actions.*
 import models.UserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
@@ -37,6 +39,8 @@ trait SpecBase
     with IntegrationPatience {
 
   val userAnswersId: String = "id"
+  
+  val mockAppConfig = mock[FrontendAppConfig]
 
   def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
 

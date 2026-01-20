@@ -87,7 +87,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
             bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()

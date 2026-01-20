@@ -17,13 +17,18 @@
 package navigation
 
 import base.SpecBase
+import config.FrontendAppConfig
 import controllers.routes
-import pages._
-import models._
+import pages.*
+import models.*
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.mvc.Call
+import uk.gov.hmrc.http.HttpVerbs.POST
 
 class NavigatorSpec extends SpecBase {
 
-  val navigator = new Navigator
+  override val mockAppConfig = mock[FrontendAppConfig]
+  val navigator = new Navigator(mockAppConfig)
 
   "Navigator" - {
 
@@ -33,6 +38,24 @@ class NavigatorSpec extends SpecBase {
 
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.IndexController.onPageLoad()
+      }
+
+      "must go from HowToBeContacted page to EnterEmail page" in {
+
+        val ua = UserAnswers("id").set(HowToBeContactedPage, HowToBeContacted.Email).success.value
+        navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe routes.EnterEmailController.onPageLoad(NormalMode)
+      }
+
+      "must go from HowToBeContacted page to Post page" in {
+
+        val ua = UserAnswers("id").set(HowToBeContactedPage, HowToBeContacted.Post).success.value
+        navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe routes.ConfirmAddressController.onPageLoad()
+      }
+
+      "must go from EnterEmail page to Email Verification Service when address is unverified" in {
+        //TODO Must expand UA to include verified email list
+        val ua = UserAnswers("id").set(HowToBeContactedPage, HowToBeContacted.Email).success.value
+        navigator.nextPage(EnterEmailPage, NormalMode, ua) mustBe Call(POST, mockAppConfig.loginUrl)
       }
     }
 
