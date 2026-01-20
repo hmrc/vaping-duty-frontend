@@ -98,8 +98,10 @@ howToBeContacted.checkYourAnswersLabel = howToBeContacted
 howToBeContacted.error.required = Select howToBeContacted
 howToBeContacted.change.hidden = HowToBeContacted
 
-lockedEmail.title = lockedEmail
-lockedEmail.heading = lockedEmail
+lockedEmail.title = You cannot request another confirmation code
+lockedEmail.heading = You cannot request another confirmation code
+lockedEmail.toKeepYour = To keep your account secure, we limit how many times you can request an email confirmation code.
+lockedEmail.tryAgain = You can try again in 24 hours.
 
 postalConfirmation.preferenceUpdated = Your contact preference has been updated
 postalConfirmation.weWill = We will post letters to your registered address.
