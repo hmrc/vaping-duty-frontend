@@ -16,7 +16,10 @@
 
 package controllers
 
-import controllers.actions._
+import config.FrontendAppConfig
+import controllers.actions.*
+import models.BtaLink
+
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -29,11 +32,14 @@ class LockedEmailController @Inject()(
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: LockedEmailView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                       view: LockedEmailView,
+                                       config: FrontendAppConfig
+                                     ) extends FrontendBaseController with I18nSupport with BtaLink {
 
   def onPageLoad: Action[AnyContent] = (identify) {
     implicit request =>
-      Ok(view())
+      Ok(view(btaLink))
   }
+
+  override def btaLink: String = config.continueToBta
 }

@@ -24,7 +24,7 @@
         link: Link
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(btaLink: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("lockedEmail.title"))) {
 
@@ -42,7 +42,7 @@
         link(
             id = "bta-link",
             text = messages("site.backToBta"),
-            href = "add a vm that gets this link from config",
+            href = btaLink,
             classes = "govuk-link"
         )
     )))
