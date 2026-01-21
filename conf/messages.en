@@ -79,7 +79,7 @@ continuePostalPreference.weWillSend = We will send messages about your Vaping Pr
 
 emailConfirmation.title = Your contact preference has been updated
 emailConfirmation.preferenceUpdated = Your contact preference has been updated
-emailConfirmation.weWill = We will contact you using the email address {0}.
+emailConfirmation.weWill = We will contact you using the email address
 emailConfirmation.someMessages = Some messages may still be sent by post to your registered address, if required by law.
 emailConfirmation.backToBta = Go back to your Business Tax Account
 

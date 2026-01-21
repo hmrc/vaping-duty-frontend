@@ -16,7 +16,9 @@
 
 package controllers.contactPreference
 
+import connectors.SubmitPreferencesConnector
 import controllers.actions.*
+import models.emailverification.PaperlessPreferenceSubmission
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -30,11 +32,14 @@ class PostalConfirmationController @Inject()(
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: PostalConfirmationView
+                                       view: PostalConfirmationView,
+                                       connector: SubmitPreferencesConnector
                                      ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify) {
     implicit request =>
+      connector.submitContactPreferences(PaperlessPreferenceSubmission(false, None, None, None), request.enrolmentVpdId)
+
       Ok(view())
   }
 }

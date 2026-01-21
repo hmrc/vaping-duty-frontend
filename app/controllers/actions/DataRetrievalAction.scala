@@ -29,13 +29,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DataRetrievalActionImpl @Inject()(
                                          val contactPreferencesConnector: UserAnswersConnector
-                                       )(implicit val executionContext: ExecutionContext, hc: HeaderCarrier) extends DataRetrievalAction {
+                                       )(implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = {
 
-    contactPreferencesConnector.get(request.userId).map {
-      case Left(_)    => OptionalDataRequest(request, request.userId, None)
-      case Right(ua)  => OptionalDataRequest(request.request, request.userId, Some(ua))
+    val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+    contactPreferencesConnector.get(request.enrolmentVpdId)(headerCarrier).map {
+      case Left(_)    => OptionalDataRequest(request, request.enrolmentVpdId, request.userId, None)
+      case Right(ua)  => OptionalDataRequest(request.request, request.enrolmentVpdId, request.userId, Some(ua))
     }
   }
 }

@@ -19,19 +19,21 @@ package controllers.contactPreference
 import connectors.UserAnswersConnector
 import controllers.actions.*
 import forms.HowToBeContactedFormProvider
-import models.{ContactPreferenceUserAnswers, Mode, SubscriptionSummary, UserAnswers}
+import models.{ContactPreferenceUserAnswers, Mode, SubscriptionSummary, UserAnswers, UserDetails}
 import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
+import play.api.i18n.Lang.logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.HowToBeContactedView
 
 import java.time.Instant
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.impl.Promise
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class HowToBeContactedController @Inject()(
                                        override val messagesApi: MessagesApi,
@@ -47,15 +49,32 @@ class HowToBeContactedController @Inject()(
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
 
-      val preparedForm = request.userAnswers.getOrElse(ContactPreferenceUserAnswers("vpdId", request.userId, SubscriptionSummary(true, None, None, None, correspondenceAddress = "", None), None, Set.empty, JsObject.empty, Instant.now(), Instant.now())).get(HowToBeContactedPage) match {
+      val preparedForm = request.userAnswers.getOrElse(
+        ContactPreferenceUserAnswers(
+          request.vpdId,
+          request.userId,
+          SubscriptionSummary(false, None, None, None, "", None),
+          None,
+          Set.empty,
+          JsObject.empty,
+          Instant.now(),
+          Instant.now()
+        )
+      ).get(HowToBeContactedPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, mode))
+
+      sessionRepository.createUserAnswers(UserDetails(request.vpdId, request.userId)).map {
+        case Left(err) =>
+          logger.info(err.message)
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case Right(_) => Ok(view(preparedForm, mode))
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
@@ -67,7 +86,7 @@ class HowToBeContactedController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(ContactPreferenceUserAnswers("vpdId", request.userId, SubscriptionSummary(true, None, None, None, correspondenceAddress = "", None), None, Set.empty, JsObject.empty, Instant.now(), Instant.now())).set(HowToBeContactedPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(ContactPreferenceUserAnswers(request.vpdId, request.userId, SubscriptionSummary(true, None, None, None, correspondenceAddress = "", None), None, Set.empty, JsObject.empty, Instant.now(), Instant.now())).set(HowToBeContactedPage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(HowToBeContactedPage, mode, updatedAnswers))
       )

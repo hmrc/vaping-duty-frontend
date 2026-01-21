@@ -22,11 +22,17 @@
         p: Paragraph
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(storedAddress: Seq[String])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("confirmAddress.title"))) {
 
     <h1 class="govuk-heading-l">@messages("confirmAddress.heading")</h1>
-
-    @p(Seq(HtmlContent("PASS VIEW A SEQUENCE WITH ADDRESS LINES")))
+<ul class="govuk-list">
+    @storedAddress.map { line =>
+    <li>@line</li>
+    }
+</ul>
+    @govukButton(
+        ButtonViewModel("Confirm Address").asLink(controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url)
+    )
 }

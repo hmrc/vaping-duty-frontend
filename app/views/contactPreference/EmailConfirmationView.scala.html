@@ -25,7 +25,7 @@
         link: Link
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(email: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("emailConfirmation.title"))) {
 
@@ -34,7 +34,7 @@
     ))
 
     @p(Seq(HtmlContent(
-        messages("emailConfirmation.weWill", "PULL THIS FROM UA/API RESPONSE")
+        messages("emailConfirmation.weWill") + " " + <b>{ email }.</b>
     )))
 
     @p(Seq(HtmlContent(

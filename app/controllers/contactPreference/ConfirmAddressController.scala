@@ -33,8 +33,14 @@ class ConfirmAddressController @Inject()(
                                        view: ConfirmAddressView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify) {
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-      Ok(view())
+
+      println("@@@@@@@@@@@@@@@@" + request.userAnswers.subscriptionSummary.correspondenceAddress)
+      val storedAddress = request.userAnswers.subscriptionSummary.correspondenceAddress.split("\n").toSeq
+
+      println(storedAddress)
+
+      Ok(view(storedAddress))
   }
 }

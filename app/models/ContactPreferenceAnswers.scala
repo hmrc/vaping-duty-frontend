@@ -25,7 +25,7 @@ import java.time.Instant
 import scala.util.{Failure, Success, Try}
 
 final case class ContactPreferenceUserAnswers(
-  appaId: String,
+  vpdId: String,
   userId: String,
   subscriptionSummary: SubscriptionSummary,
   emailAddress: Option[String],
@@ -73,7 +73,7 @@ final case class ContactPreferenceUserAnswers(
 object ContactPreferenceUserAnswers {
 
   implicit val format: OFormat[ContactPreferenceUserAnswers] = (
-    (__ \ "appaId").format[String] and
+    (__ \ "vpdId").format[String] and
       (__ \ "userId").format[String] and
       (__ \ "subscriptionSummary").format[SubscriptionSummary] and
       (__ \ "emailAddress").formatNullable[String] and

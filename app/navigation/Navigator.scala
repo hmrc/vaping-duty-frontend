@@ -51,7 +51,8 @@ class Navigator @Inject()(config: FrontendAppConfig) {
 
   private def enterEmailPageRoute(ua: ContactPreferenceUserAnswers): Call = {
     // TODO Update with real check against verified emails list
-    if (false) {
+    val check = ua.verifiedEmailAddresses.contains(ua.get(EnterEmailPage).getOrElse(""))
+    if (check) {
       // Email entered is already verified
       controllers.contactPreference.routes.EmailConfirmationController.onPageLoad()
     } else {
@@ -60,8 +61,7 @@ class Navigator @Inject()(config: FrontendAppConfig) {
   }
 
   private def handoffToEmailVerification() = {
-    // TODO add actual url
-    Call(POST, config.loginUrl)
+    Call(POST, config.startEmailVerificationJourneyUrl)
   }
 
   def nextPage(page: Page, mode: Mode, userAnswers: ContactPreferenceUserAnswers): Call = mode match {
