@@ -16,6 +16,7 @@
 
 package controllers.contactPreference
 
+import connectors.UserAnswersConnector
 import controllers.actions.*
 import forms.EnterEmailFormProvider
 import models.Mode
@@ -31,15 +32,15 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class EnterEmailController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        identify: ApprovedVapingManufacturerAuthAction,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: EnterEmailFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: EnterEmailView
+                                      override val messagesApi: MessagesApi,
+                                      sessionRepository: UserAnswersConnector,
+                                      navigator: Navigator,
+                                      identify: ApprovedVapingManufacturerAuthAction,
+                                      getData: DataRetrievalAction,
+                                      requireData: DataRequiredAction,
+                                      formProvider: EnterEmailFormProvider,
+                                      val controllerComponents: MessagesControllerComponents,
+                                      view: EnterEmailView
                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form = formProvider()

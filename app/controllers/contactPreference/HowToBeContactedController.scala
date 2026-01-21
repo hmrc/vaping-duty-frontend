@@ -16,23 +16,26 @@
 
 package controllers.contactPreference
 
+import connectors.UserAnswersConnector
 import controllers.actions.*
 import forms.HowToBeContactedFormProvider
-import models.{Mode, UserAnswers}
+import models.{ContactPreferenceUserAnswers, Mode, SubscriptionSummary, UserAnswers}
 import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.HowToBeContactedView
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class HowToBeContactedController @Inject()(
                                        override val messagesApi: MessagesApi,
-                                       sessionRepository: SessionRepository,
+                                       sessionRepository: UserAnswersConnector,
                                        navigator: Navigator,
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        getData: DataRetrievalAction,
@@ -47,7 +50,7 @@ class HowToBeContactedController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.getOrElse(UserAnswers(request.userId)).get(HowToBeContactedPage) match {
+      val preparedForm = request.userAnswers.getOrElse(ContactPreferenceUserAnswers("vpdId", request.userId, SubscriptionSummary(true, None, None, None, correspondenceAddress = "", None), None, Set.empty, JsObject.empty, Instant.now(), Instant.now())).get(HowToBeContactedPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
@@ -64,7 +67,7 @@ class HowToBeContactedController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(UserAnswers(request.userId)).set(HowToBeContactedPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(ContactPreferenceUserAnswers("vpdId", request.userId, SubscriptionSummary(true, None, None, None, correspondenceAddress = "", None), None, Set.empty, JsObject.empty, Instant.now(), Instant.now())).set(HowToBeContactedPage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(HowToBeContactedPage, mode, updatedAnswers))
       )
