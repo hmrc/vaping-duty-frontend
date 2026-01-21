@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package pages
+package pages.contactPreference
 
 import models.HowToBeContacted
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object HowToBeContactedPage extends QuestionPage[HowToBeContacted] {

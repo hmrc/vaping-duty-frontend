@@ -28,7 +28,7 @@
 
 @layout(pageTitle = title(form, messages("howToBeContacted.title"))) {
 
-    @formHelper(action = routes.HowToBeContactedController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.contactPreference.routes.HowToBeContactedController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))

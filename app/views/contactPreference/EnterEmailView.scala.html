@@ -29,7 +29,7 @@
 
 @layout(pageTitle = title(form, messages("enterEmail.title"))) {
 
-    @formHelper(action = routes.EnterEmailController.onSubmit(mode)) {
+    @formHelper(action = controllers.contactPreference.routes.EnterEmailController.onSubmit(mode)) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

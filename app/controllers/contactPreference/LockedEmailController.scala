@@ -14,26 +14,32 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.contactPreference
 
-import controllers.actions._
-import javax.inject.Inject
+import config.FrontendAppConfig
+import controllers.actions.*
+import models.BtaLink
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.PostalConfirmationView
+import views.html.contactPreference.LockedEmailView
 
-class PostalConfirmationController @Inject()(
+import javax.inject.Inject
+
+class LockedEmailController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: PostalConfirmationView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                       view: LockedEmailView,
+                                       config: FrontendAppConfig
+                                     ) extends FrontendBaseController with I18nSupport with BtaLink {
 
   def onPageLoad: Action[AnyContent] = (identify) {
     implicit request =>
-      Ok(view())
+      Ok(view(btaLink))
   }
+
+  override def btaLink: String = config.continueToBta
 }

@@ -22,6 +22,7 @@ import controllers.routes
 import pages.*
 import models.*
 import org.scalatestplus.mockito.MockitoSugar.mock
+import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
 import play.api.mvc.Call
 import uk.gov.hmrc.http.HttpVerbs.POST
 
@@ -43,13 +44,13 @@ class NavigatorSpec extends SpecBase {
       "must go from HowToBeContacted page to EnterEmail page" in {
 
         val ua = UserAnswers("id").set(HowToBeContactedPage, HowToBeContacted.Email).success.value
-        navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe routes.EnterEmailController.onPageLoad(NormalMode)
+        navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe controllers.contactPreference.routes.EnterEmailController.onPageLoad(NormalMode)
       }
 
       "must go from HowToBeContacted page to Post page" in {
 
         val ua = UserAnswers("id").set(HowToBeContactedPage, HowToBeContacted.Post).success.value
-        navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe routes.ConfirmAddressController.onPageLoad()
+        navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe controllers.contactPreference.routes.ConfirmAddressController.onPageLoad()
       }
 
       "must go from EnterEmail page to Email Verification Service when address is unverified" in {

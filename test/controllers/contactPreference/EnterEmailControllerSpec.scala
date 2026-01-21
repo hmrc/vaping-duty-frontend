@@ -14,46 +14,47 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.contactPreference
 
 import base.SpecBase
-import forms.HowToBeContactedFormProvider
-import models.{NormalMode, HowToBeContacted, UserAnswers}
+import controllers.routes
+import forms.EnterEmailFormProvider
+import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.HowToBeContactedPage
+import pages.contactPreference.EnterEmailPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.HowToBeContactedView
+import views.html.contactPreference.EnterEmailView
 
 import scala.concurrent.Future
 
-class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
+class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  lazy val howToBeContactedRoute = routes.HowToBeContactedController.onPageLoad(NormalMode).url
-
-  val formProvider = new HowToBeContactedFormProvider()
+  val formProvider = new EnterEmailFormProvider()
   val form = formProvider()
 
-  "HowToBeContacted Controller" - {
+  lazy val enterEmailRoute = controllers.contactPreference.routes.EnterEmailController.onPageLoad(NormalMode).url
+
+  "EnterEmail Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, howToBeContactedRoute)
+        val request = FakeRequest(GET, enterEmailRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[HowToBeContactedView]
+        val view = application.injector.instanceOf[EnterEmailView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -62,19 +63,19 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(HowToBeContactedPage, HowToBeContacted.values.head).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(EnterEmailPage, "answer").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, howToBeContactedRoute)
+        val request = FakeRequest(GET, enterEmailRoute)
 
-        val view = application.injector.instanceOf[HowToBeContactedView]
+        val view = application.injector.instanceOf[EnterEmailView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(HowToBeContacted.values.head), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -94,8 +95,8 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, howToBeContactedRoute)
-            .withFormUrlEncodedBody(("value", HowToBeContacted.values.head.toString))
+          FakeRequest(POST, enterEmailRoute)
+            .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
 
@@ -110,12 +111,12 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, howToBeContactedRoute)
-            .withFormUrlEncodedBody(("value", "invalid value"))
+          FakeRequest(POST, enterEmailRoute)
+            .withFormUrlEncodedBody(("value", ""))
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+        val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[HowToBeContactedView]
+        val view = application.injector.instanceOf[EnterEmailView]
 
         val result = route(application, request).value
 
@@ -124,35 +125,34 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-//    "must redirect to Journey Recovery for a GET if no existing data is found" in {
-//
-//      val application = applicationBuilder(userAnswers = None).build()
-//
-//      running(application) {
-//        val request = FakeRequest(GET, howToBeContactedRoute)
-//
-//        val result = route(application, request).value
-//
-//        status(result) mustEqual SEE_OTHER
-//        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-//      }
-//    }
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-//    "redirect to Journey Recovery for a POST if no existing data is found" in {
-//
-//      val application = applicationBuilder(userAnswers = None).build()
-//
-//      running(application) {
-//        val request =
-//          FakeRequest(POST, howToBeContactedRoute)
-//            .withFormUrlEncodedBody(("value", HowToBeContacted.values.head.toString))
-//
-//        val result = route(application, request).value
-//
-//        status(result) mustEqual SEE_OTHER
-//
-//        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-//      }
-//    }
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request = FakeRequest(GET, enterEmailRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a POST if no existing data is found" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, enterEmailRoute)
+            .withFormUrlEncodedBody(("value", "answer"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
   }
 }

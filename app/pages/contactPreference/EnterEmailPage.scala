@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package pages
+package pages.contactPreference
 
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object EnterEmailPage extends QuestionPage[String] {

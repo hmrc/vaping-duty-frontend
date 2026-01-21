@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.contactPreference
 
-import controllers.actions._
-import javax.inject.Inject
+import controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.ConfirmAddressView
+import views.html.contactPreference.PostalConfirmationView
 
-class ConfirmAddressController @Inject()(
+import javax.inject.Inject
+
+class PostalConfirmationController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: ConfirmAddressView
+                                       view: PostalConfirmationView
                                      ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify) {

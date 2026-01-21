@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.HowToBeContactedPage
+import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -42,7 +42,7 @@ object HowToBeContactedSummary  {
           key     = "howToBeContacted.checkYourAnswersLabel",
           value   = value,
           actions = Seq(
-            ActionItemViewModel("site.change", routes.HowToBeContactedController.onPageLoad(CheckMode).url)
+            ActionItemViewModel("site.change", controllers.contactPreference.routes.HowToBeContactedController.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("howToBeContacted.change.hidden"))
           )
         )

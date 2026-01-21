@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.EnterEmailPage
+import pages.contactPreference.EnterEmailPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -35,7 +35,7 @@ object EnterEmailSummary  {
           key     = "enterEmail.checkYourAnswersLabel",
           value   = ValueViewModel(HtmlFormat.escape(answer).toString),
           actions = Seq(
-            ActionItemViewModel("site.change", routes.EnterEmailController.onPageLoad(CheckMode).url)
+            ActionItemViewModel("site.change", controllers.contactPreference.routes.EnterEmailController.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("enterEmail.change.hidden"))
           )
         )

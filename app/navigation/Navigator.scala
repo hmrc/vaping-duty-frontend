@@ -23,6 +23,7 @@ import play.api.mvc.Call
 import controllers.routes
 import pages.*
 import models.*
+import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
 import uk.gov.hmrc.http.HttpVerbs.POST
 
 import scala.util.Random
@@ -32,7 +33,7 @@ class Navigator @Inject()(config: FrontendAppConfig) {
 
   private val normalRoutes: Page => UserAnswers => Call = {
     case HowToBeContactedPage   => ua => howToBeContactedRoute(ua)
-    case EnterEmailPage         => _  => handoffToEmailVerification()
+    case EnterEmailPage         => ua  => enterEmailPageRoute(ua)
     case _                      => _  => routes.IndexController.onPageLoad()
   }
 
@@ -42,17 +43,17 @@ class Navigator @Inject()(config: FrontendAppConfig) {
 
   def howToBeContactedRoute(ua: UserAnswers): Call = {
     ua.get(HowToBeContactedPage) match {
-      case Some(HowToBeContacted.Email) => routes.EnterEmailController.onPageLoad(NormalMode)
-      case Some(HowToBeContacted.Post)  => routes.ConfirmAddressController.onPageLoad()
+      case Some(HowToBeContacted.Email) => controllers.contactPreference.routes.EnterEmailController.onPageLoad(NormalMode)
+      case Some(HowToBeContacted.Post)  => controllers.contactPreference.routes.ConfirmAddressController.onPageLoad()
       case _                            => routes.JourneyRecoveryController.onPageLoad()
     }
   }
 
-  def enterEmailPageRoute(ua: UserAnswers): Call = {
+  private def enterEmailPageRoute(ua: UserAnswers): Call = {
     // TODO Update with real check against verified emails list
-    if (Random.nextBoolean()) {
+    if (false) {
       // Email entered is already verified
-      routes.EmailConfirmationController.onPageLoad()
+      controllers.contactPreference.routes.EmailConfirmationController.onPageLoad()
     } else {
       handoffToEmailVerification()
     }

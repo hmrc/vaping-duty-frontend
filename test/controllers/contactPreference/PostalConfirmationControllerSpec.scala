@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.contactPreference
 
 import base.SpecBase
+import controllers.routes
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import views.html.ConfirmAddressView
+import play.api.test.Helpers.*
+import views.html.contactPreference.PostalConfirmationView
 
-class ConfirmAddressControllerSpec extends SpecBase {
+class PostalConfirmationControllerSpec extends SpecBase {
 
-  "ConfirmAddress Controller" - {
+  "PostalConfirmation Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.ConfirmAddressController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ConfirmAddressView]
+        val view = application.injector.instanceOf[PostalConfirmationView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view()(request, messages(application)).toString

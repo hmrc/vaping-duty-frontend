@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.contactPreference
 
 import controllers.actions.*
 import forms.HowToBeContactedFormProvider
-
-import javax.inject.Inject
 import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.HowToBeContactedPage
+import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.HowToBeContactedView
+import views.html.contactPreference.HowToBeContactedView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class HowToBeContactedController @Inject()(

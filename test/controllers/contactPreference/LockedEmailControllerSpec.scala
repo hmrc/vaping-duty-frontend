@@ -14,30 +14,33 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.contactPreference
 
 import base.SpecBase
+import org.mockito.Mockito.when
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import views.html.PostalConfirmationView
+import play.api.test.Helpers.*
+import views.html.contactPreference.LockedEmailView
 
-class PostalConfirmationControllerSpec extends SpecBase {
+class LockedEmailControllerSpec extends SpecBase {
 
-  "PostalConfirmation Controller" - {
+  "LockedEmail Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
+      when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account")
+
       running(application) {
-        val request = FakeRequest(GET, routes.PostalConfirmationController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.contactPreference.routes.LockedEmailController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[PostalConfirmationView]
+        val view = application.injector.instanceOf[LockedEmailView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(mockAppConfig.continueToBta)(request, messages(application)).toString
       }
     }
   }
