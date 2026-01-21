@@ -255,7 +255,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
     "the user has an unsupported credential role" - {
 
-      "must redirect the user to the organisation sign in guidance page" in {
+      "must redirect the user to the unauthorised page" in {
 
         val result = failingController(new UnsupportedCredentialRole).onPageLoad()(FakeRequest())
 
