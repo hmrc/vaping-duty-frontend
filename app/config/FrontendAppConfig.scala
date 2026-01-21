@@ -52,7 +52,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val exitSurveyUrl: String                  = s"$exitSurveyBaseUrl/feedback/vaping-duty-frontend"
 
   val eacdEnrolmentClaimRedirectUrl: String  =
-    configuration.get[String]("urls.enrolmentManagementUrl") +
+    configuration.get[String]("urls.enrolmentManagementFrontend") +
       s"/$enrolmentServiceName/request-access-tax-scheme?continue=$continueToBta"
 
   val languageTranslationEnabled: Boolean =
