@@ -36,11 +36,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
+  val enrolmentServiceName = configuration.get[String]("enrolment.serviceName")
+  val enrolmentIdentifierKey = configuration.get[String]("enrolment.identifierKey")
+
   val loginUrl: String                       = configuration.get[String]("urls.login")
   val loginContinueUrl: String               = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String                     = configuration.get[String]("urls.signOut")
 
-  val eacdEnrolmentClaimRedirectUrl: String  = configuration.get[String]("urls.eacdEnrolmentClaimRedirectUrl")
   val organisationSignInUrl: String          = configuration.get[String]("urls.organisationSignIn")
   val organisationAcctGuidanceUrl: String    = configuration.get[String]("urls.organisationAcctGuidance")
   val applyForVpdIdGuidanceUrl: String       = configuration.get[String]("urls.applyForVpdIdGuidanceUrl")
@@ -48,6 +50,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   
   private val exitSurveyBaseUrl: String      = configuration.get[String]("urls.feedback-frontend-base-url")
   val exitSurveyUrl: String                  = s"$exitSurveyBaseUrl/feedback/vaping-duty-frontend"
+
+  val eacdEnrolmentClaimRedirectUrl: String  =
+    configuration.get[String]("urls.enrolmentManagementUrl") +
+      s"/$enrolmentServiceName/request-access-tax-scheme?continue=$continueToBta"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
@@ -61,9 +67,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
-
-  val enrolmentServiceName = configuration.get[String]("enrolment.serviceName")
-  val enrolmentIdentifierKey = configuration.get[String]("enrolment.identifierKey")
 
   def vdrPingUrl(): String =
     s"$vdHost/vaping-duty/ping"
