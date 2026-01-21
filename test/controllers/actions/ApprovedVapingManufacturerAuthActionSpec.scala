@@ -244,12 +244,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
     "the user has an unsupported affinity group" - {
 
-      "must redirect the user to the organisation sign in guidance page" in {
+      "must redirect the user to the unauthorised page" in {
 
         val result = failingController(new UnsupportedAffinityGroup).onPageLoad()(FakeRequest())
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(controllers.enrolment.routes.OrganisationSignInController.onPageLoad().url)
+        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
       }
     }
 
