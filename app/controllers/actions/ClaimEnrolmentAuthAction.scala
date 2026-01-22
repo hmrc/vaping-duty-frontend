@@ -60,6 +60,7 @@ class EnrolmentClaimAuthActionImpl @Inject()(override val authConnector: AuthCon
     AuthProviders(GovernmentGateway) and
       CredentialStrength(strong) and
       Organisation and
+      User and
       ConfidenceLevel.L50
 
   override def invokeBlock[A](request: Request[A], block: NoEnrolmentIdentifierRequest[A] => Future[Result]): Future[Result] = {
@@ -89,9 +90,10 @@ class EnrolmentClaimAuthActionImpl @Inject()(override val authConnector: AuthCon
   }
 
   private def handleAuthException: PartialFunction[AuthorisationException, Result] = {
-    case _: UnsupportedAffinityGroup => Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
-    case _: NoActiveSession          => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
-    case _                           => Redirect(routes.UnauthorisedController.onPageLoad())
+    case _: UnsupportedCredentialRole => Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
+    case _: UnsupportedAffinityGroup  => Redirect(controllers.enrolment.routes.OrganisationSignInController.onPageLoad())
+    case _: NoActiveSession           => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+    case _                            => Redirect(routes.UnauthorisedController.onPageLoad())
   }
 
   private def getApprovalId(enrolments: Enrolments): Option[String] =
@@ -100,4 +102,5 @@ class EnrolmentClaimAuthActionImpl @Inject()(override val authConnector: AuthCon
       .find(_.key == config.enrolmentServiceName)
       .flatMap(_.getIdentifier(config.enrolmentIdentifierKey))
       .map(_.value)
+
 }

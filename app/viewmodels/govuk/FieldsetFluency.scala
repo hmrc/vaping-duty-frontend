@@ -65,7 +65,7 @@ trait FieldsetFluency {
 
     def withCssClass(newClass: String): Legend =
       legend.copy(classes = s"${legend.classes} $newClass")
-    
+      
     def visuallyHidden(): Legend =
       withCssClass("govuk-visually-hidden")
   }

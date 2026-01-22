@@ -90,8 +90,8 @@ class ApprovedVapingManufacturerAuthActionImpl @Inject()(override val authConnec
   }
 
   private def handleAuthException: PartialFunction[AuthorisationException, Result] = {
-    case _: NoActiveSession => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
-    case _                  => Redirect(routes.UnauthorisedController.onPageLoad())
+    case _: NoActiveSession           => Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+    case _                            => Redirect(routes.UnauthorisedController.onPageLoad())
   }
 
   private def getApprovalId(enrolments: Enrolments): Either[String, String] =

@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
+@import views.html.helper.CSPNonce
 
 @this(
     appConfig: FrontendAppConfig,
@@ -46,11 +47,12 @@
             language            = Some(messages.lang.code)
         ))
     }
+    <link @{CSPNonce.attr} href="@routes.Assets.versioned("stylesheets/application.css")" media="all" rel="stylesheet" type="text/css" />
 }
 
 @content = {
     @contentBlock
-    <div>
+    <div class="not-working-link">
         @hmrcReportTechnicalIssueHelper()
     </div>
 }

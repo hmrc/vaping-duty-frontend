@@ -20,6 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
@@ -43,7 +44,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val loginContinueUrl: String               = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String                     = configuration.get[String]("urls.signOut")
 
-  val organisationSignInUrl: String          = configuration.get[String]("urls.organisationSignIn")
   val organisationAcctGuidanceUrl: String    = configuration.get[String]("urls.organisationAcctGuidance")
   val applyForVpdIdGuidanceUrl: String       = configuration.get[String]("urls.applyForVpdIdGuidanceUrl")
   val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount")
@@ -54,6 +54,11 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val eacdEnrolmentClaimRedirectUrl: String  =
     configuration.get[String]("urls.enrolmentManagementFrontend") +
       s"/$enrolmentServiceName/request-access-tax-scheme?continue=$continueToBta"
+
+  private val enrolmentContinuePath: String  = "/vaping-duty/enrolment/do-you-have-an-approval-id"
+
+  val orgSignInUrl: String =
+    s"$loginUrl?continue=${host + enrolmentContinuePath}&affinityGroup=${AffinityGroup.Organisation}"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")

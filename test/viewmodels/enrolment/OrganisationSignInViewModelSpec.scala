@@ -28,12 +28,12 @@ class OrganisationSignInViewModelSpec extends UnitSpec {
 
     val config = mock[FrontendAppConfig]
     when(config.organisationAcctGuidanceUrl).thenReturn("gg-organisation-create-account-guidance")
-    when(config.organisationSignInUrl).thenReturn("gg-organisation-account-sign-in")
+    when(config.orgSignInUrl).thenReturn("gg-organisation-account-sign-in")
 
     val vm = OrganisationSignInViewModel(config)
 
     "returns correct URL for orgSignIn" in {
-        vm.getOrgSignInURL mustBe config.organisationSignInUrl
+        vm.getOrgSignInURL mustBe config.orgSignInUrl
     }
 
     "returns correct URL for orgAcctGuidance" in {

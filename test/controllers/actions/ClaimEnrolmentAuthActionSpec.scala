@@ -31,6 +31,9 @@ import play.api.mvc.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
+import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
+import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
+import uk.gov.hmrc.auth.core.CredentialStrength.strong
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, groupIdentifier, internalId}
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
@@ -52,9 +55,17 @@ import scala.concurrent.{ExecutionContext, Future}
 
    private val authConnector = mock[AuthConnector]
 
+   private def predicate: Predicate =
+     AuthProviders(GovernmentGateway) and
+       CredentialStrength(strong) and
+       Organisation and
+       User and
+       ConfidenceLevel.L50
+
+
    private def stubAuthResponse(authResponse: Option[String] ~ Option[String] ~ Enrolments) = {
      when(
-       authConnector.authorise(any[Predicate],
+       authConnector.authorise(ArgumentMatchers.eq(predicate),
          ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
        )(any[HeaderCarrier], any[ExecutionContext])).
        thenReturn(Future.successful(authResponse))
@@ -239,7 +250,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
     "the user has an unsupported affinity group" - {
 
-      "must redirect the user to the unauthorised page" in {
+      "must redirect the user to the organisation sign in guidance page" in {
 
         val result = failingController(new UnsupportedAffinityGroup).onPageLoad()(FakeRequest())
 
@@ -250,12 +261,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
     "the user has an unsupported credential role" - {
 
-      "must redirect the user to the unauthorised page" in {
+      "must redirect the user to the organisation sign in guidance page" in {
 
         val result = failingController(new UnsupportedCredentialRole).onPageLoad()(FakeRequest())
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+        redirectLocation(result) mustBe Some(controllers.enrolment.routes.OrganisationSignInController.onPageLoad().url)
       }
     }
 

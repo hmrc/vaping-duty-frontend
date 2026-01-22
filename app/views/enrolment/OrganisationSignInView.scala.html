@@ -32,24 +32,35 @@
     @(h1(HtmlContent(messages("enrolment.organisationSignIn.heading"))))
 
     @(p(Seq(HtmlContent(
-        messages("enrolment.organisationSignIn.signInWithOrgAcct")
+        messages("enrolment.organisationSignIn.youHaveTried")
+    ))))
+
+    @(p(Seq(HtmlContent(
+        messages("enrolment.organisationSignIn.onlyUsers")
     ))))
 
     @(p(Seq(
         HtmlContent(
-            messages("enrolment.organisationSignIn.youCan")
+            messages("enrolment.organisationSignIn.toContinue")
         ),
         HtmlContent(link(
-            id = "register-for-vaping-duty",
-            text = messages("enrolment.organisationSignIn.newAcct"),
+            id = "login",
+            text = messages("enrolment.organisationSignIn.ggText"),
+            href = vm.getOrgSignInURL,
+            classes = "govuk-link--no-visited-state"
+        )),
+    )))
+
+    @(p(Seq(
+        HtmlContent(
+            messages("enrolment.organisationSignIn.learnMore")
+        ),
+        HtmlContent(link(
+            id = "guidance",
+            text = messages("enrolment.organisationId.gettingAccess"),
             href = vm.getGuidanceURL,
             classes = "govuk-link--no-visited-state",
             newTabText = Some(messages("site.newTab"))
         )),
-        HtmlContent(messages("enrolment.organisationId.p2.2"))
     )))
-
-    @govukButton(
-        ButtonViewModel(messages("enrolment.organisationSignIn.signIn")).asLink(vm.getOrgSignInURL)
-    )
 }
