@@ -27,11 +27,13 @@
 @layout(pageTitle = titleNoForm(messages("confirmAddress.title"))) {
 
     <h1 class="govuk-heading-l">@messages("confirmAddress.heading")</h1>
+
     <ul class="govuk-list">
         @storedAddress.map { line =>
-        <li>@line</li>
+            <li>@line</li>
         }
     </ul>
+
     @govukButton(
         ButtonViewModel("Confirm Address").asLink(controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url)
     )
