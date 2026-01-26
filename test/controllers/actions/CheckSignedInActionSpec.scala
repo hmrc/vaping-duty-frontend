@@ -18,21 +18,17 @@ package controllers.actions
 
 import base.SpecBase
 import models.requests.SignedInRequest
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq => eqTo
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito._
 import play.api.mvc.{BodyParsers, Result, Results}
-import play.api.mvc.Results.Ok
+import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.retrieve.EmptyRetrieval
-import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import scala.concurrent.ExecutionContext.Implicits.global
-
-
-import scala.collection.mutable
 import scala.concurrent.Future
 
 class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
@@ -45,14 +41,6 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
 
   val signedInKey = "signedIn"
 
-  def testAction(signedInStore: mutable.Map[String, Boolean]): SignedInRequest[_] => Future[Result] = { request =>
-    signedInStore.synchronized {
-      signedInStore.put(signedInKey, request.signedIn)
-    }
-
-    Future(Ok(testContent))
-  }
-
   "invokeBlock" - {
 
     "execute the block and return signed in if signed in to Government Gateway" in {
@@ -61,21 +49,15 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
           eqTo(
             AuthProviders(GovernmentGateway)
           ),
-          eqTo(EmptyRetrieval)
+          eqTo(Retrievals.internalId)
         )(any(), any())
       )
-        .thenReturn(Future.unit)
+        .thenReturn(Future.successful(Some("id")))
 
-      val signedInStore = mutable.Map[String, Boolean]()
-
-      val result: Future[Result] = checkSignedInAction.invokeBlock(FakeRequest(), testAction(signedInStore))
+      val result: Future[Result] = checkSignedInAction.invokeBlock(FakeRequest(), block = (_: SignedInRequest[_]) => Future.successful(Results.Ok(testContent)))
 
       status(result)          mustBe OK
       contentAsString(result) mustBe testContent
-
-      signedInStore.synchronized {
-        signedInStore(signedInKey) mustBe true
-      }
     }
 
     "send users to UnauthorisedController when not logged in to an account" in {
@@ -86,7 +68,7 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
         SessionRecordNotFound()
       ).foreach { exception =>
         when(
-          mockAuthConnector.authorise[Unit](
+          mockAuthConnector.authorise(
             eqTo(
               AuthProviders(GovernmentGateway)
             ),
@@ -94,9 +76,13 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
           )(any(), any())
         ).thenReturn(Future.failed(exception))
 
-        val signedInStore = mutable.Map[String, Boolean]()
-
-        val result: Future[Result] = checkSignedInAction.invokeBlock(FakeRequest(), testAction(signedInStore))
+        val result: Future[Result] = checkSignedInAction.invokeBlock(
+          SignedInRequest(FakeRequest(), userId = Some("id")),
+          block = (_: SignedInRequest[_]) =>
+            Future.failed(
+              SessionRecordNotFound()
+            )
+          )
 
         status(result)                 mustBe SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.UnauthorisedController.onPageLoad().url
