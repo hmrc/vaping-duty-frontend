@@ -17,16 +17,15 @@
 package controllers.actions
 
 import com.google.inject.Inject
-import models.requests.{IdentifierRequest, SignedInRequest}
+import models.requests.SignedInRequest
 import controllers.routes
 import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.*
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{internalId, *}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.internalId
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -58,19 +57,14 @@ class CheckSignedInActionImpl @Inject() (
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised(predicate).retrieve(internalId) {
-      id =>
-        val identifiers = for {
-          userId <- id.toRight("Unable to extract internalId from GovernmentGateway auth provider.")
-        } yield {
-          (userId)
+      case userId =>
+
+        (userId: @unchecked) match {
+          case Some(userId) => block(SignedInRequest(request, userId = Some(userId)))
         }
 
-        identifiers match {
-          case Right(userId) => block(SignedInRequest(request, userId = Some(userId)))
-          case Left(error) => Future.failed(AuthorisationException.fromString(error))
-        }
-    } recover { case _ =>
-      Redirect(routes.UnauthorisedController.onPageLoad())
+    } recoverWith { case _ =>
+      Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
   }
 }
