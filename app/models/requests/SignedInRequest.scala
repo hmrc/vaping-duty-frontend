@@ -18,4 +18,4 @@ package models.requests
 
 import play.api.mvc.{Request, WrappedRequest}
 
-case class SignedInRequest[A](request: Request[A], signedIn: Boolean) extends WrappedRequest[A](request)
+case class SignedInRequest[A](request: Request[A], userId: Option[String]) extends WrappedRequest[A](request)
