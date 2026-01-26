@@ -17,31 +17,37 @@
 package controllers.actions
 
 import com.google.inject.Inject
-import models.requests.SignedInRequest
+import models.requests.{IdentifierRequest, SignedInRequest}
 import controllers.routes
 import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.*
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{internalId, *}
 import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-// This just checks the basic requirement the user is signed in and doesn't do
-// authentication and enrolment checks. Use IdentifyWith[out]EnrolmentAction
-// for pages which require the user to be appropriately authenticated
+/**
+ * This auth action will verify the basic requirement that the User
+ * is signed in to GovernmentGateway and does not carry out any kind
+ * of enrolment checks or verification. Use `IdentifyWith[out]EnrolmentAction`
+ * for pages which require the user to be appropriately authenticated
+ */
+
 trait CheckSignedInAction
-    extends ActionBuilder[SignedInRequest, AnyContent]
+  extends ActionBuilder[SignedInRequest, AnyContent]
     with ActionFunction[Request, SignedInRequest]
 
 class CheckSignedInActionImpl @Inject() (
-  override val authConnector: AuthConnector,
-  val parser: BodyParsers.Default
-)(implicit val executionContext: ExecutionContext)
-    extends CheckSignedInAction
+                                          override val authConnector: AuthConnector,
+                                          val parser: BodyParsers.Default
+                                        )(implicit val executionContext: ExecutionContext)
+  extends CheckSignedInAction
     with AuthorisedFunctions
     with Logging {
 
@@ -49,13 +55,22 @@ class CheckSignedInActionImpl @Inject() (
     AuthProviders(GovernmentGateway)
 
   override def invokeBlock[A](request: Request[A], block: SignedInRequest[A] => Future[Result]): Future[Result] = {
-
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised(predicate) {
-      block(SignedInRequest(request, signedIn = true))
-    } recoverWith { case _ =>
-      Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+    authorised(predicate).retrieve(internalId) {
+      id =>
+        val identifiers = for {
+          userId <- id.toRight("Unable to extract internalId from GovernmentGateway auth provider.")
+        } yield {
+          (userId)
+        }
+
+        identifiers match {
+          case Right(userId) => block(SignedInRequest(request, userId = Some(userId)))
+          case Left(error) => Future.failed(AuthorisationException.fromString(error))
+        }
+    } recover { case _ =>
+      Redirect(routes.UnauthorisedController.onPageLoad())
     }
   }
 }

@@ -17,7 +17,7 @@
 package controllers.auth
 
 import config.FrontendAppConfig
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.CheckSignedInAction
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -31,23 +31,23 @@ class AuthController @Inject()(
                                 val controllerComponents: MessagesControllerComponents,
                                 config: FrontendAppConfig,
                                 sessionRepository: SessionRepository,
-                                ifApprovedVapingManufacturer: ApprovedVapingManufacturerAuthAction
+                                checkSignedIn: CheckSignedInAction
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def signOut(): Action[AnyContent] = ifApprovedVapingManufacturer.async {
+  def signOut(): Action[AnyContent] = checkSignedIn.async {
     implicit request =>
       sessionRepository
-        .clear(request.userId)
+        .clear(request.userId.get)
         .map {
           _ =>
             Redirect(config.signOutUrl, Map("continue" -> Seq(config.exitSurveyUrl)))
       }
   }
 
-  def signOutNoSurvey(): Action[AnyContent] = ifApprovedVapingManufacturer.async {
+  def signOutNoSurvey(): Action[AnyContent] = checkSignedIn.async {
     implicit request =>
     sessionRepository
-      .clear(request.userId)
+      .clear(request.userId.get)
       .map {
         _ =>
         Redirect(config.signOutUrl, Map("continue" -> Seq(routes.SignedOutController.onPageLoad().url)))
