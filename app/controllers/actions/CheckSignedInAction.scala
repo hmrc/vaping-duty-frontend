@@ -58,11 +58,11 @@ class CheckSignedInActionImpl @Inject() (
 
     authorised(predicate).retrieve(internalId) {
       case userId =>
-
-        (userId: @unchecked) match {
-          case Some(userId) => block(SignedInRequest(request, userId = Some(userId)))
-        }
-
+      userId.fold(
+        Future.failed(Error())
+      ) { id =>
+        block(SignedInRequest(request, id))
+      }
     } recoverWith { case _ =>
       Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
