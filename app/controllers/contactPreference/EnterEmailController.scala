@@ -63,8 +63,11 @@ class EnterEmailController @Inject()(
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
         value =>
+
+          val addEmail = request.userAnswers.copy(emailAddress = Some(value))
+
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(EnterEmailPage, value))
+            updatedAnswers <- Future.fromTry(addEmail.set(EnterEmailPage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(EnterEmailPage, mode, updatedAnswers))
       )

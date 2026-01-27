@@ -19,12 +19,15 @@ package controllers.contactPreference
 import connectors.SubmitPreferencesConnector
 import controllers.actions.*
 import models.emailverification.PaperlessPreferenceSubmission
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.JsBoolean
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.PostalConfirmationView
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class PostalConfirmationController @Inject()(
                                        override val messagesApi: MessagesApi,
@@ -34,12 +37,29 @@ class PostalConfirmationController @Inject()(
                                        val controllerComponents: MessagesControllerComponents,
                                        view: PostalConfirmationView,
                                        connector: SubmitPreferencesConnector
-                                     ) extends FrontendBaseController with I18nSupport {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+  
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
 
-  def onPageLoad: Action[AnyContent] = (identify) {
     implicit request =>
-      connector.submitContactPreferences(PaperlessPreferenceSubmission(false, None, None, None), request.enrolmentVpdId)
 
-      Ok(view())
+      val email = request.userAnswers.subscriptionSummary.emailAddress
+      val verification = request.userAnswers.subscriptionSummary.emailVerification
+      val bounced = request.userAnswers.subscriptionSummary.bouncedEmail
+
+      val preferenceSubmission = PaperlessPreferenceSubmission(false, email, verification, bounced)
+
+      if (request.userAnswers.subscriptionSummary.paperlessPreference) {
+        connector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
+          case Left(err) =>
+            logger.info(s"[PostalConfirmationController][onPageLoad] Error submitting preference: $err")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          case Right(response) =>
+            println(response)
+            Ok(view())
+        }
+      } else {
+        Future.successful(Redirect(controllers.contactPreference.routes.ContinuePostalPreferenceController.onPageLoad()))
+      }
   }
 }
