@@ -28,6 +28,7 @@ import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.retrieve.EmptyRetrieval
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -39,9 +40,31 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
 
   val checkSignedInAction = new CheckSignedInActionImpl(mockAuthConnector, defaultBodyParser)
 
+  private def userIdPresent(request: SignedInRequest[_]) = {
+    request.userId mustBe "id"
+
+    Future.successful(Results.Ok(testContent))
+  }
+
   val signedInKey = "signedIn"
 
   "invokeBlock" - {
+    "requests made must have a userId (also required to pass all tests)" in {
+      when(
+        mockAuthConnector.authorise(
+          eqTo(
+            AuthProviders(GovernmentGateway)
+          ),
+          eqTo(Retrievals.internalId)
+        )(any(), any())
+      )
+        .thenReturn(Future.successful(Some("id")))
+
+      val result: Future[Result] = checkSignedInAction.invokeBlock(FakeRequest(), block = userIdPresent)
+
+      status(result)          mustBe OK
+      contentAsString(result) mustBe testContent
+    }
 
     "execute the block and return signed in if signed in to Government Gateway" in {
       when(
@@ -54,7 +77,7 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
       )
         .thenReturn(Future.successful(Some("id")))
 
-      val result: Future[Result] = checkSignedInAction.invokeBlock(FakeRequest(), block = (_: SignedInRequest[_]) => Future.successful(Results.Ok(testContent)))
+      val result: Future[Result] = checkSignedInAction.invokeBlock(FakeRequest(), block = userIdPresent)
 
       status(result)          mustBe OK
       contentAsString(result) mustBe testContent
