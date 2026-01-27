@@ -87,7 +87,7 @@ object ContactPreferenceUserAnswers {
 }
 
 case class SubscriptionSummary(
-  paperlessReference: Boolean,
+  paperlessPreference: Boolean,
   emailAddress: Option[String],
   emailVerification: Option[Boolean],
   bouncedEmail: Option[Boolean],
