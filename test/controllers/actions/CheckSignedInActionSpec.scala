@@ -77,7 +77,7 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
         ).thenReturn(Future.failed(exception))
 
         val result: Future[Result] = checkSignedInAction.invokeBlock(
-          SignedInRequest(FakeRequest(), userId = Some("id")),
+          SignedInRequest(FakeRequest(), userId = "id"),
           block = (_: SignedInRequest[_]) =>
             Future.failed(
               SessionRecordNotFound()
