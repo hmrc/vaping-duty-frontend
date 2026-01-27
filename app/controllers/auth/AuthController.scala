@@ -31,10 +31,10 @@ class AuthController @Inject()(
                                 val controllerComponents: MessagesControllerComponents,
                                 config: FrontendAppConfig,
                                 sessionRepository: SessionRepository,
-                                checkSignedIn: CheckSignedInAction
+                                ifSignedIn: CheckSignedInAction
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def signOut(): Action[AnyContent] = checkSignedIn.async {
+  def signOut(): Action[AnyContent] = ifSignedIn.async {
     implicit request =>
       sessionRepository
         .clear(request.userId)
@@ -44,7 +44,7 @@ class AuthController @Inject()(
       }
   }
 
-  def signOutNoSurvey(): Action[AnyContent] = checkSignedIn.async {
+  def signOutNoSurvey(): Action[AnyContent] = ifSignedIn.async {
     implicit request =>
     sessionRepository
       .clear(request.userId)
