@@ -43,9 +43,9 @@ class UserAlreadyEnrolledController @Inject()(
   def onPageLoad: Action[AnyContent] = authorised {
     implicit request =>
       val vm = UserAlreadyEnrolledViewModel(config)
-      connector.createUserAnswers(UserDetails("XMADP1000100210", "userId"))
-      submitPreferencesConnector.submitContactPreferences(PaperlessPreferenceSubmission(true, None, Some(true), None), "XMADP1000100210")
-      emailVerificationConnector.getEmailVerification(VerificationDetails("1230"))
+      //connector.createUserAnswers(UserDetails(request.enrolmentVpdId.getOrElse(""), request.userId))
+      //submitPreferencesConnector.submitContactPreferences(PaperlessPreferenceSubmission(true, None, Some(true), None), "XMADP1000100210")
+      //emailVerificationConnector.getEmailVerification(VerificationDetails("1230"))
       Ok(view(vm))
   }
 }
