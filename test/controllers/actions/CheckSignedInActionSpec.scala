@@ -44,15 +44,8 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
   "invokeBlock" - {
 
     "execute the block and return signed in if signed in to Government Gateway" in {
-      when(
-        mockAuthConnector.authorise(
-          eqTo(
-            AuthProviders(GovernmentGateway)
-          ),
-          eqTo(Retrievals.internalId)
-        )(any(), any())
-      )
-        .thenReturn(Future.successful(Some("internalId123")))
+      val authResponse: Future[Option[String]] = Future.successful(Some("internalId123"))
+      stubAuthResponse(authResponse)
 
       val result: Future[Result] = checkSignedInAction.invokeBlock(FakeRequest(), block = (request: SignedInRequest[_]) => {
         Future.successful(Results.Ok(request.internalId))
@@ -69,14 +62,8 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
         InvalidBearerToken(),
         SessionRecordNotFound()
       ).foreach { exception =>
-        when(
-          mockAuthConnector.authorise(
-            eqTo(
-              AuthProviders(GovernmentGateway)
-            ),
-            eqTo(EmptyRetrieval)
-          )(any(), any())
-        ).thenReturn(Future.failed(exception))
+        val authResponse: Future[Option[String]] = Future.failed(exception)
+        stubAuthResponse(authResponse)
 
         val result: Future[Result] = checkSignedInAction.invokeBlock(
           SignedInRequest(FakeRequest(), internalId = "id"),
@@ -86,5 +73,14 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual controllers.routes.UnauthorisedController.onPageLoad().url
       }
     }
+  }
+
+  private def stubAuthResponse(authResponse: Future[Option[String]]) = {
+    when(
+      mockAuthConnector.authorise(
+        eqTo(AuthProviders(GovernmentGateway)),
+        eqTo(Retrievals.internalId)
+      )(any(), any())
+    ).thenReturn(authResponse)
   }
 }
