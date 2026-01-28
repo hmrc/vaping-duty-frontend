@@ -55,13 +55,11 @@ class CheckSignedInActionImpl @Inject() (
 
   override def invokeBlock[A](request: Request[A], block: SignedInRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
+    
     authorised(predicate).retrieve(internalId) {
-      optInternalId => optInternalId map { internalId => SignedInRequest(request, internalId) } map { request =>
-        block(request)
-      } getOrElse {
-        Future.failed(AuthorisationException.fromString("Unable to retrieve internalId."))
-      }
+      optInternalId => optInternalId.map(internalId => SignedInRequest(request, internalId)).
+                                     map(signedInRequest => block(signedInRequest)).
+                                     getOrElse(Future.failed(AuthorisationException.fromString("Unable to retrieve internalId.")))
     } recoverWith { case _ =>
       Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
