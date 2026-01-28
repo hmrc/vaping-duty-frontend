@@ -44,8 +44,7 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
   "invokeBlock" - {
 
     "execute the block and return signed in if signed in to Government Gateway" in {
-      val authResponse: Future[Option[String]] = Future.successful(Some("internalId123"))
-      stubAuthResponse(authResponse)
+      stubAuthResponse(Future.successful(Some("internalId123")))
 
       val result: Future[Result] = checkSignedInAction.invokeBlock(FakeRequest(), block = (request: SignedInRequest[_]) => {
         Future.successful(Results.Ok(request.internalId))
@@ -62,8 +61,7 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
         InvalidBearerToken(),
         SessionRecordNotFound()
       ).foreach { exception =>
-        val authResponse: Future[Option[String]] = Future.failed(exception)
-        stubAuthResponse(authResponse)
+        stubAuthResponse(Future.failed(exception))
 
         val result: Future[Result] = checkSignedInAction.invokeBlock(
           SignedInRequest(FakeRequest(), internalId = "id"),
