@@ -39,12 +39,6 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
 
   val checkSignedInAction = new CheckSignedInActionImpl(mockAuthConnector, defaultBodyParser)
 
-  private def userIdPresent(request: SignedInRequest[_]) = {
-    request.internalId mustBe "id"
-
-    Future.successful(Results.Ok(testContent))
-  }
-
   val signedInKey = "signedIn"
 
   "invokeBlock" - {
@@ -60,7 +54,11 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
       )
         .thenReturn(Future.successful(Some("id")))
 
-      val result: Future[Result] = checkSignedInAction.invokeBlock(FakeRequest(), block = userIdPresent)
+      val result: Future[Result] = checkSignedInAction.invokeBlock(FakeRequest(), block = (request: SignedInRequest[_]) => {
+        request.internalId mustBe "id"
+
+        Future.successful(Results.Ok(testContent))
+      })
 
       status(result)          mustBe OK
       contentAsString(result) mustBe testContent
@@ -84,11 +82,7 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
 
         val result: Future[Result] = checkSignedInAction.invokeBlock(
           SignedInRequest(FakeRequest(), internalId = "id"),
-          block = (_: SignedInRequest[_]) =>
-            Future.failed(
-              SessionRecordNotFound()
-            )
-          )
+          block = (_: SignedInRequest[_]) => Future.failed(SessionRecordNotFound()))
 
         status(result)                 mustBe SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.UnauthorisedController.onPageLoad().url
