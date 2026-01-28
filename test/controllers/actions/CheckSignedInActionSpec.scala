@@ -52,16 +52,14 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
           eqTo(Retrievals.internalId)
         )(any(), any())
       )
-        .thenReturn(Future.successful(Some("id")))
+        .thenReturn(Future.successful(Some("internalId123")))
 
       val result: Future[Result] = checkSignedInAction.invokeBlock(FakeRequest(), block = (request: SignedInRequest[_]) => {
-        request.internalId mustBe "id"
-
-        Future.successful(Results.Ok(testContent))
+        Future.successful(Results.Ok(request.internalId))
       })
 
       status(result)          mustBe OK
-      contentAsString(result) mustBe testContent
+      contentAsString(result) mustBe "internalId123"
     }
 
     "send users to UnauthorisedController when not logged in to an account" in {
