@@ -46,8 +46,8 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
     "execute the block and return signed in if signed in to Government Gateway" in {
       stubAuthResponse(Future.successful(Some("internalId123")))
 
-      val result = checkSignedInAction.invokeBlock(FakeRequest(), block = request =>
-        Future.successful(Results.Ok(request.internalId))
+      val result = checkSignedInAction.invokeBlock(
+        FakeRequest(), block = request => Future.successful(Results.Ok(request.internalId))
       )
 
       status(result)          mustBe OK
@@ -63,8 +63,8 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
       ).foreach { exception =>
         stubAuthResponse(Future.failed(exception))
 
-        val result = checkSignedInAction.invokeBlock(SignedInRequest(FakeRequest(), internalId = "id"),
-          block = _ => Future.failed(SessionRecordNotFound())
+        val result = checkSignedInAction.invokeBlock(
+          SignedInRequest(FakeRequest(), internalId = "id"), block = _ => Future.failed(SessionRecordNotFound())
         )
 
         status(result)                 mustBe SEE_OTHER
