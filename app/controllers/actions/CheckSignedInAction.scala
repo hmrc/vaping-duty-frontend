@@ -60,7 +60,8 @@ class CheckSignedInActionImpl @Inject() (
       optInternalId => optInternalId.map(internalId => SignedInRequest(request, internalId)).
                                      map(signedInRequest => block(signedInRequest)).
                                      getOrElse(Future.failed(AuthorisationException.fromString("Unable to retrieve internalId.")))
-    } recoverWith { case _ =>
+    } recoverWith { case e: AuthorisationException =>
+      logger.debug(s"Got AuthorisationException: ${e.reason}")
       Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
   }
