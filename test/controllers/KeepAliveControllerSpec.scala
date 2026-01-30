@@ -17,7 +17,6 @@
 package controllers
 
 import base.SpecBase
-import connectors.UserAnswersConnector
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalactic.Prettifier.default
@@ -25,6 +24,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.UserAnswersService
 
 import scala.concurrent.Future
 
@@ -36,12 +36,12 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
       "must keep the answers alive and return OK" in {
 
-        val mockSessionRepository = mock[UserAnswersConnector]
-        when(mockSessionRepository.keepAlive(any())(any())) thenReturn Future.successful(())
+        val mockSessionRepository = mock[UserAnswersService]
+        when(mockSessionRepository.keepAlive(any())(any())) thenReturn Future.successful(Right(()))
 
         val application =
           applicationBuilder(Some(emptyUserAnswers))
-            .overrides(bind[UserAnswersConnector].toInstance(mockSessionRepository))
+            .overrides(bind[UserAnswersService].toInstance(mockSessionRepository))
             .build()
 
         running(application) {
@@ -60,12 +60,12 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
       "must return OK" in {
 
-        val mockSessionRepository = mock[UserAnswersConnector]
+        val mockSessionRepository = mock[UserAnswersService]
         when(mockSessionRepository.keepAlive(any())(any())) thenReturn Future.successful(true)
 
         val application =
           applicationBuilder(None)
-            .overrides(bind[UserAnswersConnector].toInstance(mockSessionRepository))
+            .overrides(bind[UserAnswersService].toInstance(mockSessionRepository))
             .build()
 
         running(application) {

@@ -17,10 +17,11 @@
 package controllers.auth
 
 import config.FrontendAppConfig
+import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.CheckSignedInAction
-import connectors.UserAnswersConnector
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
@@ -30,7 +31,7 @@ import scala.concurrent.ExecutionContext
 class AuthController @Inject()(
                                 val controllerComponents: MessagesControllerComponents,
                                 config: FrontendAppConfig,
-                                sessionRepository: UserAnswersConnector,
+                                sessionRepository: UserAnswersService,
                                 ifSignedIn: CheckSignedInAction,
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 

@@ -16,16 +16,19 @@
 
 package controllers.actions
 
-import models.{ContactPreferenceUserAnswers, UserAnswers}
+import models.ContactPreferenceUserAnswers
 import models.requests.{IdentifierRequest, OptionalDataRequest}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class FakeDataRetrievalAction(dataToReturn: Option[ContactPreferenceUserAnswers]) extends DataRetrievalAction {
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
-    Future(OptionalDataRequest(request.request, request.userId, dataToReturn))
+    Future(OptionalDataRequest(request.request, request.enrolmentVpdId, request.userId, dataToReturn))
 
   override protected implicit val executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
+
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 }

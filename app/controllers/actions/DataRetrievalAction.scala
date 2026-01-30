@@ -16,19 +16,17 @@
 
 package controllers.actions
 
-import connectors.UserAnswersConnector
-
-import javax.inject.Inject
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import play.api.mvc.ActionTransformer
-import play.api.mvc.Results.Redirect
+import services.UserAnswersService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DataRetrievalActionImpl @Inject()(
-                                         val contactPreferencesConnector: UserAnswersConnector
+                                         val contactPreferencesConnector: UserAnswersService
                                        )(implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = {
@@ -37,7 +35,7 @@ class DataRetrievalActionImpl @Inject()(
 
     contactPreferencesConnector.get(request.enrolmentVpdId)(headerCarrier).map {
       case Left(_)    => OptionalDataRequest(request, request.enrolmentVpdId, request.userId, None)
-      case Right(ua)  => OptionalDataRequest(request.request, request.enrolmentVpdId, request.userId, Some(ua))
+      case Right(ua)  => OptionalDataRequest(request, request.enrolmentVpdId, request.userId, Some(ua))
     }
   }
 }
