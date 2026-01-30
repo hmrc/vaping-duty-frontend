@@ -118,7 +118,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
     "must respond with NO_CONTENT when successful" in new SetUp {
       val deleteUrl = "http://vaping-duty-account/user-answers/clear"
 
-      when(mockConfig.ecpUserAnswersClearUrl()).thenReturn(deleteUrl)
+      when(mockConfig.ecpUserAnswersClearUrl(vpdId)).thenReturn(deleteUrl)
 
       when(connector.httpClient.delete(any())(any())).thenReturn(requestBuilder)
 
