@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 class UserDetailsSpec extends SpecBase {
 
   "UserDetails" - {
-    val json = s"""{"appaId":"$vppaId","userId":"$userId"}"""
+    val json = s"""{"vpdId":"$vpdId","userId":"$userId"}"""
 
     "must serialise to json" in {
       Json.toJson(userDetails).toString() mustBe json

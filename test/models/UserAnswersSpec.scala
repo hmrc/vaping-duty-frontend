@@ -32,7 +32,7 @@ class UserAnswersSpec extends SpecBase {
 
   "UserAnswers" - {
     val json =
-      s"""{"appaId":"$vppaId","userId":"$userId","subscriptionSummary":{"paperlessReference":false,"emailAddress":"john.doe@example.com","emailVerification":true,"bouncedEmail":false,"correspondenceAddress":"Flat 123\\n1 Example Road\\nLondon\\nAB1 2CD","countryCode":"GB"},"emailAddress":"john.doe@example.com","verifiedEmailAddresses":["john.doe@example.com"],"data":{"contactPreferenceEmail":true},"startedTime":{"$$date":{"$$numberLong":"1718118467838"}},"lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}},"validUntil":{"$$date":{"$$numberLong":"1718118467839"}}}"""
+      s"""{"vpdId":"$vpdId","userId":"$userId","subscriptionSummary":{"paperlessPreference":false,"emailAddress":"john.doe@example.com","emailVerification":true,"bouncedEmail":false,"correspondenceAddress":"Flat 123\\n1 Example Road\\nLondon\\nAB1 2CD","countryCode":"GB"},"emailAddress":"john.doe@example.com","verifiedEmailAddresses":["john.doe@example.com"],"data":{"contactPreferenceEmail":true},"startedTime":{"$$date":{"$$numberLong":"1718118467838"}},"lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}},"validUntil":{"$$date":{"$$numberLong":"1718118467839"}}}"""
 
     "must set a value for a given page and get the same value" in {
 

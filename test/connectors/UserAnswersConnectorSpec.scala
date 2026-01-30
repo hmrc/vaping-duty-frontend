@@ -24,6 +24,7 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{atLeastOnce, verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Json
+import play.api.test.Helpers.status
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HttpResponse, StringContextOps, UpstreamErrorResponse}
 
@@ -32,7 +33,7 @@ import scala.concurrent.Future
 class UserAnswersConnectorSpec extends SpecBase with TestData {
   "GET" - {
     "must successfully fetch user answers" in new SetUp {
-      val mockUrl = s"http://alcohol-duty-contact-preferences/user-answers/$vppaId"
+      val mockUrl = s"http://vaping-duty-account/user-answers/$vpdId"
       when(mockConfig.ecpUserAnswersGetUrl(any())).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]](any(), any()))
@@ -40,7 +41,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
 
       when(connector.httpClient.get(any())(any())).thenReturn(requestBuilder)
 
-      whenReady(connector.get(vppaId)) {
+      whenReady(connector.get(vpdId)) {
         _ mustBe Right(userAnswers)
       }
     }
@@ -48,7 +49,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
 
   "POST" - {
     "must successfully write user answers" in new SetUp {
-      val postUrl = "http://alcohol-duty-contact-preferences/user-answers"
+      val postUrl = "http://vaping-duty-account/user-answers"
 
       when(mockConfig.ecpUserAnswersUrl()).thenReturn(postUrl)
 
@@ -70,7 +71,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
 
   "PUT" - {
     "must successfully write user answers" in new SetUp {
-      val putUrl = "http://alcohol-duty-contact-preferences/user-answers"
+      val putUrl = "http://vaping-duty-account/user-answers"
 
       when(mockConfig.ecpUserAnswersUrl()).thenReturn(putUrl)
 
@@ -88,6 +89,48 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
       connector.set(userAnswers)
 
       verify(connector.httpClient, atLeastOnce).put(eqTo(url"$putUrl"))(any())
+    }
+  }
+
+  "keepAlive" - {
+    "must respond with NO_CONTENT when successful" in new SetUp {
+      val postUrl = "http://vaping-duty-account/user-answers/keepAlive"
+
+      when(mockConfig.ecpUserAnswersKeepAliveUrl()).thenReturn(postUrl)
+
+      when(connector.httpClient.post(any())(any())).thenReturn(requestBuilder)
+
+      when(requestBuilder.withBody(eqTo(Json.toJson(userDetails)))(any(), any(), any()))
+        .thenReturn(requestBuilder)
+
+      when(requestBuilder.setHeader("Csrf-Token" -> "nocheck"))
+        .thenReturn(requestBuilder)
+
+      when(requestBuilder.execute[HttpResponse](any(), any()))
+        .thenReturn(Future.successful(mockHttpResponse))
+
+      connector.keepAlive(userAnswers.vpdId)
+      verify(connector.httpClient, atLeastOnce).post(eqTo(url"$postUrl"))(any())
+    }
+  }
+
+  "clear" - {
+    "must respond with NO_CONTENT when successful" in new SetUp {
+      val deleteUrl = "http://vaping-duty-account/user-answers/clear"
+
+      when(mockConfig.ecpUserAnswersClearUrl()).thenReturn(deleteUrl)
+
+      when(connector.httpClient.delete(any())(any())).thenReturn(requestBuilder)
+
+      when(requestBuilder.setHeader("Csrf-Token" -> "nocheck"))
+        .thenReturn(requestBuilder)
+
+      when(requestBuilder.execute[HttpResponse](any(), any()))
+        .thenReturn(Future.successful(mockHttpResponse))
+
+      connector.clear(userAnswers.vpdId)
+
+      verify(connector.httpClient, atLeastOnce).delete(eqTo(url"$deleteUrl"))(any())
     }
   }
 

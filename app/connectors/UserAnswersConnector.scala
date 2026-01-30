@@ -30,9 +30,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class UserAnswersConnector @Inject() (config: FrontendAppConfig,implicit val httpClient: HttpClientV2)
                                      (implicit ec: ExecutionContext) extends HttpReadsInstances {
 
-  def get(appaId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] =
+  def get(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] =
     httpClient
-      .get(url"${config.ecpUserAnswersGetUrl(appaId)}")
+      .get(url"${config.ecpUserAnswersGetUrl(vpdId)}")
       .execute[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]]
 
   def set(userAnswers: ContactPreferenceUserAnswers)(implicit hc: HeaderCarrier): Future[HttpResponse] =
@@ -51,29 +51,29 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig,implicit val htt
       .execute[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]]
   }
 
-  def keepAlive(userId: String)(implicit hc: HeaderCarrier): Future[Unit] =
+  def keepAlive(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
       .post(url"${config.ecpUserAnswersKeepAliveUrl()}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap { response =>
         if (response.status == NO_CONTENT) {
-          Future.successful(())
+          Future.successful(Right(()))
         } else {
-          Future.failed(UpstreamErrorResponse("", response.status))
+          Future.successful(Left(UpstreamErrorResponse("keepAlive failed", response.status)))
         }
       }
   
-  def clear(userId: String)(implicit hc: HeaderCarrier): Future[Unit] =
+  def clear(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
-      .delete(url"${config.ecpUserAnswersClearUrl()}")
+      .delete(url"${config.ecpUserAnswersClearUrl(vpdId)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap { response =>
         if (response.status == NO_CONTENT) {
-          Future.successful(())
+          Future.successful(Right(()))
         } else {
-          Future.failed(UpstreamErrorResponse("", response.status))
+          Future.failed(UpstreamErrorResponse("clear failed", response.status))
         }
       }
 

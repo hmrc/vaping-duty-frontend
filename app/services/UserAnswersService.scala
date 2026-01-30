@@ -18,14 +18,17 @@ package services
 
 import connectors.UserAnswersConnector
 import models.emailverification.ErrorModel
-import models.ContactPreferenceUserAnswers
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import models.{ContactPreferenceUserAnswers, UserDetails}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class UserAnswersService @Inject() (userAnswersConnector: UserAnswersConnector)(implicit ec: ExecutionContext) {
-
+  
+  def get(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] =
+    userAnswersConnector.get(vpdId)
+  
   def set(userAnswers: ContactPreferenceUserAnswers)(implicit hc: HeaderCarrier): Future[Either[ErrorModel, HttpResponse]] = {
     userAnswersConnector.set(userAnswers).map { response =>
       if (response.status >= 200 && response.status < 300) {
@@ -36,4 +39,14 @@ class UserAnswersService @Inject() (userAnswersConnector: UserAnswersConnector)(
     }
   }
 
+  def createUserAnswers(userDetails: UserDetails)
+                       (implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] = {
+    userAnswersConnector.createUserAnswers(userDetails)
+  }
+
+  def keepAlive(userId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+    userAnswersConnector.keepAlive(userId)
+
+  def clear(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+    userAnswersConnector.clear(vpdId)
 }
