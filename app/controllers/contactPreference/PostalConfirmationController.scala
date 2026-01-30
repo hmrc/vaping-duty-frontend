@@ -21,7 +21,6 @@ import controllers.actions.*
 import models.emailverification.PaperlessPreferenceSubmission
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.JsBoolean
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.PostalConfirmationView
@@ -36,7 +35,7 @@ class PostalConfirmationController @Inject()(
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: PostalConfirmationView,
-                                       connector: SubmitPreferencesConnector
+                                       submitPreferencesConnector: SubmitPreferencesConnector
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
   
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -50,7 +49,7 @@ class PostalConfirmationController @Inject()(
       val preferenceSubmission = PaperlessPreferenceSubmission(false, email, verification, bounced)
 
       if (request.userAnswers.subscriptionSummary.paperlessPreference) {
-        connector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
+        submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
           case Left(err) =>
             logger.info(s"[PostalConfirmationController][onPageLoad] Error submitting preference: $err")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

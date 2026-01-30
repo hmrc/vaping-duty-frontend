@@ -36,11 +36,11 @@ class SubmitPreferencesConnector @Inject() (
     extends HttpReadsInstances
     with Logging {
 
-  def submitContactPreferences(contactPreferenceSubmission: PaperlessPreferenceSubmission, appaId: String)(implicit
+  def submitContactPreferences(contactPreferenceSubmission: PaperlessPreferenceSubmission, vpdId: String)(implicit
     hc: HeaderCarrier
   ): Future[Either[ErrorModel, PaperlessPreferenceSubmittedResponse]] = {
     httpClient
-      .put(url"${config.ecpSubmitContactPreferencesUrl(appaId)}")
+      .put(url"${config.ecpSubmitContactPreferencesUrl(vpdId)}")
       .withBody(Json.toJson(contactPreferenceSubmission))
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .map {
@@ -49,7 +49,8 @@ class SubmitPreferencesConnector @Inject() (
             case Success(successResponse) => Right(successResponse)
             case Failure(_)               =>
               logger.warn(
-                "[SubmitPreferencesConnector] [submitContactPreferences] Invalid JSON format, failed to parse as PaperlessPreferenceSubmittedResponse"
+                "[SubmitPreferencesConnector] [submitContactPreferences] Invalid JSON format, failed to parse as " +
+                  "PaperlessPreferenceSubmittedResponse"
               )
               Left(
                 ErrorModel(
@@ -60,12 +61,14 @@ class SubmitPreferencesConnector @Inject() (
           }
         case Left(errorResponse)                      =>
           logger.warn(
-            s"[SubmitPreferencesConnector] [submitContactPreferences] Unexpected response when submitting contact preferences. Status: ${errorResponse.statusCode}"
+            s"[SubmitPreferencesConnector] [submitContactPreferences] Unexpected response when submitting contact preferences." +
+              s" Status: ${errorResponse.statusCode}"
           )
           Left(ErrorModel(errorResponse.statusCode, s"Unexpected response. Status: ${errorResponse.statusCode}"))
         case Right(response)                          =>
           logger.warn(
-            s"[SubmitPreferencesConnector] [submitContactPreferences] Unexpected status code when submitting contact preferences: ${response.status}"
+            s"[SubmitPreferencesConnector] [submitContactPreferences] Unexpected status code when submitting contact " +
+              s"preferences: ${response.status}"
           )
           Left(
             ErrorModel(

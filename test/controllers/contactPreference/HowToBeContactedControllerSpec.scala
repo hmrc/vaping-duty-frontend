@@ -17,10 +17,10 @@
 package controllers.contactPreference
 
 import base.SpecBase
-import controllers.routes
 import forms.HowToBeContactedFormProvider
-import models.{HowToBeContacted, NormalMode, UserAnswers}
+import models.{HowToBeContacted, NormalMode}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -29,7 +29,9 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
+import services.UserAnswersService
+import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.UpstreamErrorResponse.Upstream4xxResponse
 import views.html.contactPreference.HowToBeContactedView
 
 import scala.concurrent.Future
@@ -47,7 +49,15 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val mockUserAnswersService = mock[UserAnswersService]
+
+      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(emptyUserAnswers))
+
+      when(mockUserAnswersService.createUserAnswers(any())(any())).thenReturn(Future.successful(Right(emptyUserAnswers)))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, howToBeContactedRoute)
@@ -61,11 +71,42 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to JourneyRecoveryController when there is an error creating user answers" in {
+
+      val mockUserAnswersService = mock[UserAnswersService]
+
+      when(mockUserAnswersService.createUserAnswers(any())(any()))
+        .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, howToBeContactedRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[HowToBeContactedView]
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(HowToBeContactedPage, HowToBeContacted.values.head).success.value
+      val ua = userAnswers.set(HowToBeContactedPage, HowToBeContacted.values.head).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val mockUserAnswersService = mock[UserAnswersService]
+
+      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(ua))
+
+      when(mockUserAnswersService.createUserAnswers(any())(any())).thenReturn(Future.successful(Right(ua)))
+
+      val application = applicationBuilder(userAnswers = Some(ua))
+        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, howToBeContactedRoute)
@@ -80,16 +121,11 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when valid data is submitted" in {
-
-      val mockSessionRepository = mock[SessionRepository]
-
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
+      
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
           )
           .build()
 
@@ -124,36 +160,5 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
-
-//    "must redirect to Journey Recovery for a GET if no existing data is found" in {
-//
-//      val application = applicationBuilder(userAnswers = None).build()
-//
-//      running(application) {
-//        val request = FakeRequest(GET, howToBeContactedRoute)
-//
-//        val result = route(application, request).value
-//
-//        status(result) mustEqual SEE_OTHER
-//        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-//      }
-//    }
-
-//    "redirect to Journey Recovery for a POST if no existing data is found" in {
-//
-//      val application = applicationBuilder(userAnswers = None).build()
-//
-//      running(application) {
-//        val request =
-//          FakeRequest(POST, howToBeContactedRoute)
-//            .withFormUrlEncodedBody(("value", HowToBeContacted.values.head.toString))
-//
-//        val result = route(application, request).value
-//
-//        status(result) mustEqual SEE_OTHER
-//
-//        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-//      }
-//    }
   }
 }

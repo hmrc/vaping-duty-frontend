@@ -16,35 +16,33 @@
 
 package controllers.contactPreference
 
-import connectors.UserAnswersConnector
 import controllers.actions.*
 import forms.HowToBeContactedFormProvider
-import models.{ContactPreferenceUserAnswers, Mode, SubscriptionSummary, UserAnswers, UserDetails}
+import models.{ContactPreferenceUserAnswers, Mode, SubscriptionSummary, UserDetails}
 import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.Lang.logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.HowToBeContactedView
 
 import java.time.Instant
 import javax.inject.Inject
-import scala.concurrent.duration.Duration
-import scala.concurrent.impl.Promise
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 class HowToBeContactedController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       sessionRepository: UserAnswersConnector,
-                                       navigator: Navigator,
-                                       identify: ApprovedVapingManufacturerAuthAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       formProvider: HowToBeContactedFormProvider,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: HowToBeContactedView
+                                            override val messagesApi: MessagesApi,
+                                            sessionService: UserAnswersService,
+                                            navigator: Navigator,
+                                            identify: ApprovedVapingManufacturerAuthAction,
+                                            getData: DataRetrievalAction,
+                                            requireData: DataRequiredAction,
+                                            formProvider: HowToBeContactedFormProvider,
+                                            val controllerComponents: MessagesControllerComponents,
+                                            view: HowToBeContactedView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form = formProvider()
@@ -68,16 +66,16 @@ class HowToBeContactedController @Inject()(
         case Some(value) => form.fill(value)
       }
 
-
-      sessionRepository.createUserAnswers(UserDetails(request.vpdId, request.userId)).map {
+      sessionService.createUserAnswers(UserDetails(request.vpdId, request.userId)).map {
         case Left(err) =>
+          // TODO better log here
           logger.info(err.message)
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         case Right(_) => Ok(view(preparedForm, mode))
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
@@ -86,8 +84,8 @@ class HowToBeContactedController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(ContactPreferenceUserAnswers(request.vpdId, request.userId, SubscriptionSummary(true, None, None, None, correspondenceAddress = "", None), None, Set.empty, JsObject.empty, Instant.now(), Instant.now())).set(HowToBeContactedPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(HowToBeContactedPage, value))
+            _              <- sessionService.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(HowToBeContactedPage, mode, updatedAnswers))
       )
   }

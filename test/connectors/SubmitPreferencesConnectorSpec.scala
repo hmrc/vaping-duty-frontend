@@ -32,13 +32,13 @@ import scala.concurrent.Future
 class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
 
   "submitContactPreferences must" - {
-    val mockUrl = s"http://alcohol-duty-contact-preferences/submit-preferences/$vppaId"
+    val mockUrl = s"http://vaping-duty-account/submit-preferences/$vpdId"
 
     "successfully submit contact preferences" in new SetUp {
       val jsonResponse = Json.toJson(testSubmissionResponse).toString()
       val httpResponse = HttpResponse(OK, jsonResponse)
 
-      when(mockConfig.ecpSubmitContactPreferencesUrl(eqTo(vppaId))).thenReturn(mockUrl)
+      when(mockConfig.ecpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(Future.successful(Right(httpResponse)))
@@ -52,7 +52,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
 
       when(connector.httpClient.put(any())(any())).thenReturn(requestBuilder)
 
-      whenReady(connector.submitContactPreferences(contactPreferenceSubmissionEmail, vppaId)) { result =>
+      whenReady(connector.submitContactPreferences(contactPreferenceSubmissionEmail, vpdId)) { result =>
         result mustBe Right(testSubmissionResponse)
 
         verify(connector.httpClient, times(1)).put(eqTo(url"$mockUrl"))(any())
@@ -63,7 +63,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
     "fail when invalid JSON is returned" in new SetUp {
       val invalidJsonResponse = HttpResponse(OK, """{ "invalid": "json" }""")
 
-      when(mockConfig.ecpSubmitContactPreferencesUrl(eqTo(vppaId))).thenReturn(mockUrl)
+      when(mockConfig.ecpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(Future.successful(Right(invalidJsonResponse)))
@@ -77,7 +77,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
 
       when(connector.httpClient.put(any())(any())).thenReturn(requestBuilder)
 
-      whenReady(connector.submitContactPreferences(contactPreferenceSubmissionEmail, vppaId)) { result =>
+      whenReady(connector.submitContactPreferences(contactPreferenceSubmissionEmail, vpdId)) { result =>
         result.swap.toOption.get.status mustBe INTERNAL_SERVER_ERROR
         result.swap.toOption.get.message  must include("Invalid JSON format")
 
@@ -91,7 +91,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
         Left[UpstreamErrorResponse, HttpResponse](UpstreamErrorResponse("", BAD_GATEWAY, BAD_GATEWAY, Map.empty))
       )
 
-      when(mockConfig.ecpSubmitContactPreferencesUrl(eqTo(vppaId))).thenReturn(mockUrl)
+      when(mockConfig.ecpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(upstreamErrorResponse)
@@ -105,7 +105,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
 
       when(connector.httpClient.put(any())(any())).thenReturn(requestBuilder)
 
-      whenReady(connector.submitContactPreferences(contactPreferenceSubmissionEmail, vppaId)) { result =>
+      whenReady(connector.submitContactPreferences(contactPreferenceSubmissionEmail, vpdId)) { result =>
         result.swap.toOption.get.status mustBe BAD_GATEWAY
         result.swap.toOption.get.message  must include("Unexpected response")
 
@@ -117,7 +117,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
     "fail when an unexpected status code is returned" in new SetUp {
       val invalidStatusCodeResponse = HttpResponse(CREATED, "")
 
-      when(mockConfig.ecpSubmitContactPreferencesUrl(eqTo(vppaId))).thenReturn(mockUrl)
+      when(mockConfig.ecpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(Future.successful(Right(invalidStatusCodeResponse)))
@@ -131,7 +131,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
 
       when(connector.httpClient.put(any())(any())).thenReturn(requestBuilder)
 
-      whenReady(connector.submitContactPreferences(contactPreferenceSubmissionEmail, vppaId)) { result =>
+      whenReady(connector.submitContactPreferences(contactPreferenceSubmissionEmail, vpdId)) { result =>
         result.swap.toOption.get.status mustBe INTERNAL_SERVER_ERROR
         result.swap.toOption.get.message  must include("Unexpected status code")
 

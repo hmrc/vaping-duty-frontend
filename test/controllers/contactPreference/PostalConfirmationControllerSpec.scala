@@ -17,10 +17,18 @@
 package controllers.contactPreference
 
 import base.SpecBase
-import controllers.routes
+import connectors.SubmitPreferencesConnector
+import models.emailverification.{ErrorModel, PaperlessPreferenceSubmittedResponse}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.contactPreference.PostalConfirmationView
+
+import java.time.Instant
+import scala.concurrent.Future
 
 class PostalConfirmationControllerSpec extends SpecBase {
 
@@ -28,7 +36,15 @@ class PostalConfirmationControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
+      val processingDate = Instant.now()
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Right(PaperlessPreferenceSubmittedResponse(processingDate, ""))))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url)
@@ -39,6 +55,48 @@ class PostalConfirmationControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view()(request, messages(application)).toString
+      }
+    }
+
+    "must return SEE_OTHER when there is an issue during submission" in {
+
+      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must return SEE_OTHER and redirect to continue postal when user is already on postal preference" in {
+
+      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail))
+        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.contactPreference.routes.ContinuePostalPreferenceController.onPageLoad().url
       }
     }
   }
