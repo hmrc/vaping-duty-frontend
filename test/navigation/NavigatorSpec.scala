@@ -17,19 +17,16 @@
 package navigation
 
 import base.SpecBase
-import config.FrontendAppConfig
 import controllers.routes
-import pages.*
 import models.*
-import org.scalatestplus.mockito.MockitoSugar.mock
+import pages.*
 import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
 import play.api.mvc.Call
 import uk.gov.hmrc.http.HttpVerbs.POST
 
 class NavigatorSpec extends SpecBase {
 
-  override val mockAppConfig = mock[FrontendAppConfig]
-  val navigator = new Navigator(mockAppConfig)
+  val navigator = new Navigator
 
   "Navigator" - {
 
@@ -38,25 +35,37 @@ class NavigatorSpec extends SpecBase {
       "must go from a page that doesn't exist in the route map to Index" in {
 
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.IndexController.onPageLoad()
+        navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe routes.IndexController.onPageLoad()
       }
 
       "must go from HowToBeContacted page to EnterEmail page" in {
 
-        val ua = UserAnswers("id").set(HowToBeContactedPage, HowToBeContacted.Email).success.value
+        val ua = userAnswers.set(HowToBeContactedPage, HowToBeContacted.Email).success.value
         navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe controllers.contactPreference.routes.EnterEmailController.onPageLoad(NormalMode)
       }
 
       "must go from HowToBeContacted page to Post page" in {
 
-        val ua = UserAnswers("id").set(HowToBeContactedPage, HowToBeContacted.Post).success.value
+        val ua = userAnswers.set(HowToBeContactedPage, HowToBeContacted.Post).success.value
         navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe controllers.contactPreference.routes.ConfirmAddressController.onPageLoad()
       }
 
+      "must go from HowToBeContacted page to JourneyRecovery when value is not present" in {
+
+        val ua = userAnswers
+        navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from EnterEmail page to Email Verification Service when address is unverified" in {
-        //TODO Must expand UA to include verified email list
-        val ua = UserAnswers("id").set(HowToBeContactedPage, HowToBeContacted.Email).success.value
-        navigator.nextPage(EnterEmailPage, NormalMode, ua) mustBe Call(POST, mockAppConfig.loginUrl)
+        // TODO update when implementing email journey
+        val ua = userAnswers.set(EnterEmailPage, emailAddress).success.value
+        navigator.nextPage(EnterEmailPage, NormalMode, ua) mustBe controllers.contactPreference.routes.EmailConfirmationController.onPageLoad()
+      }
+
+      "must go from EnterEmail page to Email Confirmation/CYA when address is already verified" in {
+        // TODO update when implementing email journey
+        val ua = userAnswers.set(EnterEmailPage, emailAddress2).success.value
+        navigator.nextPage(EnterEmailPage, NormalMode, ua) mustBe controllers.contactPreference.routes.EmailConfirmationController.onPageLoad()
       }
     }
 
@@ -65,7 +74,7 @@ class NavigatorSpec extends SpecBase {
       "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
 
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id")) mustBe routes.CheckYourAnswersController.onPageLoad()
+        navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
     }
   }

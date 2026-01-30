@@ -23,7 +23,7 @@ import play.api.libs.json.{JsObject, Json}
 import java.time.{Clock, Instant, ZoneId}
 
 trait TestData {
-  val vppaId = "VPPAID01"
+  val vpdId = "VPPAID01"
   val groupId: String = "groupid"
   val ukTimeZoneStringId = "Europe/London"
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(1718118467838L), ZoneId.of(ukTimeZoneStringId))
@@ -31,7 +31,7 @@ trait TestData {
   val userId: String = "user-id"
   val credId: String = "cred-id"
 
-  val userDetails: UserDetails = UserDetails(vppaId, userId)
+  val userDetails: UserDetails = UserDetails(vpdId, userId)
 
   val emailAddress = "john.doe@example.com"
   val emailAddress2 = "jonjones@example.com"
@@ -44,7 +44,7 @@ trait TestData {
   val countryCode = "GB"
 
   val subscriptionSummaryEmail: SubscriptionSummary = SubscriptionSummary(
-    paperlessReference = true,
+    paperlessPreference = true,
     emailAddress = Some(emailAddress),
     emailVerification = Some(true),
     bouncedEmail = Some(false),
@@ -52,10 +52,10 @@ trait TestData {
     countryCode = Some(countryCode)
   )
 
-  val subscriptionSummaryPostWithEmail: SubscriptionSummary = subscriptionSummaryEmail.copy(paperlessReference = false)
+  val subscriptionSummaryPostWithEmail: SubscriptionSummary = subscriptionSummaryEmail.copy(paperlessPreference = false)
 
   val subscriptionSummaryPostNoEmail: SubscriptionSummary = SubscriptionSummary(
-    paperlessReference = false,
+    paperlessPreference = false,
     emailAddress = None,
     emailVerification = None,
     bouncedEmail = None,
@@ -64,7 +64,7 @@ trait TestData {
   )
 
   val userAnswers: ContactPreferenceUserAnswers = ContactPreferenceUserAnswers(
-    appaId = vppaId,
+    vpdId = vpdId,
     userId = userId,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
@@ -75,7 +75,7 @@ trait TestData {
   )
 
   val userAnswersEmailUpdate: ContactPreferenceUserAnswers = ContactPreferenceUserAnswers(
-    appaId = vppaId,
+    vpdId = vpdId,
     userId = userId,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
@@ -86,7 +86,7 @@ trait TestData {
   )
 
   val userAnswersPostWithEmail: ContactPreferenceUserAnswers = ContactPreferenceUserAnswers(
-    appaId = vppaId,
+    vpdId = vpdId,
     userId = userId,
     subscriptionSummary = subscriptionSummaryPostWithEmail,
     emailAddress = Some(emailAddress),
@@ -109,7 +109,7 @@ trait TestData {
   )
 
   val userAnswersPostNoEmail: ContactPreferenceUserAnswers = ContactPreferenceUserAnswers(
-    appaId = vppaId,
+    vpdId = vpdId,
     userId = userId,
     subscriptionSummary = subscriptionSummaryPostNoEmail,
     emailAddress = Some(emailAddress),
@@ -120,7 +120,7 @@ trait TestData {
   )
 
   val emptyUserAnswers: ContactPreferenceUserAnswers = ContactPreferenceUserAnswers(
-    appaId = vppaId,
+    vpdId = vpdId,
     userId = userId,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,

@@ -27,5 +27,4 @@ trait BtaLink {
 case class GetBtaLink @Inject()(config: FrontendAppConfig) extends BtaLink {
 
   override def btaLink: String = config.continueToBta
-  
 }

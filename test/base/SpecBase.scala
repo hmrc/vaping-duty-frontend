@@ -16,6 +16,8 @@
 
 package base
 
+import config.FrontendAppConfig
+import connectors.EmailVerificationConnector
 import controllers.actions.*
 import data.TestData
 import models.{ContactPreferenceUserAnswers, SubscriptionSummary, UserAnswers}
@@ -23,6 +25,7 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
@@ -56,4 +59,7 @@ trait SpecBase
   
   implicit val hc: HeaderCarrier = HeaderCarrier()
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  
+  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+  val mockEmailVerificationConnector: EmailVerificationConnector = mock[EmailVerificationConnector]
 }
