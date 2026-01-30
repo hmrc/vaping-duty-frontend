@@ -44,7 +44,7 @@ class EmailVerificationConnectorSpec extends SpecBase with TestData {
 
       when(connector.httpClient.get(any())(any())).thenReturn(requestBuilder)
 
-      whenReady(connector.getEmailVerification(testVerificationDetails)) { a =>
+      whenReady(connector.getEmailVerification(testVerificationDetails).value) { a =>
         a mustBe Right(testGetVerificationStatusResponse)
       }
     }
@@ -57,7 +57,7 @@ class EmailVerificationConnectorSpec extends SpecBase with TestData {
 
       when(connector.httpClient.get(any())(any())).thenReturn(requestBuilder)
 
-      whenReady(connector.getEmailVerification(testVerificationDetails)) {
+      whenReady(connector.getEmailVerification(testVerificationDetails).value) {
         _ mustBe Left(
           ErrorModel(
             INTERNAL_SERVER_ERROR,
@@ -80,7 +80,7 @@ class EmailVerificationConnectorSpec extends SpecBase with TestData {
 
       when(connector.httpClient.get(any())(any())).thenReturn(requestBuilder)
 
-      whenReady(connector.getEmailVerification(testVerificationDetails)) {
+      whenReady(connector.getEmailVerification(testVerificationDetails).value) {
         _ mustBe Left(
           ErrorModel(
             INTERNAL_SERVER_ERROR,

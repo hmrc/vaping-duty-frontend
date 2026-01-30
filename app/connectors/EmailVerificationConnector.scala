@@ -16,6 +16,7 @@
 
 package connectors
 
+import cats.data.EitherT
 import config.FrontendAppConfig
 import models.emailverification.{EmailVerificationRequest, ErrorModel, GetVerificationStatusResponse, RedirectUri, VerificationDetails}
 import play.api.Logging
@@ -37,21 +38,35 @@ class EmailVerificationConnector @Inject()(
     with Logging {
 
   def getEmailVerification(verificationDetails: VerificationDetails)(implicit
-    hc: HeaderCarrier
-  ): Future[Either[ErrorModel, GetVerificationStatusResponse]] = {
+                                                                     hc: HeaderCarrier
+  ): EitherT[Future, ErrorModel, GetVerificationStatusResponse] = EitherT {
     httpClient
       .get(url"${config.ecpGetEmailVerificationUrl(verificationDetails.credId)}")
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .flatMap {
-        case Right(response)              => Try(response.json.as[GetVerificationStatusResponse]) match {
+        case Right(response)     =>
+          Try(response.json.as[GetVerificationStatusResponse]) match {
             case Success(successResponse) => Future.successful(Right(successResponse))
             case Failure(_)               =>
-              logger.warn("[EmailVerificationConnector] [getEmailVerification] Invalid JSON format, failed to parse as GetVerificationStatusResponse")
-              Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "Invalid JSON format. Could not parse response as GetVerificationStatusResponse")))
+              logger.warn(
+                s"[EmailVerificationConnector] [getEmailVerification] Invalid JSON format, failed to parse as GetVerificationStatusResponse"
+              )
+              Future.successful(
+                Left(
+                  ErrorModel(
+                    INTERNAL_SERVER_ERROR,
+                    "Invalid JSON format. Could not parse response as GetVerificationStatusResponse"
+                  )
+                )
+              )
           }
-        case Left(errorResponse)          =>
-          logger.warn(s"[EmailVerificationConnector] [getEmailVerification] Unexpected response when retrieving email verification details. Status: ${errorResponse.statusCode}, Message: ${errorResponse.message}")
-          Future.successful(Left(ErrorModel(errorResponse.statusCode, s"Unexpected response. Status: ${errorResponse.statusCode}")))
+        case Left(errorResponse) =>
+          logger.warn(
+            s"[EmailVerificationConnector] [getEmailVerification] Unexpected response when retrieving email verification details. Status: ${errorResponse.statusCode}, Message: ${errorResponse.message}"
+          )
+          Future.successful(
+            Left(ErrorModel(errorResponse.statusCode, s"Unexpected response. Status: ${errorResponse.statusCode}"))
+          )
       }
   }
 

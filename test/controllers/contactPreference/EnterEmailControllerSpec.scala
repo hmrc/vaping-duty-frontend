@@ -17,6 +17,7 @@
 package controllers.contactPreference
 
 import base.SpecBase
+import connectors.EmailVerificationConnector
 import controllers.routes
 import forms.EnterEmailFormProvider
 import models.{NormalMode, UserAnswers}
@@ -29,7 +30,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import repositories.SessionRepository
+import services.UserAnswersService
 import views.html.contactPreference.EnterEmailView
 
 import scala.concurrent.Future
@@ -47,7 +48,13 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val mockUserAnswersService = mock[UserAnswersService]
+
+      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(emptyUserAnswers))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, enterEmailRoute)
@@ -63,9 +70,9 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(EnterEmailPage, "answer").success.value
+      val ua = userAnswers.set(EnterEmailPage, "answer").success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(ua)).build()
 
       running(application) {
         val request = FakeRequest(GET, enterEmailRoute)
@@ -81,15 +88,13 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
+      when(mockEmailVerificationConnector.startEmailVerification(any())(any())).thenReturn(Future.successful("redirectUri"))
+      
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[EmailVerificationConnector].toInstance(mockEmailVerificationConnector))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
           )
           .build()
 

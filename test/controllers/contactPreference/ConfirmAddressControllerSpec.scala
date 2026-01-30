@@ -18,17 +18,29 @@ package controllers.contactPreference
 
 import base.SpecBase
 import controllers.routes
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.UserAnswersService
 import views.html.contactPreference.ConfirmAddressView
+
+import scala.concurrent.Future
 
 class ConfirmAddressControllerSpec extends SpecBase {
 
   "ConfirmAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
+      val mockUserAnswersService = mock[UserAnswersService]
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(userAnswersPostNoEmail))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail))
+        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, controllers.contactPreference.routes.ConfirmAddressController.onPageLoad().url)
@@ -37,8 +49,10 @@ class ConfirmAddressControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[ConfirmAddressView]
 
+        val expectedAddress = userAnswersPostNoEmail.subscriptionSummary.correspondenceAddress.split("\n").toList
+
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(expectedAddress)(request, messages(application)).toString
       }
     }
   }

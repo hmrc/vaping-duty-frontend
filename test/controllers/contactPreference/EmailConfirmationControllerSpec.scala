@@ -17,7 +17,6 @@
 package controllers.contactPreference
 
 import base.SpecBase
-import controllers.routes
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.contactPreference.EmailConfirmationView
@@ -28,7 +27,8 @@ class EmailConfirmationControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, controllers.contactPreference.routes.EmailConfirmationController.onPageLoad().url)
@@ -38,7 +38,7 @@ class EmailConfirmationControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[EmailConfirmationView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(userAnswers.subscriptionSummary.emailAddress.getOrElse(""))(request, messages(application)).toString
       }
     }
   }

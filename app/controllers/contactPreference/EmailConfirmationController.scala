@@ -36,8 +36,9 @@ class EmailConfirmationController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-      val ua = request.userAnswers.subscriptionSummary.emailAddress.getOrElse("")
+      // Maybe should go to journey recovery here if no email is found
+      val enteredEmail = request.userAnswers.subscriptionSummary.emailAddress.getOrElse("")
 
-      Ok(view(ua))
+      Ok(view(enteredEmail))
   }
 }

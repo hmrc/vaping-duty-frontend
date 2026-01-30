@@ -16,14 +16,15 @@
 
 package controllers.contactPreference
 
-import connectors.UserAnswersConnector
 import controllers.actions.*
 import forms.EnterEmailFormProvider
 import models.Mode
 import navigation.Navigator
 import pages.contactPreference.EnterEmailPage
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.EnterEmailView
 
@@ -32,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class EnterEmailController @Inject()(
                                       override val messagesApi: MessagesApi,
-                                      sessionRepository: UserAnswersConnector,
+                                      sessionService: UserAnswersService,
                                       navigator: Navigator,
                                       identify: ApprovedVapingManufacturerAuthAction,
                                       getData: DataRetrievalAction,
@@ -42,7 +43,7 @@ class EnterEmailController @Inject()(
                                       view: EnterEmailView
                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
@@ -63,12 +64,11 @@ class EnterEmailController @Inject()(
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
         value =>
-
-          val addEmail = request.userAnswers.copy(emailAddress = Some(value))
-
           for {
-            updatedAnswers <- Future.fromTry(addEmail.set(EnterEmailPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
+            updatedAnswers <- Future.fromTry(
+              request.userAnswers.copy(emailAddress = Some(value)).set(EnterEmailPage, value)
+            )
+            _              <- sessionService.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(EnterEmailPage, mode, updatedAnswers))
       )
   }
