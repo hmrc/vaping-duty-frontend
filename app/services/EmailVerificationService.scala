@@ -16,31 +16,31 @@
 
 package services
 
+import cats.data.EitherT
 import com.google.inject.Singleton
 import connectors.EmailVerificationConnector
-import models.emailverification.{EmailVerificationDetails, ErrorModel, GetVerificationStatusResponse, VerificationDetails}
 import models.ContactPreferenceUserAnswers
+import models.emailverification.*
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EmailVerificationService @Inject() (
-  emailVerificationConnector: EmailVerificationConnector,
-  userAnswersService: UserAnswersService
-)(implicit ec: ExecutionContext) {
+class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerificationConnector,
+                                          userAnswersService: UserAnswersService)
+                                         (implicit ec: ExecutionContext) {
 
   def retrieveAddressStatusAndAddToCache(verificationDetails: VerificationDetails,
                                          emailAddress: String,
                                          userAnswers: ContactPreferenceUserAnswers)
-                                        (implicit hc: HeaderCarrier): Future[Either[ErrorModel, EmailVerificationDetails]] = {
+                                        (implicit hc: HeaderCarrier): EitherT[Future, ErrorModel, EmailVerificationDetails] =
     for {
       successResponse    <- emailVerificationConnector.getEmailVerification(verificationDetails)
-      verificationDetails = handleSuccess(emailAddress, successResponse.fold(err => GetVerificationStatusResponse(List.empty), res => res))
+      verificationDetails = handleSuccess(emailAddress, successResponse)
       _                  <- addVerifiedToCache(verificationDetails, userAnswers)
-    } yield Right(verificationDetails)
-  }
+    } yield verificationDetails
+  
 
   private def handleSuccess(emailAddress: String, successResponse: GetVerificationStatusResponse): EmailVerificationDetails = {
 
@@ -54,9 +54,9 @@ class EmailVerificationService @Inject() (
   }
 
   private def addVerifiedToCache(
-    verificationDetails: EmailVerificationDetails,
-    userAnswers: ContactPreferenceUserAnswers
-  )(implicit hc: HeaderCarrier): Future[Either[ErrorModel, HttpResponse]] = {
+                                  verificationDetails: EmailVerificationDetails,
+                                  userAnswers: ContactPreferenceUserAnswers
+                                )(implicit hc: HeaderCarrier): EitherT[Future, ErrorModel, HttpResponse] = {
     val newVerifiedEmails: Set[String] =
       if (verificationDetails.isVerified) {
         userAnswers.verifiedEmailAddresses ++ Set(verificationDetails.emailAddress)
@@ -65,7 +65,6 @@ class EmailVerificationService @Inject() (
       }
 
     val newUserAnswers = userAnswers.copy(verifiedEmailAddresses = newVerifiedEmails)
-    userAnswersService.set(newUserAnswers)
+    EitherT(userAnswersService.set(newUserAnswers))
+    }
   }
-
-}
