@@ -26,14 +26,14 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DataRetrievalActionImpl @Inject()(
-                                         val contactPreferencesConnector: UserAnswersService
+                                         val contactPreferencesService: UserAnswersService
                                        )(implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = {
 
     val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    contactPreferencesConnector.get(request.enrolmentVpdId)(headerCarrier).map {
+    contactPreferencesService.get(request.enrolmentVpdId)(headerCarrier).map {
       case Left(_)    => OptionalDataRequest(request, request.enrolmentVpdId, request.userId, None)
       case Right(ua)  => OptionalDataRequest(request, request.enrolmentVpdId, request.userId, Some(ua))
     }
