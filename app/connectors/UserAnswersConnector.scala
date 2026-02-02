@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, String
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserAnswersConnector @Inject() (config: FrontendAppConfig,implicit val httpClient: HttpClientV2)
+class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val httpClient: HttpClientV2)
                                      (implicit ec: ExecutionContext) extends HttpReadsInstances {
 
   def get(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] =
@@ -37,7 +37,7 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig,implicit val htt
 
   def set(userAnswers: ContactPreferenceUserAnswers)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClient
-      .put(url"${config.ecpUserAnswersUrl()}")
+      .put(url"${config.ecpUserAnswersUrl}")
       .setHeader("Csrf-Token" -> "nocheck")
       .withBody(Json.toJson(userAnswers))
       .execute[HttpResponse]
@@ -46,7 +46,7 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig,implicit val htt
   def createUserAnswers(userDetails: UserDetails)
                        (implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] = {
     httpClient
-      .post(url"${config.ecpUserAnswersUrl()}")
+      .post(url"${config.ecpUserAnswersUrl}")
       .withBody(Json.toJson(userDetails))
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]]
@@ -54,7 +54,7 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig,implicit val htt
 
   def keepAlive(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
-      .post(url"${config.ecpUserAnswersKeepAliveUrl()}")
+      .post(url"${config.ecpUserAnswersKeepAliveUrl}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap { response =>

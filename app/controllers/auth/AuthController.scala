@@ -32,7 +32,7 @@ class AuthController @Inject()(
                                 config: FrontendAppConfig,
                                 sessionRepository: UserAnswersService,
                                 ifSignedIn: CheckSignedInAction
-)(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                              )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def signOut(): Action[AnyContent] = ifSignedIn.async {
     implicit request =>

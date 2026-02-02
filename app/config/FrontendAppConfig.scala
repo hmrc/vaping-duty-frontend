@@ -81,16 +81,16 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def ecpUserAnswersGetUrl(vpdId: String): String =
     s"$contactPreferencesHost/vaping-duty-account/user-answers/$vpdId"
 
-  def ecpUserAnswersUrl(): String =
+  def ecpUserAnswersUrl: String =
     s"$contactPreferencesHost/vaping-duty-account/user-answers"
 
-  def ecpUserAnswersKeepAliveUrl(): String =
+  def ecpUserAnswersKeepAliveUrl: String =
     s"$contactPreferencesHost/vaping-duty-account/keep-alive"
 
   def ecpUserAnswersClearUrl(vpdId: String): String =
     s"$contactPreferencesHost/vaping-duty-account/user-answers/clear/$vpdId"
 
-  def ecpUserAnswersClearAllUrl(): String =
+  def ecpUserAnswersClearAllUrl: String =
     s"$contactPreferencesHost/vaping-duty-account/test-only/user-answers/clear-all"
 
   def ecpGetEmailVerificationUrl(credId: String): String =
@@ -99,18 +99,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def ecpSubmitContactPreferencesUrl(vpdId: String): String =
     s"$contactPreferencesHost/vaping-duty-account/submit-preferences/$vpdId"
 
-  // TODO update when implementing email journey
-  private val startEmailVerificationContinueBaseUrl: String   =
-      configuration.get[String]("urls.loginContinue")
-//  private val startEmailVerificationContinueUrlSuffix: String =
-//    configuration.get[String]("microservice.services.contact-preferences-frontend.url.checkYourAnswersPage")
-  private val startEmailVerificationBackUrlSuffix: String     =
-    configuration.get[String]("urls.loginContinue")
-
-  val startEmailVerificationContinueUrl: String =
-    s"$startEmailVerificationContinueBaseUrl" //$startEmailVerificationContinueUrlSuffix"
-  val startEmailVerificationBackUrl: String     =
-    s"$startEmailVerificationContinueBaseUrl$startEmailVerificationBackUrlSuffix"
+  val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/email-confirmation"
+  val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"
 
   private val startEmailVerificationJourneyBaseUrl: String   = servicesConfig.baseUrl("email-verification")
   private val startEmailVerificationJourneyUrlSuffix: String =

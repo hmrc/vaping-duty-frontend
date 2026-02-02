@@ -50,7 +50,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
     "must successfully write user answers" in new SetUp {
       val postUrl = "http://vaping-duty-account/user-answers"
 
-      when(mockConfig.ecpUserAnswersUrl()).thenReturn(postUrl)
+      when(mockConfig.ecpUserAnswersUrl).thenReturn(postUrl)
 
       when(connector.httpClient.post(any())(any())).thenReturn(requestBuilder)
 
@@ -72,7 +72,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
     "must successfully write user answers" in new SetUp {
       val putUrl = "http://vaping-duty-account/user-answers"
 
-      when(mockConfig.ecpUserAnswersUrl()).thenReturn(putUrl)
+      when(mockConfig.ecpUserAnswersUrl).thenReturn(putUrl)
 
       when(connector.httpClient.put(any())(any())).thenReturn(requestBuilder)
 
@@ -95,7 +95,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
     "must respond with NO_CONTENT when successful" in new SetUp {
       val postUrl = "http://vaping-duty-account/user-answers/keepAlive"
 
-      when(mockConfig.ecpUserAnswersKeepAliveUrl()).thenReturn(postUrl)
+      when(mockConfig.ecpUserAnswersKeepAliveUrl).thenReturn(postUrl)
 
       when(connector.httpClient.post(any())(any())).thenReturn(requestBuilder)
 

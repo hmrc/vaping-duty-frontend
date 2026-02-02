@@ -19,6 +19,7 @@
 @this(
         layout: templates.Layout,
         govukButton: GovukButton,
+        h1: Heading,
         p: Paragraph
 )
 
@@ -26,7 +27,7 @@
 
 @layout(pageTitle = titleNoForm(messages("contactPreference.confirmAddress.title"))) {
 
-    <h1 class="govuk-heading-l">@messages("contactPreference.confirmAddress.heading")</h1>
+    @h1(messages("contactPreference.confirmAddress.heading"))
 
     <ul class="govuk-list">
         @storedAddress.map { line =>

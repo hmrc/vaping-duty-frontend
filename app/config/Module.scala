@@ -36,7 +36,5 @@ class Module extends AbstractModule {
     bind(classOf[BtaLink]).to(classOf[GetBtaLink]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-
-    //bind(classOf[VapingDutyConnector]).to(classOf[VapingDutyConnectorHttp]).asEagerSingleton()
   }
 }

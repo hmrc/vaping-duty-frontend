@@ -38,8 +38,6 @@ class EmailVerificationServiceSpec extends SpecBase {
           EitherT(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "test error"))))
         )
 
-      //when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "test error"))))
-
       whenReady(
         testService.retrieveAddressStatusAndAddToCache(testVerificationDetails, emailAddress2, userAnswers).value
       ) {
