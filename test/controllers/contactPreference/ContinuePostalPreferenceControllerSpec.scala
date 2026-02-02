@@ -17,7 +17,6 @@
 package controllers.contactPreference
 
 import base.SpecBase
-import controllers.contactPreference.routes
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.contactPreference.ContinuePostalPreferenceView

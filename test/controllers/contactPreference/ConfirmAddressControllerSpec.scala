@@ -17,7 +17,6 @@
 package controllers.contactPreference
 
 import base.SpecBase
-import controllers.contactPreference.routes
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
