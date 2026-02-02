@@ -79,8 +79,10 @@ class PostalConfirmationControllerSpec extends SpecBase {
       }
     }
 
-    "must return SEE_OTHER and redirect to continue postal when user is already on postal preference" in {
-
+    "must return OK and render the view when user is already on postal preference" in {
+      // Test used to be:
+      // must return SEE_OTHER and redirect to continue postal when user is already on postal preference
+      
       val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
 
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
@@ -95,8 +97,10 @@ class PostalConfirmationControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.contactPreference.routes.ContinuePostalPreferenceController.onPageLoad().url
+        val view = application.injector.instanceOf[PostalConfirmationView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view()(request, messages(application)).toString
       }
     }
   }

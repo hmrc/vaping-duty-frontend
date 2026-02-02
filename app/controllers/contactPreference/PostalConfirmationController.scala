@@ -57,7 +57,8 @@ class PostalConfirmationController @Inject()(
             Ok(view())
         }
       } else {
-        Future.successful(Redirect(controllers.contactPreference.routes.ContinuePostalPreferenceController.onPageLoad()))
+        // Still render the confirmation page with no submission as current flow
+        Future.successful(Ok(view()))
       }
   }
 }
