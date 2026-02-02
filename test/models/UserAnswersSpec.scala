@@ -18,7 +18,7 @@ package models
 
 import base.SpecBase
 import play.api.libs.json.{JsPath, Json}
-import queries.{ContactPreferenceSettable, Gettable, Settable}
+import queries.{ContactPreferenceSettable, Gettable}
 
 import java.time.Instant
 import scala.util.Success

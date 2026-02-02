@@ -17,7 +17,7 @@
 package controllers.contactPreference
 
 import base.SpecBase
-import controllers.routes
+import controllers.contactPreference.routes
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -43,7 +43,7 @@ class ConfirmAddressControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.contactPreference.routes.ConfirmAddressController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.ConfirmAddressController.onPageLoad().url)
 
         val result = route(application, request).value
 

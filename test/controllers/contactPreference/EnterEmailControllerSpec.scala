@@ -20,7 +20,7 @@ import base.SpecBase
 import connectors.EmailVerificationConnector
 import controllers.routes
 import forms.EnterEmailFormProvider
-import models.{NormalMode, UserAnswers}
+import models.NormalMode
 import navigation.{FakeNavigator, Navigator}
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any

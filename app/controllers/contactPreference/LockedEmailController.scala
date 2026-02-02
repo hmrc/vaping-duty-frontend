@@ -29,14 +29,12 @@ import javax.inject.Inject
 class LockedEmailController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: ApprovedVapingManufacturerAuthAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: LockedEmailView,
                                        config: FrontendAppConfig
                                      ) extends FrontendBaseController with I18nSupport with BtaLink {
 
-  def onPageLoad: Action[AnyContent] = (identify) {
+  def onPageLoad: Action[AnyContent] = identify {
     implicit request =>
       Ok(view(btaLink))
   }

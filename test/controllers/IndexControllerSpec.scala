@@ -17,15 +17,9 @@
 package controllers
 
 import base.SpecBase
-import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.IndexView
-import org.mockito.ArgumentMatchers.any
-
-import scala.concurrent.Future
 
 class IndexControllerSpec extends SpecBase {
 

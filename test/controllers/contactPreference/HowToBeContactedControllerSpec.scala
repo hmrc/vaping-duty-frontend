@@ -32,7 +32,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.UserAnswersService
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import uk.gov.hmrc.http.UpstreamErrorResponse.Upstream4xxResponse
 import views.html.contactPreference.HowToBeContactedView
 
 import scala.concurrent.Future
@@ -87,9 +86,7 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, howToBeContactedRoute)
 
         val result = route(application, request).value
-
-        val view = application.injector.instanceOf[HowToBeContactedView]
-
+        
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
       }

@@ -16,6 +16,6 @@
 
 package pages
 
-import queries.{ContactPreferenceSettable, Gettable, Settable}
+import queries.{ContactPreferenceSettable, Gettable}
 
 trait QuestionPage[A] extends Page with Gettable[A] with ContactPreferenceSettable[A]

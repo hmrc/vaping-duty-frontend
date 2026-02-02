@@ -17,7 +17,7 @@
 package controllers.contactPreference
 
 import base.SpecBase
-import controllers.routes
+import controllers.contactPreference.routes
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.contactPreference.ContinuePostalPreferenceView
@@ -31,7 +31,7 @@ class ContinuePostalPreferenceControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.contactPreference.routes.ContinuePostalPreferenceController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.ContinuePostalPreferenceController.onPageLoad().url)
 
         val result = route(application, request).value
 

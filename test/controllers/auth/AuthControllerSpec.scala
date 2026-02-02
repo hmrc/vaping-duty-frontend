@@ -18,7 +18,6 @@ package controllers.auth
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.ContactPreferenceUserAnswers
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar

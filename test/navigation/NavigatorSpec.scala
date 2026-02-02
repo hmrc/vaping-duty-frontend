@@ -22,7 +22,6 @@ import models.*
 import pages.*
 import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
 import play.api.mvc.Call
-import uk.gov.hmrc.http.HttpVerbs.POST
 
 class NavigatorSpec extends SpecBase {
 

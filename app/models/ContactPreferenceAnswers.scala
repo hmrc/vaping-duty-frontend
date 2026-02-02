@@ -18,7 +18,7 @@ package models
 
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
-import queries.{ContactPreferenceSettable, Gettable, Settable}
+import queries.{ContactPreferenceSettable, Gettable}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant

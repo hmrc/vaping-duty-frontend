@@ -23,7 +23,6 @@ import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class HasEnrolmentActionSpec extends SpecBase with MockitoSugar {

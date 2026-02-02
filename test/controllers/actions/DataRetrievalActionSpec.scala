@@ -17,8 +17,6 @@
 package controllers.actions
 
 import base.SpecBase
-import connectors.UserAnswersConnector
-import models.{ContactPreferenceUserAnswers, UserAnswers}
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -27,7 +25,6 @@ import play.api.test.FakeRequest
 import services.UserAnswersService
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class DataRetrievalActionSpec extends SpecBase with MockitoSugar {

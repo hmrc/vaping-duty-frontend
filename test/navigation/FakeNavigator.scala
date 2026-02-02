@@ -16,8 +16,6 @@
 
 package navigation
 
-import config.FrontendAppConfig
-import connectors.EmailVerificationConnector
 import models.{ContactPreferenceUserAnswers, Mode}
 import pages.*
 import play.api.mvc.Call

@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import connectors.EmailVerificationConnector
 import controllers.actions.*
 import data.TestData
-import models.{ContactPreferenceUserAnswers, SubscriptionSummary, UserAnswers}
+import models.ContactPreferenceUserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers

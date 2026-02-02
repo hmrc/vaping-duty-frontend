@@ -17,10 +17,7 @@
 package controllers.enrolment
 
 import config.FrontendAppConfig
-import connectors.{EmailVerificationConnector, SubmitPreferencesConnector, UserAnswersConnector}
 import controllers.actions.*
-import models.UserDetails
-import models.emailverification.{PaperlessPreferenceSubmission, VerificationDetails}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -30,22 +27,17 @@ import views.html.enrolment.UserAlreadyEnrolledView
 import javax.inject.Inject
 
 class UserAlreadyEnrolledController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       val config: FrontendAppConfig,
-                                       authorised: EnrolmentClaimAuthAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: UserAlreadyEnrolledView,
-                                       connector: UserAnswersConnector,
-                                       submitPreferencesConnector: SubmitPreferencesConnector,
-                                       emailVerificationConnector: EmailVerificationConnector
-                                     ) extends FrontendBaseController with I18nSupport {
+                                              override val messagesApi: MessagesApi,
+                                              val config: FrontendAppConfig,
+                                              authorised: EnrolmentClaimAuthAction,
+                                              val controllerComponents: MessagesControllerComponents,
+                                              view: UserAlreadyEnrolledView
+                                             ) extends FrontendBaseController with I18nSupport {
   
   def onPageLoad: Action[AnyContent] = authorised {
     implicit request =>
       val vm = UserAlreadyEnrolledViewModel(config)
-      //connector.createUserAnswers(UserDetails(request.enrolmentVpdId.getOrElse(""), request.userId))
-      //submitPreferencesConnector.submitContactPreferences(PaperlessPreferenceSubmission(true, None, Some(true), None), "XMADP1000100210")
-      //emailVerificationConnector.getEmailVerification(VerificationDetails("1230"))
+
       Ok(view(vm))
   }
 }
