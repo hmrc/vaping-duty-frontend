@@ -76,9 +76,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
-  val enrolmentServiceName = configuration.get[String]("enrolment.serviceName")
-  val enrolmentIdentifierKey = configuration.get[String]("enrolment.identifierKey")
-
   def vdrPingUrl(): String = s"$vdHost/vaping-duty/ping"
 
   def ecpUserAnswersGetUrl(vpdId: String): String =

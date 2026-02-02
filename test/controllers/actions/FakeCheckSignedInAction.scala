@@ -16,17 +16,18 @@
 
 package controllers.actions
 
+import data.TestData
 import models.requests.SignedInRequest
-import play.api.mvc._
+import play.api.mvc.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class FakeCheckSignedInAction @Inject() (bodyParsers: PlayBodyParsers)
-    extends CheckSignedInAction {
+    extends CheckSignedInAction with TestData {
 
   override def invokeBlock[A](request: Request[A], block: SignedInRequest[A] => Future[Result]): Future[Result] =
-    block(SignedInRequest(request, internalId = "id"))
+    block(SignedInRequest(request, internalId = userId))
 
   override def parser: BodyParser[AnyContent] =
     bodyParsers.default

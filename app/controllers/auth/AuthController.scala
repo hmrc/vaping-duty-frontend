@@ -32,7 +32,7 @@ class AuthController @Inject()(
                                 val controllerComponents: MessagesControllerComponents,
                                 config: FrontendAppConfig,
                                 sessionRepository: UserAnswersService,
-                                ifSignedIn: CheckSignedInAction,
+                                ifSignedIn: CheckSignedInAction
 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def signOut(): Action[AnyContent] = ifSignedIn.async {
