@@ -31,11 +31,11 @@ object EnterEmailSummary  {
       answer =>
 
         SummaryListRowViewModel(
-          key     = "enterEmail.checkYourAnswersLabel",
+          key     = "contactPreference.enterEmail.checkYourAnswersLabel",
           value   = ValueViewModel(HtmlFormat.escape(answer).toString),
           actions = Seq(
             ActionItemViewModel("site.change", controllers.contactPreference.routes.EnterEmailController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("enterEmail.change.hidden"))
+              .withVisuallyHiddenText(messages("contactPreference.enterEmail.change.hidden"))
           )
         )
     }

@@ -26,12 +26,12 @@
 
 @()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("continuePostalPreference.title"))) {
+@layout(pageTitle = titleNoForm(messages("contactPreference.continuePostalPreference.title"))) {
 
-    @h1(messages("continuePostalPreference.heading"))
+    @h1(messages("contactPreference.continuePostalPreference.heading"))
 
     @p(Seq(HtmlContent(
-        messages("continuePostalPreference.weWillSend")
+        messages("contactPreference.continuePostalPreference.weWillSend")
     )))
 
     @p(Seq(HtmlContent(

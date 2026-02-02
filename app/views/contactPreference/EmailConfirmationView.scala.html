@@ -27,18 +27,18 @@
 
 @(email: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("emailConfirmation.title"))) {
+@layout(pageTitle = titleNoForm(messages("contactPreference.emailConfirmation.title"))) {
 
     @govukPanel(Panel(
-        title = Text(messages("emailConfirmation.preferenceUpdated"))
+        title = Text(messages("contactPreference.emailConfirmation.preferenceUpdated"))
     ))
 
     @p(Seq(HtmlContent(
-        messages("emailConfirmation.weWill") + " " + <b>{ email }.</b>
+        messages("contactPreference.emailConfirmation.weWill") + " " + <b>{ email }.</b>
     )))
 
     @p(Seq(HtmlContent(
-        messages("emailConfirmation.someMessages")
+        messages("contactPreference.emailConfirmation.someMessages")
     )))
 
     @p(Seq(HtmlContent(

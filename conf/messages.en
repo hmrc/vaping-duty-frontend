@@ -70,39 +70,43 @@ enrolment.userDoesNotHaveApprovalId.apply = Apply for approval
 enrolment.userAlreadyEnrolled.heading = You have already enrolled for this service
 enrolment.userAlreadyEnrolled.continue = Continue to your business tax account
 
-confirmAddress.title = Confirm your postal address
-confirmAddress.heading = Confirm your postal address
 
-continuePostalPreference.title = We will continue to send you letters by post
-continuePostalPreference.heading = We will continue to send you letters by post
-continuePostalPreference.weWillSend = We will send messages about your Vaping Products Duty return to your correspondence address.
+### Contact Preference ###
 
-emailConfirmation.title = Your contact preference has been updated
-emailConfirmation.preferenceUpdated = Your contact preference has been updated
-emailConfirmation.weWill = We will contact you using the email address
-emailConfirmation.someMessages = Some messages may still be sent by post to your registered address, if required by law.
-emailConfirmation.backToBta = Go back to your Business Tax Account
+contactPreference.confirmAddress.title = Confirm your postal address
+contactPreference.confirmAddress.heading = Confirm your postal address
+contactPreference.confirmAddress.confirm = Confirm Address
 
-enterEmail.title = What email address should we use to contact you?
-enterEmail.heading = What email address should we use to contact you?
-enterEmail.checkYourAnswersLabel = enterEmail
-enterEmail.error.required = Enter enterEmail
-enterEmail.error.length = Email must be 100 characters or less
-enterEmail.change.hidden = EnterEmail
+contactPreference.continuePostalPreference.title = We will continue to send you letters by post
+contactPreference.continuePostalPreference.heading = We will continue to send you letters by post
+contactPreference.continuePostalPreference.weWillSend = We will send messages about your Vaping Products Duty return to your correspondence address.
 
-howToBeContacted.title = How would you like to be contacted?
-howToBeContacted.heading = How would you like to be contacted?
-howToBeContacted.hint = The method selected will be used for general enquiries and Vaping Products Duty information.
-howToBeContacted.email = Email
-howToBeContacted.post = Post
-howToBeContacted.checkYourAnswersLabel = howToBeContacted
-howToBeContacted.error.required = Select howToBeContacted
-howToBeContacted.change.hidden = HowToBeContacted
+contactPreference.emailConfirmation.title = Your contact preference has been updated
+contactPreference.emailConfirmation.preferenceUpdated = Your contact preference has been updated
+contactPreference.emailConfirmation.weWill = We will contact you using the email address
+contactPreference.emailConfirmation.someMessages = Some messages may still be sent by post to your registered address, if required by law.
+contactPreference.emailConfirmation.backToBta = Go back to your Business Tax Account
 
-lockedEmail.title = You cannot request another confirmation code
-lockedEmail.heading = You cannot request another confirmation code
-lockedEmail.toKeepYour = To keep your account secure, we limit how many times you can request an email confirmation code.
-lockedEmail.tryAgain = You can try again in 24 hours.
+contactPreference.enterEmail.title = What email address should we use to contact you?
+contactPreference.enterEmail.heading = What email address should we use to contact you?
+contactPreference.enterEmail.checkYourAnswersLabel = enterEmail
+contactPreference.enterEmail.error.required = Enter enterEmail
+contactPreference.enterEmail.error.length = Email must be 100 characters or less
+contactPreference.enterEmail.change.hidden = EnterEmail
 
-postalConfirmation.preferenceUpdated = Your contact preference has been updated
-postalConfirmation.weWill = We will post letters to your registered address.
+contactPreference.howToBeContacted.title = How would you like to be contacted?
+contactPreference.howToBeContacted.heading = How would you like to be contacted?
+contactPreference.howToBeContacted.hint = The method selected will be used for general enquiries and Vaping Products Duty information.
+contactPreference.howToBeContacted.email = Email
+contactPreference.howToBeContacted.post = Post
+contactPreference.howToBeContacted.checkYourAnswersLabel = howToBeContacted
+contactPreference.howToBeContacted.error.required = Select howToBeContacted
+contactPreference.howToBeContacted.change.hidden = HowToBeContacted
+
+contactPreference.lockedEmail.title = You cannot request another confirmation code
+contactPreference.lockedEmail.heading = You cannot request another confirmation code
+contactPreference.lockedEmail.toKeepYour = To keep your account secure, we limit how many times you can request an email confirmation code.
+contactPreference.lockedEmail.tryAgain = You can try again in 24 hours.
+
+contactPreference.postalConfirmation.preferenceUpdated = Your contact preference has been updated
+contactPreference.postalConfirmation.weWill = We will post letters to your registered address.

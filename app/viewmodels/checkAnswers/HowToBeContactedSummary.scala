@@ -33,16 +33,16 @@ object HowToBeContactedSummary  {
 
         val value = ValueViewModel(
           HtmlContent(
-            HtmlFormat.escape(messages(s"howToBeContacted.$answer"))
+            HtmlFormat.escape(messages(s"contactPreference.howToBeContacted.$answer"))
           )
         )
 
         SummaryListRowViewModel(
-          key     = "howToBeContacted.checkYourAnswersLabel",
+          key     = "contactPreference.howToBeContacted.checkYourAnswersLabel",
           value   = value,
           actions = Seq(
             ActionItemViewModel("site.change", controllers.contactPreference.routes.HowToBeContactedController.onPageLoad(CheckMode).url)
-              .withVisuallyHiddenText(messages("howToBeContacted.change.hidden"))
+              .withVisuallyHiddenText(messages("contactPreference.howToBeContacted.change.hidden"))
           )
         )
     }

@@ -27,14 +27,14 @@
 
 @()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("postalConfirmation.title"))) {
+@layout(pageTitle = titleNoForm(messages("contactPreference.postalConfirmation.title"))) {
 
     @govukPanel(Panel(
-        title = Text(messages("postalConfirmation.preferenceUpdated"))
+        title = Text(messages("contactPreference.postalConfirmation.preferenceUpdated"))
     ))
 
     @p(Seq(HtmlContent(
-        messages("postalConfirmation.weWill")
+        messages("contactPreference.postalConfirmation.weWill")
     )))
 
     @p(Seq(HtmlContent(

@@ -24,9 +24,9 @@
 
 @(storedAddress: Seq[String])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("confirmAddress.title"))) {
+@layout(pageTitle = titleNoForm(messages("contactPreference.confirmAddress.title"))) {
 
-    <h1 class="govuk-heading-l">@messages("confirmAddress.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("contactPreference.confirmAddress.heading")</h1>
 
     <ul class="govuk-list">
         @storedAddress.map { line =>
@@ -35,6 +35,6 @@
     </ul>
 
     @govukButton(
-        ButtonViewModel("Confirm Address").asLink(controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url)
+        ButtonViewModel(messages("contactPreference.confirmAddress.confirm")).asLink(controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url)
     )
 }

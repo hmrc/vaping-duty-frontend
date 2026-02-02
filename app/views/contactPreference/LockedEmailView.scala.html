@@ -26,16 +26,16 @@
 
 @(btaLink: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("lockedEmail.title"))) {
+@layout(pageTitle = titleNoForm(messages("contactPreference.lockedEmail.title"))) {
 
-    @h1(messages("lockedEmail.heading"))
+    @h1(messages("contactPreference.lockedEmail.heading"))
 
     @p(Seq(HtmlContent(
-        messages("lockedEmail.toKeepYour")
+        messages("contactPreference.lockedEmail.toKeepYour")
     )))
 
     @p(Seq(HtmlContent(
-        messages("lockedEmail.tryAgain")
+        messages("contactPreference.lockedEmail.tryAgain")
     )))
 
     @p(Seq(HtmlContent(

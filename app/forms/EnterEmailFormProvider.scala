@@ -25,7 +25,7 @@ class EnterEmailFormProvider @Inject() extends Mappings {
 
   def apply(): Form[String] =
     Form(
-      "value" -> text("enterEmail.error.required")
-        .verifying(maxLength(100, "enterEmail.error.length"))
+      "value" -> text("contactPreference.enterEmail.error.required")
+        .verifying(maxLength(100, "contactPreference.enterEmail.error.length"))
     )
 }

@@ -27,7 +27,7 @@ class HowToBeContactedFormProviderSpec extends OptionFieldBehaviours {
   ".value" - {
 
     val fieldName = "value"
-    val requiredKey = "howToBeContacted.error.required"
+    val requiredKey = "contactPreference.howToBeContacted.error.required"
 
     behave like optionsField[HowToBeContacted](
       form,

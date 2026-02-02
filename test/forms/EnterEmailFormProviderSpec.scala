@@ -21,8 +21,8 @@ import play.api.data.FormError
 
 class EnterEmailFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey = "enterEmail.error.required"
-  val lengthKey = "enterEmail.error.length"
+  val requiredKey = "contactPreference.enterEmail.error.required"
+  val lengthKey = "contactPreference.enterEmail.error.length"
   val maxLength = 100
 
   val form = new EnterEmailFormProvider()()

@@ -26,6 +26,6 @@ class HowToBeContactedFormProvider @Inject() extends Mappings {
 
   def apply(): Form[HowToBeContacted] =
     Form(
-      "value" -> enumerable[HowToBeContacted]("howToBeContacted.error.required")
+      "value" -> enumerable[HowToBeContacted]("contactPreference.howToBeContacted.error.required")
     )
 }

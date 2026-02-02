@@ -26,7 +26,7 @@
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("howToBeContacted.title"))) {
+@layout(pageTitle = title(form, messages("contactPreference.howToBeContacted.title"))) {
 
     @formHelper(action = controllers.contactPreference.routes.HowToBeContactedController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
@@ -37,9 +37,9 @@
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("howToBeContacted.heading")).asPageHeading(LegendSize.Large),
+                legend = LegendViewModel(messages("contactPreference.howToBeContacted.heading")).asPageHeading(LegendSize.Large),
                 items  = HowToBeContacted.options
-            ).withHint(Hint(content = HtmlContent(messages("howToBeContacted.hint"))))
+            ).withHint(Hint(content = HtmlContent(messages("contactPreference.howToBeContacted.hint"))))
         )
 
         @govukButton(
