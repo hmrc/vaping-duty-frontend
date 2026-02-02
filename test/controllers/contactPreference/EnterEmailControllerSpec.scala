@@ -22,6 +22,7 @@ import controllers.routes
 import forms.EnterEmailFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -88,10 +89,15 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
+      val mockUserAnswersService = mock[UserAnswersService]
+
       when(mockEmailVerificationConnector.startEmailVerification(any())(any())).thenReturn(Future.successful("redirectUri"))
-      
+
+      when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse())))
+
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
           .overrides(bind[EmailVerificationConnector].toInstance(mockEmailVerificationConnector))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),

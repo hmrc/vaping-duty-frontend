@@ -35,12 +35,13 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig,implicit val htt
       .get(url"${config.ecpUserAnswersGetUrl(vpdId)}")
       .execute[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]]
 
-  def set(userAnswers: ContactPreferenceUserAnswers)(implicit hc: HeaderCarrier): Future[HttpResponse] =
+  def set(userAnswers: ContactPreferenceUserAnswers)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClient
       .put(url"${config.ecpUserAnswersUrl()}")
       .setHeader("Csrf-Token" -> "nocheck")
       .withBody(Json.toJson(userAnswers))
       .execute[HttpResponse]
+  }
 
   def createUserAnswers(userDetails: UserDetails)
                        (implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] = {

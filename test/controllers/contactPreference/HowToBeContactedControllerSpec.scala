@@ -20,6 +20,7 @@ import base.SpecBase
 import forms.HowToBeContactedFormProvider
 import models.{HowToBeContacted, NormalMode}
 import navigation.{FakeNavigator, Navigator}
+import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -121,9 +122,14 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when valid data is submitted" in {
+
+      val mockUserAnswersService = mock[UserAnswersService]
+
+      when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse())))
       
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
           )
