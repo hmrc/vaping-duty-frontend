@@ -36,11 +36,8 @@ class ConfirmAddressController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
 
-      println("@@@@@@@@@@@@@@@@" + request.userAnswers.subscriptionSummary.correspondenceAddress)
       val storedAddress = request.userAnswers.subscriptionSummary.correspondenceAddress.split("\n").toSeq
-
-      println(storedAddress)
-
+      
       Ok(view(storedAddress))
   }
 }

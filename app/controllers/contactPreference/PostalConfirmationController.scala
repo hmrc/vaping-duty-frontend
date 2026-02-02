@@ -54,7 +54,6 @@ class PostalConfirmationController @Inject()(
             logger.info(s"[PostalConfirmationController][onPageLoad] Error submitting preference: $err")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case Right(response) =>
-            println(response)
             Ok(view())
         }
       } else {
