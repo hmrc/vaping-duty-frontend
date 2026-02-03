@@ -2,7 +2,7 @@ package controllers
 
 import base.SpecBase
 import forms.$className$FormProvider
-import models.{NormalMode, $className$, UserAnswers}
+import models.{NormalMode, $className$, ContactPreferenceUserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -13,7 +13,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.SessionRepository
 import views.html.$className$View
 
 import scala.concurrent.Future
@@ -27,7 +26,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val $className;format="decap"$Route = routes.$className$Controller.onPageLoad(NormalMode).url
 
-  val userAnswers = UserAnswers(
+  val userAnswers = ContactPreferenceUserAnswers(
     userAnswersId,
     Json.obj(
       $className$Page.toString -> Json.obj(

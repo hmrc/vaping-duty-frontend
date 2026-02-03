@@ -26,3 +26,24 @@ GET        /enrolment/do-you-have-an-approval-id         controllers.enrolment.U
 POST       /enrolment/do-you-have-an-approval-id         controllers.enrolment.UserHasApprovalIdController.onSubmit()
 GET        /enrolment/you-need-an-approval-id            controllers.enrolment.UserDoesNotHaveApprovalIdController.onPageLoad()
 GET        /enrolment/already-enrolled                   controllers.enrolment.UserAlreadyEnrolledController.onPageLoad()
+
+# Contact Preferences
+GET        /contact-preferences/review-confirm-address                          controllers.contactPreference.ConfirmAddressController.onPageLoad()
+
+GET        /contact-preferences/post-continue                                   controllers.contactPreference.ContinuePostalPreferenceController.onPageLoad()
+
+GET        /contact-preferences/email-confirmation                              controllers.contactPreference.EmailConfirmationController.onPageLoad()
+
+GET        /contact-preferences/enter-email-address                             controllers.contactPreference.EnterEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /contact-preferences/enter-email-address                             controllers.contactPreference.EnterEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /contact-preferences/change-enter-email-address                      controllers.contactPreference.EnterEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /contact-preferences/change-enter-email-address                      controllers.contactPreference.EnterEmailController.onSubmit(mode: Mode = CheckMode)
+
+GET        /contact-preferences/how-do-you-want-to-be-contacted                 controllers.contactPreference.HowToBeContactedController.onPageLoad(mode: Mode = NormalMode)
+POST       /contact-preferences/how-do-you-want-to-be-contacted                 controllers.contactPreference.HowToBeContactedController.onSubmit(mode: Mode = NormalMode)
+GET        /contact-preferences/change-how-do-you-want-to-be-contacted          controllers.contactPreference.HowToBeContactedController.onPageLoad(mode: Mode = CheckMode)
+POST       /contact-preferences/change-how-do-you-want-to-be-contacted          controllers.contactPreference.HowToBeContactedController.onSubmit(mode: Mode = CheckMode)
+
+GET        /contact-preferences/account-lock-out                                controllers.contactPreference.LockedEmailController.onPageLoad()
+
+GET        /contact-preferences/postal-address-confirmation                     controllers.contactPreference.PostalConfirmationController.onPageLoad()

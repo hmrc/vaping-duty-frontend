@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import controllers.actions.CheckSignedInAction
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
+import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
@@ -30,9 +30,9 @@ import scala.concurrent.ExecutionContext
 class AuthController @Inject()(
                                 val controllerComponents: MessagesControllerComponents,
                                 config: FrontendAppConfig,
-                                sessionRepository: SessionRepository,
+                                sessionRepository: UserAnswersService,
                                 ifSignedIn: CheckSignedInAction
-)(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                              )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def signOut(): Action[AnyContent] = ifSignedIn.async {
     implicit request =>

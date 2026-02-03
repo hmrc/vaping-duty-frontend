@@ -16,25 +16,50 @@
 
 package navigation
 
+import controllers.routes
+import models.*
+import pages.*
+import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
+import play.api.Logging
+import play.api.mvc.Call
+
 import javax.inject.{Inject, Singleton}
 
-import play.api.mvc.Call
-import controllers.routes
-import pages._
-import models._
-
 @Singleton
-class Navigator @Inject()() {
+class Navigator @Inject() extends Logging {
 
-  private val normalRoutes: Page => UserAnswers => Call = {
-    case _ => _ => routes.IndexController.onPageLoad()
+  private val normalRoutes: Page => ContactPreferenceUserAnswers => Call = {
+    case HowToBeContactedPage   => ua   => howToBeContactedRoute(ua)
+    case EnterEmailPage         => ua   => enterEmailPageRoute(ua)
+    case _                      => _    => routes.IndexController.onPageLoad()
   }
 
-  private val checkRouteMap: Page => UserAnswers => Call = {
+  private val checkRouteMap: Page => ContactPreferenceUserAnswers => Call = {
     case _ => _ => routes.CheckYourAnswersController.onPageLoad()
   }
 
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
+  def howToBeContactedRoute(ua: ContactPreferenceUserAnswers): Call = {
+    ua.get(HowToBeContactedPage) match {
+      case Some(HowToBeContacted.Email) => controllers.contactPreference.routes.EnterEmailController.onPageLoad(NormalMode)
+      case Some(HowToBeContacted.Post)  => controllers.contactPreference.routes.ConfirmAddressController.onPageLoad()
+      case _                            => routes.JourneyRecoveryController.onPageLoad()
+    }
+  }
+
+  def enterEmailPageRoute(ua: ContactPreferenceUserAnswers) = {
+    
+    val enteredEmailVerified = ua.verifiedEmailAddresses.contains(ua.get(EnterEmailPage).getOrElse(""))
+    
+    if (enteredEmailVerified) {
+      // Email entered is already verified
+      controllers.contactPreference.routes.EmailConfirmationController.onPageLoad()
+    } else {
+      // TODO Implement EV handoff
+      controllers.contactPreference.routes.EmailConfirmationController.onPageLoad()
+    }
+  }
+
+  def nextPage(page: Page, mode: Mode, userAnswers: ContactPreferenceUserAnswers): Call = mode match {
     case NormalMode =>
       normalRoutes(page)(userAnswers)
     case CheckMode =>

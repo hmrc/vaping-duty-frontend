@@ -27,17 +27,17 @@ import views.html.enrolment.UserAlreadyEnrolledView
 import javax.inject.Inject
 
 class UserAlreadyEnrolledController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       val config: FrontendAppConfig,
-                                       authorised: EnrolmentClaimAuthAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: UserAlreadyEnrolledView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                              override val messagesApi: MessagesApi,
+                                              val config: FrontendAppConfig,
+                                              authorised: EnrolmentClaimAuthAction,
+                                              val controllerComponents: MessagesControllerComponents,
+                                              view: UserAlreadyEnrolledView
+                                             ) extends FrontendBaseController with I18nSupport {
   
   def onPageLoad: Action[AnyContent] = authorised {
     implicit request =>
       val vm = UserAlreadyEnrolledViewModel(config)
-      
+
       Ok(view(vm))
   }
 }

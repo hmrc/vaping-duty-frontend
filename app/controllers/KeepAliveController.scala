@@ -16,9 +16,9 @@
 
 package controllers
 
-import controllers.actions.{DataRetrievalAction, ApprovedVapingManufacturerAuthAction}
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, DataRetrievalAction}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
+import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
@@ -28,7 +28,7 @@ class KeepAliveController @Inject()(
                                      val controllerComponents: MessagesControllerComponents,
                                      ifApprovedVapingManufacturer: ApprovedVapingManufacturerAuthAction,
                                      getData: DataRetrievalAction,
-                                     sessionRepository: SessionRepository
+                                     userAnswersService: UserAnswersService
                                    )(implicit ec: ExecutionContext) extends FrontendBaseController {
 
   def keepAlive(): Action[AnyContent] = (ifApprovedVapingManufacturer andThen getData).async {
@@ -36,7 +36,7 @@ class KeepAliveController @Inject()(
       request.userAnswers
         .map {
           answers =>
-            sessionRepository.keepAlive(answers.id).map(_ => Ok)
+            userAnswersService.keepAlive(answers.userId).map(_ => Ok)
         }
         .getOrElse(Future.successful(Ok))
   }

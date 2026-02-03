@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-package connectors
+package models.emailverification
 
-import uk.gov.hmrc.http.HeaderCarrier
-
-import scala.concurrent.Future
-
-trait VapingDutyConnector {
-  def ping()(implicit hc: HeaderCarrier): Future[Unit]
-}
-
+case class ErrorModel(status: Int, message: String)

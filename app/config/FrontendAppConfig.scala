@@ -33,6 +33,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   private val contactHost = configuration.get[String]("contact-frontend.host")
   private val contactFormServiceIdentifier = "vaping-duty-frontend"
+  private lazy val contactPreferencesHost: String = servicesConfig.baseUrl("vaping-duty-account")
 
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
@@ -47,7 +48,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val organisationAcctGuidanceUrl: String    = configuration.get[String]("urls.organisationAcctGuidance")
   val applyForVpdIdGuidanceUrl: String       = configuration.get[String]("urls.applyForVpdIdGuidanceUrl")
   val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount")
-  
+  val accessibilityStatementUrl: String = configuration.get[String]("accessibility-statement.host") ++
+    configuration.get[String]("accessibility-statement.url")
+
   private val exitSurveyBaseUrl: String      = configuration.get[String]("urls.feedback-frontend-base-url")
   val exitSurveyUrl: String                  = s"$exitSurveyBaseUrl/feedback/vaping-duty-frontend"
 
@@ -73,6 +76,41 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
-  def vdrPingUrl(): String =
-    s"$vdHost/vaping-duty/ping"
+  def vdrPingUrl(): String = s"$vdHost/vaping-duty/ping"
+
+  def ecpUserAnswersGetUrl(vpdId: String): String =
+    s"$contactPreferencesHost/vaping-duty-account/user-answers/$vpdId"
+
+  def ecpUserAnswersUrl: String =
+    s"$contactPreferencesHost/vaping-duty-account/user-answers"
+
+  def ecpUserAnswersKeepAliveUrl: String =
+    s"$contactPreferencesHost/vaping-duty-account/keep-alive"
+
+  def ecpUserAnswersClearUrl(vpdId: String): String =
+    s"$contactPreferencesHost/vaping-duty-account/user-answers/clear/$vpdId"
+
+  def ecpUserAnswersClearAllUrl: String =
+    s"$contactPreferencesHost/vaping-duty-account/test-only/user-answers/clear-all"
+
+  def ecpGetEmailVerificationUrl(credId: String): String =
+    s"$contactPreferencesHost/vaping-duty-account/get-email-verification/$credId"
+
+  def ecpSubmitContactPreferencesUrl(vpdId: String): String =
+    s"$contactPreferencesHost/vaping-duty-account/submit-preferences/$vpdId"
+
+  val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/email-confirmation"
+  val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"
+
+  private val startEmailVerificationJourneyBaseUrl: String   = servicesConfig.baseUrl("email-verification")
+  private val startEmailVerificationJourneyUrlSuffix: String =
+    configuration.get[String]("microservice.services.email-verification.url.startEmailVerificationJourney")
+
+  val startEmailVerificationJourneyUrl: String =
+    s"$startEmailVerificationJourneyBaseUrl$startEmailVerificationJourneyUrlSuffix"
+
+  val emailVerificationRedirectBaseUrl: String =
+    configuration.get[String]("microservice.services.email-verification-frontend.prefix")
+
+  val newServiceNavigationEnabled: Boolean = configuration.get[Boolean]("play-frontend-hmrc.forceServiceNavigation")
 }

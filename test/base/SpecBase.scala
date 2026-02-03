@@ -16,17 +16,24 @@
 
 package base
 
-import controllers.actions._
-import models.UserAnswers
+import config.FrontendAppConfig
+import connectors.EmailVerificationConnector
+import controllers.actions.*
+import data.TestData
+import models.ContactPreferenceUserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
+import uk.gov.hmrc.http.HeaderCarrier
+
+import scala.concurrent.ExecutionContext
 
 trait SpecBase
   extends AnyFreeSpec
@@ -34,15 +41,12 @@ trait SpecBase
     with TryValues
     with OptionValues
     with ScalaFutures
-    with IntegrationPatience {
-
-  val userAnswersId: String = "id"
-
-  def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
+    with IntegrationPatience
+    with TestData {
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+  protected def applicationBuilder(userAnswers: Option[ContactPreferenceUserAnswers] = None): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
@@ -52,4 +56,10 @@ trait SpecBase
         bind[CheckSignedInAction].to[FakeCheckSignedInAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
+  
+  implicit val hc: HeaderCarrier = HeaderCarrier()
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  
+  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+  val mockEmailVerificationConnector: EmailVerificationConnector = mock[EmailVerificationConnector]
 }

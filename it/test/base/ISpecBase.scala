@@ -34,7 +34,7 @@ package base
 
 import controllers.actions.*
 import data.TestData
-import models.UserAnswers
+import models.ContactPreferenceUserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -60,7 +60,7 @@ trait ISpecBase
     with IntegrationPatience
     with TestData {
   
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+  protected def applicationBuilder(userAnswers: Option[ContactPreferenceUserAnswers] = None): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],

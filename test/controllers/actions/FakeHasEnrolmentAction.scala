@@ -26,7 +26,7 @@ class FakeHasEnrolmentAction @Inject() extends HasEnrolmentAction {
   
   val optVpdId: Option[String] = Some("vpdId")
   val groupId: String = "groupid"
-  val internalId: String = "id"
+  val internalId: String = "user-id"
 
   override def refine[A](request: NoEnrolmentIdentifierRequest[A]): Future[Either[Result, NoEnrolmentIdentifierRequest[A]]] =
     Future.successful(Right(NoEnrolmentIdentifierRequest(request, optVpdId, groupId, internalId)))
