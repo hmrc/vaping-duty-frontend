@@ -43,6 +43,8 @@ class EmailConfirmationControllerSpec extends SpecBase {
       val mockEmailVerificationService = mock[EmailVerificationService]
       val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
 
+      when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account")
+
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
       when(mockEmailVerificationService.retrieveAddressStatusAndAddToCache(any(), any(), any())(any()))
@@ -65,7 +67,7 @@ class EmailConfirmationControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[EmailConfirmationView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(emailAddress)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(emailAddress, mockAppConfig.continueToBta)(request, messages(application)).toString
       }
     }
 

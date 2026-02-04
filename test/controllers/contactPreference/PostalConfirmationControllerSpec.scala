@@ -39,6 +39,8 @@ class PostalConfirmationControllerSpec extends SpecBase {
       val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
       val processingDate = Instant.now()
 
+      when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account")
+
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(PaperlessPreferenceSubmittedResponse(processingDate, ""))))
 
@@ -54,7 +56,7 @@ class PostalConfirmationControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[PostalConfirmationView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(mockAppConfig.continueToBta)(request, messages(application)).toString
       }
     }
 
@@ -85,6 +87,8 @@ class PostalConfirmationControllerSpec extends SpecBase {
       
       val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
 
+      when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account")
+
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
@@ -100,7 +104,7 @@ class PostalConfirmationControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[PostalConfirmationView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(mockAppConfig.continueToBta)(request, messages(application)).toString
       }
     }
   }
