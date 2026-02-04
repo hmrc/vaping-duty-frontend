@@ -78,7 +78,7 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
       when(mockUserAnswersService.createUserAnswers(any())(any()))
         .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      val application = applicationBuilder(userAnswers = None)
         .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
         .build()
 

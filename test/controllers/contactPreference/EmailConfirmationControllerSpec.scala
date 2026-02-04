@@ -69,7 +69,7 @@ class EmailConfirmationControllerSpec extends SpecBase {
       }
     }
 
-    "must..." in {
+    "must redirect to journey recovery when email verification service fails" in {
 
       val mockUserAnswersService = mock[UserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
@@ -94,14 +94,12 @@ class EmailConfirmationControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[EmailConfirmationView]
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
-    "must...." in {
+    "must redirect to journey recovery when submitting preferences fails" in {
 
       val mockUserAnswersService = mock[UserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
@@ -125,8 +123,6 @@ class EmailConfirmationControllerSpec extends SpecBase {
         val request = FakeRequest(GET, controllers.contactPreference.routes.EmailConfirmationController.onPageLoad().url)
 
         val result = route(application, request).value
-
-        val view = application.injector.instanceOf[EmailConfirmationView]
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url

@@ -22,7 +22,7 @@ import connectors.EmailVerificationConnector
 import controllers.routes
 import forms.EnterEmailFormProvider
 import models.NormalMode
-import models.emailverification.{ErrorModel, GetVerificationStatusResponse, RedirectUri}
+import models.emailverification.{ErrorModel, RedirectUri}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
