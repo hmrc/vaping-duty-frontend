@@ -67,18 +67,19 @@ class ApprovedVapingManufacturerAuthActionImpl @Inject()(override val authConnec
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised(predicate).retrieve(internalId and groupIdentifier and allEnrolments) {
-      case optInternalId ~ optGroupId ~ enrolments =>
+    authorised(predicate).retrieve(internalId and groupIdentifier and allEnrolments and credentials) {
+      case optInternalId ~ optGroupId ~ enrolments ~ optCredentials =>
         val identifiers = for {
-          internalId <- optInternalId.toRight("Unable to retrieve internalId")
-          groupId <- optGroupId.toRight("Unable to retrieve groupIdentifier")
-          approvalId <- getApprovalId(enrolments)
+          internalId  <- optInternalId.toRight("Unable to retrieve internalId")
+          groupId     <- optGroupId.toRight("Unable to retrieve groupIdentifier")
+          creds       <- optCredentials.toRight("Unable to retrieve credentials")
+          approvalId  <- getApprovalId(enrolments)
         } yield {
-          (internalId, groupId, approvalId)
+          (internalId, groupId, approvalId, creds.providerId)
         }
 
         identifiers match {
-          case Right((internalId, groupId, approvalId)) => block(IdentifierRequest(request, approvalId, groupId, internalId))
+          case Right((internalId, groupId, approvalId, credId)) => block(IdentifierRequest(request, approvalId, groupId, internalId, credId))
           case Left(error) => Future.failed(AuthorisationException.fromString(error))
         }
 

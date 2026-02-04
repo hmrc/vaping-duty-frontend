@@ -32,8 +32,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, groupIdentifier, internalId}
-import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, credentials, groupIdentifier, internalId}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 
@@ -51,10 +51,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
    private val authConnector = mock[AuthConnector]
 
-   private def stubAuthResponse(authResponse: Option[String] ~ Option[String] ~ Enrolments) = {
+   private def stubAuthResponse(authResponse: Option[String] ~ Option[String] ~ Enrolments ~ Option[Credentials]) = {
      when(
        authConnector.authorise(any[Predicate],
-         ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
+         ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments and credentials)
        )(any[HeaderCarrier], any[ExecutionContext])).
        thenReturn(Future.successful(authResponse))
    }
@@ -82,12 +82,14 @@ import scala.concurrent.{ExecutionContext, Future}
       identifiers = Seq(EnrolmentIdentifier(key = VPD_ORG_IDENT_KEY, value = "test-value")),
       state = ENROLMENT_STATE
     )))
+    
+    val CREDENTIALS = Some(Credentials("credId", "type"))
 
     "when authenticated and authorised" - {
 
       "executes the block passed " in {
 
-        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
+        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT and CREDENTIALS)
 
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
         val controller = new Harness(authAction)
@@ -99,7 +101,7 @@ import scala.concurrent.{ExecutionContext, Future}
       "must pass expected retrievals to block" in {
 
         stubAuthResponse(
-          Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT
+          Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT and CREDENTIALS
         )
 
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
@@ -107,20 +109,20 @@ import scala.concurrent.{ExecutionContext, Future}
         val request = FakeRequest()
         val block = mock[IdentifierRequest[AnyContentAsEmpty.type] => Future[Result]]
 
-        when(block.apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID))).
+        when(block.apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID, "credId"))).
           thenReturn(Future.successful(Results.Ok))
 
         val result = authAction.invokeBlock(request, block)
         await(result)
 
-        verify(block).apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID))
+        verify(block).apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID, "credId"))
 
       }
 
 
       "Allows UnauthorisedException from a Connector called from the executed block to pass through and be handled by the framework" in {
 
-        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
+        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT and CREDENTIALS)
 
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
         val controller = new ExceptionThrowingHarness(authAction)
@@ -132,7 +134,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
       "must give SEE_OTHER when missing auth data received " in {
 
-        stubAuthResponse(None and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
+        stubAuthResponse(None and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT and CREDENTIALS)
 
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
 
@@ -152,7 +154,7 @@ import scala.concurrent.{ExecutionContext, Future}
             identifiers = Seq(EnrolmentIdentifier(key = VPD_ORG_IDENT_KEY, value = "TestId")),
             state = ENROLMENT_STATE
           )
-        )))
+        )) and CREDENTIALS)
 
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
 
@@ -172,7 +174,7 @@ import scala.concurrent.{ExecutionContext, Future}
             identifiers = Seq(EnrolmentIdentifier(key = "IncorrectEnrolmentIdent", value = "TestId")),
             state = ENROLMENT_STATE
           )
-        )))
+        )) and CREDENTIALS)
 
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
 
