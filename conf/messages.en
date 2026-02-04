@@ -67,8 +67,7 @@ enrolment.userDoesNotHaveApprovalId.howToApply = Find out how to apply for a vap
 enrolment.userDoesNotHaveApprovalId.apply = Apply for approval
 
 enrolment.userAlreadyEnrolled.heading = You have already enrolled for this service
-enrolment.userAlreadyEnrolled.continue = Continue to your business tax account
-
+enrolment.userAlreadyEnrolled.continue = Continue
 
 ### Contact Preference ###
 
