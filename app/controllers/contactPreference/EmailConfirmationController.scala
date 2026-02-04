@@ -47,7 +47,6 @@ class EmailConfirmationController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      // Maybe should go to journey recovery here if no email is found
       val email = request.userAnswers.emailAddress.getOrElse("")
 
       // Checking new email is now verified
