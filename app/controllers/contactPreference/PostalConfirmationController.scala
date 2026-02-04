@@ -49,6 +49,7 @@ class PostalConfirmationController @Inject()(
       val preferenceSubmission = PaperlessPreferenceSubmission(false, email, verification, bounced)
 
       if (request.userAnswers.subscriptionSummary.paperlessPreference) {
+        // This submission needs to be on a user action, not page load.  Added here for testing, iterations will change this behaviour.
         submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
           case Left(err) =>
             logger.info(s"[PostalConfirmationController][onPageLoad] Error submitting preference: $err")

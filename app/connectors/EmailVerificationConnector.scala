@@ -37,9 +37,10 @@ class EmailVerificationConnector @Inject()(
     extends HttpReadsInstances
     with Logging {
 
-  def getEmailVerification(verificationDetails: VerificationDetails)(implicit
-                                                                     hc: HeaderCarrier
-  ): EitherT[Future, ErrorModel, GetVerificationStatusResponse] = EitherT {
+  def getEmailVerification(verificationDetails: VerificationDetails)
+                          (implicit hc: HeaderCarrier):
+  EitherT[Future, ErrorModel, GetVerificationStatusResponse] = EitherT {
+    
     httpClient
       .get(url"${config.ecpGetEmailVerificationUrl(verificationDetails.credId)}")
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
@@ -70,12 +71,10 @@ class EmailVerificationConnector @Inject()(
       }
   }
 
-  def startEmailVerification(
-    request: EmailVerificationRequest
-  )(implicit hc: HeaderCarrier): Future[Either[ErrorModel, RedirectUri]] = {
+  def startEmailVerification(request: EmailVerificationRequest)
+                            (implicit hc: HeaderCarrier): Future[Either[ErrorModel, RedirectUri]] = {
 
     val startEmailVerificationJourneyUrl = config.startEmailVerificationJourneyUrl
-
     httpClient
       .post(url"$startEmailVerificationJourneyUrl")
       .withBody(Json.toJson(request))
