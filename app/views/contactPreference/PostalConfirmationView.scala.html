@@ -25,9 +25,9 @@
         link: Link
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(btaLink: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("contactPreference.postalConfirmation.title"))) {
+@layout(pageTitle = titleNoForm(messages("contactPreference.postalConfirmation.preferenceUpdated"))) {
 
     @govukPanel(Panel(
         title = Text(messages("contactPreference.postalConfirmation.preferenceUpdated"))
@@ -41,7 +41,7 @@
         link(
             id = "bta-link",
             text = messages("site.backToBta"),
-            href = "add a vm that gets this link from config",
+            href = btaLink,
             classes = "govuk-link"
         )
     )))

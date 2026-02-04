@@ -16,8 +16,10 @@
 
 package controllers.contactPreference
 
+import config.FrontendAppConfig
 import connectors.SubmitPreferencesConnector
 import controllers.actions.*
+import models.BtaLink
 import models.emailverification.PaperlessPreferenceSubmission
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -35,12 +37,16 @@ class PostalConfirmationController @Inject()(
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: PostalConfirmationView,
-                                       submitPreferencesConnector: SubmitPreferencesConnector
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
-  
+                                       submitPreferencesConnector: SubmitPreferencesConnector,
+                                       config: FrontendAppConfig
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with BtaLink {
+
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
 
     implicit request =>
+
+
+
 
       val email = request.userAnswers.subscriptionSummary.emailAddress
       val verification = request.userAnswers.subscriptionSummary.emailVerification
@@ -55,11 +61,13 @@ class PostalConfirmationController @Inject()(
             logger.info(s"[PostalConfirmationController][onPageLoad] Error submitting preference: $error")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case Right(response) =>
-            Ok(view())
+            Ok(view(btaLink))
         }
       } else {
         // Still render the confirmation page with no submission as current flow
-        Future.successful(Ok(view()))
+        Future.successful(Ok(view(btaLink)))
       }
   }
+
+  override def btaLink: String = config.continueToBta
 }

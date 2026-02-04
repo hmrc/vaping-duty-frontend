@@ -16,8 +16,10 @@
 
 package controllers.contactPreference
 
+import config.FrontendAppConfig
 import connectors.SubmitPreferencesConnector
 import controllers.actions.*
+import models.BtaLink
 import models.emailverification.{PaperlessPreferenceSubmission, VerificationDetails}
 import models.requests.DataRequest
 import play.api.Logging
@@ -39,8 +41,9 @@ class EmailConfirmationController @Inject()(
                                        submitPreferencesConnector: SubmitPreferencesConnector,
                                        emailVerificationService: EmailVerificationService,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: EmailConfirmationView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                       view: EmailConfirmationView,
+                                       config: FrontendAppConfig
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with BtaLink {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
@@ -73,7 +76,9 @@ class EmailConfirmationController @Inject()(
           s"${error.status} and message: ${error.message}")
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       case Right(response) =>
-        Ok(view(email))
+        Ok(view(email, btaLink))
     }
   }
+
+  override def btaLink: String = config.continueToBta
 }
