@@ -51,8 +51,8 @@ class PostalConfirmationController @Inject()(
       if (request.userAnswers.subscriptionSummary.paperlessPreference) {
         // This submission needs to be on a user action, not page load.  Added here for testing, iterations will change this behaviour.
         submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
-          case Left(err) =>
-            logger.info(s"[PostalConfirmationController][onPageLoad] Error submitting preference: $err")
+          case Left(error) =>
+            logger.info(s"[PostalConfirmationController][onPageLoad] Error submitting preference: $error")
             Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case Right(response) =>
             Ok(view())

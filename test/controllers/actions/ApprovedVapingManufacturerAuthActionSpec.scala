@@ -74,6 +74,7 @@ import scala.concurrent.{ExecutionContext, Future}
     val INTERNAL_ID                  = "test-internal-id"
     val GROUP_IDENTIFIER             = "test-group-id"
     val ENROLMENT_STATE              = "test-state"
+    val CREDENTIAL_ID                = "test-cred-id"
 
     val bodyParsers                  = mock[BodyParsers.Default]
 
@@ -83,7 +84,7 @@ import scala.concurrent.{ExecutionContext, Future}
       state = ENROLMENT_STATE
     )))
     
-    val CREDENTIALS = Some(Credentials("credId", "type"))
+    val CREDENTIALS = Some(Credentials(CREDENTIAL_ID, "type"))
 
     "when authenticated and authorised" - {
 
@@ -109,13 +110,13 @@ import scala.concurrent.{ExecutionContext, Future}
         val request = FakeRequest()
         val block = mock[IdentifierRequest[AnyContentAsEmpty.type] => Future[Result]]
 
-        when(block.apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID, "credId"))).
+        when(block.apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID, CREDENTIAL_ID))).
           thenReturn(Future.successful(Results.Ok))
 
         val result = authAction.invokeBlock(request, block)
         await(result)
 
-        verify(block).apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID, "credId"))
+        verify(block).apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID, CREDENTIAL_ID))
 
       }
 
