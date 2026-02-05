@@ -100,9 +100,6 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
 
       when(connector.httpClient.post(any())(any())).thenReturn(requestBuilder)
 
-      when(requestBuilder.withBody(eqTo(Json.toJson(userDetails)))(any(), any(), any()))
-        .thenReturn(requestBuilder)
-
       when(requestBuilder.setHeader("Csrf-Token" -> "nocheck"))
         .thenReturn(requestBuilder)
 
@@ -119,9 +116,6 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
       when(mockConfig.cpUserAnswersKeepAliveUrl).thenReturn(postUrl)
 
       when(connector.httpClient.post(any())(any())).thenReturn(requestBuilder)
-
-      when(requestBuilder.withBody(eqTo(Json.toJson(userDetails)))(any(), any(), any()))
-        .thenReturn(requestBuilder)
 
       when(requestBuilder.setHeader("Csrf-Token" -> "nocheck"))
         .thenReturn(requestBuilder)
