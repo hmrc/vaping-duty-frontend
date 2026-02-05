@@ -64,18 +64,24 @@ class EmailConfirmationController @Inject()(
       }
   }
 
-  private def submitPreferences(email: String, verification: Boolean)
+  private def submitPreferences(email: String, verified: Boolean)
                                (implicit hc: HeaderCarrier, request: DataRequest[_]) = {
     // This submission needs to be on a user action, not page load.  Added here for testing, iterations will change this behaviour.
-    val preferenceSubmission = PaperlessPreferenceSubmission(true, Some(email), Some(verification), None)
+    if (verified) {
+      val preferenceSubmission = PaperlessPreferenceSubmission(true, Some(email), Some(verified), None)
 
-    submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
-      case Left(error) =>
-        logger.info("[EnterEmailController][submitPreferences] Error submitting contact preference with status: " +
-          s"${error.status} and message: ${error.message}")
-        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      case Right(response) =>
-        Ok(view(email, btaLink))
+      submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
+        case Left(error) =>
+          logger.info("[EnterEmailController][submitPreferences] Error submitting contact preference with status: " +
+            s"${error.status} and message: ${error.message}")
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case Right(response) =>
+          Ok(view(email, btaLink))
+      }
+    } else {
+      // Should never enter this case
+      logger.warn("[EmailConfirmationController][submitPreferences] Unverified email attempted to submit")
+      Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     }
   }
 

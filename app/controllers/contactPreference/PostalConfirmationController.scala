@@ -44,10 +44,7 @@ class PostalConfirmationController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
 
     implicit request =>
-
-
-
-
+      
       val email = request.userAnswers.subscriptionSummary.emailAddress
       val verification = request.userAnswers.subscriptionSummary.emailVerification
       val bounced = request.userAnswers.subscriptionSummary.bouncedEmail
