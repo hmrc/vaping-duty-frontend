@@ -61,10 +61,9 @@ enrolment.organisationId.gettingAccess = getting access to the Vaping Products D
 enrolment.userHasApprovalId.heading = Do you have a Vaping Products Duty (VPD) approval ID?
 enrolment.userHasApprovalId.error.required = Select yes if you have a Vaping Products Duty approval ID
 
-enrolment.userDoesNotHaveApprovalId.heading = You need a vaping products ID to access this service
-enrolment.userDoesNotHaveApprovalId.findIdHelp = You can find your vaping products ID on letters you have received from HMRC about Vaping Products Duty online service.
-enrolment.userDoesNotHaveApprovalId.howToApply = Find out how to apply for a vaping products ID if you do not have one.
-enrolment.userDoesNotHaveApprovalId.apply = Apply for approval
+enrolment.userDoesNotHaveApprovalId.heading = You need a Vaping Products Duty (VPD) approval ID to access this service
+enrolment.userDoesNotHaveApprovalId.findIdHelp = You can find your VPD approval ID on letters you have received from us about the Vaping Products Duty online service.
+enrolment.userDoesNotHaveApprovalId.howToGetVpdId.linkText = Find out how to get a VPD approval ID
 
 enrolment.userAlreadyEnrolled.heading = You have already enrolled for this service
 
