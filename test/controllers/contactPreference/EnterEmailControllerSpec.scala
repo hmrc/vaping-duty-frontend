@@ -22,7 +22,7 @@ import connectors.EmailVerificationConnector
 import controllers.routes
 import forms.EnterEmailFormProvider
 import models.NormalMode
-import models.emailverification.{ErrorModel, RedirectUri}
+import models.emailverification.{EmailVerificationDetails, ErrorModel, GetVerificationStatusResponse, RedirectUri}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -31,7 +31,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.UserAnswersService
+import services.{EmailVerificationService, UserAnswersService}
 import uk.gov.hmrc.http.HttpResponse
 import views.html.contactPreference.EnterEmailView
 
@@ -153,9 +153,41 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to journey recovery if failing to set user answers" in {
 
       val mockUserAnswersService = mock[UserAnswersService]
+      val mockEmailVerificationService = mock[EmailVerificationService]
+
+      when(mockEmailVerificationService.retrieveAddressStatusAndAddToCache(any(), any(), any())(any()))
+        .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, true, false)))
 
       when(mockUserAnswersService.set(any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+          .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, enterEmailRoute)
+            .withFormUrlEncodedBody(("value", "answer"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to journey recovery if failing to retrieve verified emails" in {
+
+      val mockUserAnswersService = mock[UserAnswersService]
+
+      when(mockEmailVerificationConnector.getEmailVerification(any())(any()))
+        .thenReturn(EitherT.leftT[Future, GetVerificationStatusResponse](ErrorModel(BAD_REQUEST, "There was a problem")))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -181,13 +213,16 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to email confirmation(CYA when implemented) page when address entered is already verified" in {
 
       val mockUserAnswersService = mock[UserAnswersService]
+      val mockEmailVerificationService = mock[EmailVerificationService]
 
+      when(mockEmailVerificationService.retrieveAddressStatusAndAddToCache(any(), any(), any())(any()))
+        .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, true, false)))
       when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
-          .overrides(bind[EmailVerificationConnector].toInstance(mockEmailVerificationConnector))
+          .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
           )
