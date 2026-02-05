@@ -42,7 +42,7 @@ class EmailVerificationConnector @Inject()(
   EitherT[Future, ErrorModel, GetVerificationStatusResponse] = EitherT {
     
     httpClient
-      .get(url"${config.ecpGetEmailVerificationUrl(verificationDetails.credId)}")
+      .get(url"${config.cpGetEmailVerificationUrl(verificationDetails.credId)}")
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .flatMap {
         case Right(response)     =>

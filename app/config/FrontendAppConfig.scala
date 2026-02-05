@@ -78,26 +78,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   def vdrPingUrl(): String = s"$vdHost/vaping-duty/ping"
 
-  def ecpUserAnswersGetUrl(vpdId: String): String =
-    s"$contactPreferencesHost/vaping-duty-account/user-answers/$vpdId"
-
-  def ecpUserAnswersUrl: String =
-    s"$contactPreferencesHost/vaping-duty-account/user-answers"
-
-  def ecpUserAnswersKeepAliveUrl: String =
-    s"$contactPreferencesHost/vaping-duty-account/keep-alive"
-
-  def ecpUserAnswersClearUrl(vpdId: String): String =
-    s"$contactPreferencesHost/vaping-duty-account/user-answers/clear/$vpdId"
-
-  def ecpUserAnswersClearAllUrl: String =
-    s"$contactPreferencesHost/vaping-duty-account/test-only/user-answers/clear-all"
-
-  def ecpGetEmailVerificationUrl(credId: String): String =
-    s"$contactPreferencesHost/vaping-duty-account/get-email-verification/$credId"
-
-  def ecpSubmitContactPreferencesUrl(vpdId: String): String =
-    s"$contactPreferencesHost/vaping-duty-account/submit-preferences/$vpdId"
+  private val contactPreferenceBaseUrl                      = s"$contactPreferencesHost/vaping-duty-account"
+  def cpUserAnswersGetUrl(vpdId: String): String            = s"$contactPreferenceBaseUrl/user-answers/$vpdId"
+  def cpUserAnswersUrl: String                              = s"$contactPreferenceBaseUrl/user-answers"
+  def cpUserAnswersKeepAliveUrl: String                     = s"$contactPreferenceBaseUrl/keep-alive"
+  def cpUserAnswersClearUrl(vpdId: String): String          = s"$contactPreferenceBaseUrl/user-answers/clear/$vpdId"
+  def cpGetEmailVerificationUrl(credId: String): String     = s"$contactPreferenceBaseUrl/get-email-verification/$credId"
+  def cpSubmitContactPreferencesUrl(vpdId: String): String  = s"$contactPreferenceBaseUrl/submit-preferences/$vpdId"
 
   val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/email-confirmation"
   val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"
