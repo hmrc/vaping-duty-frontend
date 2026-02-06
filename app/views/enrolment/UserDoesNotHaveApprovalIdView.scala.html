@@ -14,14 +14,15 @@
  * limitations under the License.
  *@
 
-@import components.{Paragraph, Heading}
+@import components.{Paragraph, Heading, Link}
 @import viewmodels.enrolment.UserDoesNotHaveApprovalIdViewModel
 
 @this(
     layout: templates.Layout,
     govukButton: GovukButton,
     p: Paragraph,
-    h1: Heading
+    h1: Heading,
+    link: Link
 )
 
 @(vm: UserDoesNotHaveApprovalIdViewModel)(implicit request: Request[_], messages: Messages)
@@ -31,10 +32,14 @@
     @h1(HtmlContent(messages("enrolment.userDoesNotHaveApprovalId.heading")))
 
     @p(Seq(HtmlContent(messages("enrolment.userDoesNotHaveApprovalId.findIdHelp"))))
-    @p(Seq(HtmlContent(messages("enrolment.userDoesNotHaveApprovalId.howToApply"))))
 
-    @govukButton(
-        ButtonViewModel(messages("enrolment.userDoesNotHaveApprovalId.apply"))
-            .asLink(vm.getGuidanceUrl)
-    )
+    @(p(Seq(
+        HtmlContent(link(
+        id = "guidance",
+        text = messages("enrolment.userDoesNotHaveApprovalId.howToGetVpdId.linkText"),
+        href = vm.getGuidanceUrl,
+        classes = "govuk-link--no-visited-state",
+        newTabText = Some(messages("site.newTab"))
+    ))))
+   )
 }
