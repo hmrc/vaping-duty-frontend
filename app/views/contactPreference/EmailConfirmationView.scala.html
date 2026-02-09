@@ -34,7 +34,7 @@
     ))
 
     @p(Seq(HtmlContent(
-        messages("contactPreference.emailConfirmation.weWill") + " " + <b>{ email }.</b>
+        s"${messages("contactPreference.emailConfirmation.weWill")} <b>$email</b>."
     )))
 
     @p(Seq(HtmlContent(
