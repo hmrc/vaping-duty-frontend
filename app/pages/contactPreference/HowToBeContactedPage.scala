@@ -16,7 +16,7 @@
 
 package pages.contactPreference
 
-import models.HowToBeContacted
+import models.contactPreference.HowToBeContacted
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 

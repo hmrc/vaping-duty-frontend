@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package forms
+package forms.contactPreference
 
 import javax.inject.Inject
 
 import forms.mappings.Mappings
 import play.api.data.Form
-import models.HowToBeContacted
+import models.contactPreference.HowToBeContacted
 
 class HowToBeContactedFormProvider @Inject() extends Mappings {
 

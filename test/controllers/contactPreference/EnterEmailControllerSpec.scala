@@ -20,7 +20,7 @@ import base.SpecBase
 import cats.data.EitherT
 import connectors.EmailVerificationConnector
 import controllers.routes
-import forms.EnterEmailFormProvider
+import forms.contactPreference.EnterEmailFormProvider
 import models.NormalMode
 import models.emailverification.{EmailVerificationDetails, ErrorModel, GetVerificationStatusResponse, RedirectUri}
 import navigation.{FakeNavigator, Navigator}

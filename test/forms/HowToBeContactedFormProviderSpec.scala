@@ -17,7 +17,8 @@
 package forms
 
 import forms.behaviours.OptionFieldBehaviours
-import models.HowToBeContacted
+import forms.contactPreference.HowToBeContactedFormProvider
+import models.contactPreference.HowToBeContacted
 import play.api.data.FormError
 
 class HowToBeContactedFormProviderSpec extends OptionFieldBehaviours {
