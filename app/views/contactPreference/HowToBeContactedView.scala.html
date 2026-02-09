@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import viewmodels.contactPreference.HowToBeContactedViewModel
+@import components.{Paragraph, Heading}
 @import viewmodels.LegendSize
 
 @this(
@@ -21,12 +23,18 @@
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukRadios: GovukRadios,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    h1: Heading,
+    p: Paragraph
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], vm: HowToBeContactedViewModel, mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("contactPreference.howToBeContacted.title"))) {
+
+    @h1(messages("contactPreference.howToBeContacted.heading"))
+
+    @p(Seq(HtmlContent(vm.content)))
 
     @formHelper(action = controllers.contactPreference.routes.HowToBeContactedController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
@@ -37,8 +45,8 @@
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("contactPreference.howToBeContacted.heading")).asPageHeading(LegendSize.Large),
-                items  = HowToBeContacted.options
+                legend = LegendViewModel(messages("contactPreference.howToBeContacted.tellUs")).withCssClass(LegendSize.Medium.toString),
+                items  = vm.radioItems
             ).withHint(Hint(content = HtmlContent(messages("contactPreference.howToBeContacted.hint"))))
         )
 
