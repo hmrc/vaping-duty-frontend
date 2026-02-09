@@ -34,8 +34,8 @@ class DataRetrievalActionImpl @Inject()(
     val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     contactPreferencesService.get(request.enrolmentVpdId)(headerCarrier).map {
-      case Left(_)    => OptionalDataRequest(request, request.enrolmentVpdId, request.userId, None)
-      case Right(ua)  => OptionalDataRequest(request, request.enrolmentVpdId, request.userId, Some(ua))
+      case Left(_)    => OptionalDataRequest(request, request.enrolmentVpdId, request.userId, request.credId, None)
+      case Right(ua)  => OptionalDataRequest(request, request.enrolmentVpdId, request.userId, request.credId, Some(ua))
     }
   }
 }

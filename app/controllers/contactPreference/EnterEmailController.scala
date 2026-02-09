@@ -16,16 +16,22 @@
 
 package controllers.contactPreference
 
+import config.FrontendAppConfig
+import connectors.EmailVerificationConnector
 import controllers.actions.*
 import forms.EnterEmailFormProvider
-import models.Mode
+import models.emailverification.{EmailVerificationRequest, VerificationDetails}
+import models.{ContactPreferenceUserAnswers, Mode, NormalMode}
 import navigation.Navigator
 import pages.contactPreference.EnterEmailPage
+import play.api.Logging
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.UserAnswersService
+import services.{EmailVerificationService, UserAnswersService}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.StartEmailVerificationJourneyHelper
 import views.html.contactPreference.EnterEmailView
 
 import javax.inject.Inject
@@ -39,16 +45,19 @@ class EnterEmailController @Inject()(
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       formProvider: EnterEmailFormProvider,
+                                      config: FrontendAppConfig,
+                                      emailVerificationConnector: EmailVerificationConnector,
+                                      emailVerificationService: EmailVerificationService,
                                       val controllerComponents: MessagesControllerComponents,
                                       view: EnterEmailView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(EnterEmailPage) match {
+      val preparedForm = request.userAnswers.emailAddress match {
         case None => form
         case Some(value) => form.fill(value)
       }
@@ -58,18 +67,60 @@ class EnterEmailController @Inject()(
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-
       form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+        formWithErrors => {
+          Future.successful(BadRequest(view(formWithErrors, mode)))
+        },
+        value => {
+          val updatedAnswers = request.userAnswers.copy(emailAddress = Some(value))
 
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(
-              request.userAnswers.copy(emailAddress = Some(value)).set(EnterEmailPage, value)
-            )
-            _              <- sessionService.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(EnterEmailPage, mode, updatedAnswers))
+          emailVerificationService
+            .retrieveAddressStatusAndAddToCache(VerificationDetails(request.credId), value, updatedAnswers).value.flatMap {
+              case Left(error) =>
+                logger.info("[EnterEmailController][onSubmit] Error updating verified email list: " +
+                  s"${error.status} and message: ${error.message}")
+                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+              case Right(verificationDetails) =>
+                handleRedirect(updatedAnswers, verificationDetails.emailAddress, request.credId)
+            }
+        }
       )
+  }
+
+  private def handleRedirect(updatedAnswers: ContactPreferenceUserAnswers, email: String, credId: String)
+                            (implicit hc: HeaderCarrier, messages: Messages) = {
+    sessionService.set(updatedAnswers).flatMap {
+      case Left(error) =>
+        logger.info("[EnterEmailController][handleRedirect] Error setting user answers with status: " +
+          s"${error.status} and message: ${error.message}")
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      case Right(_) =>
+        if (updatedAnswers.verifiedEmailAddresses.contains(email)) {
+          Future.successful(Redirect(navigator.nextPage(EnterEmailPage, NormalMode, updatedAnswers)))
+        } else {
+          startEmailVerification(email, credId)
+        }
+    }
+  }
+
+  private def startEmailVerification(email: String, credId: String)
+                                    (implicit hc: HeaderCarrier, messages: Messages) = {
+    
+    val evRequest = StartEmailVerificationJourneyHelper(config).createRequest(credId, email)
+    handoffToEmailVerification(evRequest)
+  }
+
+  private def handoffToEmailVerification(evRequest: EmailVerificationRequest)
+                                        (implicit hc: HeaderCarrier) = {
+
+    emailVerificationConnector.startEmailVerification(evRequest).map {
+      case Left(error) =>
+        logger.info("[EnterEmailController][handoffToEmailVerification] Error starting email verification with status: " +
+          s"${error.status} and message: ${error.message}")
+        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      case Right(redirectUri) =>
+        val redirectTo = s"${config.emailVerificationRedirectBaseUrl}${redirectUri.redirectUri}"
+        Redirect(redirectTo)
+    }
   }
 }

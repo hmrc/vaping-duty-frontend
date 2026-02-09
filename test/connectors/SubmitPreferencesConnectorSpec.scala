@@ -38,7 +38,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
       val jsonResponse = Json.toJson(testSubmissionResponse).toString()
       val httpResponse = HttpResponse(OK, jsonResponse)
 
-      when(mockConfig.ecpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
+      when(mockConfig.cpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(Future.successful(Right(httpResponse)))
@@ -63,7 +63,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
     "fail when invalid JSON is returned" in new SetUp {
       val invalidJsonResponse = HttpResponse(OK, """{ "invalid": "json" }""")
 
-      when(mockConfig.ecpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
+      when(mockConfig.cpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(Future.successful(Right(invalidJsonResponse)))
@@ -91,7 +91,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
         Left[UpstreamErrorResponse, HttpResponse](UpstreamErrorResponse("", BAD_GATEWAY, BAD_GATEWAY, Map.empty))
       )
 
-      when(mockConfig.ecpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
+      when(mockConfig.cpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(upstreamErrorResponse)
@@ -117,7 +117,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
     "fail when an unexpected status code is returned" in new SetUp {
       val invalidStatusCodeResponse = HttpResponse(CREATED, "")
 
-      when(mockConfig.ecpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
+      when(mockConfig.cpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
         .thenReturn(Future.successful(Right(invalidStatusCodeResponse)))

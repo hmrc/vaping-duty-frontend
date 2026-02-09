@@ -18,18 +18,16 @@ package controllers.contactPreference
 
 import controllers.actions.*
 import forms.HowToBeContactedFormProvider
-import models.{ContactPreferenceUserAnswers, Mode, SubscriptionSummary, UserDetails}
+import models.{ContactPreferenceUserAnswers, Mode, UserDetails}
 import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.Lang.logger
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.HowToBeContactedView
 
-import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -49,28 +47,16 @@ class HowToBeContactedController @Inject()(
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-
-      val preparedForm = request.userAnswers.getOrElse(
-        ContactPreferenceUserAnswers(
-          request.vpdId,
-          request.userId,
-          SubscriptionSummary(false, None, None, None, "", None),
-          None,
-          Set.empty,
-          JsObject.empty,
-          Instant.now(),
-          Instant.now()
-        )
-      ).get(HowToBeContactedPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
-
-      sessionService.createUserAnswers(UserDetails(request.vpdId, request.userId)).map {
-        case Left(err) =>
-          logger.info(s"[HowToBeContactedController][onPageLoad] Creating user answers failed: ${err.message}")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-        case Right(_) => Ok(view(preparedForm, mode))
+      
+      request.userAnswers match {
+        case Some(ua) => Future.successful(Ok(view(prepareForm(ua), mode)))
+        case None =>
+          sessionService.createUserAnswers(UserDetails(request.vpdId, request.userId)).map {
+            case Left(error) =>
+              logger.info(s"[HowToBeContactedController][onPageLoad] Creating user answers failed: ${error.message}")
+              Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+            case Right(response) => Ok(view(prepareForm(response), mode))
+          }
       }
   }
 
@@ -87,5 +73,12 @@ class HowToBeContactedController @Inject()(
             _              <- sessionService.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(HowToBeContactedPage, mode, updatedAnswers))
       )
+  }
+
+  private def prepareForm(ua: ContactPreferenceUserAnswers) = {
+    ua.get(HowToBeContactedPage) match {
+      case None => form
+      case Some(value) => form.fill(value)
+    }
   }
 }

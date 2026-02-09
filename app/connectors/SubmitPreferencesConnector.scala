@@ -40,7 +40,7 @@ class SubmitPreferencesConnector @Inject() (
     hc: HeaderCarrier
   ): Future[Either[ErrorModel, PaperlessPreferenceSubmittedResponse]] = {
     httpClient
-      .put(url"${config.ecpSubmitContactPreferencesUrl(vpdId)}")
+      .put(url"${config.cpSubmitContactPreferencesUrl(vpdId)}")
       .withBody(Json.toJson(contactPreferenceSubmission))
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .map {

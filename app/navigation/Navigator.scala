@@ -30,7 +30,7 @@ class Navigator @Inject() extends Logging {
 
   private val normalRoutes: Page => ContactPreferenceUserAnswers => Call = {
     case HowToBeContactedPage   => ua   => howToBeContactedRoute(ua)
-    case EnterEmailPage         => ua   => enterEmailPageRoute(ua)
+    case EnterEmailPage         => _    => controllers.contactPreference.routes.EmailConfirmationController.onPageLoad()
     case _                      => _    => routes.IndexController.onPageLoad()
   }
 
@@ -43,19 +43,6 @@ class Navigator @Inject() extends Logging {
       case Some(HowToBeContacted.Email) => controllers.contactPreference.routes.EnterEmailController.onPageLoad(NormalMode)
       case Some(HowToBeContacted.Post)  => controllers.contactPreference.routes.ConfirmAddressController.onPageLoad()
       case _                            => routes.JourneyRecoveryController.onPageLoad()
-    }
-  }
-
-  def enterEmailPageRoute(ua: ContactPreferenceUserAnswers) = {
-    
-    val enteredEmailVerified = ua.verifiedEmailAddresses.contains(ua.get(EnterEmailPage).getOrElse(""))
-    
-    if (enteredEmailVerified) {
-      // Email entered is already verified
-      controllers.contactPreference.routes.EmailConfirmationController.onPageLoad()
-    } else {
-      // TODO Implement EV handoff
-      controllers.contactPreference.routes.EmailConfirmationController.onPageLoad()
     }
   }
 

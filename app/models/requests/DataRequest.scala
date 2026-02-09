@@ -22,9 +22,11 @@ import models.ContactPreferenceUserAnswers
 case class OptionalDataRequest[A] (request: Request[A],
                                    vpdId: String,
                                    userId: String,
+                                   credId: String,
                                    userAnswers: Option[ContactPreferenceUserAnswers]) extends WrappedRequest[A](request)
 
 case class DataRequest[A] (request: Request[A],
                            vpdId: String,
                            userId: String,
+                           credId: String,
                            userAnswers: ContactPreferenceUserAnswers) extends WrappedRequest[A](request)

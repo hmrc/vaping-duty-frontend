@@ -16,28 +16,74 @@
 
 package controllers.contactPreference
 
+import config.FrontendAppConfig
+import connectors.SubmitPreferencesConnector
 import controllers.actions.*
+import models.BtaLink
+import models.emailverification.{PaperlessPreferenceSubmission, VerificationDetails}
+import models.requests.DataRequest
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.EmailVerificationService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.EmailConfirmationView
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class EmailConfirmationController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
+                                       submitPreferencesConnector: SubmitPreferencesConnector,
+                                       emailVerificationService: EmailVerificationService,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: EmailConfirmationView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                       view: EmailConfirmationView,
+                                       config: FrontendAppConfig
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with BtaLink {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      // Maybe should go to journey recovery here if no email is found
-      val enteredEmail = request.userAnswers.subscriptionSummary.emailAddress.getOrElse("")
+      val email = request.userAnswers.emailAddress.getOrElse("")
 
-      Ok(view(enteredEmail))
+      // Checking new email is now verified
+      emailVerificationService.retrieveAddressStatusAndAddToCache(
+        VerificationDetails(request.credId),
+        email,
+        request.userAnswers
+      ).value.flatMap {
+        case Left(error) =>
+          logger.info("[EnterEmailController][onPageLoad] Error retrieving email verification status with status: " +
+            s"${error.status} and message: ${error.message}")
+          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        case Right(response) =>
+          submitPreferences(response.emailAddress, response.isVerified)
+      }
   }
+
+  private def submitPreferences(email: String, verified: Boolean)
+                               (implicit hc: HeaderCarrier, request: DataRequest[_]) = {
+    // This submission needs to be on a user action, not page load.  Added here for testing, iterations will change this behaviour.
+    if (verified) {
+      val preferenceSubmission = PaperlessPreferenceSubmission(true, Some(email), Some(verified), None)
+
+      submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
+        case Left(error) =>
+          logger.info("[EnterEmailController][submitPreferences] Error submitting contact preference with status: " +
+            s"${error.status} and message: ${error.message}")
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case Right(response) =>
+          Ok(view(email, btaLink))
+      }
+    } else {
+      // Should never enter this case
+      logger.warn("[EmailConfirmationController][submitPreferences] Unverified email attempted to submit")
+      Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+    }
+  }
+
+  override def btaLink: String = config.continueToBta
 }

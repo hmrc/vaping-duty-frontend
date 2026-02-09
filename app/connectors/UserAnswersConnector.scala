@@ -32,12 +32,12 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
 
   def get(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] =
     httpClient
-      .get(url"${config.ecpUserAnswersGetUrl(vpdId)}")
+      .get(url"${config.cpUserAnswersGetUrl(vpdId)}")
       .execute[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]]
 
   def set(userAnswers: ContactPreferenceUserAnswers)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClient
-      .put(url"${config.ecpUserAnswersUrl}")
+      .put(url"${config.cpUserAnswersUrl}")
       .setHeader("Csrf-Token" -> "nocheck")
       .withBody(Json.toJson(userAnswers))
       .execute[HttpResponse]
@@ -46,7 +46,7 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
   def createUserAnswers(userDetails: UserDetails)
                        (implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] = {
     httpClient
-      .post(url"${config.ecpUserAnswersUrl}")
+      .post(url"${config.cpUserAnswersUrl}")
       .withBody(Json.toJson(userDetails))
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]]
@@ -54,7 +54,7 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
 
   def keepAlive(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
-      .post(url"${config.ecpUserAnswersKeepAliveUrl}")
+      .post(url"${config.cpUserAnswersKeepAliveUrl}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap { response =>
@@ -67,7 +67,7 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
   
   def clear(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
-      .delete(url"${config.ecpUserAnswersClearUrl(vpdId)}")
+      .delete(url"${config.cpUserAnswersClearUrl(vpdId)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap { response =>
