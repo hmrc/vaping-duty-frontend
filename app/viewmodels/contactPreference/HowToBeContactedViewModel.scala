@@ -32,11 +32,11 @@ object HowToBeContactedViewModel {
 
   private def howToBeContactedViewModel(ua: ContactPreferenceUserAnswers)(implicit messages: Messages) = {
 
-    val emailPreference: String   = ua.subscriptionSummary.emailAddress.getOrElse("")
-    val emailSuffix: String       = messages("contactPreference.howToBeContacted.email")
-    val emailPreferenceKey: String = "setToEmail"
-    val postalPreference: String  = ua.subscriptionSummary.correspondenceAddress.replaceAll("\n", ", ")
-    val postalSuffix: String      = messages("contactPreference.howToBeContacted.post")
+    val emailPreference: String     = ua.subscriptionSummary.emailAddress.getOrElse("")
+    val emailSuffix: String         = messages("contactPreference.howToBeContacted.email")
+    val emailPreferenceKey: String  = "setToEmail"
+    val postalPreference: String    = ua.subscriptionSummary.correspondenceAddress.replaceAll("\n", ", ")
+    val postalSuffix: String        = messages("contactPreference.howToBeContacted.post")
     val postalPreferenceKey: String = "setToPost"
 
     PaperlessPreference(ua.subscriptionSummary.paperlessPreference) match {

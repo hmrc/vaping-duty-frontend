@@ -25,7 +25,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class UserAnswersService @Inject() (userAnswersConnector: UserAnswersConnector)(implicit ec: ExecutionContext) {
-  
+
   def get(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] =
     userAnswersConnector.get(vpdId)
   
