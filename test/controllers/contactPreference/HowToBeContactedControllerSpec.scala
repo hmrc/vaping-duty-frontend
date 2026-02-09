@@ -17,11 +17,11 @@
 package controllers.contactPreference
 
 import base.SpecBase
-import forms.HowToBeContactedFormProvider
-import models.{HowToBeContacted, NormalMode}
+import forms.contactPreference.HowToBeContactedFormProvider
+import models.NormalMode
+import models.contactPreference.HowToBeContacted
 import navigation.{FakeNavigator, Navigator}
 import org.apache.pekko.http.scaladsl.model.HttpResponse
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -32,6 +32,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.UserAnswersService
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import viewmodels.contactPreference.HowToBeContactedViewModel
 import views.html.contactPreference.HowToBeContactedView
 
 import scala.concurrent.Future
@@ -47,7 +48,7 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
   "HowToBeContacted Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET for paperless preference" in {
 
       val mockUserAnswersService = mock[UserAnswersService]
 
@@ -64,10 +65,38 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
+        val vm = HowToBeContactedViewModel(emptyUserAnswers)(messages(application))
+
         val view = application.injector.instanceOf[HowToBeContactedView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, vm, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET for paper preference" in {
+
+      val mockUserAnswersService = mock[UserAnswersService]
+
+      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(userAnswersPostNoEmail))
+
+      when(mockUserAnswersService.createUserAnswers(any())(any())).thenReturn(Future.successful(Right(userAnswersPostNoEmail)))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail))
+        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, howToBeContactedRoute)
+
+        val result = route(application, request).value
+
+        val vm = HowToBeContactedViewModel(userAnswersPostNoEmail)(messages(application))
+
+        val view = application.injector.instanceOf[HowToBeContactedView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, vm, NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -88,10 +117,12 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
+        val vm = HowToBeContactedViewModel(emptyUserAnswers)(messages(application))
+
         val view = application.injector.instanceOf[HowToBeContactedView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, vm, NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -133,12 +164,14 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, howToBeContactedRoute)
 
+        val vm = HowToBeContactedViewModel(emptyUserAnswers)(messages(application))
+
         val view = application.injector.instanceOf[HowToBeContactedView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(HowToBeContacted.values.head), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(HowToBeContacted.values.head), vm, NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -179,12 +212,14 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
 
+        val vm = HowToBeContactedViewModel(emptyUserAnswers)(messages(application))
+
         val view = application.injector.instanceOf[HowToBeContactedView]
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, vm, NormalMode)(request, messages(application)).toString
       }
     }
   }
