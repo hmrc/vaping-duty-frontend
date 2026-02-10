@@ -68,7 +68,6 @@ trait TestData {
     userId = userId,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
-    verifiedEmailAddresses = verifiedEmailAddresses,
     data = JsObject(Seq("contactPreferenceEmail" -> Json.toJson(false))),
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
@@ -79,7 +78,6 @@ trait TestData {
     userId = userId,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
-    verifiedEmailAddresses = Set(emailAddress2),
     data = JsObject(Seq()),
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
@@ -90,7 +88,6 @@ trait TestData {
     userId = userId,
     subscriptionSummary = subscriptionSummaryPostWithEmail,
     emailAddress = Some(emailAddress),
-    verifiedEmailAddresses = Set(emailAddress),
     data = JsObject(Seq("contactPreferenceEmail" -> Json.toJson(true))),
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
@@ -113,7 +110,6 @@ trait TestData {
     userId = userId,
     subscriptionSummary = subscriptionSummaryPostNoEmail,
     emailAddress = Some(emailAddress),
-    verifiedEmailAddresses = verifiedEmailAddresses,
     data = JsObject(Seq("contactPreferenceEmail" -> Json.toJson(true))),
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
@@ -124,7 +120,6 @@ trait TestData {
     userId = userId,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
-    verifiedEmailAddresses = Set.empty[String],
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
   )

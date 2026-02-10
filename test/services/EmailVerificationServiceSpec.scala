@@ -39,70 +39,24 @@ class EmailVerificationServiceSpec extends SpecBase {
         )
 
       whenReady(
-        testService.retrieveAddressStatusAndAddToCache(testVerificationDetails, emailAddress2, userAnswers).value
+        testService.retrieveAddressStatus(testVerificationDetails, emailAddress2, userAnswers).value
       ) {
         _ mustBe Left(ErrorModel(INTERNAL_SERVER_ERROR, "test error"))
       }
     }
 
-    "when the call to set user answers fails, must return an error" in new Setup {
-      when(mockEmailVerificationConnector.getEmailVerification(any())(any()))
-        .thenReturn(EitherT(Future.successful(Right(testGetVerificationStatusResponse))))
-
-      when(mockUserAnswersService.set(any())(any()))
-        .thenReturn(
-          Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "test message of an error")))
-        )
-
-      whenReady(
-        testService.retrieveAddressStatusAndAddToCache(testVerificationDetails, emailAddress2, userAnswers).value
-      ) {
-        _ mustBe Left(ErrorModel(INTERNAL_SERVER_ERROR, "test message of an error"))
-      }
-    }
-
-    "when get verification details and user answers set are successful" - {
-      "and the new email address is verified and not in the cache, must add the new email to the cache and return it" in new Setup {
-        val updatedUserAnswers: ContactPreferenceUserAnswers =
-          userAnswers.copy(verifiedEmailAddresses = userAnswers.verifiedEmailAddresses ++ Set(emailAddress4))
-
+    "when get verification details is successful" - {
+      "and the new email address is verified" in new Setup {
         when(mockEmailVerificationConnector.getEmailVerification(any())(any()))
           .thenReturn(
             EitherT(Future.successful(Right(testGetVerificationStatusResponse)))
           )
 
-        when(mockUserAnswersService.set(eqTo(updatedUserAnswers))(any()))
-          .thenReturn(
-            Future.successful(Right(HttpResponse(status = OK, body = "test body")))
-          )
-
         whenReady(
-          testService.retrieveAddressStatusAndAddToCache(testVerificationDetails, emailAddress4, userAnswers).value
+          testService.retrieveAddressStatus(testVerificationDetails, emailAddress4, userAnswers).value
         ) {
           _ mustBe Right(EmailVerificationDetails(emailAddress4, isVerified = true, isLocked = false))
         }
-
-        verify(mockUserAnswersService, times(1)).set(eqTo(updatedUserAnswers))(any())
-      }
-
-      "and the new email address is verified but is in the cache, must return the email details" in new Setup {
-        when(mockEmailVerificationConnector.getEmailVerification(any())(any()))
-          .thenReturn(
-            EitherT(Future.successful(Right(testGetVerificationStatusResponse)))
-          )
-
-        when(mockUserAnswersService.set(eqTo(userAnswers))(any()))
-          .thenReturn(
-            Future.successful(Right(HttpResponse(status = OK, body = "test body")))
-          )
-
-        whenReady(
-          testService.retrieveAddressStatusAndAddToCache(testVerificationDetails, emailAddress2, userAnswers).value
-        ) {
-          _ mustBe Right(EmailVerificationDetails(emailAddress2, isVerified = true, isLocked = true))
-        }
-
-        verify(mockUserAnswersService, times(1)).set(eqTo(userAnswers))(any())
       }
     }
 
@@ -120,13 +74,8 @@ class EmailVerificationServiceSpec extends SpecBase {
           EitherT(Future.successful(Right(verifiedDetailsResponse)))
         )
 
-      when(mockUserAnswersService.set(any())(any()))
-        .thenReturn(
-          Future.successful(Right(HttpResponse(status = OK, body = "test body")))
-        )
-
       whenReady(
-        testService.retrieveAddressStatusAndAddToCache(testVerificationDetails, emailAddress, userAnswers).value
+        testService.retrieveAddressStatus(testVerificationDetails, emailAddress, userAnswers).value
       ) {
         _ mustBe Right(EmailVerificationDetails(emailAddress, isVerified = true, isLocked = false))
       }
@@ -153,7 +102,7 @@ class EmailVerificationServiceSpec extends SpecBase {
         )
 
       whenReady(
-        testService.retrieveAddressStatusAndAddToCache(testVerificationDetails, emailAddress, userAnswers).value
+        testService.retrieveAddressStatus(testVerificationDetails, emailAddress, userAnswers).value
       ) {
         _ mustBe Right(EmailVerificationDetails(emailAddress, isVerified = false, isLocked = false))
       }
@@ -179,7 +128,7 @@ class EmailVerificationServiceSpec extends SpecBase {
         )
 
       whenReady(
-        testService.retrieveAddressStatusAndAddToCache(testVerificationDetails, emailAddress, userAnswers).value
+        testService.retrieveAddressStatus(testVerificationDetails, emailAddress, userAnswers).value
       ) {
         _ mustBe Right(EmailVerificationDetails(emailAddress, isVerified = false, isLocked = true))
       }
@@ -206,7 +155,7 @@ class EmailVerificationServiceSpec extends SpecBase {
         )
 
       whenReady(
-        testService.retrieveAddressStatusAndAddToCache(testVerificationDetails, emailAddress, userAnswers).value
+        testService.retrieveAddressStatus(testVerificationDetails, emailAddress, userAnswers).value
       ) {
         _ mustBe Right(EmailVerificationDetails(emailAddress, isVerified = false, isLocked = false))
       }
@@ -217,6 +166,6 @@ class EmailVerificationServiceSpec extends SpecBase {
   class Setup {
     val mockEmailVerificationConnector: EmailVerificationConnector = mock[EmailVerificationConnector]
     val mockUserAnswersService: UserAnswersService                 = mock[UserAnswersService]
-    val testService                                                = new EmailVerificationService(mockEmailVerificationConnector, mockUserAnswersService)
+    val testService                                                = new EmailVerificationService(mockEmailVerificationConnector)
   }
 }

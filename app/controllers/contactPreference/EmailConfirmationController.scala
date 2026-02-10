@@ -50,7 +50,7 @@ class EmailConfirmationController @Inject()(
       val email = request.userAnswers.emailAddress.getOrElse("")
 
       // Checking new email is now verified
-      emailVerificationService.retrieveAddressStatusAndAddToCache(
+      emailVerificationService.retrieveAddressStatus(
         VerificationDetails(request.credId),
         email,
         request.userAnswers

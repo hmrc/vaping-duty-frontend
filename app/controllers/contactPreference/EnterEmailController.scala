@@ -19,8 +19,8 @@ package controllers.contactPreference
 import config.FrontendAppConfig
 import connectors.EmailVerificationConnector
 import controllers.actions.*
-import forms.contactPreference.EnterEmailFormProvider
-import models.emailverification.{EmailVerificationRequest, VerificationDetails}
+import forms.EnterEmailFormProvider
+import models.emailverification.{EmailVerificationDetails, EmailVerificationRequest, VerificationDetails}
 import models.{ContactPreferenceUserAnswers, Mode, NormalMode}
 import navigation.Navigator
 import pages.contactPreference.EnterEmailPage
@@ -75,7 +75,7 @@ class EnterEmailController @Inject()(
           val updatedAnswers = request.userAnswers.copy(emailAddress = Some(value))
 
           emailVerificationService
-            .retrieveAddressStatusAndAddToCache(VerificationDetails(request.credId), value, updatedAnswers).value.flatMap {
+            .retrieveAddressStatus(VerificationDetails(request.credId), value, updatedAnswers).value.flatMap {
               case Left(error) =>
                 logger.info("[EnterEmailController][onSubmit] Error updating verified email list: " +
                   s"${error.status} and message: ${error.message}")
@@ -83,13 +83,13 @@ class EnterEmailController @Inject()(
               case Right(verificationDetails) if verificationDetails.isLocked =>
                 Future.successful(Redirect(controllers.contactPreference.routes.LockedEmailController.onPageLoad()))
               case Right(verificationDetails) =>
-                handleRedirect(updatedAnswers, verificationDetails.emailAddress, request.credId)
+                handleRedirect(updatedAnswers, verificationDetails, request.credId)
             }
         }
       )
   }
 
-  private def handleRedirect(updatedAnswers: ContactPreferenceUserAnswers, email: String, credId: String)
+  private def handleRedirect(updatedAnswers: ContactPreferenceUserAnswers, details: EmailVerificationDetails, credId: String)
                             (implicit hc: HeaderCarrier, messages: Messages) = {
     sessionService.set(updatedAnswers).flatMap {
       case Left(error) =>
@@ -97,10 +97,10 @@ class EnterEmailController @Inject()(
           s"${error.status} and message: ${error.message}")
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       case Right(_) =>
-        if (updatedAnswers.verifiedEmailAddresses.contains(email)) {
+        if (details.isVerified) {
           Future.successful(Redirect(navigator.nextPage(EnterEmailPage, NormalMode, updatedAnswers)))
         } else {
-          startEmailVerification(email, credId)
+          startEmailVerification(details.emailAddress, credId)
         }
     }
   }

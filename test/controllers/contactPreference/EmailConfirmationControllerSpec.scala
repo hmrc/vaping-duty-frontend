@@ -47,8 +47,8 @@ class EmailConfirmationControllerSpec extends SpecBase {
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
-      when(mockEmailVerificationService.retrieveAddressStatusAndAddToCache(any(), any(), any())(any()))
-        .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, true, false)))
+      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
+        .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, true, true)))
 
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(PaperlessPreferenceSubmittedResponse(Instant.now(), "formBundleNumber"))))
@@ -79,7 +79,7 @@ class EmailConfirmationControllerSpec extends SpecBase {
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
-      when(mockEmailVerificationService.retrieveAddressStatusAndAddToCache(any(), any(), any())(any()))
+      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.leftT[Future, EmailVerificationDetails](ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem")))
 
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
@@ -109,8 +109,8 @@ class EmailConfirmationControllerSpec extends SpecBase {
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
-      when(mockEmailVerificationService.retrieveAddressStatusAndAddToCache(any(), any(), any())(any()))
-        .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, true, false)))
+      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
+        .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, true, true)))
 
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
@@ -139,7 +139,7 @@ class EmailConfirmationControllerSpec extends SpecBase {
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
-      when(mockEmailVerificationService.retrieveAddressStatusAndAddToCache(any(), any(), any())(any()))
+      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, false, false)))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
@@ -165,7 +165,7 @@ class EmailConfirmationControllerSpec extends SpecBase {
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
-      when(mockEmailVerificationService.retrieveAddressStatusAndAddToCache(any(), any(), any())(any()))
+      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, false, true)))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
