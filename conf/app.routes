@@ -47,3 +47,5 @@ POST       /contact-preferences/change-how-do-you-want-to-be-contacted          
 GET        /contact-preferences/account-lock-out                                controllers.contactPreference.LockedEmailController.onPageLoad()
 
 GET        /contact-preferences/postal-address-confirmation                     controllers.contactPreference.PostalConfirmationController.onPageLoad()
+
+GET        /submitEmail                       controllers.SubmitEmailController.onPageLoad()

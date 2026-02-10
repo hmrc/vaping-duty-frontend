@@ -112,3 +112,5 @@ contactPreference.postalConfirmation.preferenceUpdated = Your contact preference
 contactPreference.postalConfirmation.weWill = We will post letters to your registered address.
 
 emailVerificationJourney.signature = Vaping Products Duty
+submitEmail.title = submitEmail
+submitEmail.heading = submitEmail
