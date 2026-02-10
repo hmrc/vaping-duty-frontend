@@ -68,7 +68,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
       val mockSessionRepository = mock[UserAnswersService]
 
-      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(true)
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
