@@ -5,6 +5,7 @@ import java.time.{LocalDate, ZoneOffset}
 import base.SpecBase
 import forms.$className$FormProvider
 import models.{NormalMode, UserAnswers}
+import services.UserAnswersService
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -79,7 +80,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      val mockSessionRepository = mock[UserAnswersService]
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
@@ -87,7 +88,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[UserAnswersService].toInstance(mockSessionRepository)
           )
           .build()
 
