@@ -2,7 +2,7 @@ package controllers
 
 import base.SpecBase
 import forms.$className$FormProvider
-import models.{NormalMode, $className$, ContactPreferenceUserAnswers}
+import models.{NormalMode, $className$, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -46,7 +46,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = ContactPreferenceUserAnswers(userAnswersId).set($className$Page, $className$.values.toSet).success.value
+      val userAnswers = UserAnswers(userAnswersId).set($className$Page, $className$.values.toSet).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
       

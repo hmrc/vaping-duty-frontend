@@ -17,16 +17,16 @@
 package models.requests
 
 import play.api.mvc.{Request, WrappedRequest}
-import models.ContactPreferenceUserAnswers
+import models.UserAnswers
 
 case class OptionalDataRequest[A] (request: Request[A],
                                    vpdId: String,
                                    userId: String,
                                    credId: String,
-                                   userAnswers: Option[ContactPreferenceUserAnswers]) extends WrappedRequest[A](request)
+                                   userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
 
 case class DataRequest[A] (request: Request[A],
                            vpdId: String,
                            userId: String,
                            credId: String,
-                           userAnswers: ContactPreferenceUserAnswers) extends WrappedRequest[A](request)
+                           userAnswers: UserAnswers) extends WrappedRequest[A](request)

@@ -19,7 +19,7 @@ package connectors
 import base.SpecBase
 import config.FrontendAppConfig
 import data.TestData
-import models.ContactPreferenceUserAnswers
+import models.UserAnswers
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{atLeastOnce, verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -36,7 +36,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
       val mockUrl = s"http://vaping-duty-account/user-answers/$vpdId"
       when(mockConfig.cpUserAnswersGetUrl(any())).thenReturn(mockUrl)
 
-      when(requestBuilder.execute[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]](any(), any()))
+      when(requestBuilder.execute[Either[UpstreamErrorResponse, UserAnswers]](any(), any()))
         .thenReturn(Future.successful(Right(userAnswers)))
 
       when(connector.httpClient.get(any())(any())).thenReturn(requestBuilder)

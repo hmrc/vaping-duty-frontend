@@ -19,7 +19,7 @@ package services
 import cats.data.EitherT
 import com.google.inject.Singleton
 import connectors.EmailVerificationConnector
-import models.ContactPreferenceUserAnswers
+import models.UserAnswers
 import models.emailverification.*
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
@@ -32,7 +32,7 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
 
   def retrieveAddressStatus(verificationDetails: VerificationDetails,
                             emailAddress: String,
-                            userAnswers: ContactPreferenceUserAnswers)
+                            userAnswers: UserAnswers)
                            (implicit hc: HeaderCarrier): EitherT[Future, ErrorModel, EmailVerificationDetails] =
     for {
       successResponse    <- emailVerificationConnector.getEmailVerification(verificationDetails)

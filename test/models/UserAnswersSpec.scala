@@ -18,7 +18,7 @@ package models
 
 import base.SpecBase
 import play.api.libs.json.{JsPath, Json}
-import queries.{ContactPreferenceSettable, Gettable}
+import queries.{Settable, Gettable}
 
 import java.time.Instant
 import scala.util.Success
@@ -26,7 +26,7 @@ import scala.util.Success
 class UserAnswersSpec extends SpecBase {
   val ua = userAnswersPostWithEmail.copy(validUntil = Some(Instant.now(clock).plusMillis(1)))
 
-  case object TestPage extends Gettable[String] with ContactPreferenceSettable[String] {
+  case object TestPage extends Gettable[String] with Settable[String] {
     override def path: JsPath = JsPath \ toString
   }
 
@@ -73,7 +73,7 @@ class UserAnswersSpec extends SpecBase {
     }
 
     "must deserialise from json" in {
-      Json.parse(json).as[ContactPreferenceUserAnswers] mustBe ua
+      Json.parse(json).as[UserAnswers] mustBe ua
     }
   }
 }

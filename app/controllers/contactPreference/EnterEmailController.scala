@@ -21,7 +21,7 @@ import connectors.EmailVerificationConnector
 import controllers.actions.*
 import forms.EnterEmailFormProvider
 import models.emailverification.{EmailVerificationDetails, EmailVerificationRequest, VerificationDetails}
-import models.{ContactPreferenceUserAnswers, Mode, NormalMode}
+import models.{UserAnswers, Mode, NormalMode}
 import navigation.Navigator
 import pages.contactPreference.EnterEmailPage
 import play.api.Logging
@@ -89,7 +89,7 @@ class EnterEmailController @Inject()(
       )
   }
 
-  private def handleRedirect(updatedAnswers: ContactPreferenceUserAnswers, details: EmailVerificationDetails, credId: String)
+  private def handleRedirect(updatedAnswers: UserAnswers, details: EmailVerificationDetails, credId: String)
                             (implicit hc: HeaderCarrier, messages: Messages) = {
     sessionService.set(updatedAnswers).flatMap {
       case Left(error) =>

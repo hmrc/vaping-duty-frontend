@@ -17,8 +17,8 @@
 package controllers.contactPreference
 
 import controllers.actions.*
-import forms.contactPreference.HowToBeContactedFormProvider
-import models.{ContactPreferenceUserAnswers, Mode, UserDetails}
+import forms.HowToBeContactedFormProvider
+import models.{UserAnswers, Mode, UserDetails}
 import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.Lang.logger
@@ -80,7 +80,7 @@ class HowToBeContactedController @Inject()(
       )
   }
 
-  private def prepareForm(ua: ContactPreferenceUserAnswers) = {
+  private def prepareForm(ua: UserAnswers) = {
     ua.get(HowToBeContactedPage) match {
       case None => form
       case Some(value) => form.fill(value)
