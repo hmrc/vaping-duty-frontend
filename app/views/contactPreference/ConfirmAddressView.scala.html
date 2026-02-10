@@ -18,6 +18,7 @@
 
 @this(
         layout: templates.Layout,
+        formHelper: FormWithCSRF,
         govukButton: GovukButton,
         h1: Heading,
         p: Paragraph
@@ -35,7 +36,10 @@
         }
     </ul>
 
-    @govukButton(
-        ButtonViewModel(messages("contactPreference.confirmAddress.confirm")).asLink(controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url)
-    )
+    @formHelper(action = controllers.contactPreference.routes.ConfirmAddressController.onSubmit(), Symbol("autoComplete") -> "off") {
+
+        @govukButton(
+            ButtonViewModel(messages("contactPreference.confirmAddress.confirm"))
+        )
+    }
 }

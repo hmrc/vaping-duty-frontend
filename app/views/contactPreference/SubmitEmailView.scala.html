@@ -16,6 +16,7 @@
 
 @this(
         layout: templates.Layout,
+        formHelper: FormWithCSRF,
         govukButton: GovukButton
 )
 
@@ -24,4 +25,10 @@
 @layout(pageTitle = titleNoForm(messages("submitEmail.title"))) {
 
     <h1 class="govuk-heading-xl">@messages("submitEmail.heading")</h1>
+
+    @formHelper(action = controllers.contactPreference.routes.SubmitEmailController.onSubmit(), Symbol("autoComplete") -> "off") {
+        @govukButton(
+            ButtonViewModel(messages("site.submit"))
+        )
+    }
 }
