@@ -17,6 +17,7 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
+import forms.contactPreference.EnterEmailFormProvider
 import play.api.data.FormError
 
 class EnterEmailFormProviderSpec extends StringFieldBehaviours {

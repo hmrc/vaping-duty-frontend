@@ -18,6 +18,7 @@ package navigation
 
 import controllers.routes
 import models.*
+import models.contactPreference.HowToBeContacted
 import pages.*
 import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
 import play.api.Logging

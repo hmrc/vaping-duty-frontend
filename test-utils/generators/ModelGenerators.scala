@@ -16,7 +16,8 @@
 
 package generators
 
-import models._
+import models.*
+import models.contactPreference.HowToBeContacted
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package models
+package models.contactPreference
 
+import models.{Enumerable, WithName}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
@@ -31,10 +32,10 @@ object HowToBeContacted extends Enumerable.Implicits {
     Email, Post
   )
 
-  def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map {
+  def options(contactPreferenceKey: String)(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map {
     case (value, index) =>
       RadioItem(
-        content = Text(messages(s"contactPreference.howToBeContacted.${value.toString}")),
+        content = Text(messages(s"contactPreference.howToBeContacted.$contactPreferenceKey.${value.toString}")),
         value   = Some(value.toString),
         id      = Some(s"value_$index")
       )

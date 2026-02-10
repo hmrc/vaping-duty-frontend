@@ -17,7 +17,7 @@
 package controllers.contactPreference
 
 import controllers.actions.*
-import forms.HowToBeContactedFormProvider
+import forms.contactPreference.HowToBeContactedFormProvider
 import models.{ContactPreferenceUserAnswers, Mode, UserDetails}
 import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
@@ -26,6 +26,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.contactPreference.HowToBeContactedViewModel
 import views.html.contactPreference.HowToBeContactedView
 
 import javax.inject.Inject
@@ -41,21 +42,23 @@ class HowToBeContactedController @Inject()(
                                             formProvider: HowToBeContactedFormProvider,
                                             val controllerComponents: MessagesControllerComponents,
                                             view: HowToBeContactedView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-      
+
       request.userAnswers match {
-        case Some(ua) => Future.successful(Ok(view(prepareForm(ua), mode)))
+        case Some(ua) =>
+          Future.successful(Ok(view(prepareForm(ua), HowToBeContactedViewModel(ua), mode)))
         case None =>
           sessionService.createUserAnswers(UserDetails(request.vpdId, request.userId)).map {
             case Left(error) =>
               logger.info(s"[HowToBeContactedController][onPageLoad] Creating user answers failed: ${error.message}")
               Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-            case Right(response) => Ok(view(prepareForm(response), mode))
+            case Right(response) =>
+              Ok(view(prepareForm(response), HowToBeContactedViewModel(response), mode))
           }
       }
   }
@@ -65,7 +68,9 @@ class HowToBeContactedController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+          Future.successful(
+            BadRequest(view(formWithErrors, HowToBeContactedViewModel(request.userAnswers), mode))
+          ),
 
         value =>
           for {

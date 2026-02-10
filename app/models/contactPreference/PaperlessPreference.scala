@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package forms
+package models.contactPreference
 
-import javax.inject.Inject
+enum PaperlessPreference:
+  case Email
+  case Post
 
-import forms.mappings.Mappings
-import play.api.data.Form
-import models.HowToBeContacted
+object PaperlessPreference {
+  def apply(isPaperless: Boolean): PaperlessPreference = {
+    if (isPaperless) Email else Post
+  }
 
-class HowToBeContactedFormProvider @Inject() extends Mappings {
-
-  def apply(): Form[HowToBeContacted] =
-    Form(
-      "value" -> enumerable[HowToBeContacted]("contactPreference.howToBeContacted.error.required")
-    )
+  def toValue(preference: PaperlessPreference) = {
+    preference match {
+      case Email  => true
+      case Post   => false
+    }
+  }
 }

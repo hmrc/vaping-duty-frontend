@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package pages.contactPreference
+package forms.contactPreference
 
+import javax.inject.Inject
+
+import forms.mappings.Mappings
+import play.api.data.Form
 import models.contactPreference.HowToBeContacted
-import pages.QuestionPage
-import play.api.libs.json.JsPath
 
-case object HowToBeContactedPage extends QuestionPage[HowToBeContacted] {
+class HowToBeContactedFormProvider @Inject() extends Mappings {
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "preference"
+  def apply(): Form[HowToBeContacted] =
+    Form(
+      "value" -> enumerable[HowToBeContacted]("contactPreference.howToBeContacted.error.required")
+    )
 }
