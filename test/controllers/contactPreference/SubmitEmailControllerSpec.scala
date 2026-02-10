@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.contactPreference
 
 import base.SpecBase
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import views.html.SubmitEmailView
+import play.api.test.Helpers.*
+import views.html.contactPreference.SubmitEmailView
 
 class SubmitEmailControllerSpec extends SpecBase {
 

@@ -48,4 +48,4 @@ GET        /contact-preferences/account-lock-out                                
 
 GET        /contact-preferences/postal-address-confirmation                     controllers.contactPreference.PostalConfirmationController.onPageLoad()
 
-GET        /submitEmail                       controllers.SubmitEmailController.onPageLoad()
+GET        /submitEmail                                                         controllers.contactPreference.SubmitEmailController.onPageLoad()
