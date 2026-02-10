@@ -17,21 +17,14 @@
 package controllers.contactPreference
 
 import config.FrontendAppConfig
-import connectors.SubmitPreferencesConnector
 import controllers.actions.*
 import models.BtaLink
-import models.emailverification.{PaperlessPreferenceSubmission, VerificationDetails}
-import models.requests.DataRequest
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.EmailVerificationService
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.EmailConfirmationView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
 class EmailConfirmationController @Inject()(
                                        override val messagesApi: MessagesApi,

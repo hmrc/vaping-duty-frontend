@@ -51,7 +51,6 @@ class SubmitEmailController @Inject()(
     implicit request =>
       val email = request.userAnswers.emailAddress.getOrElse("")
 
-      // Checking new email is now verified
       emailVerificationService.retrieveAddressStatus(
         VerificationDetails(request.credId),
         email,
@@ -62,29 +61,33 @@ class SubmitEmailController @Inject()(
             s"${error.status} and message: ${error.message}")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         case Right(response) =>
-          submitPreferences(response.emailAddress, response.isVerified)
+          checkVerification(response.emailAddress, response.isVerified)
       }
   }
 
-  private def submitPreferences(email: String, verified: Boolean)
-                               (implicit hc: HeaderCarrier, request: DataRequest[_]) = {
+  private def checkVerification(email: String, verified: Boolean)
+                               (implicit hc: HeaderCarrier, request: DataRequest[?]) = {
 
     if (verified) {
-      val preferenceSubmission = PaperlessPreferenceSubmission(true, Some(email), Some(verified), None)
-
-      submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
-        case Left(error) =>
-          logger.info("[EnterEmailController][submitPreferences] Error submitting contact preference with status: " +
-            s"${error.status} and message: ${error.message}")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-        case Right(response) =>
-          logger.info(s"[EnterEmailController][submitPreferences] Email preference updated ${response.processingDate}")
-          Redirect(controllers.contactPreference.routes.EmailConfirmationController.onPageLoad())
-      }
+      performSubmission(PaperlessPreferenceSubmission(true, Some(email), Some(verified), None))
     } else {
       // Should never enter this case
       logger.warn("[EmailConfirmationController][submitPreferences] Unverified email attempted to submit")
       Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+    }
+  }
+
+  private def performSubmission(preferenceSubmission: PaperlessPreferenceSubmission)
+                              (implicit hc: HeaderCarrier, request: DataRequest[?])= {
+
+    submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
+      case Left(error) =>
+        logger.info("[EnterEmailController][submitPreferences] Error submitting contact preference with status: " +
+          s"${error.status} and message: ${error.message}")
+        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      case Right(response) =>
+        logger.info(s"[EnterEmailController][submitPreferences] Email preference updated ${response.processingDate}")
+        Redirect(controllers.contactPreference.routes.EmailConfirmationController.onPageLoad())
     }
   }
 }

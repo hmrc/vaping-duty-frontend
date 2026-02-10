@@ -21,7 +21,7 @@ import com.google.inject.Singleton
 import connectors.EmailVerificationConnector
 import models.UserAnswers
 import models.emailverification.*
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
