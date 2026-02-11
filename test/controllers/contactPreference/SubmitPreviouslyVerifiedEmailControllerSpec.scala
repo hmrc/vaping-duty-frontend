@@ -49,7 +49,7 @@ class SubmitPreviouslyVerifiedEmailControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[SubmitPreviouslyVerifiedEmailView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(emptyUserAnswers.emailAddress.getOrElse(""))(request, messages(application)).toString
       }
     }
 
