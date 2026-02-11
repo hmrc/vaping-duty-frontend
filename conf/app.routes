@@ -21,11 +21,11 @@ GET         /account/signed-out                          controllers.auth.Signed
 GET         /you-cannot-access-this-page                 controllers.UnauthorisedController.onPageLoad()
 
 # Enrolment claim
-GET        /enrolment/sign-in                            controllers.enrolment.OrganisationSignInController.onPageLoad()
-GET        /enrolment/do-you-have-an-approval-id         controllers.enrolment.UserHasApprovalIdController.onPageLoad()
-POST       /enrolment/do-you-have-an-approval-id         controllers.enrolment.UserHasApprovalIdController.onSubmit()
-GET        /enrolment/you-need-an-approval-id            controllers.enrolment.UserDoesNotHaveApprovalIdController.onPageLoad()
-GET        /enrolment/already-enrolled                   controllers.enrolment.UserAlreadyEnrolledController.onPageLoad()
+GET        /enrolment/organisation-administrator-required   controllers.enrolment.OrganisationSignInController.onPageLoad()
+GET        /enrolment/do-you-have-an-approval-id            controllers.enrolment.UserHasApprovalIdController.onPageLoad()
+POST       /enrolment/do-you-have-an-approval-id            controllers.enrolment.UserHasApprovalIdController.onSubmit()
+GET        /enrolment/you-need-an-approval-id               controllers.enrolment.UserDoesNotHaveApprovalIdController.onPageLoad()
+GET        /enrolment/already-enrolled                      controllers.enrolment.UserAlreadyEnrolledController.onPageLoad()
 
 # Contact Preferences
 GET        /contact-preferences/review-confirm-address                          controllers.contactPreference.ConfirmAddressController.onPageLoad()

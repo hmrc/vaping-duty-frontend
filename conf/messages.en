@@ -50,13 +50,11 @@ signedOut.guidance = We did not save your answers.
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
-enrolment.organisationSignIn.heading = You need to be an organisation account administrator to use this service
-enrolment.organisationSignIn.youHaveTried = You have tried to sign in with either an agent account, an individual account or an organisation assistant account.
-enrolment.organisationSignIn.onlyUsers = Only users with organisation account administrator details can use this service.
+enrolment.organisationSignIn.heading = You need to be an organisation account administrator to enrol
+enrolment.organisationSignIn.onlyUsers = Only users with organisation account administrator details can enrol to use this service.
 enrolment.organisationSignIn.toContinue = To continue, sign out and then either create an organisation account, or sign in with your organisation account administrator details using
 enrolment.organisationSignIn.ggText = Government Gateway.
-enrolment.organisationSignIn.learnMore = Learn more about
-enrolment.organisationId.gettingAccess = getting access to the Vaping Products Duty online service.
+enrolment.organisationSignIn.getAccess.linkText = Find out how to get access to the Vaping Products Duty online service
 
 enrolment.userHasApprovalId.heading = Do you have a Vaping Products Duty (VPD) approval ID?
 enrolment.userHasApprovalId.error.required = Select yes if you have a Vaping Products Duty approval ID

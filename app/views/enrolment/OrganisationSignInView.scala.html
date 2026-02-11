@@ -32,10 +32,6 @@
     @(h1(HtmlContent(messages("enrolment.organisationSignIn.heading"))))
 
     @(p(Seq(HtmlContent(
-        messages("enrolment.organisationSignIn.youHaveTried")
-    ))))
-
-    @(p(Seq(HtmlContent(
         messages("enrolment.organisationSignIn.onlyUsers")
     ))))
 
@@ -48,19 +44,16 @@
             text = messages("enrolment.organisationSignIn.ggText"),
             href = vm.getOrgSignInURL,
             classes = "govuk-link--no-visited-state"
-        )),
+        ))
     )))
 
-    @(p(Seq(
-        HtmlContent(
-            messages("enrolment.organisationSignIn.learnMore")
-        ),
-        HtmlContent(link(
-            id = "guidance",
-            text = messages("enrolment.organisationId.gettingAccess"),
-            href = vm.getGuidanceURL,
-            classes = "govuk-link--no-visited-state",
-            newTabText = Some(messages("site.newTab"))
-        )),
-    )))
+      @(p(Seq(
+          HtmlContent(link(
+              id = "guidance",
+              text = messages("enrolment.organisationSignIn.getAccess.linkText"),
+              href = vm.getGuidanceURL,
+              classes = "govuk-link--no-visited-state",
+              newTabText = Some(messages("site.newTab"))
+          ))
+      )))
 }
