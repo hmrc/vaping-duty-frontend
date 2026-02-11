@@ -20,9 +20,9 @@ import base.SpecBase
 import cats.data.EitherT
 import connectors.EmailVerificationConnector
 import models.*
-import models.emailverification._
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{times, verify, when}
+import models.emailverification.*
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import uk.gov.hmrc.http.HttpResponse
