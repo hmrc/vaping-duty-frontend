@@ -47,7 +47,7 @@ class SubmitPreviouslyVerifiedEmailController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-      Ok(view())
+      Ok(view(request.userAnswers.emailAddress.getOrElse("")))
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async {

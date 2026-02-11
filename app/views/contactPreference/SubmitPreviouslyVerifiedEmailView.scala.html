@@ -25,17 +25,17 @@
         link: Link
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(email: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("contactPreference.submitPreviouslyVerified.title"))) {
+@layout(pageTitle = titleNoForm(s"${messages("contactPreference.submitPreviouslyVerified.title")} $email")) {
 
-    @h1(messages("contactPreference.submitPreviouslyVerified.heading"))
+    @h1(s"${messages("contactPreference.submitPreviouslyVerified.heading")} $email")
 
     @p(Seq(
         HtmlContent(link(
             id = "submit",
-            text = messages("contactPreference.submitEmail.text"),
-            href = controllers.contactPreference.routes.SubmitEmailController.onSubmit().url
+            text = s"${messages("contactPreference.submitEmail.text")} $email",
+            href = controllers.contactPreference.routes.SubmitPreviouslyVerifiedEmailController.onSubmit().url
         ))
     ))
 
