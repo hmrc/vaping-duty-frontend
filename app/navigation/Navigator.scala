@@ -31,7 +31,7 @@ class Navigator @Inject() extends Logging {
 
   private val normalRoutes: Page => UserAnswers => Call = {
     case HowToBeContactedPage   => ua   => howToBeContactedRoute(ua)
-    case EnterEmailPage         => _    => controllers.contactPreference.routes.EmailConfirmationController.onPageLoad()
+    case EnterEmailPage         => _    => controllers.contactPreference.routes.SubmitPreviouslyVerifiedEmailController.onPageLoad()
     case _                      => _    => routes.IndexController.onPageLoad()
   }
 

@@ -51,3 +51,6 @@ GET        /contact-preferences/postal-address-confirmation                     
 
 GET        /contact-preferences/submit-email                                    controllers.contactPreference.SubmitEmailController.onPageLoad()
 POST       /contact-preferences/submit-email                                    controllers.contactPreference.SubmitEmailController.onSubmit()
+
+GET        /contact-preferences/submit-previously-verified-email                controllers.contactPreference.SubmitPreviouslyVerifiedEmailController.onPageLoad()
+POST       /contact-preferences/submit-previously-verified-email                controllers.contactPreference.SubmitPreviouslyVerifiedEmailController.onSubmit()
