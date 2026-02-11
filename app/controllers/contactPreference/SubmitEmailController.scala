@@ -18,10 +18,13 @@ package controllers.contactPreference
 
 import connectors.SubmitPreferencesConnector
 import controllers.actions.*
+import models.contactPreference.PaperlessPreference.Email
+import models.contactPreference.PerformSubmission
 import models.emailverification.{PaperlessPreferenceSubmission, VerificationDetails}
 import models.requests.DataRequest
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.EmailVerificationService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -69,25 +72,20 @@ class SubmitEmailController @Inject()(
                                (implicit hc: HeaderCarrier, request: DataRequest[?]) = {
 
     if (verified) {
-      performSubmission(PaperlessPreferenceSubmission(true, Some(email), Some(verified), None))
+      PerformSubmission(
+        submitPreferencesConnector,
+        PaperlessPreferenceSubmission(
+          paperlessPreference = true,
+          emailAddress = Some(email),
+          emailVerification = Some(verified),
+          bouncedEmail = None
+        ),
+        Email
+      ).getResult
     } else {
       // Should never enter this case
       logger.warn("[EmailConfirmationController][submitPreferences] Unverified email attempted to submit")
       Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-    }
-  }
-
-  private def performSubmission(preferenceSubmission: PaperlessPreferenceSubmission)
-                              (implicit hc: HeaderCarrier, request: DataRequest[?])= {
-
-    submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
-      case Left(error) =>
-        logger.info("[EnterEmailController][submitPreferences] Error submitting contact preference with status: " +
-          s"${error.status} and message: ${error.message}")
-        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      case Right(response) =>
-        logger.info(s"[EnterEmailController][submitPreferences] Email preference updated ${response.processingDate}")
-        Redirect(controllers.contactPreference.routes.EmailConfirmationController.onPageLoad())
     }
   }
 }

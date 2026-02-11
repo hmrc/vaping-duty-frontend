@@ -19,9 +19,9 @@ package controllers.contactPreference
 import config.FrontendAppConfig
 import connectors.EmailVerificationConnector
 import controllers.actions.*
-import forms.EnterEmailFormProvider
+import forms.contactPreference.EnterEmailFormProvider
 import models.emailverification.{EmailVerificationDetails, EmailVerificationRequest, VerificationDetails}
-import models.{UserAnswers, Mode, NormalMode}
+import models.{Mode, NormalMode, UserAnswers}
 import navigation.Navigator
 import pages.contactPreference.EnterEmailPage
 import play.api.Logging

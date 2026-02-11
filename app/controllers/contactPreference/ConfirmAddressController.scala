@@ -18,6 +18,9 @@ package controllers.contactPreference
 
 import connectors.SubmitPreferencesConnector
 import controllers.actions.*
+import models.contactPreference
+import models.contactPreference.PaperlessPreference.{Email, Post}
+import models.contactPreference.{PaperlessPreference, PerformSubmission}
 import models.emailverification.PaperlessPreferenceSubmission
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -29,14 +32,14 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmAddressController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: ApprovedVapingManufacturerAuthAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       submitPreferencesConnector: SubmitPreferencesConnector,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: ConfirmAddressView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                          override val messagesApi: MessagesApi,
+                                          identify: ApprovedVapingManufacturerAuthAction,
+                                          getData: DataRetrievalAction,
+                                          requireData: DataRequiredAction,
+                                          submitPreferencesConnector: SubmitPreferencesConnector,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          view: ConfirmAddressView
+                                        )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
@@ -49,24 +52,23 @@ class ConfirmAddressController @Inject()(
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
-      val email         = request.userAnswers.subscriptionSummary.emailAddress
-      val verification  = request.userAnswers.subscriptionSummary.emailVerification
-      val bounced       = request.userAnswers.subscriptionSummary.bouncedEmail
+      val currentPreference = PaperlessPreference(request.userAnswers.subscriptionSummary.paperlessPreference)
 
-      val preferenceSubmission = PaperlessPreferenceSubmission(false, email, verification, bounced)
-
-      if (request.userAnswers.subscriptionSummary.paperlessPreference) {
-        submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
-          case Left(error) =>
-            logger.info(s"[PostalConfirmationController][onSubmit] Error submitting preference: $error")
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-          case Right(response) =>
-            logger.info(s"[PostalConfirmationController][onSubmit] Postal preference updated ${response.processingDate}")
-            Redirect(controllers.contactPreference.routes.PostalConfirmationController.onPageLoad())
-        }
-      } else {
-        // Still render the confirmation page with no submission as current flow
-        Future.successful(Redirect(controllers.contactPreference.routes.PostalConfirmationController.onPageLoad()))
+       currentPreference match {
+        case Email =>
+          PerformSubmission(
+            submitPreferencesConnector,
+            PaperlessPreferenceSubmission(
+              paperlessPreference = false,
+              emailAddress        = request.userAnswers.subscriptionSummary.emailAddress,
+              emailVerification   = request.userAnswers.subscriptionSummary.emailVerification,
+              bouncedEmail        = request.userAnswers.subscriptionSummary.bouncedEmail
+            ),
+            Post
+          ).getResult
+        case Post =>
+          // Still render the confirmation page with no submission as current flow
+          Future.successful(Redirect(controllers.contactPreference.routes.PostalConfirmationController.onPageLoad()))
       }
   }
 }

@@ -17,8 +17,8 @@
 package controllers.contactPreference
 
 import controllers.actions.*
-import forms.HowToBeContactedFormProvider
-import models.{UserAnswers, Mode, UserDetails}
+import forms.contactPreference.HowToBeContactedFormProvider
+import models.{Mode, UserAnswers, UserDetails}
 import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.Lang.logger

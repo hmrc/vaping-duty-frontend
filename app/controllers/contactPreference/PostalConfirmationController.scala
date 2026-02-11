@@ -17,18 +17,14 @@
 package controllers.contactPreference
 
 import config.FrontendAppConfig
-import connectors.SubmitPreferencesConnector
 import controllers.actions.*
 import models.BtaLink
-import models.emailverification.PaperlessPreferenceSubmission
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.PostalConfirmationView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
 class PostalConfirmationController @Inject()(
                                        override val messagesApi: MessagesApi,
