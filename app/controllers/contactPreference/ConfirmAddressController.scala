@@ -19,7 +19,7 @@ package controllers.contactPreference
 import connectors.SubmitPreferencesConnector
 import controllers.actions.*
 import models.contactPreference
-import models.contactPreference.PaperlessPreference.{Email, Post}
+import models.contactPreference.PaperlessPreference.{Email, Post, toValue}
 import models.contactPreference.{PaperlessPreference, PerformSubmission}
 import models.emailverification.PaperlessPreferenceSubmission
 import play.api.Logging
@@ -59,7 +59,7 @@ class ConfirmAddressController @Inject()(
           PerformSubmission(
             submitPreferencesConnector,
             PaperlessPreferenceSubmission(
-              paperlessPreference = false,
+              paperlessPreference = toValue(Post),
               emailAddress        = request.userAnswers.subscriptionSummary.emailAddress,
               emailVerification   = request.userAnswers.subscriptionSummary.emailVerification,
               bouncedEmail        = request.userAnswers.subscriptionSummary.bouncedEmail

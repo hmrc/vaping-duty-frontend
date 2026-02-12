@@ -25,7 +25,7 @@ object PaperlessPreference {
     if (isPaperless) Email else Post
   }
 
-  def toValue(preference: PaperlessPreference) = {
+  def toValue(preference: PaperlessPreference): Boolean = {
     preference match {
       case Email  => true
       case Post   => false

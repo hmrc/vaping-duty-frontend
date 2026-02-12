@@ -18,7 +18,7 @@ package controllers.contactPreference
 
 import connectors.SubmitPreferencesConnector
 import controllers.actions.*
-import models.contactPreference.PaperlessPreference.Email
+import models.contactPreference.PaperlessPreference.{Email, toValue}
 import models.contactPreference.PerformSubmission
 import models.emailverification.{PaperlessPreferenceSubmission, VerificationDetails}
 import models.requests.DataRequest
@@ -60,7 +60,7 @@ class SubmitPreviouslyVerifiedEmailController @Inject()(
         request.userAnswers
       ).value.flatMap {
         case Left(error) =>
-          logger.info("[EnterEmailController][onSubmit] Error retrieving email verification status with status: " +
+          logger.info("[SubmitPreviouslyVerifiedEmailController][onSubmit] Error retrieving email verification status with status: " +
             s"${error.status} and message: ${error.message}")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         case Right(response) =>
@@ -75,7 +75,7 @@ class SubmitPreviouslyVerifiedEmailController @Inject()(
       PerformSubmission(
         submitPreferencesConnector,
         PaperlessPreferenceSubmission(
-          paperlessPreference = true,
+          paperlessPreference = toValue(Email),
           emailAddress = Some(email),
           emailVerification = Some(verified),
           bouncedEmail = None
@@ -84,7 +84,7 @@ class SubmitPreviouslyVerifiedEmailController @Inject()(
       ).getResult
     } else {
       // Should never enter this case
-      logger.warn("[EmailConfirmationController][submitPreferences] Unverified email attempted to submit")
+      logger.warn("[SubmitPreviouslyVerifiedEmailController][checkVerification] Unverified email attempted to submit")
       Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     }
   }
