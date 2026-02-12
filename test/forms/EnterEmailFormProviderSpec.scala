@@ -18,13 +18,17 @@ package forms
 
 import forms.behaviours.StringFieldBehaviours
 import forms.contactPreference.EnterEmailFormProvider
+import forms.mappings.Constraints
 import play.api.data.FormError
 
-class EnterEmailFormProviderSpec extends StringFieldBehaviours {
+import scala.collection.immutable.ArraySeq
+
+class EnterEmailFormProviderSpec extends StringFieldBehaviours with Constraints {
 
   val requiredKey = "contactPreference.enterEmail.error.required"
   val lengthKey = "contactPreference.enterEmail.error.length"
-  val maxLength = 100
+  val formatKey = "contactPreference.enterEmail.error.format"
+  val maxLength = 254
 
   val form = new EnterEmailFormProvider()()
 
@@ -32,23 +36,30 @@ class EnterEmailFormProviderSpec extends StringFieldBehaviours {
 
     val fieldName = "value"
 
-    behave like fieldThatBindsValidData(
+    behave like emailFieldWithValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      "valid@email.com"
     )
 
-    behave like fieldWithMaxLength(
+    behave like emailFieldWithMaxLength(
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      errors = Seq(FormError(fieldName, lengthKey, Seq(maxLength)), FormError(fieldName, formatKey, Seq(emailRegex)))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
+    )
+
+    behave like emailFieldWithInvalidData(
+      form,
+      fieldName,
+      FormError(fieldName, Seq(formatKey), ArraySeq(emailRegex)),
+      stringsWithMaxLength(maxLength)
     )
   }
 }

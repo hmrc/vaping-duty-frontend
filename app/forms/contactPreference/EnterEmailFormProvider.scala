@@ -23,9 +23,12 @@ import play.api.data.Form
 
 class EnterEmailFormProvider @Inject() extends Mappings {
 
+  private val maxEmailLength = 254
+
   def apply(): Form[String] =
     Form(
       "value" -> text("contactPreference.enterEmail.error.required")
-        .verifying(maxLength(100, "contactPreference.enterEmail.error.length"))
+        .verifying(maxLength(maxEmailLength, "contactPreference.enterEmail.error.length"))
+        .verifying(email("contactPreference.enterEmail.error.format"))
     )
 }

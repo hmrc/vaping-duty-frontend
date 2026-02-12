@@ -39,6 +39,32 @@ trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Genera
     }
   }
 
+  def emailFieldWithValidData(form: Form[_],
+                              fieldName: String,
+                              validEmail: String): Unit = {
+
+    "have no errors when binding a correctly formatted email" in {
+
+      val result = form.bind(Map(fieldName -> validEmail)).apply(fieldName)
+      result.errors mustBe Seq.empty
+    }
+  }
+
+  def emailFieldWithInvalidData(form: Form[_],
+                                fieldName: String,
+                                requiredErrors: FormError,
+                                invalidDataGenerator: Gen[String]): Unit = {
+
+    "not bind invalid email strings" in {
+
+      forAll(invalidDataGenerator -> "invalidDataItem") {
+        (dataItem: String) =>
+          val result = form.bind(Map(fieldName -> dataItem)).apply(fieldName)
+          result.errors mustBe Seq(requiredErrors)
+      }
+    }
+  }
+
   def mandatoryField(form: Form[_],
                      fieldName: String,
                      requiredError: FormError): Unit = {
