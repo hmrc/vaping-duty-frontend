@@ -59,8 +59,10 @@ class EmailConfirmationController @Inject()(
           logger.info("[EnterEmailController][onPageLoad] Error retrieving email verification status with status: " +
             s"${error.status} and message: ${error.message}")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-        case Right(response) =>
-          submitPreferences(response.emailAddress, response.isVerified)
+        case Right(verificationDetails) if verificationDetails.isLocked =>
+          Future.successful(Redirect(controllers.contactPreference.routes.LockedEmailController.onPageLoad()))
+        case Right(verificationDetails) =>
+          submitPreferences(verificationDetails.emailAddress, verificationDetails.isVerified)
       }
   }
 
