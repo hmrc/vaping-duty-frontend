@@ -32,11 +32,7 @@
     @h1(messages("contactPreference.submitEmail.heading"))
 
     @p(Seq(
-        HtmlContent(link(
-            id = "submit",
-            text = s"${messages("contactPreference.submitEmail.text")} $email",
-            href = controllers.contactPreference.routes.SubmitEmailController.onSubmit().url
-        ))
+        HtmlContent(s"${messages("contactPreference.submitEmail.text")} $email")
     ))
 
     @formHelper(action = controllers.contactPreference.routes.SubmitEmailController.onSubmit(), Symbol("autoComplete") -> "off") {

@@ -32,11 +32,7 @@
     @h1(s"${messages("contactPreference.submitPreviouslyVerified.heading")} $email")
 
     @p(Seq(
-        HtmlContent(link(
-            id = "submit",
-            text = s"${messages("contactPreference.submitEmail.text")} $email",
-            href = controllers.contactPreference.routes.SubmitPreviouslyVerifiedEmailController.onSubmit().url
-        ))
+        HtmlContent(s"${messages("contactPreference.submitEmail.text")} $email")
     ))
 
     @formHelper(action = controllers.contactPreference.routes.SubmitEmailController.onSubmit(), Symbol("autoComplete") -> "off") {
