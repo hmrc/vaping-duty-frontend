@@ -155,7 +155,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       val mockUserAnswersService = mock[UserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
 
-      when(mockEmailVerificationService.retrieveAddressStatusAndAddToCache(any(), any(), any())(any()))
+      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, true, false)))
 
       when(mockUserAnswersService.set(any())(any()))
@@ -215,7 +215,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       val mockUserAnswersService = mock[UserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
 
-      when(mockEmailVerificationService.retrieveAddressStatusAndAddToCache(any(), any(), any())(any()))
+      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, true, false)))
       when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
@@ -245,7 +245,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       val mockUserAnswersService = mock[UserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
 
-      when(mockEmailVerificationService.retrieveAddressStatusAndAddToCache(any(), any(), any())(any()))
+      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, false, true)))
       when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 

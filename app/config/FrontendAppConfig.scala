@@ -86,7 +86,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def cpGetEmailVerificationUrl(credId: String): String     = s"$contactPreferenceBaseUrl/get-email-verification/$credId"
   def cpSubmitContactPreferencesUrl(vpdId: String): String  = s"$contactPreferenceBaseUrl/submit-preferences/$vpdId"
 
-  val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/email-confirmation"
+  val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/submit-email"
   val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"
 
   private val startEmailVerificationJourneyBaseUrl: String   = servicesConfig.baseUrl("email-verification")

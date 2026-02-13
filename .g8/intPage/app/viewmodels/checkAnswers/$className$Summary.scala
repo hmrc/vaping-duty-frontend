@@ -1,7 +1,7 @@
 package viewmodels.checkAnswers
 
 import controllers.routes
-import models.{CheckMode, ContactPreferenceUserAnswers}
+import models.{CheckMode, UserAnswers}
 import pages.$className$Page
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -10,7 +10,7 @@ import viewmodels.implicits._
 
 object $className$Summary  {
 
-  def row(answers: ContactPreferenceUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get($className$Page).map {
       answer =>
 

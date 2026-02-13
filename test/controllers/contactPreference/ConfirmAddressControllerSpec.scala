@@ -17,6 +17,8 @@
 package controllers.contactPreference
 
 import base.SpecBase
+import connectors.SubmitPreferencesConnector
+import models.emailverification.ErrorModel
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -52,6 +54,27 @@ class ConfirmAddressControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(expectedAddress)(request, messages(application)).toString
+      }
+    }
+
+    "must return SEE_OTHER when there is an issue during submission" in {
+
+      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.ConfirmAddressController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

@@ -16,7 +16,7 @@
 
 package data
 
-import models.{ContactPreferenceUserAnswers, UserDetails, SubscriptionSummary}
+import models.{UserAnswers, UserDetails, SubscriptionSummary}
 import models.emailverification._
 import play.api.libs.json.{JsObject, Json}
 
@@ -63,68 +63,63 @@ trait TestData {
     countryCode = Some(countryCode)
   )
 
-  val userAnswers: ContactPreferenceUserAnswers = ContactPreferenceUserAnswers(
+  val userAnswers: UserAnswers = UserAnswers(
     vpdId = vpdId,
     userId = userId,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
-    verifiedEmailAddresses = verifiedEmailAddresses,
     data = JsObject(Seq("contactPreferenceEmail" -> Json.toJson(false))),
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
   )
 
-  val userAnswersEmailUpdate: ContactPreferenceUserAnswers = ContactPreferenceUserAnswers(
+  val userAnswersEmailUpdate: UserAnswers = UserAnswers(
     vpdId = vpdId,
     userId = userId,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
-    verifiedEmailAddresses = Set(emailAddress2),
     data = JsObject(Seq()),
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
   )
 
-  val userAnswersPostWithEmail: ContactPreferenceUserAnswers = ContactPreferenceUserAnswers(
+  val userAnswersPostWithEmail: UserAnswers = UserAnswers(
     vpdId = vpdId,
     userId = userId,
     subscriptionSummary = subscriptionSummaryPostWithEmail,
     emailAddress = Some(emailAddress),
-    verifiedEmailAddresses = Set(emailAddress),
     data = JsObject(Seq("contactPreferenceEmail" -> Json.toJson(true))),
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
   )
 
-  val userAnswersPostWithUnverifiedEmail: ContactPreferenceUserAnswers = userAnswersPostWithEmail.copy(
+  val userAnswersPostWithUnverifiedEmail: UserAnswers = userAnswersPostWithEmail.copy(
     subscriptionSummary = subscriptionSummaryPostWithEmail.copy(emailVerification = Some(false))
   )
 
-  val userAnswersPostWithBouncedEmail: ContactPreferenceUserAnswers = userAnswersPostWithEmail.copy(
+  val userAnswersPostWithBouncedEmail: UserAnswers = userAnswersPostWithEmail.copy(
     subscriptionSummary = subscriptionSummaryPostWithEmail.copy(bouncedEmail = Some(true))
   )
 
-  val userAnswersPostWithBouncedEmailUpdate: ContactPreferenceUserAnswers = userAnswersPostWithEmail.copy(
+  val userAnswersPostWithBouncedEmailUpdate: UserAnswers = userAnswersPostWithEmail.copy(
     subscriptionSummary = subscriptionSummaryPostWithEmail.copy(bouncedEmail = Some(true))
   )
 
-  val userAnswersPostNoEmail: ContactPreferenceUserAnswers = ContactPreferenceUserAnswers(
+  val userAnswersPostNoEmail: UserAnswers = UserAnswers(
     vpdId = vpdId,
     userId = userId,
     subscriptionSummary = subscriptionSummaryPostNoEmail,
     emailAddress = Some(emailAddress),
-    verifiedEmailAddresses = verifiedEmailAddresses,
     data = JsObject(Seq("contactPreferenceEmail" -> Json.toJson(true))),
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
   )
 
-  val emptyUserAnswers: ContactPreferenceUserAnswers = ContactPreferenceUserAnswers(
+  val emptyUserAnswers: UserAnswers = UserAnswers(
     vpdId = vpdId,
     userId = userId,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
-    verifiedEmailAddresses = Set.empty[String],
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
   )

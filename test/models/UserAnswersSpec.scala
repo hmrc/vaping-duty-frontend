@@ -18,7 +18,7 @@ package models
 
 import base.SpecBase
 import play.api.libs.json.{JsPath, Json}
-import queries.{ContactPreferenceSettable, Gettable}
+import queries.{Settable, Gettable}
 
 import java.time.Instant
 import scala.util.Success
@@ -26,13 +26,13 @@ import scala.util.Success
 class UserAnswersSpec extends SpecBase {
   val ua = userAnswersPostWithEmail.copy(validUntil = Some(Instant.now(clock).plusMillis(1)))
 
-  case object TestPage extends Gettable[String] with ContactPreferenceSettable[String] {
+  case object TestPage extends Gettable[String] with Settable[String] {
     override def path: JsPath = JsPath \ toString
   }
 
   "UserAnswers" - {
     val json =
-      s"""{"vpdId":"$vpdId","userId":"$userId","subscriptionSummary":{"paperlessPreference":false,"emailAddress":"john.doe@example.com","emailVerification":true,"bouncedEmail":false,"correspondenceAddress":"Flat 123\\n1 Example Road\\nLondon\\nAB1 2CD","countryCode":"GB"},"emailAddress":"john.doe@example.com","verifiedEmailAddresses":["john.doe@example.com"],"data":{"contactPreferenceEmail":true},"startedTime":{"$$date":{"$$numberLong":"1718118467838"}},"lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}},"validUntil":{"$$date":{"$$numberLong":"1718118467839"}}}"""
+      s"""{"vpdId":"$vpdId","userId":"$userId","subscriptionSummary":{"paperlessPreference":false,"emailAddress":"john.doe@example.com","emailVerification":true,"bouncedEmail":false,"correspondenceAddress":"Flat 123\\n1 Example Road\\nLondon\\nAB1 2CD","countryCode":"GB"},"emailAddress":"john.doe@example.com","data":{"contactPreferenceEmail":true},"startedTime":{"$$date":{"$$numberLong":"1718118467838"}},"lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}},"validUntil":{"$$date":{"$$numberLong":"1718118467839"}}}"""
 
     "must set a value for a given page and get the same value" in {
 
@@ -73,7 +73,7 @@ class UserAnswersSpec extends SpecBase {
     }
 
     "must deserialise from json" in {
-      Json.parse(json).as[ContactPreferenceUserAnswers] mustBe ua
+      Json.parse(json).as[UserAnswers] mustBe ua
     }
   }
 }

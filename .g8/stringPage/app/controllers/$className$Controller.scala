@@ -5,6 +5,7 @@ import forms.$className$FormProvider
 import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
+import services.UserAnswersService
 import pages.$className$Page
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -15,7 +16,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class $className$Controller @Inject()(
                                         override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
+                                        sessionRepository: UserAnswersService,
                                         navigator: Navigator,
                                         identify: ApprovedVapingManufacturerAuthAction,
                                         getData: DataRetrievalAction,

@@ -29,6 +29,7 @@ GET        /enrolment/already-enrolled                      controllers.enrolmen
 
 # Contact Preferences
 GET        /contact-preferences/review-confirm-address                          controllers.contactPreference.ConfirmAddressController.onPageLoad()
+POST       /contact-preferences/review-confirm-address                          controllers.contactPreference.ConfirmAddressController.onSubmit()
 
 GET        /contact-preferences/post-continue                                   controllers.contactPreference.ContinuePostalPreferenceController.onPageLoad()
 
@@ -47,3 +48,9 @@ POST       /contact-preferences/change-how-do-you-want-to-be-contacted          
 GET        /contact-preferences/account-lock-out                                controllers.contactPreference.LockedEmailController.onPageLoad()
 
 GET        /contact-preferences/postal-address-confirmation                     controllers.contactPreference.PostalConfirmationController.onPageLoad()
+
+GET        /contact-preferences/submit-email                                    controllers.contactPreference.SubmitEmailController.onPageLoad()
+POST       /contact-preferences/submit-email                                    controllers.contactPreference.SubmitEmailController.onSubmit()
+
+GET        /contact-preferences/submit-previously-verified-email                controllers.contactPreference.SubmitPreviouslyVerifiedEmailController.onPageLoad()
+POST       /contact-preferences/submit-previously-verified-email                controllers.contactPreference.SubmitPreviouslyVerifiedEmailController.onSubmit()

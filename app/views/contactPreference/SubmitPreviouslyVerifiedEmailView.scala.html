@@ -14,32 +14,30 @@
  * limitations under the License.
  *@
 
-@import components._
+@import components.*
 
 @this(
         layout: templates.Layout,
         formHelper: FormWithCSRF,
         govukButton: GovukButton,
         h1: Heading,
-        p: Paragraph
+        p: Paragraph,
+        link: Link
 )
 
-@(storedAddress: Seq[String])(implicit request: Request[_], messages: Messages)
+@(email: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("contactPreference.confirmAddress.title"))) {
+@layout(pageTitle = titleNoForm(s"${messages("contactPreference.submitPreviouslyVerified.title")} $email")) {
 
-    @h1(messages("contactPreference.confirmAddress.heading"))
+    @h1(s"${messages("contactPreference.submitPreviouslyVerified.heading")} $email")
 
-    <ul class="govuk-list">
-        @storedAddress.map { line =>
-            <li>@line</li>
-        }
-    </ul>
+    @p(Seq(
+        HtmlContent(s"${messages("contactPreference.submitEmail.text")} $email")
+    ))
 
-    @formHelper(action = controllers.contactPreference.routes.ConfirmAddressController.onSubmit(), Symbol("autoComplete") -> "off") {
-
+    @formHelper(action = controllers.contactPreference.routes.SubmitEmailController.onSubmit(), Symbol("autoComplete") -> "off") {
         @govukButton(
-            ButtonViewModel(messages("contactPreference.confirmAddress.confirm"))
+            ButtonViewModel(messages("site.submit"))
         )
     }
 }

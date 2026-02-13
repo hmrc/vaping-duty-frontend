@@ -17,7 +17,7 @@
 package connectors
 
 import config.FrontendAppConfig
-import models.{ContactPreferenceUserAnswers, UserDetails}
+import models.{UserAnswers, UserDetails}
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
@@ -30,12 +30,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val httpClient: HttpClientV2)
                                      (implicit ec: ExecutionContext) extends HttpReadsInstances {
 
-  def get(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] =
+  def get(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, UserAnswers]] =
     httpClient
       .get(url"${config.cpUserAnswersGetUrl(vpdId)}")
-      .execute[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]]
+      .execute[Either[UpstreamErrorResponse, UserAnswers]]
 
-  def set(userAnswers: ContactPreferenceUserAnswers)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def set(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClient
       .put(url"${config.cpUserAnswersUrl}")
       .setHeader("Csrf-Token" -> "nocheck")
@@ -44,12 +44,12 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
   }
 
   def createUserAnswers(userDetails: UserDetails)
-                       (implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]] = {
+                       (implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, UserAnswers]] = {
     httpClient
       .post(url"${config.cpUserAnswersUrl}")
       .withBody(Json.toJson(userDetails))
       .setHeader("Csrf-Token" -> "nocheck")
-      .execute[Either[UpstreamErrorResponse, ContactPreferenceUserAnswers]]
+      .execute[Either[UpstreamErrorResponse, UserAnswers]]
   }
 
   def keepAlive(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =

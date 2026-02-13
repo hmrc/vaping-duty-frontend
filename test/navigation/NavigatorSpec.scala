@@ -56,16 +56,9 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from EnterEmail page to Email Verification Service when address is unverified" in {
-        // TODO update when implementing email journey
-        val ua = userAnswers.set(EnterEmailPage, emailAddress).success.value
-        navigator.nextPage(EnterEmailPage, NormalMode, ua) mustBe controllers.contactPreference.routes.EmailConfirmationController.onPageLoad()
-      }
-
       "must go from EnterEmail page to Email Confirmation/CYA when address is already verified" in {
-        // TODO update when implementing email journey
         val ua = userAnswers.set(EnterEmailPage, emailAddress2).success.value
-        navigator.nextPage(EnterEmailPage, NormalMode, ua) mustBe controllers.contactPreference.routes.EmailConfirmationController.onPageLoad()
+        navigator.nextPage(EnterEmailPage, NormalMode, ua) mustBe controllers.contactPreference.routes.SubmitPreviouslyVerifiedEmailController.onPageLoad()
       }
     }
 

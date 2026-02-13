@@ -60,27 +60,6 @@ class PostalConfirmationControllerSpec extends SpecBase {
       }
     }
 
-    "must return SEE_OTHER when there is an issue during submission" in {
-
-      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
-
-      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
-        .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
     "must return OK and render the view when user is already on postal preference" in {
       // Test used to be:
       // must return SEE_OTHER and redirect to continue postal when user is already on postal preference

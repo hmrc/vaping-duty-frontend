@@ -17,18 +17,14 @@
 package controllers.contactPreference
 
 import config.FrontendAppConfig
-import connectors.SubmitPreferencesConnector
 import controllers.actions.*
 import models.BtaLink
-import models.emailverification.PaperlessPreferenceSubmission
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.PostalConfirmationView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
 class PostalConfirmationController @Inject()(
                                        override val messagesApi: MessagesApi,
@@ -37,33 +33,12 @@ class PostalConfirmationController @Inject()(
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: PostalConfirmationView,
-                                       submitPreferencesConnector: SubmitPreferencesConnector,
                                        config: FrontendAppConfig
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with BtaLink {
+                                     ) extends FrontendBaseController with I18nSupport with BtaLink {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
-
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-      
-      val email = request.userAnswers.subscriptionSummary.emailAddress
-      val verification = request.userAnswers.subscriptionSummary.emailVerification
-      val bounced = request.userAnswers.subscriptionSummary.bouncedEmail
-
-      val preferenceSubmission = PaperlessPreferenceSubmission(false, email, verification, bounced)
-
-      if (request.userAnswers.subscriptionSummary.paperlessPreference) {
-        // This submission needs to be on a user action, not page load.  Added here for testing, iterations will change this behaviour.
-        submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
-          case Left(error) =>
-            logger.info(s"[PostalConfirmationController][onPageLoad] Error submitting preference: $error")
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-          case Right(response) =>
-            Ok(view(btaLink))
-        }
-      } else {
-        // Still render the confirmation page with no submission as current flow
-        Future.successful(Ok(view(btaLink)))
-      }
+        Ok(view(btaLink))
   }
 
   override def btaLink: String = config.continueToBta
