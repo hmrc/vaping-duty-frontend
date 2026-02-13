@@ -18,13 +18,28 @@ package forms
 
 import forms.behaviours.StringFieldBehaviours
 import forms.contactPreference.EnterEmailFormProvider
+import forms.mappings.Constraints
 import play.api.data.FormError
 
-class EnterEmailFormProviderSpec extends StringFieldBehaviours {
+import scala.collection.immutable.ArraySeq
+import scala.util.Random
+
+class EnterEmailFormProviderSpec extends StringFieldBehaviours with Constraints {
 
   val requiredKey = "contactPreference.enterEmail.error.required"
   val lengthKey = "contactPreference.enterEmail.error.length"
-  val maxLength = 100
+  val formatKey = "contactPreference.enterEmail.error.format"
+  val maxLength = 254
+
+  val validEmails =
+    Seq(
+      "valid@email.com",
+      s"${Random.alphanumeric.take(240).mkString}@${Random.alphanumeric.take(7).mkString}.co.uk",
+      s"${Random.alphanumeric.take(120).mkString}@${Random.alphanumeric.take(126).mkString}.gov.uk",
+      s"${Random.alphanumeric.take(1).mkString}@${Random.alphanumeric.take(246).mkString}.co.uk",
+      s"${Random.alphanumeric.take(246).mkString}@${Random.alphanumeric.take(1).mkString}.co.uk",
+      s"${Random.alphanumeric.take(1).mkString}@${Random.alphanumeric.take(1).mkString}.com"
+    )
 
   val form = new EnterEmailFormProvider()()
 
@@ -32,23 +47,30 @@ class EnterEmailFormProviderSpec extends StringFieldBehaviours {
 
     val fieldName = "value"
 
-    behave like fieldThatBindsValidData(
+    behave like emailFieldWithValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
+      validEmails
     )
 
-    behave like fieldWithMaxLength(
+    behave like emailFieldWithMaxLength(
       form,
       fieldName,
       maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      errors = Seq(FormError(fieldName, lengthKey, Seq(maxLength)), FormError(fieldName, formatKey, Seq(emailRegex)))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
+    )
+
+    behave like emailFieldWithInvalidData(
+      form,
+      fieldName,
+      FormError(fieldName, Seq(formatKey), ArraySeq(emailRegex)),
+      stringsWithMaxLength(maxLength)
     )
   }
 }

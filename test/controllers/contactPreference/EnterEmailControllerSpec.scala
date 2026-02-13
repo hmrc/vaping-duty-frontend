@@ -111,7 +111,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", emailAddress))
 
         val result = route(application, request).value
 
@@ -141,7 +141,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", emailAddress))
 
         val result = route(application, request).value
 
@@ -173,7 +173,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", emailAddress))
 
         val result = route(application, request).value
 
@@ -201,7 +201,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
+            .withFormUrlEncodedBody(("value", emailAddress))
 
         val result = route(application, request).value
 

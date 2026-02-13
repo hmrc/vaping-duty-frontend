@@ -226,4 +226,17 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
       result mustEqual Invalid("error.max", CurrencyFormatter.currencyFormat(1))
     }
   }
+
+  "email" - {
+
+    "must return Valid with a valid email" in {
+      val result = email("error.format").apply("test@email.com")
+      result mustEqual Valid
+    }
+
+    "must return Invalid an invalid email" in {
+      val result = email("error.format").apply("testemailcom")
+      result mustEqual Invalid("error.format", emailRegex)
+    }
+  }
 }
