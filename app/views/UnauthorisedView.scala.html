@@ -14,8 +14,14 @@
  * limitations under the License.
  *@
 
+@import components.*
+
 @this(
-    layout: templates.Layout
+    layout: templates.Layout,
+    h1: Heading,
+    p: Paragraph,
+    link: Link,
+    list: List
 )
 
 @()(implicit request: Request[_], messages: Messages)
@@ -25,7 +31,25 @@
     timeout   = false
 ) {
 
-    <h1 class="govuk-heading-xl">@messages("unauthorised.heading")</h1>
+    @h1(messages("unauthorised.heading"))
 
-    <p class="govuk-body">@messages("unauthorised.guidance")</p>
+    @p(Seq(HtmlContent(messages("unauthorised.toUse"))))
+
+    @list(
+        items = Seq(
+            messages("unauthorised.approved"),
+            messages("unauthorised.enrolled")
+        ),
+        classes = "govuk-list govuk-list--bullet"
+    )
+
+    @p(Seq(HtmlContent(
+        link(
+            id = "",
+            text = messages("site.getAccess"),
+            href = "",
+            classes = "",
+            newTabText = Some(messages("site.newTab"))
+        )
+    )))
 }

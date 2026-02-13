@@ -13,6 +13,7 @@ site.signIn = Sign in
 site.govuk = GOV.UK
 site.newTab = (opens in a new tab)
 site.backToBta = Go back to your Business Tax Account
+site.getAccess = Find out how to get access to the Vaping Products Duty online service
 
 date.day = Day
 date.month = Month
@@ -50,6 +51,9 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+unauthorised.toUse = To use this service, you need to be:
+unauthorised.approved = A UK approved vaping products manufacturer
+unauthorised.enrolled = Enrolled in the service
 
 enrolment.organisationSignIn.heading = You need to be an organisation account administrator to enrol
 enrolment.organisationSignIn.onlyUsers = Only users with organisation account administrator details can enrol to use this service.

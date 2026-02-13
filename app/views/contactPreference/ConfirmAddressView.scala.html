@@ -21,7 +21,8 @@
         formHelper: FormWithCSRF,
         govukButton: GovukButton,
         h1: Heading,
-        p: Paragraph
+        p: Paragraph,
+        list: List
 )
 
 @(storedAddress: Seq[String])(implicit request: Request[_], messages: Messages)
@@ -30,11 +31,9 @@
 
     @h1(messages("contactPreference.confirmAddress.heading"))
 
-    <ul class="govuk-list">
-        @storedAddress.map { line =>
-            <li>@line</li>
-        }
-    </ul>
+    @list(
+        items = storedAddress
+    )
 
     @formHelper(action = controllers.contactPreference.routes.ConfirmAddressController.onSubmit(), Symbol("autoComplete") -> "off") {
 
