@@ -23,8 +23,6 @@ import play.api.data.validation.{Constraint, Invalid, Valid}
 
 trait Constraints {
 
-  val emailRegex = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$"
-
   protected def firstError[A](constraints: Constraint[A]*): Constraint[A] =
     Constraint {
       input =>
@@ -132,6 +130,8 @@ trait Constraints {
           Invalid(errorKey, CurrencyFormatter.currencyFormat(maximum))
         }
     }
-    
+
+  val emailRegex = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$"
+
   protected def email(errorKey: String): Constraint[String] = regexp(emailRegex, errorKey)
 }

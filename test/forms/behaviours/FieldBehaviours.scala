@@ -41,12 +41,14 @@ trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Genera
 
   def emailFieldWithValidData(form: Form[_],
                               fieldName: String,
-                              validEmail: String): Unit = {
+                              validEmails: Seq[String]): Unit = {
 
     "have no errors when binding a correctly formatted email" in {
 
-      val result = form.bind(Map(fieldName -> validEmail)).apply(fieldName)
-      result.errors mustBe Seq.empty
+      validEmails.map { email =>
+        val result = form.bind(Map(fieldName -> email)).apply(fieldName)
+        result.errors mustBe Seq.empty
+      }
     }
   }
 

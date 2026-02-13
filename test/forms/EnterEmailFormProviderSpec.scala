@@ -22,6 +22,7 @@ import forms.mappings.Constraints
 import play.api.data.FormError
 
 import scala.collection.immutable.ArraySeq
+import scala.util.Random
 
 class EnterEmailFormProviderSpec extends StringFieldBehaviours with Constraints {
 
@@ -29,6 +30,16 @@ class EnterEmailFormProviderSpec extends StringFieldBehaviours with Constraints 
   val lengthKey = "contactPreference.enterEmail.error.length"
   val formatKey = "contactPreference.enterEmail.error.format"
   val maxLength = 254
+
+  val validEmails =
+    Seq(
+      "valid@email.com",
+      s"${Random.alphanumeric.take(240).mkString}@${Random.alphanumeric.take(7).mkString}.co.uk",
+      s"${Random.alphanumeric.take(120).mkString}@${Random.alphanumeric.take(126).mkString}.gov.uk",
+      s"${Random.alphanumeric.take(1).mkString}@${Random.alphanumeric.take(246).mkString}.co.uk",
+      s"${Random.alphanumeric.take(246).mkString}@${Random.alphanumeric.take(1).mkString}.co.uk",
+      s"${Random.alphanumeric.take(1).mkString}@${Random.alphanumeric.take(1).mkString}.com"
+    )
 
   val form = new EnterEmailFormProvider()()
 
@@ -39,7 +50,7 @@ class EnterEmailFormProviderSpec extends StringFieldBehaviours with Constraints 
     behave like emailFieldWithValidData(
       form,
       fieldName,
-      "valid@email.com"
+      validEmails
     )
 
     behave like emailFieldWithMaxLength(
