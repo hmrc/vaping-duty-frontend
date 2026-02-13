@@ -11,7 +11,7 @@ site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
-site.newTab = (opens in a new tab)
+site.newTab = (opens in new tab)
 site.backToBta = Go back to your Business Tax Account
 site.getAccess = Find out how to get access to the Vaping Products Duty online service
 

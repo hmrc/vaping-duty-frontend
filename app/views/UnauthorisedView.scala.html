@@ -24,7 +24,7 @@
     list: List
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(url: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("unauthorised.title")),
@@ -47,7 +47,7 @@
         link(
             id = "",
             text = messages("site.getAccess"),
-            href = "",
+            href = url,
             classes = "",
             newTabText = Some(messages("site.newTab"))
         )
