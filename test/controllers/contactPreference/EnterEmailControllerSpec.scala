@@ -240,6 +240,36 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to locked email page when attempting to verify a locked email" in {
+
+      val mockUserAnswersService = mock[UserAnswersService]
+      val mockEmailVerificationService = mock[EmailVerificationService]
+
+      when(mockEmailVerificationService.retrieveAddressStatusAndAddToCache(any(), any(), any())(any()))
+        .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, false, true)))
+      when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+          .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, enterEmailRoute)
+            .withFormUrlEncodedBody(("value", emailAddress2))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.contactPreference.routes.LockedEmailController.onPageLoad().url
+      }
+    }
+
     "must return a Bad Request and errors when invalid data is submitted" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
