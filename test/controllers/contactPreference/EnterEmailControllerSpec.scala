@@ -22,13 +22,15 @@ import connectors.EmailVerificationConnector
 import controllers.routes
 import forms.contactPreference.EnterEmailFormProvider
 import models.NormalMode
-import models.emailverification.{EmailVerificationDetails, ErrorModel, GetVerificationStatusResponse, RedirectUri}
+import models.emailverification.{EmailVerificationDetails, ErrorModel, RedirectUri}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import pages.contactPreference.EnterEmailPage
 import play.api.inject.bind
 import play.api.mvc.Call
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.{EmailVerificationService, UserAnswersService}
@@ -158,6 +160,9 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, true, false)))
 
+      when(mockEmailVerificationService.redirectIfLocked(any(), any()))
+        .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
+
       when(mockUserAnswersService.set(any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
@@ -185,14 +190,15 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to journey recovery if failing to retrieve verified emails" in {
 
       val mockUserAnswersService = mock[UserAnswersService]
+      val mockEmailVerificationService = mock[EmailVerificationService]
 
-      when(mockEmailVerificationConnector.getEmailVerification(any())(any()))
-        .thenReturn(EitherT.leftT[Future, GetVerificationStatusResponse](ErrorModel(BAD_REQUEST, "There was a problem")))
+      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
+        .thenReturn(EitherT.leftT[Future, EmailVerificationDetails](ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem")))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
-          .overrides(bind[EmailVerificationConnector].toInstance(mockEmailVerificationConnector))
+          .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
           )
@@ -217,6 +223,10 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, true, false)))
+
+      when(mockEmailVerificationService.redirectIfLocked(any(), any()))
+        .thenReturn(Future.successful(Redirect(new FakeNavigator(onwardRoute).nextPage(EnterEmailPage, NormalMode, userAnswers))))
+
       when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
       val application =
@@ -247,6 +257,10 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, false, true)))
+
+      when(mockEmailVerificationService.redirectIfLocked(any(), any()))
+        .thenReturn(Future.successful(Redirect(controllers.contactPreference.routes.LockedEmailController.onPageLoad())))
+
       when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
       val application =

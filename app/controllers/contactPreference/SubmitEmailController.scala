@@ -18,16 +18,12 @@ package controllers.contactPreference
 
 import connectors.SubmitPreferencesConnector
 import controllers.actions.*
-import models.contactPreference.PaperlessPreference.{Email, toValue}
-import models.contactPreference.PerformSubmission
-import models.emailverification.{PaperlessPreferenceSubmission, VerificationDetails}
-import models.requests.DataRequest
+import models.emailverification.{EmailVerificationDetails, VerificationDetails}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.EmailVerificationService
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.SubmitEmailView
 
@@ -45,9 +41,25 @@ class SubmitEmailController @Inject()(
                                        view: SubmitEmailView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      Ok(view(request.userAnswers.emailAddress.getOrElse("")))
+      val email = request.userAnswers.emailAddress.getOrElse("")
+
+      emailVerificationService.retrieveAddressStatus(
+        VerificationDetails(request.credId),
+        email,
+        request.userAnswers
+      ).value.flatMap {
+        case Left(error) =>
+          logger.info("[SubmitEmailController][onPageLoad] Error retrieving email verification status with status: " +
+            s"${error.status} and message: ${error.message}")
+          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        case Right(verificationDetails) =>
+          emailVerificationService.redirectIfLocked(
+            Future.successful(Ok(view(verificationDetails.emailAddress))),
+            verificationDetails.isLocked
+          )
+      }
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -63,29 +75,12 @@ class SubmitEmailController @Inject()(
           logger.info("[SubmitEmailController][onSubmit] Error retrieving email verification status with status: " +
             s"${error.status} and message: ${error.message}")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-        case Right(response) =>
-          checkVerification(response.emailAddress, response.isVerified)
+        case Right(emailVerificationDetails) =>
+            emailVerificationService.submitVerifiedEmail(
+              emailVerificationDetails.emailAddress,
+              emailVerificationDetails.isVerified,
+              submitPreferencesConnector
+            )
       }
-  }
-
-  private def checkVerification(email: String, verified: Boolean)
-                               (implicit hc: HeaderCarrier, request: DataRequest[?]) = {
-
-    if (verified) {
-      PerformSubmission(
-        submitPreferencesConnector,
-        PaperlessPreferenceSubmission(
-          paperlessPreference = toValue(Email),
-          emailAddress = Some(email),
-          emailVerification = Some(verified),
-          bouncedEmail = None
-        ),
-        Email
-      ).getResult
-    } else {
-      // Should never enter this case
-      logger.warn("[SubmitEmailController][checkVerification] Unverified email attempted to submit")
-      Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-    }
   }
 }

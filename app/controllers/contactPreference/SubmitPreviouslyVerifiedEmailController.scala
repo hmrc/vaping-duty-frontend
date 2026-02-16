@@ -18,16 +18,12 @@ package controllers.contactPreference
 
 import connectors.SubmitPreferencesConnector
 import controllers.actions.*
-import models.contactPreference.PaperlessPreference.{Email, toValue}
-import models.contactPreference.PerformSubmission
-import models.emailverification.{PaperlessPreferenceSubmission, VerificationDetails}
-import models.requests.DataRequest
+import models.emailverification.VerificationDetails
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.EmailVerificationService
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.SubmitPreviouslyVerifiedEmailView
 
@@ -63,29 +59,12 @@ class SubmitPreviouslyVerifiedEmailController @Inject()(
           logger.info("[SubmitPreviouslyVerifiedEmailController][onSubmit] Error retrieving email verification status with status: " +
             s"${error.status} and message: ${error.message}")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-        case Right(response) =>
-          checkVerification(response.emailAddress, response.isVerified)
+        case Right(emailVerificationDetails) =>
+          emailVerificationService.submitVerifiedEmail(
+            emailVerificationDetails.emailAddress,
+            emailVerificationDetails.isLocked,
+            submitPreferencesConnector
+          )
       }
-  }
-
-  private def checkVerification(email: String, verified: Boolean)
-                               (implicit hc: HeaderCarrier, request: DataRequest[?]) = {
-
-    if (verified) {
-      PerformSubmission(
-        submitPreferencesConnector,
-        PaperlessPreferenceSubmission(
-          paperlessPreference = toValue(Email),
-          emailAddress = Some(email),
-          emailVerification = Some(verified),
-          bouncedEmail = None
-        ),
-        Email
-      ).getResult
-    } else {
-      // Should never enter this case
-      logger.warn("[SubmitPreviouslyVerifiedEmailController][checkVerification] Unverified email attempted to submit")
-      Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-    }
   }
 }
