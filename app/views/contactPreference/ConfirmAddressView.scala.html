@@ -22,13 +22,16 @@
         govukButton: GovukButton,
         h1: Heading,
         p: Paragraph,
-        list: List
+        list: List,
+        caption: Caption,
+        govukDetails: GovukDetails
 )
 
 @(storedAddress: Seq[String])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("contactPreference.confirmAddress.title"))) {
 
+    @caption(messages("contactPreference.confirmAddress.caption"))
     @h1(messages("contactPreference.confirmAddress.heading"))
 
     @list(
@@ -41,4 +44,9 @@
             ButtonViewModel(messages("contactPreference.confirmAddress.confirm"))
         )
     }
+
+    @govukDetails(Details(
+        summary = Text(messages("contactPreference.confirmAddress.help")),
+        content = Text(messages("Copy TBC"))
+    ))
 }

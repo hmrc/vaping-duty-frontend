@@ -67,8 +67,7 @@ class ConfirmAddressController @Inject()(
             Post
           ).getResult
         case Post =>
-          // Still render the confirmation page with no submission as current flow
-          Future.successful(Redirect(controllers.contactPreference.routes.PostalConfirmationController.onPageLoad()))
+          Future.successful(Redirect(controllers.contactPreference.routes.ContinuePostalPreferenceController.onPageLoad()))
       }
   }
 }
