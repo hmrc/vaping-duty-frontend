@@ -19,11 +19,12 @@ package controllers.contactPreference
 import base.SpecBase
 import cats.data.EitherT
 import connectors.SubmitPreferencesConnector
-import models.emailverification.{EmailVerificationDetails, ErrorModel, PaperlessPreferenceSubmittedResponse}
+import models.emailverification.{EmailVerificationDetails, ErrorModel}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
+import play.api.mvc.Results.{Ok, Redirect}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.{EmailVerificationService, UserAnswersService}
@@ -39,38 +40,100 @@ class SubmitEmailControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val mockUserAnswersService = mock[UserAnswersService]
+      val mockEmailVerificationService = mock[EmailVerificationService]
+
+      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
+
+      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
+        .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, true, true)))
+
+      val view = mock[SubmitEmailView](emailAddress).toString
+
+      when(mockEmailVerificationService.redirectIfLocked(any(), any()))
+        .thenReturn(Future.successful(Ok(view)))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers.copy(emailAddress = Some(emailAddress))))
+        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.SubmitEmailController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[SubmitEmailView]
-
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(emptyUserAnswers.emailAddress.getOrElse(""))(request, messages(application)).toString
+        contentAsString(result) contains emailAddress mustEqual true
       }
     }
 
-    "must redirect to journey recovery when email verification service fails" in {
+    "must return SEE_OTHER and redirect to locked email controller" in {
 
       val mockUserAnswersService = mock[UserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
-      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
+
+      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
+
+      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
+        .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, false, true)))
+
+      when(mockEmailVerificationService.redirectIfLocked(any(), any()))
+        .thenReturn(Future.successful(Redirect(controllers.contactPreference.routes.LockedEmailController.onPageLoad())))
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers.copy(emailAddress = Some(emailAddress))))
+        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SubmitEmailController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.contactPreference.routes.LockedEmailController.onPageLoad().url
+      }
+    }
+
+    "must redirect to journey recovery when email verification service fails on GET" in {
+
+      val mockUserAnswersService = mock[UserAnswersService]
+      val mockEmailVerificationService = mock[EmailVerificationService]
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
       when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.leftT[Future, EmailVerificationDetails](ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem")))
 
-      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
-        .thenReturn(Future.successful(Right(PaperlessPreferenceSubmittedResponse(Instant.now(), "formBundleNumber"))))
+      val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
+        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SubmitEmailController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to journey recovery when email verification service fails on POST" in {
+
+      val mockUserAnswersService = mock[UserAnswersService]
+      val mockEmailVerificationService = mock[EmailVerificationService]
+
+      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
+
+      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
+        .thenReturn(EitherT.leftT[Future, EmailVerificationDetails](ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem")))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
         .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
         .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
-        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
         .build()
 
       running(application) {
@@ -87,20 +150,18 @@ class SubmitEmailControllerSpec extends SpecBase {
 
       val mockUserAnswersService = mock[UserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
-      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
       when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, true, true)))
 
-      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
-        .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
+      when(mockEmailVerificationService.submitVerifiedEmail(any(), any(), any())(any(), any()))
+        .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
         .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
         .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
-        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
         .build()
 
       running(application) {
@@ -123,6 +184,9 @@ class SubmitEmailControllerSpec extends SpecBase {
 
       when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, false, false)))
+
+      when(mockEmailVerificationService.submitVerifiedEmail(any(), any(), any())(any(), any()))
+        .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
         .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))

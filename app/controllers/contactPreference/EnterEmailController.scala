@@ -80,10 +80,11 @@ class EnterEmailController @Inject()(
                 logger.info("[EnterEmailController][onSubmit] Error updating verified email list: " +
                   s"${error.status} and message: ${error.message}")
                 Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-              case Right(verificationDetails) if verificationDetails.isLocked =>
-                Future.successful(Redirect(controllers.contactPreference.routes.LockedEmailController.onPageLoad()))
               case Right(verificationDetails) =>
-                handleRedirect(updatedAnswers, verificationDetails, request.credId)
+                  emailVerificationService.redirectIfLocked(
+                    handleRedirect(updatedAnswers, verificationDetails, request.credId),
+                    verificationDetails.isLocked
+                  )
             }
         }
       )

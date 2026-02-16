@@ -24,6 +24,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.{EmailVerificationService, UserAnswersService}
@@ -87,20 +88,18 @@ class SubmitPreviouslyVerifiedEmailControllerSpec extends SpecBase {
 
       val mockUserAnswersService = mock[UserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
-      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
       when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, true, true)))
 
-      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
-        .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
+      when(mockEmailVerificationService.submitVerifiedEmail(any(), any(), any())(any(), any()))
+        .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
         .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
         .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
-        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
         .build()
 
       running(application) {
@@ -123,6 +122,9 @@ class SubmitPreviouslyVerifiedEmailControllerSpec extends SpecBase {
 
       when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, false, false)))
+
+      when(mockEmailVerificationService.submitVerifiedEmail(any(), any(), any())(any(), any()))
+        .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
         .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))

@@ -35,7 +35,7 @@
         HtmlContent(s"${messages("contactPreference.submitEmail.text")} $email")
     ))
 
-    @formHelper(action = controllers.contactPreference.routes.SubmitEmailController.onSubmit(), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.contactPreference.routes.SubmitPreviouslyVerifiedEmailController.onSubmit(), Symbol("autoComplete") -> "off") {
         @govukButton(
             ButtonViewModel(messages("site.submit"))
         )

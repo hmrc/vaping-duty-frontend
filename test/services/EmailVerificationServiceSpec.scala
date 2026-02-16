@@ -18,13 +18,16 @@ package services
 
 import base.SpecBase
 import cats.data.EitherT
-import connectors.EmailVerificationConnector
+import connectors.{EmailVerificationConnector, SubmitPreferencesConnector}
 import models.*
 import models.emailverification.*
+import models.requests.DataRequest
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
+import play.api.mvc.Results.{Ok, Redirect}
+import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HttpResponse
 
 import scala.concurrent.Future
@@ -160,12 +163,62 @@ class EmailVerificationServiceSpec extends SpecBase {
         _ mustBe Right(EmailVerificationDetails(emailAddress, isVerified = false, isLocked = false))
       }
     }
+  }
 
+  "redirectIfLocked" - {
+
+    "must redirect to locked email page when address returns locked flag" in new Setup {
+
+      whenReady(testService.redirectIfLocked(Future.successful(Ok("Okay")), isLocked = true)) {
+        _ mustBe Redirect(controllers.contactPreference.routes.LockedEmailController.onPageLoad())
+      }
+    }
+
+    "must render result page when address is not locked" in new Setup {
+
+      whenReady(testService.redirectIfLocked(Future.successful(Ok("Okay")), isLocked = false)) {
+        _ mustBe Ok("Okay")
+      }
+    }
+  }
+
+  "submitVerifiedEmail" - {
+
+    "must redirect to email confirmation page when successful" in new Setup {
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Right(testSubmissionResponse)))
+
+      whenReady(testService.submitVerifiedEmail(
+          emailAddress,
+          verified = true,
+          mockSubmitPreferencesConnector
+        )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
+
+        _ mustBe Redirect(controllers.contactPreference.routes.EmailConfirmationController.onPageLoad())
+      }
+    }
+
+    "must redirect to journey recovery if trying to submit unverified email address" in new Setup {
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Right(testSubmissionResponse)))
+
+      whenReady(testService.submitVerifiedEmail(
+        emailAddress,
+        verified = false,
+        mockSubmitPreferencesConnector
+      )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
+
+        _ mustBe Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      }
+    }
   }
 
   class Setup {
     val mockEmailVerificationConnector: EmailVerificationConnector = mock[EmailVerificationConnector]
     val mockUserAnswersService: UserAnswersService                 = mock[UserAnswersService]
+    val mockSubmitPreferencesConnector: SubmitPreferencesConnector = mock[SubmitPreferencesConnector]
     val testService                                                = new EmailVerificationService(mockEmailVerificationConnector)
   }
 }
