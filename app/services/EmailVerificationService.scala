@@ -18,9 +18,15 @@ package services
 
 import cats.data.EitherT
 import com.google.inject.Singleton
-import connectors.EmailVerificationConnector
+import connectors.{EmailVerificationConnector, SubmitPreferencesConnector}
 import models.UserAnswers
+import models.contactPreference.PaperlessPreference.{Email, toValue}
+import models.contactPreference.PerformSubmission
 import models.emailverification.*
+import models.requests.DataRequest
+import play.api.Logging
+import play.api.mvc.Result
+import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
@@ -28,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerificationConnector)
-                                         (implicit ec: ExecutionContext) {
+                                         (implicit ec: ExecutionContext) extends Logging {
 
   def retrieveAddressStatus(verificationDetails: VerificationDetails,
                             emailAddress: String,
@@ -49,5 +55,34 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
 
     EmailVerificationDetails(emailAddress = emailAddress, isVerified = isEmailVerified, isLocked = isEmailLocked)
 
+  }
+
+  def redirectIfLocked(result: Future[Result], isLocked: Boolean): Future[Result] = {
+    if (isLocked) {
+      Future.successful(Redirect(controllers.contactPreference.routes.LockedEmailController.onPageLoad()))
+    } else {
+      result
+    }
+  }
+
+  def submitVerifiedEmail(email: String, verified: Boolean, submitPreferencesConnector: SubmitPreferencesConnector)
+                         (implicit hc: HeaderCarrier, request: DataRequest[?]): Future[Result] = {
+    
+    if (verified) {
+      PerformSubmission(
+        submitPreferencesConnector,
+        PaperlessPreferenceSubmission(
+          paperlessPreference = toValue(Email),
+          emailAddress = Some(email),
+          emailVerification = Some(verified),
+          bouncedEmail = None
+        ),
+        Email
+      ).getResult
+    } else {
+      // Should never enter this case
+      logger.warn("[EmailVerificationService][submit] Unverified email attempted to submit")
+      Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+    }
   }
 }
