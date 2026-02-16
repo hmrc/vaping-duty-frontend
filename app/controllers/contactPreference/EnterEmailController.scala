@@ -84,7 +84,7 @@ class EnterEmailController @Inject()(
                   emailVerificationService.redirectIfLocked(
                     handleRedirect(updatedAnswers, verificationDetails, request.credId),
                     verificationDetails.isLocked
-                )
+                  )
             }
         }
       )
