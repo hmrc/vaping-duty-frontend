@@ -18,7 +18,8 @@ package navigation
 
 import controllers.routes
 import models.*
-import models.contactPreference.HowToBeContacted
+import models.contactPreference.PaperlessPreference.{Email, Post}
+import models.contactPreference.{HowToBeContacted, PaperlessPreference}
 import pages.*
 import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
 import play.api.Logging
@@ -42,8 +43,15 @@ class Navigator @Inject() extends Logging {
   def howToBeContactedRoute(ua: UserAnswers): Call = {
     ua.get(HowToBeContactedPage) match {
       case Some(HowToBeContacted.Email) => controllers.contactPreference.routes.EnterEmailController.onPageLoad(NormalMode)
-      case Some(HowToBeContacted.Post)  => controllers.contactPreference.routes.ConfirmAddressController.onPageLoad()
+      case Some(HowToBeContacted.Post)  => postalRoute(ua)
       case _                            => routes.JourneyRecoveryController.onPageLoad()
+    }
+  }
+
+  private def postalRoute(ua: UserAnswers): Call = {
+    PaperlessPreference(ua.subscriptionSummary.paperlessPreference) match {
+      case Email  => controllers.contactPreference.routes.ConfirmAddressController.onPageLoad()
+      case Post   => controllers.contactPreference.routes.ContinuePostalPreferenceController.onPageLoad()
     }
   }
 
