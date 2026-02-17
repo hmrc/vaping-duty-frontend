@@ -49,17 +49,12 @@ class HowToBeContactedController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
 
-      request.userAnswers match {
-        case Some(ua) =>
-          Future.successful(Ok(view(prepareForm(ua), HowToBeContactedViewModel(ua), mode)))
-        case None =>
-          sessionService.createUserAnswers(UserDetails(request.vpdId, request.userId)).map {
-            case Left(error) =>
-              logger.info(s"[HowToBeContactedController][onPageLoad] Creating user answers failed: ${error.message}")
-              Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-            case Right(response) =>
-              Ok(view(prepareForm(response), HowToBeContactedViewModel(response), mode))
-          }
+      sessionService.createUserAnswers(UserDetails(request.vpdId, request.userId)).map {
+        case Left(error) =>
+          logger.info(s"[HowToBeContactedController][onPageLoad] Creating user answers failed: ${error.message}")
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case Right(response) =>
+          Ok(view(prepareForm(response), HowToBeContactedViewModel(response), mode))
       }
   }
 

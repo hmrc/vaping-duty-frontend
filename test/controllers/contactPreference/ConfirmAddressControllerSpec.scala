@@ -81,5 +81,47 @@ class ConfirmAddressControllerSpec extends SpecBase {
         redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+
+    "must return SEE_OTHER and redirect to..." in {
+
+      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Right(testSubmissionResponse)))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail))
+        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.ConfirmAddressController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.contactPreference.routes.ChangeAddressController.onPageLoad().url
+      }
+    }
+
+    "must return SEE_OTHER and redirect to confirmation page" in {
+
+      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Right(testSubmissionResponse)))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.ConfirmAddressController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url
+      }
+    }
   }
 }
