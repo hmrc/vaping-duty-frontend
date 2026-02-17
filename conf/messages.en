@@ -81,7 +81,7 @@ contactPreference.continuePostalPreference.title = Change your postal address
 contactPreference.continuePostalPreference.heading = Change your postal address
 contactPreference.continuePostalPreference.youMust = You must contact us if you need to change your postal address.
 contactPreference.continuePostalPreference.thisIs = This is to make sure your account stays protected.
-contactPreference.continuePostalPreference.howTo = How to contact us... [content TBC]
+contactPreference.continuePostalPreference.findOut = Find out how to contact us.
 
 contactPreference.emailConfirmation.title = Your contact preference has been updated
 contactPreference.emailConfirmation.preferenceUpdated = Your contact preference has been updated

@@ -25,7 +25,7 @@
         caption: Caption
 )
 
-@(btaLink: String)(implicit request: Request[_], messages: Messages)
+@(guidanceUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("contactPreference.continuePostalPreference.title"))) {
 
@@ -36,13 +36,11 @@
 
     @p(Seq(HtmlContent(messages("contactPreference.continuePostalPreference.thisIs"))))
 
-    @p(Seq(HtmlContent(messages("contactPreference.continuePostalPreference.howTo"))))
-
     @p(Seq(HtmlContent(
         link(
-            id = "bta-link",
-            text = messages("site.backToBta"),
-            href = btaLink,
+            id = "guidance-link",
+            text = messages("contactPreference.continuePostalPreference.findOut"),
+            href = guidanceUrl,
             classes = "govuk-link"
         )
     )))
