@@ -51,7 +51,7 @@ class Navigator @Inject() extends Logging {
   private def postalRoute(ua: UserAnswers): Call = {
     PaperlessPreference(ua.subscriptionSummary.paperlessPreference) match {
       case Email  => controllers.contactPreference.routes.ConfirmAddressController.onPageLoad()
-      case Post   => controllers.contactPreference.routes.ContinuePostalPreferenceController.onPageLoad()
+      case Post   => controllers.contactPreference.routes.ChangeAddressController.onPageLoad()
     }
   }
 

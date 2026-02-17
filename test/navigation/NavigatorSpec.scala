@@ -53,7 +53,7 @@ class NavigatorSpec extends SpecBase {
       "must go from HowToBeContacted page to Update Post page" in {
 
         val ua = userAnswersPostWithEmail.set(HowToBeContactedPage, HowToBeContacted.Post).success.value
-        navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe controllers.contactPreference.routes.ContinuePostalPreferenceController.onPageLoad()
+        navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe controllers.contactPreference.routes.ChangeAddressController.onPageLoad()
       }
 
       "must go from HowToBeContacted page to JourneyRecovery when value is not present" in {

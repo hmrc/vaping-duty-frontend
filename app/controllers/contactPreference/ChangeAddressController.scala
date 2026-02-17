@@ -22,15 +22,15 @@ import models.BtaLink
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.contactPreference.ContinuePostalPreferenceView
+import views.html.contactPreference.ChangeAddressView
 
 import javax.inject.Inject
 
-class ContinuePostalPreferenceController @Inject()(
+class ChangeAddressController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: ContinuePostalPreferenceView,
+                                       view: ChangeAddressView,
                                        config: FrontendAppConfig
                                      ) extends FrontendBaseController with I18nSupport {
 

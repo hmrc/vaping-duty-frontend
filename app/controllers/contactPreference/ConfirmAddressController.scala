@@ -67,7 +67,7 @@ class ConfirmAddressController @Inject()(
             Post
           ).getResult
         case Post =>
-          Future.successful(Redirect(controllers.contactPreference.routes.ContinuePostalPreferenceController.onPageLoad()))
+          Future.successful(Redirect(controllers.contactPreference.routes.ChangeAddressController.onPageLoad()))
       }
   }
 }
