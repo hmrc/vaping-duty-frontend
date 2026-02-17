@@ -81,10 +81,10 @@ class EnterEmailController @Inject()(
                   s"${error.status} and message: ${error.message}")
                 Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
               case Right(verificationDetails) =>
-                  emailVerificationService.redirectIfLocked(
-                    handleRedirect(updatedAnswers, verificationDetails, request.credId),
-                    verificationDetails.isLocked
-                  )
+                emailVerificationService.redirectIfLocked(
+                  handleRedirect(updatedAnswers, verificationDetails, request.credId),
+                  verificationDetails.isLocked
+                )
             }
         }
       )
