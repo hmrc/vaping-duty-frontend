@@ -62,7 +62,7 @@ class SubmitPreviouslyVerifiedEmailController @Inject()(
         case Right(emailVerificationDetails) =>
           emailVerificationService.submitVerifiedEmail(
             emailVerificationDetails.emailAddress,
-            emailVerificationDetails.isLocked,
+            emailVerificationDetails.isVerified,
             submitPreferencesConnector
           )
       }
