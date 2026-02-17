@@ -26,6 +26,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.UserAnswersService
+import viewmodels.contactPreference.ConfirmAddressViewModel
 import views.html.contactPreference.ConfirmAddressView
 
 import scala.concurrent.Future
@@ -39,6 +40,11 @@ class ConfirmAddressControllerSpec extends SpecBase {
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(userAnswersPostNoEmail))
 
+      when(mockAppConfig.changeAddressGuidanceUrl)
+        .thenReturn("https://www.gov.uk/find-hmrc-contacts/excise-warehousing-excise-goods-movements-and-alcohol-duties-enquiries")
+
+      val vm = ConfirmAddressViewModel(mockAppConfig, userAnswersPostNoEmail.subscriptionSummary.correspondenceAddress)
+
       val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail))
         .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
         .build()
@@ -50,10 +56,8 @@ class ConfirmAddressControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[ConfirmAddressView]
 
-        val expectedAddress = userAnswersPostNoEmail.subscriptionSummary.correspondenceAddress.split("\n").toList
-
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(expectedAddress)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
       }
     }
 

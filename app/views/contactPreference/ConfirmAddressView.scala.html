@@ -15,6 +15,7 @@
  *@
 
 @import components._
+@import viewmodels.contactPreference.ConfirmAddressViewModel
 
 @this(
         layout: templates.Layout,
@@ -24,10 +25,27 @@
         p: Paragraph,
         list: List,
         caption: Caption,
+        link: Link,
         govukDetails: GovukDetails
 )
 
-@(storedAddress: Seq[String])(implicit request: Request[_], messages: Messages)
+@(vm: ConfirmAddressViewModel)(implicit request: Request[_], messages: Messages)
+
+@detailsContent = {
+    @p(Seq(HtmlContent(messages("contactPreference.continuePostalPreference.youMust"))))
+
+    @p(Seq(HtmlContent(messages("contactPreference.continuePostalPreference.thisIs"))))
+
+    @p(Seq(HtmlContent(
+        link(
+            id = "guidance-link",
+            text = messages("contactPreference.continuePostalPreference.findOut"),
+            href = vm.changeAddressUrl,
+            classes = "govuk-link"
+        )
+    )))
+
+}
 
 @layout(pageTitle = titleNoForm(messages("contactPreference.confirmAddress.title"))) {
 
@@ -35,7 +53,7 @@
     @h1(messages("contactPreference.confirmAddress.heading"))
 
     @list(
-        items = storedAddress
+        items = vm.address
     )
 
     @formHelper(action = controllers.contactPreference.routes.ConfirmAddressController.onSubmit(), Symbol("autoComplete") -> "off") {
@@ -45,8 +63,9 @@
         )
     }
 
+
     @govukDetails(Details(
         summary = Text(messages("contactPreference.confirmAddress.help")),
-        content = Text(messages("Copy TBC"))
+        content = HtmlContent(detailsContent)
     ))
 }
