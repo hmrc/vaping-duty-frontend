@@ -28,7 +28,8 @@ class ChangeAddressControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account")
+      when(mockAppConfig.changeAddressGuidanceUrl)
+        .thenReturn("https://www.gov.uk/find-hmrc-contacts/excise-warehousing-excise-goods-movements-and-alcohol-duties-enquiries")
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
@@ -40,7 +41,7 @@ class ChangeAddressControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[ChangeAddressView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(mockAppConfig.continueToBta)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(mockAppConfig.changeAddressGuidanceUrl)(request, messages(application)).toString
       }
     }
   }
