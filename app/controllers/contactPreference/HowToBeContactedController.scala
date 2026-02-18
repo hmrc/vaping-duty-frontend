@@ -46,10 +46,10 @@ class HowToBeContactedController @Inject()(
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = identify.async {
     implicit request =>
 
-      sessionService.createUserAnswers(UserDetails(request.vpdId, request.userId)).map {
+      sessionService.createUserAnswers(UserDetails(request.enrolmentVpdId, request.userId)).map {
         case Left(error) =>
           logger.info(s"[HowToBeContactedController][onPageLoad] Creating user answers failed: ${error.message}")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

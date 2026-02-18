@@ -37,9 +37,7 @@ class ConfirmAddressControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
       val mockUserAnswersService = mock[UserAnswersService]
-
-      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(userAnswersPostNoEmail))
-
+      
       when(mockAppConfig.changeAddressGuidanceUrl)
         .thenReturn("https://www.gov.uk/find-hmrc-contacts/excise-warehousing-excise-goods-movements-and-alcohol-duties-enquiries")
 
@@ -82,7 +80,7 @@ class ConfirmAddressControllerSpec extends SpecBase {
       }
     }
 
-    "must return SEE_OTHER and redirect to..." in {
+    "must return SEE_OTHER and redirect to change address page" in {
 
       val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
 
