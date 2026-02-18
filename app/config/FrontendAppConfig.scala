@@ -47,6 +47,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val organisationAcctGuidanceUrl: String    = configuration.get[String]("urls.organisationAcctGuidance")
   val applyForVpdIdGuidanceUrl: String       = configuration.get[String]("urls.applyForVpdIdGuidanceUrl")
+  val changeAddressGuidanceUrl               = configuration.get[String]("urls.addressChangeGuidance")
   val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount")
   val accessibilityStatementUrl: String = configuration.get[String]("accessibility-statement.host") ++
     configuration.get[String]("accessibility-statement.url")

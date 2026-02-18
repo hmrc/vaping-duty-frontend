@@ -21,24 +21,26 @@
         govukButton: GovukButton,
         h1: Heading,
         p: Paragraph,
-        link: Link
+        link: Link,
+        caption: Caption
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(guidanceUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("contactPreference.continuePostalPreference.title"))) {
 
+    @caption(messages("contactPreference.postalCaption"))
     @h1(messages("contactPreference.continuePostalPreference.heading"))
 
-    @p(Seq(HtmlContent(
-        messages("contactPreference.continuePostalPreference.weWillSend")
-    )))
+    @p(Seq(HtmlContent(messages("contactPreference.continuePostalPreference.youMust"))))
+
+    @p(Seq(HtmlContent(messages("contactPreference.continuePostalPreference.thisIs"))))
 
     @p(Seq(HtmlContent(
         link(
-            id = "bta-link",
-            text = messages("site.backToBta"),
-            href = "add a vm that gets this link from config",
+            id = "guidance-link",
+            text = messages("contactPreference.continuePostalPreference.findOut"),
+            href = guidanceUrl,
             classes = "govuk-link"
         )
     )))

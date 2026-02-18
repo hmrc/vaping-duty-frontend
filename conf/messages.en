@@ -70,13 +70,18 @@ enrolment.userAlreadyEnrolled.heading = You have already enrolled for this servi
 
 ### Contact Preference ###
 
+contactPreference.postalCaption = Post Preferences
+
 contactPreference.confirmAddress.title = Confirm your postal address
 contactPreference.confirmAddress.heading = Confirm your postal address
-contactPreference.confirmAddress.confirm = Confirm Address
+contactPreference.confirmAddress.confirm = Confirm address
+contactPreference.confirmAddress.help = Help updating your postal address
 
-contactPreference.continuePostalPreference.title = We will continue to send you letters by post
-contactPreference.continuePostalPreference.heading = We will continue to send you letters by post
-contactPreference.continuePostalPreference.weWillSend = We will send messages about your Vaping Products Duty return to your correspondence address.
+contactPreference.continuePostalPreference.title = Change your postal address
+contactPreference.continuePostalPreference.heading = Change your postal address
+contactPreference.continuePostalPreference.youMust = You must contact us if you need to change your postal address.
+contactPreference.continuePostalPreference.thisIs = This is to make sure your account stays protected.
+contactPreference.continuePostalPreference.findOut = Find out how to contact us.
 
 contactPreference.emailConfirmation.title = Your contact preference has been updated
 contactPreference.emailConfirmation.preferenceUpdated = Your contact preference has been updated

@@ -32,12 +32,10 @@ class LockedEmailController @Inject()(
                                        val controllerComponents: MessagesControllerComponents,
                                        view: LockedEmailView,
                                        config: FrontendAppConfig
-                                     ) extends FrontendBaseController with I18nSupport with BtaLink {
+                                     ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = identify {
     implicit request =>
-      Ok(view(btaLink))
+      Ok(view(BtaLink(config).href))
   }
-
-  override def btaLink: String = config.continueToBta
 }

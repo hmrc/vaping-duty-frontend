@@ -48,7 +48,7 @@ object PerformSubmission {
                                 updatedPreference: PaperlessPreference)
                                (implicit ec: ExecutionContext, hc: HeaderCarrier, request: DataRequest[?])= {
     PerformSubmission(
-      submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.vpdId).map {
+      submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.enrolmentVpdId).map {
         case Left(error) =>
           logger.info(s"[contactPreference.PerformSubmission] Error submitting preference: $error")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

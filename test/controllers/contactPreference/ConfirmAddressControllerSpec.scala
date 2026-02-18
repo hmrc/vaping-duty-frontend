@@ -26,6 +26,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.UserAnswersService
+import viewmodels.contactPreference.ConfirmAddressViewModel
 import views.html.contactPreference.ConfirmAddressView
 
 import scala.concurrent.Future
@@ -35,13 +36,13 @@ class ConfirmAddressControllerSpec extends SpecBase {
   "ConfirmAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val mockUserAnswersService = mock[UserAnswersService]
+      
+      when(mockAppConfig.changeAddressGuidanceUrl)
+        .thenReturn("https://www.gov.uk/find-hmrc-contacts/excise-warehousing-excise-goods-movements-and-alcohol-duties-enquiries")
 
-      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(userAnswersPostNoEmail))
+      val vm = ConfirmAddressViewModel(mockAppConfig, userAnswersPostNoEmail.subscriptionSummary.correspondenceAddress)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail))
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
-        .build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ConfirmAddressController.onPageLoad().url)
@@ -50,10 +51,8 @@ class ConfirmAddressControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[ConfirmAddressView]
 
-        val expectedAddress = userAnswersPostNoEmail.subscriptionSummary.correspondenceAddress.split("\n").toList
-
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(expectedAddress)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
       }
     }
 
@@ -75,6 +74,48 @@ class ConfirmAddressControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must return SEE_OTHER and redirect to change address page" in {
+
+      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Right(testSubmissionResponse)))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail))
+        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.ConfirmAddressController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.contactPreference.routes.ChangeAddressController.onPageLoad().url
+      }
+    }
+
+    "must return SEE_OTHER and redirect to confirmation page" in {
+
+      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Right(testSubmissionResponse)))
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, routes.ConfirmAddressController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url
       }
     }
   }

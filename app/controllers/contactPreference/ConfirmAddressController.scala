@@ -16,6 +16,7 @@
 
 package controllers.contactPreference
 
+import config.FrontendAppConfig
 import connectors.SubmitPreferencesConnector
 import controllers.actions.*
 import models.contactPreference
@@ -26,6 +27,7 @@ import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.contactPreference.ConfirmAddressViewModel
 import views.html.contactPreference.ConfirmAddressView
 
 import javax.inject.Inject
@@ -38,15 +40,15 @@ class ConfirmAddressController @Inject()(
                                           requireData: DataRequiredAction,
                                           submitPreferencesConnector: SubmitPreferencesConnector,
                                           val controllerComponents: MessagesControllerComponents,
-                                          view: ConfirmAddressView
+                                          view: ConfirmAddressView,
+                                          config: FrontendAppConfig
                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-
-      val storedAddress = request.userAnswers.subscriptionSummary.correspondenceAddress.split("\n").toSeq
+      val vm = ConfirmAddressViewModel(config, request.userAnswers.subscriptionSummary.correspondenceAddress)
       
-      Ok(view(storedAddress))
+      Ok(view(vm))
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -67,8 +69,7 @@ class ConfirmAddressController @Inject()(
             Post
           ).getResult
         case Post =>
-          // Still render the confirmation page with no submission as current flow
-          Future.successful(Redirect(controllers.contactPreference.routes.PostalConfirmationController.onPageLoad()))
+          Future.successful(Redirect(controllers.contactPreference.routes.ChangeAddressController.onPageLoad()))
       }
   }
 }

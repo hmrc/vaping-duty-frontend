@@ -52,11 +52,9 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
       val mockUserAnswersService = mock[UserAnswersService]
 
-      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(emptyUserAnswers))
-
       when(mockUserAnswersService.createUserAnswers(any())(any())).thenReturn(Future.successful(Right(emptyUserAnswers)))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      val application = applicationBuilder()
         .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
         .build()
 
@@ -78,11 +76,9 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
       val mockUserAnswersService = mock[UserAnswersService]
 
-      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(userAnswersPostNoEmail))
-
       when(mockUserAnswersService.createUserAnswers(any())(any())).thenReturn(Future.successful(Right(userAnswersPostNoEmail)))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail))
+      val application = applicationBuilder()
         .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
         .build()
 
@@ -92,32 +88,6 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         val vm = HowToBeContactedViewModel(userAnswersPostNoEmail)(messages(application))
-
-        val view = application.injector.instanceOf[HowToBeContactedView]
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, vm, NormalMode)(request, messages(application)).toString
-      }
-    }
-
-    "must return OK and the correct view for a GET with no previous user answers" in {
-
-      val mockUserAnswersService = mock[UserAnswersService]
-
-      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(emptyUserAnswers))
-
-      when(mockUserAnswersService.createUserAnswers(any())(any())).thenReturn(Future.successful(Right(emptyUserAnswers)))
-
-      val application = applicationBuilder(userAnswers = None)
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, howToBeContactedRoute)
-
-        val result = route(application, request).value
-
-        val vm = HowToBeContactedViewModel(emptyUserAnswers)(messages(application))
 
         val view = application.injector.instanceOf[HowToBeContactedView]
 

@@ -17,27 +17,31 @@
 package controllers.contactPreference
 
 import base.SpecBase
+import org.mockito.Mockito.when
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.contactPreference.ContinuePostalPreferenceView
+import views.html.contactPreference.ChangeAddressView
 
-class ContinuePostalPreferenceControllerSpec extends SpecBase {
+class ChangeAddressControllerSpec extends SpecBase {
 
-  "ContinuePostalPreference Controller" - {
+  "ChangeAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
+
+      when(mockAppConfig.changeAddressGuidanceUrl)
+        .thenReturn("https://www.gov.uk/find-hmrc-contacts/excise-warehousing-excise-goods-movements-and-alcohol-duties-enquiries")
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.ContinuePostalPreferenceController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.ChangeAddressController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ContinuePostalPreferenceView]
+        val view = application.injector.instanceOf[ChangeAddressView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(mockAppConfig.changeAddressGuidanceUrl)(request, messages(application)).toString
       }
     }
   }

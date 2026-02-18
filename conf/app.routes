@@ -31,7 +31,7 @@ GET        /enrolment/already-enrolled                      controllers.enrolmen
 GET        /contact-preferences/review-confirm-address                          controllers.contactPreference.ConfirmAddressController.onPageLoad()
 POST       /contact-preferences/review-confirm-address                          controllers.contactPreference.ConfirmAddressController.onSubmit()
 
-GET        /contact-preferences/post-continue                                   controllers.contactPreference.ContinuePostalPreferenceController.onPageLoad()
+GET        /contact-preferences/post-continue                                   controllers.contactPreference.ChangeAddressController.onPageLoad()
 
 GET        /contact-preferences/email-confirmation                              controllers.contactPreference.EmailConfirmationController.onPageLoad()
 

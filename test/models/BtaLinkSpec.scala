@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,18 @@
 
 package models
 
-import config.FrontendAppConfig
+import base.SpecBase
+import org.mockito.Mockito.when
 
-case class BtaLink(href: String)
+class BtaLinkSpec extends SpecBase {
 
-object BtaLink {
-  def apply(config: FrontendAppConfig): BtaLink = {
-    BtaLink(config.continueToBta)
+  when(mockAppConfig.continueToBta).thenReturn("btaLink")
+
+  "BtaLink" - {
+
+    "must populate the href field with the business tax account url" in {
+      val btaLink: BtaLink = BtaLink(mockAppConfig)
+      btaLink.href mustBe mockAppConfig.continueToBta
+    }
   }
 }

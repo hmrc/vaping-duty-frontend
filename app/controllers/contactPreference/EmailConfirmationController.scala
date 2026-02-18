@@ -34,14 +34,12 @@ class EmailConfirmationController @Inject()(
                                        val controllerComponents: MessagesControllerComponents,
                                        view: EmailConfirmationView,
                                        config: FrontendAppConfig
-                                     ) extends FrontendBaseController with I18nSupport with BtaLink {
+                                     ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
       val email = request.userAnswers.emailAddress.getOrElse("")
 
-      Ok(view(email, btaLink))
+      Ok(view(email, BtaLink(config).href))
   }
-
-  override def btaLink: String = config.continueToBta
 }

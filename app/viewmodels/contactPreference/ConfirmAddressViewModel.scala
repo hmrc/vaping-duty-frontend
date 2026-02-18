@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package models
+package viewmodels.contactPreference
 
 import config.FrontendAppConfig
 
-case class BtaLink(href: String)
+case class ConfirmAddressViewModel(changeAddressUrl: String, address: Seq[String])
 
-object BtaLink {
-  def apply(config: FrontendAppConfig): BtaLink = {
-    BtaLink(config.continueToBta)
+object ConfirmAddressViewModel {
+  def apply(config: FrontendAppConfig, address: String): ConfirmAddressViewModel = {
+    confirmAddressViewModel(config, address)
+  }
+
+  private def confirmAddressViewModel(config: FrontendAppConfig, address: String) = {
+    ConfirmAddressViewModel(config.changeAddressGuidanceUrl, address.split("\n").toSeq)
   }
 }
