@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import models.BtaLink
 import org.mockito.Mockito.when
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -64,7 +65,7 @@ class JourneyRecoveryControllerSpec extends SpecBase {
           val startAgainView = application.injector.instanceOf[JourneyRecoveryStartAgainView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual startAgainView(mockAppConfig.continueToBta)(request, messages(application)).toString
+          contentAsString(result) mustEqual startAgainView(BtaLink(mockAppConfig).href)(request, messages(application)).toString
         }
       }
     }
@@ -83,7 +84,7 @@ class JourneyRecoveryControllerSpec extends SpecBase {
           val startAgainView = application.injector.instanceOf[JourneyRecoveryStartAgainView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual startAgainView(mockAppConfig.continueToBta)(request, messages(application)).toString
+          contentAsString(result) mustEqual startAgainView(BtaLink(mockAppConfig).href)(request, messages(application)).toString
         }
       }
     }
