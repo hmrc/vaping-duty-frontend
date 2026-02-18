@@ -36,16 +36,13 @@ class ConfirmAddressControllerSpec extends SpecBase {
   "ConfirmAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val mockUserAnswersService = mock[UserAnswersService]
       
       when(mockAppConfig.changeAddressGuidanceUrl)
         .thenReturn("https://www.gov.uk/find-hmrc-contacts/excise-warehousing-excise-goods-movements-and-alcohol-duties-enquiries")
 
       val vm = ConfirmAddressViewModel(mockAppConfig, userAnswersPostNoEmail.subscriptionSummary.correspondenceAddress)
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail))
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
-        .build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail)).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ConfirmAddressController.onPageLoad().url)
