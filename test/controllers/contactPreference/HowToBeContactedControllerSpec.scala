@@ -52,11 +52,9 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
       val mockUserAnswersService = mock[UserAnswersService]
 
-      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(emptyUserAnswers))
-
       when(mockUserAnswersService.createUserAnswers(any())(any())).thenReturn(Future.successful(Right(emptyUserAnswers)))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      val application = applicationBuilder()
         .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
         .build()
 
@@ -78,11 +76,9 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
       val mockUserAnswersService = mock[UserAnswersService]
 
-      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(userAnswersPostNoEmail))
-
       when(mockUserAnswersService.createUserAnswers(any())(any())).thenReturn(Future.successful(Right(userAnswersPostNoEmail)))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail))
+      val application = applicationBuilder()
         .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
         .build()
 
