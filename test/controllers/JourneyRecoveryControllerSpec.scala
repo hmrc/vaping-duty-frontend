@@ -17,14 +17,17 @@
 package controllers
 
 import base.SpecBase
+import org.mockito.Mockito.when
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
 
 class JourneyRecoveryControllerSpec extends SpecBase {
 
   "JourneyRecovery Controller" - {
+
+    when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account")
 
     "when a relative continue Url is supplied" - {
 
@@ -61,7 +64,7 @@ class JourneyRecoveryControllerSpec extends SpecBase {
           val startAgainView = application.injector.instanceOf[JourneyRecoveryStartAgainView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual startAgainView()(request, messages(application)).toString
+          contentAsString(result) mustEqual startAgainView(mockAppConfig.continueToBta)(request, messages(application)).toString
         }
       }
     }
@@ -80,7 +83,7 @@ class JourneyRecoveryControllerSpec extends SpecBase {
           val startAgainView = application.injector.instanceOf[JourneyRecoveryStartAgainView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual startAgainView()(request, messages(application)).toString
+          contentAsString(result) mustEqual startAgainView(mockAppConfig.continueToBta)(request, messages(application)).toString
         }
       }
     }
