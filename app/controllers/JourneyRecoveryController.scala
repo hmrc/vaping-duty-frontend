@@ -18,7 +18,7 @@ package controllers
 
 import config.FrontendAppConfig
 import controllers.actions.ApprovedVapingManufacturerAuthAction
-import models.GetBtaLink
+import models.BtaLink
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -53,6 +53,6 @@ class JourneyRecoveryController @Inject()(
 
       safeUrl
         .map(url => Ok(continueView(url)))
-        .getOrElse(Ok(startAgainView(GetBtaLink(config).btaLink)))
+        .getOrElse(Ok(startAgainView(BtaLink(config).href)))
   }
 }
