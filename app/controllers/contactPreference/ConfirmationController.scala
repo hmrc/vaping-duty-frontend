@@ -19,25 +19,36 @@ package controllers.contactPreference
 import config.FrontendAppConfig
 import controllers.actions.*
 import models.BtaLink
+import models.contactPreference.HowToBeContacted
+import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.contactPreference.PostalConfirmationView
+import views.html.contactPreference.{EmailConfirmationView, PostalConfirmationView}
 
 import javax.inject.Inject
 
-class PostalConfirmationController @Inject()(
+class ConfirmationController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: PostalConfirmationView,
+                                       postalConfirmationView: PostalConfirmationView,
+                                       emailConfirmationView: EmailConfirmationView,
                                        config: FrontendAppConfig
                                      ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-        Ok(view(BtaLink(config).href))
+      val btaUrl = BtaLink(config).href
+
+      request.userAnswers.get(HowToBeContactedPage) match {
+        case Some(value) => value match {
+          case HowToBeContacted.Email => Ok(emailConfirmationView(request.userAnswers.emailAddress.get, btaUrl))
+          case HowToBeContacted.Post  => Ok(postalConfirmationView(btaUrl))
+        }
+        case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      }
   }
 }
