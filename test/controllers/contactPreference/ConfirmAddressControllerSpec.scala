@@ -115,7 +115,7 @@ class ConfirmAddressControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url
+        redirectLocation(result).value mustBe controllers.contactPreference.routes.ConfirmationController.onPageLoad().url
       }
     }
   }

@@ -65,8 +65,7 @@ class ConfirmAddressController @Inject()(
               emailAddress        = request.userAnswers.subscriptionSummary.emailAddress,
               emailVerification   = request.userAnswers.subscriptionSummary.emailVerification,
               bouncedEmail        = request.userAnswers.subscriptionSummary.bouncedEmail
-            ),
-            Post
+            )
           ).getResult
         case Post =>
           Future.successful(Redirect(controllers.contactPreference.routes.ChangeAddressController.onPageLoad()))

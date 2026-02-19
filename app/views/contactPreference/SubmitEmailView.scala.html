@@ -31,13 +31,13 @@
 
     @h1(messages("contactPreference.submitEmail.heading"))
 
-    @p(Seq(
-        HtmlContent(s"${messages("contactPreference.submitEmail.text")} $email")
-    ))
+@p(Seq(HtmlContent(s"${messages("contactPreference.submitEmail.youHave")} <b>$email</b>.")))
+
+    @p(Seq(HtmlContent(messages("contactPreference.submitEmail.youMust"))))
 
     @formHelper(action = controllers.contactPreference.routes.SubmitEmailController.onSubmit(), Symbol("autoComplete") -> "off") {
         @govukButton(
-            ButtonViewModel(messages("site.submit"))
+            ButtonViewModel(messages("site.saveAndContinue"))
         )
     }
 }

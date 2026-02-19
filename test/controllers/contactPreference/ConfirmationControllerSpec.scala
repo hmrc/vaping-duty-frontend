@@ -18,23 +18,25 @@ package controllers.contactPreference
 
 import base.SpecBase
 import connectors.SubmitPreferencesConnector
+import models.contactPreference.HowToBeContacted
 import models.emailverification.{ErrorModel, PaperlessPreferenceSubmittedResponse}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
+import pages.contactPreference.HowToBeContactedPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.contactPreference.PostalConfirmationView
+import views.html.contactPreference.{EmailConfirmationView, PostalConfirmationView}
 
 import java.time.Instant
 import scala.concurrent.Future
 
-class PostalConfirmationControllerSpec extends SpecBase {
+class ConfirmationControllerSpec extends SpecBase {
 
-  "PostalConfirmation Controller" - {
+  "Confirmation Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct email view for a GET" in {
 
       val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
       val processingDate = Instant.now()
@@ -44,12 +46,41 @@ class PostalConfirmationControllerSpec extends SpecBase {
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(PaperlessPreferenceSubmittedResponse(processingDate, ""))))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      val ua = userAnswers.copy(emailAddress = Some(emailAddress))
+
+      val application = applicationBuilder(userAnswers = Some(ua.set(HowToBeContactedPage, HowToBeContacted.Email).success.value))
         .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.contactPreference.routes.ConfirmationController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[EmailConfirmationView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(emailAddress, mockAppConfig.continueToBta)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct postal view for a GET" in {
+
+      val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
+      val processingDate = Instant.now()
+
+      when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account")
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Right(PaperlessPreferenceSubmittedResponse(processingDate, ""))))
+
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers.set(HowToBeContactedPage, HowToBeContacted.Post).success.value))
+        .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.contactPreference.routes.ConfirmationController.onPageLoad().url)
 
         val result = route(application, request).value
 
@@ -61,8 +92,6 @@ class PostalConfirmationControllerSpec extends SpecBase {
     }
 
     "must return OK and render the view when user is already on postal preference" in {
-      // Test used to be:
-      // must return SEE_OTHER and redirect to continue postal when user is already on postal preference
       
       val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
 
@@ -71,12 +100,12 @@ class PostalConfirmationControllerSpec extends SpecBase {
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail))
+      val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail.set(HowToBeContactedPage, HowToBeContacted.Post).success.value))
         .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.contactPreference.routes.ConfirmationController.onPageLoad().url)
 
         val result = route(application, request).value
 
@@ -84,6 +113,21 @@ class PostalConfirmationControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(mockAppConfig.continueToBta)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to journey recovery when there is no entry in user answers for HowToBeContacted" in {
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.contactPreference.routes.ConfirmationController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

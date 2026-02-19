@@ -18,7 +18,6 @@ package models.contactPreference
 
 import connectors.SubmitPreferencesConnector
 import models.contactPreference
-import models.contactPreference.PaperlessPreference.{Email, Post}
 import models.emailverification.{PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
 import models.requests.DataRequest
 import play.api.i18n.Lang.logger
@@ -36,16 +35,14 @@ case class PerformSubmission(result: Future[Result]) {
 object PerformSubmission {
   
   def apply(submitPreferencesConnector: SubmitPreferencesConnector,
-            preferenceSubmission: PaperlessPreferenceSubmission,
-            updatedPreference: PaperlessPreference)
+            preferenceSubmission: PaperlessPreferenceSubmission)
            (implicit ec: ExecutionContext, hc: HeaderCarrier, request: DataRequest[?]): PerformSubmission = {
     
-    performSubmission(submitPreferencesConnector, preferenceSubmission, updatedPreference)
+    performSubmission(submitPreferencesConnector, preferenceSubmission)
   }
 
   private def performSubmission(submitPreferencesConnector: SubmitPreferencesConnector,
-                                preferenceSubmission: PaperlessPreferenceSubmission,
-                                updatedPreference: PaperlessPreference)
+                                preferenceSubmission: PaperlessPreferenceSubmission)
                                (implicit ec: ExecutionContext, hc: HeaderCarrier, request: DataRequest[?])= {
     PerformSubmission(
       submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.enrolmentVpdId).map {
@@ -53,14 +50,8 @@ object PerformSubmission {
           logger.info(s"[contactPreference.PerformSubmission] Error submitting preference: $error")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         case Right(response) =>
-          updatedPreference match {
-            case Email =>
-              logSuccess(response)
-              Redirect(controllers.contactPreference.routes.EmailConfirmationController.onPageLoad())
-            case Post =>
-              logSuccess(response)
-              Redirect(controllers.contactPreference.routes.PostalConfirmationController.onPageLoad())
-          }
+          logSuccess(response)
+          Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
       }
     )
   }
