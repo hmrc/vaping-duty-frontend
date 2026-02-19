@@ -45,7 +45,7 @@ class ConfirmationController @Inject()(
 
       request.userAnswers.get(HowToBeContactedPage) match {
         case Some(value) => value match {
-          case HowToBeContacted.Email => Ok(emailConfirmationView(request.userAnswers.emailAddress.get, btaUrl))
+          case HowToBeContacted.Email => Ok(emailConfirmationView(request.userAnswers.emailAddress.getOrElse(""), btaUrl))
           case HowToBeContacted.Post  => Ok(postalConfirmationView(btaUrl))
         }
         case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
