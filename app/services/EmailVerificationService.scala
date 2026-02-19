@@ -76,8 +76,7 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
           emailAddress = Some(email),
           emailVerification = Some(verified),
           bouncedEmail = None
-        ),
-        Email
+        )
       ).getResult
     } else {
       // Should never enter this case

@@ -195,7 +195,7 @@ class EmailVerificationServiceSpec extends SpecBase {
           mockSubmitPreferencesConnector
         )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
 
-        _ mustBe Redirect(controllers.contactPreference.routes.EmailConfirmationController.onPageLoad())
+        _ mustBe Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
       }
     }
 
