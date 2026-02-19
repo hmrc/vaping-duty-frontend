@@ -33,8 +33,6 @@ POST       /contact-preferences/check-your-postal-address                       
 
 GET        /contact-preferences/post-continue                                   controllers.contactPreference.ChangeAddressController.onPageLoad()
 
-GET        /contact-preferences/email-confirmation                              controllers.contactPreference.EmailConfirmationController.onPageLoad()
-
 GET        /contact-preferences/enter-email-address                             controllers.contactPreference.EnterEmailController.onPageLoad(mode: Mode = NormalMode)
 POST       /contact-preferences/enter-email-address                             controllers.contactPreference.EnterEmailController.onSubmit(mode: Mode = NormalMode)
 GET        /contact-preferences/change-enter-email-address                      controllers.contactPreference.EnterEmailController.onPageLoad(mode: Mode = CheckMode)
@@ -47,10 +45,7 @@ POST       /contact-preferences/change-how-should-we-contact-you                
 
 GET        /contact-preferences/too-many-attempts                               controllers.contactPreference.LockedEmailController.onPageLoad()
 
-GET        /contact-preferences/postal-address-confirmation                     controllers.contactPreference.PostalConfirmationController.onPageLoad()
+GET        /contact-preferences/contact-preference-updated                      controllers.contactPreference.ConfirmationController.onPageLoad()
 
-GET        /contact-preferences/submit-email                                    controllers.contactPreference.SubmitEmailController.onPageLoad()
-POST       /contact-preferences/submit-email                                    controllers.contactPreference.SubmitEmailController.onSubmit()
-
-GET        /contact-preferences/submit-previously-verified-email                controllers.contactPreference.SubmitPreviouslyVerifiedEmailController.onPageLoad()
-POST       /contact-preferences/submit-previously-verified-email                controllers.contactPreference.SubmitPreviouslyVerifiedEmailController.onSubmit()
+GET        /contact-preferences/confirm-email-address                           controllers.contactPreference.SubmitEmailController.onPageLoad()
+POST       /contact-preferences/confirm-email-address                           controllers.contactPreference.SubmitEmailController.onSubmit()
