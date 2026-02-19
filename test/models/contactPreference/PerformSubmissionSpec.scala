@@ -19,7 +19,6 @@ package models.contactPreference
 import base.SpecBase
 import connectors.SubmitPreferencesConnector
 import data.TestData
-import models.contactPreference.PaperlessPreference.{Email, Post}
 import models.emailverification.ErrorModel
 import models.requests.DataRequest
 import org.mockito.ArgumentMatchers.any
@@ -41,34 +40,23 @@ class PerformSubmissionSpec extends AnyFreeSpec with Matchers with TestData with
 
   "PerformSubmission must" - {
 
-    "redirect to email confirmation page when submission is successful" in {
+    "redirect to confirmation page when submission is successful" in {
 
       when(mockConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(testSubmissionResponse)))
 
-      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionEmail, Email).getResult
+      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionEmail).getResult
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result).value mustBe controllers.contactPreference.routes.EmailConfirmationController.onPageLoad().url
+      redirectLocation(result).value mustBe controllers.contactPreference.routes.ConfirmationController.onPageLoad().url
    }
-
-    "redirect to postal confirmation page when submission is successful" in {
-
-      when(mockConnector.submitContactPreferences(any(), any())(any()))
-        .thenReturn(Future.successful(Right(testSubmissionResponse)))
-
-      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionPost, Post).getResult
-
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result).value mustBe controllers.contactPreference.routes.PostalConfirmationController.onPageLoad().url
-    }
 
     "redirect to journey recovery when submission response is an error" in {
 
       when(mockConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
-      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionNewEmail, Post).getResult
+      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionNewEmail).getResult
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
