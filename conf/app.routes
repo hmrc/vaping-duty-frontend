@@ -31,7 +31,7 @@ GET        /enrolment/already-enrolled                      controllers.enrolmen
 GET        /contact-preferences/check-your-postal-address                       controllers.contactPreference.ConfirmAddressController.onPageLoad()
 POST       /contact-preferences/check-your-postal-address                       controllers.contactPreference.ConfirmAddressController.onSubmit()
 
-GET        /contact-preferences/post-continue                                   controllers.contactPreference.ChangeAddressController.onPageLoad()
+GET        /contact-preferences/change-your-postal-address                      controllers.contactPreference.ChangeAddressController.onPageLoad()
 
 GET        /contact-preferences/enter-email-address                             controllers.contactPreference.EnterEmailController.onPageLoad(mode: Mode = NormalMode)
 POST       /contact-preferences/enter-email-address                             controllers.contactPreference.EnterEmailController.onSubmit(mode: Mode = NormalMode)
