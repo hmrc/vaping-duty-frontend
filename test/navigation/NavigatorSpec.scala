@@ -64,7 +64,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from EnterEmail page to Email Confirmation/CYA when address is already verified" in {
         val ua = userAnswers.set(EnterEmailPage, emailAddress2).success.value
-        navigator.nextPage(EnterEmailPage, NormalMode, ua) mustBe controllers.contactPreference.routes.SubmitPreviouslyVerifiedEmailController.onPageLoad()
+        navigator.nextPage(EnterEmailPage, NormalMode, ua) mustBe controllers.contactPreference.routes.SubmitEmailController.onPageLoad()
       }
     }
 
