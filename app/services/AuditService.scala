@@ -29,8 +29,7 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class AuditService @Inject()(auditConnector: AuditConnector)(implicit ec: ExecutionContext) extends Logging {
   def audit[T <: JourneyOutcome](detail: T)(implicit hc: HeaderCarrier, writes: Writes[T]): Unit = {
-    
-    println(Json.toJson(detail))
+
     auditConnector.sendExplicitAudit(ContactPreference.toString, Json.toJson(detail))
   }
 
