@@ -25,7 +25,6 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.UserAnswersService
 import viewmodels.contactPreference.ConfirmAddressViewModel
 import views.html.contactPreference.ConfirmAddressView
 

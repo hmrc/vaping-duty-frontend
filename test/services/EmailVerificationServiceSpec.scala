@@ -192,9 +192,9 @@ class EmailVerificationServiceSpec extends SpecBase {
         .thenReturn(Future.successful(Right(testSubmissionResponse)))
 
       whenReady(testService.submitVerifiedEmail(
-          emailAddress,
-          verified = true,
-          mockSubmitPreferencesConnector,
+        emailAddress,
+        verified = true,
+        mockSubmitPreferencesConnector,
         mockAuditService
         )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
 
