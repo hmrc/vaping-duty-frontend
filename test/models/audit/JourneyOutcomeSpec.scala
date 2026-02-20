@@ -20,7 +20,7 @@ import base.SpecBase
 import data.TestData
 import models.UserAnswers
 import models.audit.Actions.*
-import models.audit.PreferenceAction.Unknown
+import models.audit.PreferenceAction.PostToPost
 import models.contactPreference.PaperlessPreference.*
 import models.requests.DataRequest
 import org.scalatest.freespec.AnyFreeSpec
@@ -39,12 +39,12 @@ class JourneyOutcomeSpec extends AnyFreeSpec with Matchers with TestData with Sp
 
   "JourneyOutcome" - {
 
-    val json = """{"timeStarted":"2024-06-11T15:07:47.838Z","credentialId":"cred-id","vpdId":"VPPAID01","originalContactPreference":"Email","originalContactPreferenceValue":"john.doe@example.com","contactPreferenceChange":"AmendEmailAddress","contactPreferenceInput":{"emailAddressInput":"","confirmPostalAddress":"Flat 123\n1 Example Road\nLondon\nAB1 2CD"}}"""
+    val json = """{"timeStarted":"2024-06-11T15:07:47.838Z","credentialId":"cred-id","vpdId":"VPPAID01","originalContactPreference":"Email","originalContactPreferenceValue":"john.doe@example.com","contactPreferenceChange":"AmendEmailAddress","contactPreferenceInput":{"emailAddressInput":"john.doe@example.com"}}"""
     val journeyOutcomeModel = JourneyOutcome.buildEvent(
       contactPreferenceSubmissionNewEmail,
       Email,
       userAnswersEmailUpdate.subscriptionSummary.correspondenceAddress
-    )(request(userAnswersEmailUpdate))
+    )(request(userAnswersEmailUpdate.copy(emailAddress = Some(emailAddress))))
 
     "must serialise to json" in {
 
@@ -90,14 +90,14 @@ class JourneyOutcomeSpec extends AnyFreeSpec with Matchers with TestData with Sp
       result.contactPreferenceChange mustBe ChangeToEmail.toString
     }
 
-    "must create Unknown event correctly" in {
+    "must create PostToPost event correctly" in {
       val result = JourneyOutcome.buildEvent(
         contactPreferenceSubmissionPost,
         Post,
         userAnswersPostWithEmail.subscriptionSummary.correspondenceAddress
       )(request(userAnswersPostWithEmail))
 
-      result.contactPreferenceChange mustBe Unknown.toString
+      result.contactPreferenceChange mustBe PostToPost.toString
     }
   }
 
@@ -121,10 +121,10 @@ class JourneyOutcomeSpec extends AnyFreeSpec with Matchers with TestData with Sp
       result mustBe PreferenceAction.PostToEmail
     }
 
-    "must return Unknown" in {
+    "must return PostToPost" in {
       val result = JourneyOutcome.getAction(contactPreferenceSubmissionPost)(request(userAnswersPostWithEmail))
 
-      result mustBe PreferenceAction.Unknown
+      result mustBe PreferenceAction.PostToPost
     }
   }
 }

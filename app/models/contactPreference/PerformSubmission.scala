@@ -20,7 +20,7 @@ import connectors.SubmitPreferencesConnector
 import models.audit.Actions.*
 import models.audit.JourneyOutcome
 import models.contactPreference
-import models.audit.PreferenceAction.Unknown
+import models.audit.PreferenceAction.PostToPost
 import models.emailverification.{PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
 import models.requests.DataRequest
 import play.api.i18n.Lang.logger
@@ -69,8 +69,8 @@ object PerformSubmission {
     val address = request.userAnswers.subscriptionSummary.correspondenceAddress.replace("\n", ", ")
 
     JourneyOutcome.getAction(preferenceSubmission) match {
-      case Unknown => ()
-      case _       =>
+      case PostToPost => ()
+      case _          =>
         auditService.audit(JourneyOutcome.buildEvent(
           preferenceSubmission,
           PaperlessPreference(request.userAnswers.subscriptionSummary.paperlessPreference),

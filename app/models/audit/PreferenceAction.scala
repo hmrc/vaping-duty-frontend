@@ -17,7 +17,7 @@
 package models.audit
 
 enum PreferenceAction:
-  case EmailToEmail, EmailToPost, PostToEmail, Unknown
+  case EmailToEmail, EmailToPost, PostToEmail, PostToPost
 
 object PreferenceAction {
 
@@ -26,7 +26,9 @@ object PreferenceAction {
       case (true, true)     => EmailToEmail
       case (false, true)    => EmailToPost
       case (true, false)    => PostToEmail
-      case _                => Unknown
+      // Journey does not allow submission of preference if attempting to change from post to post as address
+      // cannot be updated in the service.  Case added to be complete.
+      case (false, false)   => PostToPost
     }
   }
 }

@@ -51,8 +51,12 @@ object JourneyOutcome {
       contactPreferenceChange = assertEventType(preferenceSubmission),
       contactPreferenceInput = Some(
         ContactPreferenceInput(
-          request.userAnswers.emailAddress.getOrElse(""),
-          address
+          request.userAnswers.emailAddress,
+          if (preferenceSubmission.paperlessPreference) {
+            None
+          } else {
+            Some(address)
+          }
         )
       )
     )
@@ -65,7 +69,7 @@ object JourneyOutcome {
       case EmailToEmail => AmendEmailAddress.toString
       case EmailToPost  => ChangeToPost.toString
       case PostToEmail  => ChangeToEmail.toString
-      case _            => Unknown.toString
+      case PostToPost   => PostToPost.toString
     }
   }
 

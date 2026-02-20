@@ -29,7 +29,7 @@ class ContactPreferenceInputSpec  extends AnyFreeSpec with Matchers with TestDat
   "ContactPreferenceInput" - {
     
     "must serialise to json" in {
-      val result = ContactPreferenceInput("email", "address")
+      val result = ContactPreferenceInput(Some("email"), Some("address"))
 
       Json.toJson(result).toString mustBe json
     }
@@ -37,7 +37,7 @@ class ContactPreferenceInputSpec  extends AnyFreeSpec with Matchers with TestDat
     "must serialise from json" in {
       val result = Json.parse(json).validate[ContactPreferenceInput].get
 
-      result mustBe ContactPreferenceInput("email", "address")
+      result mustBe ContactPreferenceInput(Some("email"), Some("address"))
     }
   }
 }
