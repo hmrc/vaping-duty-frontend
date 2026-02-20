@@ -34,6 +34,8 @@ import scala.concurrent.Future
 
 class EmailVerificationServiceSpec extends SpecBase {
 
+  val mockAuditService: AuditService = mock[AuditService]
+
   "retrieveAddressStatusAndAddToCache" - {
     "when the call to get a user's verification details fails, must return an error" in new Setup {
       when(mockEmailVerificationConnector.getEmailVerification(any())(any()))
@@ -192,7 +194,8 @@ class EmailVerificationServiceSpec extends SpecBase {
       whenReady(testService.submitVerifiedEmail(
           emailAddress,
           verified = true,
-          mockSubmitPreferencesConnector
+          mockSubmitPreferencesConnector,
+        mockAuditService
         )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
 
         _ mustBe Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
@@ -207,7 +210,8 @@ class EmailVerificationServiceSpec extends SpecBase {
       whenReady(testService.submitVerifiedEmail(
         emailAddress,
         verified = false,
-        mockSubmitPreferencesConnector
+        mockSubmitPreferencesConnector,
+        mockAuditService
       )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
 
         _ mustBe Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

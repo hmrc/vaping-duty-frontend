@@ -65,7 +65,7 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
     }
   }
 
-  def submitVerifiedEmail(email: String, verified: Boolean, submitPreferencesConnector: SubmitPreferencesConnector)
+  def submitVerifiedEmail(email: String, verified: Boolean, submitPreferencesConnector: SubmitPreferencesConnector, auditService: AuditService)
                          (implicit hc: HeaderCarrier, request: DataRequest[?]): Future[Result] = {
     
     if (verified) {
@@ -76,7 +76,8 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
           emailAddress = Some(email),
           emailVerification = Some(verified),
           bouncedEmail = None
-        )
+        ),
+        auditService = auditService
       ).getResult
     } else {
       // Should never enter this case

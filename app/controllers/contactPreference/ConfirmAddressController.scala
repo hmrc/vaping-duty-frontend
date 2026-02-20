@@ -26,6 +26,7 @@ import models.emailverification.PaperlessPreferenceSubmission
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.AuditService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.ConfirmAddressViewModel
 import views.html.contactPreference.ConfirmAddressView
@@ -41,7 +42,8 @@ class ConfirmAddressController @Inject()(
                                           submitPreferencesConnector: SubmitPreferencesConnector,
                                           val controllerComponents: MessagesControllerComponents,
                                           view: ConfirmAddressView,
-                                          config: FrontendAppConfig
+                                          config: FrontendAppConfig,
+                                          auditService: AuditService
                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
@@ -65,7 +67,8 @@ class ConfirmAddressController @Inject()(
               emailAddress        = request.userAnswers.subscriptionSummary.emailAddress,
               emailVerification   = request.userAnswers.subscriptionSummary.emailVerification,
               bouncedEmail        = request.userAnswers.subscriptionSummary.bouncedEmail
-            )
+            ),
+            auditService
           ).getResult
         case Post =>
           Future.successful(Redirect(controllers.contactPreference.routes.ChangeAddressController.onPageLoad()))

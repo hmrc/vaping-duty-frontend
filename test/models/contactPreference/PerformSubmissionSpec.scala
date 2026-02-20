@@ -29,6 +29,7 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, SEE_OTHER}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
+import services.AuditService
 
 import scala.concurrent.Future
 
@@ -37,6 +38,7 @@ class PerformSubmissionSpec extends AnyFreeSpec with Matchers with TestData with
   implicit val request: DataRequest[?] = DataRequest(FakeRequest(), vpdId, userId, credId, emptyUserAnswers)
 
   val mockConnector: SubmitPreferencesConnector = mock[SubmitPreferencesConnector]
+  val mockAuditService: AuditService = mock[AuditService]
 
   "PerformSubmission must" - {
 
@@ -45,7 +47,7 @@ class PerformSubmissionSpec extends AnyFreeSpec with Matchers with TestData with
       when(mockConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(testSubmissionResponse)))
 
-      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionEmail).getResult
+      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionEmail, mockAuditService).getResult
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result).value mustBe controllers.contactPreference.routes.ConfirmationController.onPageLoad().url
@@ -56,7 +58,7 @@ class PerformSubmissionSpec extends AnyFreeSpec with Matchers with TestData with
       when(mockConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
-      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionNewEmail).getResult
+      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionNewEmail, mockAuditService).getResult
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
