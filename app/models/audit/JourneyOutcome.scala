@@ -72,13 +72,7 @@ object JourneyOutcome {
   def getAction(preferenceSubmission: PaperlessPreferenceSubmission)
                (implicit request: DataRequest[?]): PreferenceAction = {
 
-    val status = (
-      preferenceSubmission.paperlessPreference,
-      preferenceSubmission.paperlessPreference == request.userAnswers.subscriptionSummary.paperlessPreference
-        && request.userAnswers.subscriptionSummary.paperlessPreference
-        | request.userAnswers.subscriptionSummary.paperlessPreference,
-    )
-    PreferenceAction(status)
+    PreferenceAction((preferenceSubmission.paperlessPreference, request.userAnswers.subscriptionSummary.paperlessPreference))
   }
 
   implicit val format: OFormat[JourneyOutcome] = Json.format[JourneyOutcome]

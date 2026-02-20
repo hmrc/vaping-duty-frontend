@@ -23,10 +23,10 @@ object PreferenceAction {
 
   def apply(action: (Boolean, Boolean)): PreferenceAction = {
     action match {
-      case (true, true)  => EmailToEmail
-      case (false, true) => EmailToPost
-      case (true, false) => PostToEmail
-      case _             => Unknown
+      case (true, true)     => EmailToEmail
+      case (false, true)    => EmailToPost
+      case (true, false)    => PostToEmail
+      case _                => Unknown
     }
   }
 }
