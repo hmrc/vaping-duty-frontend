@@ -68,17 +68,14 @@ object PerformSubmission {
 
     val address = request.userAnswers.subscriptionSummary.correspondenceAddress.replace("\n", ", ")
 
-    JourneyOutcome.getAction(preferenceSubmission) match {
-      case PostToPost => ()
-      case _          =>
-        auditService.audit(JourneyOutcome.buildEvent(
-          preferenceSubmission,
-          PaperlessPreference(request.userAnswers.subscriptionSummary.paperlessPreference),
-          address))
-    }
+    auditService.audit(
+      JourneyOutcome.buildEvent(preferenceSubmission,
+        PaperlessPreference(request.userAnswers.subscriptionSummary.paperlessPreference),
+        address))
   }
 
   private def logSuccess(response: PaperlessPreferenceSubmittedResponse): Unit = {
     logger.info(s"[PerformSubmission] Preference updated ${response.processingDate}")
   }
+
 }
