@@ -156,7 +156,7 @@ class SubmitEmailControllerSpec extends SpecBase {
       when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, true, true)))
 
-      when(mockEmailVerificationService.submitVerifiedEmail(any(), any(), any())(any(), any()))
+      when(mockEmailVerificationService.submitVerifiedEmail(any(), any(), any(), any())(any(), any()))
         .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
@@ -185,7 +185,7 @@ class SubmitEmailControllerSpec extends SpecBase {
       when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, false, false)))
 
-      when(mockEmailVerificationService.submitVerifiedEmail(any(), any(), any())(any(), any()))
+      when(mockEmailVerificationService.submitVerifiedEmail(any(), any(), any(), any())(any(), any()))
         .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))

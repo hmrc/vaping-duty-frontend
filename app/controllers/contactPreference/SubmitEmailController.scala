@@ -23,7 +23,7 @@ import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.EmailVerificationService
+import services.{AuditService, EmailVerificationService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.SubmitEmailView
 
@@ -38,7 +38,8 @@ class SubmitEmailController @Inject()(
                                        emailVerificationService: EmailVerificationService,
                                        submitPreferencesConnector: SubmitPreferencesConnector,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: SubmitEmailView
+                                       view: SubmitEmailView,
+                                       auditService: AuditService
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -79,7 +80,8 @@ class SubmitEmailController @Inject()(
             emailVerificationService.submitVerifiedEmail(
               emailVerificationDetails.emailAddress,
               emailVerificationDetails.isVerified,
-              submitPreferencesConnector
+              submitPreferencesConnector,
+              auditService
             )
       }
   }
