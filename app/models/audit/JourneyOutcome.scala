@@ -46,9 +46,9 @@ object JourneyOutcome {
       originalContactPreference = initialPreference.toString,
       originalContactPreferenceValue = initialPreference match {
         case Email => request.userAnswers.subscriptionSummary.emailAddress.getOrElse("")
-        case Post => address
+        case Post  => address
       },
-      contactPreferenceChange = assertEventType(preferenceSubmission),
+      contactPreferenceChange = contactPreferenceChange(preferenceSubmission),
       contactPreferenceInput = Some(
         ContactPreferenceInput(
           request.userAnswers.emailAddress,
@@ -62,8 +62,8 @@ object JourneyOutcome {
     )
   }
 
-  private def assertEventType(preferenceSubmission: PaperlessPreferenceSubmission)
-                             (implicit request: DataRequest[?]) = {
+  private def contactPreferenceChange(preferenceSubmission: PaperlessPreferenceSubmission)
+                                     (implicit request: DataRequest[?]) = {
 
     getAction(preferenceSubmission) match {
       case EmailToEmail => AmendEmailAddress.toString
