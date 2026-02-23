@@ -97,7 +97,7 @@ class JourneyOutcomeSpec extends AnyFreeSpec with Matchers with TestData with Sp
         userAnswersPostWithEmail.subscriptionSummary.correspondenceAddress
       )(request(userAnswersPostWithEmail))
 
-      result.contactPreferenceChange mustBe PostToPost.toString
+      result.contactPreferenceChange mustBe Unchanged.toString
     }
   }
 

@@ -17,4 +17,4 @@
 package models.audit
 
 enum Actions:
-  case ChangeToPost, ChangeToEmail, AmendEmailAddress
+  case ChangeToPost, ChangeToEmail, AmendEmailAddress, Unchanged

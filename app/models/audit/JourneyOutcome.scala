@@ -16,7 +16,7 @@
 
 package models.audit
 
-import models.audit.Actions.{AmendEmailAddress, ChangeToEmail, ChangeToPost}
+import models.audit.Actions.{AmendEmailAddress, ChangeToEmail, ChangeToPost, Unchanged}
 import models.audit.PreferenceAction.*
 import models.contactPreference.PaperlessPreference
 import models.contactPreference.PaperlessPreference.{Email, Post}
@@ -69,7 +69,11 @@ object JourneyOutcome {
       case EmailToEmail => AmendEmailAddress.toString
       case EmailToPost  => ChangeToPost.toString
       case PostToEmail  => ChangeToEmail.toString
-      case PostToPost   => PostToPost.toString
+      // The Post to Post journey does not allow the user to set the address in the service, instead they need to submit
+      // a request to the Compliance Team to do this and the journey directs them to do this. There is no change of
+      // preferences to record on the journey, and it does not POST up a change.
+      // This case is included here simply out of completeness but will never be used.
+      case PostToPost   => Unchanged.toString
     }
   }
 
