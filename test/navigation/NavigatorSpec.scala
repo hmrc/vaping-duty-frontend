@@ -26,7 +26,7 @@ import play.api.mvc.Call
 
 class NavigatorSpec extends SpecBase {
 
-  val navigator = new Navigator
+  val navigator = new Navigator(mockAppConfig)
 
   "Navigator" - {
 
@@ -35,7 +35,7 @@ class NavigatorSpec extends SpecBase {
       "must go from a page that doesn't exist in the route map to Index" in {
 
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe routes.IndexController.onPageLoad()
+        navigator.nextPage(UnknownPage, NormalMode, userAnswers).url mustBe mockAppConfig.continueToBta
       }
 
       "must go from HowToBeContacted page to EnterEmail page" in {
