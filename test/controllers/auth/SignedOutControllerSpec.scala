@@ -20,12 +20,15 @@ import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.auth.SignedOutView
+import org.mockito.Mockito.when
 
 class SignedOutControllerSpec extends SpecBase {
 
   "SignedOut Controller" - {
 
     "must return OK and the correct view for a GET" in {
+
+      when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account")
 
       val application = applicationBuilder(userAnswers = None).build()
 
