@@ -106,7 +106,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
           .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
           .overrides(bind[EmailVerificationConnector].toInstance(mockEmailVerificationConnector))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
           )
           .build()
 
@@ -136,7 +136,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
           .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
           .overrides(bind[EmailVerificationConnector].toInstance(mockEmailVerificationConnector))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
           )
           .build()
 
@@ -171,7 +171,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
           .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
           .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
           )
           .build()
 
@@ -200,7 +200,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
           .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
           .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
           )
           .build()
 
@@ -225,7 +225,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, true, false)))
 
       when(mockEmailVerificationService.redirectIfLocked(any(), any()))
-        .thenReturn(Future.successful(Redirect(new FakeNavigator(onwardRoute).nextPage(EnterEmailPage, NormalMode, userAnswers))))
+        .thenReturn(Future.successful(Redirect(new FakeNavigator(onwardRoute, mockAppConfig).nextPage(EnterEmailPage, NormalMode, userAnswers))))
 
       when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
 
@@ -234,7 +234,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
           .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
           .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
           )
           .build()
 
@@ -268,7 +268,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
           .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
           .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
           )
           .build()
 
