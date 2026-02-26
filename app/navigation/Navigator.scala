@@ -24,7 +24,7 @@ import pages.*
 import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
 import play.api.Logging
 import play.api.mvc.Call
-import play.api.http.HttpVerbs
+import play.api.http.HttpVerbs.GET
 
 import javax.inject.{Inject, Singleton}
 import config.FrontendAppConfig
@@ -37,7 +37,7 @@ class Navigator @Inject()(
   private val normalRoutes: Page => UserAnswers => Call = {
     case HowToBeContactedPage   => ua   => howToBeContactedRoute(ua)
     case EnterEmailPage         => _    => controllers.contactPreference.routes.SubmitEmailController.onPageLoad()
-    case _                      => _    => Call(HttpVerbs.GET, BtaLink(config))
+    case _                      => _    => Call(GET, BtaLink(config))
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = {
