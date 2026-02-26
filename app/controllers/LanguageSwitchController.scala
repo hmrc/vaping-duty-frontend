@@ -24,12 +24,12 @@ import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
 import models.BtaLink
 
 class LanguageSwitchController @Inject()(
-                                          appConfig: FrontendAppConfig,
+                                          config: FrontendAppConfig,
                                           languageUtils: LanguageUtils,
                                           cc: ControllerComponents
                                         ) extends LanguageController(languageUtils, cc) {
 
-  override def fallbackURL: String = BtaLink(appConfig)
+  override def fallbackURL: String = BtaLink(config)
 
-  override def languageMap: Map[String, Lang] = appConfig.languageMap
+  override def languageMap: Map[String, Lang] = config.languageMap
 }

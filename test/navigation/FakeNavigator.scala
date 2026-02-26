@@ -21,8 +21,8 @@ import pages.*
 import play.api.mvc.Call
 import config.FrontendAppConfig
 
-class FakeNavigator(desiredRoute: Call, appConfig: FrontendAppConfig)
-  extends Navigator(appConfig) {
+class FakeNavigator(desiredRoute: Call, config: FrontendAppConfig)
+  extends Navigator(config) {
 
   override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
     desiredRoute
