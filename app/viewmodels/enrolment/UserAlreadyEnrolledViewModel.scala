@@ -23,5 +23,5 @@ import models.BtaLink
 
 case class UserAlreadyEnrolledViewModel @Inject()(config: FrontendAppConfig) {
 
-  def continue: String  = BtaLink(config).href
+  def continue: String  = BtaLink(config)
 }

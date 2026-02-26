@@ -32,7 +32,7 @@ class UserAlreadyEnrolledViewModelSpec extends UnitSpec {
     val vm = UserAlreadyEnrolledViewModel(config)
 
     "returns correct URL for continueToBta" in {
-        vm.continue mustBe BtaLink(config).href
+        vm.continue mustBe BtaLink(config)
     }
 
   }

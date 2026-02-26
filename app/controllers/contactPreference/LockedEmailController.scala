@@ -36,6 +36,6 @@ class LockedEmailController @Inject()(
 
   def onPageLoad: Action[AnyContent] = identify {
     implicit request =>
-      Ok(view(BtaLink(config).href))
+      Ok(view(BtaLink(config)))
   }
 }

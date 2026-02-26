@@ -41,7 +41,7 @@ class LockedEmailControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[LockedEmailView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(BtaLink(mockAppConfig).href)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(BtaLink(mockAppConfig))(request, messages(application)).toString
       }
     }
   }

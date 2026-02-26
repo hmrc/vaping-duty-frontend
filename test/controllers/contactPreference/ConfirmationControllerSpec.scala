@@ -61,7 +61,7 @@ class ConfirmationControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[EmailConfirmationView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(emailAddress, BtaLink(mockAppConfig).href)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(emailAddress, BtaLink(mockAppConfig))(request, messages(application)).toString
       }
     }
 
@@ -88,7 +88,7 @@ class ConfirmationControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[PostalConfirmationView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(BtaLink(mockAppConfig).href)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(BtaLink(mockAppConfig))(request, messages(application)).toString
       }
     }
 
@@ -113,7 +113,7 @@ class ConfirmationControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[PostalConfirmationView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(BtaLink(mockAppConfig).href)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(BtaLink(mockAppConfig))(request, messages(application)).toString
       }
     }
 

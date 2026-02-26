@@ -64,7 +64,7 @@
         additionalHeadBlock = Some(head)
     ),
     serviceURLs = ServiceURLs(
-        serviceUrl = Some(BtaLink(appConfig.continueToBta).href),
+        serviceUrl = Some(BtaLink(appConfig)),
         signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
     ),
     banners = Banners(

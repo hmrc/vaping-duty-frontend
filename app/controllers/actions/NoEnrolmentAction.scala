@@ -30,7 +30,7 @@ class NoEnrolmentActionImpl @Inject()(implicit val executionContext: ExecutionCo
     request.enrolmentVpdId match {
       case Some(_) =>
         Future.successful(Left(Redirect(
-          controllers.enrolment.routes.UserAlreadyEnrolledController.onPageLoad().url
+          controllers.enrolment.routes.UserAlreadyEnrolledController.onPageLoad()
         )))
       case None =>
         Future.successful(Right(NoEnrolmentIdentifierRequest(request, None, request.groupId, request.userId)))
