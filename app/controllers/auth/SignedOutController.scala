@@ -22,6 +22,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.auth.SignedOutView
 import config.FrontendAppConfig
+import models.BtaLink
 
 class SignedOutController @Inject()(
                                      appConfig: FrontendAppConfig,
@@ -30,6 +31,6 @@ class SignedOutController @Inject()(
                                    ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Ok(view(appConfig.continueToBta))
+    Ok(view(BtaLink(appConfig).href))
   }
 }

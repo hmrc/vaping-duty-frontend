@@ -36,7 +36,7 @@ class Navigator @Inject()(
   private val normalRoutes: Page => UserAnswers => Call = {
     case HowToBeContactedPage   => ua   => howToBeContactedRoute(ua)
     case EnterEmailPage         => _    => controllers.contactPreference.routes.SubmitEmailController.onPageLoad()
-    case _                      => _    => Call("GET", appConfig.continueToBta)
+    case _                      => _    => Call("GET", BtaLink(appConfig).href)
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = {

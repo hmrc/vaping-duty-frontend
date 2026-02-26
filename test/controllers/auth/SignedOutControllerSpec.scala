@@ -21,6 +21,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.auth.SignedOutView
 import org.mockito.Mockito.when
+import models.BtaLink
 
 class SignedOutControllerSpec extends SpecBase {
 
@@ -40,7 +41,7 @@ class SignedOutControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[SignedOutView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(mockAppConfig.continueToBta)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(BtaLink(mockAppConfig).href)(request, messages(application)).toString
       }
     }
   }
