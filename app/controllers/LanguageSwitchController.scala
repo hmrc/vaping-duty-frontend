@@ -21,14 +21,15 @@ import config.FrontendAppConfig
 import play.api.i18n.Lang
 import play.api.mvc._
 import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
+import models.BtaLink
 
 class LanguageSwitchController @Inject()(
-                                          appConfig: FrontendAppConfig,
+                                          config: FrontendAppConfig,
                                           languageUtils: LanguageUtils,
                                           cc: ControllerComponents
                                         ) extends LanguageController(languageUtils, cc) {
 
-  override def fallbackURL: String = routes.IndexController.onPageLoad().url
+  override def fallbackURL: String = BtaLink(config)
 
-  override def languageMap: Map[String, Lang] = appConfig.languageMap
+  override def languageMap: Map[String, Lang] = config.languageMap
 }

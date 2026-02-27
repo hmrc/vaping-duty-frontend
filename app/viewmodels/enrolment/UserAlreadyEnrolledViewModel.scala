@@ -19,8 +19,9 @@ package viewmodels.enrolment
 import config.FrontendAppConfig
 
 import javax.inject.Inject
+import models.BtaLink
 
 case class UserAlreadyEnrolledViewModel @Inject()(config: FrontendAppConfig) {
 
-  def continue: String  = config.continueToBta
+  def continue: String  = BtaLink(config)
 }

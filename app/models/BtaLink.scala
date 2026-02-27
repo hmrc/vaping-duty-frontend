@@ -18,10 +18,12 @@ package models
 
 import config.FrontendAppConfig
 
-case class BtaLink(href: String)
+class BtaLink(config: FrontendAppConfig) {
+  def url: String = config.continueToBta
+}
 
 object BtaLink {
-  def apply(config: FrontendAppConfig): BtaLink = {
-    BtaLink(config.continueToBta)
+  def apply(config: FrontendAppConfig): String = {
+    new BtaLink(config).url
   }
 }

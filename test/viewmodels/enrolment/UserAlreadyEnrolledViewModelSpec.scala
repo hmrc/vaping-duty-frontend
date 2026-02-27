@@ -19,6 +19,7 @@ package viewmodels.enrolment
 import base.UnitSpec
 import config.FrontendAppConfig
 import org.mockito.Mockito.*
+import models.BtaLink
 
 
 class UserAlreadyEnrolledViewModelSpec extends UnitSpec {
@@ -31,7 +32,7 @@ class UserAlreadyEnrolledViewModelSpec extends UnitSpec {
     val vm = UserAlreadyEnrolledViewModel(config)
 
     "returns correct URL for continueToBta" in {
-        vm.continue mustBe config.continueToBta
+        vm.continue mustBe BtaLink(config)
     }
 
   }

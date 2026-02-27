@@ -21,6 +21,7 @@ import org.mockito.Mockito.when
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.contactPreference.LockedEmailView
+import models.BtaLink
 
 class LockedEmailControllerSpec extends SpecBase {
 
@@ -40,7 +41,7 @@ class LockedEmailControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[LockedEmailView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(mockAppConfig.continueToBta)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(BtaLink(mockAppConfig))(request, messages(application)).toString
       }
     }
   }

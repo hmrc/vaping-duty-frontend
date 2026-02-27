@@ -24,16 +24,20 @@ import pages.*
 import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
 import play.api.Logging
 import play.api.mvc.Call
+import play.api.http.HttpVerbs.GET
 
 import javax.inject.{Inject, Singleton}
+import config.FrontendAppConfig
 
 @Singleton
-class Navigator @Inject() extends Logging {
+class Navigator @Inject()(
+  config: FrontendAppConfig
+) extends Logging {
 
   private val normalRoutes: Page => UserAnswers => Call = {
     case HowToBeContactedPage   => ua   => howToBeContactedRoute(ua)
     case EnterEmailPage         => _    => controllers.contactPreference.routes.SubmitEmailController.onPageLoad()
-    case _                      => _    => routes.IndexController.onPageLoad()
+    case _                      => _    => Call(GET, BtaLink(config))
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = {

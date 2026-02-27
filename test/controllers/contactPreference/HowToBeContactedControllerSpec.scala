@@ -155,7 +155,7 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
           )
           .build()
 

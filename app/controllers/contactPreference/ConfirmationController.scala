@@ -41,7 +41,7 @@ class ConfirmationController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-      val btaUrl = BtaLink(config).href
+      val btaUrl = BtaLink(config)
 
       request.userAnswers.get(HowToBeContactedPage) match {
         case Some(value) => value match {

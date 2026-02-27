@@ -26,8 +26,8 @@ class BtaLinkSpec extends SpecBase {
   "BtaLink" - {
 
     "must populate the href field with the business tax account url" in {
-      val btaLink: BtaLink = BtaLink(mockAppConfig)
-      btaLink.href mustBe mockAppConfig.continueToBta
+      val btaLink: String = BtaLink(mockAppConfig)
+      btaLink mustBe mockAppConfig.continueToBta
     }
   }
 }

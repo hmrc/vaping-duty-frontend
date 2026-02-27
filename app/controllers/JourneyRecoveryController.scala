@@ -53,6 +53,6 @@ class JourneyRecoveryController @Inject()(
 
       safeUrl
         .map(url => Ok(continueView(url)))
-        .getOrElse(Ok(startAgainView(BtaLink(config).href)))
+        .getOrElse(Ok(startAgainView(BtaLink(config))))
   }
 }

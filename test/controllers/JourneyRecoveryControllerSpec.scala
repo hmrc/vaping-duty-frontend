@@ -65,7 +65,7 @@ class JourneyRecoveryControllerSpec extends SpecBase {
           val startAgainView = application.injector.instanceOf[JourneyRecoveryStartAgainView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual startAgainView(BtaLink(mockAppConfig).href)(request, messages(application)).toString
+          contentAsString(result) mustEqual startAgainView(BtaLink(mockAppConfig))(request, messages(application)).toString
         }
       }
     }
@@ -84,7 +84,7 @@ class JourneyRecoveryControllerSpec extends SpecBase {
           val startAgainView = application.injector.instanceOf[JourneyRecoveryStartAgainView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual startAgainView(BtaLink(mockAppConfig).href)(request, messages(application)).toString
+          contentAsString(result) mustEqual startAgainView(BtaLink(mockAppConfig))(request, messages(application)).toString
         }
       }
     }
