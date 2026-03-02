@@ -20,7 +20,6 @@ import connectors.SubmitPreferencesConnector
 import models.audit.Actions.*
 import models.audit.JourneyOutcome
 import models.contactPreference
-import models.audit.PreferenceAction.PostToPost
 import models.emailverification.{PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
 import models.requests.DataRequest
 import play.api.i18n.Lang.logger
