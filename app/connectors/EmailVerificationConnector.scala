@@ -84,9 +84,6 @@ class EmailVerificationConnector @Inject()(
           case CREATED =>
             Try(response.json.as[RedirectUri]) match {
               case Success(successResponse) =>
-                logger.info(
-                  "[EmailVerificationConnector] [startEmailVerification] Email verification url retrieved successfully"
-                )
                 Right(successResponse)
               case Failure(_)               =>
                 logger.warn(

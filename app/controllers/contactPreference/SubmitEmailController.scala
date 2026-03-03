@@ -52,7 +52,7 @@ class SubmitEmailController @Inject()(
         request.userAnswers
       ).value.flatMap {
         case Left(error) =>
-          logger.info("[SubmitEmailController][onPageLoad] Error retrieving email verification status with status: " +
+          logger.warn("[SubmitEmailController][onPageLoad] Error retrieving email verification status with status: " +
             s"${error.status} and message: ${error.message}")
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         case Right(verificationDetails) =>
