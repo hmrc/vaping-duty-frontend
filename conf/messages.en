@@ -64,7 +64,7 @@ enrolment.userDoesNotHaveApprovalId.howToGetVpdId.linkText = Find out how to get
 
 enrolment.userAlreadyEnrolled.heading = You have already enrolled for this service
 
-### Contact Preferences ###
+### Contact Preference ###
 
 contactPreference.postalCaption = Post Preferences
 
