@@ -75,8 +75,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val timeout: Int   = configuration.get[Int]("timeout-dialog.timeout")
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
-  val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
-
   def vdrPingUrl(): String = s"$vdHost/vaping-duty/ping"
 
   private val contactPreferenceBaseUrl                      = s"$contactPreferencesHost/vaping-duty-account"

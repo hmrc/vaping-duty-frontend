@@ -18,8 +18,7 @@ package models
 
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
-import queries.{Settable, Gettable}
-import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
+import queries.{Gettable, Settable}
 
 import java.time.Instant
 import scala.util.{Failure, Success, Try}
@@ -69,7 +68,20 @@ final case class UserAnswers(
   }
 }
 
+
+
 object UserAnswers {
+
+  final val instantReads: Reads[Instant] =
+    Reads.at[String](__ \ "$date" \ "$numberLong")
+      .map(s => Instant.ofEpochMilli(s.toLong))
+
+  final val instantWrites: Writes[Instant] =
+    Writes.at[String](__ \ "$date" \ "$numberLong")
+      .contramap(_.toEpochMilli.toString)
+
+  final val instantFormat: Format[Instant] =
+    Format(instantReads, instantWrites)
 
   implicit val format: OFormat[UserAnswers] = (
     (__ \ "vpdId").format[String] and
@@ -77,9 +89,9 @@ object UserAnswers {
       (__ \ "subscriptionSummary").format[SubscriptionSummary] and
       (__ \ "emailAddress").formatNullable[String] and
       (__ \ "data").formatWithDefault[JsObject](Json.obj()) and
-      (__ \ "startedTime").format(MongoJavatimeFormats.instantFormat) and
-      (__ \ "lastUpdated").format(MongoJavatimeFormats.instantFormat) and
-      (__ \ "validUntil").formatNullable(MongoJavatimeFormats.instantFormat)
+      (__ \ "startedTime").format(instantFormat) and
+      (__ \ "lastUpdated").format(instantFormat) and
+      (__ \ "validUntil").formatNullable(instantFormat)
   )(UserAnswers.apply, o => Tuple.fromProductTyped(o))
 
 }
