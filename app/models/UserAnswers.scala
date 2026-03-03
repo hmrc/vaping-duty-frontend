@@ -68,8 +68,6 @@ final case class UserAnswers(
   }
 }
 
-
-
 object UserAnswers {
 
   private final val instantReads: Reads[Instant] =
