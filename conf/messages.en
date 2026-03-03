@@ -31,10 +31,6 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
-index.title = vaping-duty-frontend
-index.heading = vaping-duty-frontend
-index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
-
 checkYourAnswers.title = Check your answers
 checkYourAnswers.heading = Check your answers
 
@@ -68,7 +64,7 @@ enrolment.userDoesNotHaveApprovalId.howToGetVpdId.linkText = Find out how to get
 
 enrolment.userAlreadyEnrolled.heading = You have already enrolled for this service
 
-### Contact Preference ###
+### Contact Preferences ###
 
 contactPreference.postalCaption = Post Preferences
 
