@@ -72,15 +72,15 @@ final case class UserAnswers(
 
 object UserAnswers {
 
-  final val instantReads: Reads[Instant] =
+  private final val instantReads: Reads[Instant] =
     Reads.at[String](__ \ "$date" \ "$numberLong")
       .map(s => Instant.ofEpochMilli(s.toLong))
 
-  final val instantWrites: Writes[Instant] =
+  private final val instantWrites: Writes[Instant] =
     Writes.at[String](__ \ "$date" \ "$numberLong")
       .contramap(_.toEpochMilli.toString)
 
-  final val instantFormat: Format[Instant] =
+  private final val instantFormat: Format[Instant] =
     Format(instantReads, instantWrites)
 
   implicit val format: OFormat[UserAnswers] = (
