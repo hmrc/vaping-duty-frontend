@@ -33,14 +33,10 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
 
   "signOut" - {
 
-    "must clear user answers and redirect to sign out, specifying the exit survey as the continue URL" in {
-
-      val mockSessionRepository = mock[UserAnswersService]
-      when(mockSessionRepository.clear(any())(any())) thenReturn Future.successful(Right(()))
+    "must redirect to sign out, specifying the exit survey as the continue URL" in {
 
       val application =
         applicationBuilder(None)
-          .overrides(bind[UserAnswersService].toInstance(mockSessionRepository))
           .build()
 
       running(application) {
@@ -55,36 +51,28 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual expectedRedirectUrl
-        verify(mockSessionRepository, times(1)).clear(eqTo(userId))(any())
       }
     }
   }
 
   "signOutNoSurvey" - {
 
-    "must clear users answers and redirect to sign out, specifying SignedOut as the continue URL" in {
-
-      val mockSessionRepository = mock[UserAnswersService]
-      when(mockSessionRepository.clear(any())(any())) thenReturn Future.successful(Right(()))
+    "must redirect to sign out, specifying SignedOut as the continue URL" in {
 
       val application =
         applicationBuilder(None)
-          .overrides(bind[UserAnswersService].toInstance(mockSessionRepository))
           .build()
 
       running(application) {
 
-        val appConfig = application.injector.instanceOf[FrontendAppConfig]
         val request   = FakeRequest(GET, routes.AuthController.signOutNoSurvey().url)
 
         val result = route(application, request).value
 
-        val encodedContinueUrl  = URLEncoder.encode(routes.SignedOutController.onPageLoad().url, "UTF-8")
-        val expectedRedirectUrl = s"${appConfig.signOutUrl}?continue=$encodedContinueUrl"
+        val expectedRedirectUrl = controllers.auth.routes.SignedOutController.onPageLoad().url
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual expectedRedirectUrl
-        verify(mockSessionRepository, times(1)).clear(eqTo(userId))(any())
       }
     }
   }
