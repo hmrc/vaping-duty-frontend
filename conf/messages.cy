@@ -25,6 +25,7 @@ date.error.year = blwyddyn
 timeout.title = Rydych ar fin cael eich allgofnodi
 timeout.message = Am resymau diogelwch, cewch eich allgofnodi o’r gwasanaeth hwn ymhen
 timeout.keepAlive = Parhau i fod wedi’ch mewngofnodi
+timeout.signOut = Allgofnodi
 
 error.title.prefix = Gwall:
 error.prefix = Gwall
