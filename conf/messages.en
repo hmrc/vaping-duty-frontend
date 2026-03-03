@@ -87,8 +87,6 @@ contactPreference.emailConfirmation.backToBta = Go back to your Business Tax Acc
 
 contactPreference.enterEmail.title = What email address should we use to contact you?
 contactPreference.enterEmail.heading = What email address should we use to contact you?
-contactPreference.enterEmail.checkYourAnswersLabel = enterEmail
-contactPreference.enterEmail.change.hidden = enterEmail
 contactPreference.enterEmail.error.length = Your email address must be 254 characters or fewer
 contactPreference.enterEmail.error.format = Enter an email address in the correct format, like name@example.com
 contactPreference.enterEmail.error.required = Email address cannot be blank
@@ -104,9 +102,7 @@ contactPreference.howToBeContacted.setToPost.post = Change your postal address
 contactPreference.howToBeContacted.setToPost.email = Email
 contactPreference.howToBeContacted.post = post:
 contactPreference.howToBeContacted.email = email:
-contactPreference.howToBeContacted.checkYourAnswersLabel = howToBeContacted
 contactPreference.howToBeContacted.error.required = Select how we should contact you
-contactPreference.howToBeContacted.change.hidden = HowToBeContacted
 
 contactPreference.lockedEmail.title = You have reached the maximum number of attempts to enter a confirmation code
 contactPreference.lockedEmail.heading = You have reached the maximum number of attempts to enter a confirmation code
