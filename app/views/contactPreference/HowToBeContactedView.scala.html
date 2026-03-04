@@ -32,15 +32,15 @@
 
 @layout(pageTitle = title(form, messages("contactPreference.howToBeContacted.title"))) {
 
+    @if(form.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
+    }
+
     @h1(messages("contactPreference.howToBeContacted.heading"))
 
     @p(Seq(HtmlContent(vm.content)))
 
     @formHelper(action = controllers.contactPreference.routes.HowToBeContactedController.onSubmit(mode), Symbol("autoComplete") -> "off") {
-
-        @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
-        }
 
         @govukRadios(
             RadiosViewModel(
