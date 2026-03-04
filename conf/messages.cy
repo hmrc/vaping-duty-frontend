@@ -89,7 +89,7 @@ contactPreference.enterEmail.title = Pa gyfeiriad e-bost y dylen ni ei ddefnyddi
 contactPreference.enterEmail.heading = Pa gyfeiriad e-bost y dylen ni ei ddefnyddio i gysylltu â chi?
 contactPreference.enterEmail.error.length = Mae’n rhaid i’ch cyfeiriad e-bost fod yn 254 o gymeriadau neu lai
 contactPreference.enterEmail.error.format = Nodwch gyfeiriad e-bost yn y fformat cywir, fel enw@enghraifft.com
-contactPreference.enterEmail.error.required = Ni all y cyfeiriad e-bost fod yn wag
+contactPreference.enterEmail.error.required = Nodwch gyfeiriad e-bost
 
 contactPreference.howToBeContacted.title = Dewisiadau cyswllt
 contactPreference.howToBeContacted.heading = Dewisiadau cyswllt
