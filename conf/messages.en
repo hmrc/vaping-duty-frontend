@@ -110,7 +110,7 @@ contactPreference.lockedEmail.toKeepYour = To keep your account secure, we limit
 contactPreference.lockedEmail.tryAgain = You can try again in 24 hours.
 
 contactPreference.postalConfirmation.preferenceUpdated = Your contact preference has been updated
-contactPreference.postalConfirmation.weWill = We will post letters to your registered address.
+contactPreference.postalConfirmation.weWill = We will post letters to the address you selected.
 
 contactPreference.submitEmail.title = Confirm your email address
 contactPreference.submitEmail.heading = Confirm your email address
