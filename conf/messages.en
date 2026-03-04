@@ -89,7 +89,7 @@ contactPreference.enterEmail.title = What email address should we use to contact
 contactPreference.enterEmail.heading = What email address should we use to contact you?
 contactPreference.enterEmail.error.length = Your email address must be 254 characters or fewer
 contactPreference.enterEmail.error.format = Enter an email address in the correct format, like name@example.com
-contactPreference.enterEmail.error.required = Email address cannot be blank
+contactPreference.enterEmail.error.required = Enter email address
 
 contactPreference.howToBeContacted.title = Contact preferences
 contactPreference.howToBeContacted.heading = Contact preferences
