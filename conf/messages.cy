@@ -44,11 +44,11 @@ journeyRecovery.startAgain.guidance = Rhowch gynnig arall arni yn nes ymlaen.
 signedOut.title = Er eich diogelwch, gwnaethom eich allgofnodi
 signedOut.heading = Er eich diogelwch, gwnaethom eich allgofnodi
 
-unauthorised.title = Nid oes modd i chi gael mynediad at y gwasanaeth hwn gyda'r cyfrif hwn
-unauthorised.heading = Nid oes modd i chi gael mynediad at y gwasanaeth hwn gyda'r cyfrif hwn
-unauthorised.toUse = I ddefnyddio'r gwasanaeth hwn, mae angen i chi fod yn un o'r canlynol:
-unauthorised.approved = Gweithgynhyrchydd fepio yn y DU sydd wedi'i awdurdodi
-unauthorised.enrolled = Wedi ymrestru â'r gwasanaeth
+unauthorised.title = Nid oes modd i chi gael mynediad at y gwasanaeth hwn gyda’r cyfrif hwn
+unauthorised.heading = Nid oes modd i chi gael mynediad at y gwasanaeth hwn gyda’r cyfrif hwn
+unauthorised.toUse = I ddefnyddio’r gwasanaeth hwn, mae angen i chi fod yn un o’r canlynol:
+unauthorised.approved = Gweithgynhyrchydd fepio yn y DU sydd wedi’i awdurdodi
+unauthorised.enrolled = Wedi ymrestru â’r gwasanaeth
 
 enrolment.organisationSignIn.heading = Er mwyn cofrestru, mae angen i chi fod yn weinyddwr cyfrif ar gyfer y sefydliad
 enrolment.organisationSignIn.onlyUsers = Defnyddwyr â manylion gweinyddwr cyfrif ar gyfer y sefydliad yn unig sy’n gallu cofrestru i ddefnyddio’r gwasanaeth hwn.
