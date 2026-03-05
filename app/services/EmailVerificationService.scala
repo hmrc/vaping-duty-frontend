@@ -81,7 +81,7 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
           bouncedEmail = None
         ),
         auditService = auditService
-      ).getResult.map {
+      ).map {
         case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         case _: Success => Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
       }

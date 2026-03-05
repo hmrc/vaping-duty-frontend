@@ -67,9 +67,9 @@ class SubmitAddressController @Inject()(
             bouncedEmail = request.userAnswers.subscriptionSummary.bouncedEmail
           ),
           auditService
-        ).getResult.map {
-          case res if res.isInstanceOf[Failure] => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-          case res if res.isInstanceOf[Success] => Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
+        ).map {
+          case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          case _: Success => Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
         }
       case Post  =>
         Future.successful(Redirect(controllers.contactPreference.routes.ChangeAddressController.onPageLoad()))
