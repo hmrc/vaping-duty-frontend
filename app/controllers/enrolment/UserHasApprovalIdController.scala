@@ -59,14 +59,14 @@ class UserHasApprovalIdController @Inject()(
 
   def onSubmit(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment andThen getData).async {
     implicit request =>
-
+      val now = Instant.now()
       form.bindFromRequest().fold(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors))),
 
         userHasVpdEnrolmentId =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(EnrolmentUserAnswers(request.userId, Json.obj(), Instant.now(), Instant.now()))
+            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(EnrolmentUserAnswers(request.userId, Json.obj(), now, now))
               .set(UserHasApprovalIdPage, userHasVpdEnrolmentId))
             _              <- enrolmentRepository.set(updatedAnswers)
           } yield {
