@@ -61,11 +61,7 @@ trait SpecBase
   protected def enrolmentApplicationBuilder(userAnswers: Option[EnrolmentUserAnswers] = None): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
-        bind[DataRequiredAction].to[DataRequiredActionImpl],
-        bind[ApprovedVapingManufacturerAuthAction].to[FakeApprovedVapingManufacturerAuthAction],
         bind[EnrolmentClaimAuthAction].to[FakeEnrolmentClaimAuthAction],
-        bind[HasEnrolmentAction].to[FakeHasEnrolmentAction],
-        bind[CheckSignedInAction].to[FakeCheckSignedInAction],
         bind[EnrolmentDataRetrievalAction].toInstance(new FakeEnrolmentDataRetrievalAction(userAnswers))
       )
   
