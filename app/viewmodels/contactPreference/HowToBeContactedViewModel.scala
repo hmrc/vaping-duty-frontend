@@ -41,13 +41,25 @@ object HowToBeContactedViewModel {
 
     PaperlessPreference(ua.subscriptionSummary.paperlessPreference) match {
       case Email =>
+
+        val emailPreference: String     = ua.subscriptionSummary.emailAddress.getOrElse("")
+        val emailSuffix: String         = messages("contactPreference.howToBeContacted.email")
+        val emailPreferenceKey: String  = "setToEmail"
+        val currentlyEmail: String      = messages("contactPreference.howToBeContacted.currently.email")
+
         buildViewModel(
-          content     = makeContentString(suffix = emailSuffix, currentPreference = emailPreference),
+          content     = makeContentString(suffix = emailSuffix, currentPreference = emailPreference, messages("contactPreference.howToBeContacted.currentlyEmail")),
           radioItems  = HowToBeContacted.options(emailPreferenceKey)
         )
       case Post =>
+
+        val postalPreference: String    = ua.subscriptionSummary.correspondenceAddress.replaceAll("\n", ", ")
+        val postalSuffix: String        = messages("contactPreference.howToBeContacted.post")
+        val postalPreferenceKey: String = "setToPost"
+        val currentlyPost: String       = messages("contactPreference.howToBeContacted.currently.post")
+
         buildViewModel(
-          content     = makeContentString(suffix = postalSuffix, currentPreference = postalPreference),
+          content     = makeContentString(suffix = postalSuffix, currentPreference = postalPreference, messages("contactPreference.howToBeContacted.currentlyPost")),
           radioItems  = HowToBeContacted.options(postalPreferenceKey)
         )
     }
@@ -57,10 +69,8 @@ object HowToBeContactedViewModel {
     HowToBeContactedViewModel(content = Html(content), radioItems = radioItems)
   }
 
-  private def makeContentString(suffix: String, currentPreference: String)
+  private def makeContentString(suffix: String, currentPreference: String, message: String)
                                (implicit messages: Messages): String = {
-    val currentMessage: String = messages("contactPreference.howToBeContacted.currently")
-
-    s"$currentMessage $suffix<br/><strong>$currentPreference</strong>"
+    s"$message $suffix<br/><strong>$currentPreference</strong>"                                
   }
 }

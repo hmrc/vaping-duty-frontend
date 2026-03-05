@@ -90,10 +90,10 @@ contactPreference.enterEmail.heading = What email address should we use to conta
 contactPreference.enterEmail.error.length = Your email address must be 254 characters or fewer
 contactPreference.enterEmail.error.format = Enter an email address in the correct format, like name@example.com
 contactPreference.enterEmail.error.required = Enter email address
-
 contactPreference.howToBeContacted.title = Contact preferences
 contactPreference.howToBeContacted.heading = Contact preferences
-contactPreference.howToBeContacted.currently = We currently contact you by
+contactPreference.howToBeContacted.currently.email = We currently contact you by
+contactPreference.howToBeContacted.currently.post = We currently contact you by
 contactPreference.howToBeContacted.tellUs = Tell us how we should contact you
 contactPreference.howToBeContacted.hint = The method selected will be used for general enquiries and Vaping Products Duty information.
 contactPreference.howToBeContacted.setToEmail.post = Post

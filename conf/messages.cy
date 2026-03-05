@@ -93,7 +93,8 @@ contactPreference.enterEmail.error.required = Nodwch gyfeiriad e-bost
 
 contactPreference.howToBeContacted.title = Dewisiadau cyswllt
 contactPreference.howToBeContacted.heading = Dewisiadau cyswllt
-contactPreference.howToBeContacted.currently = Ar hyn o bryd rydym yn cysylltu â chi drwy
+contactPreference.howToBeContacted.currently.email = Ar hyn o bryd rydym yn cysylltu â chi drwyr
+contactPreference.howToBeContacted.currently.post = Ar hyn o bryd rydym yn cysylltu â chi drwy’r
 contactPreference.howToBeContacted.tellUs = Rhowch wybod i ni sut y dylem gysylltu â chi
 contactPreference.howToBeContacted.hint = Bydd y dull a dewiswyd yn cael ei ddefnyddio ar gyfer ymholiadau cyffredinol a gwybodaeth Toll Cynhyrchion Fepio.
 contactPreference.howToBeContacted.setToEmail.post = Post
@@ -117,4 +118,4 @@ contactPreference.submitEmail.heading = Cadarnhewch eich e-bost
 contactPreference.submitEmail.youHave = Rydych wedi rhoi gwybod i ni i ddefnyddio’r cyfeiriad e-bost
 contactPreference.submitEmail.youMust = Mae’n rhaid i chi barhau er mwyn cadw eich dewis cyswllt.
 
-emailVerificationJourney.signature =  Toll Cynhyrchion Fepio
+emailVerificationJourney.signature = Toll Cynhyrchion Fepio
