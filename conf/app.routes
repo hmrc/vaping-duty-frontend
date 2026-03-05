@@ -26,8 +26,8 @@ GET        /enrolment/you-need-an-approval-id               controllers.enrolmen
 GET        /enrolment/already-enrolled                      controllers.enrolment.UserAlreadyEnrolledController.onPageLoad()
 
 # Contact Preferences
-GET        /contact-preferences/check-your-postal-address                       controllers.contactPreference.ConfirmAddressController.onPageLoad()
-POST       /contact-preferences/check-your-postal-address                       controllers.contactPreference.ConfirmAddressController.onSubmit()
+GET        /contact-preferences/check-your-postal-address                       controllers.contactPreference.SubmitAddressController.onPageLoad()
+POST       /contact-preferences/check-your-postal-address                       controllers.contactPreference.SubmitAddressController.onSubmit()
 
 GET        /contact-preferences/change-your-postal-address                      controllers.contactPreference.ChangeAddressController.onPageLoad()
 

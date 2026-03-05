@@ -15,7 +15,7 @@
  *@
 
 @import components._
-@import viewmodels.contactPreference.ConfirmAddressViewModel
+@import viewmodels.contactPreference.SubmitAddressViewModel
 
 @this(
         layout: templates.Layout,
@@ -29,7 +29,7 @@
         govukDetails: GovukDetails
 )
 
-@(vm: ConfirmAddressViewModel)(implicit request: Request[_], messages: Messages)
+@(vm: SubmitAddressViewModel)(implicit request: Request[_], messages: Messages)
 
 @detailsContent = {
     @p(Seq(HtmlContent(messages("contactPreference.continuePostalPreference.youMust"))))
@@ -55,7 +55,7 @@
         items = vm.address
     )
 
-    @formHelper(action = controllers.contactPreference.routes.ConfirmAddressController.onSubmit(), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.contactPreference.routes.SubmitAddressController.onSubmit(), Symbol("autoComplete") -> "off") {
 
         @govukButton(
             ButtonViewModel(messages("contactPreference.confirmAddress.confirm"))

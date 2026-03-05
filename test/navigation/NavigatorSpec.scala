@@ -47,7 +47,7 @@ class NavigatorSpec extends SpecBase {
       "must go from HowToBeContacted page to Post page" in {
 
         val ua = userAnswers.set(HowToBeContactedPage, HowToBeContacted.Post).success.value
-        navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe controllers.contactPreference.routes.ConfirmAddressController.onPageLoad()
+        navigator.nextPage(HowToBeContactedPage, NormalMode, ua) mustBe controllers.contactPreference.routes.SubmitAddressController.onPageLoad()
       }
 
       "must go from HowToBeContacted page to Update Post page" in {

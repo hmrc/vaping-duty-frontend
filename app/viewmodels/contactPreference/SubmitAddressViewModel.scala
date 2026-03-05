@@ -18,14 +18,14 @@ package viewmodels.contactPreference
 
 import config.FrontendAppConfig
 
-case class ConfirmAddressViewModel(changeAddressUrl: String, address: Seq[String])
+case class SubmitAddressViewModel(changeAddressUrl: String, address: Seq[String])
 
-object ConfirmAddressViewModel {
-  def apply(config: FrontendAppConfig, address: String): ConfirmAddressViewModel = {
+object SubmitAddressViewModel {
+  def apply(config: FrontendAppConfig, address: String): SubmitAddressViewModel = {
     confirmAddressViewModel(config, address)
   }
 
   private def confirmAddressViewModel(config: FrontendAppConfig, address: String) = {
-    ConfirmAddressViewModel(config.changeAddressGuidanceUrl, address.split("\n").toSeq)
+    SubmitAddressViewModel(config.changeAddressGuidanceUrl, address.split("\n").toSeq)
   }
 }

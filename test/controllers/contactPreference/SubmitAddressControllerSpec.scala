@@ -25,30 +25,30 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import viewmodels.contactPreference.ConfirmAddressViewModel
-import views.html.contactPreference.ConfirmAddressView
+import viewmodels.contactPreference.SubmitAddressViewModel
+import views.html.contactPreference.SubmitAddressView
 
 import scala.concurrent.Future
 
-class ConfirmAddressControllerSpec extends SpecBase {
+class SubmitAddressControllerSpec extends SpecBase {
 
-  "ConfirmAddress Controller" - {
+  "SubmitAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
       
       when(mockAppConfig.changeAddressGuidanceUrl)
         .thenReturn("https://www.gov.uk/find-hmrc-contacts/excise-warehousing-excise-goods-movements-and-alcohol-duties-enquiries")
 
-      val vm = ConfirmAddressViewModel(mockAppConfig, userAnswersPostNoEmail.subscriptionSummary.correspondenceAddress)
+      val vm = SubmitAddressViewModel(mockAppConfig, userAnswersPostNoEmail.subscriptionSummary.correspondenceAddress)
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostNoEmail)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.ConfirmAddressController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.SubmitAddressController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ConfirmAddressView]
+        val view = application.injector.instanceOf[SubmitAddressView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
@@ -67,7 +67,7 @@ class ConfirmAddressControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.ConfirmAddressController.onSubmit().url)
+        val request = FakeRequest(POST, routes.SubmitAddressController.onSubmit().url)
 
         val result = route(application, request).value
 
@@ -88,7 +88,7 @@ class ConfirmAddressControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.ConfirmAddressController.onSubmit().url)
+        val request = FakeRequest(POST, routes.SubmitAddressController.onSubmit().url)
 
         val result = route(application, request).value
 
@@ -109,7 +109,7 @@ class ConfirmAddressControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, routes.ConfirmAddressController.onSubmit().url)
+        val request = FakeRequest(POST, routes.SubmitAddressController.onSubmit().url)
 
         val result = route(application, request).value
 
