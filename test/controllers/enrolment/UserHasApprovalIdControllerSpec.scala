@@ -18,11 +18,16 @@ package controllers.enrolment
 
 import base.SpecBase
 import forms.enrolment.UserHasApprovalIdFormProvider
+import models.enrolment.EnrolmentUserAnswers
 import org.scalatestplus.mockito.MockitoSugar
+import pages.enrolment.UserHasApprovalIdPage
 import play.api.data.Form
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.enrolment.UserHasApprovalIdView
+
+import java.time.Instant
 
 class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 
@@ -33,9 +38,28 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 
   "UserHasApprovalId Controller" - {
 
+    "must return OK and the correct view for a GET with a previous answer" in {
+
+      val application = enrolmentApplicationBuilder(
+        userAnswers = Some(EnrolmentUserAnswers(userId, Json.obj(), Instant.now(clock), Instant.now(clock))
+          .set(UserHasApprovalIdPage, true).success.value)
+      ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, UserHasApprovalIdRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[UserHasApprovalIdView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form.fill(true))(request, messages(application)).toString
+      }
+    }
+
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = enrolmentApplicationBuilder().build()
 
       running(application) {
         val request = FakeRequest(GET, UserHasApprovalIdRoute)
@@ -51,9 +75,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to EACD if user has approval id " in {
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .build()
+      val application = enrolmentApplicationBuilder().build()
 
       running(application) {
         val request =
@@ -75,9 +97,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to guidance page if user does not have approval id " in {
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .build()
+      val application = enrolmentApplicationBuilder().build()
 
       running(application) {
         val request =
@@ -93,7 +113,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = enrolmentApplicationBuilder().build()
 
       running(application) {
         val request =
@@ -110,6 +130,5 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(boundForm)(request, messages(application)).toString
       }
     }
-
   }
 }

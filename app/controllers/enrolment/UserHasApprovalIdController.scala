@@ -19,46 +19,62 @@ package controllers.enrolment
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.enrolment.UserHasApprovalIdFormProvider
+import models.enrolment.EnrolmentUserAnswers
+import pages.enrolment.UserHasApprovalIdPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.EnrolmentUserAnswersRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.enrolment.UserHasApprovalIdView
 
+import java.time.Instant
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class UserHasApprovalIdController @Inject()(
                                              override val messagesApi: MessagesApi,
                                              isAuthenticated: EnrolmentClaimAuthAction,
                                              hasNoEnrolment: NoEnrolmentAction,
                                              formProvider: UserHasApprovalIdFormProvider,
+                                             getData: EnrolmentDataRetrievalAction,
+                                             enrolmentRepository: EnrolmentUserAnswersRepository,
                                              val controllerComponents: MessagesControllerComponents,
                                              view: UserHasApprovalIdView,
                                              config: FrontendAppConfig
-                                 )() extends FrontendBaseController with I18nSupport {
+                                            )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment) {
+  def onPageLoad(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment andThen getData) {
     implicit request =>
-      Ok(view(form))
+      val now = Instant.now()
+      request.userAnswers.getOrElse(EnrolmentUserAnswers(request.userId, Json.obj(), now, now))
+        .get(UserHasApprovalIdPage) match {
+          case Some(value)  => Ok(view(form.fill(value)))
+          case None         => Ok(view(form))
+        }
   }
 
-  def onSubmit(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment) {
+  def onSubmit(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment andThen getData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          BadRequest(view(formWithErrors)),
+          Future.successful(BadRequest(view(formWithErrors))),
 
         userHasVpdEnrolmentId =>
-          if (userHasVpdEnrolmentId) {
-            Redirect(config.eacdEnrolmentClaimRedirectUrl)
-          }
-          else {
-            Redirect(
-              controllers.enrolment.routes.UserDoesNotHaveApprovalIdController.onPageLoad().url
-            )
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(EnrolmentUserAnswers(request.userId, Json.obj(), Instant.now(), Instant.now()))
+              .set(UserHasApprovalIdPage, userHasVpdEnrolmentId))
+            _              <- enrolmentRepository.set(updatedAnswers)
+          } yield {
+            if (userHasVpdEnrolmentId) {
+              Redirect(config.eacdEnrolmentClaimRedirectUrl)
+            } else {
+              Redirect(controllers.enrolment.routes.UserDoesNotHaveApprovalIdController.onPageLoad().url)
+            }
           }
       )
   }
