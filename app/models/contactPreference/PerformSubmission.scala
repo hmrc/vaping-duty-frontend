@@ -22,17 +22,14 @@ import models.audit.JourneyOutcome
 import models.contactPreference
 import models.emailverification.{PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
 import models.requests.DataRequest
-import play.api.i18n.Lang.logger
-import play.api.mvc.Result
-import play.api.mvc.Results.Redirect
 import services.AuditService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class PerformSubmission(result: Future[Result]) {
+case class PerformSubmission(result: Future[ResponseStatus]) {
 
-  def getResult: Future[Result] = result
+  def getResult: Future[ResponseStatus] = result
 }
 
 object PerformSubmission {
@@ -51,13 +48,10 @@ object PerformSubmission {
                                (implicit ec: ExecutionContext, hc: HeaderCarrier, request: DataRequest[?]) = {
     PerformSubmission(
       submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.enrolmentVpdId).map {
-        case Left(error)     =>
-          logger.info(s"[contactPreference.PerformSubmission] Error submitting preference: $error")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case Left(error)     => new Failure
         case Right(response) =>
-          logSuccess(response)
           sendExplicitEvent(preferenceSubmission, auditService)
-          Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
+          new Success
       }
     )
   }
@@ -72,9 +66,10 @@ object PerformSubmission {
         PaperlessPreference(request.userAnswers.subscriptionSummary.paperlessPreference),
         address))
   }
-
-  private def logSuccess(response: PaperlessPreferenceSubmittedResponse): Unit = {
-    logger.info(s"[PerformSubmission] Preference updated ${response.processingDate}")
-  }
-
 }
+
+class ResponseStatus
+
+class Success extends ResponseStatus
+
+class Failure extends ResponseStatus
