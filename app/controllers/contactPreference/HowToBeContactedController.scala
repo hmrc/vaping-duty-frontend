@@ -57,8 +57,8 @@ class HowToBeContactedController @Inject()(
             case Left(error) =>
               logger.info(s"[HowToBeContactedController][onPageLoad] Creating user answers failed: ${error.message}")
               Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-            case Right(response) =>
-              Ok(view(prepareForm(response), HowToBeContactedViewModel(response), mode))
+            case Right(userAnswers) =>
+              Ok(view(prepareForm(userAnswers), HowToBeContactedViewModel(userAnswers), mode))
           }
       }
   }
