@@ -43,7 +43,7 @@ class AuditServiceSpec extends SpecBase {
         originalContactPreference = Email.toString,
         originalContactPreferenceValue = emailAddress,
         contactPreferenceChange = ChangeToPost.toString,
-        contactPreferenceInput = Some(ContactPreferenceInput(
+        newContactPreference = Some(NewContactPreference(
           userAnswersPostWithEmail.emailAddress,
           Some(userAnswersPostWithEmail.subscriptionSummary.correspondenceAddress.replace("\n", ", "))
         ))

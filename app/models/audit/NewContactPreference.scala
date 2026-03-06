@@ -19,8 +19,8 @@ package models.audit
 import play.api.libs.json.{Json, OFormat}
 
 
-case class ContactPreferenceInput(emailAddressInput: Option[String], confirmPostalAddress: Option[String])
+case class NewContactPreference(newEmailAddress: Option[String], confirmPostalAddress: Option[String])
 
-object ContactPreferenceInput {
-  implicit val format: OFormat[ContactPreferenceInput] = Json.format[ContactPreferenceInput]
+object NewContactPreference {
+  implicit val format: OFormat[NewContactPreference] = Json.format[NewContactPreference]
 }
