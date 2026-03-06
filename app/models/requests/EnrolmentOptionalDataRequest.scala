@@ -22,7 +22,3 @@ import play.api.mvc.{Request, WrappedRequest}
 case class EnrolmentOptionalDataRequest[A] (request: Request[A],
                                             userId: String,
                                             userAnswers: Option[EnrolmentUserAnswers]) extends WrappedRequest[A](request)
-
-case class EnrolmentDataRequest[A] (request: Request[A],
-                                    userId: String,
-                                    userAnswers: EnrolmentUserAnswers) extends WrappedRequest[A](request)
