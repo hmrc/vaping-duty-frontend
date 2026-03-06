@@ -20,6 +20,7 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import forms.enrolment.UserHasApprovalIdFormProvider
 import models.enrolment.EnrolmentUserAnswers
+import models.requests.EnrolmentOptionalDataRequest
 import pages.enrolment.UserHasApprovalIdPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -49,8 +50,8 @@ class UserHasApprovalIdController @Inject()(
 
   def onPageLoad(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment andThen getData) {
     implicit request =>
-      val now = Instant.now()
-      request.userAnswers.getOrElse(EnrolmentUserAnswers(request.userId, Json.obj(), now, now))
+
+      request.userAnswers.getOrElse(emptyAnswers(request))
         .get(UserHasApprovalIdPage) match {
           case Some(value)  => Ok(view(form.fill(value)))
           case None         => Ok(view(form))
@@ -59,14 +60,13 @@ class UserHasApprovalIdController @Inject()(
 
   def onSubmit(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment andThen getData).async {
     implicit request =>
-      val now = Instant.now()
       form.bindFromRequest().fold(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors))),
 
         userHasVpdEnrolmentId =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(EnrolmentUserAnswers(request.userId, Json.obj(), now, now))
+            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(emptyAnswers(request))
               .set(UserHasApprovalIdPage, userHasVpdEnrolmentId))
             _              <- enrolmentRepository.set(updatedAnswers)
           } yield {
@@ -77,5 +77,9 @@ class UserHasApprovalIdController @Inject()(
             }
           }
       )
+  }
+
+  private def emptyAnswers(request: EnrolmentOptionalDataRequest[?]) = {
+    EnrolmentUserAnswers(request.userId, Json.obj(), Instant.now(), Instant.now())
   }
 }
