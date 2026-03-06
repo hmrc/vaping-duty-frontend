@@ -202,6 +202,22 @@ class EmailVerificationServiceSpec extends SpecBase {
       }
     }
 
+    "must redirect to journey recovery if submission fails" in new Setup {
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
+
+      whenReady(testService.submitVerifiedEmail(
+        emailAddress,
+        verified = true,
+        mockSubmitPreferencesConnector,
+        mockAuditService
+      )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
+
+        _ mustBe Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      }
+    }
+
     "must redirect to journey recovery if trying to submit unverified email address" in new Setup {
 
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
