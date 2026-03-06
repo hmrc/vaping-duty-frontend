@@ -21,6 +21,7 @@ import connectors.EmailVerificationConnector
 import controllers.actions.*
 import data.TestData
 import models.UserAnswers
+import models.enrolment.EnrolmentUserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -55,6 +56,13 @@ trait SpecBase
         bind[HasEnrolmentAction].to[FakeHasEnrolmentAction],
         bind[CheckSignedInAction].to[FakeCheckSignedInAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
+
+  protected def enrolmentApplicationBuilder(userAnswers: Option[EnrolmentUserAnswers] = None): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[EnrolmentClaimAuthAction].to[FakeEnrolmentClaimAuthAction],
+        bind[EnrolmentDataRetrievalAction].toInstance(new FakeEnrolmentDataRetrievalAction(userAnswers))
       )
   
   implicit val hc: HeaderCarrier = HeaderCarrier()

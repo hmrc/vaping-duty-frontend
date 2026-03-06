@@ -14,26 +14,11 @@
  * limitations under the License.
  */
 
-package queries
+package models.requests
 
-import models.UserAnswers
 import models.enrolment.EnrolmentUserAnswers
-import play.api.libs.json.JsPath
+import play.api.mvc.{Request, WrappedRequest}
 
-import scala.util.{Success, Try}
-
-sealed trait Query {
-
-  def path: JsPath
-}
-
-trait Gettable[A] extends Query
-
-trait Settable[A] extends Query {
-
-  def cleanup(value: Option[A], userAnswers: UserAnswers): Try[UserAnswers] =
-    Success(userAnswers)
-  
-  def cleanup(value: Option[A], userAnswers: EnrolmentUserAnswers): Try[EnrolmentUserAnswers] =
-    Success(userAnswers)
-}
+case class EnrolmentOptionalDataRequest[A] (request: Request[A],
+                                            userId: String,
+                                            userAnswers: Option[EnrolmentUserAnswers]) extends WrappedRequest[A](request)

@@ -20,7 +20,6 @@ import base.SpecBase
 import data.TestData
 import models.UserAnswers
 import models.audit.Actions.*
-import models.audit.PreferenceAction.PostToPost
 import models.contactPreference.PaperlessPreference.*
 import models.requests.DataRequest
 import org.scalatest.freespec.AnyFreeSpec
