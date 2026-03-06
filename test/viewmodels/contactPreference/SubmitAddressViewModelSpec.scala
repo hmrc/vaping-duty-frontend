@@ -21,7 +21,7 @@ import data.TestData
 import org.mockito.Mockito.when
 
 
-class ConfirmAddressViewModelSpec extends UnitSpec with SpecBase with TestData {
+class SubmitAddressViewModelSpec extends UnitSpec with SpecBase with TestData {
 
   "ConfirmAddressViewModel" - {
 
@@ -29,7 +29,7 @@ class ConfirmAddressViewModelSpec extends UnitSpec with SpecBase with TestData {
 
       when(mockAppConfig.changeAddressGuidanceUrl).thenReturn("changeAddressGuidanceUrl")
 
-      val vm = ConfirmAddressViewModel(mockAppConfig, userAnswers.subscriptionSummary.correspondenceAddress)
+      val vm = SubmitAddressViewModel(mockAppConfig, userAnswers.subscriptionSummary.correspondenceAddress)
 
       val result = vm.changeAddressUrl
 
@@ -38,7 +38,7 @@ class ConfirmAddressViewModelSpec extends UnitSpec with SpecBase with TestData {
 
     "address field should return list with the address lines in elements of the list" in {
 
-      val vm = ConfirmAddressViewModel(mockAppConfig, userAnswers.subscriptionSummary.correspondenceAddress)
+      val vm = SubmitAddressViewModel(mockAppConfig, userAnswers.subscriptionSummary.correspondenceAddress)
 
       val result = vm.address
 

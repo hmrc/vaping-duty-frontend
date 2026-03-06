@@ -39,7 +39,7 @@
             InputViewModel(
                 field = form("value"),
                 label = LabelViewModel(messages("contactPreference.enterEmail.heading")).asPageHeading(LabelSize.Large)
-            )
+            ).asEmail()
             .withWidth(Full)
         )
 

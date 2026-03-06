@@ -26,9 +26,8 @@ import org.mockito.Mockito.when
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, SEE_OTHER}
+import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import services.AuditService
 
 import scala.concurrent.Future
@@ -42,26 +41,28 @@ class PerformSubmissionSpec extends AnyFreeSpec with Matchers with TestData with
 
   "PerformSubmission must" - {
 
-    "redirect to confirmation page when submission is successful" in {
+    "return Success when a preference is submitted successfully" in {
 
       when(mockConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(testSubmissionResponse)))
 
-      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionEmail, mockAuditService).getResult
+      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionEmail, mockAuditService)
 
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result).value mustBe controllers.contactPreference.routes.ConfirmationController.onPageLoad().url
+      whenReady(result) {
+        _.isInstanceOf[Success] mustBe true
+      }
    }
 
-    "redirect to journey recovery when submission response is an error" in {
+    "return Failure when there was an error submitting a preference" in {
 
       when(mockConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
-      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionNewEmail, mockAuditService).getResult
+      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionNewEmail, mockAuditService)
 
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+      whenReady(result) {
+        _.isInstanceOf[Failure] mustBe true
+      }
     }
   }
 }

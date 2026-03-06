@@ -21,7 +21,7 @@ import com.google.inject.Singleton
 import connectors.{EmailVerificationConnector, SubmitPreferencesConnector}
 import models.UserAnswers
 import models.contactPreference.PaperlessPreference.{Email, toValue}
-import models.contactPreference.PerformSubmission
+import models.contactPreference.{Failure, PerformSubmission, Success}
 import models.emailverification.*
 import models.requests.DataRequest
 import play.api.Logging
@@ -65,7 +65,10 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
     }
   }
 
-  def submitVerifiedEmail(email: String, verified: Boolean, submitPreferencesConnector: SubmitPreferencesConnector, auditService: AuditService)
+  def submitVerifiedEmail(email: String,
+                          verified: Boolean,
+                          submitPreferencesConnector: SubmitPreferencesConnector,
+                          auditService: AuditService)
                          (implicit hc: HeaderCarrier, request: DataRequest[?]): Future[Result] = {
     
     if (verified) {
@@ -78,7 +81,10 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
           bouncedEmail = None
         ),
         auditService = auditService
-      ).getResult
+      ).map {
+        case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case _: Success => Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
+      }
     } else {
       // Should never enter this case
       logger.warn("[EmailVerificationService][submit] Unverified email attempted to submit")

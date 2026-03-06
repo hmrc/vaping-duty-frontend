@@ -54,7 +54,7 @@ class Navigator @Inject()(
 
   private def postalRoute(ua: UserAnswers): Call = {
     PaperlessPreference(ua.subscriptionSummary.paperlessPreference) match {
-      case Email  => controllers.contactPreference.routes.ConfirmAddressController.onPageLoad()
+      case Email  => controllers.contactPreference.routes.SubmitAddressController.onPageLoad()
       case Post   => controllers.contactPreference.routes.ChangeAddressController.onPageLoad()
     }
   }

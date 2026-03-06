@@ -17,64 +17,47 @@
 package models.contactPreference
 
 import connectors.SubmitPreferencesConnector
-import models.audit.Actions.*
 import models.audit.JourneyOutcome
 import models.contactPreference
 import models.emailverification.{PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
 import models.requests.DataRequest
-import play.api.i18n.Lang.logger
-import play.api.mvc.Result
-import play.api.mvc.Results.Redirect
 import services.AuditService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-
-case class PerformSubmission(result: Future[Result]) {
-
-  def getResult: Future[Result] = result
-}
 
 object PerformSubmission {
 
   def apply(submitPreferencesConnector: SubmitPreferencesConnector,
             preferenceSubmission: PaperlessPreferenceSubmission,
             auditService: AuditService)
-           (implicit ec: ExecutionContext, hc: HeaderCarrier, request: DataRequest[?]): PerformSubmission = {
+           (implicit ec: ExecutionContext, hc: HeaderCarrier, request: DataRequest[?]): Future[ResponseStatus] = {
 
-    performSubmission(submitPreferencesConnector, preferenceSubmission, auditService)
+    submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.enrolmentVpdId).map {
+      case Left(error)     => new Failure
+      case Right(response) =>
+        sendExplicitEvent(preferenceSubmission, auditService)
+        new Success
+    }
   }
-
-  private def performSubmission(submitPreferencesConnector: SubmitPreferencesConnector,
-                                preferenceSubmission: PaperlessPreferenceSubmission,
-                                auditService: AuditService)
-                               (implicit ec: ExecutionContext, hc: HeaderCarrier, request: DataRequest[?]) = {
-    PerformSubmission(
-      submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.enrolmentVpdId).map {
-        case Left(error)     =>
-          logger.info(s"[contactPreference.PerformSubmission] Error submitting preference: $error")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-        case Right(response) =>
-          logSuccess(response)
-          sendExplicitEvent(preferenceSubmission, auditService)
-          Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
-      }
-    )
-  }
-
-  private def sendExplicitEvent(preferenceSubmission: PaperlessPreferenceSubmission, auditService: AuditService)
-                               (implicit hc: HeaderCarrier, request: DataRequest[?]): Unit = {
-
-    val address = request.userAnswers.subscriptionSummary.correspondenceAddress.replace("\n", ", ")
-
-    auditService.audit(
-      JourneyOutcome.buildEvent(preferenceSubmission,
-        PaperlessPreference(request.userAnswers.subscriptionSummary.paperlessPreference),
-        address))
-  }
-
-  private def logSuccess(response: PaperlessPreferenceSubmittedResponse): Unit = {
-    logger.info(s"[PerformSubmission] Preference updated ${response.processingDate}")
-  }
-
 }
+
+private def sendExplicitEvent(preferenceSubmission: PaperlessPreferenceSubmission, auditService: AuditService)
+                             (implicit hc: HeaderCarrier, request: DataRequest[?]): Unit = {
+
+  val address = request.userAnswers.subscriptionSummary.correspondenceAddress.replace("\n", ", ")
+
+  auditService.audit(
+    JourneyOutcome.buildEvent(
+      preferenceSubmission,
+      PaperlessPreference(request.userAnswers.subscriptionSummary.paperlessPreference),
+      address
+    )
+  )
+}
+
+class ResponseStatus
+
+class Success extends ResponseStatus
+
+class Failure extends ResponseStatus

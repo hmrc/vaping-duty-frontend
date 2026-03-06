@@ -65,9 +65,9 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
         }
       }
   
-  def clear(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+  def clear(userId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
-      .delete(url"${config.cpUserAnswersClearUrl(vpdId)}")
+      .delete(url"${config.cpUserAnswersClearUrl(userId)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap { response =>
@@ -77,5 +77,4 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
           Future.failed(UpstreamErrorResponse("clear failed", response.status))
         }
       }
-
 }
