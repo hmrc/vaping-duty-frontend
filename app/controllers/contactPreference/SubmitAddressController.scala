@@ -21,18 +21,17 @@ import connectors.SubmitPreferencesConnector
 import controllers.actions.*
 import models.contactPreference
 import models.contactPreference.PaperlessPreference.{Email, Post, toValue}
-import models.contactPreference.{Failure, PaperlessPreference, PerformSubmission, ResponseStatus, Success}
+import models.contactPreference.{Failure, PaperlessPreference, PerformSubmission, Success}
 import models.emailverification.PaperlessPreferenceSubmission
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{AuditService, UserAnswersService}
+import services.AuditService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.SubmitAddressViewModel
 import views.html.contactPreference.SubmitAddressView
 
 import javax.inject.Inject
-import scala.concurrent.impl.Promise
 import scala.concurrent.{ExecutionContext, Future}
 
 class SubmitAddressController @Inject()(
