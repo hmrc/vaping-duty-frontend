@@ -22,22 +22,22 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
 
-class ContactPreferenceInputSpec  extends AnyFreeSpec with Matchers with TestData with SpecBase {
+class NewContactPreferenceSpec extends AnyFreeSpec with Matchers with TestData with SpecBase {
   
-  val json = """{"emailAddressInput":"email","confirmPostalAddress":"address"}"""
+  val json = """{"newEmailAddress":"email","confirmPostalAddress":"address"}"""
     
-  "ContactPreferenceInput" - {
+  "newContactPreference" - {
     
     "must serialise to json" in {
-      val result = ContactPreferenceInput(Some("email"), Some("address"))
+      val result = NewContactPreference(Some("email"), Some("address"))
 
       Json.toJson(result).toString mustBe json
     }
 
     "must serialise from json" in {
-      val result = Json.parse(json).validate[ContactPreferenceInput].get
+      val result = Json.parse(json).validate[NewContactPreference].get
 
-      result mustBe ContactPreferenceInput(Some("email"), Some("address"))
+      result mustBe NewContactPreference(Some("email"), Some("address"))
     }
   }
 }

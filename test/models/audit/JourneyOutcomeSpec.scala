@@ -38,7 +38,7 @@ class JourneyOutcomeSpec extends AnyFreeSpec with Matchers with TestData with Sp
 
   "JourneyOutcome" - {
 
-    val json = """{"timeStarted":"2024-06-11T15:07:47.838Z","credentialId":"cred-id","vpdId":"VPPAID01","originalContactPreference":"Email","originalContactPreferenceValue":"john.doe@example.com","contactPreferenceChange":"AmendEmailAddress","contactPreferenceInput":{"emailAddressInput":"john.doe@example.com"}}"""
+    val json = """{"timeStarted":"2024-06-11T15:07:47.838Z","credentialId":"cred-id","vpdId":"VPPAID01","originalContactPreference":"Email","originalContactPreferenceValue":"john.doe@example.com","contactPreferenceChange":"AmendEmailAddress","newContactPreference":{"newEmailAddress":"john.doe@example.com"}}"""
     val journeyOutcomeModel = JourneyOutcome.buildEvent(
       contactPreferenceSubmissionNewEmail,
       Email,

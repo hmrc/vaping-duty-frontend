@@ -31,7 +31,7 @@ case class JourneyOutcome(
     originalContactPreference: String,
     originalContactPreferenceValue: String,
     contactPreferenceChange: String,
-    contactPreferenceInput: Option[ContactPreferenceInput]
+    newContactPreference: Option[NewContactPreference]
 )
 
 object JourneyOutcome {
@@ -49,8 +49,8 @@ object JourneyOutcome {
         case Post  => address
       },
       contactPreferenceChange = contactPreferenceChange(preferenceSubmission),
-      contactPreferenceInput = Some(
-        ContactPreferenceInput(
+      newContactPreference = Some(
+        NewContactPreference(
           request.userAnswers.emailAddress,
           if (preferenceSubmission.paperlessPreference) {
             None
