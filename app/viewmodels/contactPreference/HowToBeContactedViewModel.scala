@@ -38,6 +38,8 @@ object HowToBeContactedViewModel {
     val postalPreference: String    = ua.subscriptionSummary.correspondenceAddress.replaceAll("\n", ", ")
     val postalSuffix: String        = messages("contactPreference.howToBeContacted.post")
     val postalPreferenceKey: String = "setToPost"
+    val currentlyEmail: String      = messages("contactPreference.howToBeContacted.currentlyEmail")
+    val currentlyPost: String       = messages("contactPreference.howToBeContacted.currentlyPost")
 
     PaperlessPreference(ua.subscriptionSummary.paperlessPreference) match {
       case Email =>
@@ -48,7 +50,7 @@ object HowToBeContactedViewModel {
         val currentlyEmail: String      = messages("contactPreference.howToBeContacted.currently.email")
 
         buildViewModel(
-          content     = makeContentString(suffix = emailSuffix, currentPreference = emailPreference, messages("contactPreference.howToBeContacted.currentlyEmail")),
+          content     = makeContentString(message = currentlyEmail, emailOrPost = emailSuffix, emailOrPostalAddress = emailPreference),
           radioItems  = HowToBeContacted.options(emailPreferenceKey)
         )
       case Post =>
@@ -59,7 +61,7 @@ object HowToBeContactedViewModel {
         val currentlyPost: String       = messages("contactPreference.howToBeContacted.currently.post")
 
         buildViewModel(
-          content     = makeContentString(suffix = postalSuffix, currentPreference = postalPreference, messages("contactPreference.howToBeContacted.currentlyPost")),
+          content     = makeContentString(message = currentlyPost, emailOrPost = postalSuffix, emailOrPostalAddress = postalPreference),
           radioItems  = HowToBeContacted.options(postalPreferenceKey)
         )
     }
@@ -69,8 +71,7 @@ object HowToBeContactedViewModel {
     HowToBeContactedViewModel(content = Html(content), radioItems = radioItems)
   }
 
-  private def makeContentString(suffix: String, currentPreference: String, message: String)
-                               (implicit messages: Messages): String = {
-    s"$message $suffix<br/><strong>$currentPreference</strong>"                                
+  private def makeContentString(message: String, emailOrPost: String, emailOrPostalAddress: String): String = {
+    s"$message $emailOrPost<br/><strong>$emailOrPostalAddress</strong>"
   }
 }
