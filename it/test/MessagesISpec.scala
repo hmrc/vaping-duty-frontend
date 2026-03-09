@@ -24,7 +24,7 @@ import java.nio.file.Path
 class MessagesISpec extends AnyFreeSpec {
   private val illegalChar: String = "'"
 
-  private def readFileLines(path: String): String = {
+  private def readFileLines(path: String) = {
     val source = readFile(path)
 
     try source.getLines mkString "\n" finally source.close()
@@ -33,7 +33,6 @@ class MessagesISpec extends AnyFreeSpec {
   "messages files " - {
     "must not contain a non-smart punctuation apostrophe in conf/messages.en" in {
       val messagesFilePath = resolveMessageFile("messages.en")
-
       val lines = readFileLines(messagesFilePath)
 
       if (lines.contains(illegalChar)) {
@@ -43,7 +42,6 @@ class MessagesISpec extends AnyFreeSpec {
 
     "must not contain a non-smart punctuation apostrophe in conf/messages.cy" in {
       val messagesFilePath: String = resolveMessageFile("messages.cy")
-
       val lines = readFileLines(messagesFilePath)
 
       if (lines.contains(illegalChar)) {
@@ -52,22 +50,25 @@ class MessagesISpec extends AnyFreeSpec {
     }
   }
 
-  /** Resolve the path of the messages file.
+  /** This series of methods resolve the path of the messages files.
    * @note the file path when executing it/test through sbt is different
    *       from that which is present when executing it/test through IDEs.
+   *
+   *       This method attempts to resolve this by detecting the user dir
+   *       of the executing process.
    */
-  private def resolveMessageFile(messageFileName: String): String = {
-    val userDir = Paths.get(System.getProperty("user.dir"))
-    val parent = userDir.getParent
 
-    def moveToConfFile(path: Path) = path
+    def moveToConfFile(path: Path, messageFileName: String) = path
                               .resolve("conf")
                               .resolve(messageFileName)
                               .toString
 
-    if (userDir.endsWith("vaping-duty-frontend")) {
-      moveToConfFile(path = userDir)
-    }
-    else moveToConfFile(path = parent)
+  private def resolveMessageFile(messageFileName: String): String = {
+    val userDir = Paths.get(System.getProperty("user.dir"))
+
+    if (userDir.endsWith("vaping-duty-frontend"))
+      moveToConfFile(path = userDir, messageFileName)
+    else
+      moveToConfFile(path = userDir.getParent, messageFileName)
   }
 }
