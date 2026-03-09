@@ -32,15 +32,6 @@ object HowToBeContactedViewModel {
 
   private def howToBeContactedViewModel(ua: UserAnswers)(implicit messages: Messages) = {
 
-    val emailPreference: String     = ua.subscriptionSummary.emailAddress.getOrElse("")
-    val emailSuffix: String         = messages("contactPreference.howToBeContacted.email")
-    val emailPreferenceKey: String  = "setToEmail"
-    val postalPreference: String    = ua.subscriptionSummary.correspondenceAddress.replaceAll("\n", ", ")
-    val postalSuffix: String        = messages("contactPreference.howToBeContacted.post")
-    val postalPreferenceKey: String = "setToPost"
-    val currentlyEmail: String      = messages("contactPreference.howToBeContacted.currentlyEmail")
-    val currentlyPost: String       = messages("contactPreference.howToBeContacted.currentlyPost")
-
     PaperlessPreference(ua.subscriptionSummary.paperlessPreference) match {
       case Email =>
 
@@ -50,7 +41,10 @@ object HowToBeContactedViewModel {
         val currentlyEmail: String      = messages("contactPreference.howToBeContacted.currently.email")
 
         buildViewModel(
-          content     = makeContentString(message = currentlyEmail, emailOrPost = emailSuffix, emailOrPostalAddress = emailPreference),
+          content     = makeContentString(message              = currentlyEmail,
+                                          emailOrPost          = emailSuffix,
+                                          emailOrPostalAddress = emailPreference
+                                          ),
           radioItems  = HowToBeContacted.options(emailPreferenceKey)
         )
       case Post =>
@@ -61,7 +55,10 @@ object HowToBeContactedViewModel {
         val currentlyPost: String       = messages("contactPreference.howToBeContacted.currently.post")
 
         buildViewModel(
-          content     = makeContentString(message = currentlyPost, emailOrPost = postalSuffix, emailOrPostalAddress = postalPreference),
+          content     = makeContentString(message              = currentlyPost,
+                                          emailOrPost          = postalSuffix,
+                                          emailOrPostalAddress = postalPreference
+                                          ),
           radioItems  = HowToBeContacted.options(postalPreferenceKey)
         )
     }
