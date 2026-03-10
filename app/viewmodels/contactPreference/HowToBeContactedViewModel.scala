@@ -32,22 +32,33 @@ object HowToBeContactedViewModel {
 
   private def howToBeContactedViewModel(ua: UserAnswers)(implicit messages: Messages) = {
 
-    val emailPreference: String     = ua.subscriptionSummary.emailAddress.getOrElse("")
-    val emailSuffix: String         = messages("contactPreference.howToBeContacted.email")
-    val emailPreferenceKey: String  = "setToEmail"
-    val postalPreference: String    = ua.subscriptionSummary.correspondenceAddress.replaceAll("\n", ", ")
-    val postalSuffix: String        = messages("contactPreference.howToBeContacted.post")
-    val postalPreferenceKey: String = "setToPost"
-
     PaperlessPreference(ua.subscriptionSummary.paperlessPreference) match {
       case Email =>
+
+        val emailPreference: String     = ua.subscriptionSummary.emailAddress.getOrElse("")
+        val emailSuffix: String         = messages("contactPreference.howToBeContacted.email")
+        val emailPreferenceKey: String  = "setToEmail"
+        val currentlyEmail: String      = messages("contactPreference.howToBeContacted.currently.email")
+
         buildViewModel(
-          content     = makeContentString(suffix = emailSuffix, currentPreference = emailPreference),
+          content     = makeContentString(message              = currentlyEmail,
+                                          emailOrPost          = emailSuffix,
+                                          emailOrPostalAddress = emailPreference
+                                          ),
           radioItems  = HowToBeContacted.options(emailPreferenceKey)
         )
       case Post =>
+
+        val postalPreference: String    = ua.subscriptionSummary.correspondenceAddress.replaceAll("\n", ", ")
+        val postalSuffix: String        = messages("contactPreference.howToBeContacted.post")
+        val postalPreferenceKey: String = "setToPost"
+        val currentlyPost: String       = messages("contactPreference.howToBeContacted.currently.post")
+
         buildViewModel(
-          content     = makeContentString(suffix = postalSuffix, currentPreference = postalPreference),
+          content     = makeContentString(message              = currentlyPost,
+                                          emailOrPost          = postalSuffix,
+                                          emailOrPostalAddress = postalPreference
+                                          ),
           radioItems  = HowToBeContacted.options(postalPreferenceKey)
         )
     }
@@ -57,10 +68,7 @@ object HowToBeContactedViewModel {
     HowToBeContactedViewModel(content = Html(content), radioItems = radioItems)
   }
 
-  private def makeContentString(suffix: String, currentPreference: String)
-                               (implicit messages: Messages): String = {
-    val currentMessage: String = messages("contactPreference.howToBeContacted.currently")
-
-    s"$currentMessage $suffix<br/><strong>$currentPreference</strong>"
+  private def makeContentString(message: String, emailOrPost: String, emailOrPostalAddress: String): String = {
+    s"$message $emailOrPost<br/><strong>$emailOrPostalAddress</strong>"
   }
 }

@@ -44,11 +44,11 @@ journeyRecovery.startAgain.guidance = Rhowch gynnig arall arni yn nes ymlaen.
 signedOut.title = Er eich diogelwch, gwnaethom eich allgofnodi
 signedOut.heading = Er eich diogelwch, gwnaethom eich allgofnodi
 
-unauthorised.title = Nid oes modd i chi gael mynediad at y gwasanaeth hwn gyda'r cyfrif hwn
-unauthorised.heading = Nid oes modd i chi gael mynediad at y gwasanaeth hwn gyda'r cyfrif hwn
-unauthorised.toUse = I ddefnyddio'r gwasanaeth hwn, mae angen i chi fod yn un o'r canlynol:
-unauthorised.approved = Gweithgynhyrchydd fepio yn y DU sydd wedi'i awdurdodi
-unauthorised.enrolled = Wedi ymrestru â'r gwasanaeth
+unauthorised.title = Nid oes modd i chi gael mynediad at y gwasanaeth hwn gyda’r cyfrif hwn
+unauthorised.heading = Nid oes modd i chi gael mynediad at y gwasanaeth hwn gyda’r cyfrif hwn
+unauthorised.toUse = I ddefnyddio’r gwasanaeth hwn, mae angen i chi fod yn un o’r canlynol:
+unauthorised.approved = Gweithgynhyrchydd fepio yn y DU sydd wedi’i awdurdodi
+unauthorised.enrolled = Wedi ymrestru â’r gwasanaeth
 
 enrolment.organisationSignIn.heading = Er mwyn cofrestru, mae angen i chi fod yn weinyddwr cyfrif ar gyfer y sefydliad
 enrolment.organisationSignIn.onlyUsers = Defnyddwyr â manylion gweinyddwr cyfrif ar gyfer y sefydliad yn unig sy’n gallu cofrestru i ddefnyddio’r gwasanaeth hwn.
@@ -89,11 +89,12 @@ contactPreference.enterEmail.title = Pa gyfeiriad e-bost y dylen ni ei ddefnyddi
 contactPreference.enterEmail.heading = Pa gyfeiriad e-bost y dylen ni ei ddefnyddio i gysylltu â chi?
 contactPreference.enterEmail.error.length = Mae’n rhaid i’ch cyfeiriad e-bost fod yn 254 o gymeriadau neu lai
 contactPreference.enterEmail.error.format = Nodwch gyfeiriad e-bost yn y fformat cywir, fel enw@enghraifft.com
-contactPreference.enterEmail.error.required = Ni all y cyfeiriad e-bost fod yn wag
+contactPreference.enterEmail.error.required = Nodwch gyfeiriad e-bost
 
 contactPreference.howToBeContacted.title = Dewisiadau cyswllt
 contactPreference.howToBeContacted.heading = Dewisiadau cyswllt
-contactPreference.howToBeContacted.currently = Ar hyn o bryd rydym yn cysylltu â chi drwy
+contactPreference.howToBeContacted.currently.email = Ar hyn o bryd rydym yn cysylltu â chi drwyr
+contactPreference.howToBeContacted.currently.post = Ar hyn o bryd rydym yn cysylltu â chi drwy’r
 contactPreference.howToBeContacted.tellUs = Rhowch wybod i ni sut y dylem gysylltu â chi
 contactPreference.howToBeContacted.hint = Bydd y dull a dewiswyd yn cael ei ddefnyddio ar gyfer ymholiadau cyffredinol a gwybodaeth Toll Cynhyrchion Fepio.
 contactPreference.howToBeContacted.setToEmail.post = Post
@@ -117,4 +118,4 @@ contactPreference.submitEmail.heading = Cadarnhewch eich e-bost
 contactPreference.submitEmail.youHave = Rydych wedi rhoi gwybod i ni i ddefnyddio’r cyfeiriad e-bost
 contactPreference.submitEmail.youMust = Mae’n rhaid i chi barhau er mwyn cadw eich dewis cyswllt.
 
-emailVerificationJourney.signature =  Toll Cynhyrchion Fepio
+emailVerificationJourney.signature = Toll Cynhyrchion Fepio
