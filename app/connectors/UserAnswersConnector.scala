@@ -74,7 +74,7 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
         if (response.status == NO_CONTENT) {
           Future.successful(Right(()))
         } else {
-          Future.failed(UpstreamErrorResponse("clear failed", response.status))
+          Future.successful(Left(UpstreamErrorResponse("clear failed", response.status)))
         }
       }
 }

@@ -83,7 +83,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def cpUserAnswersGetUrl(vpdId: String): String            = s"$contactPreferenceBaseUrl/user-answers/$vpdId"
   def cpUserAnswersUrl: String                              = s"$contactPreferenceBaseUrl/user-answers"
   def cpUserAnswersKeepAliveUrl: String                     = s"$contactPreferenceBaseUrl/keep-alive"
-  def cpUserAnswersClearUrl(vpdId: String): String          = s"$contactPreferenceBaseUrl/user-answers/clear/$vpdId"
+  def cpUserAnswersClearUrl(userId: String): String         = s"$contactPreferenceBaseUrl/user-answers/clear/$userId"
   def cpGetEmailVerificationUrl(credId: String): String     = s"$contactPreferenceBaseUrl/get-email-verification/$credId"
   def cpSubmitContactPreferencesUrl(vpdId: String): String  = s"$contactPreferenceBaseUrl/submit-preferences/$vpdId"
 
