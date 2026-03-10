@@ -84,7 +84,7 @@ class EnrolmentClaimAuthActionImpl @Inject()(override val authConnector: AuthCon
 
     } recover {
       case e: AuthorisationException =>
-        logger.debug("Got AuthorisationException:", e)
+        logger.warn("Got AuthorisationException:", e)
         handleAuthException(e)
     }
   }

@@ -77,7 +77,7 @@ class EnterEmailController @Inject()(
           emailVerificationService
             .retrieveAddressStatus(VerificationDetails(request.credId), value, updatedAnswers).value.flatMap {
               case Left(error) =>
-                logger.info("[EnterEmailController][onSubmit] Error updating verified email list: " +
+                logger.warn("[EnterEmailController][onSubmit] Error retrieving verified email list: " +
                   s"${error.status} and message: ${error.message}")
                 Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
               case Right(verificationDetails) =>
@@ -94,7 +94,7 @@ class EnterEmailController @Inject()(
                             (implicit hc: HeaderCarrier, messages: Messages) = {
     sessionService.set(updatedAnswers).flatMap {
       case Left(error) =>
-        logger.info("[EnterEmailController][handleRedirect] Error setting user answers with status: " +
+        logger.warn("[EnterEmailController][handleRedirect] Error setting user answers with status: " +
           s"${error.status} and message: ${error.message}")
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       case Right(_) =>
@@ -118,7 +118,7 @@ class EnterEmailController @Inject()(
 
     emailVerificationConnector.startEmailVerification(evRequest).map {
       case Left(error) =>
-        logger.info("[EnterEmailController][handoffToEmailVerification] Error starting email verification with status: " +
+        logger.warn("[EnterEmailController][handoffToEmailVerification] Error starting email verification with status: " +
           s"${error.status} and message: ${error.message}")
         Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       case Right(redirectUri) =>

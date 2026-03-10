@@ -61,7 +61,7 @@ class CheckSignedInActionImpl @Inject() (
                                      map(signedInRequest => block(signedInRequest)).
                                      getOrElse(Future.failed(AuthorisationException.fromString("Unable to retrieve internalId.")))
     } recoverWith { case e: AuthorisationException =>
-      logger.debug(s"Got AuthorisationException: ${e.reason}")
+      logger.warn(s"Got AuthorisationException: ${e.reason}")
       Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
   }
