@@ -102,7 +102,7 @@ contactPreference.howToBeContacted.setToEmail.email = Newid eich cyfeiriad e-bos
 contactPreference.howToBeContacted.setToPost.post = Newid eich cyfeiriad post
 contactPreference.howToBeContacted.setToPost.email = E-bost
 contactPreference.howToBeContacted.post = post:
-contactPreference.howToBeContacted.email = e-bost
+contactPreference.howToBeContacted.email = e-bost:
 contactPreference.howToBeContacted.error.required = Dewiswch sut y dylem gysylltu â chi
 
 contactPreference.lockedEmail.title = Rydych wedi cyrraedd uchafswm nifer y cynigion er mwyn nodi eich cod cadarnhau
