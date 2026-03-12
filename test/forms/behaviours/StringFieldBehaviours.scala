@@ -49,16 +49,16 @@ trait StringFieldBehaviours extends FieldBehaviours {
       }
     }
   }
+}
 
-    def checkFilteredLength(s: String, maxLength: Int): String = {
-      // Removing whitespace from input could make some strings in this test be below the max length when bound.
-      // Appending the input string to itself when the length is too short.
-      val filteredString = s.filterNot(_.isWhitespace)
+private def checkFilteredLength(s: String, maxLength: Int): String = {
+  // Removing whitespace from input could make some strings in this test be below the max length when bound.
+  // Appending the input string to itself when the length is too short.
+  val filteredString = s.filterNot(_.isWhitespace)
 
-      if (filteredString.lengthIs <= maxLength) {
-        filteredString.appendedAll(s)
-      } else {
-        filteredString
-      }
-    }
+  if (filteredString.lengthIs <= maxLength) {
+    filteredString.appendedAll(s)
+  } else {
+    filteredString
+  }
 }
