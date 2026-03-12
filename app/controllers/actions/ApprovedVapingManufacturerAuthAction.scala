@@ -59,8 +59,8 @@ class ApprovedVapingManufacturerAuthActionImpl @Inject()(override val authConnec
   private def predicate: Predicate =
     AuthProviders(GovernmentGateway) and
       Enrolment(config.enrolmentServiceName) and
-      CredentialStrength(strong) and
       Organisation and
+      CredentialStrength(strong) and
       ConfidenceLevel.L50
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {

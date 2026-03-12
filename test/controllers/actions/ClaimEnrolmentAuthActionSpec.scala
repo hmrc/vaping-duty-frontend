@@ -56,9 +56,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
    private def predicate: Predicate =
      AuthProviders(GovernmentGateway) and
-       CredentialStrength(strong) and
        Organisation and
        User and
+       CredentialStrength(strong) and
        ConfidenceLevel.L50
 
 
