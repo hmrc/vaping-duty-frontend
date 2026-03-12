@@ -21,7 +21,6 @@ import forms.contactPreference.HowToBeContactedFormProvider
 import models.{Mode, UserAnswers, UserDetails}
 import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
-import play.api.i18n.Lang.logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.UserAnswersService
