@@ -58,9 +58,9 @@ class EnrolmentClaimAuthActionImpl @Inject()(override val authConnector: AuthCon
 
   private def predicate: Predicate =
     AuthProviders(GovernmentGateway) and
-      CredentialStrength(strong) and
       Organisation and
       User and
+      CredentialStrength(strong) and
       ConfidenceLevel.L50
 
   override def invokeBlock[A](request: Request[A], block: NoEnrolmentIdentifierRequest[A] => Future[Result]): Future[Result] = {
