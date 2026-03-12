@@ -44,9 +44,21 @@ trait StringFieldBehaviours extends FieldBehaviours {
 
         forAll(stringsLongerThan(maxLength) -> "longString") {
           (string: String) =>
-            val result = form.bind(Map(fieldName -> string)).apply(fieldName)
+            val result = form.bind(Map(fieldName -> checkFilteredLength(string, maxLength))).apply(fieldName)
             result.errors mustBe errors
       }
     }
+  }
+}
+
+private def checkFilteredLength(s: String, maxLength: Int): String = {
+  // Removing whitespace from input could make some strings in this test be below the max length when bound.
+  // Appending the input string to itself when the length is too short.
+  val filteredString = s.filterNot(_.isWhitespace)
+
+  if (filteredString.lengthIs <= maxLength) {
+    filteredString.appendedAll(s)
+  } else {
+    filteredString
   }
 }

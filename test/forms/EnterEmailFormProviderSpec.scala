@@ -38,7 +38,8 @@ class EnterEmailFormProviderSpec extends StringFieldBehaviours with Constraints 
       s"${Random.alphanumeric.take(120).mkString}@${Random.alphanumeric.take(126).mkString}.gov.uk",
       s"${Random.alphanumeric.take(1).mkString}@${Random.alphanumeric.take(246).mkString}.co.uk",
       s"${Random.alphanumeric.take(246).mkString}@${Random.alphanumeric.take(1).mkString}.co.uk",
-      s"${Random.alphanumeric.take(1).mkString}@${Random.alphanumeric.take(1).mkString}.com"
+      s"${Random.alphanumeric.take(1).mkString}@${Random.alphanumeric.take(1).mkString}.com",
+      " email with spaces @ some address .co .uk "
     )
 
   val form = new EnterEmailFormProvider()()
