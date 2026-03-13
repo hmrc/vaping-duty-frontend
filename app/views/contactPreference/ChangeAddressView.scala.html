@@ -21,15 +21,13 @@
         govukButton: GovukButton,
         h1: Heading,
         p: Paragraph,
-        link: Link,
-        caption: Caption
+        link: Link
 )
 
 @(guidanceUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("contactPreference.continuePostalPreference.title"))) {
 
-    @caption(messages("contactPreference.postalCaption"))
     @h1(messages("contactPreference.continuePostalPreference.heading"))
 
     @p(Seq(HtmlContent(messages("contactPreference.continuePostalPreference.youMust"))))
