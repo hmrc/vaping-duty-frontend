@@ -41,7 +41,7 @@ class Navigator @Inject()(
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = {
-    case _ => _ => routes.CheckYourAnswersController.onPageLoad()
+    case _ => _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
   def howToBeContactedRoute(ua: UserAnswers): Call = {
