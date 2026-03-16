@@ -24,7 +24,6 @@
         h1: Heading,
         p: Paragraph,
         list: List,
-        caption: Caption,
         link: Link,
         govukDetails: GovukDetails
 )
@@ -48,12 +47,16 @@
 
 @layout(pageTitle = titleNoForm(messages("contactPreference.confirmAddress.title"))) {
 
-    @caption(messages("contactPreference.postalCaption"))
     @h1(messages("contactPreference.confirmAddress.heading"))
 
     @list(
         items = vm.address
     )
+
+    @govukDetails(Details(
+        summary = Text(messages("contactPreference.confirmAddress.help")),
+        content = HtmlContent(detailsContent)
+    ))
 
     @formHelper(action = controllers.contactPreference.routes.SubmitAddressController.onSubmit(), Symbol("autoComplete") -> "off") {
 
@@ -61,10 +64,4 @@
             ButtonViewModel(messages("contactPreference.confirmAddress.confirm"))
         )
     }
-
-
-    @govukDetails(Details(
-        summary = Text(messages("contactPreference.confirmAddress.help")),
-        content = HtmlContent(detailsContent)
-    ))
 }

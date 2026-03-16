@@ -66,8 +66,6 @@ enrolment.userAlreadyEnrolled.heading = You have already enrolled for this servi
 
 ### Contact Preference ###
 
-contactPreference.postalCaption = Post Preferences
-
 contactPreference.confirmAddress.title = Confirm your postal address
 contactPreference.confirmAddress.heading = Confirm your postal address
 contactPreference.confirmAddress.confirm = Confirm address
