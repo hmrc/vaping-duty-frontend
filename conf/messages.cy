@@ -66,8 +66,6 @@ enrolment.userAlreadyEnrolled.heading = Rydych eisoes wedi ymrestru ar gyfer y g
 
 ### Contact Preference ###
 
-contactPreference.postalCaption = Dewisiadau post
-
 contactPreference.confirmAddress.title = Cadarnhau eich cyfeiriad post
 contactPreference.confirmAddress.heading = Cadarnhau eich cyfeiriad post
 contactPreference.confirmAddress.confirm = Cadarnhau’r cyfeiriad
