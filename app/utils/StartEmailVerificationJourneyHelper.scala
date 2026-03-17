@@ -18,12 +18,13 @@ package utils
 
 import config.FrontendAppConfig
 import models.emailverification.{EmailModel, EmailVerificationRequest, Labels, LanguageInfo}
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages, MessagesApi}
 
 import java.net.URLEncoder
 import javax.inject.Inject
 
-class StartEmailVerificationJourneyHelper @Inject()(config: FrontendAppConfig) {
+class StartEmailVerificationJourneyHelper @Inject()(config: FrontendAppConfig)
+                                                   (implicit messagesApi: MessagesApi) {
 
   def createRequest(credId: String, enteredEmail: String)(implicit messages: Messages): EmailVerificationRequest = {
     
@@ -35,14 +36,19 @@ class StartEmailVerificationJourneyHelper @Inject()(config: FrontendAppConfig) {
       enterUrl = enterEmailAddressPageUrl
     )
 
-    val languageInfo: LanguageInfo = LanguageInfo(
-      pageTitle = messages("service.name"),
-      userFacingServiceName = messages("emailVerificationJourney.signature")
-    )
+    val english: Lang = Lang("en")
+    val welsh: Lang = Lang("cy")
+
+    def languageInfo(language: Lang): LanguageInfo = {
+      LanguageInfo(
+        pageTitle = messagesApi.preferred(Seq(language))("service.name"),
+        userFacingServiceName = messagesApi.preferred(Seq(language))("emailVerificationJourney.signature")
+      )
+    }
 
     val labels: Labels = Labels(
-      cy = languageInfo,
-      en = languageInfo
+      cy = languageInfo(welsh),
+      en = languageInfo(english)
     )
 
     EmailVerificationRequest(

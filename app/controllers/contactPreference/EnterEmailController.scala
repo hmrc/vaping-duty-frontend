@@ -109,7 +109,7 @@ class EnterEmailController @Inject()(
   private def startEmailVerification(email: String, credId: String)
                                     (implicit hc: HeaderCarrier, messages: Messages) = {
     
-    val evRequest = StartEmailVerificationJourneyHelper(config).createRequest(credId, email)
+    val evRequest = StartEmailVerificationJourneyHelper(config)(messagesApi).createRequest(credId, email)
     handoffToEmailVerification(evRequest)
   }
 
