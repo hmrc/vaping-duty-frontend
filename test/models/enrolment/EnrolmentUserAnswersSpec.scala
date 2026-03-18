@@ -17,7 +17,6 @@
 package models.enrolment
 
 import base.SpecBase
-import com.jayway.jsonpath.internal.filter.ValueNodes.PathNode
 import play.api.libs.json.{JsError, JsPath, Json, JsonValidationError}
 import queries.{Gettable, Settable}
 
