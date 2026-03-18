@@ -33,7 +33,8 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerificationConnector)
+class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerificationConnector,
+                                          userAnswersService: UserAnswersService)
                                          (implicit ec: ExecutionContext) extends Logging {
 
   def retrieveAddressStatus(verificationDetails: VerificationDetails,
@@ -83,7 +84,9 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
         auditService = auditService
       ).map {
         case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-        case _: Success => Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
+        case _: Success =>
+          userAnswersService.clear(request.userId)
+          Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
       }
     } else {
       // Should never enter this case

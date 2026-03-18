@@ -26,7 +26,7 @@ import models.emailverification.PaperlessPreferenceSubmission
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.AuditService
+import services.{AuditService, UserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.SubmitAddressViewModel
 import views.html.contactPreference.SubmitAddressView
@@ -43,6 +43,7 @@ class SubmitAddressController @Inject()(
                                           val controllerComponents: MessagesControllerComponents,
                                           view: SubmitAddressView,
                                           config: FrontendAppConfig,
+                                          userAnswersService: UserAnswersService,
                                           auditService: AuditService
                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
@@ -68,7 +69,9 @@ class SubmitAddressController @Inject()(
           auditService
         ).map {
           case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-          case _: Success => Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
+          case _: Success =>
+            userAnswersService.clear(request.userId)
+            Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
         }
       case Post  =>
         Future.successful(Redirect(controllers.contactPreference.routes.ChangeAddressController.onPageLoad()))
