@@ -17,53 +17,39 @@
 package controllers.contactPreference
 
 import config.FrontendAppConfig
+import connectors.SubscriptionConnector
 import controllers.actions.*
 import models.BtaLink
-import models.contactPreference.HowToBeContacted
-import models.requests.DataRequest
-import pages.contactPreference.HowToBeContactedPage
+import models.contactPreference.PaperlessPreference
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.UserAnswersService
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.{EmailConfirmationView, PostalConfirmationView}
 
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
 class ConfirmationController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: ApprovedVapingManufacturerAuthAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        postalConfirmationView: PostalConfirmationView,
                                        emailConfirmationView: EmailConfirmationView,
-                                       userAnswersService: UserAnswersService,
+                                       subscriptionConnector: SubscriptionConnector,
                                        config: FrontendAppConfig
-                                     ) extends FrontendBaseController with I18nSupport {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad: Action[AnyContent] = identify.async {
     implicit request =>
       val btaUrl = BtaLink(config)
-      val email = request.userAnswers.emailAddress.getOrElse("")
-      
-      request.userAnswers.get(HowToBeContactedPage) match {
-        case Some(value) => value match {
-          case HowToBeContacted.Email =>
-            clearUserSession(userAnswersService)
-            Ok(emailConfirmationView(email, btaUrl))
-          case HowToBeContacted.Post  =>
-            clearUserSession(userAnswersService)
-            Ok(postalConfirmationView(btaUrl))
-        }
-        case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      }
-  }
 
-  private def clearUserSession(userAnswersService: UserAnswersService)
-                              (implicit hc: HeaderCarrier, request: DataRequest[?]): Future[Either[UpstreamErrorResponse, Unit]] = {
-    userAnswersService.clear(request.userId)
+      subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).map {
+        case Left(error)                => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case Right(subscriptionSummary) =>
+          PaperlessPreference(subscriptionSummary.paperlessPreference) match {
+            case PaperlessPreference.Email  => Ok(emailConfirmationView(subscriptionSummary.emailAddress.getOrElse(""), btaUrl))
+            case PaperlessPreference.Post   => Ok(postalConfirmationView(btaUrl))
+          }
+      }
   }
 }
