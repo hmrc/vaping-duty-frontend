@@ -16,15 +16,16 @@
 
 package controllers.contactPreference
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
-import controllers.actions.*
+import controllers.actions._
 import models.BtaLink
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.LockedEmailView
 
-import javax.inject.Inject
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class LockedEmailController @Inject()(
                                        override val messagesApi: MessagesApi,

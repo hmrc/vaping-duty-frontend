@@ -16,6 +16,8 @@
 
 package controllers.enrolment
 
+import java.time.Instant
+
 import base.SpecBase
 import forms.enrolment.UserHasApprovalIdFormProvider
 import models.enrolment.EnrolmentUserAnswers
@@ -24,10 +26,8 @@ import pages.enrolment.UserHasApprovalIdPage
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import views.html.enrolment.UserHasApprovalIdView
-
-import java.time.Instant
 
 class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 

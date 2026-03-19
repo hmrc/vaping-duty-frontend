@@ -16,24 +16,25 @@
 
 package controllers.actions
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
 import models.requests.IdentifierRequest
 import play.api.Logging
-import play.api.mvc.*
-import play.api.mvc.Results.*
+import play.api.mvc.Results._
+import play.api.mvc._
+
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.CredentialStrength.strong
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.*
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-
-import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * Authentication action to check the user is an approved manufacturer

@@ -16,13 +16,12 @@
 
 package controllers.actions
 
-import data.TestData
-
 import javax.inject.Inject
-import models.requests.IdentifierRequest
-import play.api.mvc.*
-
 import scala.concurrent.{ExecutionContext, Future}
+
+import data.TestData
+import models.requests.IdentifierRequest
+import play.api.mvc._
 
 class FakeApprovedVapingManufacturerAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends ApprovedVapingManufacturerAuthAction with TestData {
 

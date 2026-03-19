@@ -18,11 +18,12 @@ package viewmodels.govuk
 
 import play.api.data.Field
 import play.api.i18n.Messages
+import viewmodels.ErrorMessageAwareness
+
 import uk.gov.hmrc.govukfrontend.views.viewmodels.FormGroup
 import uk.gov.hmrc.govukfrontend.views.viewmodels.dateinput.{DateInput, InputItem}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.{Fieldset, Legend}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
-import viewmodels.ErrorMessageAwareness
 
 // scalastyle:off object.name
 object date extends DateFluency

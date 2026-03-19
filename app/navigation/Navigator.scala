@@ -16,18 +16,18 @@
 
 package navigation
 
+import javax.inject.{Inject, Singleton}
+
+import config.FrontendAppConfig
 import controllers.routes
-import models.*
+import models._
 import models.contactPreference.PaperlessPreference.{Email, Post}
 import models.contactPreference.{HowToBeContacted, PaperlessPreference}
-import pages.*
+import pages._
 import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
 import play.api.Logging
-import play.api.mvc.Call
 import play.api.http.HttpVerbs.GET
-
-import javax.inject.{Inject, Singleton}
-import config.FrontendAppConfig
+import play.api.mvc.Call
 
 @Singleton
 class Navigator @Inject()(

@@ -16,9 +16,12 @@
 
 package controllers.contactPreference
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import config.FrontendAppConfig
 import connectors.SubmitPreferencesConnector
-import controllers.actions.*
+import controllers.actions._
 import models.contactPreference
 import models.contactPreference.PaperlessPreference.{Email, Post, toValue}
 import models.contactPreference.{Failure, PaperlessPreference, PerformSubmission, Success}
@@ -27,12 +30,10 @@ import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.AuditService
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.SubmitAddressViewModel
 import views.html.contactPreference.SubmitAddressView
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class SubmitAddressController @Inject()(
                                           override val messagesApi: MessagesApi,

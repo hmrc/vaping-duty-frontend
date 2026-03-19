@@ -16,14 +16,15 @@
 
 package controllers.actions
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import play.api.mvc.ActionTransformer
 import services.UserAnswersService
+
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
 class DataRetrievalActionImpl @Inject()(
                                          val contactPreferencesService: UserAnswersService

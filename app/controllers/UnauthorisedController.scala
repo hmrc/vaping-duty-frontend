@@ -16,13 +16,14 @@
 
 package controllers
 
-import config.FrontendAppConfig
-
 import javax.inject.Inject
+
+import config.FrontendAppConfig
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.UnauthorisedView
+
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class UnauthorisedController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,

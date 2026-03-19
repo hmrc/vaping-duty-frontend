@@ -16,12 +16,12 @@
 
 package controllers.actions
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import models.requests.NoEnrolmentIdentifierRequest
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
-
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
 class NoEnrolmentActionImpl @Inject()(implicit val executionContext: ExecutionContext) extends NoEnrolmentAction {
 

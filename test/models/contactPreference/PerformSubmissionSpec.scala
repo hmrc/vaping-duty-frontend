@@ -16,6 +16,8 @@
 
 package models.contactPreference
 
+import scala.concurrent.Future
+
 import base.SpecBase
 import connectors.SubmitPreferencesConnector
 import data.TestData
@@ -29,8 +31,6 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.test.FakeRequest
 import services.AuditService
-
-import scala.concurrent.Future
 
 class PerformSubmissionSpec extends AnyFreeSpec with Matchers with TestData with SpecBase {
 

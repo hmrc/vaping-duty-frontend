@@ -16,6 +16,10 @@
 
 package connectors
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
+
 import cats.data.EitherT
 import config.FrontendAppConfig
 import models.emailverification.{EmailVerificationRequest, ErrorModel, GetVerificationStatusResponse, RedirectUri, VerificationDetails}
@@ -23,12 +27,9 @@ import play.api.Logging
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, StringContextOps, UpstreamErrorResponse}
-
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
 
 class EmailVerificationConnector @Inject()(
   config: FrontendAppConfig,
@@ -50,7 +51,7 @@ class EmailVerificationConnector @Inject()(
             case Success(successResponse) => Future.successful(Right(successResponse))
             case Failure(_)               =>
               logger.warn(
-                s"[EmailVerificationConnector] [getEmailVerification] Invalid JSON format, failed to parse as GetVerificationStatusResponse"
+                "[EmailVerificationConnector] [getEmailVerification] Invalid JSON format, failed to parse as GetVerificationStatusResponse"
               )
               Future.successful(
                 Left(

@@ -16,12 +16,12 @@
 
 package controllers.actions
 
-import data.TestData
-import models.requests.SignedInRequest
-import play.api.mvc.*
-
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+
+import data.TestData
+import models.requests.SignedInRequest
+import play.api.mvc._
 
 class FakeCheckSignedInAction @Inject() (bodyParsers: PlayBodyParsers)
     extends CheckSignedInAction with TestData {

@@ -18,10 +18,11 @@ package controllers
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
+import models.BtaLink
 import play.api.i18n.Lang
 import play.api.mvc._
+
 import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
-import models.BtaLink
 
 class LanguageSwitchController @Inject()(
                                           config: FrontendAppConfig,

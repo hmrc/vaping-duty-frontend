@@ -16,16 +16,17 @@
 
 package connectors
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import config.FrontendAppConfig
 import models.{UserAnswers, UserDetails}
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, StringContextOps, UpstreamErrorResponse}
-
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
 class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val httpClient: HttpClientV2)
                                      (implicit ec: ExecutionContext) extends HttpReadsInstances {

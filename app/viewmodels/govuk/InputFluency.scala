@@ -18,11 +18,12 @@ package viewmodels.govuk
 
 import play.api.data.Field
 import play.api.i18n.Messages
+import viewmodels.{ErrorMessageAwareness, InputWidth}
+
 import uk.gov.hmrc.govukfrontend.views.viewmodels.FormGroup
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.input.{Input, PrefixOrSuffix}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
-import viewmodels.{ErrorMessageAwareness, InputWidth}
 
 // scalastyle:off object.name
 object input extends InputFluency

@@ -16,7 +16,7 @@
 
 package models.emailverification
 
-import play.api.libs.json.*
+import play.api.libs.json._
 
 object JsonHelpers {
   implicit val booleanReads: Reads[Boolean] = {

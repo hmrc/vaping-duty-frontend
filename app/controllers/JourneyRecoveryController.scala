@@ -16,18 +16,19 @@
 
 package controllers
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import models.BtaLink
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.*
-import uk.gov.hmrc.play.bootstrap.binders.*
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
 
-import javax.inject.Inject
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
+import uk.gov.hmrc.play.bootstrap.binders._
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class JourneyRecoveryController @Inject()(
                                            val controllerComponents: MessagesControllerComponents,

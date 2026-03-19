@@ -16,10 +16,10 @@
 
 package models.emailverification
 
-import play.api.libs.json.{Json, OFormat}
-import models.emailverification.JsonHelpers.*
-
 import java.time.Instant
+
+import models.emailverification.JsonHelpers._
+import play.api.libs.json.{Json, OFormat}
 
 case class PaperlessPreferenceSubmission(
   paperlessPreference: Boolean,

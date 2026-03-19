@@ -16,12 +16,12 @@
 
 package utils
 
+import java.net.URLEncoder
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import models.emailverification.{EmailModel, EmailVerificationRequest, Labels, LanguageInfo}
 import play.api.i18n.Messages
-
-import java.net.URLEncoder
-import javax.inject.Inject
 
 class StartEmailVerificationJourneyHelper @Inject()(config: FrontendAppConfig) {
 

@@ -18,9 +18,9 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import models.*
+import models._
 import models.contactPreference.HowToBeContacted
-import pages.*
+import pages._
 import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
 import play.api.mvc.Call
 

@@ -16,7 +16,10 @@
 
 package controllers.contactPreference
 
-import controllers.actions.*
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
+import controllers.actions._
 import forms.contactPreference.HowToBeContactedFormProvider
 import models.{Mode, UserAnswers, UserDetails}
 import navigation.Navigator
@@ -24,12 +27,10 @@ import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.UserAnswersService
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.HowToBeContactedViewModel
 import views.html.contactPreference.HowToBeContactedView
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class HowToBeContactedController @Inject()(
                                             override val messagesApi: MessagesApi,

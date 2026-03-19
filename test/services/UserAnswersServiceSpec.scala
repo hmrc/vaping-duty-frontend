@@ -16,6 +16,8 @@
 
 package services
 
+import scala.concurrent.Future
+
 import base.SpecBase
 import connectors.UserAnswersConnector
 import models.emailverification.ErrorModel
@@ -23,9 +25,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
-import scala.concurrent.Future
+import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 class UserAnswersServiceSpec extends SpecBase {
 

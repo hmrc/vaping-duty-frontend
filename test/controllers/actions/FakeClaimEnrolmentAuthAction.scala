@@ -16,11 +16,11 @@
 
 package controllers.actions
 
-import models.requests.NoEnrolmentIdentifierRequest
-import play.api.mvc.*
-
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+
+import models.requests.NoEnrolmentIdentifierRequest
+import play.api.mvc._
 
 class FakeEnrolmentClaimAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends EnrolmentClaimAuthAction {
   

@@ -19,12 +19,13 @@ package viewmodels.govuk
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.twirl.api.Html
+import viewmodels.ErrorMessageAwareness
+
 import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.{CheckboxItem, Checkboxes}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
 import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.{Fieldset, Legend}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
-import viewmodels.ErrorMessageAwareness
 
 // scalastyle:off object.name
 object checkbox extends CheckboxFluency

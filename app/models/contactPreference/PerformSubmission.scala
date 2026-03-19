@@ -16,15 +16,16 @@
 
 package models.contactPreference
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import connectors.SubmitPreferencesConnector
 import models.audit.JourneyOutcome
 import models.contactPreference
 import models.emailverification.{PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
 import models.requests.DataRequest
 import services.AuditService
-import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HeaderCarrier
 
 object PerformSubmission {
 

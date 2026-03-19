@@ -17,7 +17,7 @@
 package models.audit
 
 import models.audit.Actions.{AmendEmailAddress, ChangeToEmail, ChangeToPost, Unchanged}
-import models.audit.PreferenceAction.*
+import models.audit.PreferenceAction._
 import models.contactPreference.PaperlessPreference
 import models.contactPreference.PaperlessPreference.{Email, Post}
 import models.emailverification.PaperlessPreferenceSubmission

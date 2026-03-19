@@ -16,13 +16,14 @@
 
 package services
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import connectors.UserAnswersConnector
 import models.emailverification.ErrorModel
 import models.{UserAnswers, UserDetails}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 
 class UserAnswersService @Inject() (userAnswersConnector: UserAnswersConnector)(implicit ec: ExecutionContext) {
   

@@ -19,8 +19,8 @@ package forms.contactPreference
 import javax.inject.Inject
 
 import forms.mappings.Mappings
-import play.api.data.Form
 import models.contactPreference.HowToBeContacted
+import play.api.data.Form
 
 class HowToBeContactedFormProvider @Inject() extends Mappings {
 

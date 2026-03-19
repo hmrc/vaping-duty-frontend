@@ -16,15 +16,16 @@
 
 package controllers.enrolment
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
-import controllers.actions.*
+import controllers.actions._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.enrolment.UserDoesNotHaveApprovalIdViewModel
 import views.html.enrolment.UserDoesNotHaveApprovalIdView
 
-import javax.inject.Inject
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class UserDoesNotHaveApprovalIdController @Inject()(
                                        override val messagesApi: MessagesApi,

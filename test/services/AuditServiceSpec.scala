@@ -16,17 +16,18 @@
 
 package services
 
+import java.time.Instant
+
 import base.SpecBase
-import models.contactPreference.PaperlessPreference.*
-import models.audit.*
 import models.audit.Actions.ChangeToPost
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import models.audit._
+import models.contactPreference.PaperlessPreference._
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.verify
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
-import java.time.Instant
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 class AuditServiceSpec extends SpecBase {
 

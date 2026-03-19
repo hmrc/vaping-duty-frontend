@@ -18,8 +18,8 @@ package viewmodels.enrolment
 
 import base.UnitSpec
 import config.FrontendAppConfig
-import org.mockito.Mockito.*
 import models.BtaLink
+import org.mockito.Mockito._
 
 
 class UserAlreadyEnrolledViewModelSpec extends UnitSpec {

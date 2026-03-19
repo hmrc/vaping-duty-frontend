@@ -20,9 +20,10 @@ import base.SpecBase
 import models.BtaLink
 import org.mockito.Mockito.when
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+import play.api.test.Helpers._
 import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
+
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
 class JourneyRecoveryControllerSpec extends SpecBase {
 

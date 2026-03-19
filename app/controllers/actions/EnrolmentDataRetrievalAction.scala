@@ -16,12 +16,12 @@
 
 package controllers.actions
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import models.requests.{EnrolmentOptionalDataRequest, NoEnrolmentIdentifierRequest}
 import play.api.mvc.ActionTransformer
 import repositories.EnrolmentUserAnswersRepository
-
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
 class EnrolmentDataRetrievalActionImpl @Inject()(
                                          enrolmentRepository: EnrolmentUserAnswersRepository

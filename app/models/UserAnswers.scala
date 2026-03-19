@@ -16,13 +16,14 @@
 
 package models
 
-import play.api.libs.functional.syntax.*
-import play.api.libs.json.*
-import queries.{Settable, Gettable}
-import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
-
 import java.time.Instant
 import scala.util.{Failure, Success, Try}
+
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
+import queries.{Gettable, Settable}
+
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 final case class UserAnswers(
   vpdId: String,

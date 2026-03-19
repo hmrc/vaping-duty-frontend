@@ -16,6 +16,8 @@
 
 package controllers.contactPreference
 
+import scala.concurrent.Future
+
 import base.SpecBase
 import cats.data.EitherT
 import connectors.EmailVerificationConnector
@@ -32,12 +34,11 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import services.{EmailVerificationService, UserAnswersService}
-import uk.gov.hmrc.http.HttpResponse
 import views.html.contactPreference.EnterEmailView
 
-import scala.concurrent.Future
+import uk.gov.hmrc.http.HttpResponse
 
 class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 

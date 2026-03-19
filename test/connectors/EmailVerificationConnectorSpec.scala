@@ -16,19 +16,20 @@
 
 package connectors
 
+import scala.concurrent.Future
+
 import base.SpecBase
 import config.FrontendAppConfig
 import data.TestData
 import models.emailverification.ErrorModel
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.*
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
+
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
-
-import scala.concurrent.Future
 
 class EmailVerificationConnectorSpec extends SpecBase with TestData {
 
@@ -93,7 +94,7 @@ class EmailVerificationConnectorSpec extends SpecBase with TestData {
 
   "startEmailVerification" - {
     "must successfully fetch a redirect url when a valid request is made" in new SetUp {
-      val mockUrl = s"http://vaping-duty-contact-preferences/email-verification/verify-email"
+      val mockUrl = "http://vaping-duty-contact-preferences/email-verification/verify-email"
       when(mockConfig.startEmailVerificationJourneyUrl).thenReturn(mockUrl)
 
       when(requestBuilder.execute[HttpResponse](any(), any()))
@@ -109,7 +110,7 @@ class EmailVerificationConnectorSpec extends SpecBase with TestData {
       }
     }
     "must return an error if an invalid redirect url is returned when a valid request is made" in new SetUp {
-      val mockUrl = s"http://vaping-duty-contact-preferences/email-verification/verify-email"
+      val mockUrl = "http://vaping-duty-contact-preferences/email-verification/verify-email"
       when(mockConfig.startEmailVerificationJourneyUrl).thenReturn(mockUrl)
 
       when(requestBuilder.execute[HttpResponse](any(), any()))
@@ -128,7 +129,7 @@ class EmailVerificationConnectorSpec extends SpecBase with TestData {
     }
 
     "must return an error if an error response status is returned" in new SetUp {
-      val mockUrl = s"http://vaping-duty-contact-preferences/email-verification/verify-email"
+      val mockUrl = "http://vaping-duty-contact-preferences/email-verification/verify-email"
       when(mockConfig.startEmailVerificationJourneyUrl).thenReturn(mockUrl)
 
       when(requestBuilder.execute[HttpResponse](any(), any()))

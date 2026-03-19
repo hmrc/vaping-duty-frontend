@@ -17,11 +17,11 @@
 package controllers.auth
 
 import base.SpecBase
+import models.BtaLink
+import org.mockito.Mockito.when
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.auth.SignedOutView
-import org.mockito.Mockito.when
-import models.BtaLink
 
 class SignedOutControllerSpec extends SpecBase {
 

@@ -18,7 +18,7 @@ package viewmodels.enrolment
 
 import base.UnitSpec
 import config.FrontendAppConfig
-import org.mockito.Mockito.*
+import org.mockito.Mockito._
 
 
 class UserDoesNotHaveApprovalIdViewModelSpec extends UnitSpec {

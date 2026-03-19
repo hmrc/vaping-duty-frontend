@@ -16,15 +16,16 @@
 
 package controllers.enrolment
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
-import controllers.actions.*
+import controllers.actions._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.enrolment.OrganisationSignInView
 import viewmodels.enrolment.OrganisationSignInViewModel
+import views.html.enrolment.OrganisationSignInView
 
-import javax.inject.Inject
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class OrganisationSignInController @Inject()(
                                        override val messagesApi: MessagesApi,

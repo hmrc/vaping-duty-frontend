@@ -17,11 +17,11 @@
 package controllers.contactPreference
 
 import base.SpecBase
+import models.BtaLink
 import org.mockito.Mockito.when
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import views.html.contactPreference.LockedEmailView
-import models.BtaLink
 
 class LockedEmailControllerSpec extends SpecBase {
 

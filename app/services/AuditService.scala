@@ -16,15 +16,16 @@
 
 package services
 
+import scala.concurrent.ExecutionContext
+
 import com.google.inject.{Inject, Singleton}
 import models.audit.AuditType.ContactPreference
 import models.audit.{AuditType, JourneyOutcome}
 import play.api.Logging
 import play.api.libs.json.{Json, Writes}
+
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-
-import scala.concurrent.ExecutionContext
 
 @Singleton
 class AuditService @Inject()(auditConnector: AuditConnector)(implicit ec: ExecutionContext) extends Logging {

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import play.api.libs.json._
 import scala.annotation.nowarn
+
+import play.api.libs.json._
 
 package object models {
 

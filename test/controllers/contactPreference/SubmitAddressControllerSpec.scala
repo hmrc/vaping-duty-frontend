@@ -16,6 +16,8 @@
 
 package controllers.contactPreference
 
+import scala.concurrent.Future
+
 import base.SpecBase
 import connectors.SubmitPreferencesConnector
 import models.emailverification.ErrorModel
@@ -24,11 +26,9 @@ import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import viewmodels.contactPreference.SubmitAddressViewModel
 import views.html.contactPreference.SubmitAddressView
-
-import scala.concurrent.Future
 
 class SubmitAddressControllerSpec extends SpecBase {
 

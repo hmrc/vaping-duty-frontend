@@ -25,7 +25,7 @@ class PaperlessPreferenceSubmissionSpec extends SpecBase {
 
   "PaperlessPreferenceSubmission" - {
     val json =
-      s"""{"paperlessPreference":"1","emailAddress":"john.doe@example.com","emailVerification":"1","bouncedEmail":"0"}"""
+      """{"paperlessPreference":"1","emailAddress":"john.doe@example.com","emailVerification":"1","bouncedEmail":"0"}"""
 
     "must serialise to json" in {
       Json.toJson(paperlessPreferenceSubmission).toString() mustBe json

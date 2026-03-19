@@ -18,7 +18,7 @@ package controllers.enrolment
 
 import base.SpecBase
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import viewmodels.enrolment.UserAlreadyEnrolledViewModel
 import views.html.enrolment.UserAlreadyEnrolledView
 

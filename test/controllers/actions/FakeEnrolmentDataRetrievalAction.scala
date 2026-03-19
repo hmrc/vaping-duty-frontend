@@ -16,12 +16,13 @@
 
 package controllers.actions
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import models.UserAnswers
 import models.enrolment.EnrolmentUserAnswers
 import models.requests.{EnrolmentOptionalDataRequest, IdentifierRequest, NoEnrolmentIdentifierRequest, OptionalDataRequest}
-import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HeaderCarrier
 
 class FakeEnrolmentDataRetrievalAction(dataToReturn: Option[EnrolmentUserAnswers]) extends EnrolmentDataRetrievalAction {
 

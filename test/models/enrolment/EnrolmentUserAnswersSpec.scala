@@ -16,13 +16,13 @@
 
 package models.enrolment
 
+import java.time.Instant
+import scala.util.Success
+
 import base.SpecBase
 import com.jayway.jsonpath.internal.filter.ValueNodes.PathNode
 import play.api.libs.json.{JsError, JsPath, Json, JsonValidationError}
 import queries.{Gettable, Settable}
-
-import java.time.Instant
-import scala.util.Success
 
 class EnrolmentUserAnswersSpec extends SpecBase {
   val ua = EnrolmentUserAnswers(id = userId, startedTime = Instant.now(clock), lastUpdated = Instant.now(clock))

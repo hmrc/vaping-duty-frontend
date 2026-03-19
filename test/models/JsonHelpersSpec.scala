@@ -17,8 +17,8 @@
 package models
 
 import base.SpecBase
-import play.api.libs.json.{JsResultException, Json}
 import models.emailverification.JsonHelpers._
+import play.api.libs.json.{JsResultException, Json}
 
 class JsonHelpersSpec extends SpecBase {
   "JsonHelpers must" - {

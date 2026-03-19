@@ -16,11 +16,13 @@
 
 package services
 
+import scala.concurrent.Future
+
 import base.SpecBase
 import cats.data.EitherT
 import connectors.{EmailVerificationConnector, SubmitPreferencesConnector}
-import models.*
-import models.emailverification.*
+import models._
+import models.emailverification._
 import models.requests.DataRequest
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -28,9 +30,8 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.mvc.Results.{Ok, Redirect}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.HttpResponse
 
-import scala.concurrent.Future
+import uk.gov.hmrc.http.HttpResponse
 
 class EmailVerificationServiceSpec extends SpecBase {
 

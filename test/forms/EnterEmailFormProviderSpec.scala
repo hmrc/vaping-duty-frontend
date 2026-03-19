@@ -16,13 +16,13 @@
 
 package forms
 
+import scala.collection.immutable.ArraySeq
+import scala.util.Random
+
 import forms.behaviours.StringFieldBehaviours
 import forms.contactPreference.EnterEmailFormProvider
 import forms.mappings.Constraints
 import play.api.data.FormError
-
-import scala.collection.immutable.ArraySeq
-import scala.util.Random
 
 class EnterEmailFormProviderSpec extends StringFieldBehaviours with Constraints {
 

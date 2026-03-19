@@ -16,19 +16,20 @@
 
 package connectors
 
+import scala.concurrent.Future
+
 import base.SpecBase
 import config.FrontendAppConfig
 import data.TestData
 import models.UserAnswers
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{atLeastOnce, verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
+
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HttpResponse, StringContextOps, UpstreamErrorResponse}
-
-import scala.concurrent.Future
 
 class UserAnswersConnectorSpec extends SpecBase with TestData {
   "GET" - {

@@ -16,21 +16,22 @@
 
 package services
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import cats.data.EitherT
 import com.google.inject.Singleton
 import connectors.{EmailVerificationConnector, SubmitPreferencesConnector}
 import models.UserAnswers
 import models.contactPreference.PaperlessPreference.{Email, toValue}
 import models.contactPreference.{Failure, PerformSubmission, Success}
-import models.emailverification.*
+import models.emailverification._
 import models.requests.DataRequest
 import play.api.Logging
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
-import uk.gov.hmrc.http.HeaderCarrier
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerificationConnector)

@@ -16,16 +16,17 @@
 
 package controllers.actions
 
+import scala.concurrent.Future
+
 import base.SpecBase
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.*
+import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import services.UserAnswersService
-import uk.gov.hmrc.http.UpstreamErrorResponse
 
-import scala.concurrent.Future
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
 

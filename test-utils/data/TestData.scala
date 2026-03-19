@@ -16,11 +16,11 @@
 
 package data
 
-import models.{UserAnswers, UserDetails, SubscriptionSummary}
-import models.emailverification._
-import play.api.libs.json.{JsObject, Json}
-
 import java.time.{Clock, Instant, ZoneId}
+
+import models.emailverification._
+import models.{SubscriptionSummary, UserAnswers, UserDetails}
+import play.api.libs.json.{JsObject, Json}
 
 trait TestData {
   val vpdId = "VPPAID01"

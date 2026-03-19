@@ -16,13 +16,13 @@
 
 package controllers.auth
 
+import java.net.URLEncoder
+
 import base.SpecBase
 import config.FrontendAppConfig
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-
-import java.net.URLEncoder
+import play.api.test.Helpers._
 
 class AuthControllerSpec extends SpecBase with MockitoSugar {
 

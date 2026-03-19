@@ -16,10 +16,10 @@
 
 package navigation
 
-import models.{Mode, UserAnswers}
-import pages.*
-import play.api.mvc.Call
 import config.FrontendAppConfig
+import models.{Mode, UserAnswers}
+import pages._
+import play.api.mvc.Call
 
 class FakeNavigator(desiredRoute: Call, config: FrontendAppConfig)
   extends Navigator(config) {

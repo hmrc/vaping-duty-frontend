@@ -16,6 +16,8 @@
 
 package controllers.actions
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
@@ -27,20 +29,19 @@ import org.scalatest.concurrent.ScalaFutures.whenReady
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.mvc.*
+import play.api.mvc._
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import uk.gov.hmrc.auth.core.*
+import play.api.test.Helpers._
+
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.CredentialStrength.strong
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, groupIdentifier, internalId}
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
-
-import scala.concurrent.{ExecutionContext, Future}
 
  class EnrolmentClaimAuthActionSpec extends SpecBase {
 

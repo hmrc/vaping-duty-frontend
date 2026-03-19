@@ -16,9 +16,10 @@
 
 package viewmodels.govuk
 
+import viewmodels.LabelSize
+
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
 import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
-import viewmodels.LabelSize
 
 // scalastyle:off object.name
 object label extends LabelFluency

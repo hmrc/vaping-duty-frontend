@@ -17,6 +17,7 @@
 package viewmodels.enrolment
 
 import javax.inject.Inject
+
 import config.FrontendAppConfig
 
 case class OrganisationSignInViewModel @Inject() (config: FrontendAppConfig) {

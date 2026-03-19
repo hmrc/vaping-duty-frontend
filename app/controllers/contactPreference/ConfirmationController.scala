@@ -16,8 +16,11 @@
 
 package controllers.contactPreference
 
+import javax.inject.Inject
+import scala.concurrent.Future
+
 import config.FrontendAppConfig
-import controllers.actions.*
+import controllers.actions._
 import models.BtaLink
 import models.contactPreference.HowToBeContacted
 import models.requests.DataRequest
@@ -25,12 +28,10 @@ import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.UserAnswersService
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.{EmailConfirmationView, PostalConfirmationView}
 
-import javax.inject.Inject
-import scala.concurrent.Future
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class ConfirmationController @Inject()(
                                        override val messagesApi: MessagesApi,

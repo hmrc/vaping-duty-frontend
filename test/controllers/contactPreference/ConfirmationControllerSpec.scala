@@ -16,8 +16,12 @@
 
 package controllers.contactPreference
 
+import java.time.Instant
+import scala.concurrent.Future
+
 import base.SpecBase
 import connectors.SubmitPreferencesConnector
+import models.BtaLink
 import models.contactPreference.HowToBeContacted
 import models.emailverification.{ErrorModel, PaperlessPreferenceSubmittedResponse}
 import org.mockito.ArgumentMatchers.any
@@ -26,12 +30,8 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.contactPreference.HowToBeContactedPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import views.html.contactPreference.{EmailConfirmationView, PostalConfirmationView}
-
-import java.time.Instant
-import scala.concurrent.Future
-import models.BtaLink
 
 class ConfirmationControllerSpec extends SpecBase {
 

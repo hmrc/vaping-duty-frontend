@@ -16,11 +16,12 @@
 
 package viewmodels
 
+import scala.language.implicitConversions
+
 import play.api.i18n.Messages
+
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Key
-
-import scala.language.implicitConversions
 
 // scalastyle:off object.name
 object implicits extends ImplicitConversions

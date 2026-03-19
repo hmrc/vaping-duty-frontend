@@ -18,9 +18,9 @@ package controllers.enrolment
 
 import base.SpecBase
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import views.html.enrolment.OrganisationSignInView
+import play.api.test.Helpers._
 import viewmodels.enrolment.OrganisationSignInViewModel
+import views.html.enrolment.OrganisationSignInView
 
 class OrganisationSignInControllerSpec extends SpecBase {
 

@@ -19,6 +19,7 @@ package viewmodels.contactPreference
 import base.{SpecBase, UnitSpec}
 import data.TestData
 import play.api.i18n.Messages
+
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 

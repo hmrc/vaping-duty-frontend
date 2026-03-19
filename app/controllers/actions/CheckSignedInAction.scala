@@ -16,20 +16,21 @@
 
 package controllers.actions
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import com.google.inject.Inject
-import models.requests.SignedInRequest
 import controllers.routes
+import models.requests.SignedInRequest
 import play.api.Logging
-import play.api.mvc.*
 import play.api.mvc.Results.Redirect
+import play.api.mvc._
+
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
-import uk.gov.hmrc.auth.core.*
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.internalId
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.internalId
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-
-import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * This auth action will verify the basic requirement that the User

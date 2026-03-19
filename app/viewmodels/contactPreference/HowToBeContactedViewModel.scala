@@ -21,6 +21,7 @@ import models.contactPreference.PaperlessPreference.{Email, Post}
 import models.contactPreference.{HowToBeContacted, PaperlessPreference}
 import play.api.i18n.Messages
 import play.twirl.api.Html
+
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
 case class HowToBeContactedViewModel(content: Html, radioItems: Seq[RadioItem])

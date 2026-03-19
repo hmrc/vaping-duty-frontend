@@ -16,14 +16,14 @@
 
 package controllers.actions
 
+import scala.concurrent.Future
+
 import base.SpecBase
 import models.requests.NoEnrolmentIdentifierRequest
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
-
-import scala.concurrent.Future
 
 class NoEnrolmentActionSpec extends SpecBase with MockitoSugar {
 

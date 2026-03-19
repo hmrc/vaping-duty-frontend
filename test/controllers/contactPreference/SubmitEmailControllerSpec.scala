@@ -16,6 +16,9 @@
 
 package controllers.contactPreference
 
+import java.time.Instant
+import scala.concurrent.Future
+
 import base.SpecBase
 import cats.data.EitherT
 import connectors.SubmitPreferencesConnector
@@ -26,13 +29,11 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.mvc.Results.{Ok, Redirect}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import services.{EmailVerificationService, UserAnswersService}
-import uk.gov.hmrc.http.HttpResponse
 import views.html.contactPreference.SubmitEmailView
 
-import java.time.Instant
-import scala.concurrent.Future
+import uk.gov.hmrc.http.HttpResponse
 
 class SubmitEmailControllerSpec extends SpecBase {
 

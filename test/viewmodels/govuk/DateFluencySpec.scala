@@ -16,6 +16,8 @@
 
 package viewmodels.govuk
 
+import java.time.LocalDate
+
 import forms.mappings.Mappings
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
@@ -24,8 +26,6 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import viewmodels.govuk.all._
-
-import java.time.LocalDate
 
 class DateFluencySpec extends AnyFreeSpec with Matchers with Mappings with OptionValues {
 

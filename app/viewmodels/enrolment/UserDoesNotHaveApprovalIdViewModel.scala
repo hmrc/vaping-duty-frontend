@@ -16,9 +16,9 @@
 
 package viewmodels.enrolment
 
-import config.FrontendAppConfig
-
 import javax.inject.Inject
+
+import config.FrontendAppConfig
 
 case class UserDoesNotHaveApprovalIdViewModel @Inject()(config: FrontendAppConfig) {
 

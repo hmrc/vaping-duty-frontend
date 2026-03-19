@@ -16,9 +16,9 @@
 
 package config
 
-import play.api.{ConfigLoader, Configuration}
-
 import scala.language.implicitConversions
+
+import play.api.{ConfigLoader, Configuration}
 
 final case class Service(host: String, port: String, protocol: String) {
 

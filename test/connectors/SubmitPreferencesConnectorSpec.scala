@@ -16,18 +16,19 @@
 
 package connectors
 
+import scala.concurrent.Future
+
 import base.SpecBase
 import config.FrontendAppConfig
 import data.TestData
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.*
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{BAD_GATEWAY, CREATED, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
+
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HttpResponse, StringContextOps, UpstreamErrorResponse}
-
-import scala.concurrent.Future
 
 class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
 

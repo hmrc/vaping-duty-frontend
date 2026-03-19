@@ -16,19 +16,20 @@
 
 package controllers.contactPreference
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import connectors.SubmitPreferencesConnector
-import controllers.actions.*
+import controllers.actions._
 import models.emailverification.{EmailVerificationDetails, VerificationDetails}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{AuditService, EmailVerificationService}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.SubmitEmailView
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class SubmitEmailController @Inject()(
                                        override val messagesApi: MessagesApi,

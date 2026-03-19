@@ -16,17 +16,17 @@
 
 package controllers
 
+import scala.concurrent.Future
+
 import base.SpecBase
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalactic.Prettifier.default
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import services.UserAnswersService
-
-import scala.concurrent.Future
 
 class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 

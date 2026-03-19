@@ -16,19 +16,20 @@
 
 package controllers.actions
 
+import scala.concurrent.Future
+
 import base.SpecBase
 import models.requests.SignedInRequest
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.*
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.{BodyParsers, Results}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import uk.gov.hmrc.auth.core.*
-import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import play.api.test.Helpers._
 
-import scala.concurrent.Future
+import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
+import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 
 class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
   val app = applicationBuilder(userAnswers = None)

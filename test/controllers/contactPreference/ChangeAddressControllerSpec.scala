@@ -19,7 +19,7 @@ package controllers.contactPreference
 import base.SpecBase
 import org.mockito.Mockito.when
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import views.html.contactPreference.ChangeAddressView
 
 class ChangeAddressControllerSpec extends SpecBase {

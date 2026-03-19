@@ -16,6 +16,8 @@
 
 package controllers.contactPreference
 
+import scala.concurrent.Future
+
 import base.SpecBase
 import forms.contactPreference.HowToBeContactedFormProvider
 import models.NormalMode
@@ -29,13 +31,12 @@ import pages.contactPreference.HowToBeContactedPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import services.UserAnswersService
-import uk.gov.hmrc.http.UpstreamErrorResponse
 import viewmodels.contactPreference.HowToBeContactedViewModel
 import views.html.contactPreference.HowToBeContactedView
 
-import scala.concurrent.Future
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 

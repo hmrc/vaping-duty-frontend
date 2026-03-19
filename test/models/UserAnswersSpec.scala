@@ -16,12 +16,12 @@
 
 package models
 
-import base.SpecBase
-import play.api.libs.json.{JsPath, Json}
-import queries.{Settable, Gettable}
-
 import java.time.Instant
 import scala.util.Success
+
+import base.SpecBase
+import play.api.libs.json.{JsPath, Json}
+import queries.{Gettable, Settable}
 
 class UserAnswersSpec extends SpecBase {
   val ua = userAnswersPostWithEmail.copy(validUntil = Some(Instant.now(clock).plusMillis(1)))

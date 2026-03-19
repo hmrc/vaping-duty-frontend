@@ -16,18 +16,19 @@
 
 package connectors
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
+
 import config.FrontendAppConfig
 import models.emailverification.{ErrorModel, PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
 import play.api.Logging
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, StringContextOps, UpstreamErrorResponse}
-
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
 
 class SubmitPreferencesConnector @Inject() (
   config: FrontendAppConfig,
@@ -61,13 +62,13 @@ class SubmitPreferencesConnector @Inject() (
           }
         case Left(errorResponse)                      =>
           logger.warn(
-            s"[SubmitPreferencesConnector] [submitContactPreferences] Unexpected response when submitting contact preferences." +
+            "[SubmitPreferencesConnector] [submitContactPreferences] Unexpected response when submitting contact preferences." +
               s" Status: ${errorResponse.statusCode}"
           )
           Left(ErrorModel(errorResponse.statusCode, s"Unexpected response. Status: ${errorResponse.statusCode}"))
         case Right(response)                          =>
           logger.warn(
-            s"[SubmitPreferencesConnector] [submitContactPreferences] Unexpected status code when submitting contact " +
+            "[SubmitPreferencesConnector] [submitContactPreferences] Unexpected status code when submitting contact " +
               s"preferences: ${response.status}"
           )
           Left(

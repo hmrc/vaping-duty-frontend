@@ -16,8 +16,12 @@
 
 package controllers.enrolment
 
+import java.time.Instant
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import config.FrontendAppConfig
-import controllers.actions.*
+import controllers.actions._
 import forms.enrolment.UserHasApprovalIdFormProvider
 import models.enrolment.EnrolmentUserAnswers
 import models.requests.EnrolmentOptionalDataRequest
@@ -27,12 +31,9 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EnrolmentUserAnswersRepository
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.enrolment.UserHasApprovalIdView
 
-import java.time.Instant
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class UserHasApprovalIdController @Inject()(
                                              override val messagesApi: MessagesApi,

@@ -16,19 +16,19 @@
 
 package models.audit
 
+import scala.language.implicitConversions
+
 import base.SpecBase
 import data.TestData
 import models.UserAnswers
-import models.audit.Actions.*
-import models.contactPreference.PaperlessPreference.*
+import models.audit.Actions._
+import models.contactPreference.PaperlessPreference._
 import models.requests.DataRequest
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
 import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
-
-import scala.language.implicitConversions
 
 class JourneyOutcomeSpec extends AnyFreeSpec with Matchers with TestData with SpecBase {
 

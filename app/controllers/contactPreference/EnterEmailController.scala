@@ -16,9 +16,12 @@
 
 package controllers.contactPreference
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import config.FrontendAppConfig
 import connectors.EmailVerificationConnector
-import controllers.actions.*
+import controllers.actions._
 import forms.contactPreference.EnterEmailFormProvider
 import models.emailverification.{EmailVerificationDetails, EmailVerificationRequest, VerificationDetails}
 import models.{Mode, NormalMode, UserAnswers}
@@ -29,13 +32,11 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{EmailVerificationService, UserAnswersService}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.StartEmailVerificationJourneyHelper
 import views.html.contactPreference.EnterEmailView
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class EnterEmailController @Inject()(
                                       override val messagesApi: MessagesApi,

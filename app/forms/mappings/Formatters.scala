@@ -16,11 +16,11 @@
 
 package forms.mappings
 
+import scala.util.control.Exception.nonFatalCatch
+
+import models.Enumerable
 import play.api.data.FormError
 import play.api.data.format.Formatter
-import models.Enumerable
-
-import scala.util.control.Exception.nonFatalCatch
 
 trait Formatters {
 

@@ -16,13 +16,14 @@
 
 package controllers
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, DataRetrievalAction}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.UserAnswersService
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 class KeepAliveController @Inject()(
                                      val controllerComponents: MessagesControllerComponents,

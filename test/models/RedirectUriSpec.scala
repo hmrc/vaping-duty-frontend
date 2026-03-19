@@ -24,7 +24,7 @@ class RedirectUriSpec extends SpecBase {
   val redirectUri: RedirectUri = RedirectUri("foo")
 
   "EmailVerificationDetails" - {
-    val json = s"""{"redirectUri":"foo"}"""
+    val json = """{"redirectUri":"foo"}"""
 
     "must serialise to json" in {
       Json.toJson(redirectUri).toString() mustBe json
