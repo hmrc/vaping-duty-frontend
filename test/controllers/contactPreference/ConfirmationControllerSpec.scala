@@ -88,31 +88,6 @@ class ConfirmationControllerSpec extends SpecBase with BeforeAndAfterEach {
       }
     }
 
-//    "must return OK and render the view when user is already on postal preference" in {
-//
-//      val mockSubscriptionConnector = mock[SubscriptionConnector]
-//
-//      when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account")
-//
-//      when(mockSubscriptionConnector.getSubscriptionContactPreferences(any())(any()))
-//        .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
-//
-//      val application = applicationBuilder()
-//        .overrides(bind[SubscriptionConnector].toInstance(mockSubscriptionConnector))
-//        .build()
-//
-//      running(application) {
-//        val request = FakeRequest(GET, controllers.contactPreference.routes.ConfirmationController.onPageLoad().url)
-//
-//        val result = route(application, request).value
-//
-//        val view = application.injector.instanceOf[PostalConfirmationView]
-//
-//        status(result) mustEqual OK
-//        contentAsString(result) mustEqual view(BtaLink(mockAppConfig))(request, messages(application)).toString
-//      }
-//    }
-
     "must redirect to journey recovery when there is no entry in user answers for HowToBeContacted" in {
 
       when(mockSubscriptionConnector.getSubscriptionContactPreferences(any())(any()))
