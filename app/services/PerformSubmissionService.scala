@@ -23,17 +23,20 @@ import models.contactPreference.PaperlessPreference
 import models.emailverification.{PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
 import models.requests.DataRequest
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class PerformSubmissionService @Inject()(submitPreferencesConnector: SubmitPreferencesConnector,
-                                         auditService: AuditService,
-                                         vpdId: String)
+                                         auditService: AuditService)
                                         (implicit ec: ExecutionContext) {
 
-  def submit(preferenceSubmission: PaperlessPreferenceSubmission, request: DataRequest[?]): Future[ResponseStatus] = {
-    implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders()
+  def submit(preferenceSubmission: PaperlessPreferenceSubmission, request: DataRequest[?], vpdId: String): Future[ResponseStatus] = {
+
+    implicit val hc: HeaderCarrier =
+      HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
+
     submitPreferencesConnector.submitContactPreferences(preferenceSubmission, vpdId).map {
       case Left(error)     => new Failure
       case Right(response) =>
