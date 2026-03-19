@@ -34,7 +34,7 @@ import uk.gov.hmrc.http.{HttpResponse, StringContextOps, UpstreamErrorResponse}
 class UserAnswersConnectorSpec extends SpecBase with TestData {
   "GET" - {
     "must successfully fetch user answers" in new SetUp {
-      val mockUrl = s"http://vaping-duty-account/user-answers/$vpdId"
+      val mockUrl: String = s"http://vaping-duty-account/user-answers/$vpdId"
       when(mockConfig.cpUserAnswersGetUrl(any())).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, UserAnswers]](any(), any()))

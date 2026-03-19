@@ -39,15 +39,16 @@ import services.{EmailVerificationService, UserAnswersService}
 import views.html.contactPreference.EnterEmailView
 
 import uk.gov.hmrc.http.HttpResponse
+import play.api.data.Form
 
 class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute: Call = Call("GET", "/foo")
 
   val formProvider = new EnterEmailFormProvider()
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
-  lazy val enterEmailRoute = controllers.contactPreference.routes.EnterEmailController.onPageLoad(NormalMode).url
+  lazy val enterEmailRoute: String = controllers.contactPreference.routes.EnterEmailController.onPageLoad(NormalMode).url
 
   "EnterEmail Controller" - {
 

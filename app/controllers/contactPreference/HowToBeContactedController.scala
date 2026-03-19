@@ -31,6 +31,8 @@ import viewmodels.contactPreference.HowToBeContactedViewModel
 import views.html.contactPreference.HowToBeContactedView
 
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import play.api.data.Form
+import models.contactPreference.HowToBeContacted
 
 class HowToBeContactedController @Inject()(
                                             override val messagesApi: MessagesApi,
@@ -44,7 +46,7 @@ class HowToBeContactedController @Inject()(
                                             view: HowToBeContactedView
                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[HowToBeContacted] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>

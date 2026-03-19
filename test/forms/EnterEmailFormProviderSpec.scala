@@ -31,7 +31,7 @@ class EnterEmailFormProviderSpec extends StringFieldBehaviours with Constraints 
   val formatKey = "contactPreference.enterEmail.error.format"
   val maxLength = 254
 
-  val validEmails =
+  val validEmails: Seq[String] =
     Seq(
       "valid@email.com",
       s"${Random.alphanumeric.take(240).mkString}@${Random.alphanumeric.take(7).mkString}.co.uk",

@@ -36,8 +36,8 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
     val mockUrl = s"http://vaping-duty-account/submit-preferences/$vpdId"
 
     "successfully submit contact preferences" in new SetUp {
-      val jsonResponse = Json.toJson(testSubmissionResponse).toString()
-      val httpResponse = HttpResponse(OK, jsonResponse)
+      val jsonResponse: String = Json.toJson(testSubmissionResponse).toString()
+      val httpResponse: HttpResponse = HttpResponse(OK, jsonResponse)
 
       when(mockConfig.cpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
 
@@ -62,7 +62,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
     }
 
     "fail when invalid JSON is returned" in new SetUp {
-      val invalidJsonResponse = HttpResponse(OK, """{ "invalid": "json" }""")
+      val invalidJsonResponse: HttpResponse = HttpResponse(OK, """{ "invalid": "json" }""")
 
       when(mockConfig.cpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
 
@@ -88,7 +88,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
     }
 
     "fail when an unexpected response is returned" in new SetUp {
-      val upstreamErrorResponse = Future.successful(
+      val upstreamErrorResponse: Future[Left[UpstreamErrorResponse, HttpResponse]] = Future.successful(
         Left[UpstreamErrorResponse, HttpResponse](UpstreamErrorResponse("", BAD_GATEWAY, BAD_GATEWAY, Map.empty))
       )
 
@@ -116,7 +116,7 @@ class SubmitPreferencesConnectorSpec extends SpecBase with TestData {
     }
 
     "fail when an unexpected status code is returned" in new SetUp {
-      val invalidStatusCodeResponse = HttpResponse(CREATED, "")
+      val invalidStatusCodeResponse: HttpResponse = HttpResponse(CREATED, "")
 
       when(mockConfig.cpSubmitContactPreferencesUrl(eqTo(vpdId))).thenReturn(mockUrl)
 

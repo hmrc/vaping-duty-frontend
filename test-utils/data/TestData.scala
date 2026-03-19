@@ -157,26 +157,26 @@ trait TestData {
 
   val testRedirectUri: RedirectUri = RedirectUri("/test-uri")
 
-  val contactPreferenceSubmissionPost = PaperlessPreferenceSubmission(
+  val contactPreferenceSubmissionPost: PaperlessPreferenceSubmission = PaperlessPreferenceSubmission(
     paperlessPreference = false,
     emailAddress = None,
     emailVerification = None,
     bouncedEmail = None
   )
 
-  val contactPreferenceSubmissionEmail = PaperlessPreferenceSubmission(
+  val contactPreferenceSubmissionEmail: PaperlessPreferenceSubmission = PaperlessPreferenceSubmission(
     paperlessPreference = true,
     emailAddress = Some(emailAddress),
     emailVerification = Some(true),
     bouncedEmail = Some(false)
   )
 
-  val contactPreferenceSubmissionNewEmail = PaperlessPreferenceSubmission(
+  val contactPreferenceSubmissionNewEmail: PaperlessPreferenceSubmission = PaperlessPreferenceSubmission(
     paperlessPreference = true,
     emailAddress = Some(emailAddress2),
     emailVerification = Some(true),
     bouncedEmail = Some(false)
   )
 
-  val testSubmissionResponse = PaperlessPreferenceSubmittedResponse(Instant.now(clock), "910000000000")
+  val testSubmissionResponse: PaperlessPreferenceSubmittedResponse = PaperlessPreferenceSubmittedResponse(Instant.now(clock), "910000000000")
   }

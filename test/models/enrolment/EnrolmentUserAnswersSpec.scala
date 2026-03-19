@@ -25,7 +25,7 @@ import play.api.libs.json.{JsError, JsPath, Json, JsonValidationError}
 import queries.{Gettable, Settable}
 
 class EnrolmentUserAnswersSpec extends SpecBase {
-  val ua = EnrolmentUserAnswers(id = userId, startedTime = Instant.now(clock), lastUpdated = Instant.now(clock))
+  val ua: EnrolmentUserAnswers = EnrolmentUserAnswers(id = userId, startedTime = Instant.now(clock), lastUpdated = Instant.now(clock))
 
   case object TestPage extends Gettable[String] with Settable[String] {
     override def path: JsPath = JsPath \ toString

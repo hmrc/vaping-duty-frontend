@@ -37,7 +37,7 @@ class EmailVerificationConnectorSpec extends SpecBase with TestData {
 
   "getEmailVerification" - {
     "must successfully fetch valid verification details for a given user" in new SetUp {
-      val mockUrl = s"http://vaping-duty-contact-preferences/get-email-verification/$credId"
+      val mockUrl: String = s"http://vaping-duty-contact-preferences/get-email-verification/$credId"
       when(mockConfig.cpGetEmailVerificationUrl(any())).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
@@ -50,7 +50,7 @@ class EmailVerificationConnectorSpec extends SpecBase with TestData {
       }
     }
     "must return an error when invalid verification details are returned" in new SetUp {
-      val mockUrl = s"http://vaping-duty-contact-preferences/get-email-verification/$credId"
+      val mockUrl: String = s"http://vaping-duty-contact-preferences/get-email-verification/$credId"
       when(mockConfig.cpGetEmailVerificationUrl(any())).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))
@@ -69,7 +69,7 @@ class EmailVerificationConnectorSpec extends SpecBase with TestData {
     }
 
     "must return an error when http client returns a response with an error code" in new SetUp {
-      val mockUrl = s"http://vaping-duty-contact-preferences/get-email-verification/$credId"
+      val mockUrl: String = s"http://vaping-duty-contact-preferences/get-email-verification/$credId"
       when(mockConfig.cpGetEmailVerificationUrl(any())).thenReturn(mockUrl)
 
       when(requestBuilder.execute[Either[UpstreamErrorResponse, HttpResponse]](any(), any()))

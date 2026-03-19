@@ -24,7 +24,7 @@ import play.api.libs.json.{JsPath, Json}
 import queries.{Gettable, Settable}
 
 class UserAnswersSpec extends SpecBase {
-  val ua = userAnswersPostWithEmail.copy(validUntil = Some(Instant.now(clock).plusMillis(1)))
+  val ua: UserAnswers = userAnswersPostWithEmail.copy(validUntil = Some(Instant.now(clock).plusMillis(1)))
 
   case object TestPage extends Gettable[String] with Settable[String] {
     override def path: JsPath = JsPath \ toString

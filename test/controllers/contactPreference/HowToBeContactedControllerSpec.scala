@@ -37,15 +37,16 @@ import viewmodels.contactPreference.HowToBeContactedViewModel
 import views.html.contactPreference.HowToBeContactedView
 
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import play.api.data.Form
 
 class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
+  def onwardRoute: Call = Call("GET", "/foo")
 
-  lazy val howToBeContactedRoute = controllers.contactPreference.routes.HowToBeContactedController.onPageLoad(NormalMode).url
+  lazy val howToBeContactedRoute: String = controllers.contactPreference.routes.HowToBeContactedController.onPageLoad(NormalMode).url
 
   val formProvider = new HowToBeContactedFormProvider()
-  val form = formProvider()
+  val form: Form[HowToBeContacted] = formProvider()
 
   "HowToBeContacted Controller" - {
 

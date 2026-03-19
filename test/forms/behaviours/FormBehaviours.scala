@@ -26,7 +26,7 @@ trait FormBehaviours extends FormSpec {
 
   val form: Form[_]
 
-  def questionForm[A](expectedResult: A) = {
+  def questionForm[A](expectedResult: A): Unit = {
     "bind valid values correctly" in {
       val boundForm = form.bind(validData)
       boundForm.get mustBe expectedResult
@@ -34,7 +34,7 @@ trait FormBehaviours extends FormSpec {
     }
   }
 
-  def formWithOptionalTextFields(fields: String*) = {
+  def formWithOptionalTextFields(fields: String*): Unit = {
     for (field <- fields) {
       s"bind when $field is omitted" in {
         val data = validData - field
@@ -44,7 +44,7 @@ trait FormBehaviours extends FormSpec {
     }
   }
 
-  def formWithMandatoryTextFields(fields: Field*) = {
+  def formWithMandatoryTextFields(fields: Field*): Unit = {
     for (field <- fields) {
       s"fail to bind when ${field.name} is omitted" in {
         val data = validData - field.name
@@ -60,7 +60,7 @@ trait FormBehaviours extends FormSpec {
     }
   }
 
-  def formWithConditionallyMandatoryField(booleanField: String, field: String) = {
+  def formWithConditionallyMandatoryField(booleanField: String, field: String): Unit = {
     s"bind when $booleanField is false and $field is omitted" in {
       val data = validData + (booleanField -> "false") - field
       val boundForm = form.bind(data)
@@ -74,7 +74,7 @@ trait FormBehaviours extends FormSpec {
     }
   }
 
-  def formWithBooleans(fields: String*) = {
+  def formWithBooleans(fields: String*): Unit = {
     for (field <- fields) {
       s"fail to bind when $field is omitted" in {
         val data = validData - field
@@ -90,7 +90,7 @@ trait FormBehaviours extends FormSpec {
     }
   }
 
-  def formWithOptionField(field: Field, validValues: String*) = {
+  def formWithOptionField(field: Field, validValues: String*): Unit = {
     for (validValue <- validValues) {
       s"bind when ${field.name} is set to $validValue" in {
         val data = validData + (field.name -> validValue)
@@ -112,7 +112,7 @@ trait FormBehaviours extends FormSpec {
     }
   }
 
-  def formWithDateField(field: String) = {
+  def formWithDateField(field: String): Unit = {
     s"fail to bind when $field day is omitted" in {
       val data = validData - s"$field.day"
       val expectedError = error(s"$field.day", "error.date.day_blank")

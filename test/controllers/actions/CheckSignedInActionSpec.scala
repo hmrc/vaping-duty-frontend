@@ -30,9 +30,10 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import play.api.inject.guice.GuiceApplicationBuilder
 
 class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
-  val app = applicationBuilder(userAnswers = None)
+  val app: GuiceApplicationBuilder = applicationBuilder(userAnswers = None)
   val testContent                            = "Test"
   val defaultBodyParser: BodyParsers.Default = app.injector().instanceOf[BodyParsers.Default]
   val mockAuthConnector: AuthConnector       = mock[AuthConnector]
