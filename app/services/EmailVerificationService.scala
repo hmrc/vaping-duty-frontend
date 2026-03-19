@@ -73,7 +73,7 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
             emailAddress = Some(email),
             emailVerification = Some(verified),
             bouncedEmail = None
-          ), request, request.enrolmentVpdId)
+          ), request)
         .map {
           case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case _: Success =>

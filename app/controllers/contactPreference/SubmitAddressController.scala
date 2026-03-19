@@ -63,7 +63,7 @@ class SubmitAddressController @Inject()(
               emailAddress = request.userAnswers.subscriptionSummary.emailAddress,
               emailVerification = request.userAnswers.subscriptionSummary.emailVerification,
               bouncedEmail = request.userAnswers.subscriptionSummary.bouncedEmail
-            ), request, request.enrolmentVpdId)
+            ), request)
           .map {
             case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
             case _: Success =>

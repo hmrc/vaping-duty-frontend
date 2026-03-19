@@ -191,7 +191,7 @@ class EmailVerificationServiceSpec extends SpecBase {
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(testSubmissionResponse)))
 
-      when(mockSubmissionService.submit(any(), any(), any())).thenReturn(Future.successful(Success()))
+      when(mockSubmissionService.submit(any(), any())).thenReturn(Future.successful(Success()))
 
       whenReady(testService.submitVerifiedEmail(
         emailAddress,
@@ -207,7 +207,7 @@ class EmailVerificationServiceSpec extends SpecBase {
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
-      when(mockSubmissionService.submit(any(), any(), any())).thenReturn(Future.successful(Failure()))
+      when(mockSubmissionService.submit(any(), any())).thenReturn(Future.successful(Failure()))
 
       whenReady(testService.submitVerifiedEmail(
         emailAddress,

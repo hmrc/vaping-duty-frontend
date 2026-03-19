@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models.contactPreference
+package services
 
 import base.SpecBase
 import connectors.SubmitPreferencesConnector
@@ -28,7 +28,6 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.test.FakeRequest
-import services.{AuditService, Failure, PerformSubmissionService, Success}
 
 import scala.concurrent.Future
 
@@ -46,7 +45,7 @@ class PerformSubmissionServiceSpec extends AnyFreeSpec with Matchers with TestDa
       when(mockConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(testSubmissionResponse)))
 
-      val result = PerformSubmissionService(mockConnector, mockAuditService).submit(contactPreferenceSubmissionEmail, request, vpdId)
+      val result = PerformSubmissionService(mockConnector, mockAuditService).submit(contactPreferenceSubmissionEmail, request)
 
       whenReady(result) {
         _.isInstanceOf[Success] mustBe true
@@ -58,7 +57,7 @@ class PerformSubmissionServiceSpec extends AnyFreeSpec with Matchers with TestDa
       when(mockConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
-      val result = PerformSubmissionService(mockConnector, mockAuditService).submit(contactPreferenceSubmissionNewEmail, request, vpdId)
+      val result = PerformSubmissionService(mockConnector, mockAuditService).submit(contactPreferenceSubmissionNewEmail, request)
 
       whenReady(result) {
         _.isInstanceOf[Failure] mustBe true

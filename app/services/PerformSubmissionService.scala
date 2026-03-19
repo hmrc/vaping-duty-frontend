@@ -32,12 +32,12 @@ class PerformSubmissionService @Inject()(submitPreferencesConnector: SubmitPrefe
                                          auditService: AuditService)
                                         (implicit ec: ExecutionContext) {
 
-  def submit(preferenceSubmission: PaperlessPreferenceSubmission, request: DataRequest[?], vpdId: String): Future[ResponseStatus] = {
+  def submit(preferenceSubmission: PaperlessPreferenceSubmission, request: DataRequest[?]): Future[ResponseStatus] = {
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
 
-    submitPreferencesConnector.submitContactPreferences(preferenceSubmission, vpdId).map {
+    submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.enrolmentVpdId).map {
       case Left(error)     => new Failure
       case Right(response) =>
         sendExplicitEvent(preferenceSubmission, auditService)(hc, request)
