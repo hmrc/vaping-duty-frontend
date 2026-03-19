@@ -18,7 +18,7 @@ package services
 
 import cats.data.EitherT
 import com.google.inject.Singleton
-import connectors.{EmailVerificationConnector, SubmitPreferencesConnector}
+import connectors.EmailVerificationConnector
 import models.UserAnswers
 import models.contactPreference.PaperlessPreference.{Email, toValue}
 import models.contactPreference.{Failure, PerformSubmission, Success}
@@ -34,18 +34,16 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerificationConnector,
-                                          userAnswersService: UserAnswersService)
-                                         (implicit ec: ExecutionContext) extends Logging {
+                                          userAnswersService: UserAnswersService,
+                                          submissionService: PerformSubmission
+                                         )(implicit ec: ExecutionContext) extends Logging {
 
-  def retrieveAddressStatus(verificationDetails: VerificationDetails,
-                            emailAddress: String,
-                            userAnswers: UserAnswers)
+  def retrieveAddressStatus(verificationDetails: VerificationDetails, emailAddress: String, userAnswers: UserAnswers)
                            (implicit hc: HeaderCarrier): EitherT[Future, ErrorModel, EmailVerificationDetails] =
     for {
-      successResponse    <- emailVerificationConnector.getEmailVerification(verificationDetails)
+      successResponse <- emailVerificationConnector.getEmailVerification(verificationDetails)
       verificationDetails = handleSuccess(emailAddress, successResponse)
     } yield verificationDetails
-  
 
   private def handleSuccess(emailAddress: String, successResponse: GetVerificationStatusResponse): EmailVerificationDetails = {
 
@@ -66,28 +64,23 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
     }
   }
 
-  def submitVerifiedEmail(email: String,
-                          verified: Boolean,
-                          submitPreferencesConnector: SubmitPreferencesConnector,
-                          auditService: AuditService)
-                         (implicit hc: HeaderCarrier, request: DataRequest[?]): Future[Result] = {
-    
+  def submitVerifiedEmail(email: String, verified: Boolean)(implicit hc: HeaderCarrier, request: DataRequest[?]): Future[Result] = {
+
     if (verified) {
-      PerformSubmission(
-        submitPreferencesConnector,
-        PaperlessPreferenceSubmission(
-          paperlessPreference = toValue(Email),
-          emailAddress = Some(email),
-          emailVerification = Some(verified),
-          bouncedEmail = None
-        ),
-        auditService = auditService
-      ).map {
-        case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-        case _: Success =>
-          userAnswersService.clear(request.userId)
-          Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
-      }
+      submissionService
+        .submit(
+          PaperlessPreferenceSubmission(
+            paperlessPreference = toValue(Email),
+            emailAddress = Some(email),
+            emailVerification = Some(verified),
+            bouncedEmail = None
+          ), request)
+        .map {
+          case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          case _: Success =>
+            userAnswersService.clear(request.userId)
+            Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
+        }
     } else {
       // Should never enter this case
       logger.warn("[EmailVerificationService][submit] Unverified email attempted to submit")

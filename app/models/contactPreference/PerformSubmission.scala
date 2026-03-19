@@ -24,19 +24,20 @@ import models.requests.DataRequest
 import services.AuditService
 import uk.gov.hmrc.http.HeaderCarrier
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-object PerformSubmission {
+class PerformSubmission @Inject()(submitPreferencesConnector: SubmitPreferencesConnector,
+                                  auditService: AuditService,
+                                  vpdId: String)
+                                 (implicit ec: ExecutionContext) {
 
-  def apply(submitPreferencesConnector: SubmitPreferencesConnector,
-            preferenceSubmission: PaperlessPreferenceSubmission,
-            auditService: AuditService)
-           (implicit ec: ExecutionContext, hc: HeaderCarrier, request: DataRequest[?]): Future[ResponseStatus] = {
-
-    submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.enrolmentVpdId).map {
+  def submit(preferenceSubmission: PaperlessPreferenceSubmission, request: DataRequest[?]): Future[ResponseStatus] = {
+    implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders()
+    submitPreferencesConnector.submitContactPreferences(preferenceSubmission, vpdId).map {
       case Left(error)     => new Failure
       case Right(response) =>
-        sendExplicitEvent(preferenceSubmission, auditService)
+        sendExplicitEvent(preferenceSubmission, auditService)(hc, request)
         new Success
     }
   }

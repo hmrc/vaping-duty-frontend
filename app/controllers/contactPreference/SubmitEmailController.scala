@@ -16,14 +16,13 @@
 
 package controllers.contactPreference
 
-import connectors.SubmitPreferencesConnector
 import controllers.actions.*
 import models.emailverification.{EmailVerificationDetails, VerificationDetails}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{AuditService, EmailVerificationService}
+import services.EmailVerificationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.SubmitEmailView
 
@@ -36,10 +35,8 @@ class SubmitEmailController @Inject()(
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        emailVerificationService: EmailVerificationService,
-                                       submitPreferencesConnector: SubmitPreferencesConnector,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: SubmitEmailView,
-                                       auditService: AuditService
+                                       view: SubmitEmailView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -75,9 +72,7 @@ class SubmitEmailController @Inject()(
         case Right(emailVerificationDetails) =>
             emailVerificationService.submitVerifiedEmail(
               emailVerificationDetails.emailAddress,
-              emailVerificationDetails.isVerified,
-              submitPreferencesConnector,
-              auditService
+              emailVerificationDetails.isVerified
             )
       }
   }

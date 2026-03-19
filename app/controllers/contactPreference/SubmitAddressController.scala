@@ -17,7 +17,6 @@
 package controllers.contactPreference
 
 import config.FrontendAppConfig
-import connectors.SubmitPreferencesConnector
 import controllers.actions.*
 import models.contactPreference
 import models.contactPreference.PaperlessPreference.{Email, Post, toValue}
@@ -26,7 +25,7 @@ import models.emailverification.PaperlessPreferenceSubmission
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{AuditService, UserAnswersService}
+import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.SubmitAddressViewModel
 import views.html.contactPreference.SubmitAddressView
@@ -39,12 +38,11 @@ class SubmitAddressController @Inject()(
                                           identify: ApprovedVapingManufacturerAuthAction,
                                           getData: DataRetrievalAction,
                                           requireData: DataRequiredAction,
-                                          submitPreferencesConnector: SubmitPreferencesConnector,
                                           val controllerComponents: MessagesControllerComponents,
                                           view: SubmitAddressView,
                                           config: FrontendAppConfig,
                                           userAnswersService: UserAnswersService,
-                                          auditService: AuditService
+                                          submissionService: PerformSubmission
                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
@@ -58,21 +56,20 @@ class SubmitAddressController @Inject()(
 
     currentPreference match {
       case Email =>
-        PerformSubmission(
-          submitPreferencesConnector,
-          PaperlessPreferenceSubmission(
-            paperlessPreference = toValue(Post),
-            emailAddress = request.userAnswers.subscriptionSummary.emailAddress,
-            emailVerification = request.userAnswers.subscriptionSummary.emailVerification,
-            bouncedEmail = request.userAnswers.subscriptionSummary.bouncedEmail
-          ),
-          auditService
-        ).map {
-          case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-          case _: Success =>
-            userAnswersService.clear(request.userId)
-            Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
-        }
+        submissionService
+          .submit(
+            PaperlessPreferenceSubmission(
+              paperlessPreference = toValue(Post),
+              emailAddress = request.userAnswers.subscriptionSummary.emailAddress,
+              emailVerification = request.userAnswers.subscriptionSummary.emailVerification,
+              bouncedEmail = request.userAnswers.subscriptionSummary.bouncedEmail
+            ), request)
+          .map {
+            case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+            case _: Success =>
+              userAnswersService.clear(request.userId)
+              Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
+          }
       case Post  =>
         Future.successful(Redirect(controllers.contactPreference.routes.ChangeAddressController.onPageLoad()))
     }

@@ -20,6 +20,7 @@ import base.SpecBase
 import cats.data.EitherT
 import connectors.{EmailVerificationConnector, SubmitPreferencesConnector}
 import models.*
+import models.contactPreference.PerformSubmission
 import models.emailverification.*
 import models.requests.DataRequest
 import org.mockito.ArgumentMatchers.any
@@ -191,11 +192,11 @@ class EmailVerificationServiceSpec extends SpecBase {
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(testSubmissionResponse)))
 
+      when(mockSubmissionService.submit(any(), any())).thenReturn(Future.successful(models.contactPreference.Success()))
+
       whenReady(testService.submitVerifiedEmail(
         emailAddress,
-        verified = true,
-        mockSubmitPreferencesConnector,
-        mockAuditService
+        verified = true
         )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
 
         _ mustBe Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
@@ -207,11 +208,11 @@ class EmailVerificationServiceSpec extends SpecBase {
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
+      when(mockSubmissionService.submit(any(), any())).thenReturn(Future.successful(models.contactPreference.Failure()))
+
       whenReady(testService.submitVerifiedEmail(
         emailAddress,
-        verified = true,
-        mockSubmitPreferencesConnector,
-        mockAuditService
+        verified = true
       )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
 
         _ mustBe Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
@@ -225,9 +226,7 @@ class EmailVerificationServiceSpec extends SpecBase {
 
       whenReady(testService.submitVerifiedEmail(
         emailAddress,
-        verified = false,
-        mockSubmitPreferencesConnector,
-        mockAuditService
+        verified = false
       )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
 
         _ mustBe Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
@@ -239,6 +238,8 @@ class EmailVerificationServiceSpec extends SpecBase {
     val mockEmailVerificationConnector: EmailVerificationConnector = mock[EmailVerificationConnector]
     val mockUserAnswersService: UserAnswersService                 = mock[UserAnswersService]
     val mockSubmitPreferencesConnector: SubmitPreferencesConnector = mock[SubmitPreferencesConnector]
-    val testService                                                = new EmailVerificationService(mockEmailVerificationConnector, mockUserAnswersService)
+    val mockAuditService: AuditService                             = mock[AuditService]
+    val mockSubmissionService: PerformSubmission                   = mock[PerformSubmission]
+    val testService = new EmailVerificationService(mockEmailVerificationConnector, mockUserAnswersService, mockSubmissionService)
   }
 }

@@ -46,7 +46,7 @@ class PerformSubmissionSpec extends AnyFreeSpec with Matchers with TestData with
       when(mockConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(testSubmissionResponse)))
 
-      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionEmail, mockAuditService)
+      val result = PerformSubmission(mockConnector, mockAuditService, vpdId).submit(contactPreferenceSubmissionEmail, request)
 
       whenReady(result) {
         _.isInstanceOf[Success] mustBe true
@@ -58,7 +58,7 @@ class PerformSubmissionSpec extends AnyFreeSpec with Matchers with TestData with
       when(mockConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
-      val result = PerformSubmission(mockConnector, contactPreferenceSubmissionNewEmail, mockAuditService)
+      val result = PerformSubmission(mockConnector, mockAuditService, vpdId).submit(contactPreferenceSubmissionNewEmail, request)
 
       whenReady(result) {
         _.isInstanceOf[Failure] mustBe true
