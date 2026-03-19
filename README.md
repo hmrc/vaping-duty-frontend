@@ -45,6 +45,16 @@ To run the unit test suites with coverage reports:
 sbt runLocalChecks
 ```
 
+## Lint the application
+
+If when running the checks above you encounter linting errors from scalafix, please use the folloiwng to correct these:
+
+> Note that running this command will write changes to the project.
+
+```bash
+sbt scalafixAll
+```
+
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License].
