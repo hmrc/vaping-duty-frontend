@@ -20,7 +20,6 @@ import base.SpecBase
 import cats.data.EitherT
 import connectors.{EmailVerificationConnector, SubmitPreferencesConnector}
 import models.*
-import models.contactPreference.PerformSubmission
 import models.emailverification.*
 import models.requests.DataRequest
 import org.mockito.ArgumentMatchers.any
@@ -192,7 +191,7 @@ class EmailVerificationServiceSpec extends SpecBase {
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(testSubmissionResponse)))
 
-      when(mockSubmissionService.submit(any(), any())).thenReturn(Future.successful(models.contactPreference.Success()))
+      when(mockSubmissionService.submit(any(), any())).thenReturn(Future.successful(Success()))
 
       whenReady(testService.submitVerifiedEmail(
         emailAddress,
@@ -208,7 +207,7 @@ class EmailVerificationServiceSpec extends SpecBase {
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
-      when(mockSubmissionService.submit(any(), any())).thenReturn(Future.successful(models.contactPreference.Failure()))
+      when(mockSubmissionService.submit(any(), any())).thenReturn(Future.successful(Failure()))
 
       whenReady(testService.submitVerifiedEmail(
         emailAddress,
@@ -239,7 +238,7 @@ class EmailVerificationServiceSpec extends SpecBase {
     val mockUserAnswersService: UserAnswersService                 = mock[UserAnswersService]
     val mockSubmitPreferencesConnector: SubmitPreferencesConnector = mock[SubmitPreferencesConnector]
     val mockAuditService: AuditService                             = mock[AuditService]
-    val mockSubmissionService: PerformSubmission                   = mock[PerformSubmission]
+    val mockSubmissionService: PerformSubmissionService                   = mock[PerformSubmissionService]
     val testService = new EmailVerificationService(mockEmailVerificationConnector, mockUserAnswersService, mockSubmissionService)
   }
 }

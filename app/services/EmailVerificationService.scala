@@ -21,7 +21,6 @@ import com.google.inject.Singleton
 import connectors.EmailVerificationConnector
 import models.UserAnswers
 import models.contactPreference.PaperlessPreference.{Email, toValue}
-import models.contactPreference.{Failure, PerformSubmission, Success}
 import models.emailverification.*
 import models.requests.DataRequest
 import play.api.Logging
@@ -35,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerificationConnector,
                                           userAnswersService: UserAnswersService,
-                                          submissionService: PerformSubmission
+                                          submissionService: PerformSubmissionService
                                          )(implicit ec: ExecutionContext) extends Logging {
 
   def retrieveAddressStatus(verificationDetails: VerificationDetails, emailAddress: String, userAnswers: UserAnswers)

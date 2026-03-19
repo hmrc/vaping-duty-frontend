@@ -20,12 +20,12 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import models.contactPreference
 import models.contactPreference.PaperlessPreference.{Email, Post, toValue}
-import models.contactPreference.{Failure, PaperlessPreference, PerformSubmission, Success}
+import models.contactPreference.PaperlessPreference
 import models.emailverification.PaperlessPreferenceSubmission
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.UserAnswersService
+import services.{Failure, PerformSubmissionService, Success, UserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.SubmitAddressViewModel
 import views.html.contactPreference.SubmitAddressView
@@ -42,7 +42,7 @@ class SubmitAddressController @Inject()(
                                           view: SubmitAddressView,
                                           config: FrontendAppConfig,
                                           userAnswersService: UserAnswersService,
-                                          submissionService: PerformSubmission
+                                          submissionService: PerformSubmissionService
                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>

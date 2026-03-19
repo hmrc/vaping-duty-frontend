@@ -28,11 +28,11 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.test.FakeRequest
-import services.AuditService
+import services.{AuditService, Failure, PerformSubmissionService, Success}
 
 import scala.concurrent.Future
 
-class PerformSubmissionSpec extends AnyFreeSpec with Matchers with TestData with SpecBase {
+class PerformSubmissionServiceSpec extends AnyFreeSpec with Matchers with TestData with SpecBase {
 
   implicit val request: DataRequest[?] = DataRequest(FakeRequest(), vpdId, userId, credId, emptyUserAnswers)
 
@@ -46,7 +46,7 @@ class PerformSubmissionSpec extends AnyFreeSpec with Matchers with TestData with
       when(mockConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(testSubmissionResponse)))
 
-      val result = PerformSubmission(mockConnector, mockAuditService, vpdId).submit(contactPreferenceSubmissionEmail, request)
+      val result = PerformSubmissionService(mockConnector, mockAuditService, vpdId).submit(contactPreferenceSubmissionEmail, request)
 
       whenReady(result) {
         _.isInstanceOf[Success] mustBe true
@@ -58,7 +58,7 @@ class PerformSubmissionSpec extends AnyFreeSpec with Matchers with TestData with
       when(mockConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
-      val result = PerformSubmission(mockConnector, mockAuditService, vpdId).submit(contactPreferenceSubmissionNewEmail, request)
+      val result = PerformSubmissionService(mockConnector, mockAuditService, vpdId).submit(contactPreferenceSubmissionNewEmail, request)
 
       whenReady(result) {
         _.isInstanceOf[Failure] mustBe true

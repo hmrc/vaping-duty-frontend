@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package models.contactPreference
+package services
 
 import connectors.SubmitPreferencesConnector
 import models.audit.JourneyOutcome
 import models.contactPreference
+import models.contactPreference.PaperlessPreference
 import models.emailverification.{PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
 import models.requests.DataRequest
-import services.AuditService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PerformSubmission @Inject()(submitPreferencesConnector: SubmitPreferencesConnector,
-                                  auditService: AuditService,
-                                  vpdId: String)
-                                 (implicit ec: ExecutionContext) {
+class PerformSubmissionService @Inject()(submitPreferencesConnector: SubmitPreferencesConnector,
+                                         auditService: AuditService,
+                                         vpdId: String)
+                                        (implicit ec: ExecutionContext) {
 
   def submit(preferenceSubmission: PaperlessPreferenceSubmission, request: DataRequest[?]): Future[ResponseStatus] = {
     implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders()
