@@ -14,29 +14,33 @@
  * limitations under the License.
  */
 
-package models.contactPreference
+package services
 
 import connectors.SubmitPreferencesConnector
 import models.audit.JourneyOutcome
 import models.contactPreference
+import models.contactPreference.PaperlessPreference
 import models.emailverification.{PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
 import models.requests.DataRequest
-import services.AuditService
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-object PerformSubmission {
+class PerformSubmissionService @Inject()(submitPreferencesConnector: SubmitPreferencesConnector,
+                                         auditService: AuditService)
+                                        (implicit ec: ExecutionContext) {
 
-  def apply(submitPreferencesConnector: SubmitPreferencesConnector,
-            preferenceSubmission: PaperlessPreferenceSubmission,
-            auditService: AuditService)
-           (implicit ec: ExecutionContext, hc: HeaderCarrier, request: DataRequest[?]): Future[ResponseStatus] = {
+  def submit(preferenceSubmission: PaperlessPreferenceSubmission, request: DataRequest[?]): Future[ResponseStatus] = {
+
+    implicit val hc: HeaderCarrier =
+      HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
 
     submitPreferencesConnector.submitContactPreferences(preferenceSubmission, request.enrolmentVpdId).map {
       case Left(error)     => new Failure
       case Right(response) =>
-        sendExplicitEvent(preferenceSubmission, auditService)
+        sendExplicitEvent(preferenceSubmission, auditService)(hc, request)
         new Success
     }
   }
