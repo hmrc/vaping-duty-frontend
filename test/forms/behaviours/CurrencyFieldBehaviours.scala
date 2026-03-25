@@ -34,7 +34,7 @@ trait CurrencyFieldBehaviours extends FieldBehaviours {
       }
     }
 
-    s"must not bind invalid decimals (over 2dp)" in {
+    "must not bind invalid decimals (over 2dp)" in {
       val result = form.bind(Map(fieldName -> "1.234")).apply(fieldName)
       result.errors mustEqual Seq(invalidNumericError)
     }
