@@ -16,7 +16,7 @@
 
 package data
 
-import models.{InternalId, SubscriptionSummary, UserAnswers, UserDetails, VpdId}
+import models.{CredentialId, InternalId, SubscriptionSummary, UserAnswers, UserDetails, VpdId}
 import models.emailverification.*
 import play.api.libs.json.{JsObject, Json}
 
@@ -30,7 +30,7 @@ trait TestData {
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(epochTime), ZoneId.of(ukTimeZoneStringId))
 
   val userId: InternalId = InternalId(id = "user-id")
-  val credId: String = "cred-id"
+  val credId: CredentialId = CredentialId("cred-id")
 
   val userDetails: UserDetails = UserDetails(vpdId.toString, userId.toString)
 
@@ -139,7 +139,7 @@ trait TestData {
   val testVerificationDetails: VerificationDetails = VerificationDetails(credId)
 
   val testEmailVerificationRequest: EmailVerificationRequest = EmailVerificationRequest(
-    credId = credId,
+    credId = credId.toString,
     continueUrl = "/test-continue-url",
     origin = "testOrigin",
     deskproServiceName = "test-deskpro-name",

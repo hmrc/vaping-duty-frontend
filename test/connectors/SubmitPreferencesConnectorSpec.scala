@@ -19,7 +19,6 @@ package connectors
 import base.SpecBase
 import config.FrontendAppConfig
 import data.TestData
-import models.VpdId
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar.mock

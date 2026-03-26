@@ -19,10 +19,8 @@ package models.emailverification
 import models.CredentialId
 import play.api.libs.json.{Json, OFormat}
 
-case class VerificationDetails(credId: CredentialId) {
+case class VerificationDetails(credId: CredentialId)
+
+case object VerificationDetails {
   given OFormat[VerificationDetails] = Json.format[VerificationDetails]
 }
-
-//case object VerificationDetails {
-//  given OFormat[VerificationDetails] = Json.format[VerificationDetails]
-//}

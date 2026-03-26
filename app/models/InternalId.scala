@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{Json, OFormat, Writes}
+import play.api.libs.json.{Json, Writes}
 
 case class InternalId(id: String) {
   override def toString: String = id

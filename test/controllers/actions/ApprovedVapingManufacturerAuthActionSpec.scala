@@ -19,7 +19,7 @@ package controllers.actions
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
-import models.{InternalId, VpdId}
+import models.{CredentialId, InternalId, VpdId}
 import models.requests.IdentifierRequest
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -75,7 +75,7 @@ import scala.concurrent.{ExecutionContext, Future}
     val INTERNAL_ID                  = InternalId("test-internal-id")
     val GROUP_IDENTIFIER             = "test-group-id"
     val ENROLMENT_STATE              = "test-state"
-    val CREDENTIAL_ID                = "test-cred-id"
+    val CREDENTIAL_ID                = CredentialId("test-cred-id")
 
     val bodyParsers                  = mock[BodyParsers.Default]
 
@@ -85,7 +85,7 @@ import scala.concurrent.{ExecutionContext, Future}
       state = ENROLMENT_STATE
     )))
     
-    val CREDENTIALS = Some(Credentials(CREDENTIAL_ID, "type"))
+    val CREDENTIALS = Some(Credentials(CREDENTIAL_ID.toString, "type"))
 
     "when authenticated and authorised" - {
 

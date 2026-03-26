@@ -17,7 +17,6 @@
 package models
 
 import play.api.libs.json.{Json, OFormat}
-import play.api.mvc.PathBindable
 
 case class CredentialId(id: String) {
   override def toString: String = id
