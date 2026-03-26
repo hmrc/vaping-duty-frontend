@@ -16,24 +16,25 @@
 
 package data
 
-import models.{UserAnswers, UserDetails, SubscriptionSummary}
-import models.emailverification._
+import models.{InternalId, SubscriptionSummary, UserAnswers, UserDetails, VpdId}
+import models.emailverification.*
 import play.api.libs.json.{JsObject, Json}
 
 import java.time.{Clock, Instant, ZoneId}
 
 trait TestData {
-  val vpdId = "VPPAID01"
+  val vpdId = VpdId(id = "VPPAID01")
   val groupId: String = "groupid"
   val ukTimeZoneStringId = "Europe/London"
-  val clock: Clock = Clock.fixed(Instant.ofEpochMilli(1718118467838L), ZoneId.of(ukTimeZoneStringId))
+  val epochTime = 1718118467838L
+  val clock: Clock = Clock.fixed(Instant.ofEpochMilli(epochTime), ZoneId.of(ukTimeZoneStringId))
 
-  val userId: String = "user-id"
+  val userId: InternalId = InternalId(id = "user-id")
   val credId: String = "cred-id"
 
-  val userDetails: UserDetails = UserDetails(vpdId, userId)
+  val userDetails: UserDetails = UserDetails(vpdId.toString, userId.toString)
 
-  val emailAddress = "john.doe@example.com"
+  val emailAddress  = "john.doe@example.com"
   val emailAddress2 = "jonjones@example.com"
   val emailAddress3 = "robsmith@example.com"
   val emailAddress4 = "timmytimmy@example.com"
@@ -64,8 +65,8 @@ trait TestData {
   )
 
   val userAnswers: UserAnswers = UserAnswers(
-    vpdId = vpdId,
-    userId = userId,
+    vpdId = vpdId.toString,
+    userId = userId.toString,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
     data = JsObject(Seq("contactPreferenceEmail" -> Json.toJson(false))),
@@ -74,8 +75,8 @@ trait TestData {
   )
 
   val userAnswersEmailUpdate: UserAnswers = UserAnswers(
-    vpdId = vpdId,
-    userId = userId,
+    vpdId = vpdId.toString,
+    userId = userId.toString,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
     data = JsObject(Seq()),
@@ -84,8 +85,8 @@ trait TestData {
   )
 
   val userAnswersPostWithEmail: UserAnswers = UserAnswers(
-    vpdId = vpdId,
-    userId = userId,
+    vpdId = vpdId.toString,
+    userId = userId.toString,
     subscriptionSummary = subscriptionSummaryPostWithEmail,
     emailAddress = Some(emailAddress),
     data = JsObject(Seq("contactPreferenceEmail" -> Json.toJson(true))),
@@ -106,8 +107,8 @@ trait TestData {
   )
 
   val userAnswersPostNoEmail: UserAnswers = UserAnswers(
-    vpdId = vpdId,
-    userId = userId,
+    vpdId = vpdId.toString,
+    userId = userId.toString,
     subscriptionSummary = subscriptionSummaryPostNoEmail,
     emailAddress = Some(emailAddress),
     data = JsObject(Seq("contactPreferenceEmail" -> Json.toJson(true))),
@@ -116,8 +117,8 @@ trait TestData {
   )
 
   val emptyUserAnswers: UserAnswers = UserAnswers(
-    vpdId = vpdId,
-    userId = userId,
+    vpdId = vpdId.toString,
+    userId = userId.toString,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
     startedTime = Instant.now(clock),

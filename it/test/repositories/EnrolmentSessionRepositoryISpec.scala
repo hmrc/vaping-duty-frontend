@@ -17,6 +17,7 @@
 package repositories
 
 import config.FrontendAppConfig
+import models.InternalId
 import models.enrolment.EnrolmentUserAnswers
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
@@ -83,7 +84,7 @@ class EnrolmentSessionRepositoryISpec
 
         insert(userAnswers).futureValue
 
-        val result         = repository.get(userAnswers.id).futureValue
+        val result         = repository.get(InternalId(userAnswers.id)).futureValue
         val expectedResult = userAnswers copy (lastUpdated = instant)
 
         result.value mustEqual expectedResult
@@ -94,11 +95,11 @@ class EnrolmentSessionRepositoryISpec
 
       "must return None" in {
 
-        repository.get("id that does not exist").futureValue must not be defined
+        repository.get(InternalId("id that does not exist")).futureValue must not be defined
       }
     }
 
-    mustPreserveMdc(repository.get(userAnswers.id))
+    mustPreserveMdc(repository.get(InternalId(userAnswers.id)))
   }
 
   ".clear" - {
@@ -109,7 +110,7 @@ class EnrolmentSessionRepositoryISpec
 
       val _ = repository.clear(userAnswers.id).futureValue
 
-      repository.get(userAnswers.id).futureValue must not be defined
+      repository.get(InternalId(userAnswers.id)).futureValue must not be defined
     }
 
     "must return true when there is no record to remove" in {
@@ -129,7 +130,7 @@ class EnrolmentSessionRepositoryISpec
 
         insert(userAnswers).futureValue
 
-        val _ = repository.keepAlive(userAnswers.id).futureValue
+        val _ = repository.keepAlive(InternalId(userAnswers.id)).futureValue
 
         val expectedUpdatedAnswers = userAnswers copy (lastUpdated = instant)
 
@@ -142,11 +143,11 @@ class EnrolmentSessionRepositoryISpec
 
       "must return true" in {
 
-        repository.keepAlive("id that does not exist").futureValue mustEqual true
+        repository.keepAlive(InternalId("id that does not exist")).futureValue mustEqual true
       }
     }
 
-    mustPreserveMdc(repository.keepAlive(userAnswers.id))
+    mustPreserveMdc(repository.keepAlive(InternalId(userAnswers.id)))
   }
 
   private def mustPreserveMdc[A](f: => Future[A])(implicit pos: Position): Unit =

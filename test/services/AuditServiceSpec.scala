@@ -39,7 +39,7 @@ class AuditServiceSpec extends SpecBase {
       val testDetail = JourneyOutcome(
         timeStarted = Instant.now().toString,
         credentialId = credId,
-        vpdId = vpdId,
+        vpdId = vpdId.toString,
         originalContactPreference = Email.toString,
         originalContactPreferenceValue = emailAddress,
         contactPreferenceChange = ChangeToPost.toString,

@@ -16,6 +16,7 @@
 
 package models.requests
 
+import models.InternalId
 import play.api.mvc.{Request, WrappedRequest}
 
-case class SignedInRequest[A](request: Request[A], internalId: String) extends WrappedRequest[A](request)
+case class SignedInRequest[A](request: Request[A], internalId: InternalId) extends WrappedRequest[A](request)

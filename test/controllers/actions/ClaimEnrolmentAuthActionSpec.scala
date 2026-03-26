@@ -19,6 +19,7 @@ package controllers.actions
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
+import models.{InternalId, VpdId}
 import models.requests.NoEnrolmentIdentifierRequest
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -83,7 +84,7 @@ import scala.concurrent.{ExecutionContext, Future}
     val HMRC_VPD_ORG_ENROLMENT_NAME  = appConfig.enrolmentServiceName
     val VPD_ORG_IDENT_KEY            = appConfig.enrolmentIdentifierKey
 
-    val INTERNAL_ID                  = "test-internal-id"
+    val INTERNAL_ID                  = InternalId("test-internal-id")
     val GROUP_IDENTIFIER             = "test-group-id"
     val ENROLMENT_STATE              = "test-state"
 
@@ -99,7 +100,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
       "executes the block passed " in {
 
-        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
+        stubAuthResponse(Some(INTERNAL_ID.toString) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
 
         val authAction = new EnrolmentClaimAuthActionImpl(authConnector, appConfig, bodyParsers)
         val controller = new Harness(authAction)
@@ -110,29 +111,27 @@ import scala.concurrent.{ExecutionContext, Future}
 
       "must pass expected retrievals to block" in {
 
-        stubAuthResponse(
-          Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT
-        )
+        stubAuthResponse(Some(INTERNAL_ID.toString) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
 
         val authAction = new EnrolmentClaimAuthActionImpl(authConnector, appConfig, bodyParsers)
 
         val request = FakeRequest()
         val block = mock[NoEnrolmentIdentifierRequest[AnyContentAsEmpty.type] => Future[Result]]
 
-        when(block.apply(NoEnrolmentIdentifierRequest(request, Some("test-value"), GROUP_IDENTIFIER, INTERNAL_ID))).
+        when(block.apply(NoEnrolmentIdentifierRequest(request, Some(VpdId("test-value")), GROUP_IDENTIFIER, INTERNAL_ID))).
           thenReturn(Future.successful(Results.Ok))
 
         val result = authAction.invokeBlock(request, block)
         await(result)
 
-        verify(block).apply(NoEnrolmentIdentifierRequest(request, Some("test-value"), GROUP_IDENTIFIER, INTERNAL_ID))
+        verify(block).apply(NoEnrolmentIdentifierRequest(request, Some(VpdId("test-value")), GROUP_IDENTIFIER, INTERNAL_ID))
 
       }
 
 
       "Allows UnauthorisedException from a Connector called from the executed block to pass through and be handled by the framework" in {
 
-        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
+        stubAuthResponse(Some(INTERNAL_ID.toString) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT)
 
         val authAction = new EnrolmentClaimAuthActionImpl(authConnector, appConfig, bodyParsers)
         val controller = new ExceptionThrowingHarness(authAction)
@@ -158,7 +157,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
       "must allow users to authenticate with an enrolment only for another service" in {
 
-        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and Enrolments(Set(
+        stubAuthResponse(Some(INTERNAL_ID.toString) and Some(GROUP_IDENTIFIER) and Enrolments(Set(
           Enrolment(
             key = HMRC_VPD_ORG_ENROLMENT_NAME,
             identifiers = Seq(EnrolmentIdentifier(key = "IncorrectEnrolmentIdent", value = "TestId")),
@@ -178,7 +177,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
       "must allow users to authenticate without any enrolment" in {
 
-        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and Enrolments(Set()))
+        stubAuthResponse(Some(INTERNAL_ID.toString) and Some(GROUP_IDENTIFIER) and Enrolments(Set()))
 
         val authAction = new EnrolmentClaimAuthActionImpl(authConnector, appConfig, bodyParsers)
 

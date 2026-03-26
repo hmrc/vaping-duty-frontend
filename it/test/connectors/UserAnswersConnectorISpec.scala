@@ -67,7 +67,7 @@ class UserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHel
         post(urlEqualTo(url))
           .willReturn(aResponse().withBody(Json.toJson(answers).toString))
       )
-      val result = connector.createUserAnswers(UserDetails(vpdId, userId)).futureValue
+      val result = connector.createUserAnswers(UserDetails(vpdId.toString, userId.toString)).futureValue
 
       result mustBe Right(answers)
     }
@@ -77,7 +77,7 @@ class UserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHel
         post(urlEqualTo(url))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody(internalServerErrorResponse.toString))
       )
-      val result = connector.createUserAnswers(UserDetails(vpdId, userId)).futureValue
+      val result = connector.createUserAnswers(UserDetails(vpdId.toString, userId.toString)).futureValue
 
       result.isLeft mustBe true
     }
@@ -113,7 +113,7 @@ class UserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHel
         post(urlEqualTo(keepAliveUrl))
           .willReturn(aResponse().withStatus(NO_CONTENT))
       )
-      val result = connector.keepAlive(vpdId).futureValue
+      val result = connector.keepAlive(userId).futureValue
 
       result.isRight mustBe true
     }
@@ -123,7 +123,7 @@ class UserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHel
         post(urlEqualTo(keepAliveUrl))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
       )
-      val result = connector.keepAlive(vpdId).futureValue
+      val result = connector.keepAlive(userId).futureValue
 
       result.isLeft mustBe true
     }

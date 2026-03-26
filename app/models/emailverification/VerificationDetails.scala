@@ -16,10 +16,13 @@
 
 package models.emailverification
 
+import models.CredentialId
 import play.api.libs.json.{Json, OFormat}
 
-case class VerificationDetails(credId: String)
-
-case object VerificationDetails {
-  implicit val format: OFormat[VerificationDetails] = Json.format[VerificationDetails]
+case class VerificationDetails(credId: CredentialId) {
+  given OFormat[VerificationDetails] = Json.format[VerificationDetails]
 }
+
+//case object VerificationDetails {
+//  given OFormat[VerificationDetails] = Json.format[VerificationDetails]
+//}

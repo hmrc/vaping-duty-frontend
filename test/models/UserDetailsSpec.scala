@@ -25,7 +25,7 @@ class UserDetailsSpec extends SpecBase {
     val json = s"""{"vpdId":"$vpdId","userId":"$userId"}"""
 
     "must serialise to json" in {
-      Json.toJson(userDetails).toString() mustBe json
+      Json.toJson(userDetails).toString mustBe json
     }
 
     "must deserialise from json" in {

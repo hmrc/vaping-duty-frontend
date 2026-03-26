@@ -19,6 +19,7 @@ package controllers.actions
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
+import models.{CredentialId, InternalId, VpdId}
 import models.requests.IdentifierRequest
 import play.api.Logging
 import play.api.mvc.*
@@ -79,7 +80,8 @@ class ApprovedVapingManufacturerAuthActionImpl @Inject()(override val authConnec
         }
 
         identifiers match {
-          case Right((internalId, groupId, approvalId, credId)) => block(IdentifierRequest(request, approvalId, groupId, internalId, credId))
+          case Right((internalId, groupId, approvalId, credId)) =>
+            block(IdentifierRequest(request, VpdId(approvalId), groupId, InternalId(internalId), CredentialId(credId)))
           case Left(error) => Future.failed(AuthorisationException.fromString(error))
         }
 

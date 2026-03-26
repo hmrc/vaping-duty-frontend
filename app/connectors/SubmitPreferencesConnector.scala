@@ -17,6 +17,7 @@
 package connectors
 
 import config.FrontendAppConfig
+import models.VpdId
 import models.emailverification.{ErrorModel, PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
 import play.api.Logging
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
@@ -36,8 +37,8 @@ class SubmitPreferencesConnector @Inject() (
     extends HttpReadsInstances
     with Logging {
 
-  def submitContactPreferences(contactPreferenceSubmission: PaperlessPreferenceSubmission, vpdId: String)(implicit
-    hc: HeaderCarrier
+  def submitContactPreferences(contactPreferenceSubmission: PaperlessPreferenceSubmission, vpdId: VpdId)(implicit
+                                                                                                         hc: HeaderCarrier
   ): Future[Either[ErrorModel, PaperlessPreferenceSubmittedResponse]] = {
     httpClient
       .put(url"${config.cpSubmitContactPreferencesUrl(vpdId)}")

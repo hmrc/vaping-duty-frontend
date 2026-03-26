@@ -17,6 +17,7 @@
 package controllers.actions
 
 import base.SpecBase
+import models.VpdId
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -43,7 +44,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         when(sessionRepository.get(any())(any())) thenReturn Future(Left(UpstreamErrorResponse.Upstream4xxResponse))
         val action = new Harness(sessionRepository)
 
-        val result = action.callTransform(IdentifierRequest(FakeRequest(), "vpid", "vpgroup", "id", "credId")).futureValue
+        val result = action.callTransform(IdentifierRequest(FakeRequest(), VpdId(id = "vpid"), "vpgroup", userId, "credId")).futureValue
 
         result.userAnswers must not be defined
       }
@@ -57,7 +58,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         when(sessionRepository.get(any())(any())) thenReturn Future(Right(userAnswers))
         val action = new Harness(sessionRepository)
 
-        val result = action.callTransform(IdentifierRequest(FakeRequest(), "vpid", "vpgroup", "id", "credId")).futureValue
+        val result = action.callTransform(IdentifierRequest(FakeRequest(), VpdId(id = "vpid"), "vpgroup", userId, "credId")).futureValue
 
         result.userAnswers mustBe defined
       }

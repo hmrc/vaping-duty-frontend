@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package models.requests
+package models
 
-import models.InternalId
-import models.enrolment.EnrolmentUserAnswers
-import play.api.mvc.{Request, WrappedRequest}
+import play.api.libs.json.{Json, OFormat, Writes}
 
-case class EnrolmentOptionalDataRequest[A] (request: Request[A],
-                                            userId: InternalId,
-                                            userAnswers: Option[EnrolmentUserAnswers]) extends WrappedRequest[A](request)
+case class InternalId(id: String) {
+  override def toString: String = id
+
+  given Writes[InternalId] = Json.writes[InternalId]
+}

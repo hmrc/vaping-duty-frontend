@@ -79,6 +79,6 @@ class UserHasApprovalIdController @Inject()(
   }
 
   private def emptyAnswers(request: EnrolmentOptionalDataRequest[?]) = {
-    EnrolmentUserAnswers(request.userId, Json.obj(), Instant.now(), Instant.now())
+    EnrolmentUserAnswers(request.userId.toString, Json.obj(), Instant.now(), Instant.now())
   }
 }

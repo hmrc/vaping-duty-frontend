@@ -21,5 +21,5 @@ import play.api.libs.json.{Json, OFormat}
 case class UserDetails(vpdId: String, userId: String)
 
 object UserDetails {
-  implicit val userDetailsFormat: OFormat[UserDetails] = Json.format[UserDetails]
+  given OFormat[UserDetails] = Json.format[UserDetails]
 }

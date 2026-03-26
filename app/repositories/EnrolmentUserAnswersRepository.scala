@@ -17,6 +17,7 @@
 package repositories
 
 import config.FrontendAppConfig
+import models.InternalId
 import models.enrolment.EnrolmentUserAnswers
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.*
@@ -53,9 +54,9 @@ class EnrolmentUserAnswersRepository @Inject()(
 
   implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
 
-  private def byId(id: String): Bson = Filters.equal("_id", id)
+  private def byId(id: InternalId): Bson = Filters.equal("_id", id.toString)
 
-  def keepAlive(id: String): Future[Boolean] =
+  def keepAlive(id: InternalId): Future[Boolean] =
     collection
       .updateOne(
         filter = byId(id),
@@ -64,7 +65,7 @@ class EnrolmentUserAnswersRepository @Inject()(
       .toFuture()
       .map(_ => true)
 
-  def get(id: String): Future[Option[EnrolmentUserAnswers]] =
+  def get(id: InternalId): Future[Option[EnrolmentUserAnswers]] =
     keepAlive(id).flatMap { _ =>
       Mdc.preservingMdc {
         collection
@@ -79,7 +80,7 @@ class EnrolmentUserAnswersRepository @Inject()(
 
     collection
       .replaceOne(
-        filter = byId(updatedAnswers.id),
+        filter = byId(InternalId(updatedAnswers.id)),
         replacement = updatedAnswers,
         options = ReplaceOptions().upsert(true)
       )
@@ -89,7 +90,7 @@ class EnrolmentUserAnswersRepository @Inject()(
 
   def clear(id: String): Future[Boolean] =
     collection
-      .deleteOne(byId(id))
+      .deleteOne(byId(InternalId(id)))
       .toFuture()
       .map(_ => true)
 }

@@ -17,6 +17,7 @@
 package controllers.actions
 
 import base.SpecBase
+import models.InternalId
 import models.requests.SignedInRequest
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
@@ -46,7 +47,7 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
       stubAuthResponse(Future.successful(Some("internalId123")))
 
       val result = checkSignedInAction.invokeBlock(
-        FakeRequest(), block = request => Future.successful(Results.Ok(request.internalId))
+        FakeRequest(), block = request => Future.successful(Results.Ok(request.internalId.toString))
       )
 
       status(result)          mustBe OK
@@ -63,7 +64,7 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
         stubAuthResponse(Future.failed(exception))
 
         val result = checkSignedInAction.invokeBlock(
-          SignedInRequest(FakeRequest(), internalId = "id"), block = _ => Future.failed(SessionRecordNotFound())
+          SignedInRequest(FakeRequest(), internalId = userId), block = _ => Future.failed(exception)
         )
 
         status(result)                 mustBe SEE_OTHER

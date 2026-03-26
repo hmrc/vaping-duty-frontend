@@ -18,7 +18,7 @@ package services
 
 import connectors.UserAnswersConnector
 import models.emailverification.ErrorModel
-import models.{UserAnswers, UserDetails}
+import models.{InternalId, UserAnswers, UserDetails, VpdId}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 
 import javax.inject.Inject
@@ -26,7 +26,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class UserAnswersService @Inject() (userAnswersConnector: UserAnswersConnector)(implicit ec: ExecutionContext) {
   
-  def get(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, UserAnswers]] =
+  def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, UserAnswers]] =
     userAnswersConnector.get(vpdId)
   
   def set(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Either[ErrorModel, HttpResponse]] = {
@@ -44,9 +44,9 @@ class UserAnswersService @Inject() (userAnswersConnector: UserAnswersConnector)(
     userAnswersConnector.createUserAnswers(userDetails)
   }
 
-  def keepAlive(userId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+  def keepAlive(userId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     userAnswersConnector.keepAlive(userId)
 
-  def clear(userId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+  def clear(userId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     userAnswersConnector.clear(userId)
 }

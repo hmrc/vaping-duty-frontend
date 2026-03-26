@@ -76,7 +76,7 @@ class HowToBeContactedController @Inject()(
 
   private def prepareForm(ua: UserAnswers) =
     ua.get(HowToBeContactedPage).fold(form)(form.fill)
-  
+
 
   private def getUserAnswers()(implicit request: OptionalDataRequest[?]): Future[Either[Result, UserAnswers]] = {
     request.userAnswers match {

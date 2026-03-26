@@ -18,6 +18,7 @@ package services
 
 import base.SpecBase
 import connectors.UserAnswersConnector
+import models.VpdId
 import models.emailverification.ErrorModel
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -75,7 +76,7 @@ class UserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.clear(any())(any()))
         .thenReturn(Future.successful(Right(())))
 
-      whenReady(testService.clear(vpdId)) {
+      whenReady(testService.clear(userId)) {
         _ mustBe Right(())
       }
     }
@@ -84,7 +85,7 @@ class UserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.clear(any())(any()))
         .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
 
-      whenReady(testService.clear(vpdId)) {
+      whenReady(testService.clear(userId)) {
         _ mustBe Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))
       }
     }
@@ -95,7 +96,7 @@ class UserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.keepAlive(any())(any()))
         .thenReturn(Future.successful(Right(())))
 
-      whenReady(testService.keepAlive(vpdId)) {
+      whenReady(testService.keepAlive(userId)) {
         _ mustBe Right(())
       }
     }
@@ -104,7 +105,7 @@ class UserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.keepAlive(any())(any()))
         .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
 
-      whenReady(testService.keepAlive(vpdId)) {
+      whenReady(testService.keepAlive(userId)) {
         _ mustBe Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))
       }
     }
