@@ -18,11 +18,12 @@ package controllers.contactPreference
 
 import controllers.actions.*
 import forms.contactPreference.HowToBeContactedFormProvider
+import models.requests.OptionalDataRequest
 import models.{Mode, UserAnswers, UserDetails}
 import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.HowToBeContactedViewModel
@@ -48,17 +49,10 @@ class HowToBeContactedController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
 
-      request.userAnswers match {
-        case Some(ua) =>
-          Future.successful(Ok(view(prepareForm(ua), HowToBeContactedViewModel(ua), mode)))
-        case None =>
-          sessionService.createUserAnswers(UserDetails(request.enrolmentVpdId, request.userId)).map {
-            case Left(error) =>
-              Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-            case Right(userAnswers) =>
-              Ok(view(prepareForm(userAnswers), HowToBeContactedViewModel(userAnswers), mode))
-          }
-      }
+    getUserAnswers().map {
+      case Left(redirect) => redirect
+      case Right(ua)      => Ok(view(prepareForm(ua), HowToBeContactedViewModel(ua), mode))
+    }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -84,4 +78,20 @@ class HowToBeContactedController @Inject()(
       case Some(value) => form.fill(value)
     }
   }
+
+  private def getUserAnswers()(implicit request: OptionalDataRequest[?]): Future[Either[Result, UserAnswers]] = {
+    request.userAnswers match {
+      case Some(ua) => Future.successful(Right(ua))
+      case None     => createUserAnswers().map {
+        case Some(newUa)    => Right(newUa)
+        case None           => Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      }
+    }
+  }
+
+  private def createUserAnswers()(implicit request: OptionalDataRequest[?]): Future[Option[UserAnswers]] =
+    sessionService.createUserAnswers(UserDetails(request.enrolmentVpdId, request.userId)).map {
+      case Left(err) => None
+      case Right(ua) => Some(ua)
+    }
 }
