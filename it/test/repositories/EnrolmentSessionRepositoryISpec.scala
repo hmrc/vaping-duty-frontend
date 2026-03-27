@@ -49,6 +49,7 @@ class EnrolmentSessionRepositoryISpec
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
 
   private val userAnswers = EnrolmentUserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1), Instant.ofEpochSecond(1))
+  private val internalId = InternalId(userAnswers.id)
 
   private val mockAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.cacheTtl) thenReturn 1L
@@ -84,7 +85,7 @@ class EnrolmentSessionRepositoryISpec
 
         insert(userAnswers).futureValue
 
-        val result         = repository.get(InternalId(userAnswers.id)).futureValue
+        val result         = repository.get(internalId).futureValue
         val expectedResult = userAnswers copy (lastUpdated = instant)
 
         result.value mustEqual expectedResult
@@ -110,7 +111,7 @@ class EnrolmentSessionRepositoryISpec
 
       val _ = repository.clear(userAnswers.id).futureValue
 
-      repository.get(InternalId(userAnswers.id)).futureValue must not be defined
+      repository.get(internalId).futureValue must not be defined
     }
 
     "must return true when there is no record to remove" in {
@@ -130,7 +131,7 @@ class EnrolmentSessionRepositoryISpec
 
         insert(userAnswers).futureValue
 
-        val _ = repository.keepAlive(InternalId(userAnswers.id)).futureValue
+        val _ = repository.keepAlive(internalId).futureValue
 
         val expectedUpdatedAnswers = userAnswers copy (lastUpdated = instant)
 
@@ -147,7 +148,7 @@ class EnrolmentSessionRepositoryISpec
       }
     }
 
-    mustPreserveMdc(repository.keepAlive(InternalId(userAnswers.id)))
+    mustPreserveMdc(repository.keepAlive(internalId))
   }
 
   private def mustPreserveMdc[A](f: => Future[A])(implicit pos: Position): Unit =
