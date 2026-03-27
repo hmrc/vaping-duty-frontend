@@ -17,7 +17,6 @@
 package controllers.actions
 
 import base.SpecBase
-import models.InternalId
 import models.requests.SignedInRequest
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*

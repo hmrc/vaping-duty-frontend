@@ -18,7 +18,6 @@ package services
 
 import base.SpecBase
 import connectors.UserAnswersConnector
-import models.VpdId
 import models.emailverification.ErrorModel
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
