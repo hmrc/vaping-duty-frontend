@@ -16,10 +16,18 @@
 
 package models
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Reads, Writes}
 
-case class InternalId(id: String) {
-  override def toString: String = id
+opaque type InternalId = String
 
-  given Writes[InternalId] = Json.writes[InternalId]
-}
+object InternalId:
+  def apply(id: String): InternalId = id
+
+  extension (id: InternalId)
+    def value: String = id
+
+  given Reads[InternalId] =
+    Reads.StringReads.map(InternalId.apply)
+
+  given Writes[InternalId] =
+    Writes.StringWrites.contramap[InternalId](_.value)

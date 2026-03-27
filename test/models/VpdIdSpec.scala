@@ -16,18 +16,20 @@
 
 package models
 
-import play.api.libs.json.{Reads, Writes}
+import base.SpecBase
+import play.api.libs.json.Json
 
-opaque type CredentialId = String
+class VpdIdSpec extends SpecBase {
 
-object CredentialId:
-  def apply(id: String): CredentialId = id
+  "VpdId" - {
+    val json = s""""${vpdId.value}""""
 
-  extension (id: CredentialId)
-    def value: String = id
+    "must serialise to json" in {
+      Json.toJson(vpdId).toString mustBe json
+    }
 
-  given Reads[CredentialId] =
-    Reads.StringReads.map(CredentialId.apply)
-
-  given Writes[CredentialId] =
-    Writes.StringWrites.contramap[CredentialId](_.value)
+    "must deserialise from json" in {
+      Json.parse(json).as[VpdId] mustBe vpdId
+    }
+  }
+}
