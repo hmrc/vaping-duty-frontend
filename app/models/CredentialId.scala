@@ -26,8 +26,7 @@ object CredentialId:
   extension (id: CredentialId)
     def value: String = id
 
-  given Reads[CredentialId] =
-    Reads.StringReads.map(CredentialId.apply)
-
-  given Writes[CredentialId] =
+  given Format[CredentialId] = Format(
+    Reads.StringReads.map(CredentialId.apply),
     Writes.StringWrites.contramap[CredentialId](_.value)
+  )

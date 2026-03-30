@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{Reads, Writes}
+import play.api.libs.json.{Format, Reads, Writes}
 
 opaque type VpdId = String
 
@@ -26,8 +26,7 @@ object VpdId:
   extension (id: VpdId)
     def value: String = id
 
-  given Reads[VpdId] =
-    Reads.StringReads.map(VpdId.apply)
-
-  given Writes[VpdId] =
+  given Format[VpdId] = Format(
+    Reads.StringReads.map(VpdId.apply),
     Writes.StringWrites.contramap[VpdId](_.value)
+  )

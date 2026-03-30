@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{Reads, Writes}
+import play.api.libs.json.{Format, Reads, Writes}
 
 opaque type InternalId = String
 
@@ -26,8 +26,7 @@ object InternalId:
   extension (id: InternalId)
     def value: String = id
 
-  given Reads[InternalId] =
-    Reads.StringReads.map(InternalId.apply)
-
-  given Writes[InternalId] =
+  given Format[InternalId] = Format(
+    Reads.StringReads.map(InternalId.apply),
     Writes.StringWrites.contramap[InternalId](_.value)
+  )
