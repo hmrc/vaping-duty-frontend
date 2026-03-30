@@ -41,7 +41,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
     "must return OK and the correct view for a GET with a previous answer" in {
 
       val application = enrolmentApplicationBuilder(
-        userAnswers = Some(EnrolmentUserAnswers(userId.toString, Json.obj(), Instant.now(clock), Instant.now(clock))
+        userAnswers = Some(EnrolmentUserAnswers(internalId.toString, Json.obj(), Instant.now(clock), Instant.now(clock))
           .set(UserHasApprovalIdPage, true).success.value)
       ).build()
 

@@ -63,7 +63,7 @@ class CheckSignedInActionSpec extends SpecBase with MockitoSugar {
         stubAuthResponse(Future.failed(exception))
 
         val result = checkSignedInAction.invokeBlock(
-          SignedInRequest(FakeRequest(), internalId = userId), block = _ => Future.failed(exception)
+          SignedInRequest(FakeRequest(), internalId = internalId), block = _ => Future.failed(exception)
         )
 
         status(result)                 mustBe SEE_OTHER

@@ -107,7 +107,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
       when(requestBuilder.execute[HttpResponse](any(), any()))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
 
-      connector.keepAlive(userId)
+      connector.keepAlive(internalId)
       verify(connector.httpClient, atLeastOnce).post(eqTo(url"$postUrl"))(any())
     }
 
@@ -124,7 +124,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
       when(requestBuilder.execute[HttpResponse](any(), any()))
         .thenReturn(Future.successful(mockHttpResponse))
 
-      connector.keepAlive(InternalId(userAnswers.userId))
+      connector.keepAlive(InternalId(userAnswers.internalId))
       verify(connector.httpClient, atLeastOnce).post(eqTo(url"$postUrl"))(any())
     }
   }
@@ -133,7 +133,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
     "must successfully clear user answers" in new SetUp {
       val deleteUrl = "http://vaping-duty-account/user-answers/clear"
 
-      when(mockConfig.cpUserAnswersClearUrl(userId)).thenReturn(deleteUrl)
+      when(mockConfig.cpUserAnswersClearUrl(internalId)).thenReturn(deleteUrl)
 
       when(connector.httpClient.delete(any())(any())).thenReturn(requestBuilder)
 
@@ -143,7 +143,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
       when(requestBuilder.execute[HttpResponse](any(), any()))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
 
-      connector.clear(userId)
+      connector.clear(internalId)
 
       verify(connector.httpClient, atLeastOnce).delete(eqTo(url"$deleteUrl"))(any())
     }
@@ -151,7 +151,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
     "must fail when response is not NO_CONTENT" in new SetUp {
       val deleteUrl = "http://vaping-duty-account/user-answers/clear"
 
-      when(mockConfig.cpUserAnswersClearUrl(userId)).thenReturn(deleteUrl)
+      when(mockConfig.cpUserAnswersClearUrl(internalId)).thenReturn(deleteUrl)
 
       when(connector.httpClient.delete(any())(any())).thenReturn(requestBuilder)
 
@@ -161,7 +161,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
       when(requestBuilder.execute[HttpResponse](any(), any()))
         .thenReturn(Future.successful(mockHttpResponse))
 
-      connector.clear(userId)
+      connector.clear(internalId)
 
       verify(connector.httpClient, atLeastOnce).delete(eqTo(url"$deleteUrl"))(any())
     }

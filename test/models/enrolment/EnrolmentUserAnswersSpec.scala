@@ -24,7 +24,7 @@ import java.time.Instant
 import scala.util.Success
 
 class EnrolmentUserAnswersSpec extends SpecBase {
-  val ua = EnrolmentUserAnswers(id = userId.toString, startedTime = Instant.now(clock), lastUpdated = Instant.now(clock))
+  val ua = EnrolmentUserAnswers(id = internalId.toString, startedTime = Instant.now(clock), lastUpdated = Instant.now(clock))
 
   case object TestPage extends Gettable[String] with Settable[String] {
     override def path: JsPath = JsPath \ toString
@@ -32,10 +32,10 @@ class EnrolmentUserAnswersSpec extends SpecBase {
 
   "EnrolmentUserAnswers" - {
     val json =
-      s"""{"_id":"$userId","data":{},"startedTime":{"$$date":{"$$numberLong":"1718118467838"}},"lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}}}"""
+      s"""{"_id":"$internalId","data":{},"startedTime":{"$$date":{"$$numberLong":"1718118467838"}},"lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}}}"""
 
     val errorJson =
-      s"""{"_id":"$userId","lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}}}"""
+      s"""{"_id":"$internalId","lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}}}"""
 
     "must set a value for a given page and get the same value" in {
 

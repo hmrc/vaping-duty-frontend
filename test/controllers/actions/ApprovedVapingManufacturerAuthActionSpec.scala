@@ -33,7 +33,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, credentials, groupIdentifier, internalId}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, credentials, groupIdentifier, internalId as retrievalsInternalId}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
@@ -55,7 +55,7 @@ import scala.concurrent.{ExecutionContext, Future}
    private def stubAuthResponse(authResponse: Option[String] ~ Option[String] ~ Enrolments ~ Option[Credentials]) = {
      when(
        authConnector.authorise(any[Predicate],
-         ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments and credentials)
+         ArgumentMatchers.eq(retrievalsInternalId and groupIdentifier and allEnrolments and credentials)
        )(any[HeaderCarrier], any[ExecutionContext])).
        thenReturn(Future.successful(authResponse))
    }

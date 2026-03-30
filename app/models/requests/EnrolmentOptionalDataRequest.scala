@@ -21,5 +21,5 @@ import models.identifiers.InternalId
 import play.api.mvc.{Request, WrappedRequest}
 
 case class EnrolmentOptionalDataRequest[A] (request: Request[A],
-                                            userId: InternalId,
+                                            internalId: InternalId,
                                             userAnswers: Option[EnrolmentUserAnswers]) extends WrappedRequest[A](request)

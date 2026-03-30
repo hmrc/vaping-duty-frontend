@@ -37,7 +37,7 @@ class KeepAliveController @Inject()(
       request.userAnswers
         .map {
           answers =>
-            userAnswersService.keepAlive(InternalId(answers.userId)).map(_ => Ok)
+            userAnswersService.keepAlive(InternalId(answers.internalId)).map(_ => Ok)
         }
         .getOrElse(Future.successful(Ok))
   }

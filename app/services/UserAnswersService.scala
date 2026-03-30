@@ -45,9 +45,9 @@ class UserAnswersService @Inject() (userAnswersConnector: UserAnswersConnector)(
     userAnswersConnector.createUserAnswers(userDetails)
   }
 
-  def keepAlive(userId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
-    userAnswersConnector.keepAlive(userId)
+  def keepAlive(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+    userAnswersConnector.keepAlive(internalId)
 
-  def clear(userId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
-    userAnswersConnector.clear(userId)
+  def clear(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+    userAnswersConnector.clear(internalId)
 }

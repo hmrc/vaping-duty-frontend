@@ -36,7 +36,7 @@ import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.CredentialStrength.strong
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, groupIdentifier, internalId}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, groupIdentifier, internalId as retrievalsInternalId}
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
@@ -66,7 +66,7 @@ import scala.concurrent.{ExecutionContext, Future}
    private def stubAuthResponse(authResponse: Option[String] ~ Option[String] ~ Enrolments) = {
      when(
        authConnector.authorise(ArgumentMatchers.eq(predicate),
-         ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments)
+         ArgumentMatchers.eq(retrievalsInternalId and groupIdentifier and allEnrolments)
        )(any[HeaderCarrier], any[ExecutionContext])).
        thenReturn(Future.successful(authResponse))
    }

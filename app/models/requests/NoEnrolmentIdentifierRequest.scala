@@ -22,5 +22,5 @@ import play.api.mvc.{Request, WrappedRequest}
 case class NoEnrolmentIdentifierRequest[A](request: Request[A],
                                            enrolmentVpdId: Option[VpdId],
                                            groupId: GroupId,
-                                           userId: InternalId)
+                                           internalId: InternalId)
   extends WrappedRequest[A](request)

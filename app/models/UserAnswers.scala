@@ -25,15 +25,15 @@ import java.time.Instant
 import scala.util.{Failure, Success, Try}
 
 final case class UserAnswers(
-  vpdId: String,
-  userId: String,
-  subscriptionSummary: SubscriptionSummary,
-  emailAddress: Option[String],
-  data: JsObject = Json.obj(),
-  startedTime: Instant,
-  lastUpdated: Instant,
-  validUntil: Option[Instant] = None
-) {
+                              vpdId: String,
+                              internalId: String,
+                              subscriptionSummary: SubscriptionSummary,
+                              emailAddress: Option[String],
+                              data: JsObject = Json.obj(),
+                              startedTime: Instant,
+                              lastUpdated: Instant,
+                              validUntil: Option[Instant] = None
+                            ) {
 
   def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =
     Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
@@ -73,7 +73,7 @@ object UserAnswers {
 
   implicit val format: OFormat[UserAnswers] = (
     (__ \ "vpdId").format[String] and
-      (__ \ "userId").format[String] and
+      (__ \ "internalId").format[String] and
       (__ \ "subscriptionSummary").format[SubscriptionSummary] and
       (__ \ "emailAddress").formatNullable[String] and
       (__ \ "data").formatWithDefault[JsObject](Json.obj()) and

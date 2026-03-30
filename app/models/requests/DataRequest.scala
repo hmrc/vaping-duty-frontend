@@ -22,12 +22,12 @@ import models.UserAnswers
 
 case class OptionalDataRequest[A] (request: Request[A],
                                    enrolmentVpdId: VpdId,
-                                   userId: InternalId,
+                                   internalId: InternalId,
                                    credId: CredentialId,
                                    userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
 
 case class DataRequest[A] (request: Request[A],
                            enrolmentVpdId: VpdId,
-                           userId: InternalId,
+                           internalId: InternalId,
                            credId: CredentialId,
                            userAnswers: UserAnswers) extends WrappedRequest[A](request)

@@ -75,7 +75,7 @@ class UserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.clear(any())(any()))
         .thenReturn(Future.successful(Right(())))
 
-      whenReady(testService.clear(userId)) {
+      whenReady(testService.clear(internalId)) {
         _ mustBe Right(())
       }
     }
@@ -84,7 +84,7 @@ class UserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.clear(any())(any()))
         .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
 
-      whenReady(testService.clear(userId)) {
+      whenReady(testService.clear(internalId)) {
         _ mustBe Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))
       }
     }
@@ -95,7 +95,7 @@ class UserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.keepAlive(any())(any()))
         .thenReturn(Future.successful(Right(())))
 
-      whenReady(testService.keepAlive(userId)) {
+      whenReady(testService.keepAlive(internalId)) {
         _ mustBe Right(())
       }
     }
@@ -104,7 +104,7 @@ class UserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.keepAlive(any())(any()))
         .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
 
-      whenReady(testService.keepAlive(userId)) {
+      whenReady(testService.keepAlive(internalId)) {
         _ mustBe Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))
       }
     }

@@ -53,7 +53,7 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
       .execute[Either[UpstreamErrorResponse, UserAnswers]]
   }
 
-  def keepAlive(userId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+  def keepAlive(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
       .post(url"${config.cpUserAnswersKeepAliveUrl}")
       .setHeader("Csrf-Token" -> "nocheck")
@@ -66,9 +66,9 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
         }
       }
   
-  def clear(userId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+  def clear(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
-      .delete(url"${config.cpUserAnswersClearUrl(userId)}")
+      .delete(url"${config.cpUserAnswersClearUrl(internalId)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap { response =>

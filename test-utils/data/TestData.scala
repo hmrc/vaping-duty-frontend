@@ -30,10 +30,10 @@ trait TestData {
   val epochTime = 1718118467838L
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(epochTime), ZoneId.of(ukTimeZoneStringId))
 
-  val userId: InternalId = InternalId(id = "user-id")
+  val internalId: InternalId = InternalId(id = "user-id")
   val credId: CredentialId = CredentialId(id = "cred-id")
 
-  val userDetails: UserDetails = UserDetails(vpdId.toString, userId.toString)
+  val userDetails: UserDetails = UserDetails(vpdId.value, internalId.value)
 
   val emailAddress  = "john.doe@example.com"
   val emailAddress2 = "jonjones@example.com"
@@ -67,7 +67,7 @@ trait TestData {
 
   val userAnswers: UserAnswers = UserAnswers(
     vpdId = vpdId.toString,
-    userId = userId.toString,
+    internalId = internalId.toString,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
     data = JsObject(Seq("contactPreferenceEmail" -> Json.toJson(false))),
@@ -77,7 +77,7 @@ trait TestData {
 
   val userAnswersEmailUpdate: UserAnswers = UserAnswers(
     vpdId = vpdId.toString,
-    userId = userId.toString,
+    internalId = internalId.toString,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
     data = JsObject(Seq()),
@@ -87,7 +87,7 @@ trait TestData {
 
   val userAnswersPostWithEmail: UserAnswers = UserAnswers(
     vpdId = vpdId.toString,
-    userId = userId.toString,
+    internalId = internalId.toString,
     subscriptionSummary = subscriptionSummaryPostWithEmail,
     emailAddress = Some(emailAddress),
     data = JsObject(Seq("contactPreferenceEmail" -> Json.toJson(true))),
@@ -109,7 +109,7 @@ trait TestData {
 
   val userAnswersPostNoEmail: UserAnswers = UserAnswers(
     vpdId = vpdId.toString,
-    userId = userId.toString,
+    internalId = internalId.toString,
     subscriptionSummary = subscriptionSummaryPostNoEmail,
     emailAddress = Some(emailAddress),
     data = JsObject(Seq("contactPreferenceEmail" -> Json.toJson(true))),
@@ -119,7 +119,7 @@ trait TestData {
 
   val emptyUserAnswers: UserAnswers = UserAnswers(
     vpdId = vpdId.toString,
-    userId = userId.toString,
+    internalId = internalId.toString,
     subscriptionSummary = subscriptionSummaryEmail,
     emailAddress = None,
     startedTime = Instant.now(clock),

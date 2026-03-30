@@ -33,7 +33,7 @@ import scala.concurrent.Future
 
 class PerformSubmissionServiceSpec extends AnyFreeSpec with Matchers with TestData with SpecBase {
 
-  implicit val request: DataRequest[?] = DataRequest(FakeRequest(), vpdId, userId, credId, emptyUserAnswers)
+  implicit val request: DataRequest[?] = DataRequest(FakeRequest(), vpdId, internalId, credId, emptyUserAnswers)
 
   val mockConnector: SubmitPreferencesConnector = mock[SubmitPreferencesConnector]
   val mockAuditService: AuditService = mock[AuditService]

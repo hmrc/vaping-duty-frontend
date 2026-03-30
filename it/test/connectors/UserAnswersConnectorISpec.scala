@@ -67,7 +67,7 @@ class UserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHel
         post(urlEqualTo(url))
           .willReturn(aResponse().withBody(Json.toJson(answers).toString))
       )
-      val result = connector.createUserAnswers(UserDetails(vpdId.toString, userId.toString)).futureValue
+      val result = connector.createUserAnswers(UserDetails(vpdId.toString, internalId.toString)).futureValue
 
       result mustBe Right(answers)
     }
@@ -77,7 +77,7 @@ class UserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHel
         post(urlEqualTo(url))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody(internalServerErrorResponse.toString))
       )
-      val result = connector.createUserAnswers(UserDetails(vpdId.toString, userId.toString)).futureValue
+      val result = connector.createUserAnswers(UserDetails(vpdId.toString, internalId.toString)).futureValue
 
       result.isLeft mustBe true
     }
@@ -113,7 +113,7 @@ class UserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHel
         post(urlEqualTo(keepAliveUrl))
           .willReturn(aResponse().withStatus(NO_CONTENT))
       )
-      val result = connector.keepAlive(userId).futureValue
+      val result = connector.keepAlive(internalId).futureValue
 
       result.isRight mustBe true
     }
@@ -123,21 +123,21 @@ class UserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHel
         post(urlEqualTo(keepAliveUrl))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
       )
-      val result = connector.keepAlive(userId).futureValue
+      val result = connector.keepAlive(internalId).futureValue
 
       result.isLeft mustBe true
     }
   }
 
   ".clear" - {
-    val deleteUrl = s"$url/clear/$userId"
+    val deleteUrl = s"$url/clear/$internalId"
 
     "must successfully clear user answers" in {
       server.stubFor(
         delete(urlEqualTo(deleteUrl))
           .willReturn(aResponse().withStatus(NO_CONTENT))
       )
-      val result = connector.clear(userId).futureValue
+      val result = connector.clear(internalId).futureValue
 
       result.isRight mustBe true
 
@@ -148,7 +148,7 @@ class UserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHel
         delete(urlEqualTo(deleteUrl))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
       )
-      val result = connector.clear(userId).futureValue
+      val result = connector.clear(internalId).futureValue
 
       result.isLeft mustBe true
     }

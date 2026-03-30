@@ -23,14 +23,14 @@ import play.api.libs.json.Json
 class InternalIdSpec extends SpecBase {
 
   "InternalId" - {
-    val json = s""""${userId.value}""""
+    val json = s""""${internalId.value}""""
 
     "must serialise to json" in {
-      Json.toJson(userId).toString mustBe json
+      Json.toJson(internalId).toString mustBe json
     }
 
     "must deserialise from json" in {
-      Json.parse(json).as[InternalId] mustBe userId
+      Json.parse(json).as[InternalId] mustBe internalId
     }
   }
 }

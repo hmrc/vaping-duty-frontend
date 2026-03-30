@@ -33,7 +33,7 @@ import scala.language.implicitConversions
 class JourneyOutcomeSpec extends AnyFreeSpec with Matchers with TestData with SpecBase {
 
   def request(ua: UserAnswers): DataRequest[AnyContent] = {
-    DataRequest[AnyContent](FakeRequest(), vpdId, userId, credId, ua)
+    DataRequest[AnyContent](FakeRequest(), vpdId, internalId, credId, ua)
   }
 
   "JourneyOutcome" - {
