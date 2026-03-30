@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package models
+package models.identifiers
 
 import play.api.libs.json.{Format, Reads, Writes}
 
-opaque type InternalId = String
+opaque type CredentialId = String
 
-object InternalId:
-  def apply(id: String): InternalId = id
+object CredentialId:
+  def apply(id: String): CredentialId = id
 
-  extension (id: InternalId)
+  extension (id: CredentialId)
     def value: String = id
 
-  given Format[InternalId] = Format(
-    Reads.StringReads.map(InternalId.apply),
-    Writes.StringWrites.contramap[InternalId](_.value)
+  given Format[CredentialId] = Format(
+    Reads.StringReads.map(CredentialId.apply),
+    Writes.StringWrites.contramap[CredentialId](_.value)
   )

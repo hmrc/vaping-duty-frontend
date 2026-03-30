@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package models
+package models.identifiers
 
 import play.api.libs.json.{Format, Reads, Writes}
 
-opaque type VpdId = String
+opaque type InternalId = String
 
-object VpdId:
-  def apply(id: String): VpdId = id
+object InternalId:
+  def apply(id: String): InternalId = id
 
-  extension (id: VpdId)
+  extension (id: InternalId)
     def value: String = id
 
-  given Format[VpdId] = Format(
-    Reads.StringReads.map(VpdId.apply),
-    Writes.StringWrites.contramap[VpdId](_.value)
+  given Format[InternalId] = Format(
+    Reads.StringReads.map(InternalId.apply),
+    Writes.StringWrites.contramap[InternalId](_.value)
   )

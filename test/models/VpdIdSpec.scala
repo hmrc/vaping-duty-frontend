@@ -17,6 +17,7 @@
 package models
 
 import base.SpecBase
+import models.identifiers.VpdId
 import play.api.libs.json.Json
 
 class VpdIdSpec extends SpecBase {

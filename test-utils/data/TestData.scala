@@ -16,8 +16,9 @@
 
 package data
 
-import models.{CredentialId, GroupId, InternalId, SubscriptionSummary, UserAnswers, UserDetails, VpdId}
+import models.{SubscriptionSummary, UserAnswers, UserDetails}
 import models.emailverification.*
+import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
 import play.api.libs.json.{JsObject, Json}
 
 import java.time.{Clock, Instant, ZoneId}

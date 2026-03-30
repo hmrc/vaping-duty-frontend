@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package models
+package models.identifiers
 
-import play.api.libs.json.{Reads, Writes}
+import play.api.libs.json.{Format, Reads, Writes}
 
-opaque type CredentialId = String
+opaque type GroupId = String
 
-object CredentialId:
-  def apply(id: String): CredentialId = id
+object GroupId:
+  def apply(id: String): GroupId = id
 
-  extension (id: CredentialId)
+  extension (id: GroupId)
     def value: String = id
 
-  given Format[CredentialId] = Format(
-    Reads.StringReads.map(CredentialId.apply),
-    Writes.StringWrites.contramap[CredentialId](_.value)
+  given Format[GroupId] = Format(
+    Reads.StringReads.map(GroupId.apply),
+    Writes.StringWrites.contramap[GroupId](_.value)
   )

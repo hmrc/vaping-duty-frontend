@@ -17,7 +17,7 @@
 package controllers
 
 import base.SpecBase
-import models.InternalId
+import models.identifiers.InternalId
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalactic.Prettifier.default

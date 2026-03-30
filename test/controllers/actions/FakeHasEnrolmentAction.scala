@@ -16,7 +16,7 @@
 
 package controllers.actions
 
-import models.{GroupId, InternalId, VpdId}
+import models.identifiers.{GroupId, InternalId, VpdId}
 import models.requests.NoEnrolmentIdentifierRequest
 import play.api.mvc.*
 

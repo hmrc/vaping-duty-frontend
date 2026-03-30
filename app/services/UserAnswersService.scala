@@ -18,7 +18,8 @@ package services
 
 import connectors.UserAnswersConnector
 import models.emailverification.ErrorModel
-import models.{InternalId, UserAnswers, UserDetails, VpdId}
+import models.identifiers.{InternalId, VpdId}
+import models.{UserAnswers, UserDetails}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 
 import javax.inject.Inject

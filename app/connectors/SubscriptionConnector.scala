@@ -17,8 +17,8 @@
 package connectors
 
 import config.FrontendAppConfig
-import models.VpdId
 import models.contactPreference.SubscriptionContactPreferences
+import models.identifiers.VpdId
 import org.apache.pekko.actor.ActorSystem
 import play.api.Logging
 import play.api.http.Status.*

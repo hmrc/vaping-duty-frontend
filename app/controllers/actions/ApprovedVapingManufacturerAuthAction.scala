@@ -19,7 +19,7 @@ package controllers.actions
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
-import models.{CredentialId, InternalId, VpdId, GroupId}
+import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
 import models.requests.IdentifierRequest
 import play.api.Logging
 import play.api.mvc.*

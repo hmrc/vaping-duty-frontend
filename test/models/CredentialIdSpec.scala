@@ -17,6 +17,7 @@
 package models
 
 import base.SpecBase
+import models.identifiers.CredentialId
 import play.api.libs.json.Json
 
 class CredentialIdSpec extends SpecBase {

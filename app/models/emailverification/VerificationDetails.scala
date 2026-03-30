@@ -16,7 +16,7 @@
 
 package models.emailverification
 
-import models.CredentialId
+import models.identifiers.CredentialId
 import play.api.libs.json.{Json, OFormat}
 
 case class VerificationDetails(credId: CredentialId)

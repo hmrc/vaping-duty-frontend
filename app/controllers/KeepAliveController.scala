@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, DataRetrievalAction}
-import models.InternalId
+import models.identifiers.InternalId
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController

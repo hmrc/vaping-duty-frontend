@@ -17,8 +17,8 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.InternalId
 import models.enrolment.EnrolmentUserAnswers
+import models.identifiers.InternalId
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
 import org.scalactic.source.Position

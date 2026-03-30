@@ -19,7 +19,8 @@ package connectors
 import base.SpecBase
 import config.FrontendAppConfig
 import data.TestData
-import models.{InternalId, UserAnswers}
+import models.UserAnswers
+import models.identifiers.InternalId
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{atLeastOnce, verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock

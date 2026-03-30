@@ -17,7 +17,7 @@
 package controllers.actions
 
 import base.SpecBase
-import models.{VpdId, GroupId}
+import models.identifiers.{GroupId, VpdId}
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*

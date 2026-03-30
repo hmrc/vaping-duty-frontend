@@ -19,7 +19,7 @@ package controllers.actions
 import com.google.inject.Inject
 import models.requests.SignedInRequest
 import controllers.routes
-import models.InternalId
+import models.identifiers.InternalId
 import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect

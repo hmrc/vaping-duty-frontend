@@ -16,7 +16,7 @@
 
 package models.requests
 
-import models.{CredentialId, GroupId, InternalId, VpdId}
+import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
 import play.api.mvc.{Request, WrappedRequest}
 
 case class IdentifierRequest[A](request: Request[A],

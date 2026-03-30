@@ -17,8 +17,8 @@
 package connectors
 
 import config.FrontendAppConfig
-import models.VpdId
 import models.emailverification.{ErrorModel, PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
+import models.identifiers.VpdId
 import play.api.Logging
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json

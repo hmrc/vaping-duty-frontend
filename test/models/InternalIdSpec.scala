@@ -17,6 +17,7 @@
 package models
 
 import base.SpecBase
+import models.identifiers.InternalId
 import play.api.libs.json.Json
 
 class InternalIdSpec extends SpecBase {

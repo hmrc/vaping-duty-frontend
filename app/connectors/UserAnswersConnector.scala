@@ -17,7 +17,8 @@
 package connectors
 
 import config.FrontendAppConfig
-import models.{InternalId, UserAnswers, UserDetails, VpdId}
+import models.identifiers.{InternalId, VpdId}
+import models.{UserAnswers, UserDetails}
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue

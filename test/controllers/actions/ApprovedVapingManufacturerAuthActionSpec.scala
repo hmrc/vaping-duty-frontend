@@ -19,7 +19,7 @@ package controllers.actions
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
-import models.{CredentialId, InternalId, VpdId, GroupId}
+import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
 import models.requests.IdentifierRequest
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any

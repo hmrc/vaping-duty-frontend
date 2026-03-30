@@ -16,7 +16,7 @@
 
 package models.requests
 
-import models.{GroupId, InternalId, VpdId}
+import models.identifiers.{GroupId, InternalId, VpdId}
 import play.api.mvc.{Request, WrappedRequest}
 
 case class NoEnrolmentIdentifierRequest[A](request: Request[A],

@@ -16,8 +16,9 @@
 
 package models.requests
 
+import models.identifiers.{CredentialId, InternalId, VpdId}
 import play.api.mvc.{Request, WrappedRequest}
-import models.{CredentialId, InternalId, UserAnswers, VpdId}
+import models.UserAnswers
 
 case class OptionalDataRequest[A] (request: Request[A],
                                    enrolmentVpdId: VpdId,
