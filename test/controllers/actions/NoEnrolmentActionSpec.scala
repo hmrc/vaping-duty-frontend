@@ -39,7 +39,7 @@ class NoEnrolmentActionSpec extends SpecBase with MockitoSugar {
 
         val action = new Harness()
 
-        val result = action.callRefine(NoEnrolmentIdentifierRequest(FakeRequest(), Some(vpdId), "vpgroup", userId)).futureValue
+        val result = action.callRefine(NoEnrolmentIdentifierRequest(FakeRequest(), Some(vpdId), groupId, userId)).futureValue
 
         result mustBe Left(Redirect(
           controllers.enrolment.routes.UserAlreadyEnrolledController.onPageLoad()
@@ -53,7 +53,7 @@ class NoEnrolmentActionSpec extends SpecBase with MockitoSugar {
 
         val action = new Harness()
 
-        val result = action.callRefine(NoEnrolmentIdentifierRequest(FakeRequest(), None, "vpgroup", userId)).futureValue
+        val result = action.callRefine(NoEnrolmentIdentifierRequest(FakeRequest(), None, groupId, userId)).futureValue
 
         result.isRight mustBe true
       }

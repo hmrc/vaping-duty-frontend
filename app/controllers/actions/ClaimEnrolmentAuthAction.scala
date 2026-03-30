@@ -19,7 +19,7 @@ package controllers.actions
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
-import models.{InternalId, VpdId}
+import models.{InternalId, VpdId, GroupId}
 import models.requests.NoEnrolmentIdentifierRequest
 import play.api.Logging
 import play.api.mvc.*
@@ -79,8 +79,10 @@ class EnrolmentClaimAuthActionImpl @Inject()(override val authConnector: AuthCon
         }
 
         identifiers match {
-          case Right((internalId, groupId, optApprovalId)) => block(NoEnrolmentIdentifierRequest(request, optApprovalId, groupId, InternalId(internalId)))
-          case Left(error)                                 => Future.failed(AuthorisationException.fromString(error))
+          case Right((internalId, groupId, optApprovalId)) =>
+            block(NoEnrolmentIdentifierRequest(request, optApprovalId, GroupId(groupId), InternalId(internalId)))
+          case Left(error)                                 =>
+            Future.failed(AuthorisationException.fromString(error))
         }
 
     } recover {

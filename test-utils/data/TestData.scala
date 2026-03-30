@@ -16,21 +16,21 @@
 
 package data
 
-import models.{CredentialId, InternalId, SubscriptionSummary, UserAnswers, UserDetails, VpdId}
+import models.{CredentialId, GroupId, InternalId, SubscriptionSummary, UserAnswers, UserDetails, VpdId}
 import models.emailverification.*
 import play.api.libs.json.{JsObject, Json}
 
 import java.time.{Clock, Instant, ZoneId}
 
 trait TestData {
-  val vpdId = VpdId(id = "VPPAID01")
-  val groupId: String = "groupid"
+  val vpdId: VpdId = VpdId(id = "VPPAID01")
+  val groupId: GroupId = GroupId(id = "groupid")
   val ukTimeZoneStringId = "Europe/London"
   val epochTime = 1718118467838L
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(epochTime), ZoneId.of(ukTimeZoneStringId))
 
   val userId: InternalId = InternalId(id = "user-id")
-  val credId: CredentialId = CredentialId("cred-id")
+  val credId: CredentialId = CredentialId(id = "cred-id")
 
   val userDetails: UserDetails = UserDetails(vpdId.toString, userId.toString)
 

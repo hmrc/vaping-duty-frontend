@@ -16,7 +16,7 @@
 
 package controllers.actions
 
-import models.{InternalId, VpdId}
+import models.{InternalId, VpdId, GroupId}
 import models.requests.NoEnrolmentIdentifierRequest
 import play.api.mvc.*
 
@@ -26,7 +26,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class FakeClaimEnrolmentAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends EnrolmentClaimAuthAction {
   
   val optVpdId: Option[VpdId] = None
-  val groupId: String = "groupid"
+  val groupId: GroupId = GroupId(id = "groupid")
   val internalId: InternalId = InternalId("id")
   
   override def invokeBlock[A](request: Request[A], block: NoEnrolmentIdentifierRequest[A] => Future[Result]): Future[Result] =

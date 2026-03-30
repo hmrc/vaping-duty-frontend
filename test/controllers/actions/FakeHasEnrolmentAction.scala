@@ -16,7 +16,7 @@
 
 package controllers.actions
 
-import models.{InternalId, VpdId}
+import models.{GroupId, InternalId, VpdId}
 import models.requests.NoEnrolmentIdentifierRequest
 import play.api.mvc.*
 
@@ -26,7 +26,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class FakeHasEnrolmentAction @Inject() extends HasEnrolmentAction {
   
   val optVpdId: Option[VpdId] = Some(VpdId(id = "vpdId"))
-  val groupId: String = "groupid"
+  val groupId: GroupId = GroupId(id = "groupid")
   val internalId: InternalId = InternalId(id = "user-id")
 
   override def refine[A](request: NoEnrolmentIdentifierRequest[A]): Future[Either[Result, NoEnrolmentIdentifierRequest[A]]] =
