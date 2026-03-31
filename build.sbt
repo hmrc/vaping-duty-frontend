@@ -67,5 +67,5 @@ commands ++= Seq(
 
   Command.command("runLocalChecks") { state => "clean" :: "compile" :: "scalafixAll --check" :: "coverage" :: "test" :: "coverageReport" :: state },
 
-  Command.command("lint") { state => "scalafixAll" :: state }
+  Command.command("lint") { state => "clean" :: "compile" :: "scalafixAll" :: state }
 )
