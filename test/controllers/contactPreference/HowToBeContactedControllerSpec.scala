@@ -20,6 +20,7 @@ import base.SpecBase
 import forms.contactPreference.HowToBeContactedFormProvider
 import models.NormalMode
 import models.contactPreference.HowToBeContacted
+import models.emailverification.ErrorModel
 import navigation.{FakeNavigator, Navigator}
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
@@ -32,6 +33,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.UserAnswersService
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.play.bootstrap.http.ErrorResponse
 import viewmodels.contactPreference.HowToBeContactedViewModel
 import views.html.contactPreference.HowToBeContactedView
 

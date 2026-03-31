@@ -68,16 +68,15 @@ class HowToBeContactedController @Inject()(
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(HowToBeContactedPage, value))
             _              <- sessionService.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(HowToBeContactedPage, mode, updatedAnswers))
+          } yield {
+            Redirect(navigator.nextPage(HowToBeContactedPage, mode, updatedAnswers))
+          }
       )
   }
 
-  private def prepareForm(ua: UserAnswers) = {
-    ua.get(HowToBeContactedPage) match {
-      case None => form
-      case Some(value) => form.fill(value)
-    }
-  }
+  private def prepareForm(ua: UserAnswers) =
+    ua.get(HowToBeContactedPage).fold(form)(form.fill)
+  
 
   private def getUserAnswers()(implicit request: OptionalDataRequest[?]): Future[Either[Result, UserAnswers]] = {
     request.userAnswers match {
