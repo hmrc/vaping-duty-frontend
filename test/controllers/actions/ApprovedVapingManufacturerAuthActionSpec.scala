@@ -45,6 +45,7 @@ import scala.concurrent.{ExecutionContext, Future}
     def onPageLoad(): Action[AnyContent] = authAction { _ => Results.Ok }
   }
 
+  @SuppressWarnings(Array("DisableSyntax.throw"))
   class ExceptionThrowingHarness(authAction: ApprovedVapingManufacturerAuthAction) {
     def onPageLoad(): Action[AnyContent] = authAction { _ => throw new uk.gov.hmrc.http.UnauthorizedException("test exception") }
   }
