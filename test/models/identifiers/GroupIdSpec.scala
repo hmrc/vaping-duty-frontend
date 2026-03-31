@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package models
+package models.identifiers
 
 import base.SpecBase
-import models.identifiers.InternalId
+import models.identifiers.GroupId
 import play.api.libs.json.Json
 
-class InternalIdSpec extends SpecBase {
+class GroupIdSpec extends SpecBase {
 
-  "InternalId" - {
-    val json = s""""${internalId.value}""""
+  "GroupId" - {
+    val json = s""""${groupId.value}""""
 
     "must serialise to json" in {
-      Json.toJson(internalId).toString mustBe json
+      Json.toJson(groupId).toString mustBe json
     }
 
     "must deserialise from json" in {
-      Json.parse(json).as[InternalId] mustBe internalId
+      Json.parse(json).as[GroupId] mustBe groupId
     }
   }
 }

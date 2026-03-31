@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package models
+package models.identifiers
 
 import base.SpecBase
-import models.identifiers.CredentialId
+import models.identifiers.VpdId
 import play.api.libs.json.Json
 
-class CredentialIdSpec extends SpecBase {
+class VpdIdSpec extends SpecBase {
 
-  "CredentialId" - {
-    val json = s""""${credId.value}""""
+  "VpdId" - {
+    val json = s""""${vpdId.value}""""
 
     "must serialise to json" in {
-      Json.toJson(credId).toString mustBe json
+      Json.toJson(vpdId).toString mustBe json
     }
 
     "must deserialise from json" in {
-      Json.parse(json).as[CredentialId] mustBe credId
+      Json.parse(json).as[VpdId] mustBe vpdId
     }
   }
 }
