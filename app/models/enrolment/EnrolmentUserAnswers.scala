@@ -29,7 +29,7 @@ final case class EnrolmentUserAnswers(
   id: String,
   data: JsObject = Json.obj(),
   startedTime: Instant,
-  lastUpdated: Instant,
+  lastUpdated: Instant
 ) {
 
   def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =
