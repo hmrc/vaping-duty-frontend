@@ -51,10 +51,10 @@ class UserHasApprovalIdController @Inject()(
   def onPageLoad(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment andThen getData) {
     implicit request =>
 
-      val filledForm = request.userAnswers.flatMap(_.get(UserHasApprovalIdPage))
+      val preparedForm = request.userAnswers.flatMap(_.get(UserHasApprovalIdPage))
         .fold(form)(form.fill)
 
-      Ok(view(filledForm))
+      Ok(view(preparedForm))
   }
 
   def onSubmit(): Action[AnyContent] = (isAuthenticated andThen hasNoEnrolment andThen getData).async {
