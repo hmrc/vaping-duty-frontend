@@ -18,11 +18,13 @@ package controllers.contactPreference
 
 import controllers.actions.*
 import models.emailverification.{EmailVerificationDetails, VerificationDetails}
+import models.requests.DataRequest
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.EmailVerificationService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.SubmitEmailView
 
@@ -43,11 +45,7 @@ class SubmitEmailController @Inject()(
     implicit request =>
       val email = request.userAnswers.emailAddress.getOrElse("")
 
-      emailVerificationService.retrieveAddressStatus(
-        VerificationDetails(request.credId),
-        email,
-        request.userAnswers
-      ).value.flatMap {
+      retrieveStatus(emailVerificationService, request, email).value.flatMap {
         case Left(error) =>
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         case Right(verificationDetails) =>
@@ -62,11 +60,7 @@ class SubmitEmailController @Inject()(
     implicit request =>
       val email = request.userAnswers.emailAddress.getOrElse("")
 
-      emailVerificationService.retrieveAddressStatus(
-        VerificationDetails(request.credId),
-        email,
-        request.userAnswers
-      ).value.flatMap {
+      retrieveStatus(emailVerificationService, request, email).value.flatMap {
         case Left(error) =>
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         case Right(emailVerificationDetails) =>
@@ -75,5 +69,16 @@ class SubmitEmailController @Inject()(
               emailVerificationDetails.isVerified
             )
       }
+  }
+
+  private def retrieveStatus(emailVerificationService: EmailVerificationService,
+                             request: DataRequest[AnyContent],
+                             email: String)
+                            (implicit hc: HeaderCarrier) = {
+    emailVerificationService.retrieveAddressStatus(
+      VerificationDetails(request.credId),
+      email,
+      request.userAnswers
+    )
   }
 }
