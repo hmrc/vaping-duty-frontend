@@ -49,6 +49,7 @@ import scala.concurrent.{ExecutionContext, Future}
   }
 
   class ExceptionThrowingHarness(authAction: EnrolmentClaimAuthAction) {
+    // scalafix:off DisableSyntax.throw
     def onPageLoad(): Action[AnyContent] = authAction { _ => throw new uk.gov.hmrc.http.UnauthorizedException("test exception") }
   }
 

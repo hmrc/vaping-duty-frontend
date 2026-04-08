@@ -93,7 +93,7 @@ class EmailVerificationConnectorSpec extends SpecBase with TestData {
 
   "startEmailVerification" - {
     "must successfully fetch a redirect url when a valid request is made" in new SetUp {
-      val mockUrl = s"http://vaping-duty-contact-preferences/email-verification/verify-email"
+      val mockUrl = "http://vaping-duty-contact-preferences/email-verification/verify-email"
       when(mockConfig.startEmailVerificationJourneyUrl).thenReturn(mockUrl)
 
       when(requestBuilder.execute[HttpResponse](any(), any()))
@@ -109,7 +109,7 @@ class EmailVerificationConnectorSpec extends SpecBase with TestData {
       }
     }
     "must return an error if an invalid redirect url is returned when a valid request is made" in new SetUp {
-      val mockUrl = s"http://vaping-duty-contact-preferences/email-verification/verify-email"
+      val mockUrl = "http://vaping-duty-contact-preferences/email-verification/verify-email"
       when(mockConfig.startEmailVerificationJourneyUrl).thenReturn(mockUrl)
 
       when(requestBuilder.execute[HttpResponse](any(), any()))
@@ -128,7 +128,7 @@ class EmailVerificationConnectorSpec extends SpecBase with TestData {
     }
 
     "must return an error if an error response status is returned" in new SetUp {
-      val mockUrl = s"http://vaping-duty-contact-preferences/email-verification/verify-email"
+      val mockUrl = "http://vaping-duty-contact-preferences/email-verification/verify-email"
       when(mockConfig.startEmailVerificationJourneyUrl).thenReturn(mockUrl)
 
       when(requestBuilder.execute[HttpResponse](any(), any()))

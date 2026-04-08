@@ -102,6 +102,7 @@ trait Generators extends ModelGenerators {
 
   def oneOf[T](xs: Seq[Gen[T]]): Gen[T] =
     if (xs.isEmpty) {
+      // scalafix:off DisableSyntax.throw
       throw new IllegalArgumentException("oneOf called on empty collection")
     } else {
       val vector = xs.toVector

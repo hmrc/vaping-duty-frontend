@@ -8,6 +8,9 @@ lazy val appName: String = "vaping-duty-frontend"
 ThisBuild / majorVersion := 0
 ThisBuild / scalaVersion := "3.3.6"
 
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+
 lazy val microservice = (project in file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
@@ -59,6 +62,10 @@ lazy val it =
     .enablePlugins(PlayScala)
     .dependsOn(microservice % "test->test")
 
-addCommandAlias("runAllChecks", ";clean;compile;coverage;test;it/test;scalastyle;coverageReport")
+commands ++= Seq(
+  Command.command("runAllChecks") { state => "clean" :: "compile" :: "scalafixAll --check" :: "coverage" :: "test" :: "it/test" :: "coverageReport" :: state },
 
-addCommandAlias("runLocalChecks", ";clean;compile;coverage;test;scalastyle;coverageReport")
+  Command.command("runLocalChecks") { state => "clean" :: "compile" :: "scalafixAll --check" :: "coverage" :: "test" :: "coverageReport" :: state },
+
+  Command.command("lint") { state => "clean" :: "compile" :: "scalafixAll" :: state }
+)

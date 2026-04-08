@@ -50,7 +50,7 @@ class EmailVerificationConnector @Inject()(
             case Success(successResponse) => Future.successful(Right(successResponse))
             case Failure(_)               =>
               logger.warn(
-                s"[EmailVerificationConnector] [getEmailVerification] Invalid JSON format, failed to parse as GetVerificationStatusResponse"
+                "[EmailVerificationConnector] [getEmailVerification] Invalid JSON format, failed to parse as GetVerificationStatusResponse"
               )
               Future.successful(
                 Left(
