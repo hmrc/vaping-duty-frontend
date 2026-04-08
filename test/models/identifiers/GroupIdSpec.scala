@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
-package models.requests
+package models.identifiers
 
-import models.identifiers.{GroupId, InternalId, VpdId}
-import play.api.mvc.{Request, WrappedRequest}
+import base.SpecBase
+import models.identifiers.GroupId
+import play.api.libs.json.Json
 
-case class NoEnrolmentIdentifierRequest[A](request: Request[A],
-                                           enrolmentVpdId: Option[VpdId],
-                                           groupId: GroupId,
-                                           internalId: InternalId)
-  extends WrappedRequest[A](request)
+class GroupIdSpec extends SpecBase {
+
+  "GroupId" - {
+    val json = s""""${groupId.value}""""
+
+    "must serialise to json" in {
+      Json.toJson(groupId).toString mustBe json
+    }
+
+    "must deserialise from json" in {
+      Json.parse(json).as[GroupId] mustBe groupId
+    }
+  }
+}

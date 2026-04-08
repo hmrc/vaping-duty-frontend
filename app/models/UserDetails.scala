@@ -18,8 +18,8 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class UserDetails(vpdId: String, userId: String)
+case class UserDetails(vpdId: String, internalId: String)
 
 object UserDetails {
-  implicit val userDetailsFormat: OFormat[UserDetails] = Json.format[UserDetails]
+  given OFormat[UserDetails] = Json.format[UserDetails]
 }

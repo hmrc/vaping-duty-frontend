@@ -17,6 +17,7 @@
 package connectors
 
 import config.FrontendAppConfig
+import models.identifiers.{InternalId, VpdId}
 import models.{UserAnswers, UserDetails}
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
@@ -30,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val httpClient: HttpClientV2)
                                      (implicit ec: ExecutionContext) extends HttpReadsInstances {
 
-  def get(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, UserAnswers]] =
+  def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, UserAnswers]] =
     httpClient
       .get(url"${config.cpUserAnswersGetUrl(vpdId)}")
       .execute[Either[UpstreamErrorResponse, UserAnswers]]
@@ -52,7 +53,7 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
       .execute[Either[UpstreamErrorResponse, UserAnswers]]
   }
 
-  def keepAlive(vpdId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+  def keepAlive(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
       .post(url"${config.cpUserAnswersKeepAliveUrl}")
       .setHeader("Csrf-Token" -> "nocheck")
@@ -65,9 +66,9 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
         }
       }
   
-  def clear(userId: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+  def clear(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
-      .delete(url"${config.cpUserAnswersClearUrl(userId)}")
+      .delete(url"${config.cpUserAnswersClearUrl(internalId)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap { response =>

@@ -67,7 +67,7 @@ class SubmitAddressController @Inject()(
           .map {
             case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
             case _: Success =>
-              userAnswersService.clear(request.userId)
+              userAnswersService.clear(request.internalId)
               Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
           }
       case Post  =>

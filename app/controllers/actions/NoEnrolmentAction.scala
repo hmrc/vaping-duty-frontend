@@ -33,7 +33,7 @@ class NoEnrolmentActionImpl @Inject()(implicit val executionContext: ExecutionCo
           controllers.enrolment.routes.UserAlreadyEnrolledController.onPageLoad()
         )))
       case None =>
-        Future.successful(Right(NoEnrolmentIdentifierRequest(request, None, request.groupId, request.userId)))
+        Future.successful(Right(NoEnrolmentIdentifierRequest(request, None, request.groupId, request.internalId)))
     }
   }
 }

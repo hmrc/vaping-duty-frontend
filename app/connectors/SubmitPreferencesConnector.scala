@@ -18,6 +18,7 @@ package connectors
 
 import config.FrontendAppConfig
 import models.emailverification.{ErrorModel, PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
+import models.identifiers.VpdId
 import play.api.Logging
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
@@ -29,16 +30,12 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class SubmitPreferencesConnector @Inject() (
-  config: FrontendAppConfig,
-  implicit val httpClient: HttpClientV2
-)(implicit ec: ExecutionContext)
-    extends HttpReadsInstances
-    with Logging {
+class SubmitPreferencesConnector @Inject() (config: FrontendAppConfig,
+                                            implicit val httpClient: HttpClientV2)
+                                           (implicit ec: ExecutionContext) extends HttpReadsInstances with Logging {
 
-  def submitContactPreferences(contactPreferenceSubmission: PaperlessPreferenceSubmission, vpdId: String)(implicit
-    hc: HeaderCarrier
-  ): Future[Either[ErrorModel, PaperlessPreferenceSubmittedResponse]] = {
+  def submitContactPreferences(contactPreferenceSubmission: PaperlessPreferenceSubmission, vpdId: VpdId)
+                              (implicit hc: HeaderCarrier): Future[Either[ErrorModel, PaperlessPreferenceSubmittedResponse]] = {
     httpClient
       .put(url"${config.cpSubmitContactPreferencesUrl(vpdId)}")
       .withBody(Json.toJson(contactPreferenceSubmission))
@@ -78,5 +75,4 @@ class SubmitPreferencesConnector @Inject() (
           )
       }
   }
-
 }

@@ -29,7 +29,7 @@ class HasEnrolmentActionImpl @Inject()(implicit val executionContext: ExecutionC
 
     request.enrolmentVpdId match {
       case Some(vpdId) =>
-        Future.successful(Right(NoEnrolmentIdentifierRequest(request, Some(vpdId), request.groupId, request.userId)))
+        Future.successful(Right(NoEnrolmentIdentifierRequest(request, Some(vpdId), request.groupId, request.internalId)))
       case None =>
         // Placeholder redirect
         Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))) // Our graceful failure page    }

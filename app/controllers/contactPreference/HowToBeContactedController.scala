@@ -76,7 +76,7 @@ class HowToBeContactedController @Inject()(
 
   private def prepareForm(ua: UserAnswers) =
     ua.get(HowToBeContactedPage).fold(form)(form.fill)
-  
+
 
   private def getUserAnswers()(implicit request: OptionalDataRequest[?]): Future[Either[Result, UserAnswers]] = {
     request.userAnswers match {
@@ -89,7 +89,7 @@ class HowToBeContactedController @Inject()(
   }
 
   private def createUserAnswers()(implicit request: OptionalDataRequest[?]): Future[Option[UserAnswers]] =
-    sessionService.createUserAnswers(UserDetails(request.enrolmentVpdId, request.userId)).map {
+    sessionService.createUserAnswers(UserDetails(request.enrolmentVpdId.value, request.internalId.value)).map {
       case Left(err) => None
       case Right(ua) => Some(ua)
     }

@@ -27,7 +27,7 @@ class FakeCheckSignedInAction @Inject() (bodyParsers: PlayBodyParsers)
     extends CheckSignedInAction with TestData {
 
   override def invokeBlock[A](request: Request[A], block: SignedInRequest[A] => Future[Result]): Future[Result] =
-    block(SignedInRequest(request, internalId = userId))
+    block(SignedInRequest(request, internalId = internalId))
 
   override def parser: BodyParser[AnyContent] =
     bodyParsers.default

@@ -17,6 +17,7 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
+import models.identifiers.{CredentialId, InternalId, VpdId}
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
@@ -38,8 +39,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
-  val enrolmentServiceName = configuration.get[String]("enrolment.serviceName")
-  val enrolmentIdentifierKey = configuration.get[String]("enrolment.identifierKey")
+  val enrolmentServiceName: String          = configuration.get[String]("enrolment.serviceName")
+  val enrolmentIdentifierKey: String        = configuration.get[String]("enrolment.identifierKey")
 
   val loginUrl: String                       = configuration.get[String]("urls.login")
   val loginContinueUrl: String               = configuration.get[String]("urls.loginContinue")
@@ -47,7 +48,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val organisationAcctGuidanceUrl: String    = configuration.get[String]("urls.organisationAcctGuidance")
   val applyForVpdIdGuidanceUrl: String       = configuration.get[String]("urls.applyForVpdIdGuidanceUrl")
-  val changeAddressGuidanceUrl               = configuration.get[String]("urls.addressChangeGuidance")
+  val changeAddressGuidanceUrl: String       = configuration.get[String]("urls.addressChangeGuidance")
   val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount")
   val accessibilityStatementUrl: String = configuration.get[String]("accessibility-statement.host") ++
     configuration.get[String]("accessibility-statement.url")
@@ -76,17 +77,15 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
-
-  def vdrPingUrl(): String = s"$vdHost/vaping-duty/ping"
-
-  private val contactPreferenceBaseUrl                      = s"$contactPreferencesHost/vaping-duty-account"
-  def cpUserAnswersGetUrl(vpdId: String): String            = s"$contactPreferenceBaseUrl/user-answers/$vpdId"
-  def cpUserAnswersUrl: String                              = s"$contactPreferenceBaseUrl/user-answers"
-  def cpUserAnswersKeepAliveUrl: String                     = s"$contactPreferenceBaseUrl/keep-alive"
-  def cpUserAnswersClearUrl(userId: String): String         = s"$contactPreferenceBaseUrl/user-answers/clear/$userId"
-  def cpGetEmailVerificationUrl(credId: String): String     = s"$contactPreferenceBaseUrl/get-email-verification/$credId"
-  def cpSubmitContactPreferencesUrl(vpdId: String): String  = s"$contactPreferenceBaseUrl/submit-preferences/$vpdId"
-  def getSubscriptionUrl(vpdId: String): String             = s"$contactPreferenceBaseUrl/get-preferences/$vpdId"
+  
+  private val contactPreferenceBaseUrl                        = s"$contactPreferencesHost/vaping-duty-account"
+  def cpUserAnswersGetUrl(vpdId: VpdId): String               = s"$contactPreferenceBaseUrl/user-answers/$vpdId"
+  def cpUserAnswersUrl: String                                = s"$contactPreferenceBaseUrl/user-answers"
+  def cpUserAnswersKeepAliveUrl: String                       = s"$contactPreferenceBaseUrl/keep-alive"
+  def cpUserAnswersClearUrl(internalId: InternalId): String   = s"$contactPreferenceBaseUrl/user-answers/clear/$internalId"
+  def cpGetEmailVerificationUrl(credId: CredentialId): String = s"$contactPreferenceBaseUrl/get-email-verification/$credId"
+  def cpSubmitContactPreferencesUrl(vpdId: VpdId): String     = s"$contactPreferenceBaseUrl/submit-preferences/$vpdId"
+  def getSubscriptionUrl(vpdId: VpdId): String                = s"$contactPreferenceBaseUrl/get-preferences/$vpdId"
 
   val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/confirm-email-address"
   val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"

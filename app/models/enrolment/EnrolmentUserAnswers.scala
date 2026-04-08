@@ -74,5 +74,4 @@ object EnrolmentUserAnswers {
       (__ \ "startedTime").format(MongoJavatimeFormats.instantFormat) and
       (__ \ "lastUpdated").format(MongoJavatimeFormats.instantFormat)
   )(EnrolmentUserAnswers.apply, o => Tuple.fromProductTyped(o))
-
 }

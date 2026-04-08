@@ -20,6 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import data.TestData
 import models.UserAnswers
+import models.identifiers.InternalId
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{atLeastOnce, verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -106,7 +107,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
       when(requestBuilder.execute[HttpResponse](any(), any()))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
 
-      connector.keepAlive(userAnswers.vpdId)
+      connector.keepAlive(internalId)
       verify(connector.httpClient, atLeastOnce).post(eqTo(url"$postUrl"))(any())
     }
 
@@ -123,7 +124,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
       when(requestBuilder.execute[HttpResponse](any(), any()))
         .thenReturn(Future.successful(mockHttpResponse))
 
-      connector.keepAlive(userAnswers.vpdId)
+      connector.keepAlive(InternalId(userAnswers.internalId))
       verify(connector.httpClient, atLeastOnce).post(eqTo(url"$postUrl"))(any())
     }
   }
@@ -132,7 +133,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
     "must successfully clear user answers" in new SetUp {
       val deleteUrl = "http://vaping-duty-account/user-answers/clear"
 
-      when(mockConfig.cpUserAnswersClearUrl(vpdId)).thenReturn(deleteUrl)
+      when(mockConfig.cpUserAnswersClearUrl(internalId)).thenReturn(deleteUrl)
 
       when(connector.httpClient.delete(any())(any())).thenReturn(requestBuilder)
 
@@ -142,7 +143,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
       when(requestBuilder.execute[HttpResponse](any(), any()))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
 
-      connector.clear(userAnswers.vpdId)
+      connector.clear(internalId)
 
       verify(connector.httpClient, atLeastOnce).delete(eqTo(url"$deleteUrl"))(any())
     }
@@ -150,7 +151,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
     "must fail when response is not NO_CONTENT" in new SetUp {
       val deleteUrl = "http://vaping-duty-account/user-answers/clear"
 
-      when(mockConfig.cpUserAnswersClearUrl(vpdId)).thenReturn(deleteUrl)
+      when(mockConfig.cpUserAnswersClearUrl(internalId)).thenReturn(deleteUrl)
 
       when(connector.httpClient.delete(any())(any())).thenReturn(requestBuilder)
 
@@ -160,7 +161,7 @@ class UserAnswersConnectorSpec extends SpecBase with TestData {
       when(requestBuilder.execute[HttpResponse](any(), any()))
         .thenReturn(Future.successful(mockHttpResponse))
 
-      connector.clear(userAnswers.vpdId)
+      connector.clear(internalId)
 
       verify(connector.httpClient, atLeastOnce).delete(eqTo(url"$deleteUrl"))(any())
     }

@@ -196,7 +196,7 @@ class EmailVerificationServiceSpec extends SpecBase {
       whenReady(testService.submitVerifiedEmail(
         emailAddress,
         verified = true
-        )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
+        )(hc, DataRequest(FakeRequest(), vpdId, internalId, credId, userAnswers))) {
 
         _ mustBe Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
       }
@@ -212,7 +212,7 @@ class EmailVerificationServiceSpec extends SpecBase {
       whenReady(testService.submitVerifiedEmail(
         emailAddress,
         verified = true
-      )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
+      )(hc, DataRequest(FakeRequest(), vpdId, internalId, credId, userAnswers))) {
 
         _ mustBe Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
@@ -226,7 +226,7 @@ class EmailVerificationServiceSpec extends SpecBase {
       whenReady(testService.submitVerifiedEmail(
         emailAddress,
         verified = false
-      )(hc, DataRequest(FakeRequest(), vpdId, userId, credId, userAnswers))) {
+      )(hc, DataRequest(FakeRequest(), vpdId, internalId, credId, userAnswers))) {
 
         _ mustBe Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }

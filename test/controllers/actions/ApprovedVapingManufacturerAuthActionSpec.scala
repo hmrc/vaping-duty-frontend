@@ -19,6 +19,7 @@ package controllers.actions
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
+import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
 import models.requests.IdentifierRequest
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -32,7 +33,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, credentials, groupIdentifier, internalId}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, credentials, groupIdentifier, internalId as retrievalsInternalId}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
@@ -55,7 +56,7 @@ import scala.concurrent.{ExecutionContext, Future}
    private def stubAuthResponse(authResponse: Option[String] ~ Option[String] ~ Enrolments ~ Option[Credentials]) = {
      when(
        authConnector.authorise(any[Predicate],
-         ArgumentMatchers.eq(internalId and groupIdentifier and allEnrolments and credentials)
+         ArgumentMatchers.eq(retrievalsInternalId and groupIdentifier and allEnrolments and credentials)
        )(any[HeaderCarrier], any[ExecutionContext])).
        thenReturn(Future.successful(authResponse))
    }
@@ -72,10 +73,10 @@ import scala.concurrent.{ExecutionContext, Future}
     val HMRC_VPD_ORG_ENROLMENT_NAME  = appConfig.enrolmentServiceName
     val VPD_ORG_IDENT_KEY            = appConfig.enrolmentIdentifierKey
 
-    val INTERNAL_ID                  = "test-internal-id"
-    val GROUP_IDENTIFIER             = "test-group-id"
+    val INTERNAL_ID                  = InternalId("test-internal-id")
+    val GROUP_IDENTIFIER             = GroupId("test-group-id")
     val ENROLMENT_STATE              = "test-state"
-    val CREDENTIAL_ID                = "test-cred-id"
+    val CREDENTIAL_ID                = CredentialId("test-cred-id")
 
     val bodyParsers                  = mock[BodyParsers.Default]
 
@@ -85,13 +86,13 @@ import scala.concurrent.{ExecutionContext, Future}
       state = ENROLMENT_STATE
     )))
     
-    val CREDENTIALS = Some(Credentials(CREDENTIAL_ID, "type"))
+    val CREDENTIALS = Some(Credentials(CREDENTIAL_ID.value, "type"))
 
     "when authenticated and authorised" - {
 
       "executes the block passed " in {
 
-        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT and CREDENTIALS)
+        stubAuthResponse(Some(INTERNAL_ID.value) and Some(GROUP_IDENTIFIER.value) and VPD_ORG_VALID_ENROLMENT and CREDENTIALS)
 
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
         val controller = new Harness(authAction)
@@ -103,7 +104,7 @@ import scala.concurrent.{ExecutionContext, Future}
       "must pass expected retrievals to block" in {
 
         stubAuthResponse(
-          Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT and CREDENTIALS
+          Some(INTERNAL_ID.value) and Some(GROUP_IDENTIFIER.value) and VPD_ORG_VALID_ENROLMENT and CREDENTIALS
         )
 
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
@@ -111,20 +112,20 @@ import scala.concurrent.{ExecutionContext, Future}
         val request = FakeRequest()
         val block = mock[IdentifierRequest[AnyContentAsEmpty.type] => Future[Result]]
 
-        when(block.apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID, CREDENTIAL_ID))).
+        when(block.apply(IdentifierRequest(request, VpdId(id = "test-value"), GROUP_IDENTIFIER, INTERNAL_ID, CREDENTIAL_ID))).
           thenReturn(Future.successful(Results.Ok))
 
         val result = authAction.invokeBlock(request, block)
         await(result)
 
-        verify(block).apply(IdentifierRequest(request, "test-value", GROUP_IDENTIFIER, INTERNAL_ID, CREDENTIAL_ID))
+        verify(block).apply(IdentifierRequest(request, VpdId(id = "test-value"), GROUP_IDENTIFIER, INTERNAL_ID, CREDENTIAL_ID))
 
       }
 
 
       "Allows UnauthorisedException from a Connector called from the executed block to pass through and be handled by the framework" in {
 
-        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT and CREDENTIALS)
+        stubAuthResponse(Some(INTERNAL_ID.value) and Some(GROUP_IDENTIFIER.value) and VPD_ORG_VALID_ENROLMENT and CREDENTIALS)
 
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
         val controller = new ExceptionThrowingHarness(authAction)
@@ -136,7 +137,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
       "must give SEE_OTHER when missing auth data received " in {
 
-        stubAuthResponse(None and Some(GROUP_IDENTIFIER) and VPD_ORG_VALID_ENROLMENT and CREDENTIALS)
+        stubAuthResponse(None and Some(GROUP_IDENTIFIER.value) and VPD_ORG_VALID_ENROLMENT and CREDENTIALS)
 
         val authAction = new ApprovedVapingManufacturerAuthActionImpl(authConnector, appConfig, bodyParsers)
 
@@ -150,7 +151,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
       "must give SEE_OTHER when incorrect enrolment service name present " in {
 
-        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and Enrolments(Set(
+        stubAuthResponse(Some(INTERNAL_ID.value) and Some(GROUP_IDENTIFIER.value) and Enrolments(Set(
           Enrolment(
             key = "INCORRECT_ENROLMENT_SERVICE_NAME-ONLY",
             identifiers = Seq(EnrolmentIdentifier(key = VPD_ORG_IDENT_KEY, value = "TestId")),
@@ -170,7 +171,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
       "must give SEE_OTHER when incorrect enrolment identifier key received " in {
 
-        stubAuthResponse(Some(INTERNAL_ID) and Some(GROUP_IDENTIFIER) and Enrolments(Set(
+        stubAuthResponse(Some(INTERNAL_ID.value) and Some(GROUP_IDENTIFIER.value) and Enrolments(Set(
           Enrolment(
             key = HMRC_VPD_ORG_ENROLMENT_NAME,
             identifiers = Seq(EnrolmentIdentifier(key = "IncorrectEnrolmentIdent", value = "TestId")),

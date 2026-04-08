@@ -52,7 +52,7 @@ trait SpecBase
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[ApprovedVapingManufacturerAuthAction].to[FakeApprovedVapingManufacturerAuthAction],
-        bind[EnrolmentClaimAuthAction].to[FakeEnrolmentClaimAuthAction],
+        bind[EnrolmentClaimAuthAction].to[FakeClaimEnrolmentAuthAction],
         bind[HasEnrolmentAction].to[FakeHasEnrolmentAction],
         bind[CheckSignedInAction].to[FakeCheckSignedInAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
@@ -61,7 +61,7 @@ trait SpecBase
   protected def enrolmentApplicationBuilder(userAnswers: Option[EnrolmentUserAnswers] = None): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
-        bind[EnrolmentClaimAuthAction].to[FakeEnrolmentClaimAuthAction],
+        bind[EnrolmentClaimAuthAction].to[FakeClaimEnrolmentAuthAction],
         bind[EnrolmentDataRetrievalAction].toInstance(new FakeEnrolmentDataRetrievalAction(userAnswers))
       )
   

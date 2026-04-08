@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package models.requests
+package models.identifiers
 
-import models.identifiers.{GroupId, InternalId, VpdId}
-import play.api.mvc.{Request, WrappedRequest}
+import play.api.libs.json.{Format, Reads, Writes}
 
-case class NoEnrolmentIdentifierRequest[A](request: Request[A],
-                                           enrolmentVpdId: Option[VpdId],
-                                           groupId: GroupId,
-                                           internalId: InternalId)
-  extends WrappedRequest[A](request)
+opaque type VpdId = String
+
+object VpdId:
+  def apply(id: String): VpdId = id
+
+  extension (id: VpdId)
+    def value: String = id
+
+  given Format[VpdId] = Format(
+    Reads.StringReads.map(VpdId.apply),
+    Writes.StringWrites.contramap[VpdId](_.value)
+  )

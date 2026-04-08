@@ -16,11 +16,12 @@
 
 package models.requests
 
+import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
 import play.api.mvc.{Request, WrappedRequest}
 
 case class IdentifierRequest[A](request: Request[A],
-                                enrolmentVpdId: String,
-                                groupId: String,
-                                userId: String,
-                                credId: String)
+                                enrolmentVpdId: VpdId,
+                                groupId: GroupId,
+                                internalId: InternalId,
+                                credId: CredentialId)
   extends WrappedRequest[A](request)

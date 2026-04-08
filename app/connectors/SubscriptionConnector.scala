@@ -18,6 +18,7 @@ package connectors
 
 import config.FrontendAppConfig
 import models.contactPreference.SubscriptionContactPreferences
+import models.identifiers.VpdId
 import org.apache.pekko.actor.ActorSystem
 import play.api.Logging
 import play.api.http.Status.*
@@ -36,7 +37,7 @@ class SubscriptionConnector @Inject() (
                                       )
                                       (implicit ec: ExecutionContext) extends HttpReadsInstances with Logging {
 
-  def getSubscriptionContactPreferences(vpdId: String)
+  def getSubscriptionContactPreferences(vpdId: VpdId)
                                        (implicit hc: HeaderCarrier): Future[Either[ErrorResponse, SubscriptionContactPreferences]] =
 
     httpClient

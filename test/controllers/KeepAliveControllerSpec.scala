@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import models.identifiers.InternalId
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalactic.Prettifier.default
@@ -51,7 +52,7 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          verify(mockSessionRepository, times(1)).keepAlive(eqTo(emptyUserAnswers.userId))(any())
+          verify(mockSessionRepository, times(1)).keepAlive(eqTo(InternalId(emptyUserAnswers.internalId)))(any())
         }
       }
     }

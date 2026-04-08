@@ -19,6 +19,7 @@ package controllers.actions
 import com.google.inject.Inject
 import models.requests.SignedInRequest
 import controllers.routes
+import models.identifiers.InternalId
 import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect
@@ -57,7 +58,7 @@ class CheckSignedInActionImpl @Inject() (
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     
     authorised(predicate).retrieve(internalId) {
-      optInternalId => optInternalId.map(internalId => SignedInRequest(request, internalId)).
+      optInternalId => optInternalId.map(internalId => SignedInRequest(request, InternalId(internalId))).
                                      map(signedInRequest => block(signedInRequest)).
                                      getOrElse(Future.failed(AuthorisationException.fromString("Unable to retrieve internalId.")))
     } recoverWith { case e: AuthorisationException =>

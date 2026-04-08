@@ -41,8 +41,8 @@ object JourneyOutcome {
 
     JourneyOutcome(
       timeStarted = request.userAnswers.startedTime.toString,
-      credentialId = request.credId,
-      vpdId = request.enrolmentVpdId,
+      credentialId = request.credId.toString,
+      vpdId = request.enrolmentVpdId.toString,
       originalContactPreference = initialPreference.toString,
       originalContactPreferenceValue = initialPreference match {
         case Email => request.userAnswers.subscriptionSummary.emailAddress.getOrElse("")

@@ -18,6 +18,7 @@ package repositories
 
 import config.FrontendAppConfig
 import models.enrolment.EnrolmentUserAnswers
+import models.identifiers.InternalId
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
 import org.scalactic.source.Position
@@ -48,6 +49,7 @@ class EnrolmentSessionRepositoryISpec
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
 
   private val userAnswers = EnrolmentUserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1), Instant.ofEpochSecond(1))
+  private val internalId = InternalId(userAnswers.id)
 
   private val mockAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.cacheTtl) thenReturn 1L
@@ -83,7 +85,7 @@ class EnrolmentSessionRepositoryISpec
 
         insert(userAnswers).futureValue
 
-        val result         = repository.get(userAnswers.id).futureValue
+        val result         = repository.get(internalId).futureValue
         val expectedResult = userAnswers copy (lastUpdated = instant)
 
         result.value mustEqual expectedResult
@@ -94,11 +96,11 @@ class EnrolmentSessionRepositoryISpec
 
       "must return None" in {
 
-        repository.get("id that does not exist").futureValue must not be defined
+        repository.get(InternalId("id that does not exist")).futureValue must not be defined
       }
     }
 
-    mustPreserveMdc(repository.get(userAnswers.id))
+    mustPreserveMdc(repository.get(InternalId(userAnswers.id)))
   }
 
   ".clear" - {
@@ -109,7 +111,7 @@ class EnrolmentSessionRepositoryISpec
 
       val _ = repository.clear(userAnswers.id).futureValue
 
-      repository.get(userAnswers.id).futureValue must not be defined
+      repository.get(internalId).futureValue must not be defined
     }
 
     "must return true when there is no record to remove" in {
@@ -129,7 +131,7 @@ class EnrolmentSessionRepositoryISpec
 
         insert(userAnswers).futureValue
 
-        val _ = repository.keepAlive(userAnswers.id).futureValue
+        val _ = repository.keepAlive(internalId).futureValue
 
         val expectedUpdatedAnswers = userAnswers copy (lastUpdated = instant)
 
@@ -142,11 +144,11 @@ class EnrolmentSessionRepositoryISpec
 
       "must return true" in {
 
-        repository.keepAlive("id that does not exist").futureValue mustEqual true
+        repository.keepAlive(InternalId("id that does not exist")).futureValue mustEqual true
       }
     }
 
-    mustPreserveMdc(repository.keepAlive(userAnswers.id))
+    mustPreserveMdc(repository.keepAlive(internalId))
   }
 
   private def mustPreserveMdc[A](f: => Future[A])(implicit pos: Position): Unit =

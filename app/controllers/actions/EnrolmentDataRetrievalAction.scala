@@ -29,9 +29,9 @@ class EnrolmentDataRetrievalActionImpl @Inject()(
 
   override protected def transform[A](request: NoEnrolmentIdentifierRequest[A]): Future[EnrolmentOptionalDataRequest[A]] = {
     
-    enrolmentRepository.get(request.userId).map {
-      case None     => EnrolmentOptionalDataRequest(request, request.userId, None)
-      case Some(ua) => EnrolmentOptionalDataRequest(request, request.userId, Some(ua))
+    enrolmentRepository.get(request.internalId).map {
+      case None     => EnrolmentOptionalDataRequest(request, request.internalId, None)
+      case Some(ua) => EnrolmentOptionalDataRequest(request, request.internalId, Some(ua))
     }
   }
 }
