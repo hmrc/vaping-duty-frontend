@@ -18,6 +18,7 @@ package queries
 
 import models.contactPreference.PreferenceUserAnswers
 import models.enrolment.EnrolmentUserAnswers
+import models.returns.ReturnsUserAnswers
 import play.api.libs.json.JsPath
 
 import scala.util.{Success, Try}
@@ -36,4 +37,7 @@ trait Settable[A] extends Query {
   
   def cleanup(value: Option[A], userAnswers: EnrolmentUserAnswers): Try[EnrolmentUserAnswers] =
     Success(userAnswers)
+
+  def cleanup(value: Option[A], userAnswers: ReturnsUserAnswers): Try[ReturnsUserAnswers] =
+    Success(userAnswers)  
 }
