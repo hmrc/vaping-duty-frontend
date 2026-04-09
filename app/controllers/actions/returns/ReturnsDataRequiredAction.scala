@@ -18,6 +18,7 @@ package controllers.actions.returns
 
 import controllers.routes
 import models.requests.contactPreference.{DataRequest, OptionalDataRequest}
+import models.requests.returns.{ReturnsDataRequest, ReturnsOptionalDataRequest}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
 
@@ -26,15 +27,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ReturnsDataRequiredActionImpl @Inject()(implicit val executionContext: ExecutionContext) extends ReturnsDataRequiredAction {
 
-  override protected def refine[A](request: OptionalDataRequest[A]): Future[Either[Result, DataRequest[A]]] = {
+  override protected def refine[A](request: ReturnsOptionalDataRequest[A]): Future[Either[Result, ReturnsDataRequest[A]]] = {
 
     request.userAnswers match {
       case None =>
         Future.successful(Left(Redirect(routes.JourneyRecoveryController.onPageLoad())))
       case Some(data) =>
-        Future.successful(Right(DataRequest(request.request, request.enrolmentVpdId, request.internalId, request.credId, data)))
+        Future.successful(Right(ReturnsDataRequest(request.request, request.enrolmentVpdId, request.internalId, request.credId, data)))
     }
   }
 }
 
-trait ReturnsDataRequiredAction extends ActionRefiner[OptionalDataRequest, DataRequest]
+trait ReturnsDataRequiredAction extends ActionRefiner[ReturnsOptionalDataRequest, ReturnsDataRequest]
