@@ -18,7 +18,7 @@ package controllers.contactPreference
 
 import base.SpecBase
 import cats.data.EitherT
-import connectors.SubmitPreferencesConnector
+import connectors.contactPreference.SubmitPreferencesConnector
 import models.emailverification.{EmailVerificationDetails, ErrorModel}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

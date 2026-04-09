@@ -17,7 +17,7 @@
 package controllers.contactPreference
 
 import base.SpecBase
-import connectors.SubscriptionConnector
+import connectors.contactPreference.SubscriptionConnector
 import models.BtaLink
 import models.contactPreference.SubscriptionContactPreferences
 import org.mockito.ArgumentMatchers.any

@@ -18,7 +18,7 @@ package services
 
 import cats.data.EitherT
 import com.google.inject.Singleton
-import connectors.EmailVerificationConnector
+import connectors.contactPreference.EmailVerificationConnector
 import models.UserAnswers
 import models.contactPreference.PaperlessPreference.{Email, toValue}
 import models.emailverification.*

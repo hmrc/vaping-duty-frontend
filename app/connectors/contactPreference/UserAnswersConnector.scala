@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package connectors
+package connectors.contactPreference
 
 import config.FrontendAppConfig
 import models.identifiers.{InternalId, VpdId}

@@ -17,7 +17,7 @@
 package controllers.contactPreference
 
 import base.SpecBase
-import connectors.SubmitPreferencesConnector
+import connectors.contactPreference.SubmitPreferencesConnector
 import models.emailverification.ErrorModel
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

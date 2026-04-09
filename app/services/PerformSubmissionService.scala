@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.SubmitPreferencesConnector
+import connectors.contactPreference.SubmitPreferencesConnector
 import models.audit.JourneyOutcome
 import models.contactPreference
 import models.contactPreference.PaperlessPreference

@@ -18,6 +18,7 @@ package connectors
 
 import base.SpecBase
 import config.FrontendAppConfig
+import connectors.contactPreference.UserAnswersConnector
 import data.TestData
 import models.UserAnswers
 import models.identifiers.InternalId

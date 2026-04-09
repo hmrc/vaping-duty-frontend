@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package connectors
+package connectors.contactPreference
 
 import cats.data.EitherT
 import config.FrontendAppConfig
-import models.emailverification.{EmailVerificationRequest, ErrorModel, GetVerificationStatusResponse, RedirectUri, VerificationDetails}
+import models.emailverification.*
 import play.api.Logging
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR}
 import play.api.libs.json.Json

@@ -18,7 +18,7 @@ package controllers.contactPreference
 
 import base.SpecBase
 import cats.data.EitherT
-import connectors.EmailVerificationConnector
+import connectors.contactPreference.EmailVerificationConnector
 import controllers.routes
 import forms.contactPreference.EnterEmailFormProvider
 import models.NormalMode

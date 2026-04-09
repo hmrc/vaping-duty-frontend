@@ -17,7 +17,7 @@
 package controllers.contactPreference
 
 import config.FrontendAppConfig
-import connectors.EmailVerificationConnector
+import connectors.contactPreference.EmailVerificationConnector
 import controllers.actions.*
 import forms.contactPreference.EnterEmailFormProvider
 import models.emailverification.{EmailVerificationDetails, EmailVerificationRequest, VerificationDetails}

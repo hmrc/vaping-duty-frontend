@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package connectors
+package connectors.contactPreference
 
 import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*

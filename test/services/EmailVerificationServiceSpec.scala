@@ -18,7 +18,7 @@ package services
 
 import base.SpecBase
 import cats.data.EitherT
-import connectors.{EmailVerificationConnector, SubmitPreferencesConnector}
+import connectors.contactPreference.{EmailVerificationConnector, SubmitPreferencesConnector}
 import models.*
 import models.emailverification.*
 import models.requests.DataRequest

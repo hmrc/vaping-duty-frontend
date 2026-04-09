@@ -17,7 +17,7 @@
 package services
 
 import base.SpecBase
-import connectors.UserAnswersConnector
+import connectors.contactPreference.UserAnswersConnector
 import models.emailverification.ErrorModel
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

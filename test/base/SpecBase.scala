@@ -17,7 +17,7 @@
 package base
 
 import config.FrontendAppConfig
-import connectors.EmailVerificationConnector
+import connectors.contactPreference.EmailVerificationConnector
 import controllers.actions.*
 import data.TestData
 import models.UserAnswers

@@ -17,7 +17,7 @@
 package services
 
 import base.SpecBase
-import connectors.SubmitPreferencesConnector
+import connectors.contactPreference.SubmitPreferencesConnector
 import data.TestData
 import models.emailverification.ErrorModel
 import models.requests.DataRequest

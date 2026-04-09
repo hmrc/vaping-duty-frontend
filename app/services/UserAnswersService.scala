@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.UserAnswersConnector
+import connectors.contactPreference.UserAnswersConnector
 import models.emailverification.ErrorModel
 import models.identifiers.{InternalId, VpdId}
 import models.{UserAnswers, UserDetails}

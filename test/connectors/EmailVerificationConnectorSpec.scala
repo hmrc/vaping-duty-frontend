@@ -18,6 +18,7 @@ package connectors
 
 import base.SpecBase
 import config.FrontendAppConfig
+import connectors.contactPreference.EmailVerificationConnector
 import data.TestData
 import models.emailverification.ErrorModel
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
