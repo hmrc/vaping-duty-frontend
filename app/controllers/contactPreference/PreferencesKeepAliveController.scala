@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.contactPreference
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.contactPreference.DataRetrievalAction
@@ -26,7 +26,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class KeepAliveController @Inject()(
+class PreferencesKeepAliveController @Inject()(
                                      val controllerComponents: MessagesControllerComponents,
                                      ifApprovedVapingManufacturer: ApprovedVapingManufacturerAuthAction,
                                      getData: DataRetrievalAction,

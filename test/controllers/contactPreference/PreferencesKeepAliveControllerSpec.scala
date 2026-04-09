@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.contactPreference
 
 import base.SpecBase
 import models.identifiers.InternalId
@@ -29,7 +29,7 @@ import services.UserAnswersService
 
 import scala.concurrent.Future
 
-class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
+class PreferencesKeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
   "keepAlive" - {
 
@@ -47,7 +47,7 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
         running(application) {
 
-          val request = FakeRequest(GET, routes.KeepAliveController.keepAlive().url)
+          val request = FakeRequest(GET, controllers.contactPreference.routes.PreferencesKeepAliveController.keepAlive().url)
 
           val result = route(application, request).value
 
@@ -71,7 +71,7 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
         running(application) {
 
-          val request = FakeRequest(GET, routes.KeepAliveController.keepAlive().url)
+          val request = FakeRequest(GET, controllers.contactPreference.routes.PreferencesKeepAliveController.keepAlive().url)
 
           val result = route(application, request).value
 
