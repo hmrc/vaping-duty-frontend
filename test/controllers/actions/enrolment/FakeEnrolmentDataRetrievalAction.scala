@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package controllers.actions.enrolment
 
 import models.enrolment.EnrolmentUserAnswers
 import models.requests.{EnrolmentOptionalDataRequest, NoEnrolmentIdentifierRequest}

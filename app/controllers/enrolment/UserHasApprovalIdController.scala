@@ -18,6 +18,7 @@ package controllers.enrolment
 
 import config.FrontendAppConfig
 import controllers.actions.*
+import controllers.actions.enrolment.{EnrolmentClaimAuthAction, EnrolmentDataRetrievalAction, NoEnrolmentAction}
 import forms.enrolment.UserHasApprovalIdFormProvider
 import models.enrolment.EnrolmentUserAnswers
 import models.requests.EnrolmentOptionalDataRequest

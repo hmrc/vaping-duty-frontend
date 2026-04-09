@@ -18,6 +18,7 @@ package config
 
 import com.google.inject.AbstractModule
 import controllers.actions.*
+import controllers.actions.enrolment.*
 
 import java.time.{Clock, ZoneOffset}
 

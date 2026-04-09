@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package controllers.actions.enrolment
 
 import com.google.inject.Inject
 import config.FrontendAppConfig

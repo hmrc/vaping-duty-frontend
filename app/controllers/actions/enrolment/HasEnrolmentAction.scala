@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package controllers.actions.enrolment
 
 import models.requests.NoEnrolmentIdentifierRequest
 import play.api.mvc.Results.Redirect

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package controllers.actions.enrolment
 
 import models.identifiers.{GroupId, InternalId, VpdId}
 import models.requests.NoEnrolmentIdentifierRequest
@@ -23,18 +23,16 @@ import play.api.mvc.*
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeClaimEnrolmentAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends EnrolmentClaimAuthAction {
+class FakeHasEnrolmentAction @Inject() extends HasEnrolmentAction {
   
-  val optVpdId: Option[VpdId] = None
+  val optVpdId: Option[VpdId] = Some(VpdId(id = "vpdId"))
   val groupId: GroupId = GroupId(id = "groupid")
-  val internalId: InternalId = InternalId("id")
+  val internalId: InternalId = InternalId(id = "user-id")
+
+  override def refine[A](request: NoEnrolmentIdentifierRequest[A]): Future[Either[Result, NoEnrolmentIdentifierRequest[A]]] =
+    Future.successful(Right(NoEnrolmentIdentifierRequest(request, optVpdId, groupId, internalId)))
+
   
-  override def invokeBlock[A](request: Request[A], block: NoEnrolmentIdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(NoEnrolmentIdentifierRequest(request, optVpdId, groupId, internalId))
-
-  override def parser: BodyParser[AnyContent] =
-    bodyParsers.default
-
   override protected def executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
 }
