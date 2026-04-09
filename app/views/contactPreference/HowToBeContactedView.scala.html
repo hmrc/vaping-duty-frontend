@@ -38,7 +38,7 @@
 
     @h1(messages("contactPreference.howToBeContacted.heading"))
 
-    @p(Seq(HtmlContent(vm.content)))
+    @p(Seq(HtmlContent(vm.content)), classes = "govuk-body wrap-text")
 
     @formHelper(action = controllers.contactPreference.routes.HowToBeContactedController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
