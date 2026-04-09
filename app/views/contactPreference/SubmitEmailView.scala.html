@@ -31,7 +31,7 @@
 
     @h1(messages("contactPreference.submitEmail.heading"))
 
-@p(Seq(HtmlContent(s"${messages("contactPreference.submitEmail.youHave")} <b>$email</b>.")))
+@p(Seq(HtmlContent(s"${messages("contactPreference.submitEmail.youHave")} <b>$email</b>.")), classes = "govuk-body wrap-text")
 
     @p(Seq(HtmlContent(messages("contactPreference.submitEmail.youMust"))))
 
