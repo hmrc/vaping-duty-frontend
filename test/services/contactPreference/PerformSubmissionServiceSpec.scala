@@ -28,7 +28,6 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.test.FakeRequest
-import services.contactPreference.{AuditService, Failure, PerformSubmissionService, Success}
 
 import scala.concurrent.Future
 

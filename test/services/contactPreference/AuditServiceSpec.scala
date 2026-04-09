@@ -25,7 +25,6 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.verify
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Json
-import services.contactPreference.AuditService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import java.time.Instant

@@ -17,7 +17,6 @@
 package controllers.actions.contactPreference
 
 import base.SpecBase
-import controllers.actions.contactPreference.DataRetrievalActionImpl
 import models.requests.IdentifierRequest
 import models.requests.contactPreference.OptionalDataRequest
 import org.mockito.ArgumentMatchers.any

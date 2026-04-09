@@ -17,7 +17,6 @@
 package models.contactPreference
 
 import base.SpecBase
-import models.contactPreference.PreferenceUserAnswers
 import play.api.libs.json.{JsPath, Json}
 import queries.{Gettable, Settable}
 

@@ -16,7 +16,6 @@
 
 package controllers.actions.contactPreference
 
-import controllers.actions.contactPreference.DataRetrievalAction
 import models.contactPreference.PreferenceUserAnswers
 import models.requests.IdentifierRequest
 import models.requests.contactPreference.OptionalDataRequest

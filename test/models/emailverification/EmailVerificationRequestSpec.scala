@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models
+package models.emailverification
 
 import base.SpecBase
 import models.emailverification.EmailVerificationRequest

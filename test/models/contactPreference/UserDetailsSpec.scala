@@ -17,7 +17,6 @@
 package models.contactPreference
 
 import base.SpecBase
-import models.contactPreference.UserDetails
 import play.api.libs.json.Json
 
 class UserDetailsSpec extends SpecBase {
