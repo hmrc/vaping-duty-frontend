@@ -26,7 +26,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import util.WireMockHelper
 
-class PreferenceUserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHelper {
+class PreferencePreferenceUserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHelper {
 
   private lazy val application: Application = applicationBuilder()
     .configure(
@@ -34,7 +34,7 @@ class PreferenceUserAnswersConnectorISpec extends ISpecBase with TestData with W
     ).build()
 
   private val url            = "/vaping-duty-account/user-answers"
-  private lazy val connector = application.injector.instanceOf[UserAnswersConnector]
+  private lazy val connector = application.injector.instanceOf[PreferenceUserAnswersConnector]
 
   private val answers                     = emptyUserAnswers
   private val internalServerErrorResponse = UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR)

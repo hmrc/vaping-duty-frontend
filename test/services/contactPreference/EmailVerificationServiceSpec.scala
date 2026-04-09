@@ -235,7 +235,7 @@ class EmailVerificationServiceSpec extends SpecBase {
 
   class Setup {
     val mockEmailVerificationConnector: EmailVerificationConnector = mock[EmailVerificationConnector]
-    val mockUserAnswersService: UserAnswersService                 = mock[UserAnswersService]
+    val mockUserAnswersService: PreferenceUserAnswersService                 = mock[PreferenceUserAnswersService]
     val mockSubmitPreferencesConnector: SubmitPreferencesConnector = mock[SubmitPreferencesConnector]
     val mockAuditService: AuditService                             = mock[AuditService]
     val mockSubmissionService: PerformSubmissionService                   = mock[PerformSubmissionService]

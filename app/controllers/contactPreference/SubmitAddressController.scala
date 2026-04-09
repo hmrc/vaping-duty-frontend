@@ -26,7 +26,7 @@ import models.emailverification.PaperlessPreferenceSubmission
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.contactPreference.{Failure, PerformSubmissionService, Success, UserAnswersService}
+import services.contactPreference.{Failure, PerformSubmissionService, Success, PreferenceUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.SubmitAddressViewModel
 import views.html.contactPreference.SubmitAddressView
@@ -35,15 +35,15 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SubmitAddressController @Inject()(
-                                          override val messagesApi: MessagesApi,
-                                          identify: ApprovedVapingManufacturerAuthAction,
-                                          getData: DataRetrievalAction,
-                                          requireData: DataRequiredAction,
-                                          val controllerComponents: MessagesControllerComponents,
-                                          view: SubmitAddressView,
-                                          config: FrontendAppConfig,
-                                          userAnswersService: UserAnswersService,
-                                          submissionService: PerformSubmissionService
+                                         override val messagesApi: MessagesApi,
+                                         identify: ApprovedVapingManufacturerAuthAction,
+                                         getData: DataRetrievalAction,
+                                         requireData: DataRequiredAction,
+                                         val controllerComponents: MessagesControllerComponents,
+                                         view: SubmitAddressView,
+                                         config: FrontendAppConfig,
+                                         userAnswersService: PreferenceUserAnswersService,
+                                         submissionService: PerformSubmissionService
                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>

@@ -18,7 +18,7 @@ package connectors
 
 import base.SpecBase
 import config.FrontendAppConfig
-import connectors.contactPreference.UserAnswersConnector
+import connectors.contactPreference.PreferenceUserAnswersConnector
 import data.TestData
 import models.contactPreference.PreferenceUserAnswers
 import models.identifiers.InternalId
@@ -32,7 +32,7 @@ import uk.gov.hmrc.http.{HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
-class PreferenceUserAnswersConnectorSpec extends SpecBase with TestData {
+class PreferencePreferenceUserAnswersConnectorSpec extends SpecBase with TestData {
   "GET" - {
     "must successfully fetch user answers" in new SetUp {
       val mockUrl = s"http://vaping-duty-account/user-answers/$vpdId"
@@ -171,7 +171,7 @@ class PreferenceUserAnswersConnectorSpec extends SpecBase with TestData {
   class SetUp {
     val mockConfig: FrontendAppConfig  = mock[FrontendAppConfig]
     val httpClient: HttpClientV2       = mock[HttpClientV2]
-    val connector                      = new UserAnswersConnector(config = mockConfig, httpClient = httpClient)
+    val connector                      = new PreferenceUserAnswersConnector(config = mockConfig, httpClient = httpClient)
     val mockHttpResponse: HttpResponse = mock[HttpResponse]
     val requestBuilder: RequestBuilder = mock[RequestBuilder]
   }

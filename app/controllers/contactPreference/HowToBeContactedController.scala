@@ -26,7 +26,7 @@ import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.contactPreference.UserAnswersService
+import services.contactPreference.PreferenceUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.HowToBeContactedViewModel
 import views.html.contactPreference.HowToBeContactedView
@@ -36,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HowToBeContactedController @Inject()(
                                             override val messagesApi: MessagesApi,
-                                            sessionService: UserAnswersService,
+                                            sessionService: PreferenceUserAnswersService,
                                             navigator: Navigator,
                                             identify: ApprovedVapingManufacturerAuthAction,
                                             getData: DataRetrievalAction,

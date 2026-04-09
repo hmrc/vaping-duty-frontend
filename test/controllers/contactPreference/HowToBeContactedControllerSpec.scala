@@ -30,7 +30,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.contactPreference.UserAnswersService
+import services.contactPreference.PreferenceUserAnswersService
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import viewmodels.contactPreference.HowToBeContactedViewModel
 import views.html.contactPreference.HowToBeContactedView
@@ -50,12 +50,12 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET for paperless preference" in {
 
-      val mockUserAnswersService = mock[UserAnswersService]
+      val mockUserAnswersService = mock[PreferenceUserAnswersService]
 
       when(mockUserAnswersService.createUserAnswers(any())(any())).thenReturn(Future.successful(Right(emptyUserAnswers)))
 
       val application = applicationBuilder()
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
         .build()
 
       running(application) {
@@ -74,12 +74,12 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET for paper preference" in {
 
-      val mockUserAnswersService = mock[UserAnswersService]
+      val mockUserAnswersService = mock[PreferenceUserAnswersService]
 
       when(mockUserAnswersService.createUserAnswers(any())(any())).thenReturn(Future.successful(Right(userAnswersPostNoEmail)))
 
       val application = applicationBuilder()
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
         .build()
 
       running(application) {
@@ -98,13 +98,13 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to JourneyRecoveryController when there is an error creating user answers" in {
 
-      val mockUserAnswersService = mock[UserAnswersService]
+      val mockUserAnswersService = mock[PreferenceUserAnswersService]
 
       when(mockUserAnswersService.createUserAnswers(any())(any()))
         .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
 
       val application = applicationBuilder(userAnswers = None)
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
         .build()
 
       running(application) {
@@ -121,14 +121,14 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
       val ua = userAnswers.set(HowToBeContactedPage, HowToBeContacted.values.head).success.value
 
-      val mockUserAnswersService = mock[UserAnswersService]
+      val mockUserAnswersService = mock[PreferenceUserAnswersService]
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(ua))
 
       when(mockUserAnswersService.createUserAnswers(any())(any())).thenReturn(Future.successful(Right(ua)))
 
       val application = applicationBuilder(userAnswers = Some(ua))
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
         .build()
 
       running(application) {
@@ -147,13 +147,13 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockUserAnswersService = mock[UserAnswersService]
+      val mockUserAnswersService = mock[PreferenceUserAnswersService]
 
       when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse())))
       
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+          .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
           )

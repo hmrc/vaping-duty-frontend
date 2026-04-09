@@ -20,7 +20,7 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.contactPreference.DataRetrievalAction
 import models.identifiers.InternalId
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.contactPreference.UserAnswersService
+import services.contactPreference.PreferenceUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
@@ -30,7 +30,7 @@ class PreferencesKeepAliveController @Inject()(
                                      val controllerComponents: MessagesControllerComponents,
                                      ifApprovedVapingManufacturer: ApprovedVapingManufacturerAuthAction,
                                      getData: DataRetrievalAction,
-                                     userAnswersService: UserAnswersService
+                                     userAnswersService: PreferenceUserAnswersService
                                    )(implicit ec: ExecutionContext) extends FrontendBaseController {
 
   def keepAlive(): Action[AnyContent] = (ifApprovedVapingManufacturer andThen getData).async {

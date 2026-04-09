@@ -17,7 +17,7 @@
 package services.contactPreference
 
 import base.SpecBase
-import connectors.contactPreference.UserAnswersConnector
+import connectors.contactPreference.PreferenceUserAnswersConnector
 import models.emailverification.ErrorModel
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
-class PreferenceUserAnswersServiceSpec extends SpecBase {
+class PreferencePreferenceUserAnswersServiceSpec extends SpecBase {
 
   "set" - {
     "must return a success if the operation was successful" in new Setup {
@@ -130,7 +130,7 @@ class PreferenceUserAnswersServiceSpec extends SpecBase {
   }
 
   class Setup {
-    val mockUserAnswersConnector: UserAnswersConnector = mock[UserAnswersConnector]
-    val testService                                    = new UserAnswersService(mockUserAnswersConnector)
+    val mockUserAnswersConnector: PreferenceUserAnswersConnector = mock[PreferenceUserAnswersConnector]
+    val testService                                    = new PreferenceUserAnswersService(mockUserAnswersConnector)
   }
 }

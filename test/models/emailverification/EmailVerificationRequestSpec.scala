@@ -17,7 +17,6 @@
 package models.emailverification
 
 import base.SpecBase
-import models.emailverification.EmailVerificationRequest
 import play.api.libs.json.Json
 
 class EmailVerificationRequestSpec extends SpecBase {

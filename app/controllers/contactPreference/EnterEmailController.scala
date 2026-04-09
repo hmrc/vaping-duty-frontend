@@ -30,7 +30,7 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.contactPreference.{EmailVerificationService, UserAnswersService}
+import services.contactPreference.{EmailVerificationService, PreferenceUserAnswersService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.StartEmailVerificationJourneyHelper
@@ -41,7 +41,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class EnterEmailController @Inject()(
                                       override val messagesApi: MessagesApi,
-                                      sessionService: UserAnswersService,
+                                      sessionService: PreferenceUserAnswersService,
                                       navigator: Navigator,
                                       identify: ApprovedVapingManufacturerAuthAction,
                                       getData: DataRetrievalAction,

@@ -33,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerificationConnector,
-                                          userAnswersService: UserAnswersService,
+                                          userAnswersService: PreferenceUserAnswersService,
                                           submissionService: PerformSubmissionService
                                          )(implicit ec: ExecutionContext) extends Logging {
 

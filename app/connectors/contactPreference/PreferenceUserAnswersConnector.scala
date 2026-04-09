@@ -28,8 +28,8 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, String
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val httpClient: HttpClientV2)
-                                     (implicit ec: ExecutionContext) extends HttpReadsInstances {
+class PreferenceUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit val httpClient: HttpClientV2)
+                                              (implicit ec: ExecutionContext) extends HttpReadsInstances {
 
   def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, PreferenceUserAnswers]] =
     httpClient

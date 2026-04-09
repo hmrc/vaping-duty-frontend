@@ -23,14 +23,14 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
-import services.contactPreference.UserAnswersService
+import services.contactPreference.PreferenceUserAnswersService
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future
 
 class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
 
-  class Harness(contactPreferenceUserAnswersConnector: UserAnswersService) extends DataRetrievalActionImpl(contactPreferenceUserAnswersConnector) {
+  class Harness(contactPreferenceUserAnswersConnector: PreferenceUserAnswersService) extends DataRetrievalActionImpl(contactPreferenceUserAnswersConnector) {
     def callTransform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = transform(request)
   }
 
@@ -40,7 +40,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
 
       "must set userAnswers to 'None' in the request" in {
 
-        val sessionRepository = mock[UserAnswersService]
+        val sessionRepository = mock[PreferenceUserAnswersService]
         when(sessionRepository.get(any())(any())) thenReturn Future(Left(UpstreamErrorResponse.Upstream4xxResponse))
         val action = new Harness(sessionRepository)
 
@@ -54,7 +54,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
 
       "must build a userAnswers object and add it to the request" in {
 
-        val sessionRepository = mock[UserAnswersService]
+        val sessionRepository = mock[PreferenceUserAnswersService]
         when(sessionRepository.get(any())(any())) thenReturn Future(Right(userAnswers))
         val action = new Harness(sessionRepository)
 

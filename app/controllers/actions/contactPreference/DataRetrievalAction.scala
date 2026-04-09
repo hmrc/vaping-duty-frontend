@@ -19,7 +19,7 @@ package controllers.actions.contactPreference
 import models.requests.IdentifierRequest
 import models.requests.contactPreference.OptionalDataRequest
 import play.api.mvc.ActionTransformer
-import services.contactPreference.UserAnswersService
+import services.contactPreference.PreferenceUserAnswersService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -27,7 +27,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DataRetrievalActionImpl @Inject()(
-                                         val contactPreferencesService: UserAnswersService
+                                         val contactPreferencesService: PreferenceUserAnswersService
                                        )(implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = {

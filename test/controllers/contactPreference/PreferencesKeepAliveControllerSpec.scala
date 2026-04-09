@@ -25,7 +25,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.contactPreference.UserAnswersService
+import services.contactPreference.PreferenceUserAnswersService
 
 import scala.concurrent.Future
 
@@ -37,12 +37,12 @@ class PreferencesKeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
       "must keep the answers alive and return OK" in {
 
-        val mockSessionRepository = mock[UserAnswersService]
+        val mockSessionRepository = mock[PreferenceUserAnswersService]
         when(mockSessionRepository.keepAlive(any())(any())) thenReturn Future.successful(Right(()))
 
         val application =
           applicationBuilder(Some(emptyUserAnswers))
-            .overrides(bind[UserAnswersService].toInstance(mockSessionRepository))
+            .overrides(bind[PreferenceUserAnswersService].toInstance(mockSessionRepository))
             .build()
 
         running(application) {
@@ -61,12 +61,12 @@ class PreferencesKeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
       "must return OK" in {
 
-        val mockSessionRepository = mock[UserAnswersService]
+        val mockSessionRepository = mock[PreferenceUserAnswersService]
         when(mockSessionRepository.keepAlive(any())(any())) thenReturn Future.successful(true)
 
         val application =
           applicationBuilder(None)
-            .overrides(bind[UserAnswersService].toInstance(mockSessionRepository))
+            .overrides(bind[PreferenceUserAnswersService].toInstance(mockSessionRepository))
             .build()
 
         running(application) {

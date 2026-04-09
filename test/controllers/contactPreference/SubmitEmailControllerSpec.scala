@@ -27,7 +27,7 @@ import play.api.inject.bind
 import play.api.mvc.Results.{Ok, Redirect}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.contactPreference.{EmailVerificationService, UserAnswersService}
+import services.contactPreference.{EmailVerificationService, PreferenceUserAnswersService}
 import uk.gov.hmrc.http.HttpResponse
 import views.html.contactPreference.SubmitEmailView
 
@@ -40,7 +40,7 @@ class SubmitEmailControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val mockUserAnswersService = mock[UserAnswersService]
+      val mockUserAnswersService = mock[PreferenceUserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
@@ -54,7 +54,7 @@ class SubmitEmailControllerSpec extends SpecBase {
         .thenReturn(Future.successful(Ok(view)))
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers.copy(emailAddress = Some(emailAddress))))
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
         .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
         .build()
 
@@ -70,7 +70,7 @@ class SubmitEmailControllerSpec extends SpecBase {
 
     "must return SEE_OTHER and redirect to locked email controller" in {
 
-      val mockUserAnswersService = mock[UserAnswersService]
+      val mockUserAnswersService = mock[PreferenceUserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
@@ -82,7 +82,7 @@ class SubmitEmailControllerSpec extends SpecBase {
         .thenReturn(Future.successful(Redirect(controllers.contactPreference.routes.LockedEmailController.onPageLoad())))
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers.copy(emailAddress = Some(emailAddress))))
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
         .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
         .build()
 
@@ -98,7 +98,7 @@ class SubmitEmailControllerSpec extends SpecBase {
 
     "must redirect to journey recovery when email verification service fails on GET" in {
 
-      val mockUserAnswersService = mock[UserAnswersService]
+      val mockUserAnswersService = mock[PreferenceUserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
@@ -107,7 +107,7 @@ class SubmitEmailControllerSpec extends SpecBase {
         .thenReturn(EitherT.leftT[Future, EmailVerificationDetails](ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem")))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
         .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
         .build()
 
@@ -123,7 +123,7 @@ class SubmitEmailControllerSpec extends SpecBase {
 
     "must redirect to journey recovery when email verification service fails on POST" in {
 
-      val mockUserAnswersService = mock[UserAnswersService]
+      val mockUserAnswersService = mock[PreferenceUserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
@@ -132,7 +132,7 @@ class SubmitEmailControllerSpec extends SpecBase {
         .thenReturn(EitherT.leftT[Future, EmailVerificationDetails](ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem")))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
         .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
         .build()
 
@@ -148,7 +148,7 @@ class SubmitEmailControllerSpec extends SpecBase {
 
     "must redirect to journey recovery when submitting preferences fails" in {
 
-      val mockUserAnswersService = mock[UserAnswersService]
+      val mockUserAnswersService = mock[PreferenceUserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
 
       when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
@@ -160,7 +160,7 @@ class SubmitEmailControllerSpec extends SpecBase {
         .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
         .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
         .build()
 
@@ -176,7 +176,7 @@ class SubmitEmailControllerSpec extends SpecBase {
 
     "must redirect to journey recovery when attempting to submit unverified email" in {
       // Should not be a scenario that executes in the application, covered for safety.
-      val mockUserAnswersService = mock[UserAnswersService]
+      val mockUserAnswersService = mock[PreferenceUserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
       val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
 
@@ -189,7 +189,7 @@ class SubmitEmailControllerSpec extends SpecBase {
         .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
-        .overrides(bind[UserAnswersService].toInstance(mockUserAnswersService))
+        .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
         .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
         .overrides(bind[SubmitPreferencesConnector].toInstance(mockSubmitPreferencesConnector))
         .build()

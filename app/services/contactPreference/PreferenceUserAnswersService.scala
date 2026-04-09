@@ -16,7 +16,7 @@
 
 package services.contactPreference
 
-import connectors.contactPreference.UserAnswersConnector
+import connectors.contactPreference.PreferenceUserAnswersConnector
 import models.contactPreference.{PreferenceUserAnswers, UserDetails}
 import models.emailverification.ErrorModel
 import models.identifiers.{InternalId, VpdId}
@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserAnswersService @Inject() (userAnswersConnector: UserAnswersConnector)(implicit ec: ExecutionContext) {
+class PreferenceUserAnswersService @Inject()(userAnswersConnector: PreferenceUserAnswersConnector)(implicit ec: ExecutionContext) {
   
   def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, PreferenceUserAnswers]] =
     userAnswersConnector.get(vpdId)
