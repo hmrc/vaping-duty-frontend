@@ -18,9 +18,9 @@ package models.audit.contactPreference
 
 import base.SpecBase
 import data.TestData
-import models.UserAnswers
 import models.audit.contactPreference.Actions.*
 import models.contactPreference.PaperlessPreference.*
+import models.contactPreference.PreferenceUserAnswers
 import models.requests.contactPreference.DataRequest
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -32,7 +32,7 @@ import scala.language.implicitConversions
 
 class JourneyOutcomeSpec extends AnyFreeSpec with Matchers with TestData with SpecBase {
 
-  def request(ua: UserAnswers): DataRequest[AnyContent] = {
+  def request(ua: PreferenceUserAnswers): DataRequest[AnyContent] = {
     DataRequest[AnyContent](FakeRequest(), vpdId, internalId, credId, ua)
   }
 

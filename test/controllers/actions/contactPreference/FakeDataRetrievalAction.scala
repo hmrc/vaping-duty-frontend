@@ -17,14 +17,14 @@
 package controllers.actions.contactPreference
 
 import controllers.actions.contactPreference.DataRetrievalAction
-import models.UserAnswers
+import models.contactPreference.PreferenceUserAnswers
 import models.requests.IdentifierRequest
 import models.requests.contactPreference.OptionalDataRequest
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends DataRetrievalAction {
+class FakeDataRetrievalAction(dataToReturn: Option[PreferenceUserAnswers]) extends DataRetrievalAction {
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
     Future(OptionalDataRequest(request.request, request.enrolmentVpdId, request.internalId, request.credId, dataToReturn))

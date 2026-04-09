@@ -14,29 +14,32 @@
  * limitations under the License.
  */
 
-package models
+package models.enrolment
 
 import base.SpecBase
-import play.api.libs.json.{JsPath, Json}
-import queries.{Settable, Gettable}
+import play.api.libs.json.{JsError, JsPath, Json, JsonValidationError}
+import queries.{Gettable, Settable}
 
 import java.time.Instant
 import scala.util.Success
 
-class UserAnswersSpec extends SpecBase {
-  val ua = userAnswersPostWithEmail.copy(validUntil = Some(Instant.now(clock).plusMillis(1)))
+class EnrolmentPreferenceUserAnswersSpec extends SpecBase {
+  val ua = EnrolmentUserAnswers(id = internalId.toString, startedTime = Instant.now(clock), lastUpdated = Instant.now(clock))
 
   case object TestPage extends Gettable[String] with Settable[String] {
     override def path: JsPath = JsPath \ toString
   }
 
-  "UserAnswers" - {
+  "EnrolmentUserAnswers" - {
     val json =
-      s"""{"vpdId":"$vpdId","internalId":"$internalId","subscriptionSummary":{"paperlessPreference":false,"emailAddress":"john.doe@example.com","emailVerification":true,"bouncedEmail":false,"correspondenceAddress":"Flat 123\\n1 Example Road\\nLondon\\nAB1 2CD","countryCode":"GB"},"emailAddress":"john.doe@example.com","data":{"contactPreferenceEmail":true},"startedTime":{"$$date":{"$$numberLong":"1718118467838"}},"lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}},"validUntil":{"$$date":{"$$numberLong":"1718118467839"}}}"""
+      s"""{"_id":"$internalId","data":{},"startedTime":{"$$date":{"$$numberLong":"1718118467838"}},"lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}}}"""
+
+    val errorJson =
+      s"""{"_id":"$internalId","lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}}}"""
 
     "must set a value for a given page and get the same value" in {
 
-      val userAnswers = emptyUserAnswers
+      val userAnswers = ua
 
       val expectedValue = "value"
 
@@ -54,7 +57,7 @@ class UserAnswersSpec extends SpecBase {
     }
 
     "must remove a value for a given page" in {
-      val userAnswers = emptyUserAnswers
+      val userAnswers = ua
         .set(TestPage, "value")
         .success
         .value
@@ -68,12 +71,20 @@ class UserAnswersSpec extends SpecBase {
       actualValueOption mustBe None
     }
 
+    "must show errors if json is not in the correct structure" in {
+      val result = Json.parse(errorJson).validate[EnrolmentUserAnswers]
+      val errors = Seq[(JsPath, Seq[JsonValidationError])](
+        (JsPath \ "startedTime", Seq(JsonValidationError("error.path.missing")))
+      )
+      result mustBe JsError(errors)
+    }
+
     "must serialise to json" in {
       Json.toJson(ua).toString() mustBe json
     }
 
     "must deserialise from json" in {
-      Json.parse(json).as[UserAnswers] mustBe ua
+      Json.parse(json).as[EnrolmentUserAnswers] mustBe ua
     }
   }
 }

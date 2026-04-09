@@ -16,8 +16,7 @@
 
 package data
 
-import models.contactPreference.UserDetails
-import models.{SubscriptionSummary, UserAnswers}
+import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, UserDetails}
 import models.emailverification.*
 import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
 import play.api.libs.json.{JsObject, Json}
@@ -66,7 +65,7 @@ trait TestData {
     countryCode = Some(countryCode)
   )
 
-  val userAnswers: UserAnswers = UserAnswers(
+  val userAnswers: PreferenceUserAnswers = PreferenceUserAnswers(
     vpdId = vpdId.toString,
     internalId = internalId.toString,
     subscriptionSummary = subscriptionSummaryEmail,
@@ -76,7 +75,7 @@ trait TestData {
     lastUpdated = Instant.now(clock)
   )
 
-  val userAnswersEmailUpdate: UserAnswers = UserAnswers(
+  val userAnswersEmailUpdate: PreferenceUserAnswers = PreferenceUserAnswers(
     vpdId = vpdId.toString,
     internalId = internalId.toString,
     subscriptionSummary = subscriptionSummaryEmail,
@@ -86,7 +85,7 @@ trait TestData {
     lastUpdated = Instant.now(clock)
   )
 
-  val userAnswersPostWithEmail: UserAnswers = UserAnswers(
+  val userAnswersPostWithEmail: PreferenceUserAnswers = PreferenceUserAnswers(
     vpdId = vpdId.toString,
     internalId = internalId.toString,
     subscriptionSummary = subscriptionSummaryPostWithEmail,
@@ -96,19 +95,19 @@ trait TestData {
     lastUpdated = Instant.now(clock)
   )
 
-  val userAnswersPostWithUnverifiedEmail: UserAnswers = userAnswersPostWithEmail.copy(
+  val userAnswersPostWithUnverifiedEmail: PreferenceUserAnswers = userAnswersPostWithEmail.copy(
     subscriptionSummary = subscriptionSummaryPostWithEmail.copy(emailVerification = Some(false))
   )
 
-  val userAnswersPostWithBouncedEmail: UserAnswers = userAnswersPostWithEmail.copy(
+  val userAnswersPostWithBouncedEmail: PreferenceUserAnswers = userAnswersPostWithEmail.copy(
     subscriptionSummary = subscriptionSummaryPostWithEmail.copy(bouncedEmail = Some(true))
   )
 
-  val userAnswersPostWithBouncedEmailUpdate: UserAnswers = userAnswersPostWithEmail.copy(
+  val userAnswersPostWithBouncedEmailUpdate: PreferenceUserAnswers = userAnswersPostWithEmail.copy(
     subscriptionSummary = subscriptionSummaryPostWithEmail.copy(bouncedEmail = Some(true))
   )
 
-  val userAnswersPostNoEmail: UserAnswers = UserAnswers(
+  val userAnswersPostNoEmail: PreferenceUserAnswers = PreferenceUserAnswers(
     vpdId = vpdId.toString,
     internalId = internalId.toString,
     subscriptionSummary = subscriptionSummaryPostNoEmail,
@@ -118,7 +117,7 @@ trait TestData {
     lastUpdated = Instant.now(clock)
   )
 
-  val emptyUserAnswers: UserAnswers = UserAnswers(
+  val emptyUserAnswers: PreferenceUserAnswers = PreferenceUserAnswers(
     vpdId = vpdId.toString,
     internalId = internalId.toString,
     subscriptionSummary = subscriptionSummaryEmail,

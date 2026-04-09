@@ -16,7 +16,7 @@
 
 package queries
 
-import models.UserAnswers
+import models.contactPreference.PreferenceUserAnswers
 import models.enrolment.EnrolmentUserAnswers
 import play.api.libs.json.JsPath
 
@@ -31,7 +31,7 @@ trait Gettable[A] extends Query
 
 trait Settable[A] extends Query {
 
-  def cleanup(value: Option[A], userAnswers: UserAnswers): Try[UserAnswers] =
+  def cleanup(value: Option[A], userAnswers: PreferenceUserAnswers): Try[PreferenceUserAnswers] =
     Success(userAnswers)
   
   def cleanup(value: Option[A], userAnswers: EnrolmentUserAnswers): Try[EnrolmentUserAnswers] =

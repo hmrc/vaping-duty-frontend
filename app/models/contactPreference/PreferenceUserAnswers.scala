@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package models
+package models.contactPreference
 
+import models.RichJsObject
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
-import queries.{Settable, Gettable}
+import queries.{Gettable, Settable}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
 import scala.util.{Failure, Success, Try}
 
-final case class UserAnswers(
+final case class PreferenceUserAnswers(
                               vpdId: String,
                               internalId: String,
                               subscriptionSummary: SubscriptionSummary,
@@ -38,7 +39,7 @@ final case class UserAnswers(
   def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =
     Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
 
-  def set[A](page: Settable[A], value: A)(implicit writes: Writes[A]): Try[UserAnswers] = {
+  def set[A](page: Settable[A], value: A)(implicit writes: Writes[A]): Try[PreferenceUserAnswers] = {
 
     val updatedData = data.setObject(page.path, Json.toJson(value)) match {
       case JsSuccess(jsValue, _) =>
@@ -53,7 +54,7 @@ final case class UserAnswers(
     }
   }
 
-  def remove[A](page: Settable[A]): Try[UserAnswers] = {
+  def remove[A](page: Settable[A]): Try[PreferenceUserAnswers] = {
 
     val updatedData = data.removeObject(page.path) match {
       case JsSuccess(jsValue, _) =>
@@ -69,9 +70,9 @@ final case class UserAnswers(
   }
 }
 
-object UserAnswers {
+object PreferenceUserAnswers {
 
-  implicit val format: OFormat[UserAnswers] = (
+  implicit val format: OFormat[PreferenceUserAnswers] = (
     (__ \ "vpdId").format[String] and
       (__ \ "internalId").format[String] and
       (__ \ "subscriptionSummary").format[SubscriptionSummary] and
@@ -80,20 +81,5 @@ object UserAnswers {
       (__ \ "startedTime").format(MongoJavatimeFormats.instantFormat) and
       (__ \ "lastUpdated").format(MongoJavatimeFormats.instantFormat) and
       (__ \ "validUntil").formatNullable(MongoJavatimeFormats.instantFormat)
-  )(UserAnswers.apply, o => Tuple.fromProductTyped(o))
-
-}
-
-case class SubscriptionSummary(
-  paperlessPreference: Boolean,
-  emailAddress: Option[String],
-  emailVerification: Option[Boolean],
-  bouncedEmail: Option[Boolean],
-  correspondenceAddress: String,
-  countryCode: Option[String]
-)
-
-object SubscriptionSummary {
-  implicit val subscriptionSummaryFormat: OFormat[SubscriptionSummary] =
-    Json.format[SubscriptionSummary]
+    )(PreferenceUserAnswers.apply, o => Tuple.fromProductTyped(o))
 }

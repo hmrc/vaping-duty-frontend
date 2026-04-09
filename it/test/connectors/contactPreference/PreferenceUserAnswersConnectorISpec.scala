@@ -19,15 +19,14 @@ package connectors.contactPreference
 import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import data.TestData
-import models.UserAnswers
-import models.contactPreference.UserDetails
+import models.contactPreference.{PreferenceUserAnswers, UserDetails}
 import play.api.Application
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import util.WireMockHelper
 
-class UserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHelper {
+class PreferenceUserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHelper {
 
   private lazy val application: Application = applicationBuilder()
     .configure(

@@ -16,7 +16,7 @@
 
 package models.requests.contactPreference
 
-import models.UserAnswers
+import models.contactPreference.PreferenceUserAnswers
 import models.identifiers.{CredentialId, InternalId, VpdId}
 import play.api.mvc.{Request, WrappedRequest}
 
@@ -24,10 +24,10 @@ case class OptionalDataRequest[A] (request: Request[A],
                                    enrolmentVpdId: VpdId,
                                    internalId: InternalId,
                                    credId: CredentialId,
-                                   userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
+                                   userAnswers: Option[PreferenceUserAnswers]) extends WrappedRequest[A](request)
 
 case class DataRequest[A] (request: Request[A],
                            enrolmentVpdId: VpdId,
                            internalId: InternalId,
                            credId: CredentialId,
-                           userAnswers: UserAnswers) extends WrappedRequest[A](request)
+                           userAnswers: PreferenceUserAnswers) extends WrappedRequest[A](request)

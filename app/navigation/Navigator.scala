@@ -19,7 +19,7 @@ package navigation
 import controllers.routes
 import models.*
 import models.contactPreference.PaperlessPreference.{Email, Post}
-import models.contactPreference.{HowToBeContacted, PaperlessPreference}
+import models.contactPreference.{HowToBeContacted, PaperlessPreference, PreferenceUserAnswers}
 import pages.*
 import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
 import play.api.Logging
@@ -34,17 +34,17 @@ class Navigator @Inject()(
   config: FrontendAppConfig
 ) extends Logging {
 
-  private val normalRoutes: Page => UserAnswers => Call = {
+  private val normalRoutes: Page => PreferenceUserAnswers => Call = {
     case HowToBeContactedPage   => ua   => howToBeContactedRoute(ua)
     case EnterEmailPage         => _    => controllers.contactPreference.routes.SubmitEmailController.onPageLoad()
     case _                      => _    => Call(GET, BtaLink(config))
   }
 
-  private val checkRouteMap: Page => UserAnswers => Call = {
+  private val checkRouteMap: Page => PreferenceUserAnswers => Call = {
     case _ => _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
-  def howToBeContactedRoute(ua: UserAnswers): Call = {
+  def howToBeContactedRoute(ua: PreferenceUserAnswers): Call = {
     ua.get(HowToBeContactedPage) match {
       case Some(HowToBeContacted.Email) => controllers.contactPreference.routes.EnterEmailController.onPageLoad(NormalMode)
       case Some(HowToBeContacted.Post)  => postalRoute(ua)
@@ -52,14 +52,14 @@ class Navigator @Inject()(
     }
   }
 
-  private def postalRoute(ua: UserAnswers): Call = {
+  private def postalRoute(ua: PreferenceUserAnswers): Call = {
     PaperlessPreference(ua.subscriptionSummary.paperlessPreference) match {
       case Email  => controllers.contactPreference.routes.SubmitAddressController.onPageLoad()
       case Post   => controllers.contactPreference.routes.ChangeAddressController.onPageLoad()
     }
   }
 
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
+  def nextPage(page: Page, mode: Mode, userAnswers: PreferenceUserAnswers): Call = mode match {
     case NormalMode =>
       normalRoutes(page)(userAnswers)
     case CheckMode =>

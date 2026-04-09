@@ -18,8 +18,7 @@ package connectors.contactPreference
 
 import config.FrontendAppConfig
 import models.identifiers.{InternalId, VpdId}
-import models.UserAnswers
-import models.contactPreference.UserDetails
+import models.contactPreference.{PreferenceUserAnswers, UserDetails}
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
@@ -32,12 +31,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val httpClient: HttpClientV2)
                                      (implicit ec: ExecutionContext) extends HttpReadsInstances {
 
-  def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, UserAnswers]] =
+  def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, PreferenceUserAnswers]] =
     httpClient
       .get(url"${config.cpUserAnswersGetUrl(vpdId)}")
-      .execute[Either[UpstreamErrorResponse, UserAnswers]]
+      .execute[Either[UpstreamErrorResponse, PreferenceUserAnswers]]
 
-  def set(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def set(userAnswers: PreferenceUserAnswers)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClient
       .put(url"${config.cpUserAnswersUrl}")
       .setHeader("Csrf-Token" -> "nocheck")
@@ -46,12 +45,12 @@ class UserAnswersConnector @Inject() (config: FrontendAppConfig, implicit val ht
   }
 
   def createUserAnswers(userDetails: UserDetails)
-                       (implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, UserAnswers]] = {
+                       (implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, PreferenceUserAnswers]] = {
     httpClient
       .post(url"${config.cpUserAnswersUrl}")
       .withBody(Json.toJson(userDetails))
       .setHeader("Csrf-Token" -> "nocheck")
-      .execute[Either[UpstreamErrorResponse, UserAnswers]]
+      .execute[Either[UpstreamErrorResponse, PreferenceUserAnswers]]
   }
 
   def keepAlive(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =

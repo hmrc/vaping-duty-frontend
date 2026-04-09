@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import connectors.contactPreference.UserAnswersConnector
 import data.TestData
-import models.UserAnswers
+import models.contactPreference.PreferenceUserAnswers
 import models.identifiers.InternalId
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{atLeastOnce, verify, when}
@@ -32,13 +32,13 @@ import uk.gov.hmrc.http.{HttpResponse, StringContextOps, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
-class UserAnswersConnectorSpec extends SpecBase with TestData {
+class PreferenceUserAnswersConnectorSpec extends SpecBase with TestData {
   "GET" - {
     "must successfully fetch user answers" in new SetUp {
       val mockUrl = s"http://vaping-duty-account/user-answers/$vpdId"
       when(mockConfig.cpUserAnswersGetUrl(any())).thenReturn(mockUrl)
 
-      when(requestBuilder.execute[Either[UpstreamErrorResponse, UserAnswers]](any(), any()))
+      when(requestBuilder.execute[Either[UpstreamErrorResponse, PreferenceUserAnswers]](any(), any()))
         .thenReturn(Future.successful(Right(userAnswers)))
 
       when(connector.httpClient.get(any())(any())).thenReturn(requestBuilder)

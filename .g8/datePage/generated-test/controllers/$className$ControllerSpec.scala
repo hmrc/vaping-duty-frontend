@@ -4,7 +4,7 @@ import java.time.{LocalDate, ZoneOffset}
 
 import base.SpecBase
 import forms.$className$FormProvider
-import models.{NormalMode, UserAnswers}
+import models.{NormalMode, PreferenceUserAnswers}
 import services.UserAnswersService
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
@@ -33,7 +33,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val $className;format="decap"$Route = routes.$className$Controller.onPageLoad(NormalMode).url
 
-  override val emptyUserAnswers = UserAnswers(userAnswersId)
+  override val emptyUserAnswers = PreferenceUserAnswers(userAnswersId)
 
   def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, $className;format="decap"$Route)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package services
+package services.contactPreference
 
 import base.SpecBase
 import connectors.contactPreference.UserAnswersConnector
@@ -23,11 +23,12 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
+import services.contactPreference.UserAnswersService
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
-class UserAnswersServiceSpec extends SpecBase {
+class PreferenceUserAnswersServiceSpec extends SpecBase {
 
   "set" - {
     "must return a success if the operation was successful" in new Setup {
