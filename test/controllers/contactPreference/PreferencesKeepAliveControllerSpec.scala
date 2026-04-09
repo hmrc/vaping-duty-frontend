@@ -25,7 +25,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.UserAnswersService
+import services.contactPreference.UserAnswersService
 
 import scala.concurrent.Future
 

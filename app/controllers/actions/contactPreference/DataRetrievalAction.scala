@@ -19,7 +19,7 @@ package controllers.actions.contactPreference
 import models.requests.IdentifierRequest
 import models.requests.contactPreference.OptionalDataRequest
 import play.api.mvc.ActionTransformer
-import services.UserAnswersService
+import services.contactPreference.UserAnswersService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 

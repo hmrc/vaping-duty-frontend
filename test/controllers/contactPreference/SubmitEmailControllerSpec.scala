@@ -27,7 +27,7 @@ import play.api.inject.bind
 import play.api.mvc.Results.{Ok, Redirect}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.{EmailVerificationService, UserAnswersService}
+import services.contactPreference.{EmailVerificationService, UserAnswersService}
 import uk.gov.hmrc.http.HttpResponse
 import views.html.contactPreference.SubmitEmailView
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package services
+package services.contactPreference
 
 import base.SpecBase
 import cats.data.EitherT
@@ -28,6 +28,7 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.mvc.Results.{Ok, Redirect}
 import play.api.test.FakeRequest
+import services.contactPreference.*
 import uk.gov.hmrc.http.HttpResponse
 
 import scala.concurrent.Future

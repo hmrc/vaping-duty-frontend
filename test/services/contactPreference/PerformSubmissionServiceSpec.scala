@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package services
+package services.contactPreference
 
 import base.SpecBase
 import connectors.contactPreference.SubmitPreferencesConnector
@@ -28,6 +28,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.test.FakeRequest
+import services.contactPreference.{AuditService, Failure, PerformSubmissionService, Success}
 
 import scala.concurrent.Future
 

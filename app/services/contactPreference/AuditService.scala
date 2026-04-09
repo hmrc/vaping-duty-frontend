@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package services
+package services.contactPreference
 
 import com.google.inject.{Inject, Singleton}
-import models.audit.AuditType.ContactPreference
-import models.audit.{AuditType, JourneyOutcome}
+import models.audit.contactPreference.AuditType.ContactPreference
+import models.audit.contactPreference.{AuditType, JourneyOutcome}
 import play.api.Logging
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.http.HeaderCarrier

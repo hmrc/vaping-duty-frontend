@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package services
+package services.contactPreference
 
 import connectors.contactPreference.SubmitPreferencesConnector
-import models.audit.JourneyOutcome
+import models.audit.contactPreference.JourneyOutcome
 import models.contactPreference
 import models.contactPreference.PaperlessPreference
 import models.emailverification.{PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}

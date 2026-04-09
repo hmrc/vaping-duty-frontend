@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package services
+package services.contactPreference
 
 import cats.data.EitherT
 import com.google.inject.Singleton
 import connectors.contactPreference.EmailVerificationConnector
-import models.UserAnswers
 import models.contactPreference.PaperlessPreference.{Email, toValue}
+import models.contactPreference.PreferenceUserAnswers
 import models.emailverification.*
 import models.requests.contactPreference.DataRequest
 import play.api.Logging
@@ -37,7 +37,7 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
                                           submissionService: PerformSubmissionService
                                          )(implicit ec: ExecutionContext) extends Logging {
 
-  def retrieveAddressStatus(verificationDetails: VerificationDetails, emailAddress: String, userAnswers: UserAnswers)
+  def retrieveAddressStatus(verificationDetails: VerificationDetails, emailAddress: String, userAnswers: PreferenceUserAnswers)
                            (implicit hc: HeaderCarrier): EitherT[Future, ErrorModel, EmailVerificationDetails] =
     for {
       successResponse <- emailVerificationConnector.getEmailVerification(verificationDetails)

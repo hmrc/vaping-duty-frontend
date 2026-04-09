@@ -33,7 +33,7 @@ import play.api.mvc.Call
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.{EmailVerificationService, UserAnswersService}
+import services.contactPreference.{EmailVerificationService, UserAnswersService}
 import uk.gov.hmrc.http.HttpResponse
 import views.html.contactPreference.EnterEmailView
 

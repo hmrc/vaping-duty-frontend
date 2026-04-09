@@ -19,14 +19,14 @@ package controllers.contactPreference
 import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRetrievalAction}
 import forms.contactPreference.HowToBeContactedFormProvider
-import models.contactPreference.UserDetails
+import models.contactPreference.{PreferenceUserAnswers, UserDetails}
 import models.requests.contactPreference.OptionalDataRequest
-import models.{Mode, UserAnswers}
+import models.Mode
 import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.UserAnswersService
+import services.contactPreference.UserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.HowToBeContactedViewModel
 import views.html.contactPreference.HowToBeContactedView
@@ -76,11 +76,11 @@ class HowToBeContactedController @Inject()(
       )
   }
 
-  private def prepareForm(ua: UserAnswers) =
+  private def prepareForm(ua: PreferenceUserAnswers) =
     ua.get(HowToBeContactedPage).fold(form)(form.fill)
 
 
-  private def getUserAnswers()(implicit request: OptionalDataRequest[?]): Future[Either[Result, UserAnswers]] = {
+  private def getUserAnswers()(implicit request: OptionalDataRequest[?]): Future[Either[Result, PreferenceUserAnswers]] = {
     request.userAnswers match {
       case Some(ua) => Future.successful(Right(ua))
       case None     => createUserAnswers().map {
@@ -90,7 +90,7 @@ class HowToBeContactedController @Inject()(
     }
   }
 
-  private def createUserAnswers()(implicit request: OptionalDataRequest[?]): Future[Option[UserAnswers]] =
+  private def createUserAnswers()(implicit request: OptionalDataRequest[?]): Future[Option[PreferenceUserAnswers]] =
     sessionService.createUserAnswers(UserDetails(request.enrolmentVpdId.value, request.internalId.value)).map {
       case Left(err) => None
       case Right(ua) => Some(ua)

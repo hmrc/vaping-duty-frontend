@@ -24,7 +24,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
-import services.UserAnswersService
+import services.contactPreference.UserAnswersService
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import scala.concurrent.Future

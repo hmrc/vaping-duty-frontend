@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package services
+package services.contactPreference
 
 import base.SpecBase
-import models.contactPreference.PaperlessPreference.*
 import models.audit.*
-import models.audit.Actions.ChangeToPost
+import models.audit.contactPreference.Actions.ChangeToPost
+import models.audit.contactPreference.{AuditType, JourneyOutcome, NewContactPreference}
+import models.contactPreference.PaperlessPreference.*
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.verify
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Json
+import services.contactPreference.AuditService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import java.time.Instant
