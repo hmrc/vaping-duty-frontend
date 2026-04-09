@@ -19,7 +19,8 @@ package connectors.contactPreference
 import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import data.TestData
-import models.{UserAnswers, UserDetails}
+import models.UserAnswers
+import models.contactPreference.UserDetails
 import play.api.Application
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
 import play.api.libs.json.Json

@@ -18,7 +18,8 @@ package connectors.contactPreference
 
 import config.FrontendAppConfig
 import models.identifiers.{InternalId, VpdId}
-import models.{UserAnswers, UserDetails}
+import models.UserAnswers
+import models.contactPreference.UserDetails
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue

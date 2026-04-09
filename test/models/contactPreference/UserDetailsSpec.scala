@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-package models
+package models.contactPreference
 
-import play.api.libs.json.{Json, OFormat}
+import base.SpecBase
+import models.contactPreference.UserDetails
+import play.api.libs.json.Json
 
-case class UserDetails(vpdId: String, internalId: String)
+class UserDetailsSpec extends SpecBase {
 
-object UserDetails {
-  given OFormat[UserDetails] = Json.format[UserDetails]
+  "UserDetails" - {
+    val json = s"""{"vpdId":"$vpdId","internalId":"$internalId"}"""
+
+    "must serialise to json" in {
+      Json.toJson(userDetails).toString mustBe json
+    }
+
+    "must deserialise from json" in {
+      Json.parse(json).as[UserDetails] mustBe userDetails
+    }
+  }
 }

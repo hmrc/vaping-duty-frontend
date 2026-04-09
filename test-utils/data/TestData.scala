@@ -16,7 +16,8 @@
 
 package data
 
-import models.{SubscriptionSummary, UserAnswers, UserDetails}
+import models.contactPreference.UserDetails
+import models.{SubscriptionSummary, UserAnswers}
 import models.emailverification.*
 import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
 import play.api.libs.json.{JsObject, Json}

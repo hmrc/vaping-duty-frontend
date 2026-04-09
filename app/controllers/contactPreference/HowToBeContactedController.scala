@@ -19,8 +19,9 @@ package controllers.contactPreference
 import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRetrievalAction}
 import forms.contactPreference.HowToBeContactedFormProvider
-import models.requests.OptionalDataRequest
-import models.{Mode, UserAnswers, UserDetails}
+import models.contactPreference.UserDetails
+import models.requests.contactPreference.OptionalDataRequest
+import models.{Mode, UserAnswers}
 import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
