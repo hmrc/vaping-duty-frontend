@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package controllers.actions.contactPreference
 
+import controllers.actions.contactPreference.DataRetrievalAction
 import models.UserAnswers
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import uk.gov.hmrc.http.HeaderCarrier

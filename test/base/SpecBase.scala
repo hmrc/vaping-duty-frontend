@@ -19,6 +19,7 @@ package base
 import config.FrontendAppConfig
 import connectors.contactPreference.EmailVerificationConnector
 import controllers.actions.*
+import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeDataRetrievalAction}
 import controllers.actions.enrolment.{EnrolmentClaimAuthAction, EnrolmentDataRetrievalAction, FakeClaimEnrolmentAuthAction, FakeEnrolmentDataRetrievalAction, FakeHasEnrolmentAction, HasEnrolmentAction}
 import data.TestData
 import models.UserAnswers

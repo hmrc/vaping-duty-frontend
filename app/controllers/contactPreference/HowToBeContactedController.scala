@@ -17,6 +17,7 @@
 package controllers.contactPreference
 
 import controllers.actions.*
+import controllers.actions.contactPreference.{DataRequiredAction, DataRetrievalAction}
 import forms.contactPreference.HowToBeContactedFormProvider
 import models.requests.OptionalDataRequest
 import models.{Mode, UserAnswers, UserDetails}

@@ -18,6 +18,7 @@ package controllers.contactPreference
 
 import config.FrontendAppConfig
 import controllers.actions.*
+import controllers.actions.contactPreference.{DataRequiredAction, DataRetrievalAction}
 import models.contactPreference
 import models.contactPreference.PaperlessPreference.{Email, Post, toValue}
 import models.contactPreference.PaperlessPreference

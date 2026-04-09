@@ -19,6 +19,7 @@ package controllers.contactPreference
 import config.FrontendAppConfig
 import connectors.contactPreference.EmailVerificationConnector
 import controllers.actions.*
+import controllers.actions.contactPreference.{DataRequiredAction, DataRetrievalAction}
 import forms.contactPreference.EnterEmailFormProvider
 import models.emailverification.{EmailVerificationDetails, EmailVerificationRequest, VerificationDetails}
 import models.{Mode, NormalMode, UserAnswers}

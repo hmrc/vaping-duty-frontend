@@ -16,7 +16,8 @@
 
 package controllers
 
-import controllers.actions.{ApprovedVapingManufacturerAuthAction, DataRetrievalAction}
+import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.contactPreference.DataRetrievalAction
 import models.identifiers.InternalId
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.UserAnswersService

@@ -17,6 +17,7 @@
 package controllers.contactPreference
 
 import controllers.actions.*
+import controllers.actions.contactPreference.{DataRequiredAction, DataRetrievalAction}
 import models.emailverification.{EmailVerificationDetails, VerificationDetails}
 import models.requests.DataRequest
 import play.api.Logging

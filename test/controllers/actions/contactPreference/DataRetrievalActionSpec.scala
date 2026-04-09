@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package controllers.actions.contactPreference
 
 import base.SpecBase
+import controllers.actions.contactPreference.DataRetrievalActionImpl
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*

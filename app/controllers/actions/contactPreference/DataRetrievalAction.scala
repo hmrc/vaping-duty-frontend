@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package controllers.actions.contactPreference
 
 import models.requests.{IdentifierRequest, OptionalDataRequest}
 import play.api.mvc.ActionTransformer
