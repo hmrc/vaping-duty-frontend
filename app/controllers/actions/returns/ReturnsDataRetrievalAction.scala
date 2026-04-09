@@ -21,7 +21,7 @@ import models.requests.contactPreference.OptionalDataRequest
 import models.requests.returns.ReturnsOptionalDataRequest
 import play.api.mvc.ActionTransformer
 import services.contactPreference.PreferenceUserAnswersService
-import services.contactPreference.returns.ReturnsUserAnswersService
+import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package services.contactPreference.returns
+package services.returns
 
 import connectors.contactPreference.PreferenceUserAnswersConnector
 import connectors.returns.ReturnsUserAnswersConnector
