@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package models.audit
+package models.audit.contactPreference
 
 import base.SpecBase
 import data.TestData
 import models.UserAnswers
-import models.audit.Actions.*
+import models.audit.contactPreference.Actions.*
 import models.contactPreference.PaperlessPreference.*
 import models.requests.contactPreference.DataRequest
 import org.scalatest.freespec.AnyFreeSpec

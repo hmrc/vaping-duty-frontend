@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models.audit
+package models.audit.contactPreference
 
 import base.SpecBase
 import data.TestData

@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package models.audit
+package models.audit.contactPreference
 
-enum PreferenceAction:
-  case EmailToEmail, EmailToPost, PostToEmail, PostToPost
+import play.api.libs.json.{Json, OFormat}
 
-object PreferenceAction {
 
-  def apply(action: (Boolean, Boolean)): PreferenceAction = {
-    action match {
-      case (true, true)     => EmailToEmail
-      case (false, true)    => EmailToPost
-      case (true, false)    => PostToEmail
-      // Journey does not allow submission of preference if attempting to change from post to post as address
-      // cannot be updated in the service.  Case added to be complete.
-      case (false, false)   => PostToPost
-    }
-  }
+case class NewContactPreference(newEmailAddress: Option[String], confirmPostalAddress: Option[String])
+
+object NewContactPreference {
+  implicit val format: OFormat[NewContactPreference] = Json.format[NewContactPreference]
 }

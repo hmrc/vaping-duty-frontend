@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models.audit
+package models.audit.contactPreference
 
 enum AuditType:
   case ContactPreference

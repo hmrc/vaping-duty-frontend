@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package models.audit
+package models.audit.contactPreference
 
-import models.audit.Actions.{AmendEmailAddress, ChangeToEmail, ChangeToPost, Unchanged}
-import models.audit.PreferenceAction.*
+import Actions.{AmendEmailAddress, ChangeToEmail, ChangeToPost, Unchanged}
+import PreferenceAction.*
 import models.contactPreference.PaperlessPreference
 import models.contactPreference.PaperlessPreference.{Email, Post}
 import models.emailverification.PaperlessPreferenceSubmission

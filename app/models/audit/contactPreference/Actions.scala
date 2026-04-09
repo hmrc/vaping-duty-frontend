@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-package models.audit
+package models.audit.contactPreference
 
-import play.api.libs.json.{Json, OFormat}
-
-
-case class NewContactPreference(newEmailAddress: Option[String], confirmPostalAddress: Option[String])
-
-object NewContactPreference {
-  implicit val format: OFormat[NewContactPreference] = Json.format[NewContactPreference]
-}
+enum Actions:
+  case ChangeToPost, ChangeToEmail, AmendEmailAddress, Unchanged
