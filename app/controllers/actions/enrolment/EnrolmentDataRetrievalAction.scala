@@ -16,7 +16,7 @@
 
 package controllers.actions.enrolment
 
-import models.requests.{EnrolmentOptionalDataRequest, NoEnrolmentIdentifierRequest}
+import models.requests.enrolment.{EnrolmentOptionalDataRequest, NoEnrolmentIdentifierRequest}
 import play.api.mvc.ActionTransformer
 import repositories.EnrolmentUserAnswersRepository
 

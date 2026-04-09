@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
 import models.identifiers.{GroupId, InternalId, VpdId}
-import models.requests.NoEnrolmentIdentifierRequest
+import models.requests.enrolment.NoEnrolmentIdentifierRequest
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}

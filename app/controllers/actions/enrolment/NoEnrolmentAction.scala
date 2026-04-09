@@ -16,7 +16,7 @@
 
 package controllers.actions.enrolment
 
-import models.requests.NoEnrolmentIdentifierRequest
+import models.requests.enrolment.NoEnrolmentIdentifierRequest
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
 

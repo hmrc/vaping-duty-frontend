@@ -21,7 +21,7 @@ import models.audit.JourneyOutcome
 import models.contactPreference
 import models.contactPreference.PaperlessPreference
 import models.emailverification.{PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
-import models.requests.DataRequest
+import models.requests.contactPreference.DataRequest
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 

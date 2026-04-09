@@ -17,7 +17,7 @@
 package controllers.actions.enrolment
 
 import models.enrolment.EnrolmentUserAnswers
-import models.requests.{EnrolmentOptionalDataRequest, NoEnrolmentIdentifierRequest}
+import models.requests.enrolment.{EnrolmentOptionalDataRequest, NoEnrolmentIdentifierRequest}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}

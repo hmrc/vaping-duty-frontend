@@ -16,7 +16,8 @@
 
 package controllers.actions.contactPreference
 
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+import models.requests.IdentifierRequest
+import models.requests.contactPreference.OptionalDataRequest
 import play.api.mvc.ActionTransformer
 import services.UserAnswersService
 import uk.gov.hmrc.http.HeaderCarrier

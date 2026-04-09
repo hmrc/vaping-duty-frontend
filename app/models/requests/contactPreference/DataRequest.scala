@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package models.requests
+package models.requests.contactPreference
 
+import models.UserAnswers
 import models.identifiers.{CredentialId, InternalId, VpdId}
 import play.api.mvc.{Request, WrappedRequest}
-import models.UserAnswers
 
 case class OptionalDataRequest[A] (request: Request[A],
                                    enrolmentVpdId: VpdId,

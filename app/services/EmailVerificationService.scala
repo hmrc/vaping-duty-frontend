@@ -22,7 +22,7 @@ import connectors.contactPreference.EmailVerificationConnector
 import models.UserAnswers
 import models.contactPreference.PaperlessPreference.{Email, toValue}
 import models.emailverification.*
-import models.requests.DataRequest
+import models.requests.contactPreference.DataRequest
 import play.api.Logging
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect

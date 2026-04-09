@@ -17,7 +17,7 @@
 package controllers.actions.enrolment
 
 import base.SpecBase
-import models.requests.NoEnrolmentIdentifierRequest
+import models.requests.enrolment.NoEnrolmentIdentifierRequest
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect

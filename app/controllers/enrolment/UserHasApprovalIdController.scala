@@ -21,7 +21,7 @@ import controllers.actions.*
 import controllers.actions.enrolment.{EnrolmentClaimAuthAction, EnrolmentDataRetrievalAction, NoEnrolmentAction}
 import forms.enrolment.UserHasApprovalIdFormProvider
 import models.enrolment.EnrolmentUserAnswers
-import models.requests.EnrolmentOptionalDataRequest
+import models.requests.enrolment.EnrolmentOptionalDataRequest
 import pages.enrolment.UserHasApprovalIdPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}

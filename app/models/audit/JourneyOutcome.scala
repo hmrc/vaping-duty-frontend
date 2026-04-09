@@ -21,7 +21,7 @@ import models.audit.PreferenceAction.*
 import models.contactPreference.PaperlessPreference
 import models.contactPreference.PaperlessPreference.{Email, Post}
 import models.emailverification.PaperlessPreferenceSubmission
-import models.requests.DataRequest
+import models.requests.contactPreference.DataRequest
 import play.api.libs.json.{Json, OFormat}
 
 case class JourneyOutcome(

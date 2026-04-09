@@ -17,7 +17,7 @@
 package controllers.actions.enrolment
 
 import models.identifiers.{GroupId, InternalId, VpdId}
-import models.requests.NoEnrolmentIdentifierRequest
+import models.requests.enrolment.NoEnrolmentIdentifierRequest
 import play.api.mvc.*
 
 import javax.inject.Inject

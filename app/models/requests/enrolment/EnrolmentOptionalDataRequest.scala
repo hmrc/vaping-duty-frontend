@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models.requests
+package models.requests.enrolment
 
 import models.enrolment.EnrolmentUserAnswers
 import models.identifiers.InternalId

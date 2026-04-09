@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
 import models.identifiers.{GroupId, InternalId, VpdId}
-import models.requests.NoEnrolmentIdentifierRequest
+import models.requests.enrolment.NoEnrolmentIdentifierRequest
 import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.*

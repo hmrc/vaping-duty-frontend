@@ -18,7 +18,8 @@ package controllers.actions.contactPreference
 
 import controllers.actions.contactPreference.DataRetrievalAction
 import models.UserAnswers
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+import models.requests.IdentifierRequest
+import models.requests.contactPreference.OptionalDataRequest
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}

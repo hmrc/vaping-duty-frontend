@@ -21,7 +21,7 @@ import cats.data.EitherT
 import connectors.contactPreference.{EmailVerificationConnector, SubmitPreferencesConnector}
 import models.*
 import models.emailverification.*
-import models.requests.DataRequest
+import models.requests.contactPreference.DataRequest
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock

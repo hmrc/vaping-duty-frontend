@@ -21,7 +21,7 @@ import data.TestData
 import models.UserAnswers
 import models.audit.Actions.*
 import models.contactPreference.PaperlessPreference.*
-import models.requests.DataRequest
+import models.requests.contactPreference.DataRequest
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
