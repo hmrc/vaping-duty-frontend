@@ -18,6 +18,7 @@ package connectors.contactPreference
 
 import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import connectors.SubscriptionConnector
 import data.TestData
 import models.contactPreference.PaperlessPreference.toValue
 import models.contactPreference.{PaperlessPreference, SubscriptionContactPreferences}

@@ -17,7 +17,7 @@
 package controllers.contactPreference
 
 import config.FrontendAppConfig
-import connectors.contactPreference.SubscriptionConnector
+import connectors.SubscriptionConnector
 import controllers.actions.*
 import models.BtaLink
 import models.contactPreference.PaperlessPreference

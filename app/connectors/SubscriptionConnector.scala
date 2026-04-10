@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package connectors.contactPreference
+package connectors
 
 import config.FrontendAppConfig
 import models.contactPreference.SubscriptionContactPreferences
