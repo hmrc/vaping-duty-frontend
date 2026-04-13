@@ -145,3 +145,7 @@ month.sep = September
 month.oct = October
 month.nov = November
 month.dec = December
+
+taskList.title = taskListTitle
+taskList.heading = taskListHeading
+taskList.something.heading = stuff
