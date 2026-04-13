@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import connectors.contactPreference.EmailVerificationConnector
 import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeDataRetrievalAction}
-import controllers.actions.enrolment.{EnrolmentClaimAuthAction, EnrolmentDataRetrievalAction, FakeClaimEnrolmentAuthAction, FakeEnrolmentDataRetrievalAction, FakeHasEnrolmentAction, HasEnrolmentAction}
+import controllers.actions.enrolment.*
 import data.TestData
 import models.contactPreference.PreferenceUserAnswers
 import models.enrolment.EnrolmentUserAnswers
@@ -55,7 +55,6 @@ trait SpecBase
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[ApprovedVapingManufacturerAuthAction].to[FakeApprovedVapingManufacturerAuthAction],
         bind[EnrolmentClaimAuthAction].to[FakeClaimEnrolmentAuthAction],
-        bind[HasEnrolmentAction].to[FakeHasEnrolmentAction],
         bind[CheckSignedInAction].to[FakeCheckSignedInAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
