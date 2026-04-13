@@ -117,6 +117,32 @@ contactPreference.submitEmail.youMust = You must continue to save your contact p
 
 emailVerificationJourney.signature = Vaping Products Duty
 
+## come back to this after date utils merge
+returns.taskList.caption = Return for 1 October 2026 to 31 October 2026
+returns.taskList.title = Complete your Vaping Products Duty return
+returns.taskList.heading = Complete your Vaping Products Duty return
+returns.taskList.bodyL = Complete all the tasks and submit this return on or before 7 November 2026.
+returns.taskList.body = Your answers can be changed until this return is submitted.
+
+returns.taskList.taskStatus.tasksRemaining = Tasks remaining
+returns.taskList.taskStatus.notStarted = Not started
+returns.taskList.taskStatus.inProgress = In progress
+returns.taskList.taskStatus.completed = Completed
+
+returns.taskList.section.declareDuty.heading = Declare vaping products for duty
+returns.taskList.section.declareDuty.task1 = Tell us if you need to declare duty
+
+returns.taskList.section.declareAdjustments.heading = Declare adjustments
+returns.taskList.declareAdjustments.task1 = Tell us if you have any spoilt adjustments
+returns.taskList.declareAdjustments.task2 = Tell us if you have any under or over-declared adjustments
+
+returns.taskList.section.dutySuspended.heading = Report duty suspended vaping deliveries
+returns.taskList.section.dutySuspended.task1 = Tell us if you have received or moved any vaping products in duty suspense
+
+returns.taskList.section.submitReturn.heading = Submit return
+returns.taskList.submitReturn.task1 = Check your answers and submit return
+returns.taskList.submitReturn.task1.hint = All tasks must be completed before submitting
+
 ### Returns ###
 
 returns.beforeYouStart.title = Before you start

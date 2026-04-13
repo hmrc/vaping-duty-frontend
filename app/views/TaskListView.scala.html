@@ -14,20 +14,30 @@
  * limitations under the License.
  *@
 
+@import viewmodels.returns.TaskListSectionViewModel
+@import views.html.components.*
+
 @this(
-        layout: templates.Layout,
-        govukButton: GovukButton,
-        govukTaskList: GovukTaskList
+    layout: templates.Layout,
+    govukButton: GovukButton,
+    govukTaskList: GovukTaskList,
+    caption: Caption,
+    h1: Heading,
+    p: Paragraph
 )
 
-@(taskItems: Seq[TaskListItem], submissionItem: TaskListItem)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = messages("taskList.title")) {
-    <h1 class="govuk-heading-l govuk-!-margin-bottom-9">@messages("taskList.heading")</h1>
+@(sections: Seq[TaskListSectionViewModel])(implicit request: Request[_], messages: Messages)
 
-    <h2 class="govuk-heading-m">@messages("taskList.something.heading")</h2>
-    @govukTaskList(TaskList(taskItems))
-@*    <h2 class="govuk-heading-m govuk-!-margin-top-7">@messages("taskList.checkAndSubmit.heading")</h2>*@
-@*    @govukTaskList(TaskList(Seq(submissionItem), idPrefix = "check-and-submit"))*@
-@*    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--invisible" aria-hidden="true">*@
+@layout(pageTitle = messages("returns.taskList.title")) {
+  @caption(messages("returns.taskList.caption"))
+    @h1(messages("returns.taskList.heading"))
+
+    @p(Seq(messages("returns.taskList.bodyL")), classes = "govuk-body-l")
+    @p(Seq(messages("returns.taskList.body")))
+
+    @sections.map { section =>
+        <h2 class="govuk-heading-m">@section.heading</h2>
+        @govukTaskList(TaskList(section.rows))
+    }
 }

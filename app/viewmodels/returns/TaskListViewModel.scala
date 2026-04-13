@@ -16,39 +16,84 @@
 
 package viewmodels.returns
 
-import models.TaskStatus
-import models.UserAnswers
+import models.{TaskStatus, UserAnswers}
 import models.enrolment.EnrolmentUserAnswers
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.Aliases.*
-
 
 object TaskListViewModel {
-  def status(userAnswers: EnrolmentUserAnswers): TaskStatus = TaskStatus.NotStarted
 
-  def rows(userAnswers: EnrolmentUserAnswers)(implicit messages: Messages): Seq[TaskListItem] = {
+  def sections(userAnswers: EnrolmentUserAnswers)(implicit messages: Messages): Seq[TaskListSectionViewModel] = {
+    Seq(
+      declareDutySection(userAnswers),
+      declareAdjustmentsSection(userAnswers),
+      dutySuspendedSection(userAnswers),
+      submissionSection(userAnswers)
+    )
+  }
 
-      Seq(TaskRowViewModel(
-        id       = "id",
-        linkText = "linkText(userAnswers)",
-        link     = controllers.routes.JourneyRecoveryController.onPageLoad(),
-        status   = status(userAnswers)
-      ).toTaskListItem,
+
+  private def declareDutySection(userAnswers: EnrolmentUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
+    TaskListSectionViewModel(
+      headingKey = "returns.taskList.section.declareDuty.heading",
+      rows = Seq(
         TaskRowViewModel(
-          id       = "id2",
-          linkText = "linkText(userAnswers2)",
+          id       = "duty-task-1",
+          linkText = messages("returns.taskList.section.declareDuty.task1"),
           link     = controllers.routes.JourneyRecoveryController.onPageLoad(),
-          status   = status(userAnswers)
-        ).toTaskListItem)
-
+          status   = TaskStatus.NotStarted
+        ).toTaskListItem
+      )
+    )
   }
 
-  def submissionRow(userAnswers: EnrolmentUserAnswers)(implicit messages: Messages): TaskListItem = {
-    TaskRowViewModel(
-      id       = "id",
-      linkText = "linkTextKey",
-      link     = controllers.routes.JourneyRecoveryController.onPageLoad(),
-      status   = status(userAnswers)
-    ).toTaskListItem
+  private def declareAdjustmentsSection(userAnswers: EnrolmentUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
+    TaskListSectionViewModel(
+      headingKey = "returns.taskList.section.declareAdjustments.heading",
+      rows = Seq(
+        TaskRowViewModel(
+          id = "declareAdjustments-task-1",
+          linkText = messages("returns.taskList.declareAdjustments.task1"),
+          link = controllers.routes.JourneyRecoveryController.onPageLoad(),
+          status = TaskStatus.NotStarted
+        ).toTaskListItem,
+        TaskRowViewModel(
+          id = "declareAdjustments-task-2",
+          linkText = messages("returns.taskList.declareAdjustments.task2"),
+          link = controllers.routes.JourneyRecoveryController.onPageLoad(),
+          status = TaskStatus.NotStarted
+        ).toTaskListItem
+      )
+    )
   }
+
+
+  private def dutySuspendedSection(userAnswers: EnrolmentUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
+    TaskListSectionViewModel(
+      headingKey = "returns.taskList.section.dutySuspended.heading",
+      rows = Seq(
+        TaskRowViewModel(
+          id = "duty-suspended-task-1",
+          linkText = messages("returns.taskList.section.dutySuspended.task1"),
+          link = controllers.routes.JourneyRecoveryController.onPageLoad(),
+          status = TaskStatus.NotStarted
+        ).toTaskListItem
+      )
+    )
+  }
+
+  def submissionSection(userAnswers: EnrolmentUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
+    TaskListSectionViewModel(
+      headingKey = "returns.taskList.section.submitReturn.heading",
+      rows = Seq(
+        TaskRowViewModel(
+          id = "submit",
+          linkText = messages("returns.taskList.submitReturn.task1"),
+          link = controllers.routes.JourneyRecoveryController.onPageLoad(),
+          status = TaskStatus.TasksRemaining,
+          hint = Some(messages("returns.taskList.submitReturn.task1.hint"))
+        ).toTaskListItem
+      )
+    )
+  }
+
 }

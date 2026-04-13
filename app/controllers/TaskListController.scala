@@ -17,7 +17,6 @@
 package controllers
 
 import controllers.actions.*
-import models.UserAnswers
 import models.enrolment.EnrolmentUserAnswers
 
 import javax.inject.Inject
@@ -29,7 +28,6 @@ import viewmodels.returns.TaskListViewModel
 import views.html.TaskListView
 
 import java.time.Instant
-import java.time.Instant.now
 
 class TaskListController @Inject()(
                                        override val messagesApi: MessagesApi,
@@ -43,6 +41,6 @@ class TaskListController @Inject()(
   def onPageLoad: Action[AnyContent] = identify {
     implicit request =>
       val ua = new EnrolmentUserAnswers("", JsObject.empty, Instant.now(), Instant.now())
-      Ok(view(TaskListViewModel.rows(ua), TaskListViewModel.submissionRow(ua)))
+      Ok(view(TaskListViewModel.sections(ua)))
   }
 }
