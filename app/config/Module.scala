@@ -20,7 +20,7 @@ import com.google.inject.AbstractModule
 import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, DataRetrievalActionImpl}
 import controllers.actions.enrolment.*
-import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRequiredActionImpl, ReturnsDataRetrievalAction, ReturnsDataRetrievalActionImpl}
+import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRequiredActionImpl, ReturnsDataRetrievalAction, ReturnsDataRetrievalActionImpl, ReturnsEnabledAction, ReturnsEnabledActionImpl}
 
 import java.time.{Clock, ZoneOffset}
 
@@ -38,6 +38,7 @@ class Module extends AbstractModule {
     bind(classOf[NoEnrolmentAction]).to(classOf[NoEnrolmentActionImpl]).asEagerSingleton()
     bind(classOf[HasEnrolmentAction]).to(classOf[HasEnrolmentActionImpl]).asEagerSingleton()
     bind(classOf[CheckSignedInAction]).to(classOf[CheckSignedInActionImpl]).asEagerSingleton()
+    bind(classOf[ReturnsEnabledAction]).to(classOf[ReturnsEnabledActionImpl]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
   }

@@ -16,9 +16,7 @@
 
 package services.returns
 
-import connectors.contactPreference.PreferenceUserAnswersConnector
 import connectors.returns.ReturnsUserAnswersConnector
-import models.contactPreference.{PreferenceUserAnswers, UserDetails}
 import models.emailverification.ErrorModel
 import models.identifiers.{InternalId, VpdId}
 import models.returns.ReturnsUserAnswers
