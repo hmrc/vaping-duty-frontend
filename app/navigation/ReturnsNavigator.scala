@@ -19,11 +19,8 @@ package navigation
 import config.FrontendAppConfig
 import controllers.routes
 import models.*
-import models.contactPreference.PaperlessPreference.{Email, Post}
-import models.contactPreference.{HowToBeContacted, PaperlessPreference, PreferenceUserAnswers}
 import models.returns.ReturnsUserAnswers
 import pages.*
-import pages.contactPreference.{EnterEmailPage, HowToBeContactedPage}
 import play.api.Logging
 import play.api.http.HttpVerbs.GET
 import play.api.mvc.Call
