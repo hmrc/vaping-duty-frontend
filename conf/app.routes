@@ -6,7 +6,7 @@ GET         /assets/*file                                controllers.Assets.vers
 
 GET         /language/:lang                              controllers.LanguageSwitchController.switchToLanguage(lang: String)
 
-GET         /refresh-session                             controllers.KeepAliveController.keepAlive()
+GET         /refresh-session                             controllers.contactPreference.PreferencesKeepAliveController.keepAlive()
 
 GET         /there-is-a-problem                          controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 

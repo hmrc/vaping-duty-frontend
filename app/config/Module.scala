@@ -18,6 +18,8 @@ package config
 
 import com.google.inject.AbstractModule
 import controllers.actions.*
+import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, DataRetrievalActionImpl}
+import controllers.actions.enrolment.*
 
 import java.time.{Clock, ZoneOffset}
 
@@ -31,7 +33,6 @@ class Module extends AbstractModule {
     bind(classOf[ApprovedVapingManufacturerAuthAction]).to(classOf[ApprovedVapingManufacturerAuthActionImpl]).asEagerSingleton()
     bind(classOf[EnrolmentClaimAuthAction]).to(classOf[EnrolmentClaimAuthActionImpl]).asEagerSingleton()
     bind(classOf[NoEnrolmentAction]).to(classOf[NoEnrolmentActionImpl]).asEagerSingleton()
-    bind(classOf[HasEnrolmentAction]).to(classOf[HasEnrolmentActionImpl]).asEagerSingleton()
     bind(classOf[CheckSignedInAction]).to(classOf[CheckSignedInActionImpl]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))

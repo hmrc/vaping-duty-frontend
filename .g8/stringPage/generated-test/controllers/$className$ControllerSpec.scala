@@ -2,7 +2,7 @@ package controllers
 
 import base.SpecBase
 import forms.$className$FormProvider
-import models.{NormalMode, UserAnswers}
+import models.{NormalMode, PreferenceUserAnswers}
 import services.UserAnswersService
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any

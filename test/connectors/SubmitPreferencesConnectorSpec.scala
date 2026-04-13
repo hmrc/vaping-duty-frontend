@@ -18,6 +18,7 @@ package connectors
 
 import base.SpecBase
 import config.FrontendAppConfig
+import connectors.contactPreference.SubmitPreferencesConnector
 import data.TestData
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*

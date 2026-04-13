@@ -16,14 +16,15 @@
 
 package navigation
 
-import models.{Mode, UserAnswers}
+import models.Mode
 import pages.*
 import play.api.mvc.Call
 import config.FrontendAppConfig
+import models.contactPreference.PreferenceUserAnswers
 
 class FakeNavigator(desiredRoute: Call, config: FrontendAppConfig)
   extends Navigator(config) {
 
-  override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
+  override def nextPage(page: Page, mode: Mode, userAnswers: PreferenceUserAnswers): Call =
     desiredRoute
 }

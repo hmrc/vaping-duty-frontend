@@ -17,10 +17,12 @@
 package base
 
 import config.FrontendAppConfig
-import connectors.EmailVerificationConnector
+import connectors.contactPreference.EmailVerificationConnector
 import controllers.actions.*
+import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeDataRetrievalAction}
+import controllers.actions.enrolment.*
 import data.TestData
-import models.UserAnswers
+import models.contactPreference.PreferenceUserAnswers
 import models.enrolment.EnrolmentUserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -47,13 +49,12 @@ trait SpecBase
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+  protected def applicationBuilder(userAnswers: Option[PreferenceUserAnswers] = None): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[ApprovedVapingManufacturerAuthAction].to[FakeApprovedVapingManufacturerAuthAction],
         bind[EnrolmentClaimAuthAction].to[FakeClaimEnrolmentAuthAction],
-        bind[HasEnrolmentAction].to[FakeHasEnrolmentAction],
         bind[CheckSignedInAction].to[FakeCheckSignedInAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )

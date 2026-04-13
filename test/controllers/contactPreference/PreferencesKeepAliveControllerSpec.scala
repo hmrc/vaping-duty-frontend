@@ -1,0 +1,84 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.contactPreference
+
+import base.SpecBase
+import models.identifiers.InternalId
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{never, times, verify, when}
+import org.scalactic.Prettifier.default
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.inject.bind
+import play.api.test.FakeRequest
+import play.api.test.Helpers.*
+import services.contactPreference.PreferenceUserAnswersService
+
+import scala.concurrent.Future
+
+class PreferencesKeepAliveControllerSpec extends SpecBase with MockitoSugar {
+
+  "keepAlive" - {
+
+    "when the user has answered some questions" - {
+
+      "must keep the answers alive and return OK" in {
+
+        val mockSessionRepository = mock[PreferenceUserAnswersService]
+        when(mockSessionRepository.keepAlive(any())(any())) thenReturn Future.successful(Right(()))
+
+        val application =
+          applicationBuilder(Some(emptyUserAnswers))
+            .overrides(bind[PreferenceUserAnswersService].toInstance(mockSessionRepository))
+            .build()
+
+        running(application) {
+
+          val request = FakeRequest(GET, controllers.contactPreference.routes.PreferencesKeepAliveController.keepAlive().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          verify(mockSessionRepository, times(1)).keepAlive(eqTo(InternalId(emptyUserAnswers.internalId)))(any())
+        }
+      }
+    }
+
+    "when the user has not answered any questions" - {
+
+      "must return OK" in {
+
+        val mockSessionRepository = mock[PreferenceUserAnswersService]
+        when(mockSessionRepository.keepAlive(any())(any())) thenReturn Future.successful(true)
+
+        val application =
+          applicationBuilder(None)
+            .overrides(bind[PreferenceUserAnswersService].toInstance(mockSessionRepository))
+            .build()
+
+        running(application) {
+
+          val request = FakeRequest(GET, controllers.contactPreference.routes.PreferencesKeepAliveController.keepAlive().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          verify(mockSessionRepository, never()).keepAlive(any())(any())
+        }
+      }
+    }
+  }
+}

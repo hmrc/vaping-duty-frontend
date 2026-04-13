@@ -16,9 +16,8 @@
 
 package viewmodels.contactPreference
 
-import models.UserAnswers
 import models.contactPreference.PaperlessPreference.{Email, Post}
-import models.contactPreference.{HowToBeContacted, PaperlessPreference}
+import models.contactPreference.{HowToBeContacted, PaperlessPreference, PreferenceUserAnswers}
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
@@ -26,11 +25,11 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 case class HowToBeContactedViewModel(content: Html, radioItems: Seq[RadioItem])
 
 object HowToBeContactedViewModel {
-  def apply(ua: UserAnswers)(implicit messages: Messages): HowToBeContactedViewModel = {
+  def apply(ua: PreferenceUserAnswers)(implicit messages: Messages): HowToBeContactedViewModel = {
     howToBeContactedViewModel(ua)
   }
 
-  private def howToBeContactedViewModel(ua: UserAnswers)(implicit messages: Messages) = {
+  private def howToBeContactedViewModel(ua: PreferenceUserAnswers)(implicit messages: Messages) = {
 
     PaperlessPreference(ua.subscriptionSummary.paperlessPreference) match {
       case Email =>
