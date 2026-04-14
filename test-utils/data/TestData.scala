@@ -19,6 +19,7 @@ package data
 import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, UserDetails}
 import models.emailverification.*
 import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
+import models.returns.ReturnsUserAnswers
 import play.api.libs.json.{JsObject, Json}
 
 import java.time.{Clock, Instant, ZoneId}
@@ -126,6 +127,13 @@ trait TestData {
     lastUpdated = Instant.now(clock)
   )
 
+  val returnsUserAnswers: ReturnsUserAnswers = ReturnsUserAnswers(
+    id = "",
+    data = JsObject.empty,
+    startedTime = Instant.now(clock),
+    lastUpdated = Instant.now(clock)
+  )
+  
   val testVerificationDetails1: GetVerificationStatusResponseEmailAddressDetails =
     GetVerificationStatusResponseEmailAddressDetails(emailAddress = emailAddress, verified = false, locked = false)
   val testVerificationDetails2: GetVerificationStatusResponseEmailAddressDetails =
