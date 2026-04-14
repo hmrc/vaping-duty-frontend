@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.returns
 
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import viewmodels.returns.BeforeYouStartViewModel
-import views.html.BeforeYouStartView
-
-import java.time.LocalDate
+import views.html.returns.BeforeYouStartView
 
 class BeforeYouStartControllerSpec extends SpecBase {
 
@@ -41,6 +39,19 @@ class BeforeYouStartControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect when returns journey is disabled" in {
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), returnsEnabled = false).build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

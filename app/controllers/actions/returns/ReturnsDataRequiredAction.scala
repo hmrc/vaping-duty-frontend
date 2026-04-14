@@ -17,7 +17,6 @@
 package controllers.actions.returns
 
 import controllers.routes
-import models.requests.contactPreference.{DataRequest, OptionalDataRequest}
 import models.requests.returns.{ReturnsDataRequest, ReturnsOptionalDataRequest}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}

@@ -17,7 +17,6 @@
 package connectors.returns
 
 import config.FrontendAppConfig
-import models.contactPreference.{PreferenceUserAnswers, UserDetails}
 import models.identifiers.{InternalId, VpdId}
 import models.returns.ReturnsUserAnswers
 import play.api.http.Status.NO_CONTENT
@@ -32,6 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ReturnsUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit val httpClient: HttpClientV2)
                                            (implicit ec: ExecutionContext) extends HttpReadsInstances {
 
+  // MUST UPDATE URLS TO CORRECT BACKEND ONCE IMPLEMENTED
   def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ReturnsUserAnswers]] =
     httpClient
       .get(url"${config.cpUserAnswersGetUrl(vpdId)}")

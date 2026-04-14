@@ -53,7 +53,8 @@ trait SpecBase
 
   protected def applicationBuilder(userAnswers: Option[PreferenceUserAnswers] = None,
                                    enrolmentUserAnswers: Option[EnrolmentUserAnswers] = None,
-                                   returnsUserAnswers: Option[ReturnsUserAnswers] = None): GuiceApplicationBuilder =
+                                   returnsUserAnswers: Option[ReturnsUserAnswers] = None,
+                                   returnsEnabled: Boolean = true): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
@@ -64,6 +65,9 @@ trait SpecBase
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
         bind[EnrolmentDataRetrievalAction].toInstance(new FakeEnrolmentDataRetrievalAction(enrolmentUserAnswers)),
         bind[ReturnsDataRetrievalAction].toInstance(new FakeReturnsDataRetrievalAction(returnsUserAnswers))
+      )
+      .configure(
+        "features.returnsEnabled" -> returnsEnabled
       )
   
   implicit val hc: HeaderCarrier = HeaderCarrier()

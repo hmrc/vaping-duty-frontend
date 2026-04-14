@@ -14,29 +14,33 @@
  * limitations under the License.
  */
 
-package connectors.contactPreference
+package connectors.returns
 
 import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import data.TestData
-import models.contactPreference.{PreferenceUserAnswers, UserDetails}
+import models.returns.ReturnsUserAnswers
 import play.api.Application
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import util.WireMockHelper
 
-class PreferencePreferenceUserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHelper {
+import java.time.Instant
+
+class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHelper {
 
   private lazy val application: Application = applicationBuilder()
     .configure(
       "microservice.services.vaping-duty-account.port" -> server.port
     ).build()
 
+  // Update once implemented
   private val url            = "/vaping-duty-account/user-answers"
-  private lazy val connector = application.injector.instanceOf[PreferenceUserAnswersConnector]
-
-  private val answers                     = emptyUserAnswers
+  private lazy val connector = application.injector.instanceOf[ReturnsUserAnswersConnector]
+  
+  private val instant                     = Instant.parse("2026-04-14T07:54:00.483Z")
+  private val answers                     = ReturnsUserAnswers("id", JsObject.empty, instant, instant)
   private val internalServerErrorResponse = UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR)
 
   ".get" - {
@@ -60,29 +64,7 @@ class PreferencePreferenceUserAnswersConnectorISpec extends ISpecBase with TestD
       result.isLeft mustBe true
     }
   }
-
-  ".createUserAnswers" - {
-    "must successfully create user-answers" in {
-      server.stubFor(
-        post(urlEqualTo(url))
-          .willReturn(aResponse().withBody(Json.toJson(answers).toString))
-      )
-      val result = connector.createUserAnswers(UserDetails(vpdId.toString, internalId.toString)).futureValue
-
-      result mustBe Right(answers)
-    }
-
-    "must return UpstreamErrorResponse when there is an issue" in {
-      server.stubFor(
-        post(urlEqualTo(url))
-          .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody(internalServerErrorResponse.toString))
-      )
-      val result = connector.createUserAnswers(UserDetails(vpdId.toString, internalId.toString)).futureValue
-
-      result.isLeft mustBe true
-    }
-  }
-
+  
   ".set" - {
     "must successfully write user answers" in {
       server.stubFor(

@@ -17,8 +17,9 @@
 package viewmodels.returns
 
 import play.api.i18n.Messages
+import utils.ReturnsDateUtils.*
 
-import java.time.{LocalDate, Month, Year}
+import java.time.{LocalDate, Month}
 
 case class BeforeYouStartViewModel(returnPeriod: String, dueDate: String, monthLength: Int, year: Int)
 
@@ -30,7 +31,7 @@ object BeforeYouStartViewModel {
     beforeYouStartViewModel()
 
   private def beforeYouStartViewModel()(implicit messages: Messages) =
-    new BeforeYouStartViewModel(getReturnPeriod(), getDueDate(), monthLength, getYear)
+    new BeforeYouStartViewModel(getReturnPeriod(), getDueDate(), monthLength(month), getYear)
 
   private def getReturnPeriod()(implicit messages: Messages): String = {
     getCurrentMonthMessage(month)
@@ -39,27 +40,4 @@ object BeforeYouStartViewModel {
   private def getDueDate()(implicit messages: Messages): String = {
     getCurrentMonthMessage(month.plus(1))
   }
-
-  private def getYear: Int =
-    LocalDate.now().getYear
-
-  private def monthLength: Int =
-    val isLeapYear = Year.of(getYear).isLeap
-    month.length(isLeapYear)
-
-  private def getCurrentMonthMessage(month: Month)(implicit messages: Messages): String =
-    month match {
-      case Month.JANUARY => messages("month.jan")
-      case Month.FEBRUARY => messages("month.feb")
-      case Month.MARCH => messages("month.mar")
-      case Month.APRIL => messages("month.apr")
-      case Month.MAY => messages("month.may")
-      case Month.JUNE => messages("month.jun")
-      case Month.JULY => messages("month.jul")
-      case Month.AUGUST => messages("month.aug")
-      case Month.SEPTEMBER => messages("month.sep")
-      case Month.OCTOBER => messages("month.oct")
-      case Month.NOVEMBER => messages("month.nov")
-      case Month.DECEMBER => messages("month.dec")
-    }
 }
