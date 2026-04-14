@@ -26,9 +26,8 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReturnsDataRetrievalActionImpl @Inject()(
-                                         val service: ReturnsUserAnswersService
-                                       )(implicit val executionContext: ExecutionContext) extends ReturnsDataRetrievalAction {
+class ReturnsDataRetrievalActionImpl @Inject()(val service: ReturnsUserAnswersService)
+                                              (implicit val executionContext: ExecutionContext) extends ReturnsDataRetrievalAction {
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[ReturnsOptionalDataRequest[A]] = {
 
