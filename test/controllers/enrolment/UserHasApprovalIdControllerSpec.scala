@@ -40,8 +40,8 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET with a previous answer" in {
 
-      val application = enrolmentApplicationBuilder(
-        userAnswers = Some(EnrolmentUserAnswers(internalId.toString, Json.obj(), Instant.now(clock), Instant.now(clock))
+      val application = applicationBuilder(
+        enrolmentUserAnswers = Some(EnrolmentUserAnswers(internalId.toString, Json.obj(), Instant.now(clock), Instant.now(clock))
           .set(UserHasApprovalIdPage, true).success.value)
       ).build()
 
@@ -59,7 +59,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = enrolmentApplicationBuilder().build()
+      val application = applicationBuilder().build()
 
       running(application) {
         val request = FakeRequest(GET, UserHasApprovalIdRoute)
@@ -75,7 +75,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to EACD if user has approval id " in {
 
-      val application = enrolmentApplicationBuilder().build()
+      val application = applicationBuilder().build()
 
       running(application) {
         val request =
@@ -97,7 +97,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to guidance page if user does not have approval id " in {
 
-      val application = enrolmentApplicationBuilder().build()
+      val application = applicationBuilder().build()
 
       running(application) {
         val request =
@@ -113,7 +113,7 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = enrolmentApplicationBuilder().build()
+      val application = applicationBuilder().build()
 
       running(application) {
         val request =

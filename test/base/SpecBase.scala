@@ -20,10 +20,12 @@ import config.FrontendAppConfig
 import connectors.contactPreference.EmailVerificationConnector
 import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeDataRetrievalAction}
+import controllers.actions.returns.{FakeReturnsDataRetrievalAction, ReturnsDataRetrievalAction}
 import controllers.actions.enrolment.*
 import data.TestData
 import models.contactPreference.PreferenceUserAnswers
 import models.enrolment.EnrolmentUserAnswers
+import models.returns.ReturnsUserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -49,21 +51,23 @@ trait SpecBase
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
-  protected def applicationBuilder(userAnswers: Option[PreferenceUserAnswers] = None): GuiceApplicationBuilder =
+  protected def applicationBuilder(userAnswers: Option[PreferenceUserAnswers] = None,
+                                   enrolmentUserAnswers: Option[EnrolmentUserAnswers] = None,
+                                   returnsUserAnswers: Option[ReturnsUserAnswers] = None,
+                                   returnsEnabled: Boolean = true): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[ApprovedVapingManufacturerAuthAction].to[FakeApprovedVapingManufacturerAuthAction],
         bind[EnrolmentClaimAuthAction].to[FakeClaimEnrolmentAuthAction],
         bind[CheckSignedInAction].to[FakeCheckSignedInAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
-      )
-
-  protected def enrolmentApplicationBuilder(userAnswers: Option[EnrolmentUserAnswers] = None): GuiceApplicationBuilder =
-    new GuiceApplicationBuilder()
-      .overrides(
         bind[EnrolmentClaimAuthAction].to[FakeClaimEnrolmentAuthAction],
-        bind[EnrolmentDataRetrievalAction].toInstance(new FakeEnrolmentDataRetrievalAction(userAnswers))
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[EnrolmentDataRetrievalAction].toInstance(new FakeEnrolmentDataRetrievalAction(enrolmentUserAnswers)),
+        bind[ReturnsDataRetrievalAction].toInstance(new FakeReturnsDataRetrievalAction(returnsUserAnswers))
+      )
+      .configure(
+        "features.returnsEnabled" -> returnsEnabled
       )
   
   implicit val hc: HeaderCarrier = HeaderCarrier()

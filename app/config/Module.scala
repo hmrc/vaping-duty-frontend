@@ -20,6 +20,7 @@ import com.google.inject.AbstractModule
 import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, DataRetrievalActionImpl}
 import controllers.actions.enrolment.*
+import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRequiredActionImpl, ReturnsDataRetrievalAction, ReturnsDataRetrievalActionImpl, ReturnsEnabledAction, ReturnsEnabledActionImpl}
 
 import java.time.{Clock, ZoneOffset}
 
@@ -29,11 +30,14 @@ class Module extends AbstractModule {
 
     bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
+    bind(classOf[ReturnsDataRetrievalAction]).to(classOf[ReturnsDataRetrievalActionImpl]).asEagerSingleton()
+    bind(classOf[ReturnsDataRequiredAction]).to(classOf[ReturnsDataRequiredActionImpl]).asEagerSingleton()
     bind(classOf[EnrolmentDataRetrievalAction]).to(classOf[EnrolmentDataRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[ApprovedVapingManufacturerAuthAction]).to(classOf[ApprovedVapingManufacturerAuthActionImpl]).asEagerSingleton()
     bind(classOf[EnrolmentClaimAuthAction]).to(classOf[EnrolmentClaimAuthActionImpl]).asEagerSingleton()
     bind(classOf[NoEnrolmentAction]).to(classOf[NoEnrolmentActionImpl]).asEagerSingleton()
     bind(classOf[CheckSignedInAction]).to(classOf[CheckSignedInActionImpl]).asEagerSingleton()
+    bind(classOf[ReturnsEnabledAction]).to(classOf[ReturnsEnabledActionImpl]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
   }
