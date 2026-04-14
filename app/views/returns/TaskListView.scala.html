@@ -27,16 +27,15 @@
 )
 
 
-@(sections: Seq[TaskListSectionViewModel])(implicit request: Request[_], messages: Messages)
-
+@(vm: Seq[TaskListSectionViewModel])(implicit request: Request[_], messages: Messages)
 @layout(pageTitle = messages("returns.taskList.title")) {
-  @caption(messages("returns.taskList.caption"))
+  @caption(messages("returns.taskList.caption", vm.head.returnPeriod, vm.head.year.toString, vm.head.monthLength))
     @h1(messages("returns.taskList.heading"))
 
-    @p(Seq(messages("returns.taskList.bodyL")), classes = "govuk-body-l")
+    @p(Seq(messages("returns.taskList.bodyL", vm.head.dueDate, vm.head.year.toString)), classes = "govuk-body-l")
     @p(Seq(messages("returns.taskList.body")))
 
-    @sections.map { section =>
+    @vm.map { section =>
         <h2 class="govuk-heading-m">@section.heading</h2>
         @govukTaskList(TaskList(section.rows))
     }

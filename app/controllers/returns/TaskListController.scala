@@ -17,13 +17,16 @@
 package controllers.returns
 
 import controllers.actions.*
-import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction}
+import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import models.returns.ReturnsUserAnswers
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.TaskListViewModel
-import views.html.TaskListView
+import views.html.returns.TaskListView
 
+import java.time.Instant
 import javax.inject.Inject
 
 class TaskListController @Inject()(
@@ -31,12 +34,20 @@ class TaskListController @Inject()(
                                     identify: ApprovedVapingManufacturerAuthAction,
                                     getData: ReturnsDataRetrievalAction,
                                     requireData: ReturnsDataRequiredAction,
+                                    returnsEnabledAction: ReturnsEnabledAction,
                                     val controllerComponents: MessagesControllerComponents,
                                     view: TaskListView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
+  //controller is using empty UA until further tickets enable us to use Returns User Answers properly
+  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData) {
     implicit request =>
-      Ok(view(TaskListViewModel.sections(request.userAnswers)))
+      val emptyreturnsUserAnswers: ReturnsUserAnswers = ReturnsUserAnswers(
+        id = "",
+        data = JsObject.empty,
+        startedTime = Instant.now(),
+        lastUpdated = Instant.now()
+      )
+      Ok(view(TaskListViewModel.sections(request.userAnswers.getOrElse(emptyreturnsUserAnswers))))
   }
 }

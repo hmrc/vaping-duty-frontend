@@ -31,13 +31,6 @@ object BeforeYouStartViewModel {
     beforeYouStartViewModel()
 
   private def beforeYouStartViewModel()(implicit messages: Messages) =
-    new BeforeYouStartViewModel(getReturnPeriod(), getDueDate(), monthLength(month), getYear)
-
-  private def getReturnPeriod()(implicit messages: Messages): String = {
-    getCurrentMonthMessage(month)
-  }
-
-  private def getDueDate()(implicit messages: Messages): String = {
-    getCurrentMonthMessage(month.plus(1))
-  }
+    new BeforeYouStartViewModel(getReturnPeriod(month), getDueDate(month), getMonthLength(month), getYear)
+  
 }

@@ -30,11 +30,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val host: String    = configuration.get[String]("host")
   val appName: String = configuration.get[String]("appName")
 
-  private val vdHost: String = servicesConfig.baseUrl("vaping-duty")
-
   private val contactHost = configuration.get[String]("contact-frontend.host")
   private val contactFormServiceIdentifier = "vaping-duty-frontend"
   private lazy val contactPreferencesHost: String = servicesConfig.baseUrl("vaping-duty-account")
+  private lazy val returnsHost: String = servicesConfig.baseUrl("vaping-duty")
 
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
@@ -86,6 +85,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def cpGetEmailVerificationUrl(credId: CredentialId): String = s"$contactPreferenceBaseUrl/get-email-verification/$credId"
   def cpSubmitContactPreferencesUrl(vpdId: VpdId): String     = s"$contactPreferenceBaseUrl/submit-preferences/$vpdId"
   def getSubscriptionUrl(vpdId: VpdId): String                = s"$contactPreferenceBaseUrl/get-preferences/$vpdId"
+
+
+  private val returnsBaseUrl = s"$returnsHost/vaping-duty"
+  def returnsUserAnswersGetUrl(vpdId: VpdId): String = s"$returnsBaseUrl/user-answers/$vpdId"
+  def returnsUserAnswersUrl: String = s"$returnsBaseUrl/user-answers"
+  def returnsUserAnswersKeepAliveUrl: String = s"$returnsBaseUrl/keep-alive"
+  def returnsUserAnswersClearUrl(internalId: InternalId): String = s"$returnsBaseUrl/user-answers/clear/$internalId"
 
   val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/confirm-email-address"
   val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"

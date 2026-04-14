@@ -22,12 +22,22 @@ import java.time.{LocalDate, Month, Year}
 
 object ReturnsDateUtils {
 
+  val month: Month = LocalDate.now().getMonth
+  
   def getYear: Int =
     LocalDate.now().getYear
 
-  def monthLength(month: Month): Int =
+  def getMonthLength(month: Month): Int =
     val isLeapYear = Year.of(getYear).isLeap
     month.length(isLeapYear)
+    
+  def getReturnPeriod(month: Month)(implicit messages: Messages): String = {
+      getCurrentMonthMessage(month)
+    }
+
+  def getDueDate(month: Month)(implicit messages: Messages): String = {
+      getCurrentMonthMessage(month.plus(1))
+    }
 
   def getCurrentMonthMessage(month: Month)(implicit messages: Messages): String =
     month match {

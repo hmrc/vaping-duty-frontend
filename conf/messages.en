@@ -133,10 +133,11 @@ returns.beforeYouStart.suspended = any duty-suspended goods
 returns.beforeYouStart.afterYou = After you tell us this information, we will calculate how much you owe for this period.
 returns.beforeYouStart.youCannot = You cannot use this service to declare or pay VAT.
 
-returns.taskList.caption = Return for 1 October 2026 to 31 October 2026
+
+returns.taskList.caption = Return for 1 {0} {1} to {2} {0} {1}
 returns.taskList.title = Complete your Vaping Products Duty return
 returns.taskList.heading = Complete your Vaping Products Duty return
-returns.taskList.bodyL = Complete all the tasks and submit this return on or before 7 November 2026.
+returns.taskList.bodyL = Complete all the tasks and submit this return on or before 7 {0} {1}.
 returns.taskList.body = Your answers can be changed until this return is submitted.
 
 returns.taskList.taskStatus.tasksRemaining = Tasks remaining

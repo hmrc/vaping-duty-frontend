@@ -34,12 +34,12 @@ class ReturnsUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit 
   // MUST UPDATE URLS TO CORRECT BACKEND ONCE IMPLEMENTED
   def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ReturnsUserAnswers]] =
     httpClient
-      .get(url"${config.cpUserAnswersGetUrl(vpdId)}")
+      .get(url"${config.returnsUserAnswersGetUrl(vpdId)}")
       .execute[Either[UpstreamErrorResponse, ReturnsUserAnswers]]
 
   def set(userAnswers: ReturnsUserAnswers)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClient
-      .put(url"${config.cpUserAnswersUrl}")
+      .put(url"${config.returnsUserAnswersUrl}")
       .setHeader("Csrf-Token" -> "nocheck")
       .withBody(Json.toJson(userAnswers))
       .execute[HttpResponse]
@@ -47,7 +47,7 @@ class ReturnsUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit 
 
   def keepAlive(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
-      .post(url"${config.cpUserAnswersKeepAliveUrl}")
+      .post(url"${config.returnsUserAnswersKeepAliveUrl}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap { response =>
@@ -60,7 +60,7 @@ class ReturnsUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit 
   
   def clear(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
-      .delete(url"${config.cpUserAnswersClearUrl(internalId)}")
+      .delete(url"${config.returnsUserAnswersClearUrl(internalId)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap { response =>
