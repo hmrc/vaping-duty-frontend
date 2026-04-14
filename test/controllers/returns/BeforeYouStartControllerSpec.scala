@@ -27,7 +27,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
   "BeforeYouStart Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
       val vm = BeforeYouStartViewModel()(messages(application))
 
       running(application) {
@@ -43,7 +43,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
     }
 
     "must redirect when returns journey is disabled" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), returnsEnabled = false).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), returnsEnabled = false).build()
 
       running(application) {
         val request = FakeRequest(GET, controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
