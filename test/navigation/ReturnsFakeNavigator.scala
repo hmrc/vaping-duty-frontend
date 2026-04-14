@@ -18,7 +18,6 @@ package navigation
 
 import config.FrontendAppConfig
 import models.Mode
-import models.contactPreference.PreferenceUserAnswers
 import models.returns.ReturnsUserAnswers
 import pages.*
 import play.api.mvc.Call

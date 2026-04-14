@@ -16,9 +16,7 @@
 
 package controllers.actions.returns
 
-import models.enrolment.EnrolmentUserAnswers
 import models.requests.IdentifierRequest
-import models.requests.enrolment.{EnrolmentOptionalDataRequest, NoEnrolmentIdentifierRequest}
 import models.requests.returns.ReturnsOptionalDataRequest
 import models.returns.ReturnsUserAnswers
 import uk.gov.hmrc.http.HeaderCarrier
