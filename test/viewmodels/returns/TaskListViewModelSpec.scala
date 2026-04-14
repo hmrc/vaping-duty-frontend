@@ -21,17 +21,15 @@ import models.TaskStatus
 import models.enrolment.EnrolmentUserAnswers
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.govukfrontend.views.Aliases.TaskListItem
 
 import java.time.Instant
 
 class TaskListViewModelSpec extends UnitSpec with SpecBase {
 
-  implicit val messages: Messages = messages(applicationBuilder(None).build())
-
-  private val emptyEnrolmentUserAnswers = new EnrolmentUserAnswers("", JsObject.empty, Instant.now(), Instant.now())
-
+  given Messages = messages(applicationBuilder().build())
+  
   private def findRowById(sections: Seq[TaskListSectionViewModel], id: String): TaskListItem = {
     val allRows = sections.flatMap(_.rows)
     allRows.find(row =>
@@ -48,7 +46,7 @@ class TaskListViewModelSpec extends UnitSpec with SpecBase {
     "returns four sections in the correct order" in {
       val application = applicationBuilder().build()
       running(application) {
-        val sections = TaskListViewModel.sections(emptyEnrolmentUserAnswers)
+        val sections = TaskListViewModel.sections(returnsUserAnswers)
 
         sections.length mustBe 4
         sections(0).headingKey mustBe "returns.taskList.section.declareDuty.heading"

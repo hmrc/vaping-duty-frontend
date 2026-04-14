@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.returns
 
 import base.SpecBase
+import controllers.routes
 import models.enrolment.EnrolmentUserAnswers
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
@@ -32,21 +33,18 @@ class TaskListControllerSpec extends SpecBase {
   "TaskList Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
-      val application = applicationBuilder().build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      given Messages = messages(application)
 
       running(application) {
-        val request = FakeRequest(GET, routes.TaskListController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.returns.routes.TaskListController.onPageLoad().url)
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[TaskListView]
-        
-        implicit val msgs: Messages = messages(application)
-        val ua = new EnrolmentUserAnswers("", JsObject.empty, Instant.now(), Instant.now())
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(TaskListViewModel.sections(ua))(request, msgs).toString
+        contentAsString(result) mustEqual view(TaskListViewModel.sections(returnsUserAnswers))(request).toString
       }
     }
   }

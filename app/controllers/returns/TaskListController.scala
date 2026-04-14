@@ -14,33 +14,29 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.returns
 
 import controllers.actions.*
-import models.enrolment.EnrolmentUserAnswers
-
-import javax.inject.Inject
+import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.TaskListViewModel
 import views.html.TaskListView
 
-import java.time.Instant
+import javax.inject.Inject
 
 class TaskListController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: ApprovedVapingManufacturerAuthAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: TaskListView
+                                    override val messagesApi: MessagesApi,
+                                    identify: ApprovedVapingManufacturerAuthAction,
+                                    getData: ReturnsDataRetrievalAction,
+                                    requireData: ReturnsDataRequiredAction,
+                                    val controllerComponents: MessagesControllerComponents,
+                                    view: TaskListView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = identify {
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
     implicit request =>
-      val ua = new EnrolmentUserAnswers("", JsObject.empty, Instant.now(), Instant.now())
-      Ok(view(TaskListViewModel.sections(ua)))
+      Ok(view(TaskListViewModel.sections(request.userAnswers)))
   }
 }

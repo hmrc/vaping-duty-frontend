@@ -16,8 +16,6 @@
 
 package models
 
-import models.{Enumerable, WithName}
-
 sealed trait TaskStatus
 
 object TaskStatus extends Enumerable.Implicits {

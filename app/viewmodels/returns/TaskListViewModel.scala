@@ -16,13 +16,13 @@
 
 package viewmodels.returns
 
-import models.{TaskStatus, UserAnswers}
-import models.enrolment.EnrolmentUserAnswers
+import models.TaskStatus
+import models.returns.ReturnsUserAnswers
 import play.api.i18n.Messages
 
 object TaskListViewModel {
 
-  def sections(userAnswers: EnrolmentUserAnswers)(implicit messages: Messages): Seq[TaskListSectionViewModel] = {
+  def sections(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): Seq[TaskListSectionViewModel] = {
     Seq(
       declareDutySection(userAnswers),
       declareAdjustmentsSection(userAnswers),
@@ -32,7 +32,7 @@ object TaskListViewModel {
   }
 
 
-  private def declareDutySection(userAnswers: EnrolmentUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
+  private def declareDutySection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
     TaskListSectionViewModel(
       headingKey = "returns.taskList.section.declareDuty.heading",
       rows = Seq(
@@ -46,7 +46,7 @@ object TaskListViewModel {
     )
   }
 
-  private def declareAdjustmentsSection(userAnswers: EnrolmentUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
+  private def declareAdjustmentsSection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
     TaskListSectionViewModel(
       headingKey = "returns.taskList.section.declareAdjustments.heading",
       rows = Seq(
@@ -67,7 +67,7 @@ object TaskListViewModel {
   }
 
 
-  private def dutySuspendedSection(userAnswers: EnrolmentUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
+  private def dutySuspendedSection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
     TaskListSectionViewModel(
       headingKey = "returns.taskList.section.dutySuspended.heading",
       rows = Seq(
@@ -81,7 +81,7 @@ object TaskListViewModel {
     )
   }
 
-  def submissionSection(userAnswers: EnrolmentUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
+  def submissionSection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
     TaskListSectionViewModel(
       headingKey = "returns.taskList.section.submitReturn.heading",
       rows = Seq(
