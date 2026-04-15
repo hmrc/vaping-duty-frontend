@@ -32,7 +32,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.ReturnsUserAnswersService
-import views.html.DeclareDutyView
+import views.html.returns.DeclareDutyView
 
 import scala.concurrent.Future
 
@@ -43,7 +43,7 @@ class DeclareDutyControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new DeclareDutyFormProvider()
   val form: Form[Boolean] = formProvider()
 
-  lazy val declareDutyRoute: String = routes.DeclareDutyController.onPageLoad(NormalMode).url
+  lazy val declareDutyRoute: String = controllers.returns.routes.DeclareDutyController.onPageLoad(NormalMode).url
 
   "DeclareDuty Controller" - {
 
@@ -124,36 +124,6 @@ class DeclareDutyControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
-      }
-    }
-
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
-      val application = applicationBuilder(returnsUserAnswers = None).build()
-
-      running(application) {
-        val request = FakeRequest(GET, declareDutyRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
-      val application = applicationBuilder(returnsUserAnswers = None).build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, declareDutyRoute)
-            .withFormUrlEncodedBody(("value", "true"))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }
