@@ -27,7 +27,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.EnterDutyAmountView
+import views.html.returns.EnterDutyAmountView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,13 +40,14 @@ class EnterDutyAmountController @Inject()(
                                         getData: ReturnsDataRetrievalAction,
                                         requireData: ReturnsDataRequiredAction,
                                         formProvider: EnterDutyAmountFormProvider,
+                                        returnsEnabledAction: ReturnsEnabledAction,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: EnterDutyAmountView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Int] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify ancThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(EnterDutyAmountPage) match {
