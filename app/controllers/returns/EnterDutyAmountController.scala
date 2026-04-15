@@ -47,7 +47,7 @@ class EnterDutyAmountController @Inject()(
 
   val form: Form[Int] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify ancThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(EnterDutyAmountPage) match {
