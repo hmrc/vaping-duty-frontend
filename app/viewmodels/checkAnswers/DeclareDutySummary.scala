@@ -16,7 +16,6 @@
 
 package viewmodels.checkAnswers
 
-import controllers.routes
 import models.CheckMode
 import models.returns.ReturnsUserAnswers
 import pages.DeclareDutyPage
@@ -37,7 +36,7 @@ object DeclareDutySummary  {
           key     = "declareDuty.checkYourAnswersLabel",
           value   = ValueViewModel(value),
           actions = Seq(
-            ActionItemViewModel("site.change", routes.DeclareDutyController.onPageLoad(CheckMode).url)
+            ActionItemViewModel("site.change", controllers.returns.routes.DeclareDutyController.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("declareDuty.change.hidden"))
           )
         )
