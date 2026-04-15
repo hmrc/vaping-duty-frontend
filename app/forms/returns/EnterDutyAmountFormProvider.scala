@@ -26,9 +26,9 @@ class EnterDutyAmountFormProvider @Inject() extends Mappings {
   def apply(): Form[Int] =
     Form(
       "value" -> int(
-        "enterDutyAmount.error.required",
-        "enterDutyAmount.error.wholeNumber",
-        "enterDutyAmount.error.nonNumeric")
-          .verifying(inRange(1, Int.MaxValue, "enterDutyAmount.error.outOfRange"))
+        "returns.enterDutyAmount.error.required",
+        "returns.enterDutyAmount.error.wholeNumber",
+        "returns.enterDutyAmount.error.nonNumeric")
+          .verifying(inRange(1, Int.MaxValue, "returns.enterDutyAmount.error.outOfRange"))
     )
 }

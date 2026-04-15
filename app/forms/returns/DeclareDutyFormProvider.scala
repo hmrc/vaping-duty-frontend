@@ -25,6 +25,6 @@ class DeclareDutyFormProvider @Inject() extends Mappings {
 
   def apply(): Form[Boolean] =
     Form(
-      "value" -> boolean("declareDuty.error.required")
+      "value" -> boolean("returns.declareDuty.error.required", "returns.declareDuty.error.required")
     )
 }
