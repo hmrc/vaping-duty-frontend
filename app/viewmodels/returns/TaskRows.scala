@@ -22,7 +22,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.govukfrontend.views.Aliases.*
 import viewmodels.govuk.all.HintViewModel
 
-final case class TaskRowViewModel(
+final case class TaskRows(
                                    id: String,
                                    linkText: String,
                                    link: Call,

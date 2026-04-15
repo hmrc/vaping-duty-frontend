@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import viewmodels.returns.TaskListSectionViewModel
+@import viewmodels.returns.TaskListPageViewModel
 @import views.html.components.*
 
 @this(
@@ -27,15 +27,15 @@
 )
 
 
-@(vm: Seq[TaskListSectionViewModel])(implicit request: Request[_], messages: Messages)
+@(vm:  TaskListPageViewModel)(implicit request: Request[_], messages: Messages)
 @layout(pageTitle = messages("returns.taskList.title")) {
-  @caption(messages("returns.taskList.caption", vm.head.returnPeriod, vm.head.year.toString, vm.head.monthLength))
+  @caption(messages("returns.taskList.caption", vm.returnPeriod, vm.year, vm.monthLength))
     @h1(messages("returns.taskList.heading"))
 
-    @p(Seq(messages("returns.taskList.bodyL", vm.head.dueDate, vm.head.year.toString)), classes = "govuk-body-l")
+    @p(Seq(messages("returns.taskList.bodyL", vm.dueDate, vm.year.toString)), classes = "govuk-body-l")
     @p(Seq(messages("returns.taskList.body")))
 
-    @vm.map { section =>
+    @vm.sections.map { section =>
         <h2 class="govuk-heading-m">@section.heading</h2>
         @govukTaskList(TaskList(section.rows))
     }

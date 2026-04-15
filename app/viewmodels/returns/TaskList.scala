@@ -20,9 +20,9 @@ import models.TaskStatus
 import models.returns.ReturnsUserAnswers
 import play.api.i18n.Messages
 
-object TaskListViewModel {
+object TaskList {
 
-  def sections(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): Seq[TaskListSectionViewModel] = {
+  def sections(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): Seq[TaskListSection] = {
     Seq(
       declareDutySection(userAnswers),
       declareAdjustmentsSection(userAnswers),
@@ -32,11 +32,11 @@ object TaskListViewModel {
   }
 
 
-  private def declareDutySection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
-    TaskListSectionViewModel(
+  private def declareDutySection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSection = {
+    TaskListSection(
       headingKey = "returns.taskList.section.declareDuty.heading",
       rows = Seq(
-        TaskRowViewModel(
+        TaskRows(
           id       = "duty-task-1",
           linkText = messages("returns.taskList.section.declareDuty.task1"),
           link     = controllers.routes.JourneyRecoveryController.onPageLoad(),
@@ -46,17 +46,17 @@ object TaskListViewModel {
     )
   }
 
-  private def declareAdjustmentsSection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
-    TaskListSectionViewModel(
+  private def declareAdjustmentsSection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSection = {
+    TaskListSection(
       headingKey = "returns.taskList.section.declareAdjustments.heading",
       rows = Seq(
-        TaskRowViewModel(
+        TaskRows(
           id = "declareAdjustments-task-1",
           linkText = messages("returns.taskList.declareAdjustments.task1"),
           link = controllers.routes.JourneyRecoveryController.onPageLoad(),
           status = TaskStatus.NotStarted
         ).toTaskListItem,
-        TaskRowViewModel(
+        TaskRows(
           id = "declareAdjustments-task-2",
           linkText = messages("returns.taskList.declareAdjustments.task2"),
           link = controllers.routes.JourneyRecoveryController.onPageLoad(),
@@ -67,11 +67,11 @@ object TaskListViewModel {
   }
 
 
-  private def dutySuspendedSection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
-    TaskListSectionViewModel(
+  private def dutySuspendedSection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSection = {
+    TaskListSection(
       headingKey = "returns.taskList.section.dutySuspended.heading",
       rows = Seq(
-        TaskRowViewModel(
+        TaskRows(
           id = "duty-suspended-task-1",
           linkText = messages("returns.taskList.section.dutySuspended.task1"),
           link = controllers.routes.JourneyRecoveryController.onPageLoad(),
@@ -81,11 +81,11 @@ object TaskListViewModel {
     )
   }
 
-  def submissionSection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSectionViewModel = {
-    TaskListSectionViewModel(
+  def submissionSection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSection = {
+    TaskListSection(
       headingKey = "returns.taskList.section.submitReturn.heading",
       rows = Seq(
-        TaskRowViewModel(
+        TaskRows(
           id = "submit",
           linkText = messages("returns.taskList.submitReturn.task1"),
           link = controllers.routes.JourneyRecoveryController.onPageLoad(),

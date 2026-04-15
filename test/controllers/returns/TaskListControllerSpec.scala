@@ -20,7 +20,7 @@ import base.SpecBase
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import viewmodels.returns.TaskListViewModel
+import viewmodels.returns.TaskListPageViewModel
 import views.html.returns.TaskListView
 
 class TaskListControllerSpec extends SpecBase {
@@ -39,7 +39,7 @@ class TaskListControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[TaskListView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(TaskListViewModel.sections(returnsUserAnswers))(request).toString
+        contentAsString(result) mustEqual view(TaskListPageViewModel(returnsUserAnswers))(request).toString
       }
     }
   }

@@ -23,7 +23,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.returns.TaskListViewModel
+import viewmodels.returns.TaskListPageViewModel
 import views.html.returns.TaskListView
 
 import java.time.Instant
@@ -48,6 +48,6 @@ class TaskListController @Inject()(
         startedTime = Instant.now(),
         lastUpdated = Instant.now()
       )
-      Ok(view(TaskListViewModel.sections(request.userAnswers.getOrElse(emptyreturnsUserAnswers))))
+      Ok(view(TaskListPageViewModel(request.userAnswers.getOrElse(emptyreturnsUserAnswers))))
   }
 }

@@ -26,11 +26,11 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.TaskListItem
 
 import java.time.Instant
 
-class TaskListViewModelSpec extends UnitSpec with SpecBase {
+class TaskListSpec extends UnitSpec with SpecBase {
 
   given Messages = messages(applicationBuilder().build())
   
-  private def findRowById(sections: Seq[TaskListSectionViewModel], id: String): TaskListItem = {
+  private def findRowById(sections: Seq[TaskListSection], id: String): TaskListItem = {
     val allRows = sections.flatMap(_.rows)
     allRows.find(row =>
       row.status.tag.exists(_.attributes.get("id").contains(s"$id-status")) ||
@@ -46,7 +46,7 @@ class TaskListViewModelSpec extends UnitSpec with SpecBase {
     "returns four sections in the correct order" in {
       val application = applicationBuilder().build()
       running(application) {
-        val sections = TaskListViewModel.sections(returnsUserAnswers)
+        val sections = TaskList.sections(returnsUserAnswers)
 
         sections.length mustBe 4
         sections(0).headingKey mustBe "returns.taskList.section.declareDuty.heading"
@@ -61,7 +61,7 @@ class TaskListViewModelSpec extends UnitSpec with SpecBase {
       "suppresses href when status is TasksRemaining" in {
         val application = applicationBuilder().build()
         running(application) {
-          val taskRow = TaskRowViewModel(
+          val taskRow = TaskRows(
             id = "test-task",
             linkText = "Test Task",
             link = controllers.routes.JourneyRecoveryController.onPageLoad(),
@@ -77,7 +77,7 @@ class TaskListViewModelSpec extends UnitSpec with SpecBase {
       "uses govuk-task-list__status--cannot-start-yet class when status is TasksRemaining" in {
         val application = applicationBuilder().build()
         running(application) {
-          val taskRow = TaskRowViewModel(
+          val taskRow = TaskRows(
             id = "test-task",
             linkText = "Test Task",
             link = controllers.routes.JourneyRecoveryController.onPageLoad(),
@@ -93,7 +93,7 @@ class TaskListViewModelSpec extends UnitSpec with SpecBase {
       "does not use a tag when status is TasksRemaining" in {
         val application = applicationBuilder().build()
         running(application) {
-          val taskRow = TaskRowViewModel(
+          val taskRow = TaskRows(
             id = "test-task",
             linkText = "Test Task",
             link = controllers.routes.JourneyRecoveryController.onPageLoad(),
@@ -109,7 +109,7 @@ class TaskListViewModelSpec extends UnitSpec with SpecBase {
       "has href when status is NotStarted" in {
         val application = applicationBuilder().build()
         running(application) {
-          val taskRow = TaskRowViewModel(
+          val taskRow = TaskRows(
             id = "test-task",
             linkText = "Test Task",
             link = controllers.routes.JourneyRecoveryController.onPageLoad(),
@@ -126,7 +126,7 @@ class TaskListViewModelSpec extends UnitSpec with SpecBase {
       "uses tag with govuk-tag--blue class when status is NotStarted" in {
         val application = applicationBuilder().build()
         running(application) {
-          val taskRow = TaskRowViewModel(
+          val taskRow = TaskRows(
             id = "test-task",
             linkText = "Test Task",
             link = controllers.routes.JourneyRecoveryController.onPageLoad(),
@@ -143,7 +143,7 @@ class TaskListViewModelSpec extends UnitSpec with SpecBase {
       "uses tag with govuk-tag--light-blue class when status is InProgress" in {
         val application = applicationBuilder().build()
         running(application) {
-          val taskRow = TaskRowViewModel(
+          val taskRow = TaskRows(
             id = "test-task",
             linkText = "Test Task",
             link = controllers.routes.JourneyRecoveryController.onPageLoad(),
@@ -160,7 +160,7 @@ class TaskListViewModelSpec extends UnitSpec with SpecBase {
       "has href when status is Completed" in {
         val application = applicationBuilder().build()
         running(application) {
-          val taskRow = TaskRowViewModel(
+          val taskRow = TaskRows(
             id = "test-task",
             linkText = "Test Task",
             link = controllers.routes.JourneyRecoveryController.onPageLoad(),
@@ -177,7 +177,7 @@ class TaskListViewModelSpec extends UnitSpec with SpecBase {
       "does not use a tag when status is Completed" in {
         val application = applicationBuilder().build()
         running(application) {
-          val taskRow = TaskRowViewModel(
+          val taskRow = TaskRows(
             id = "test-task",
             linkText = "Test Task",
             link = controllers.routes.JourneyRecoveryController.onPageLoad(),
@@ -193,7 +193,7 @@ class TaskListViewModelSpec extends UnitSpec with SpecBase {
       "includes hint text when provided" in {
         val application = applicationBuilder().build()
         running(application) {
-          val taskRow = TaskRowViewModel(
+          val taskRow = TaskRows(
             id = "test-task",
             linkText = "Test Task",
             link = controllers.routes.JourneyRecoveryController.onPageLoad(),
@@ -210,7 +210,7 @@ class TaskListViewModelSpec extends UnitSpec with SpecBase {
       "does not include hint text when not provided" in {
         val application = applicationBuilder().build()
         running(application) {
-          val taskRow = TaskRowViewModel(
+          val taskRow = TaskRows(
             id = "test-task",
             linkText = "Test Task",
             link = controllers.routes.JourneyRecoveryController.onPageLoad(),

@@ -18,19 +18,11 @@ package viewmodels.returns
 
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.TaskListItem
-import utils.ReturnsDateUtils.*
 
-import java.time.{LocalDate, Month}
 
- case class TaskListSectionViewModel(
+ case class TaskListSection(
   headingKey: String,
   rows: Seq[TaskListItem]
-) 
- {
+) {
    def heading(implicit messages: Messages): String = messages(headingKey)
-   def returnPeriod(implicit messages: Messages): String = getReturnPeriod(month)
-   def dueDate(implicit messages: Messages): String = getDueDate(month)
-   def monthLength(implicit messages: Messages): Int = getMonthLength(month)
-   def year(implicit messages: Messages): Int = getYear
-   
  }
