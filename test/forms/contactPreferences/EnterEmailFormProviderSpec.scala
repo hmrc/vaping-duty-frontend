@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms
+package forms.contactPreferences
 
 import forms.behaviours.StringFieldBehaviours
 import forms.contactPreference.EnterEmailFormProvider
