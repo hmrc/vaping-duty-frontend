@@ -18,28 +18,13 @@ package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
 import models.TaskStatus
-import models.enrolment.EnrolmentUserAnswers
 import play.api.i18n.Messages
-import play.api.libs.json.JsObject
 import play.api.test.Helpers.*
 import uk.gov.hmrc.govukfrontend.views.Aliases.TaskListItem
-
-import java.time.Instant
 
 class TaskListSpec extends UnitSpec with SpecBase {
 
   given Messages = messages(applicationBuilder().build())
-  
-  private def findRowById(sections: Seq[TaskListSection], id: String): TaskListItem = {
-    val allRows = sections.flatMap(_.rows)
-    allRows.find(row =>
-      row.status.tag.exists(_.attributes.get("id").contains(s"$id-status")) ||
-        row.title.content.asHtml.body.contains(id)
-    ).getOrElse {
-      fail(s"Row with id '$id' not found; available rows: " +
-        allRows.map(r => r.status.tag.flatMap(_.attributes.get("id"))).mkString(", "))
-    }
-  }
 
   "TaskListViewModel.sections" - {
 

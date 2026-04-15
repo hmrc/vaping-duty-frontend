@@ -32,11 +32,11 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
 
   private lazy val application: Application = applicationBuilder()
     .configure(
-      "microservice.services.vaping-duty-account.port" -> server.port
+      "microservice.services.vaping-duty.port" -> server.port
     ).build()
 
   // Update once implemented
-  private val url            = "/vaping-duty-account/user-answers"
+  private val url            = "/vaping-duty/user-answers"
   private lazy val connector = application.injector.instanceOf[ReturnsUserAnswersConnector]
   
   private val instant                     = Instant.parse("2026-04-14T07:54:00.483Z")
@@ -88,7 +88,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
   }
 
   ".keepAlive" - {
-    val keepAliveUrl = "/vaping-duty-account/keep-alive"
+    val keepAliveUrl = "/vaping-duty/keep-alive"
 
     "must successfully keepAlive" in {
       server.stubFor(
