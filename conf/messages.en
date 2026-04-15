@@ -171,3 +171,18 @@ month.sep = September
 month.oct = October
 month.nov = November
 month.dec = December
+
+declareDuty.title = declareDuty
+declareDuty.heading = declareDuty
+declareDuty.checkYourAnswersLabel = declareDuty
+declareDuty.error.required = Select yes if declareDuty
+declareDuty.change.hidden = DeclareDuty
+
+enterDutyAmount.title = EnterDutyAmount
+enterDutyAmount.heading = EnterDutyAmount
+enterDutyAmount.checkYourAnswersLabel = EnterDutyAmount
+enterDutyAmount.error.nonNumeric = Enter your enterDutyAmount using numbers
+enterDutyAmount.error.required = Enter your enterDutyAmount
+enterDutyAmount.error.wholeNumber = Enter your enterDutyAmount using whole numbers
+enterDutyAmount.error.outOfRange = EnterDutyAmount must be between {0} and {1}
+enterDutyAmount.change.hidden = EnterDutyAmount
