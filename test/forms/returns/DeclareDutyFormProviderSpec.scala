@@ -22,8 +22,7 @@ import play.api.data.FormError
 
 class DeclareDutyFormProviderSpec extends BooleanFieldBehaviours {
 
-  val requiredKey = "declareDuty.error.required"
-  val invalidKey = "error.boolean"
+  val requiredKey = "returns.declareDuty.error.required"
 
   val form = new DeclareDutyFormProvider()()
 
@@ -34,7 +33,7 @@ class DeclareDutyFormProviderSpec extends BooleanFieldBehaviours {
     behave like booleanField(
       form,
       fieldName,
-      invalidError = FormError(fieldName, invalidKey)
+      invalidError = FormError(fieldName, requiredKey)
     )
 
     behave like mandatoryField(

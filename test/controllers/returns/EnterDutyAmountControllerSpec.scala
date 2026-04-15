@@ -32,7 +32,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.ReturnsUserAnswersService
-import views.html.EnterDutyAmountView
+import views.html.returns.EnterDutyAmountView
 
 import scala.concurrent.Future
 
@@ -45,7 +45,7 @@ class EnterDutyAmountControllerSpec extends SpecBase with MockitoSugar {
 
   val validAnswer = 1
 
-  lazy val enterDutyAmountRoute: String = routes.EnterDutyAmountController.onPageLoad(NormalMode).url
+  lazy val enterDutyAmountRoute: String = controllers.returns.routes.EnterDutyAmountController.onPageLoad(NormalMode).url
 
   "EnterDutyAmount Controller" - {
 

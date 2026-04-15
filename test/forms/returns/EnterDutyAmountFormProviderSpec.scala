@@ -42,8 +42,8 @@ class EnterDutyAmountFormProviderSpec extends IntFieldBehaviours {
     behave like intField(
       form,
       fieldName,
-      nonNumericError  = FormError(fieldName, "enterDutyAmount.error.nonNumeric"),
-      wholeNumberError = FormError(fieldName, "enterDutyAmount.error.wholeNumber")
+      nonNumericError  = FormError(fieldName, "returns.enterDutyAmount.error.nonNumeric"),
+      wholeNumberError = FormError(fieldName, "returns.enterDutyAmount.error.wholeNumber")
     )
 
     behave like intFieldWithRange(
@@ -51,13 +51,13 @@ class EnterDutyAmountFormProviderSpec extends IntFieldBehaviours {
       fieldName,
       minimum       = minimum,
       maximum       = maximum,
-      expectedError = FormError(fieldName, "enterDutyAmount.error.outOfRange", Seq(minimum, maximum))
+      expectedError = FormError(fieldName, "returns.enterDutyAmount.error.outOfRange", Seq(minimum, maximum))
     )
 
     behave like mandatoryField(
       form,
       fieldName,
-      requiredError = FormError(fieldName, "enterDutyAmount.error.required")
+      requiredError = FormError(fieldName, "returns.enterDutyAmount.error.required")
     )
   }
 }
