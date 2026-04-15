@@ -7,7 +7,7 @@ import models.returns.ReturnsUserAnswers
 import services.returns.ReturnsUserAnswersService
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import play.api.libs.json.JsObject
-import navigation.{FakeNavigator, Navigator}
+import navigation.{FakeReturnsNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar

@@ -3,8 +3,8 @@ package controllers
 import base.SpecBase
 import forms.$className$FormProvider
 import models.{NormalMode, PreferenceUserAnswers}
-import services.UserAnswersService
-import navigation.{FakeNavigator, Navigator}
+import services.returns.ReturnsUserAnswersService
+import navigation.{FakeReturnsNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -32,7 +32,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, $className;format="decap"$Route)
@@ -48,9 +48,9 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = emptyUserAnswers.set($className$Page, validAnswer).success.value
+      val userAnswers = returnsUserAnswers.set($className$Page, validAnswer).success.value
 
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, $className;format="decap"$Route)
@@ -66,15 +66,15 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[UserAnswersService]
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
 
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[UserAnswersService].toInstance(mockSessionRepository)
+            bind[ReturnsNavigator].toInstance(new FakeReturnsNavigator(onwardRoute)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
           )
           .build()
 
@@ -92,7 +92,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
         val request =
@@ -112,7 +112,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = applicationBuilder(returnsUserAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, $className;format="decap"$Route)
@@ -126,7 +126,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = applicationBuilder(returnsUserAnswers = None).build()
 
       running(application) {
         val request =

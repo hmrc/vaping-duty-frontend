@@ -1,6 +1,6 @@
 package controllers
 
-import controllers.actions._
+import controllers.actions.returns.*
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -10,8 +10,8 @@ import views.html.$className$View
 class $className$Controller @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: ApprovedVapingManufacturerAuthAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
+                                       getData: ReturnsDataRetrievalAction,
+                                       requireData: ReturnsDataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: $className$View
                                      ) extends FrontendBaseController with I18nSupport {
