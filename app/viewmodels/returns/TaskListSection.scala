@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,12 @@
 package viewmodels.returns
 
 import play.api.i18n.Messages
-import utils.ReturnsDateUtils.*
+import uk.gov.hmrc.govukfrontend.views.Aliases.TaskListItem
 
-import java.time.{LocalDate, Month}
 
-case class BeforeYouStartViewModel(returnPeriod: String, dueDate: String, monthLength: Int, year: Int)
-
-object BeforeYouStartViewModel {
-
-  val month: Month = LocalDate.now().getMonth
-
-  def apply()(implicit messages: Messages): BeforeYouStartViewModel =
-    beforeYouStartViewModel()
-
-  private def beforeYouStartViewModel()(implicit messages: Messages) =
-    new BeforeYouStartViewModel(getReturnPeriod(month), getDueDate(month), getMonthLength(month), getYear)
-  
-}
+ case class TaskListSection(
+  headingKey: String,
+  rows: Seq[TaskListItem]
+) {
+   def heading(implicit messages: Messages): String = messages(headingKey)
+ }

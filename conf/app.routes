@@ -48,3 +48,4 @@ POST       /contact-preferences/confirm-email-address                           
 
 # Returns
 GET        /complete-return/before-you-start                                    controllers.returns.BeforeYouStartController.onPageLoad()
+GET        /complete-return/task-list                                           controllers.returns.TaskListController.onPageLoad()

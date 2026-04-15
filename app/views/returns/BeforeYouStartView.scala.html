@@ -58,7 +58,7 @@
 
     @govukButton(
         ButtonViewModel(messages("site.continue"))
-        .asLink("#")
+        .asLink(controllers.returns.routes.TaskListController.onPageLoad().url)
     )
 
 }
