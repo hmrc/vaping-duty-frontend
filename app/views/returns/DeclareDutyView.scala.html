@@ -14,28 +14,35 @@
  * limitations under the License.
  *@
 
+@import viewmodels.LegendSize
+@import components.Caption
+
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukRadios: GovukRadios,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    caption: Caption
 )
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("declareDuty.title"))) {
+@layout(pageTitle = title(form, messages("returns.declareDuty.title"))) {
 
-    @formHelper(action = routes.DeclareDutyController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.returns.routes.DeclareDutyController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+      @caption(messages("returns.declareDuty.caption.text"))
+
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("declareDuty.heading")).asPageHeading()
+                legend = LegendViewModel(messages("returns.declareDuty.heading"))
+                    .asPageHeading(LegendSize.Large)
             )
         )
 

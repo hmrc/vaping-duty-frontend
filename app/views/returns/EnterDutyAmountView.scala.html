@@ -15,32 +15,64 @@
  *@
 
 @import viewmodels.InputWidth.*
+@import components.{Caption, Paragraph, Heading}
+@import viewmodels.LegendSize
 
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    govukDetails: GovukDetails,
+    caption: Caption,
+    p: Paragraph,
+    govukHint: GovukHint,
+    h1: Heading
 )
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("enterDutyAmount.title"))) {
+@detailsContent = {
+    @p(Seq(messages("returns.enterDutyAmount.details.value.p1")))
+    @p(Seq(messages("returns.enterDutyAmount.details.value.p2")))
+}
 
-    @formHelper(action = routes.EnterDutyAmountController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+@layout(pageTitle = title(form, messages("returns.enterDutyAmount.title"))) {
+
+    @formHelper(action = controllers.returns.routes.EnterDutyAmountController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        @caption(messages("returns.enterDutyAmount.caption.text"))
+        @h1(messages("returns.enterDutyAmount.heading"))
+
+        @p(Seq(
+            HtmlContent(
+                messages("returns.enterDutyAmount.p")
+            )
+        ))
+
+        @govukDetails(Details(
+            summary = messages("returns.enterDutyAmount.details.key"),
+            content = HtmlContent(detailsContent)
+        ))
+
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("enterDutyAmount.heading")).asPageHeading()
+                label = LabelViewModel(messages("returns.enterDutyAmount.q")).withCssClass(LegendSize.Medium.toString)
             )
             .asNumeric()
             .withWidth(Fixed10)
+            .withHint(Hint(
+              content = messages("returns.enterDutyAmount.q.hintText")
+            ))
+            .withSuffix(PrefixOrSuffix(
+              content = messages("returns.enterDutyAmount.q.ml")
+            ))
         )
 
         @govukButton(
