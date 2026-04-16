@@ -24,9 +24,10 @@ object TaskStatusService {
 
   def declareDutyTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
     (answers.get(DeclareDutyPage), answers.get(EnterDutyAmountPage)) match {
-      case (Some(_), Some(_)) => TaskStatus.Completed
-      case (Some(_), None)    => TaskStatus.InProgress
-      case (None, _)          => TaskStatus.NotStarted
+      case (None, _)             => TaskStatus.NotStarted
+      case (Some(false), _)      => TaskStatus.Completed
+      case (Some(true), None)    => TaskStatus.InProgress
+      case (Some(true), Some(_)) => TaskStatus.Completed
     }
   }
 

@@ -57,6 +57,16 @@ class TaskStatusServiceSpec extends SpecBase {
       result mustBe TaskStatus.Completed
     }
 
+    "must return Completed when DeclareDutyPage is answered no" in {
+      val answers = emptyAnswers
+        .set(DeclareDutyPage, false)
+        .success
+        .value
+
+      val result = TaskStatusService.declareDutyTaskStatus(answers)
+      result mustBe TaskStatus.Completed
+    }
+
     "must return NotStarted when only EnterDutyAmountPage is answered" in {
       val answers = emptyAnswers
         .set(EnterDutyAmountPage, 1000)
