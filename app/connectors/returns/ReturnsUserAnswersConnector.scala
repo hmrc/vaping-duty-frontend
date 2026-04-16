@@ -31,10 +31,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class ReturnsUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit val httpClient: HttpClientV2)
                                            (implicit ec: ExecutionContext) extends HttpReadsInstances {
 
-  // MUST UPDATE URLS TO CORRECT BACKEND ONCE IMPLEMENTED
-  def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ReturnsUserAnswers]] =
+  def get(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ReturnsUserAnswers]] =
     httpClient
-      .get(url"${config.returnsUserAnswersGetUrl(vpdId)}")
+      .get(url"${config.returnsUserAnswersGetUrl(internalId)}")
       .execute[Either[UpstreamErrorResponse, ReturnsUserAnswers]]
 
   def set(userAnswers: ReturnsUserAnswers)(implicit hc: HeaderCarrier): Future[HttpResponse] = {

@@ -88,7 +88,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
 
   private val returnsBaseUrl = s"$returnsHost/vaping-duty"
-  def returnsUserAnswersGetUrl(vpdId: VpdId): String = s"$returnsBaseUrl/user-answers/$vpdId"
+  def returnsUserAnswersGetUrl(internalId: InternalId): String = s"$returnsBaseUrl/user-answers/$internalId"
   def returnsUserAnswersUrl: String = s"$returnsBaseUrl/user-answers"
   def returnsUserAnswersKeepAliveUrl: String = s"$returnsBaseUrl/keep-alive"
   def returnsUserAnswersClearUrl(internalId: InternalId): String = s"$returnsBaseUrl/user-answers/clear/$internalId"
