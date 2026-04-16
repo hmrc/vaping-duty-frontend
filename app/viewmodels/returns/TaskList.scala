@@ -16,7 +16,7 @@
 
 package viewmodels.returns
 
-import models.TaskStatus
+import models.{NormalMode, TaskStatus}
 import models.returns.ReturnsUserAnswers
 import play.api.i18n.Messages
 
@@ -39,7 +39,7 @@ object TaskList {
         TaskRows(
           id       = "duty-task-1",
           linkText = messages("returns.taskList.section.declareDuty.task1"),
-          link     = controllers.routes.JourneyRecoveryController.onPageLoad(),
+          link     = controllers.returns.routes.DeclareDutyController.onPageLoad(NormalMode),
           status   = TaskStatus.NotStarted
         ).toTaskListItem
       )
