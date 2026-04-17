@@ -49,24 +49,21 @@ class ReturnsUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit 
       .post(url"${config.returnsUserAnswersKeepAliveUrl(internalId)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
-      .flatMap { response =>
-        if (response.status == NO_CONTENT) {
-          Future.successful(Right(()))
-        } else {
-          Future.successful(Left(UpstreamErrorResponse("keepAlive failed", response.status)))
-        }
-      }
+      .flatMap(parseResponse(_, "keepAlive failed"))
 
   def clear(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
       .delete(url"${config.returnsUserAnswersClearUrl(internalId)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
-      .flatMap { response =>
-        if (response.status == NO_CONTENT) {
-          Future.successful(Right(()))
-        } else {
-          Future.successful(Left(UpstreamErrorResponse("clear failed", response.status)))
-        }
-      }
+      .flatMap(parseResponse(_, "clear failed"))
+
+
+  private def parseResponse(response: HttpResponse, message: String) = {
+    if (response.status == NO_CONTENT) {
+      Future.successful(Right(()))
+    } else {
+      Future.successful(Left(UpstreamErrorResponse(message, response.status)))
+    }
+  }
 }
