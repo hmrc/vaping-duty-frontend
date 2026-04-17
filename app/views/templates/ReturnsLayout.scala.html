@@ -1,0 +1,77 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.FrontendAppConfig
+@import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
+@import uk.gov.hmrc.hmrcfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
+@import views.html.helper.CSPNonce
+@import models.BtaLink
+
+@this(
+    appConfig: FrontendAppConfig,
+    hmrcTimeoutDialog: HmrcTimeoutDialog,
+    hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
+    vpdPhaseBanner: StandardBetaBanner,
+    hmrcStandardPage: HmrcStandardPage
+)
+
+@(pageTitle: String, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
+
+@head = {
+
+    @if(timeout) {
+        @hmrcTimeoutDialog(TimeoutDialog(
+            timeout             = Some(appConfig.timeout),
+            countdown           = Some(appConfig.countdown),
+            keepAliveUrl        = Some(controllers.returns.routes.ReturnsKeepAliveController.keepAlive().url),
+            keepAliveButtonText = Some(messages("timeout.keepAlive")),
+            signOutUrl          = Some(controllers.auth.routes.AuthController.signOut().url),
+            signOutButtonText   = Some(messages("timeout.signOut")),
+            timeoutUrl          = Some(controllers.auth.routes.AuthController.signOutNoSurvey().url),
+            title               = Some(messages("timeout.title")),
+            message             = Some(messages("timeout.message")),
+            language            = Some(messages.lang.code)
+        ))
+    }
+    <link @{CSPNonce.attr} href="@routes.Assets.versioned("stylesheets/application.css")" media="all" rel="stylesheet" type="text/css" />
+}
+
+@content = {
+    @contentBlock
+    <div class="not-working-link">
+        @hmrcReportTechnicalIssueHelper()
+    </div>
+}
+
+@hmrcStandardPage(HmrcStandardPageParams(
+    pageTitle = Some(pageTitle),
+    templateOverrides = TemplateOverrides(
+        additionalHeadBlock = Some(head)
+    ),
+    serviceURLs = ServiceURLs(
+        serviceUrl = Some(BtaLink(appConfig)),
+        signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
+    ),
+    banners = Banners(
+        displayHmrcBanner = showHmrcBanner,
+        phaseBanner = Some(vpdPhaseBanner(appConfig.feedbackUrl))
+    ),
+    isWelshTranslationAvailable = appConfig.languageTranslationEnabled,
+    backLink = if (showBackLink) Some(BackLink.mimicsBrowserBackButtonViaJavaScript) else None
+))(content)
