@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package pages
+package pages.returns
 
 import models.returns.ReturnsUserAnswers
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 import scala.util.Try
@@ -26,7 +27,6 @@ case object DeclareDutyPage extends QuestionPage[Boolean] {
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "declareDuty"
-
 
   override def cleanup(value: Option[Boolean], userAnswers: ReturnsUserAnswers): Try[ReturnsUserAnswers] = {
     value match {

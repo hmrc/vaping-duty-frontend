@@ -20,6 +20,7 @@ import base.SpecBase
 import controllers.routes
 import models.*
 import pages.*
+import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import play.api.mvc.Call
 
 class ReturnsNavigatorSpec extends SpecBase {

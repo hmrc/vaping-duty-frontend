@@ -23,7 +23,7 @@ import models.Mode
 import models.identifiers.InternalId
 import models.returns.ReturnsUserAnswers
 import navigation.ReturnsNavigator
-import pages.DeclareDutyPage
+import pages.returns.DeclareDutyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.JsObject

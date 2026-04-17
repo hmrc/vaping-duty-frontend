@@ -19,7 +19,7 @@ package services.returns
 import base.SpecBase
 import models.TaskStatus
 import models.returns.ReturnsUserAnswers
-import pages.{DeclareDutyPage, EnterDutyAmountPage}
+import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 
 class TaskStatusServiceSpec extends SpecBase {
 

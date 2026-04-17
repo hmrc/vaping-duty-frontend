@@ -18,7 +18,7 @@ package services.returns
 
 import models.TaskStatus
 import models.returns.ReturnsUserAnswers
-import pages.{DeclareDutyPage, EnterDutyAmountPage}
+import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 
 object TaskStatusService {
 

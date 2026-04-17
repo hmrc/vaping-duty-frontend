@@ -25,7 +25,7 @@ import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.DeclareDutyPage
+import pages.returns.DeclareDutyPage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call

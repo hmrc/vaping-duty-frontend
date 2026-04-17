@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import controllers.routes
 import models.CheckMode
 import models.returns.ReturnsUserAnswers
-import pages.EnterDutyAmountPage
+import pages.returns.EnterDutyAmountPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._

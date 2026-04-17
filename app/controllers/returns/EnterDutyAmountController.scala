@@ -21,7 +21,7 @@ import controllers.actions.returns.*
 import forms.returns.EnterDutyAmountFormProvider
 import models.Mode
 import navigation.ReturnsNavigator
-import pages.EnterDutyAmountPage
+import pages.returns.EnterDutyAmountPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

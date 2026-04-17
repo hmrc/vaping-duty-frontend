@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package pages
+package pages.returns
 
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object EnterDutyAmountPage extends QuestionPage[Int] {

@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import models.CheckMode
 import models.returns.ReturnsUserAnswers
-import pages.DeclareDutyPage
+import pages.returns.DeclareDutyPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
