@@ -88,7 +88,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
   }
 
   ".keepAlive" - {
-    val keepAliveUrl = "/vaping-duty/keep-alive"
+    val keepAliveUrl = s"/vaping-duty/user-answers/keep-alive/$internalId"
 
     "must successfully keepAlive" in {
       server.stubFor(

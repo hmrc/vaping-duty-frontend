@@ -17,7 +17,7 @@
 package connectors.returns
 
 import config.FrontendAppConfig
-import models.identifiers.{InternalId, VpdId}
+import models.identifiers.InternalId
 import models.returns.ReturnsUserAnswers
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
@@ -46,7 +46,7 @@ class ReturnsUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit 
 
   def keepAlive(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
-      .post(url"${config.returnsUserAnswersKeepAliveUrl}")
+      .post(url"${config.returnsUserAnswersKeepAliveUrl(internalId)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap { response =>
@@ -56,7 +56,7 @@ class ReturnsUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit 
           Future.successful(Left(UpstreamErrorResponse("keepAlive failed", response.status)))
         }
       }
-  
+
   def clear(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
       .delete(url"${config.returnsUserAnswersClearUrl(internalId)}")

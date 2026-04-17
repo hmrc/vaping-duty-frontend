@@ -95,10 +95,12 @@ class PreferencePreferenceUserAnswersConnectorSpec extends SpecBase with TestDat
   }
 
   "keepAlive" - {
-    "must successfully keepAlive" in new SetUp {
-      val postUrl = "http://vaping-duty-account/user-answers/keepAlive"
 
-      when(mockConfig.cpUserAnswersKeepAliveUrl).thenReturn(postUrl)
+    val postUrl = s"http://vaping-duty-account/keep-alive/$internalId"
+
+    "must successfully keepAlive" in new SetUp {
+
+      when(mockConfig.cpUserAnswersKeepAliveUrl(internalId)).thenReturn(postUrl)
 
       when(connector.httpClient.post(any())(any())).thenReturn(requestBuilder)
 
@@ -113,9 +115,8 @@ class PreferencePreferenceUserAnswersConnectorSpec extends SpecBase with TestDat
     }
 
     "be unsuccessful when response is not NO_CONTENT" in new SetUp {
-      val postUrl = "http://vaping-duty-account/user-answers/keepAlive"
 
-      when(mockConfig.cpUserAnswersKeepAliveUrl).thenReturn(postUrl)
+      when(mockConfig.cpUserAnswersKeepAliveUrl(internalId)).thenReturn(postUrl)
 
       when(connector.httpClient.post(any())(any())).thenReturn(requestBuilder)
 
