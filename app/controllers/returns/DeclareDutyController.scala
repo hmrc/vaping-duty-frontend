@@ -64,13 +64,13 @@ class DeclareDutyController @Inject()(
       form.bindFromRequest().fold(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
-
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(getEmptyUA(request.internalId))
                                 .set(DeclareDutyPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(DeclareDutyPage, mode, updatedAnswers))
+            cleanedAnswers <- Future.fromTry(DeclareDutyPage.cleanup(Some(value), updatedAnswers))
+            _              <- sessionRepository.set(cleanedAnswers)
+          } yield Redirect(navigator.nextPage(DeclareDutyPage, mode, cleanedAnswers))
       )
   }
 
