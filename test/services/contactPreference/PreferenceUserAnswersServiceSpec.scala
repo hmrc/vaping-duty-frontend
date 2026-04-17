@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
-class PreferencePreferenceUserAnswersServiceSpec extends SpecBase {
+class PreferenceUserAnswersServiceSpec extends SpecBase {
 
   "set" - {
     "must return a success if the operation was successful" in new Setup {
