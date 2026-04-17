@@ -81,6 +81,32 @@ class DeclareDutyControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to the next page and clear entered duty amount when false" in {
+
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+          .overrides(
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, declareDutyRoute)
+            .withFormUrlEncodedBody(("value", "false"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
     "must redirect to the next page when valid data is submitted" in {
 
       val mockSessionRepository = mock[ReturnsUserAnswersService]

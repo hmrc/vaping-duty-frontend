@@ -26,22 +26,27 @@ class ReturnsNavigatorSpec extends SpecBase {
 
   val navigator = new ReturnsNavigator(mockAppConfig)
 
-  "Navigator" - {
+  "ReturnsNavigator" - {
 
     "in Normal mode" - {
 
-      "must go from DeclareDuty to EnterAmount when there IS duty to declare " in {
+      "must go from DeclareDuty to EnterAmount when there IS duty to declare" in {
         val ua = returnsUserAnswers.set(DeclareDutyPage, true).success.value
         navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.returns.routes.EnterDutyAmountController.onPageLoad(NormalMode)
       }
 
-      "must go from DeclareDuty to TaskList when there IS NO duty to declare " in {
-        val ua = returnsUserAnswers.set(DeclareDutyPage, false).success.value
+      "must go from DeclareDuty to TaskList when there IS NO duty to declare" in {
+        val ua = returnsUserAnswers
+          .set(EnterDutyAmountPage, 1).success.value
+          .set(DeclareDutyPage, false).success.value
+
+        ua.get(EnterDutyAmountPage) mustBe None
         navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.returns.routes.TaskListController.onPageLoad()
       }
 
       "must go from EnterAmount to TaskList " in {
         val ua = returnsUserAnswers.set(EnterDutyAmountPage, 1).success.value
+
         navigator.nextPage(EnterDutyAmountPage, NormalMode, ua) mustBe controllers.returns.routes.TaskListController.onPageLoad()
       }
 
