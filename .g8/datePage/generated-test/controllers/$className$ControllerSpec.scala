@@ -6,7 +6,7 @@ import base.SpecBase
 import forms.$className$FormProvider
 import models.{NormalMode, PreferenceUserAnswers}
 import services.returns.ReturnsUserAnswersService
-import navigation.{FakeReturnsNavigator, ReturnsNavigator}
+import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -33,7 +33,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val $className;format="decap"$Route = routes.$className$Controller.onPageLoad(NormalMode).url
 
-  override val returnsUserAnswers = PreferenceUserAnswers(userAnswersId)
+  override val returnsUserAnswers = ReturnsUserAnswers(userAnswersId)
 
   def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, $className;format="decap"$Route)

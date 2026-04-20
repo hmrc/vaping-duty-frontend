@@ -4,7 +4,7 @@ import base.SpecBase
 import forms.$className$FormProvider
 import models.{NormalMode, $className$, PreferenceUserAnswers}
 import services.returns.ReturnsUserAnswersService
-import navigation.{FakeReturnsNavigator, ReturnsNavigator}
+import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -77,7 +77,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
       val application =
         applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
           .overrides(
-            bind[ReturnsNavigator].toInstance(new FakeReturnsNavigator(onwardRoute)),
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute)),
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
           )
           .build()
