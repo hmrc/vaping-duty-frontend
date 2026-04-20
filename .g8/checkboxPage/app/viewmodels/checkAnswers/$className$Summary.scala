@@ -1,6 +1,6 @@
 package viewmodels.checkAnswers
 
-import controllers.routes
+import controllers.returns.routes
 import models.CheckMode
 import models.returns.ReturnsUserAnswers
 import pages.$className$Page
