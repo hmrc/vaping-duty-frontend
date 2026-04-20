@@ -21,6 +21,7 @@ import controllers.routes
 import models.*
 import models.returns.ReturnsUserAnswers
 import pages.*
+import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import play.api.Logging
 import play.api.http.HttpVerbs.GET
 import play.api.mvc.Call
@@ -33,11 +34,20 @@ class ReturnsNavigator @Inject()(
 ) extends Logging {
 
   private val normalRoutes: Page => ReturnsUserAnswers => Call = {
+    case DeclareDutyPage        => ua   => declareDutyPageRoutes(ua)
+    case EnterDutyAmountPage    => _    => controllers.returns.routes.TaskListController.onPageLoad()
     case _                      => _    => Call(GET, BtaLink(config))
   }
 
   private val checkRouteMap: Page => ReturnsUserAnswers => Call = {
     case _ => _ => routes.JourneyRecoveryController.onPageLoad()
+  }
+
+  private def declareDutyPageRoutes(ua: ReturnsUserAnswers) = {
+    ua.get(DeclareDutyPage) match
+      case Some(true)   => controllers.returns.routes.EnterDutyAmountController.onPageLoad(NormalMode)
+      case Some(false)  => controllers.returns.routes.TaskListController.onPageLoad()
+      case _            => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
   def nextPage(page: Page, mode: Mode, userAnswers: ReturnsUserAnswers): Call = mode match {

@@ -33,7 +33,7 @@ class ReturnsDataRetrievalActionImpl @Inject()(val service: ReturnsUserAnswersSe
 
     val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    service.get(request.enrolmentVpdId)(headerCarrier).map {
+    service.get(request.internalId)(headerCarrier).map {
       case Left(_)    => ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, None)
       case Right(ua)  => ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, Some(ua))
     }

@@ -27,8 +27,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ReturnsUserAnswersService @Inject()(userAnswersConnector: ReturnsUserAnswersConnector)(implicit ec: ExecutionContext) {
   
-  def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ReturnsUserAnswers]] =
-    userAnswersConnector.get(vpdId)
+  def get(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ReturnsUserAnswers]] =
+    userAnswersConnector.get(internalId)
   
   def set(userAnswers: ReturnsUserAnswers)(implicit hc: HeaderCarrier): Future[Either[ErrorModel, HttpResponse]] = {
     userAnswersConnector.set(userAnswers).map { response =>

@@ -7,7 +7,7 @@ import models.returns.ReturnsUserAnswers
 import services.returns.ReturnsUserAnswersService
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import play.api.libs.json.JsObject
-import navigation.{FakeNavigator, Navigator}
+import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -56,7 +56,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
       val userAnswers = returnsUserAnswers.set($className$Page, $className$.values.toSet).success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
-      
+
       running(application) {
         val request = FakeRequest(GET, $className;format="decap"$Route)
 
@@ -130,7 +130,7 @@ class $className$ControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-      
+
       val application = applicationBuilder(returnsUserAnswers = None).build()
 
       running(application) {

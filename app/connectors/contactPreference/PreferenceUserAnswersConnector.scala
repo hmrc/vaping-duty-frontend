@@ -55,7 +55,7 @@ class PreferenceUserAnswersConnector @Inject()(config: FrontendAppConfig, implic
 
   def keepAlive(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
-      .post(url"${config.cpUserAnswersKeepAliveUrl}")
+      .post(url"${config.cpUserAnswersKeepAliveUrl(internalId)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap { response =>

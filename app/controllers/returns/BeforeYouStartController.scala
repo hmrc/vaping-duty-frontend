@@ -37,8 +37,6 @@ class BeforeYouStartController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction) {
     implicit request =>
 
-      val vm: BeforeYouStartViewModel = BeforeYouStartViewModel()
-
-      Ok(view(vm))
+      Ok(view(BeforeYouStartViewModel()))
   }
 }

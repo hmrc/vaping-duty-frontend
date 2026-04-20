@@ -16,9 +16,10 @@
 
 package viewmodels.returns
 
-import models.TaskStatus
+import models.{NormalMode, TaskStatus}
 import models.returns.ReturnsUserAnswers
 import play.api.i18n.Messages
+import services.returns.TaskStatusService
 
 object TaskList {
 
@@ -39,8 +40,8 @@ object TaskList {
         TaskRows(
           id       = "duty-task-1",
           linkText = messages("returns.taskList.section.declareDuty.task1"),
-          link     = controllers.routes.JourneyRecoveryController.onPageLoad(),
-          status   = TaskStatus.NotStarted
+          link     = controllers.returns.routes.DeclareDutyController.onPageLoad(NormalMode),
+          status   = TaskStatusService.declareDutyTaskStatus(userAnswers)
         ).toTaskListItem
       )
     )
@@ -89,7 +90,7 @@ object TaskList {
           id = "submit",
           linkText = messages("returns.taskList.submitReturn.task1"),
           link = controllers.routes.JourneyRecoveryController.onPageLoad(),
-          status = TaskStatus.TasksRemaining,
+          status = TaskStatusService.submitTaskStatus(userAnswers),
           hint = Some(messages("returns.taskList.submitReturn.task1.hint"))
         ).toTaskListItem
       )

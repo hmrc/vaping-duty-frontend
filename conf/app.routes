@@ -6,7 +6,9 @@ GET         /assets/*file                                controllers.Assets.vers
 
 GET         /language/:lang                              controllers.LanguageSwitchController.switchToLanguage(lang: String)
 
-GET         /refresh-session                             controllers.contactPreference.PreferencesKeepAliveController.keepAlive()
+GET         /refresh-preference-session                  controllers.contactPreference.PreferencesKeepAliveController.keepAlive()
+
+GET         /refresh-returns-session                     controllers.returns.ReturnsKeepAliveController.keepAlive()
 
 GET         /there-is-a-problem                          controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 
@@ -49,3 +51,13 @@ POST       /contact-preferences/confirm-email-address                           
 # Returns
 GET        /complete-return/before-you-start                                    controllers.returns.BeforeYouStartController.onPageLoad()
 GET        /complete-return/task-list                                           controllers.returns.TaskListController.onPageLoad()
+
+GET        /complete-return/declare-duty                                        controllers.returns.DeclareDutyController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/declare-duty                                        controllers.returns.DeclareDutyController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/change-declare-duty                                 controllers.returns.DeclareDutyController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/change-declare-duty                                 controllers.returns.DeclareDutyController.onSubmit(mode: Mode = CheckMode)
+
+GET        /complete-return/enter-amount-released                               controllers.returns.EnterDutyAmountController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/enter-amount-released                               controllers.returns.EnterDutyAmountController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/change-enter-amount-released                        controllers.returns.EnterDutyAmountController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/change-enter-amount-released                        controllers.returns.EnterDutyAmountController.onSubmit(mode: Mode = CheckMode)

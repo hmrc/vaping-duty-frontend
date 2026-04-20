@@ -171,3 +171,28 @@ month.sep = September
 month.oct = October
 month.nov = November
 month.dec = December
+
+returns.declareDuty.title = Do you need to declare vaping products for duty?
+returns.declareDuty.heading = Do you need to declare vaping products for duty?
+returns.declareDuty.checkYourAnswersLabel = declareDuty
+returns.declareDuty.error.required = You must select Yes or No
+returns.declareDuty.caption.text = Declare vaping duty
+returns.declareDuty.change.hidden = DeclareDuty
+
+returns.enterDutyAmount.title = Amount of vaping products released
+returns.enterDutyAmount.heading = Amount of vaping products released
+returns.enterDutyAmount.checkYourAnswersLabel = EnterDutyAmount
+returns.enterDutyAmount.p = You must declare the total volume in millilitres of finished vaping products that you released for consumption this period.
+returns.enterDutyAmount.caption.text = Declare vaping duty
+returns.enterDutyAmount.q = How much vaping products released do you need to declare?
+returns.enterDutyAmount.details.key = What ‘finished product’ and ‘released for consumption’ mean
+returns.enterDutyAmount.details.value.p1 = Finished product means the product is contained in its final packaging for retail sale, or it has had a duty stamp applied.
+returns.enterDutyAmount.details.value.p2 = Product released for consumption means that the goods have left a tax-free warehouse to be sold or used in the UK.
+returns.enterDutyAmount.q.hintText = Total millilitres of vaping liquid
+returns.enterDutyAmount.q.ml = ml
+
+returns.enterDutyAmount.error.nonNumeric = You must enter a number greater than zero
+returns.enterDutyAmount.error.required = You must enter a number greater than zero
+returns.enterDutyAmount.error.wholeNumber = You must enter a number greater than zero
+returns.enterDutyAmount.error.outOfRange = You must enter a number greater than zero
+returns.enterDutyAmount.change.hidden = EnterDutyAmount

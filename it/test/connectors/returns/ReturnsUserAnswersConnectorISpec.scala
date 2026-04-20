@@ -46,25 +46,25 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
   ".get" - {
     "must successfully fetch user answers" in {
       server.stubFor(
-        get(urlEqualTo(s"$url/$vpdId"))
+        get(urlEqualTo(s"$url/$internalId"))
           .willReturn(aResponse().withStatus(OK).withBody(Json.toJson(answers).toString))
       )
-      val result = connector.get(vpdId).futureValue
+      val result = connector.get(internalId).futureValue
 
       result mustBe Right(answers)
     }
 
     "must return UpstreamErrorResponse when there is an issue" in {
       server.stubFor(
-        get(urlEqualTo(s"$url/$vpdId"))
+        get(urlEqualTo(s"$url/$internalId"))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody(internalServerErrorResponse.toString))
       )
-      val result = connector.get(vpdId).futureValue
+      val result = connector.get(internalId).futureValue
 
       result.isLeft mustBe true
     }
   }
-  
+
   ".set" - {
     "must successfully write user answers" in {
       server.stubFor(
@@ -88,7 +88,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
   }
 
   ".keepAlive" - {
-    val keepAliveUrl = "/vaping-duty/keep-alive"
+    val keepAliveUrl = s"/vaping-duty/user-answers/keep-alive/$internalId"
 
     "must successfully keepAlive" in {
       server.stubFor(

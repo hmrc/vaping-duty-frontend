@@ -17,7 +17,7 @@
 package connectors.returns
 
 import config.FrontendAppConfig
-import models.identifiers.{InternalId, VpdId}
+import models.identifiers.InternalId
 import models.returns.ReturnsUserAnswers
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
@@ -31,10 +31,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class ReturnsUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit val httpClient: HttpClientV2)
                                            (implicit ec: ExecutionContext) extends HttpReadsInstances {
 
-  // MUST UPDATE URLS TO CORRECT BACKEND ONCE IMPLEMENTED
-  def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ReturnsUserAnswers]] =
+  def get(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ReturnsUserAnswers]] =
     httpClient
-      .get(url"${config.returnsUserAnswersGetUrl(vpdId)}")
+      .get(url"${config.returnsUserAnswersGetUrl(internalId)}")
       .execute[Either[UpstreamErrorResponse, ReturnsUserAnswers]]
 
   def set(userAnswers: ReturnsUserAnswers)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
@@ -47,27 +46,24 @@ class ReturnsUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit 
 
   def keepAlive(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
-      .post(url"${config.returnsUserAnswersKeepAliveUrl}")
+      .post(url"${config.returnsUserAnswersKeepAliveUrl(internalId)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
-      .flatMap { response =>
-        if (response.status == NO_CONTENT) {
-          Future.successful(Right(()))
-        } else {
-          Future.successful(Left(UpstreamErrorResponse("keepAlive failed", response.status)))
-        }
-      }
-  
+      .flatMap(parseResponse(_, "keepAlive failed"))
+
   def clear(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
       .delete(url"${config.returnsUserAnswersClearUrl(internalId)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
-      .flatMap { response =>
-        if (response.status == NO_CONTENT) {
-          Future.successful(Right(()))
-        } else {
-          Future.successful(Left(UpstreamErrorResponse("clear failed", response.status)))
-        }
-      }
+      .flatMap(parseResponse(_, "clear failed"))
+
+
+  private def parseResponse(response: HttpResponse, message: String) = {
+    if (response.status == NO_CONTENT) {
+      Future.successful(Right(()))
+    } else {
+      Future.successful(Left(UpstreamErrorResponse(message, response.status)))
+    }
+  }
 }
