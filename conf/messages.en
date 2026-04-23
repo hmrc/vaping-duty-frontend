@@ -196,3 +196,32 @@ returns.enterDutyAmount.error.required = You must enter a number greater than ze
 returns.enterDutyAmount.error.wholeNumber = You must enter a number greater than zero
 returns.enterDutyAmount.error.outOfRange = You must enter a number greater than zero
 returns.enterDutyAmount.change.hidden = EnterDutyAmount
+
+confirmation.title = confirmation
+confirmation.heading = confirmation
+
+returns.CheckYourAnswers.title = The duty due is £22,000
+returns.CheckYourAnswers.caption = Check your answers
+returns.CheckYourAnswers.heading = The duty due is £22,000
+returns.CheckYourAnswers.p.duty = Duty is calculated by multiplying the volume of vaping products released for sale by the Vaping Product Duty rate of £2.20 per 10ml.
+returns.CheckYourAnswers.h2.theAmount = The amount is based on the total duty due on:
+returns.CheckYourAnswers.list.theVaping = the vaping products you declared
+returns.CheckYourAnswers.list.all = all applicable adjustments you declared
+returns.CheckYourAnswers.p.youWillBe = You will be liable for the amount once you confirm and submit this return.
+returns.CheckYourAnswers.h2.finalDuty = Final duty summary
+returns.CheckYourAnswers.h2.dutySuspended = Duty suspended reporting summary
+returns.CheckYourAnswers.p.theseAnswers = These answers will not affect how much you owe.
+returns.CheckYourAnswers.p.bySubmitting = By submitting this return, you are confirming that the details you are providing are correct.
+returns.CheckYourAnswers.p.making = Making a false declaration carries serious consequences, such as a financial penalty.
+returns.CheckYourAnswers.p.checkYour = Check your answers before submitting this return, as they can't be changed afterwards.
+returns.CheckYourAnswers.button = Confirm and submit
+
+returns.CheckYourAnswers.dutySummary.vaping = Vaping duty
+returns.CheckYourAnswers.dutySummary.spoilt = Spoilt products
+returns.CheckYourAnswers.dutySummary.over = Over declared
+returns.CheckYourAnswers.dutySummary.under = Under declared
+returns.CheckYourAnswers.dutySummary.total = Total duty
+
+returns.CheckYourAnswers.dutySuspended.received = Product received
+returns.CheckYourAnswers.dutySuspended.moved = Product moved
+returns.CheckYourAnswers.dutySuspended.total = Total volume

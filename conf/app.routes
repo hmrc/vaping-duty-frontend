@@ -61,3 +61,7 @@ GET        /complete-return/enter-amount-released                               
 POST       /complete-return/enter-amount-released                               controllers.returns.EnterDutyAmountController.onSubmit(mode: Mode = NormalMode)
 GET        /complete-return/change-enter-amount-released                        controllers.returns.EnterDutyAmountController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/change-enter-amount-released                        controllers.returns.EnterDutyAmountController.onSubmit(mode: Mode = CheckMode)
+
+GET        /confirmation                       controllers.returns.ConfirmationController.onPageLoad()
+
+GET        /returnsCheckYourAnswers                       controllers.returns.CheckYourAnswersController.onPageLoad()
