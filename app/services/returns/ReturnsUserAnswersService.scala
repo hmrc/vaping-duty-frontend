@@ -18,7 +18,7 @@ package services.returns
 
 import connectors.returns.ReturnsUserAnswersConnector
 import models.emailverification.ErrorModel
-import models.identifiers.{InternalId, VpdId}
+import models.identifiers.InternalId
 import models.returns.ReturnsUserAnswers
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 

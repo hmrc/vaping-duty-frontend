@@ -89,7 +89,7 @@ object TaskList {
         TaskRows(
           id = "submit",
           linkText = messages("returns.taskList.submitReturn.task1"),
-          link = controllers.routes.JourneyRecoveryController.onPageLoad(),
+          link = controllers.returns.routes.CheckYourAnswersController.onPageLoad(),
           status = TaskStatusService.submitTaskStatus(userAnswers),
           hint = Some(messages("returns.taskList.submitReturn.task1.hint"))
         ).toTaskListItem
