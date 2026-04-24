@@ -17,20 +17,29 @@
 package viewmodels.checkAnswers
 
 import models.returns.ReturnsUserAnswers
-import pages.contactPreference.EnterEmailPage
 import pages.returns.DeclareDutyPage
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
 object DutySuspenseSummary {
 
-  def returnsRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  def summaryList(answers: ReturnsUserAnswers)(implicit messages: Messages): SummaryList = {
+    val rows = Seq(
+      buildProductReceivedRow(answers),
+      buildProductMovedRow(answers),
+      buildTotalVolumeRow(answers)
+    ).flatten
+    
+    SummaryList(rows = rows)
+  }
+
+  private def buildProductReceivedRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(DeclareDutyPage).map { answer =>
       SummaryListRowViewModel(
-        key = "",
-        value = ValueViewModel(""),
+        key = "returns.CheckYourAnswers.dutySuspended.received",
+        value = ValueViewModel("returns.CheckYourAnswers.dutySummary.nothing"),
         actions = Seq(
           ActionItemViewModel("site.change", controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
             .withVisuallyHiddenText(messages(""))
@@ -38,11 +47,11 @@ object DutySuspenseSummary {
       )
     }
 
-  def returnsRow2(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(EnterEmailPage).map { answer =>
+  private def buildProductMovedRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(DeclareDutyPage).map { answer =>
       SummaryListRowViewModel(
-        key = "",
-        value = ValueViewModel(""),
+        key = "returns.CheckYourAnswers.dutySuspended.moved",
+        value = ValueViewModel("returns.CheckYourAnswers.dutySummary.nothing"),
         actions = Seq(
           ActionItemViewModel("site.change", controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
             .withVisuallyHiddenText(messages(""))
@@ -50,11 +59,11 @@ object DutySuspenseSummary {
       )
     }
 
-  def returnsRow3(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(EnterEmailPage).map { answer =>
+  private def buildTotalVolumeRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(DeclareDutyPage).map { answer =>
       SummaryListRowViewModel(
-        key = "",
-        value = ValueViewModel(""),
+        key = "returns.CheckYourAnswers.dutySuspended.total",
+        value = ValueViewModel("returns.CheckYourAnswers.dutySuspended.total.nil"),
         actions = Seq(
           ActionItemViewModel("site.change", controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
             .withVisuallyHiddenText(messages(""))

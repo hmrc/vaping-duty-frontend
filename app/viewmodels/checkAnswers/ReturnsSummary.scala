@@ -16,29 +16,49 @@
 
 package viewmodels.checkAnswers
 
+import config.CurrencyFormatter
+import models.CheckMode
 import models.returns.ReturnsUserAnswers
-import pages.contactPreference.EnterEmailPage
-import pages.returns.DeclareDutyPage
+import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object ReturnsSummary {
+object ReturnsSummary extends CurrencyFormatter {
 
-  def returnsRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclareDutyPage).map { answer =>
-      SummaryListRowViewModel(
-        key = "returns.CheckYourAnswers.dutySummary.vaping",
-        value = ValueViewModel(""),
-        actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
-            .withVisuallyHiddenText(messages(""))
-        )
+  def summaryList(answers: ReturnsUserAnswers)(implicit messages: Messages): SummaryList = {
+    val rows = Seq(
+      buildDutyRow(answers),
+      //      buildSpoiltRow(answers),
+      //      buildOverRow(answers),
+      //      buildUnderRow(answers),
+      buildTotalDutyRow(answers)
+    ).flatten
+
+    SummaryList(rows = rows)
+  }
+
+  private def dutyRow(value: String)(implicit messages: Messages) = {
+    Option(SummaryListRowViewModel(
+      key = "returns.CheckYourAnswers.dutySummary.vaping",
+      value = ValueViewModel(Text(value)),
+      actions = Seq(
+        ActionItemViewModel("site.change", controllers.returns.routes.EnterDutyAmountController.onPageLoad(CheckMode).url)
+          .withVisuallyHiddenText(messages(""))
       )
+    ))
+  }
+
+  private def buildDutyRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(EnterDutyAmountPage) match {
+      case Some(value) if value < 10 => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
+      case Some(value) => dutyRow(currencyFormat(calculateDuty(value)))
+      case None => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
     }
 
-  def returnsRow2(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  private def buildSpoiltRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(DeclareDutyPage).map { answer =>
       SummaryListRowViewModel(
         key = "returns.CheckYourAnswers.dutySummary.spoilt",
@@ -50,7 +70,7 @@ object ReturnsSummary {
       )
     }
 
-  def returnsRow3(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  private def buildOverRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(DeclareDutyPage).map { answer =>
       SummaryListRowViewModel(
         key = "returns.CheckYourAnswers.dutySummary.over",
@@ -62,7 +82,7 @@ object ReturnsSummary {
       )
     }
 
-  def returnsRow4(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  private def buildUnderRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(DeclareDutyPage).map { answer =>
       SummaryListRowViewModel(
         key = "returns.CheckYourAnswers.dutySummary.under",
@@ -74,15 +94,18 @@ object ReturnsSummary {
       )
     }
 
-  def returnsRow5(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclareDutyPage).map { answer =>
-      SummaryListRowViewModel(
-        key = "returns.CheckYourAnswers.dutySummary.total",
-        value = ValueViewModel(""),
-        actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
-            .withVisuallyHiddenText(messages(""))
-        )
-      )
+  private def totalDutyRow(value: String)(implicit messages: Messages) = {
+    Option(SummaryListRowViewModel(
+      key = "returns.CheckYourAnswers.dutySummary.total",
+      value = ValueViewModel(Text(value)).withCssClass("govuk-!-font-weight-bold"),
+      actions = Seq.empty
+    ))
+  }
+
+  private def buildTotalDutyRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] = {
+    answers.get(EnterDutyAmountPage) match {
+      case Some(value) => totalDutyRow(currencyFormat(calculateDuty(value)))
+      case None => totalDutyRow(messages("returns.CheckYourAnswers.dutySummary.total.nil"))
     }
+  }
 }
