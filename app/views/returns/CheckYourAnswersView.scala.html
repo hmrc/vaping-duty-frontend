@@ -15,8 +15,7 @@
  *@
 
 @import components.*
-@import viewmodels.checkAnswers.*
-@import models.returns.ReturnsUserAnswers
+@import viewmodels.returns.CheckYourAnswersViewModel
 
 @this(
         layout: templates.Layout,
@@ -29,12 +28,12 @@
         list: List
 )
 
-@(ua: ReturnsUserAnswers)(implicit request: Request[_], messages: Messages)
+@(vm: CheckYourAnswersViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("returns.CheckYourAnswers.title"))) {
 
     @caption(messages("returns.CheckYourAnswers.caption"))
-    @h1(messages("returns.CheckYourAnswers.heading"))
+    @h1(messages("returns.CheckYourAnswers.heading", vm.dutyDue))
 
     @p(Seq(messages("returns.CheckYourAnswers.p.duty")))
 
@@ -50,25 +49,13 @@
 
     @h2(messages("returns.CheckYourAnswers.h2.finalDuty"))
 
-    @govukSummaryList(
-        SummaryList(Seq(
-            ReturnsSummary.returnsRow(ua).get,
-            ReturnsSummary.returnsRow2(ua).get,
-            ReturnsSummary.returnsRow3(ua).get,
-            ReturnsSummary.returnsRow4(ua).get,
-            ReturnsSummary.returnsRow5(ua).get
-        ))
-    )
+    @govukSummaryList(vm.finalDutySummaryList)
 
     @h2(messages("returns.CheckYourAnswers.h2.dutySuspended"))
 
     @p(Seq(messages("returns.CheckYourAnswers.p.theseAnswers")))
 
-    @govukSummaryList(
-        SummaryList(Seq(
-            DutySuspenseSummary.returnsRow(ua).get
-        ))
-    )
+    @govukSummaryList(vm.dutySuspendedSummaryList)
 
     @p(Seq(messages("returns.CheckYourAnswers.p.bySubmitting")))
 
@@ -76,5 +63,6 @@
 
     @p(Seq(messages("returns.CheckYourAnswers.p.checkYour")))
 
-    @govukButton(Button(content = messages("returns.CheckYourAnswers.button")))
+    @govukButton(ButtonViewModel(messages("returns.CheckYourAnswers.button"))
+        .asLink(controllers.returns.routes.ConfirmationController.onPageLoad().url))
 }
