@@ -16,14 +16,17 @@
 
 package controllers.returns
 
+import connectors.SubscriptionConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.returns.ConfirmationView
+import viewmodels.returns.ConfirmationViewModel
+import views.html.returns.ConfirmationEmailView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class ConfirmationController @Inject()(
                                        override val messagesApi: MessagesApi,
@@ -31,11 +34,19 @@ class ConfirmationController @Inject()(
                                        getData: ReturnsDataRetrievalAction,
                                        requireData: ReturnsDataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: ConfirmationView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                       view: ConfirmationEmailView,
+                                       subscriptionConnector: SubscriptionConnector
+                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
-      Ok(view())
+      subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).map {
+        case Left(_) => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case Right(value) =>
+          val email = value.emailAddress.getOrElse("")
+          val vm = ConfirmationViewModel(request.userAnswers, email)
+
+          Ok(view(vm))
+      }
   }
 }

@@ -17,27 +17,72 @@
 package controllers
 
 import base.SpecBase
+import connectors.SubscriptionConnector
+import models.contactPreference.SubscriptionContactPreferences
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.ConfirmationView
+import uk.gov.hmrc.play.bootstrap.http.ErrorResponse
+import viewmodels.returns.ConfirmationViewModel
+import views.html.returns.ConfirmationEmailView
+
+import scala.concurrent.Future
 
 class ConfirmationControllerSpec extends SpecBase {
 
-  "Confirmation Controller" - {
+  "ConfirmationController" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val mockConnector = mock[SubscriptionConnector]
+
+      val application = applicationBuilder(returnsUserAnswers = Option(returnsUserAnswers))
+        .overrides(bind[SubscriptionConnector].toInstance(mockConnector))
+        .build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.ConfirmationController.onPageLoad().url)
+
+
+        val contactPreference = SubscriptionContactPreferences(true, Option(emailAddress))
+
+        when(mockConnector.getSubscriptionContactPreferences(any())(any()))
+          .thenReturn(Future.successful(Right(contactPreference)))
+
+        val request = FakeRequest(GET, controllers.returns.routes.ConfirmationController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ConfirmationView]
+        val view = application.injector.instanceOf[ConfirmationEmailView]
+
+        val vm = ConfirmationViewModel(returnsUserAnswers, emailAddress)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to journey recovery when there is an issue calling subscription summary API" in {
+
+      val mockConnector = mock[SubscriptionConnector]
+
+      val application = applicationBuilder(returnsUserAnswers = Option(returnsUserAnswers))
+        .overrides(bind[SubscriptionConnector].toInstance(mockConnector))
+        .build()
+
+      running(application) {
+
+        when(mockConnector.getSubscriptionContactPreferences(any())(any()))
+          .thenReturn(Future.successful(Left(ErrorResponse(BAD_REQUEST, "There was an issue"))))
+
+        val request = FakeRequest(GET, controllers.returns.routes.ConfirmationController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }
