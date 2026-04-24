@@ -35,7 +35,7 @@
     @h1(messages("returns.beforeYouStart.heading"))
 
     @govukWarningText(WarningText(
-        iconFallbackText = Some("Warning"),
+        iconFallbackText = Some(messages("site.warning")),
         content = Text(messages("returns.beforeYouStart.deadline", vm.dueDate, vm.year.toString))
     ))
 

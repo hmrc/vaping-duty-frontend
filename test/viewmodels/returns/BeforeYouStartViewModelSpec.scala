@@ -18,7 +18,6 @@ package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
 import play.api.Application
-import play.api.i18n.Messages
 import utils.ReturnsDateUtils.getYear
 
 import java.time.format.TextStyle
@@ -27,11 +26,7 @@ import java.util.Locale
 
 
 class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
-
-  given Messages = messages(app)
-
-  private lazy val app: Application = applicationBuilder().build()
-
+  
   "BeforeYouStartViewModel" - {
 
     val vm = BeforeYouStartViewModel()
