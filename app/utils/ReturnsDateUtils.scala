@@ -39,6 +39,10 @@ object ReturnsDateUtils {
       getCurrentMonthMessage(month.plus(1))
     }
 
+  def getCurrentDay(implicit messages: Messages): String = {
+    LocalDate.now().getDayOfMonth.toString
+  }
+
   def getCurrentMonthMessage(month: Month)(implicit messages: Messages): String =
     month match {
       case Month.JANUARY => messages("month.jan")
