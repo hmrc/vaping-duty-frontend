@@ -40,6 +40,7 @@ class ReturnsNavigator @Inject()(
   }
 
   private val checkRouteMap: Page => ReturnsUserAnswers => Call = {
+    case EnterDutyAmountPage    => _    => controllers.returns.routes.CheckYourAnswersController.onPageLoad()
     case _ => _ => routes.JourneyRecoveryController.onPageLoad()
   }
 

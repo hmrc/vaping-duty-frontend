@@ -16,7 +16,7 @@
 
 package models.returns
 
-import models.{RichJsObject, TaskStatus}
+import models.RichJsObject
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 import queries.{Gettable, Settable}
