@@ -18,14 +18,12 @@ package controllers.returns
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import models.returns.ReturnsUserAnswers
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.returns.CheckYourAnswersViewModel
 import views.html.returns.CheckYourAnswersView
 
-import java.time.Instant
 import javax.inject.Inject
 
 class CheckYourAnswersController @Inject()(
@@ -37,8 +35,8 @@ class CheckYourAnswersController @Inject()(
                                        view: CheckYourAnswersView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData) {
-    implicit request =>
-      Ok(view(request.userAnswers.getOrElse(ReturnsUserAnswers("", JsObject.empty, Instant.now(), Instant.now()))))
+  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val vm = CheckYourAnswersViewModel(request.userAnswers)
+    Ok(view(vm))
   }
 }

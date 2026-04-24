@@ -19,7 +19,8 @@ package controllers
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.ReturnsCheckYourAnswersView
+import viewmodels.returns.CheckYourAnswersViewModel
+import views.html.returns.CheckYourAnswersView
 
 class CheckYourAnswersControllerSpec extends SpecBase {
 
@@ -29,15 +30,17 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
+      val vm = CheckYourAnswersViewModel(returnsUserAnswers)
+      
       running(application) {
-        val request = FakeRequest(GET, routes.ReturnsCheckYourAnswersController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.returns.routes.CheckYourAnswersController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ReturnsCheckYourAnswersView]
+        val view = application.injector.instanceOf[CheckYourAnswersView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
       }
     }
   }
