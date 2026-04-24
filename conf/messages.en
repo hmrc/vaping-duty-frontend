@@ -14,6 +14,7 @@ site.govuk = GOV.UK
 site.newTab = (opens in new tab)
 site.backToBta = Go back to your Business Tax Account
 site.getAccess = Find out how to get access to the Vaping Products Duty online service
+site.warning = Warning
 
 date.day = Day
 date.month = Month
@@ -197,12 +198,9 @@ returns.enterDutyAmount.error.wholeNumber = You must enter a number greater than
 returns.enterDutyAmount.error.outOfRange = You must enter a number greater than zero
 returns.enterDutyAmount.change.hidden = EnterDutyAmount
 
-confirmation.title = confirmation
-confirmation.heading = confirmation
-
-returns.CheckYourAnswers.title = The duty due is £22,000
+returns.CheckYourAnswers.title = The duty due is {0}
 returns.CheckYourAnswers.caption = Check your answers
-returns.CheckYourAnswers.heading = The duty due is £22,000
+returns.CheckYourAnswers.heading = The duty due is {0}
 returns.CheckYourAnswers.p.duty = Duty is calculated by multiplying the volume of vaping products released for sale by the Vaping Product Duty rate of £2.20 per 10ml.
 returns.CheckYourAnswers.h2.theAmount = The amount is based on the total duty due on:
 returns.CheckYourAnswers.list.theVaping = the vaping products you declared
@@ -213,7 +211,7 @@ returns.CheckYourAnswers.h2.dutySuspended = Duty suspended reporting summary
 returns.CheckYourAnswers.p.theseAnswers = These answers will not affect how much you owe.
 returns.CheckYourAnswers.p.bySubmitting = By submitting this return, you are confirming that the details you are providing are correct.
 returns.CheckYourAnswers.p.making = Making a false declaration carries serious consequences, such as a financial penalty.
-returns.CheckYourAnswers.p.checkYour = Check your answers before submitting this return, as they can't be changed afterwards.
+returns.CheckYourAnswers.p.checkYour = Check your answers before submitting this return, as they can’t be changed afterwards.
 returns.CheckYourAnswers.button = Confirm and submit
 
 returns.CheckYourAnswers.dutySummary.vaping = Vaping duty
@@ -221,7 +219,28 @@ returns.CheckYourAnswers.dutySummary.spoilt = Spoilt products
 returns.CheckYourAnswers.dutySummary.over = Over declared
 returns.CheckYourAnswers.dutySummary.under = Under declared
 returns.CheckYourAnswers.dutySummary.total = Total duty
+returns.CheckYourAnswers.dutySummary.total.nil = £0
+returns.CheckYourAnswers.dutySummary.nothing = Nothing to declare
 
 returns.CheckYourAnswers.dutySuspended.received = Product received
 returns.CheckYourAnswers.dutySuspended.moved = Product moved
 returns.CheckYourAnswers.dutySuspended.total = Total volume
+returns.CheckYourAnswers.dutySuspended.total.nil = 0 ml
+
+
+returns.confirmation.title = confirmation
+returns.confirmation.heading = confirmation
+returns.confirmation.panel.title = Return submitted
+returns.confirmation.panel.yourReturn = Your return reference number is {0}
+returns.confirmation.p.weHave = We have sent an email to
+returns.confirmation.p.confirming = , confirming your Vaping Products Duty return was sent on {0}.
+returns.confirmation.h2.whatYou = What you must do next
+returns.confirmation.warning.youMust = You must pay {0} by 15 {1}.
+returns.confirmation.p.youWill = You will be charged interest if you do not pay by this date.
+returns.confirmation.p.yourReturn = Your return reference number must be used as a payment reference when you pay.
+returns.confirmation.h2.howTo = How to pay your duty
+returns.confirmation.selectOne = Select one of the following options to pay:
+returns.confirmation.link.directDebit = Direct Debit
+returns.confirmation.link.payNow = Pay now
+returns.confirmation.button.goTo = Go to your business tax account
+returns.confirmation.button.print = Print or save a copy of this page
