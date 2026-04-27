@@ -51,9 +51,10 @@
 
     @govukSummaryList(vm.finalDutySummaryList)
 
-    @h2(messages("returns.CheckYourAnswers.h2.dutySuspended"))
-
-    @p(Seq(messages("returns.CheckYourAnswers.p.theseAnswers")))
+    @*   @h2(messages("returns.CheckYourAnswers.h2.dutySuspended"))
+    *
+    *    @p(Seq(messages("returns.CheckYourAnswers.p.theseAnswers")))
+    *@
 
     @govukSummaryList(vm.dutySuspendedSummaryList)
 
