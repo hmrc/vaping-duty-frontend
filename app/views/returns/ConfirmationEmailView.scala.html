@@ -25,7 +25,8 @@
         p: Paragraph,
         h2: Heading2,
         list: List,
-        link: PrintLink
+        printLink: PrintLink,
+        link: Link
 )
 
 @(vm: ConfirmationViewModel)(implicit request: Request[_], messages: Messages)
@@ -44,13 +45,15 @@
         messages("returns.confirmation.p.confirming", vm.date),
     ))
 
+    @p(Seq(HtmlContent(link(id = "", href = "", text = "View your return"))))
+
     @h2(messages("returns.confirmation.h2.whatYou"))
 
     @dynamicContent
 
     @h2(messages("Keep a copy for your records"))
 
-    @p(Seq(HtmlContent(link(id = "print", text = "Print or save a copy of this page"))))
+    @p(Seq(HtmlContent(printLink(id = "print", text = "Print or save a copy of this page"))))
 
     @govukButton(ButtonViewModel(messages("returns.confirmation.button.goTo"))
         .asLink(vm.btaLink))

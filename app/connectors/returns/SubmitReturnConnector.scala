@@ -21,7 +21,7 @@ import models.emailverification.{ErrorModel, PaperlessPreferenceSubmission, Pape
 import models.identifiers.VpdId
 import models.returns.{ReturnCreateRequest, ReturnSubmittedResponse}
 import play.api.Logging
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
@@ -43,7 +43,7 @@ class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
       .withBody(Json.toJson(returnsSubmission))
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .map {
-        case Right(response) if response.status == OK =>
+        case Right(response) if response.status == CREATED =>
           Try(response.json.as[ReturnSubmittedResponse]) match {
             case Success(successResponse) => Right(successResponse)
             case Failure(_)               =>

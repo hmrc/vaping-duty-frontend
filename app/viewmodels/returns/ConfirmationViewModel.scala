@@ -88,7 +88,24 @@ object ConfirmationViewModel extends CurrencyFormatter {
       HtmlFormat.fill(elems)
     } else {
       val govukInsetText = GovukInsetText()
-      govukInsetText(InsetText(content = Text(value = messages("returns.confirmation.inset.youHave"))))
+      val p = Paragraph()
+      val h2 = Heading2()
+      val list = ListWithLinks()
+      val link = Link()
+
+      val elems = Seq(
+        govukInsetText(InsetText(content = Text(value = messages("returns.confirmation.inset.youHave")))),
+        p(Seq(Text(messages("returns.confirmation.p.youWill")))),
+        p(Seq(Text(messages("returns.confirmation.p.yourReturn")))),
+        h2(Text(messages("returns.confirmation.h2.howTo"))),
+        p(Seq(Text(messages("returns.confirmation.selectOne")))),
+        list(Seq(
+          link(id = "ddLink", href = "#", text = messages("returns.confirmation.link.directDebit")),
+          link(id = "payNowLink", href = "#", text = messages("returns.confirmation.link.payNow"))
+        ), classes = "govuk-list govuk-list--bullet")
+      )
+
+      HtmlFormat.fill(elems)
     }
   }
 }
