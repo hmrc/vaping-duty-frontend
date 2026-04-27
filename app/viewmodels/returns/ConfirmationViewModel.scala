@@ -26,11 +26,10 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 import uk.gov.hmrc.govukfrontend.views.viewmodels.warningtext.WarningText
 import utils.ReturnsDateUtils
-import views.html.components.{Heading2, Paragraph, List as BulletList}
+import views.html.components.{Heading2, Link, Paragraph, ListWithLinks}
 
 case class ConfirmationViewModel(email: String,
                                  date: String,
-                                 totalDue: String,
                                  currentMonth: String,
                                  content: Html,
                                  vpdRef: String,
@@ -50,7 +49,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
       case Some(value) => value
       case None => 0
     }
-    new ConfirmationViewModel(email, makeDateString(monthMessage), totalDue(amountInMl), monthMessage, getContent(amountInMl), vpdRef, btaLink)
+    new ConfirmationViewModel(email, makeDateString(monthMessage), monthMessage, getContent(amountInMl), vpdRef, btaLink)
 
   private def totalDue(valueInMl: Int) =
     currencyFormat(calculateDuty(valueInMl))
@@ -67,10 +66,9 @@ object ConfirmationViewModel extends CurrencyFormatter {
     if (valueInMl > 9) {
       val warning = GovukWarningText()
       val p = Paragraph()
-      val p1 = Paragraph()
       val h2 = Heading2()
-      val p2 = Paragraph()
-      val list = BulletList()
+      val list = ListWithLinks()
+      val link = Link()
 
       val elems = Seq(
         warning(WarningText(
@@ -78,12 +76,12 @@ object ConfirmationViewModel extends CurrencyFormatter {
           content = Text(messages("returns.confirmation.warning.youMust", totalDue(valueInMl), monthMessage))
         )),
         p(Seq(Text(messages("returns.confirmation.p.youWill")))),
-        p1(Seq(Text(messages("returns.confirmation.p.yourReturn")))),
+        p(Seq(Text(messages("returns.confirmation.p.yourReturn")))),
         h2(Text(messages("returns.confirmation.h2.howTo"))),
-        p2(Seq(Text(messages("returns.confirmation.selectOne")))),
+        p(Seq(Text(messages("returns.confirmation.selectOne")))),
         list(Seq(
-          messages("returns.confirmation.link.directDebit"),
-          messages("returns.confirmation.link.payNow")
+          link(id = "ddLink", href = "#", text = messages("returns.confirmation.link.directDebit")),
+          link(id = "payNowLink", href = "#", text = messages("returns.confirmation.link.payNow"))
         ), classes = "govuk-list govuk-list--bullet")
       )
 

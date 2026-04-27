@@ -21,7 +21,7 @@ import models.emailverification.ErrorModel
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
 import pages.returns.EnterDutyAmountPage
-import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
