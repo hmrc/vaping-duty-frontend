@@ -23,6 +23,7 @@ import models.contactPreference.PaperlessPreference.{Email, toValue}
 import models.contactPreference.PreferenceUserAnswers
 import models.emailverification.*
 import models.requests.contactPreference.DataRequest
+import models.returns.{Failure, Success}
 import play.api.Logging
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
