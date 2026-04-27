@@ -31,7 +31,7 @@
 
 @(vm: CheckYourAnswersViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("returns.CheckYourAnswers.title"))) {
+@layout(pageTitle = titleNoForm(messages("returns.CheckYourAnswers.title", vm.dutyDue))) {
 
     @caption(messages("returns.CheckYourAnswers.caption"))
     @h1(messages("returns.CheckYourAnswers.heading", vm.dutyDue))
