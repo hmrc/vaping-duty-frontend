@@ -18,8 +18,10 @@ package controllers.returns
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import models.returns.{ReturnCreateRequest, TotalDutyDue, VapingProductsProduced}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.SubmitReturnService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.CheckYourAnswersViewModel
 import views.html.returns.CheckYourAnswersView
@@ -31,12 +33,24 @@ class CheckYourAnswersController @Inject()(
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        getData: ReturnsDataRetrievalAction,
                                        requireData: ReturnsDataRequiredAction,
+                                       returnsEnabled: ReturnsEnabledAction,
+                                       submitReturnService: SubmitReturnService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: CheckYourAnswersView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
     val vm = CheckYourAnswersViewModel(request.userAnswers)
     Ok(view(vm))
+  }
+
+  def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
+    val someValue = BigDecimal(100)
+    submitReturnService.submit(
+      ReturnCreateRequest(
+        "26AF", VapingProductsProduced(Seq.empty, Seq.empty), TotalDutyDue(someValue, someValue, someValue, someValue, someValue, someValue)
+      ), request
+    )
+    Redirect(controllers.returns.routes.ConfirmationController.onPageLoad())
   }
 }

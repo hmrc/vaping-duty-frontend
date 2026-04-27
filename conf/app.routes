@@ -65,3 +65,4 @@ POST       /complete-return/change-enter-amount-released                        
 GET        /complete-return/return-submitted                                    controllers.returns.ConfirmationController.onPageLoad()
 
 GET        /complete-return/check-your-answers                                  controllers.returns.CheckYourAnswersController.onPageLoad()
+POST       /complete-return/check-your-answers                                  controllers.returns.CheckYourAnswersController.onSubmit()

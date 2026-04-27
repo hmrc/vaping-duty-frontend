@@ -19,6 +19,7 @@
 
 @this(
         layout: templates.Layout,
+        formHelper: FormWithCSRF,
         govukButton: GovukButton,
         govukSummaryList: GovukSummaryList,
         caption: Caption,
@@ -64,6 +65,7 @@
 
     @p(Seq(messages("returns.CheckYourAnswers.p.checkYour")))
 
-    @govukButton(ButtonViewModel(messages("returns.CheckYourAnswers.button"))
-        .asLink(controllers.returns.routes.ConfirmationController.onPageLoad().url))
+    @formHelper(action = controllers.returns.routes.CheckYourAnswersController.onSubmit(), Symbol("autoComplete") -> "off") {
+        @govukButton(ButtonViewModel(messages("returns.CheckYourAnswers.button")))
+    }
 }
