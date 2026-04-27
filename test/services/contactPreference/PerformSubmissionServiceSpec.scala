@@ -20,6 +20,7 @@ import base.SpecBase
 import connectors.contactPreference.SubmitPreferencesConnector
 import data.TestData
 import models.emailverification.ErrorModel
+import models.returns.*
 import models.requests.contactPreference.DataRequest
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

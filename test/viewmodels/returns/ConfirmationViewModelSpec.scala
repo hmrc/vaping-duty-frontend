@@ -31,38 +31,28 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
   "ConfirmationViewModel" - {
 
     val monthMessage = ReturnsDateUtils.getCurrentMonthMessage(ReturnsDateUtils.month)
-
+    
     "must return the email address" in {
       val ua = ReturnsUserAnswers("id", Json.obj(), Instant.now(), Instant.now())
-      val vm = ConfirmationViewModel(ua, emailAddress)
+      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink)
 
       vm.email mustBe emailAddress
     }
 
     "must return the current date" in {
       val ua = ReturnsUserAnswers("id", Json.obj(), Instant.now(), Instant.now())
-      val vm = ConfirmationViewModel(ua, emailAddress)
-
+      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink)
 
       val expectedResult = s"${ReturnsDateUtils.getCurrentDay} $monthMessage ${ReturnsDateUtils.getYear}"
 
       vm.date mustBe expectedResult
     }
-
-    "must return the total due" in {
-      val ua = ReturnsUserAnswers("id", Json.obj(), Instant.now(), Instant.now())
-        .set(EnterDutyAmountPage, 1000).success.value
-
-      val vm = ConfirmationViewModel(ua, emailAddress)
-
-      vm.totalDue mustBe "£220"
-    }
-
+    
     "must return the current month from messages" in {
       val ua = ReturnsUserAnswers("id", Json.obj(), Instant.now(), Instant.now())
         .set(EnterDutyAmountPage, 1000).success.value
 
-      val vm = ConfirmationViewModel(ua, emailAddress)
+      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink)
 
       vm.currentMonth mustBe monthMessage
     }

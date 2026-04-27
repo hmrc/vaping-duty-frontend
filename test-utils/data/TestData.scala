@@ -26,6 +26,8 @@ import java.time.{Clock, Instant, ZoneId}
 
 trait TestData {
   val vpdId: VpdId = VpdId(id = "VPPAID01")
+  val vpdRef: Option[String] = Some("VPDREF123")
+  val btaLink = "http://localhost:9020/business-account"
   val groupId: GroupId = GroupId(id = "groupid")
   val ukTimeZoneStringId = "Europe/London"
   val epochTime = 1718118467838L

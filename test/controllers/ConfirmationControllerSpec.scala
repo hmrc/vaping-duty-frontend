@@ -51,13 +51,13 @@ class ConfirmationControllerSpec extends SpecBase {
         when(mockConnector.getSubscriptionContactPreferences(any())(any()))
           .thenReturn(Future.successful(Right(contactPreference)))
 
-        val request = FakeRequest(GET, controllers.returns.routes.ConfirmationController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.returns.routes.ConfirmationController.onPageLoad(vpdRef).url)
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[ConfirmationEmailView]
 
-        val vm = ConfirmationViewModel(returnsUserAnswers, emailAddress)
+        val vm = ConfirmationViewModel(returnsUserAnswers, emailAddress, vpdRef.get, btaLink)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
@@ -77,7 +77,7 @@ class ConfirmationControllerSpec extends SpecBase {
         when(mockConnector.getSubscriptionContactPreferences(any())(any()))
           .thenReturn(Future.successful(Left(ErrorResponse(BAD_REQUEST, "There was an issue"))))
 
-        val request = FakeRequest(GET, controllers.returns.routes.ConfirmationController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.returns.routes.ConfirmationController.onPageLoad(vpdRef).url)
 
         val result = route(application, request).value
 

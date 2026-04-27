@@ -19,7 +19,7 @@ package services.contactPreference
 import base.SpecBase
 import cats.data.EitherT
 import connectors.contactPreference.{EmailVerificationConnector, SubmitPreferencesConnector}
-import models.*
+import models.returns.*
 import models.emailverification.*
 import models.requests.contactPreference.DataRequest
 import org.mockito.ArgumentMatchers.any
