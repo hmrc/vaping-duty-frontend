@@ -16,9 +16,11 @@
 
 package controllers.returns
 
+import config.FrontendAppConfig
 import connectors.SubscriptionConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import models.BtaLink
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -33,18 +35,21 @@ class ConfirmationController @Inject()(
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        getData: ReturnsDataRetrievalAction,
                                        requireData: ReturnsDataRequiredAction,
+                                       returnsEnabled: ReturnsEnabledAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ConfirmationEmailView,
-                                       subscriptionConnector: SubscriptionConnector
+                                       subscriptionConnector: SubscriptionConnector,
+                                       config: FrontendAppConfig
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onPageLoad(vpdRef: Option[String]): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).map {
         case Left(_) => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         case Right(value) =>
           val email = value.emailAddress.getOrElse("")
-          val vm = ConfirmationViewModel(request.userAnswers, email)
+          val btaUrl = BtaLink(config)
+          val vm = ConfirmationViewModel(request.userAnswers, email, vpdRef.fold("")(ref => ref), btaUrl)
 
           Ok(view(vm))
       }

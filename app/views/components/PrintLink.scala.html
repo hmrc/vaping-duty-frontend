@@ -1,5 +1,5 @@
 @*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,10 @@
  * limitations under the License.
  *@
 
-@this(
-        layout: templates.Layout,
-        govukButton: GovukButton
-)
+@this()
 
-@()(implicit request: Request[_], messages: Messages)
+@(id: String, text: String, classes: String = "govuk-link govuk-body")
 
-@layout(pageTitle = titleNoForm(messages("confirmation.title"))) {
-
-    <h1 class="govuk-heading-xl">@messages("confirmation.heading")</h1>
-}
+<a class="@classes" href="#" id="@id" data-module="hmrc-print-link">
+    @text
+</a>

@@ -62,7 +62,7 @@ POST       /complete-return/enter-amount-released                               
 GET        /complete-return/change-enter-amount-released                        controllers.returns.EnterDutyAmountController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/change-enter-amount-released                        controllers.returns.EnterDutyAmountController.onSubmit(mode: Mode = CheckMode)
 
-GET        /complete-return/return-submitted                                    controllers.returns.ConfirmationController.onPageLoad()
+GET        /complete-return/return-submitted                                    controllers.returns.ConfirmationController.onPageLoad(vpdRef: Option[String])
 
 GET        /complete-return/check-your-answers                                  controllers.returns.CheckYourAnswersController.onPageLoad()
 POST       /complete-return/check-your-answers                                  controllers.returns.CheckYourAnswersController.onSubmit()

@@ -20,30 +20,77 @@ import config.CurrencyFormatter
 import models.returns.ReturnsUserAnswers
 import pages.returns.EnterDutyAmountPage
 import play.api.i18n.Messages
+import play.twirl.api.{Html, HtmlFormat}
+import uk.gov.hmrc.govukfrontend.views.html.components.{GovukInsetText, GovukWarningText}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
+import uk.gov.hmrc.govukfrontend.views.viewmodels.warningtext.WarningText
 import utils.ReturnsDateUtils
+import views.html.components.{Heading2, Paragraph, List as BulletList}
 
-case class ConfirmationViewModel(email: String, date: String, totalDue: String, currentMonth: String)
+case class ConfirmationViewModel(email: String,
+                                 date: String,
+                                 totalDue: String,
+                                 currentMonth: String,
+                                 content: Html,
+                                 vpdRef: String,
+                                 btaLink: String)
 
 object ConfirmationViewModel extends CurrencyFormatter {
 
-  def apply(ua: ReturnsUserAnswers, email: String)(implicit messages: Messages): ConfirmationViewModel =
-    confirmationViewModel(email, ua)
+  def apply(ua: ReturnsUserAnswers, email: String, vpdRef: String, btaLink: String)(implicit messages: Messages): ConfirmationViewModel =
+    confirmationViewModel(email, ua, vpdRef, btaLink)
 
-  private def confirmationViewModel(email: String, ua: ReturnsUserAnswers)(implicit messages: Messages) = {
+
+  private def confirmationViewModel(email: String, ua: ReturnsUserAnswers, vpdRef: String, btaLink: String)(implicit messages: Messages) =
+
     val monthMessage = ReturnsDateUtils.getCurrentMonthMessage(ReturnsDateUtils.month)
 
     val amountInMl = ua.get(EnterDutyAmountPage) match {
       case Some(value) => value
       case None => 0
     }
-    new ConfirmationViewModel(email, makeDateString(monthMessage), totalDue(amountInMl), monthMessage)
-  }
+    new ConfirmationViewModel(email, makeDateString(monthMessage), totalDue(amountInMl), monthMessage, getContent(amountInMl), vpdRef, btaLink)
+
+  private def totalDue(valueInMl: Int) =
+    currencyFormat(calculateDuty(valueInMl))
+
 
   private def makeDateString(monthMessage: String)(implicit messages: Messages) = {
     s"${ReturnsDateUtils.getCurrentDay} $monthMessage ${ReturnsDateUtils.getYear}"
   }
 
-  private def totalDue(valueInMl: Int) =
-    currencyFormat(calculateDuty(valueInMl))
+  private def getContent(valueInMl: Int)(implicit messages: Messages) = {
 
+    val monthMessage = ReturnsDateUtils.getCurrentMonthMessage(ReturnsDateUtils.month)
+
+    if (valueInMl > 9) {
+      val warning = GovukWarningText()
+      val p = Paragraph()
+      val p1 = Paragraph()
+      val h2 = Heading2()
+      val p2 = Paragraph()
+      val list = BulletList()
+
+      val elems = Seq(
+        warning(WarningText(
+          iconFallbackText = Some(messages("site.warning")),
+          content = Text(messages("returns.confirmation.warning.youMust", totalDue(valueInMl), monthMessage))
+        )),
+        p(Seq(Text(messages("returns.confirmation.p.youWill")))),
+        p1(Seq(Text(messages("returns.confirmation.p.yourReturn")))),
+        h2(Text(messages("returns.confirmation.h2.howTo"))),
+        p2(Seq(Text(messages("returns.confirmation.selectOne")))),
+        list(Seq(
+          messages("returns.confirmation.link.directDebit"),
+          messages("returns.confirmation.link.payNow")
+        ), classes = "govuk-list govuk-list--bullet")
+      )
+
+      HtmlFormat.fill(elems)
+    } else {
+      val govukInsetText = GovukInsetText()
+      govukInsetText(InsetText(content = Text(value = messages("returns.confirmation.inset.youHave"))))
+    }
+  }
 }

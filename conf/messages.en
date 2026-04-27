@@ -244,3 +244,5 @@ returns.confirmation.link.directDebit = Direct Debit
 returns.confirmation.link.payNow = Pay now
 returns.confirmation.button.goTo = Go to your business tax account
 returns.confirmation.button.print = Print or save a copy of this page
+
+returns.confirmation.inset.youHave = You have nothing to pay for this return period.

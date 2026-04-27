@@ -24,15 +24,18 @@
         govukWarningText : GovukWarningText,
         p: Paragraph,
         h2: Heading2,
-        list: List
+        list: List,
+        link: PrintLink
 )
 
 @(vm: ConfirmationViewModel)(implicit request: Request[_], messages: Messages)
 
+@dynamicContent = { @vm.content }
+
 @layout(pageTitle = titleNoForm(messages("confirmation.title"))) {
     @govukPanel(Panel(
       title = Text(messages("returns.confirmation.panel.title")),
-      content = Text(messages("returns.confirmation.panel.yourReturn"))
+      content = Text(messages("returns.confirmation.panel.yourReturn", vm.vpdRef))
     ))
 
     @p(Seq(
@@ -43,26 +46,12 @@
 
     @h2(messages("returns.confirmation.h2.whatYou"))
 
-    @govukWarningText(WarningText(
-        iconFallbackText = Some(messages("site.warning")),
-        content = Text(messages("returns.confirmation.warning.youMust", vm.totalDue, vm.currentMonth))
-    ))
+    @dynamicContent
 
-    @p(Seq(messages("returns.confirmation.p.youWill")))
+    @h2(messages("Keep a copy for your records"))
 
-    @p(Seq(messages("returns.confirmation.p.yourReturn")))
+    @p(Seq(HtmlContent(link(id = "print", text = "Print or save a copy of this page"))))
 
-    @h2(messages("returns.confirmation.h2.howTo"))
-
-    @p(Seq(messages("returns.confirmation.selectOne")))
-
-    @list(Seq(
-        messages("returns.confirmation.link.directDebit"),
-        messages("returns.confirmation.link.payNow")
-    ), classes = "govuk-list govuk-list--bullet")
-
-    @govukButton(ButtonViewModel(messages("returns.confirmation.button.goTo")))
-
-    @govukButton(ButtonViewModel(messages("returns.confirmation.button.print")).asSecondaryButton())
-
+    @govukButton(ButtonViewModel(messages("returns.confirmation.button.goTo"))
+        .asLink(vm.btaLink))
 }
