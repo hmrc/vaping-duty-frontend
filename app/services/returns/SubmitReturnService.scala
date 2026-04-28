@@ -34,10 +34,7 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
 
     given HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
 
-    submitReturnConnector.submitReturn(returnSubmission, request.enrolmentVpdId).map {
-      case Left(error) => Left(error)
-      case Right(response) => Right(response)
-    }
+    submitReturnConnector.submitReturn(returnSubmission, request.enrolmentVpdId)
   }
 
   def buildSubmission(ua: ReturnsUserAnswers): ReturnCreateRequest =
