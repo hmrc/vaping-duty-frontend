@@ -40,23 +40,6 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
 
   val mockConnector: SubmitReturnConnector = mock[SubmitReturnConnector]
 
-  val totalInMl = returnsUserAnswers.get(EnterDutyAmountPage).fold(BigDecimal(0))(value => BigDecimal(value))
-
-  // Temp value
-  val zeroValue = BigDecimal(0)
-
-  // Will need to either get or pass the period key here
-  val periodKey = "26AF"
-
-  // Will need to enhance this much more
-  val totalDue = totalInMl - zeroValue
-
-  val createRequest = ReturnCreateRequest(
-    periodKey,
-    VapingProductsProduced(Seq.empty, Seq.empty),
-    TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
-  )
-
   given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, returnsUserAnswers)
 
   "SubmitReturnService must" - {
@@ -66,7 +49,7 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
       when(mockConnector.submitReturn(any(), any())(any()))
         .thenReturn(Future.successful(Right(testReturnSubmissionResponse)))
 
-      val result = SubmitReturnService(mockConnector).submit(createRequest)
+      val result = SubmitReturnService(mockConnector).submit(testSubmitReturnRequest)
 
       whenReady(result) {
         _ mustBe Right(testReturnSubmissionResponse)
@@ -78,7 +61,7 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
       when(mockConnector.submitReturn(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
-      val result = SubmitReturnService(mockConnector).submit(createRequest)
+      val result = SubmitReturnService(mockConnector).submit(testSubmitReturnRequest)
 
       whenReady(result) {
         _ mustBe Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))
@@ -89,7 +72,7 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
 
       val result = SubmitReturnService(mockConnector).buildSubmission(returnsUserAnswers)
 
-      result mustBe createRequest
+      result mustBe testSubmitReturnRequest
     }
 
     "return a create request with a value present" in {
@@ -97,7 +80,7 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
       val result = SubmitReturnService(mockConnector)
         .buildSubmission(returnsUserAnswers.set(EnterDutyAmountPage, 1000).success.value)
 
-      result mustBe createRequest.copy(totalDutyDue = TotalDutyDue(totalDutyDueVapingProducts = BigDecimal(1000),BigDecimal(0),BigDecimal(0),BigDecimal(0),BigDecimal(0), totalDutyDue = BigDecimal(1000)))
+      result mustBe testSubmitReturnRequest.copy(totalDutyDue = TotalDutyDue(totalDutyDueVapingProducts = BigDecimal(1000),BigDecimal(0),BigDecimal(0),BigDecimal(0),BigDecimal(0), totalDutyDue = BigDecimal(1000)))
     }
   }
 }

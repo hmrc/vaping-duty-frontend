@@ -19,7 +19,8 @@ package data
 import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, UserDetails}
 import models.emailverification.*
 import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
-import models.returns.{ReturnSubmittedResponse, ReturnsUserAnswers}
+import models.returns.{ReturnCreateRequest, ReturnSubmittedResponse, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
+import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
 
 import java.time.{Clock, Instant, LocalDate, ZoneId}
@@ -38,7 +39,7 @@ trait TestData {
 
   val userDetails: UserDetails = UserDetails(vpdId.value, internalId.value)
 
-  val emailAddress  = "john.doe@example.com"
+  val emailAddress = "john.doe@example.com"
   val emailAddress2 = "jonjones@example.com"
   val emailAddress3 = "robsmith@example.com"
   val emailAddress4 = "timmytimmy@example.com"
@@ -135,7 +136,7 @@ trait TestData {
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
   )
-  
+
   val testVerificationDetails1: GetVerificationStatusResponseEmailAddressDetails =
     GetVerificationStatusResponseEmailAddressDetails(emailAddress = emailAddress, verified = false, locked = false)
   val testVerificationDetails2: GetVerificationStatusResponseEmailAddressDetails =
@@ -191,7 +192,7 @@ trait TestData {
   )
 
   val testSubmissionResponse = PaperlessPreferenceSubmittedResponse(Instant.now(clock), "910000000000")
-  
+
   val testReturnSubmissionResponse = ReturnSubmittedResponse(
     processingDate = Instant.now(),
     vpdReferenceNumber = "vpdReferenceNumber",
@@ -200,5 +201,21 @@ trait TestData {
     amount = BigDecimal(0),
     paymentDueDate = Option(LocalDate.now())
   )
-  }
 
+  val totalInMl = returnsUserAnswers.get(EnterDutyAmountPage).fold(BigDecimal(0))(value => BigDecimal(value))
+
+  // Temp value
+  val zeroValue = BigDecimal(0)
+
+  // Will need to either get or pass the period key here
+  val periodKey = "26AF"
+
+  // Will need to enhance this much more
+  val totalDue = totalInMl - zeroValue
+
+  val testSubmitReturnRequest = ReturnCreateRequest(
+    periodKey,
+    VapingProductsProduced(Seq.empty, Seq.empty),
+    TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
+  )
+}

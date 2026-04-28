@@ -37,23 +37,6 @@ class SubmitReturnConnectorISpec extends ISpecBase with WireMockHelper with Test
   private val url = s"/vaping-duty/vpd-return/$vpdId"
   private lazy val connector = application.injector.instanceOf[SubmitReturnConnector]
 
-  val totalInMl = returnsUserAnswers.get(EnterDutyAmountPage).fold(BigDecimal(0))(value => BigDecimal(value))
-
-  // Temp value
-  val zeroValue = BigDecimal(0)
-
-  // Will need to either get or pass the period key here
-  val periodKey = "26AF"
-
-  // Will need to enhance this much more
-  val totalDue = totalInMl - zeroValue
-
-  val request = ReturnCreateRequest(
-    periodKey,
-    VapingProductsProduced(Seq.empty, Seq.empty),
-    TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
-  )
-
   "submitReturn must" - {
 
     "successfully submit a return" in {
@@ -61,7 +44,7 @@ class SubmitReturnConnectorISpec extends ISpecBase with WireMockHelper with Test
         post(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(testReturnSubmissionResponse).toString))
       )
 
-      val result = connector.submitReturn(request, vpdId).futureValue
+      val result = connector.submitReturn(testSubmitReturnRequest, vpdId).futureValue
 
       result mustBe Right(testReturnSubmissionResponse)
     }
@@ -71,7 +54,7 @@ class SubmitReturnConnectorISpec extends ISpecBase with WireMockHelper with Test
         post(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson("InvalidJSON").toString))
       )
 
-      val result = connector.submitReturn(request, vpdId).futureValue
+      val result = connector.submitReturn(testSubmitReturnRequest, vpdId).futureValue
 
       result mustBe Left(
         ErrorModel(INTERNAL_SERVER_ERROR, "Invalid JSON format. Could not parse response as ...")
@@ -83,7 +66,7 @@ class SubmitReturnConnectorISpec extends ISpecBase with WireMockHelper with Test
         post(url).willReturn(aResponse().withStatus(BAD_GATEWAY))
       )
 
-      val result = connector.submitReturn(request, vpdId).futureValue
+      val result = connector.submitReturn(testSubmitReturnRequest, vpdId).futureValue
 
       result mustBe Left(ErrorModel(BAD_GATEWAY, "Unexpected response. Status: 502"))
     }
@@ -93,7 +76,7 @@ class SubmitReturnConnectorISpec extends ISpecBase with WireMockHelper with Test
         post(url).willReturn(aResponse().withStatus(CREATED).withBody(Json.toJson(testReturnSubmissionResponse).toString))
       )
 
-      val result = connector.submitReturn(request, vpdId).futureValue
+      val result = connector.submitReturn(testSubmitReturnRequest, vpdId).futureValue
 
       result mustBe Left(ErrorModel(INTERNAL_SERVER_ERROR, "Unexpected status code when submitting return: 201"))
     }
