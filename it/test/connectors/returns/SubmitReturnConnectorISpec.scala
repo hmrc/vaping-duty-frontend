@@ -58,7 +58,7 @@ class SubmitReturnConnectorISpec extends ISpecBase with WireMockHelper with Test
 
     "successfully submit a return" in {
       server.stubFor(
-        post(url).willReturn(aResponse().withStatus(CREATED).withBody(Json.toJson(testReturnSubmissionResponse).toString))
+        post(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(testReturnSubmissionResponse).toString))
       )
 
       val result = connector.submitReturn(request, vpdId).futureValue
@@ -68,7 +68,7 @@ class SubmitReturnConnectorISpec extends ISpecBase with WireMockHelper with Test
 
     "fail when invalid JSON is returned" in {
       server.stubFor(
-        post(url).willReturn(aResponse().withStatus(CREATED).withBody(Json.toJson("InvalidJSON").toString))
+        post(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson("InvalidJSON").toString))
       )
 
       val result = connector.submitReturn(request, vpdId).futureValue
@@ -90,12 +90,12 @@ class SubmitReturnConnectorISpec extends ISpecBase with WireMockHelper with Test
 
     "fail when an unexpected status code is returned" in {
       server.stubFor(
-        post(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(testReturnSubmissionResponse).toString))
+        post(url).willReturn(aResponse().withStatus(CREATED).withBody(Json.toJson(testReturnSubmissionResponse).toString))
       )
 
       val result = connector.submitReturn(request, vpdId).futureValue
 
-      result mustBe Left(ErrorModel(INTERNAL_SERVER_ERROR, "Unexpected status code when submitting return: 200"))
+      result mustBe Left(ErrorModel(INTERNAL_SERVER_ERROR, "Unexpected status code when submitting return: 201"))
     }
   }
 }

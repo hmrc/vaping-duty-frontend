@@ -18,7 +18,6 @@ package controllers.returns
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import models.returns.{Failure, ReturnCreateRequest, Success, TotalDutyDue, VapingProductsProduced}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.SubmitReturnService

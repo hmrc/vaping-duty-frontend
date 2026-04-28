@@ -32,7 +32,6 @@ import pages.returns.EnterDutyAmountPage
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.test.FakeRequest
 
-import java.time.{Instant, LocalDate}
 import scala.concurrent.Future
 
 class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData with SpecBase {
