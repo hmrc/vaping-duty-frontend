@@ -19,10 +19,10 @@ package data
 import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, UserDetails}
 import models.emailverification.*
 import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
-import models.returns.ReturnsUserAnswers
+import models.returns.{ReturnSubmittedResponse, ReturnsUserAnswers}
 import play.api.libs.json.{JsObject, Json}
 
-import java.time.{Clock, Instant, ZoneId}
+import java.time.{Clock, Instant, LocalDate, ZoneId}
 
 trait TestData {
   val vpdId: VpdId = VpdId(id = "VPPAID01")
@@ -191,4 +191,14 @@ trait TestData {
   )
 
   val testSubmissionResponse = PaperlessPreferenceSubmittedResponse(Instant.now(clock), "910000000000")
+  
+  val testReturnSubmissionResponse = ReturnSubmittedResponse(
+    processingDate = Instant.now(),
+    vpdReferenceNumber = "vpdReferenceNumber",
+    submissionID = Option("submissionID"),
+    chargeReference = Option("chargeReference"),
+    amount = BigDecimal(0),
+    paymentDueDate = Option(LocalDate.now())
+  )
   }
+

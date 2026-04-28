@@ -17,7 +17,6 @@
 package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
-import play.api.Application
 import utils.ReturnsDateUtils.getYear
 
 import java.time.format.TextStyle

@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector)
                                    (using ExecutionContext) {
 
-  def submit(returnSubmission: ReturnCreateRequest)(using request: ReturnsDataRequest[?]): Future[Either[ErrorModel, ReturnSubmittedResponse]] = {
+  def submit(returnSubmission: ReturnCreateRequest)(implicit request: ReturnsDataRequest[?]): Future[Either[ErrorModel, ReturnSubmittedResponse]] = {
 
     given HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
 
