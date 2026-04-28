@@ -17,7 +17,6 @@
 package forms.returns
 
 import forms.behaviours.BooleanFieldBehaviours
-import forms.returns.DeclareDutyFormProvider
 import play.api.data.FormError
 
 class DeclareDutyFormProviderSpec extends BooleanFieldBehaviours {

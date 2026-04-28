@@ -17,7 +17,6 @@
 package services.returns
 
 import base.SpecBase
-import connectors.contactPreference.SubmitPreferencesConnector
 import connectors.returns.SubmitReturnConnector
 import data.TestData
 import models.emailverification.ErrorModel
@@ -31,7 +30,6 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.returns.EnterDutyAmountPage
 import play.api.http.Status.INTERNAL_SERVER_ERROR
-import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 
 import java.time.{Instant, LocalDate}
@@ -60,15 +58,6 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
     TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
   )
 
-  val response = ReturnSubmittedResponse(
-    processingDate = Instant.now(),
-    vpdReferenceNumber = "vpdReferenceNumber",
-    submissionID = Option("submissionID"),
-    chargeReference = Option("chargeReference"),
-    amount = BigDecimal(0),
-    paymentDueDate = Option(LocalDate.now())
-  )
-
   given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, returnsUserAnswers)
 
   "SubmitReturnService must" - {
@@ -76,12 +65,12 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
     "return Success when a preference is submitted successfully" in {
 
       when(mockConnector.submitReturn(any(), any())(any()))
-        .thenReturn(Future.successful(Right(response)))
+        .thenReturn(Future.successful(Right(testReturnSubmissionResponse)))
 
       val result = SubmitReturnService(mockConnector).submit(createRequest)
 
       whenReady(result) {
-        _ mustBe Right(response)
+        _ mustBe Right(testReturnSubmissionResponse)
       }
    }
 

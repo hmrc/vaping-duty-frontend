@@ -17,7 +17,6 @@
 package controllers.returns
 
 import base.SpecBase
-import controllers.routes
 import forms.returns.DeclareDutyFormProvider
 import models.NormalMode
 import models.returns.ReturnsUserAnswers

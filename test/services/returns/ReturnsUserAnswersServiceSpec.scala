@@ -19,7 +19,7 @@ package services.returns
 import base.SpecBase
 import connectors.returns.ReturnsUserAnswersConnector
 import models.emailverification.ErrorModel
-import org.mockito.ArgumentMatchers.{any, refEq}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}

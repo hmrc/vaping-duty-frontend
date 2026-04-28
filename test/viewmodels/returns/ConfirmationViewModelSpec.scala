@@ -19,7 +19,6 @@ package viewmodels.returns
 import base.{SpecBase, UnitSpec}
 import models.returns.ReturnsUserAnswers
 import pages.returns.EnterDutyAmountPage
-import play.api.Application
 import play.api.libs.json.Json
 import utils.ReturnsDateUtils
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.returns
 
 import base.SpecBase
 import connectors.SubscriptionConnector

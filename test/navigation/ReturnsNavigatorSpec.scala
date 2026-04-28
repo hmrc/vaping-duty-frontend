@@ -45,6 +45,11 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.returns.routes.TaskListController.onPageLoad()
       }
 
+      "must go from DeclareDuty to JourneyRecovery when there is no value present" in {
+        val ua = returnsUserAnswers.set(DeclareDutyPage, true).success.value
+        navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.returns.routes.EnterDutyAmountController.onPageLoad(NormalMode)
+      }
+
       "must go from EnterAmount to TaskList " in {
         val ua = returnsUserAnswers.set(EnterDutyAmountPage, 1).success.value
 
@@ -64,6 +69,11 @@ class ReturnsNavigatorSpec extends SpecBase {
 
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, CheckMode, returnsUserAnswers) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from EnterDutyAmountPage to CheckYourAnswers" in {
+
+        navigator.nextPage(EnterDutyAmountPage, CheckMode, returnsUserAnswers) mustBe controllers.returns.routes.CheckYourAnswersController.onPageLoad()
       }
     }
   }

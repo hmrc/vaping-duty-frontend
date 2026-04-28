@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import base.{SpecBase, UnitSpec}
 import models.CheckMode
-import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
+import pages.returns.EnterDutyAmountPage
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.all.{ActionItemViewModel, SummaryListRowViewModel, ValueViewModel, stringToKey}
