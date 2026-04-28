@@ -59,53 +59,44 @@ object ConfirmationViewModel extends CurrencyFormatter {
     s"${ReturnsDateUtils.getCurrentDay} $monthMessage ${ReturnsDateUtils.getYear}"
   }
 
+  private def elems(html: HtmlFormat.Appendable)(implicit messages: Messages) =
+
+    val p = Paragraph()
+    val h2 = Heading2()
+    val list = ListWithLinks()
+    val link = Link()
+
+    Seq(
+      html,
+      p(Seq(Text(messages("returns.confirmation.p.youWill")))),
+      p(Seq(Text(messages("returns.confirmation.p.yourReturn")))),
+      h2(Text(messages("returns.confirmation.h2.howTo"))),
+      p(Seq(Text(messages("returns.confirmation.selectOne")))),
+      list(Seq(
+        link(id = "ddLink", href = "#", text = messages("returns.confirmation.link.directDebit")),
+        link(id = "payNowLink", href = "#", text = messages("returns.confirmation.link.payNow"))
+      ), classes = "govuk-list govuk-list--bullet")
+    )
+
   private def getContent(valueInMl: Int)(implicit messages: Messages) = {
 
     val monthMessage = ReturnsDateUtils.getCurrentMonthMessage(ReturnsDateUtils.month)
 
     if (valueInMl > 9) {
       val warning = GovukWarningText()
-      val p = Paragraph()
-      val h2 = Heading2()
-      val list = ListWithLinks()
-      val link = Link()
 
-      val elems = Seq(
-        warning(WarningText(
-          iconFallbackText = Some(messages("site.warning")),
-          content = Text(messages("returns.confirmation.warning.youMust", totalDue(valueInMl), monthMessage))
-        )),
-        p(Seq(Text(messages("returns.confirmation.p.youWill")))),
-        p(Seq(Text(messages("returns.confirmation.p.yourReturn")))),
-        h2(Text(messages("returns.confirmation.h2.howTo"))),
-        p(Seq(Text(messages("returns.confirmation.selectOne")))),
-        list(Seq(
-          link(id = "ddLink", href = "#", text = messages("returns.confirmation.link.directDebit")),
-          link(id = "payNowLink", href = "#", text = messages("returns.confirmation.link.payNow"))
-        ), classes = "govuk-list govuk-list--bullet")
-      )
+      val warningSection = warning(WarningText(
+        iconFallbackText = Some(messages("site.warning")),
+        content = Text(messages("returns.confirmation.warning.youMust", totalDue(valueInMl), monthMessage))
+      ))
 
-      HtmlFormat.fill(elems)
+      HtmlFormat.fill(elems(warningSection))
     } else {
       val govukInsetText = GovukInsetText()
-      val p = Paragraph()
-      val h2 = Heading2()
-      val list = ListWithLinks()
-      val link = Link()
 
-      val elems = Seq(
-        govukInsetText(InsetText(content = Text(value = messages("returns.confirmation.inset.youHave")))),
-        p(Seq(Text(messages("returns.confirmation.p.youWill")))),
-        p(Seq(Text(messages("returns.confirmation.p.yourReturn")))),
-        h2(Text(messages("returns.confirmation.h2.howTo"))),
-        p(Seq(Text(messages("returns.confirmation.selectOne")))),
-        list(Seq(
-          link(id = "ddLink", href = "#", text = messages("returns.confirmation.link.directDebit")),
-          link(id = "payNowLink", href = "#", text = messages("returns.confirmation.link.payNow"))
-        ), classes = "govuk-list govuk-list--bullet")
-      )
+      val insetSection = govukInsetText(InsetText(content = Text(value = messages("returns.confirmation.inset.youHave"))))
 
-      HtmlFormat.fill(elems)
+      HtmlFormat.fill(elems(insetSection))
     }
   }
 }

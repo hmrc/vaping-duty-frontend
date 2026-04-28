@@ -19,9 +19,13 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.*
+import models.returns.ReturnsUserAnswers
 import pages.*
 import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
+import play.api.libs.json.Json
 import play.api.mvc.Call
+
+import java.time.Instant
 
 class ReturnsNavigatorSpec extends SpecBase {
 
@@ -46,8 +50,8 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from DeclareDuty to JourneyRecovery when there is no value present" in {
-        val ua = returnsUserAnswers.set(DeclareDutyPage, true).success.value
-        navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.returns.routes.EnterDutyAmountController.onPageLoad(NormalMode)
+        val ua = ReturnsUserAnswers("id", Json.obj(), Instant.now(), Instant.now())
+        navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from EnterAmount to TaskList " in {
