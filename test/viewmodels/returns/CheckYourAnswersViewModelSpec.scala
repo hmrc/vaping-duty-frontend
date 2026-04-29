@@ -34,7 +34,8 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
       val vm = CheckYourAnswersViewModel(ua)
 
       vm.finalDutySummaryList.rows must not be empty
-      vm.dutySuspendedSummaryList.rows must not be empty
+      // Commented until we show these rows
+      //vm.dutySuspendedSummaryList.rows must not be empty
     }
 
     "must create a view model with empty summary lists when no data exists" in {
@@ -56,7 +57,8 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
 
       // Will always show two rows at least
       vm.finalDutySummaryList.rows.size mustBe 2
-      vm.dutySuspendedSummaryList.rows.size mustBe 3
+      // Commented until we show these rows
+      //vm.dutySuspendedSummaryList.rows.size mustBe 3
     }
   }
 }

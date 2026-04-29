@@ -26,10 +26,11 @@ import viewmodels.implicits.*
 object DutySuspenseSummary {
 
   def summaryList(answers: ReturnsUserAnswers)(implicit messages: Messages): SummaryList = {
+    // Commented out until we implement the relevant journeys
     val rows = Seq(
-      buildProductReceivedRow(answers),
-      buildProductMovedRow(answers),
-      buildTotalVolumeRow(answers)
+//      buildProductReceivedRow(answers),
+//      buildProductMovedRow(answers),
+//      buildTotalVolumeRow(answers)
     ).flatten
     
     SummaryList(rows = rows)
