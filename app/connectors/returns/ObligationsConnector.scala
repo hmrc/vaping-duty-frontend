@@ -36,7 +36,7 @@ class ObligationsConnector @Inject()(
                                     (using ExecutionContext) extends HttpReadsInstances with Logging {
 
   def getObligations(vpdId: VpdId)
-                                       (using HeaderCarrier): Future[Either[ErrorResponse, ObligationsResponse]] =
+                    (using HeaderCarrier): Future[Either[ErrorResponse, ObligationsResponse]] =
 
     httpClient
       .get(url"${config.getObligationsUrl(vpdId)}")
