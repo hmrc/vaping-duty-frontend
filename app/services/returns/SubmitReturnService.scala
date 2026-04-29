@@ -30,14 +30,14 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector)
                                    (using ExecutionContext) {
 
-  def submit(returnSubmission: ReturnCreateRequest)(implicit request: ReturnsDataRequest[?]): Future[Either[ErrorModel, ReturnSubmittedResponse]] = {
+  def submit(ua: ReturnsUserAnswers)(implicit request: ReturnsDataRequest[?]): Future[Either[ErrorModel, ReturnSubmittedResponse]] = {
 
     given HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
 
-    submitReturnConnector.submitReturn(returnSubmission, request.enrolmentVpdId)
+    submitReturnConnector.submitReturn(buildSubmission(ua), request.enrolmentVpdId)
   }
 
-  def buildSubmission(ua: ReturnsUserAnswers): ReturnCreateRequest =
+  private def buildSubmission(ua: ReturnsUserAnswers): ReturnCreateRequest =
 
     val totalInMl = ua.get(EnterDutyAmountPage).fold(BigDecimal(0))(value => BigDecimal(value))
 

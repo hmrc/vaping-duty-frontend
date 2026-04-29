@@ -28,7 +28,6 @@ import org.mockito.Mockito.when
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar.mock
-import pages.returns.EnterDutyAmountPage
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.test.FakeRequest
 
@@ -49,7 +48,7 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
       when(mockConnector.submitReturn(any(), any())(any()))
         .thenReturn(Future.successful(Right(testReturnSubmissionResponse)))
 
-      val result = SubmitReturnService(mockConnector).submit(testSubmitReturnRequest)
+      val result = SubmitReturnService(mockConnector).submit(returnsUserAnswers)
 
       whenReady(result) {
         _ mustBe Right(testReturnSubmissionResponse)
@@ -61,26 +60,11 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
       when(mockConnector.submitReturn(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
 
-      val result = SubmitReturnService(mockConnector).submit(testSubmitReturnRequest)
+      val result = SubmitReturnService(mockConnector).submit(returnsUserAnswers)
 
       whenReady(result) {
         _ mustBe Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))
       }
-    }
-
-    "return a create request" in {
-
-      val result = SubmitReturnService(mockConnector).buildSubmission(returnsUserAnswers)
-
-      result mustBe testSubmitReturnRequest
-    }
-
-    "return a create request with a value present" in {
-
-      val result = SubmitReturnService(mockConnector)
-        .buildSubmission(returnsUserAnswers.set(EnterDutyAmountPage, 1000).success.value)
-
-      result mustBe testSubmitReturnRequest.copy(totalDutyDue = TotalDutyDue(totalDutyDueVapingProducts = BigDecimal(1000),BigDecimal(0),BigDecimal(0),BigDecimal(0),BigDecimal(0), totalDutyDue = BigDecimal(1000)))
     }
   }
 }
