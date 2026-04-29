@@ -17,17 +17,32 @@
 package controllers.returns
 
 import base.SpecBase
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.returns.ObligationsService
+import uk.gov.hmrc.play.bootstrap.http.ErrorResponse
 import viewmodels.returns.ViewMultipleReturnsViewModel
 import views.html.returns.ViewMultipleReturnsView
+
+import scala.concurrent.Future
 
 class ViewMultipleReturnsControllerSpec extends SpecBase {
 
   "ViewMultipleReturns Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val mockService = mock[ObligationsService]
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[ObligationsService].to(mockService))
+        .build()
+
+      when(mockService.get(any())(any())).thenReturn(Future.successful(Right(createMockObligationsResponse())))
+
       val vm = ViewMultipleReturnsViewModel(createMockObligationsResponse())(messages(application))
 
       running(application) {
@@ -39,6 +54,25 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect when obligation service request fails" in {
+      val mockService = mock[ObligationsService]
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[ObligationsService].to(mockService))
+        .build()
+
+      when(mockService.get(any())(any())).thenReturn(Future.successful(Left(ErrorResponse(BAD_GATEWAY, "Bad gateway"))))
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.routes.ViewMultipleReturnsController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 

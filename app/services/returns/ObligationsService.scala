@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ObligationsService @Inject()(connector: ObligationsConnector)(using ExecutionContext) {
 
-  def get(vpdId: VpdId)(using HeaderCarrier): Future[Either[ErrorResponse, ObligationsResponse]] = {
+  def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[ErrorResponse, ObligationsResponse]] = {
     //connector.getObligations(vpdId)
     // Replace with connector call when ready
     Future.successful(Right(createMockObligationsResponse()))

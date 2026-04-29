@@ -18,15 +18,14 @@ package controllers.returns
 
 import controllers.actions.*
 import controllers.actions.returns.ReturnsEnabledAction
-import models.returns.{ObligationDetails, ObligationItem, ObligationsResponse}
+import models.returns.ObligationsResponse
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ObligationsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.ViewMultipleReturnsViewModel
-import views.html.returns.ReturnsOverviewView
+import views.html.returns.ViewMultipleReturnsView
 
-import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
@@ -36,7 +35,7 @@ class ViewMultipleReturnsController @Inject()(
                                                returnsEnabledAction: ReturnsEnabledAction,
                                                obligationsService: ObligationsService,
                                                val controllerComponents: MessagesControllerComponents,
-                                               view: ReturnsOverviewView
+                                               view: ViewMultipleReturnsView
                                              )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction).async {
