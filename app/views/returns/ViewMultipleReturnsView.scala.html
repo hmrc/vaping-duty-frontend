@@ -14,20 +14,22 @@
  * limitations under the License.
  *@
 
-@import viewmodels.returns.ReturnsOverviewViewModel
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import viewmodels.returns.ViewMultipleReturnsViewModel
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
+@import views.html.components.*
 
 @this(
     layout: templates.ReturnsLayout,
     govukTable: GovukTable,
-    govukTag: GovukTag
+    govukTag: GovukTag,
+    h1: Heading
 )
 
-@(viewModel: ReturnsOverviewViewModel)(implicit request: Request[_], messages: Messages)
+@(vm: ViewMultipleReturnsViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = messages("returns.overview.title")) {
 
-    <h1 class="govuk-heading-l">@messages("returns.overview.heading")</h1>
+    @h1(messages("returns.overview.heading"))
 
     <h2 class="govuk-heading-m">@messages("returns.overview.outstanding.heading")</h2>
 
@@ -45,22 +47,7 @@
                 classes = "govuk-!-width-one-quarter"
             )
         )),
-        rows = viewModel.outstandingReturns.map { row =>
-            Seq(
-                TableRow(
-                    content = Text(row.monthDisplay)
-                ),
-                TableRow(
-                    content = HtmlContent(govukTag(Tag(
-                        content = Text(row.status),
-                        classes = row.statusClass
-                    )))
-                ),
-                TableRow(
-                    content = HtmlContent(s"""<a class="govuk-link" href="${row.submitLink}">${messages("returns.overview.outstanding.submitReturn")}</a>""")
-                )
-            )
-        }
+        rows = vm.outstandingReturns
     ))
 
     <h2 class="govuk-heading-m">@messages("returns.overview.completed.heading")</h2>
@@ -75,15 +62,6 @@
                 classes = "govuk-!-width-one-quarter"
             )
         )),
-        rows = viewModel.completedReturns.map { row =>
-            Seq(
-                TableRow(
-                    content = Text(row.monthDisplay)
-                ),
-                TableRow(
-                    content = HtmlContent(s"""<a class="govuk-link" href="${row.viewLink}">${messages("returns.overview.completed.viewReturn")}</a>""")
-                )
-            )
-        }
+        rows = vm.completedReturns
     ))
 }

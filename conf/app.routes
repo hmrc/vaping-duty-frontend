@@ -49,7 +49,7 @@ GET        /contact-preferences/confirm-email-address                           
 POST       /contact-preferences/confirm-email-address                           controllers.contactPreference.SubmitEmailController.onSubmit()
 
 # Returns
-GET        /returns-overview                                                    controllers.returns.ReturnsOverviewController.show()
+GET        /view-your-returns                                                   controllers.returns.ViewMultipleReturnsController.onPageLoad()
 GET        /complete-return/before-you-start                                    controllers.returns.BeforeYouStartController.onPageLoad()
 GET        /complete-return/task-list                                           controllers.returns.TaskListController.onPageLoad()
 
