@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import utils.CssConstants.boldFontWeight
 @import components._
 @import viewmodels.returns.ConfirmationViewModel
 
@@ -33,27 +34,29 @@
 
 @dynamicContent = { @vm.content }
 
-@layout(pageTitle = titleNoForm(messages("confirmation.title"))) {
+@layout(pageTitle = titleNoForm(messages("returns.confirmation.title"))) {
     @govukPanel(Panel(
-      title = Text(messages("returns.confirmation.panel.title")),
-      content = Text(messages("returns.confirmation.panel.yourReturn", vm.vpdRef))
+        title = Text(messages("returns.confirmation.panel.title")),
+        content = HtmlContent(
+            s"${messages("returns.confirmation.panel.yourReturn")} <span class=$boldFontWeight>${vm.vpdRef}</span>"
+        )
     ))
 
     @p(Seq(
         messages("returns.confirmation.p.weHave"),
-        HtmlContent(s" <span class='govuk-!-font-weight-bold'>${vm.email}</span>"),
+        HtmlContent(s" <span class=$boldFontWeight>${vm.email}</span>"),
         messages("returns.confirmation.p.confirming", vm.date),
     ))
 
-    @p(Seq(HtmlContent(link(id = "", href = "", text = "View your return"))))
+    @p(Seq(HtmlContent(link(id = "view-return", href = "", text = messages("returns.confirmation.link.view")))))
 
     @h2(messages("returns.confirmation.h2.whatYou"))
 
     @dynamicContent
 
-    @h2(messages("Keep a copy for your records"))
+    @h2(messages("returns.confirmation.h2.keep"))
 
-    @p(Seq(HtmlContent(printLink(id = "print", text = "Print or save a copy of this page"))))
+    @p(Seq(HtmlContent(printLink(id = "print", text = messages("returns.confirmation.button.print")))))
 
     @govukButton(ButtonViewModel(messages("returns.confirmation.button.goTo"))
         .asLink(vm.btaLink))
