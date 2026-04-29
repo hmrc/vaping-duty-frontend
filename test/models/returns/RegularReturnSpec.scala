@@ -24,11 +24,10 @@ class RegularReturnSpec extends SpecBase {
     RegularReturn(taxType = "x641",
       dutyRate = BigDecimal(0.20),
       amountProducedLiquid = BigDecimal(100),
-      amountProducedSolid = BigDecimal(50),
       dutyDue = BigDecimal(30))
 
   "RegularReturn" - {
-    val json = """{"taxType":"x641","dutyRate":0.2,"amountProducedLiquid":100,"amountProducedSolid":50,"dutyDue":30}"""
+    val json = """{"taxType":"x641","dutyRate":0.2,"amountProducedLiquid":100,"dutyDue":30}"""
 
     "must serialise to json" in {
       Json.toJson(regularReturn).toString() mustBe json

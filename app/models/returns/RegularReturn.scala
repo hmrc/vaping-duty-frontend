@@ -22,7 +22,6 @@ case class RegularReturn(
   taxType: String,
   dutyRate: BigDecimal,
   amountProducedLiquid: BigDecimal,
-  amountProducedSolid: BigDecimal,
   dutyDue: BigDecimal
 )
 
