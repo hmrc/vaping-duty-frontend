@@ -1,0 +1,89 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import viewmodels.returns.ReturnsOverviewViewModel
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+
+@this(
+    layout: templates.ReturnsLayout,
+    govukTable: GovukTable,
+    govukTag: GovukTag
+)
+
+@(viewModel: ReturnsOverviewViewModel)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = messages("returns.overview.title")) {
+
+    <h1 class="govuk-heading-l">@messages("returns.overview.heading")</h1>
+
+    <h2 class="govuk-heading-m">@messages("returns.overview.outstanding.heading")</h2>
+
+    @govukTable(Table(
+        head = Some(Seq(
+            HeadCell(
+                content = Text(messages("returns.overview.outstanding.month"))
+            ),
+            HeadCell(
+                content = Text(messages("returns.overview.outstanding.status")),
+                classes = "govuk-!-width-one-quarter"
+            ),
+            HeadCell(
+                content = Text(messages("returns.overview.outstanding.action")),
+                classes = "govuk-!-width-one-quarter"
+            )
+        )),
+        rows = viewModel.outstandingReturns.map { row =>
+            Seq(
+                TableRow(
+                    content = Text(row.monthDisplay)
+                ),
+                TableRow(
+                    content = HtmlContent(govukTag(Tag(
+                        content = Text(row.status),
+                        classes = row.statusClass
+                    )))
+                ),
+                TableRow(
+                    content = HtmlContent(s"""<a class="govuk-link" href="${row.submitLink}">${messages("returns.overview.outstanding.submitReturn")}</a>""")
+                )
+            )
+        }
+    ))
+
+    <h2 class="govuk-heading-m">@messages("returns.overview.completed.heading")</h2>
+
+    @govukTable(Table(
+        head = Some(Seq(
+            HeadCell(
+                content = Text(messages("returns.overview.completed.month"))
+            ),
+            HeadCell(
+                content = Text(messages("returns.overview.completed.action")),
+                classes = "govuk-!-width-one-quarter"
+            )
+        )),
+        rows = viewModel.completedReturns.map { row =>
+            Seq(
+                TableRow(
+                    content = Text(row.monthDisplay)
+                ),
+                TableRow(
+                    content = HtmlContent(s"""<a class="govuk-link" href="${row.viewLink}">${messages("returns.overview.completed.viewReturn")}</a>""")
+                )
+            )
+        }
+    ))
+}
