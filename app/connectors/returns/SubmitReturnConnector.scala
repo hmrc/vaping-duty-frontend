@@ -64,27 +64,3 @@ class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
     }
   }
 }
-
-
-//   def submitReturn(returnsSubmission: ReturnCreateRequest, vpdId: VpdId)
-//                   (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] = {
-//     httpClient
-//       .map {
-//         case Right(response) if response.status == OK =>
-//           Try(response.json.as[ReturnSubmittedResponse]) match {
-//             case Success(successResponse) => Future.successful(successResponse)
-//             case Failure(_)               =>
-//               logger.warn("Invalid JSON format, failed to parse as ...")
-//               Left(ErrorModel(INTERNAL_SERVER_ERROR, "Invalid JSON format. Could not parse response as ..."))
-//           }
-//         case Left(errorResponse)                      =>
-//           logger.warn(s"Unexpected response when submitting return. Status: ${errorResponse.statusCode}")
-//           Left(ErrorModel(errorResponse.statusCode, s"Unexpected response. Status: ${errorResponse.statusCode}"))
-//         case Right(response)                          =>
-//           logger.warn(s"Unexpected status code when submitting return: ${response.status}")
-//           Left(
-//             ErrorModel(INTERNAL_SERVER_ERROR, s"Unexpected status code when submitting return: ${response.status}")
-//           )
-//       }
-//   }
-// }
