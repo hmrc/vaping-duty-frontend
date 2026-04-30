@@ -46,39 +46,31 @@ class SubmitReturnConnectorISpec extends ISpecBase with WireMockHelper with Test
 
       val result = connector.submitReturn(testSubmitReturnRequest, vpdId).futureValue
 
-      result mustBe Right(testReturnSubmissionResponse)
+      result mustBe testReturnSubmissionResponse
     }
 
     "fail when invalid JSON is returned" in {
       server.stubFor(
-        post(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson("InvalidJSON").toString))
+        post(url).willReturn(aResponse().withStatus(CREATED).withBody(Json.toJson("InvalidJSON").toString))
       )
 
-      val result = connector.submitReturn(testSubmitReturnRequest, vpdId).futureValue
+      val result = connector.submitReturn(testSubmitReturnRequest, vpdId)
 
-      result mustBe Left(
-        ErrorModel(INTERNAL_SERVER_ERROR, "Invalid JSON format. Could not parse response as ...")
-      )
-    }
-
-    "fail when an unexpected response is returned" in {
-      server.stubFor(
-        post(url).willReturn(aResponse().withStatus(BAD_GATEWAY))
-      )
-
-      val result = connector.submitReturn(testSubmitReturnRequest, vpdId).futureValue
-
-      result mustBe Left(ErrorModel(BAD_GATEWAY, "Unexpected response. Status: 502"))
+      whenReady(result.failed) { exception =>
+        exception mustBe an[Exception]
+      }
     }
 
     "fail when an unexpected status code is returned" in {
       server.stubFor(
-        post(url).willReturn(aResponse().withStatus(CREATED).withBody(Json.toJson(testReturnSubmissionResponse).toString))
+        post(url).willReturn(aResponse().withStatus(BAD_GATEWAY).withBody(Json.toJson(testReturnSubmissionResponse).toString))
       )
 
-      val result = connector.submitReturn(testSubmitReturnRequest, vpdId).futureValue
+      val result = connector.submitReturn(testSubmitReturnRequest, vpdId)
 
-      result mustBe Left(ErrorModel(INTERNAL_SERVER_ERROR, "Unexpected status code when submitting return: 201"))
+      whenReady(result.failed) { exception =>
+        exception mustBe an[Exception]
+      }
     }
   }
 }

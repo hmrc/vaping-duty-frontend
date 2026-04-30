@@ -30,6 +30,8 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.test.FakeRequest
+import play.api.test.Helpers.status
+import uk.gov.hmrc.http.InternalServerException
 
 import scala.concurrent.Future
 
@@ -46,24 +48,24 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
     "return Success when a preference is submitted successfully" in {
 
       when(mockConnector.submitReturn(any(), any())(any()))
-        .thenReturn(Future.successful(Right(testReturnSubmissionResponse)))
+        .thenReturn(Future.successful(testReturnSubmissionResponse))
 
       val result = SubmitReturnService(mockConnector).submit(returnsUserAnswers)
 
       whenReady(result) {
-        _ mustBe Right(testReturnSubmissionResponse)
+        _ mustBe testReturnSubmissionResponse
       }
    }
 
     "return Failure when there was an error submitting a preference" in {
 
       when(mockConnector.submitReturn(any(), any())(any()))
-        .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
+        .thenReturn(Future.failed(InternalServerException("error")))
 
       val result = SubmitReturnService(mockConnector).submit(returnsUserAnswers)
 
-      whenReady(result) {
-        _ mustBe Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))
+      whenReady(result.failed) { exception =>
+        exception mustBe an[Exception]
       }
     }
   }

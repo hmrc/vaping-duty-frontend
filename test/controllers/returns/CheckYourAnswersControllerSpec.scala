@@ -56,7 +56,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
       val mockService = mock[SubmitReturnService]
 
-      when(mockService.submit(any())(any())).thenReturn(Future.successful(Right(testReturnSubmissionResponse)))
+      when(mockService.submit(any())(any())).thenReturn(Future.successful(testReturnSubmissionResponse))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[SubmitReturnService].to(mockService))

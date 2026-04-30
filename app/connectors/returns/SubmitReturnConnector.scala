@@ -31,33 +31,63 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, String
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
+import uk.gov.hmrc.http.InternalServerException
 
 class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
                                       implicit val httpClient: HttpClientV2)
                                      (implicit ec: ExecutionContext) extends HttpReadsInstances with Logging {
 
   def submitReturn(returnsSubmission: ReturnCreateRequest, vpdId: VpdId)
-                  (implicit hc: HeaderCarrier): Future[Either[ErrorModel, ReturnSubmittedResponse]] = {
+                              (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] =
     httpClient
       .post(url"${config.submitReturnUrl(vpdId)}")
       .withBody(Json.toJson(returnsSubmission))
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
-      .map {
-        case Right(response) if response.status == OK =>
-          Try(response.json.as[ReturnSubmittedResponse]) match {
-            case Success(successResponse) => Right(successResponse)
-            case Failure(_)               =>
-              logger.warn("Invalid JSON format, failed to parse as ...")
-              Left(ErrorModel(INTERNAL_SERVER_ERROR, "Invalid JSON format. Could not parse response as ..."))
-          }
-        case Left(errorResponse)                      =>
-          logger.warn(s"Unexpected response when submitting return. Status: ${errorResponse.statusCode}")
-          Left(ErrorModel(errorResponse.statusCode, s"Unexpected response. Status: ${errorResponse.statusCode}"))
-        case Right(response)                          =>
-          logger.warn(s"Unexpected status code when submitting return: ${response.status}")
-          Left(
-            ErrorModel(INTERNAL_SERVER_ERROR, s"Unexpected status code when submitting return: ${response.status}")
-          )
+      .flatMap(response => submitReturnsParser(response))
+      .recoverWith { case _: Exception =>
+        logger.warn("An exception was returned while trying to submit return")
+        Future.failed(InternalServerException("Failed to submit return"))
       }
+
+  private def submitReturnsParser(response: Either[UpstreamErrorResponse, HttpResponse]): Future[ReturnSubmittedResponse] = {
+    response match {
+      case Right(response) =>
+          Try{
+            response.json.as[ReturnSubmittedResponse]
+          } match {
+            case Success(submissionResponse: ReturnSubmittedResponse) =>
+              Future.successful(submissionResponse)
+            case Failure(_) =>
+              logger.warn("Parsing failed for submission response")
+              Future.failed(InternalServerException("Failed to submit return"))
+          }
+      case Left(error) =>
+            logger.warn(s"Unexpected response from return submission API. Status: ${error.statusCode}")
+            Future.failed(InternalServerException("Failed to submit return"))
+    }
   }
 }
+
+
+//   def submitReturn(returnsSubmission: ReturnCreateRequest, vpdId: VpdId)
+//                   (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] = {
+//     httpClient
+//       .map {
+//         case Right(response) if response.status == OK =>
+//           Try(response.json.as[ReturnSubmittedResponse]) match {
+//             case Success(successResponse) => Future.successful(successResponse)
+//             case Failure(_)               =>
+//               logger.warn("Invalid JSON format, failed to parse as ...")
+//               Left(ErrorModel(INTERNAL_SERVER_ERROR, "Invalid JSON format. Could not parse response as ..."))
+//           }
+//         case Left(errorResponse)                      =>
+//           logger.warn(s"Unexpected response when submitting return. Status: ${errorResponse.statusCode}")
+//           Left(ErrorModel(errorResponse.statusCode, s"Unexpected response. Status: ${errorResponse.statusCode}"))
+//         case Right(response)                          =>
+//           logger.warn(s"Unexpected status code when submitting return: ${response.status}")
+//           Left(
+//             ErrorModel(INTERNAL_SERVER_ERROR, s"Unexpected status code when submitting return: ${response.status}")
+//           )
+//       }
+//   }
+// }
