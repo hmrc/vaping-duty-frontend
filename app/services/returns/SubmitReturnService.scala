@@ -17,7 +17,6 @@
 package services.returns
 
 import connectors.returns.SubmitReturnConnector
-import models.emailverification.ErrorModel
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
 import pages.returns.EnterDutyAmountPage

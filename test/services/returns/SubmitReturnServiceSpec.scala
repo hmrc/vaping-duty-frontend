@@ -19,7 +19,6 @@ package services.returns
 import base.SpecBase
 import connectors.returns.SubmitReturnConnector
 import data.TestData
-import models.emailverification.ErrorModel
 import models.requests.contactPreference.DataRequest
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
@@ -28,9 +27,7 @@ import org.mockito.Mockito.when
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.test.FakeRequest
-import play.api.test.Helpers.status
 import uk.gov.hmrc.http.InternalServerException
 
 import scala.concurrent.Future

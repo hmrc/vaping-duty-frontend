@@ -17,21 +17,18 @@
 package connectors.returns
 
 import config.FrontendAppConfig
-import models.emailverification.ErrorModel
 import models.identifiers.VpdId
 import models.returns.{ReturnCreateRequest, ReturnSubmittedResponse}
 import play.api.Logging
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, InternalServerException, StringContextOps, UpstreamErrorResponse}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
-import uk.gov.hmrc.http.InternalServerException
 
 class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
                                       implicit val httpClient: HttpClientV2)
