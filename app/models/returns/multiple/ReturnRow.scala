@@ -17,28 +17,9 @@
 package models.returns.multiple
 
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Text}
-import views.html.components.Link
+import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
 
-case class CompletedReturnRow(
-  monthDisplay: String,
-  viewLink: String
-) extends ReturnRow {
-
-  private val link = Link()
-
-  override def toTableRows(implicit messages: Messages): Seq[TableRow] = {
-    Seq(
-      TableRow(
-        content = Text(monthDisplay)
-      ),
-      TableRow(
-        content = HtmlContent(link(
-          id = "view-link",
-          href = viewLink,
-          text = messages("returns.overview.completed.viewReturn")
-        ))
-      )
-    )
-  }
+trait ReturnRow {
+  def monthDisplay: String
+  def toTableRows(implicit messages: Messages): Seq[TableRow]
 }

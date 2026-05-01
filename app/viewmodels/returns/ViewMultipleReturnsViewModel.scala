@@ -18,20 +18,17 @@ package viewmodels.returns
 
 import models.returns.multiple.{CompletedReturnRow, OutstandingReturnRow}
 import models.returns.{ObligationDetails, ObligationsResponse}
-import views.html.components.*
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Tag}
-import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 case class ViewMultipleReturnsViewModel(
-                                         outstandingReturns: Seq[Seq[TableRow]],
-                                         completedReturns: Seq[Seq[TableRow]]
-                                       )
+  outstandingReturns: Seq[Seq[TableRow]],
+  completedReturns: Seq[Seq[TableRow]]
+)
 
 object ViewMultipleReturnsViewModel {
 
@@ -41,11 +38,7 @@ object ViewMultipleReturnsViewModel {
   private val TAG_CLASS_BLUE = "govuk-tag--blue"
   private val TAG_CLASS_RED = "govuk-tag--red"
 
-  val govukTag = GovukTag()
-  val link = Link()
-
   def apply(obligationsResponse: ObligationsResponse)(implicit messages: Messages): ViewMultipleReturnsViewModel = {
-
 
     val outstandingObligations = obligationsResponse.obligation
       .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_OPEN)
@@ -56,8 +49,8 @@ object ViewMultipleReturnsViewModel {
       .map(item => createCompletedRow(item.obligationDetails))
 
     ViewMultipleReturnsViewModel(
-      outstandingReturns = outstandingObligationsRows(outstandingObligations),
-      completedReturns = completedObligationsRows(completedObligations)
+      outstandingReturns = outstandingObligations.map(_.toTableRows),
+      completedReturns = completedObligations.map(_.toTableRows)
     )
   }
 
@@ -92,34 +85,4 @@ object ViewMultipleReturnsViewModel {
     val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH)
     date.format(formatter)
   }
-
-  private def outstandingObligationsRows(outstandingObligations: Seq[OutstandingReturnRow])(using messages: Messages) =
-    outstandingObligations.map { row =>
-      Seq(
-        TableRow(
-          content = Text(row.monthDisplay)
-        ),
-        TableRow(
-          content = HtmlContent(govukTag(Tag(
-            content = Text(row.status),
-            classes = row.statusClass
-          )))
-        ),
-        TableRow(
-          content = HtmlContent(link(id = "submit-link", href = row.submitLink, text = messages("returns.overview.outstanding.submitReturn")))
-        )
-      )
-    }
-
-  private def completedObligationsRows(completedObligations: Seq[CompletedReturnRow])(using messages: Messages) =
-    completedObligations.map { row =>
-      Seq(
-        TableRow(
-          content = Text(row.monthDisplay)
-        ),
-        TableRow(
-          content = HtmlContent(link(id = "view-link", href = row.viewLink, text = messages("returns.overview.completed.viewReturn")))
-        )
-      )
-    }
 }

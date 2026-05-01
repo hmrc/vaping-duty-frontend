@@ -16,9 +16,39 @@
 
 package models.returns.multiple
 
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Tag, Text}
+import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag
+import views.html.components.Link
+
 case class OutstandingReturnRow(
-                                 monthDisplay: String,
-                                 status: String,
-                                 statusClass: String,
-                                 submitLink: String
-                               )
+  monthDisplay: String,
+  status: String,
+  statusClass: String,
+  submitLink: String
+) extends ReturnRow {
+
+  private val govukTag = GovukTag()
+  private val link = Link()
+
+  override def toTableRows(implicit messages: Messages): Seq[TableRow] = {
+    Seq(
+      TableRow(
+        content = Text(monthDisplay)
+      ),
+      TableRow(
+        content = HtmlContent(govukTag(Tag(
+          content = Text(status),
+          classes = statusClass
+        )))
+      ),
+      TableRow(
+        content = HtmlContent(link(
+          id = "submit-link",
+          href = submitLink,
+          text = messages("returns.overview.outstanding.submitReturn")
+        ))
+      )
+    )
+  }
+}
