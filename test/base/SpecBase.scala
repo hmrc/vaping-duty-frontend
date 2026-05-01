@@ -70,8 +70,11 @@ trait SpecBase
         "features.returnsEnabled" -> returnsEnabled
       )
   
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  given hc: HeaderCarrier = HeaderCarrier()
+  given ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  given Messages = messages(app)
+
+  private lazy val app: Application = applicationBuilder().build()
   
   val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
   val mockEmailVerificationConnector: EmailVerificationConnector = mock[EmailVerificationConnector]

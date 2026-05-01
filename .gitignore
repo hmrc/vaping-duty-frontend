@@ -38,3 +38,5 @@ bin
 .bsp
 project/metals.sbt
 .bloop
+/.clinerules
+/memorybank

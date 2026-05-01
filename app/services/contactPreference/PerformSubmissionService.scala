@@ -22,6 +22,7 @@ import models.contactPreference
 import models.contactPreference.PaperlessPreference
 import models.emailverification.{PaperlessPreferenceSubmission, PaperlessPreferenceSubmittedResponse}
 import models.requests.contactPreference.DataRequest
+import models.returns.{Failure, ResponseStatus, Success}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -59,9 +60,3 @@ private def sendExplicitEvent(preferenceSubmission: PaperlessPreferenceSubmissio
     )
   )
 }
-
-class ResponseStatus
-
-class Success extends ResponseStatus
-
-class Failure extends ResponseStatus

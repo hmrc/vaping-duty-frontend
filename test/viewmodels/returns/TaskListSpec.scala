@@ -18,14 +18,10 @@ package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
 import models.TaskStatus
-import play.api.i18n.Messages
 import play.api.test.Helpers.*
-import uk.gov.hmrc.govukfrontend.views.Aliases.TaskListItem
 
 class TaskListSpec extends UnitSpec with SpecBase {
-
-  given Messages = messages(applicationBuilder().build())
-
+  
   "TaskListViewModel.sections" - {
 
     "returns four sections in the correct order" in {

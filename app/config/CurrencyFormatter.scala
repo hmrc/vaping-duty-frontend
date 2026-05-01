@@ -18,6 +18,9 @@ package config
 
 trait CurrencyFormatter {
   def currencyFormat(amt: BigDecimal): String = f"£$amt%,1.2f".replace(".00","")
+  
+  private val DUTY_MULTIPLIER = "2.2"
+  def calculateDuty(amount: Int): BigDecimal = (BigDecimal(amount.toString) / 10) * BigDecimal(DUTY_MULTIPLIER)
 }
 
 object CurrencyFormatter extends CurrencyFormatter

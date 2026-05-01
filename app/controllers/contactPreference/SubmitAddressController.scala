@@ -23,10 +23,11 @@ import models.contactPreference
 import models.contactPreference.PaperlessPreference.{Email, Post, toValue}
 import models.contactPreference.PaperlessPreference
 import models.emailverification.PaperlessPreferenceSubmission
+import models.returns.{Failure, Success}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.contactPreference.{Failure, PerformSubmissionService, Success, PreferenceUserAnswersService}
+import services.contactPreference.{PerformSubmissionService, PreferenceUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.SubmitAddressViewModel
 import views.html.contactPreference.SubmitAddressView

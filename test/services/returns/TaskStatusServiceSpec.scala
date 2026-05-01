@@ -67,14 +67,14 @@ class TaskStatusServiceSpec extends SpecBase {
       result mustBe TaskStatus.Completed
     }
 
-    "must return NotStarted when only EnterDutyAmountPage is answered" in {
+    "must return Completed when only EnterDutyAmountPage value has change from CYA" in {
       val answers = emptyAnswers
         .set(EnterDutyAmountPage, 1000)
         .success
         .value
 
       val result = TaskStatusService.declareDutyTaskStatus(answers)
-      result mustBe TaskStatus.NotStarted
+      result mustBe TaskStatus.Completed
     }
   }
 
