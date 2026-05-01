@@ -18,46 +18,25 @@ package viewmodels.returns
 
 import base.SpecBase
 import models.returns.multiple.{CompletedReturnRow, OutstandingReturnRow}
-import models.returns.{ObligationDetails, ObligationsResponse, ObligationsResponseItem}
+import models.returns.{ObligationItem, ObligationsResponse}
+import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
 import java.time.LocalDate
 
 class ViewMultipleReturnsViewModelSpec extends SpecBase {
 
+  implicit val messages: Messages = messages(applicationBuilder(None).build())
+
   private val today = LocalDate.now()
   private val pastDate = today.minusDays(1)
   private val futureDate = today.plusDays(10)
 
-  private val outstandingObligation = ObligationsResponseItem(
-    obligationDetails = ObligationDetails(
-      openOrFulfilledStatus = "O",
-      iCFromDate = LocalDate.of(2024, 1, 1),
-      iCToDate = LocalDate.of(2024, 1, 31),
-      iCDueDate = futureDate,
-      iCPeriodKey = "24A1"
-    )
-  )
+  private val outstandingObligation = createMockObligationsResponse().obligation.head
 
-  private val overdueObligation = ObligationsResponseItem(
-    obligationDetails = ObligationDetails(
-      openOrFulfilledStatus = "O",
-      iCFromDate = LocalDate.of(2023, 12, 1),
-      iCToDate = LocalDate.of(2023, 12, 31),
-      iCDueDate = pastDate,
-      iCPeriodKey = "23A12"
-    )
-  )
+  private val overdueObligation = createMockObligationsResponse().obligation(1)
 
-  private val completedObligation = ObligationsResponseItem(
-    obligationDetails = ObligationDetails(
-      openOrFulfilledStatus = "F",
-      iCFromDate = LocalDate.of(2023, 11, 1),
-      iCToDate = LocalDate.of(2023, 11, 30),
-      iCDueDate = LocalDate.of(2023, 12, 15),
-      iCPeriodKey = "23A11"
-    )
-  )
+  private val completedObligation = createMockObligationsResponse().obligation(2)
 
   "ViewMultipleReturnsViewModel" - {
 
@@ -91,7 +70,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
       val result = ViewMultipleReturnsViewModel(response)
 
       val firstRow = result.outstandingReturns.head
-      firstRow.head.content mustBe Text("January 2024")
+      firstRow.head.content mustBe Text("December 2027")
     }
 
     "must format month display correctly for completed returns" in {
@@ -102,7 +81,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
       val result = ViewMultipleReturnsViewModel(response)
 
       val firstRow = result.completedReturns.head
-      firstRow.head.content mustBe Text("November 2023")
+      firstRow.head.content mustBe Text("October 2027")
     }
 
     "must handle empty obligations response" in {
