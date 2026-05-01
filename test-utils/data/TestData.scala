@@ -219,7 +219,6 @@ trait TestData {
     VapingProductsProduced(Seq.empty, Seq.empty),
     TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
   )
-}
 
   def createMockObligationsResponse(): ObligationsResponse = {
     val currentDate = LocalDate.now()
@@ -265,4 +264,4 @@ trait TestData {
       )
     )
   }
-  }
+}

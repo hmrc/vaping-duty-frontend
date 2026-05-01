@@ -23,7 +23,6 @@ import play.api.Logging
 import play.api.http.Status.*
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.play.bootstrap.http.ErrorResponse
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,7 +35,7 @@ class ObligationsConnector @Inject()(
                                     (using ExecutionContext) extends HttpReadsInstances with Logging {
 
   def getObligations(vpdId: VpdId)
-                    (using HeaderCarrier): Future[Either[ErrorResponse, ObligationsResponse]] =
+                    (using HeaderCarrier): Future[ObligationsResponse] =
 
     httpClient
       .get(url"${config.getObligationsUrl(vpdId)}")
@@ -48,12 +47,12 @@ class ObligationsConnector @Inject()(
               response.json.as[ObligationsResponse]
             } match {
               case Success(doc) =>
-                Future.successful(Right(doc))
+                Future.successful(doc)
               case Failure(error) =>
-                Future.successful(Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Unable to parse obligation response")))
+                Future.failed(InternalServerException("Parsing failed for obligations response"))
             }
           case _ =>
-            Future.successful(Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Unexpected response")))
+            Future.failed(InternalServerException("Failed to retrieve obligations"))
         }
       }
 }

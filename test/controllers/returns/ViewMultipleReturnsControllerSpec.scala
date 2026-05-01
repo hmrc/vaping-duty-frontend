@@ -24,7 +24,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.ObligationsService
-import uk.gov.hmrc.play.bootstrap.http.ErrorResponse
+import uk.gov.hmrc.http.InternalServerException
 import viewmodels.returns.ViewMultipleReturnsViewModel
 import views.html.returns.ViewMultipleReturnsView
 
@@ -41,7 +41,7 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
         .overrides(bind[ObligationsService].to(mockService))
         .build()
 
-      when(mockService.get(any())(any())).thenReturn(Future.successful(Right(createMockObligationsResponse())))
+      when(mockService.get(any())(any())).thenReturn(Future.successful(createMockObligationsResponse()))
 
       val vm = ViewMultipleReturnsViewModel(createMockObligationsResponse())(messages(application))
 
@@ -64,7 +64,7 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
         .overrides(bind[ObligationsService].to(mockService))
         .build()
 
-      when(mockService.get(any())(any())).thenReturn(Future.successful(Left(ErrorResponse(BAD_GATEWAY, "Bad gateway"))))
+      when(mockService.get(any())(any())).thenReturn(Future.failed(InternalServerException("")))
 
       running(application) {
         val request = FakeRequest(GET, controllers.returns.routes.ViewMultipleReturnsController.onPageLoad().url)

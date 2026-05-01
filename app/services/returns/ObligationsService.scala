@@ -20,14 +20,13 @@ import connectors.returns.ObligationsConnector
 import models.identifiers.VpdId
 import models.returns.ObligationsResponse
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.http.ErrorResponse
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ObligationsService @Inject()(connector: ObligationsConnector)(using ExecutionContext) {
 
-  def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Either[ErrorResponse, ObligationsResponse]] = {
+  def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[ObligationsResponse] = {
     connector.getObligations(vpdId)
   }
 }
