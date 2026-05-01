@@ -18,7 +18,6 @@ package controllers.returns
 
 import controllers.actions.*
 import controllers.actions.returns.ReturnsEnabledAction
-import models.returns.ObligationsResponse
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ObligationsService
