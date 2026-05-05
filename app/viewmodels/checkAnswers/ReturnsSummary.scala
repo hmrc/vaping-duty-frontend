@@ -45,7 +45,7 @@ object ReturnsSummary extends CurrencyFormatter {
       key = "returns.CheckYourAnswers.dutySummary.vaping",
       value = ValueViewModel(Text(value)),
       actions = Seq(
-        ActionItemViewModel("site.change", controllers.returns.routes.EnterDutyAmountController.onPageLoad(CheckMode).url)
+        ActionItemViewModel("site.change", controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(CheckMode).url)
           .withVisuallyHiddenText(messages(""))
       )
     ))
@@ -64,7 +64,7 @@ object ReturnsSummary extends CurrencyFormatter {
         key = "returns.CheckYourAnswers.dutySummary.spoilt",
         value = ValueViewModel(""),
         actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
+          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
             .withVisuallyHiddenText(messages(""))
         )
       )
@@ -76,7 +76,7 @@ object ReturnsSummary extends CurrencyFormatter {
         key = "returns.CheckYourAnswers.dutySummary.over",
         value = ValueViewModel(""),
         actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
+          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
             .withVisuallyHiddenText(messages(""))
         )
       )
@@ -88,7 +88,7 @@ object ReturnsSummary extends CurrencyFormatter {
         key = "returns.CheckYourAnswers.dutySummary.under",
         value = ValueViewModel(""),
         actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
+          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
             .withVisuallyHiddenText(messages(""))
         )
       )

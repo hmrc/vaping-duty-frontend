@@ -20,6 +20,7 @@ import base.SpecBase
 import models.returns.ReturnsUserAnswers
 import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import play.api.libs.json.JsObject
+import viewmodels.returns.submit.CheckYourAnswersViewModel
 
 import java.time.Instant
 

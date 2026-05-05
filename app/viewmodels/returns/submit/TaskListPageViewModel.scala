@@ -1,0 +1,42 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package viewmodels.returns.submit
+
+import models.returns.ReturnsUserAnswers
+import play.api.i18n.Messages
+import utils.ReturnsDateUtils.*
+import viewmodels.returns.submit.{TaskListPageViewModel, TaskListSection}
+
+case class TaskListPageViewModel(
+                                  sections: Seq[TaskListSection],
+                                  returnPeriod: String,
+                                  year: String,
+                                  dueDate: String,
+                                  monthLength: Int
+                                )
+
+object TaskListPageViewModel {
+
+  def apply(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListPageViewModel =
+    TaskListPageViewModel(
+      sections     = TaskList.sections(userAnswers),
+      returnPeriod = getReturnPeriod(month),
+      year         = getYear.toString,
+      dueDate      = getDueDate(month),
+      monthLength  = getMonthLength(month)
+    )
+}

@@ -33,7 +33,7 @@ class DeclareDutySummarySpec extends SpecBase with UnitSpec {
     key = "declareDuty.checkYourAnswersLabel",
     value = ValueViewModel(Text(answer)),
     actions = Seq(
-      ActionItemViewModel(Text("Change"), controllers.returns.routes.DeclareDutyController.onPageLoad(CheckMode).url)
+      ActionItemViewModel(Text("Change"), controllers.returns.submit.routes.DeclareDutyController.onPageLoad(CheckMode).url)
         .withVisuallyHiddenText("declareDuty.change.hidden")
     )
   )

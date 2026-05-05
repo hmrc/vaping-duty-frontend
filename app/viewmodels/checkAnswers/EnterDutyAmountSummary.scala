@@ -34,7 +34,7 @@ object EnterDutyAmountSummary  {
           key     = "enterDutyAmount.checkYourAnswersLabel",
           value   = ValueViewModel(answer.toString),
           actions = Seq(
-            ActionItemViewModel("site.change", controllers.returns.routes.EnterDutyAmountController.onPageLoad(CheckMode).url)
+            ActionItemViewModel("site.change", controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("enterDutyAmount.change.hidden"))
           )
         )

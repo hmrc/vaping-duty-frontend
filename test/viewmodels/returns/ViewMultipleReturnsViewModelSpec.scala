@@ -17,10 +17,10 @@
 package viewmodels.returns
 
 import base.SpecBase
-import models.returns.multiple.{CompletedReturnRow, OutstandingReturnRow}
 import models.returns.{ObligationItem, ObligationsResponse}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+import viewmodels.returns.view.{CompletedReturnRow, OutstandingReturnRow, ViewMultipleReturnsViewModel}
 
 import java.time.LocalDate
 

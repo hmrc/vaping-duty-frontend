@@ -1,0 +1,71 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import components.*
+@import viewmodels.returns.submit.CheckYourAnswersViewModel
+
+@this(
+        layout: templates.ReturnsLayout,
+        formHelper: FormWithCSRF,
+        govukButton: GovukButton,
+        govukSummaryList: GovukSummaryList,
+        caption: Caption,
+        h1: Heading,
+        h2: Heading2,
+        p: Paragraph,
+        list: List
+)
+
+@(vm: CheckYourAnswersViewModel)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("returns.CheckYourAnswers.title", vm.dutyDue))) {
+
+    @caption(messages("returns.CheckYourAnswers.caption"))
+    @h1(messages("returns.CheckYourAnswers.heading", vm.dutyDue))
+
+    @p(Seq(messages("returns.CheckYourAnswers.p.duty")))
+
+    @h2(messages("returns.CheckYourAnswers.h2.theAmount"))
+
+    @list(
+        Seq(
+            messages("returns.CheckYourAnswers.list.theVaping"),
+            messages("returns.CheckYourAnswers.list.all")
+        ), classes = "govuk-list govuk-list--bullet")
+
+    @p(Seq(messages("returns.CheckYourAnswers.p.youWillBe")))
+
+    @h2(messages("returns.CheckYourAnswers.h2.finalDuty"))
+
+    @govukSummaryList(vm.finalDutySummaryList)
+
+    @*   @h2(messages("returns.CheckYourAnswers.h2.dutySuspended"))
+    *
+    *    @p(Seq(messages("returns.CheckYourAnswers.p.theseAnswers")))
+    *@
+
+    @govukSummaryList(vm.dutySuspendedSummaryList)
+
+    @p(Seq(messages("returns.CheckYourAnswers.p.bySubmitting")))
+
+    @p(Seq(messages("returns.CheckYourAnswers.p.making")))
+
+    @p(Seq(messages("returns.CheckYourAnswers.p.checkYour")))
+
+    @formHelper(action = controllers.returns.submit.routes.CheckYourAnswersController.onSubmit(), Symbol("autoComplete") -> "off") {
+        @govukButton(ButtonViewModel(messages("returns.CheckYourAnswers.button")))
+    }
+}
