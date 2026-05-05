@@ -35,19 +35,19 @@ class ReturnsNavigator @Inject()(
 
   private val normalRoutes: Page => ReturnsUserAnswers => Call = {
     case DeclareDutyPage        => ua   => declareDutyPageRoutes(ua)
-    case EnterDutyAmountPage    => _    => controllers.returns.routes.TaskListController.onPageLoad()
+    case EnterDutyAmountPage    => _    => controllers.returns.submit.routes.TaskListController.onPageLoad()
     case _                      => _    => Call(GET, BtaLink(config))
   }
 
   private val checkRouteMap: Page => ReturnsUserAnswers => Call = {
-    case EnterDutyAmountPage    => _    => controllers.returns.routes.CheckYourAnswersController.onPageLoad()
+    case EnterDutyAmountPage    => _    => controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad()
     case _ => _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
   private def declareDutyPageRoutes(ua: ReturnsUserAnswers) = {
     ua.get(DeclareDutyPage) match
-      case Some(true)   => controllers.returns.routes.EnterDutyAmountController.onPageLoad(NormalMode)
-      case Some(false)  => controllers.returns.routes.TaskListController.onPageLoad()
+      case Some(true)   => controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(NormalMode)
+      case Some(false)  => controllers.returns.submit.routes.TaskListController.onPageLoad()
       case _            => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 

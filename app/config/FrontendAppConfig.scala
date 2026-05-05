@@ -93,6 +93,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def returnsUserAnswersKeepAliveUrl(internalId: InternalId): String  = s"$returnsBaseUrl/user-answers/keep-alive/$internalId"
   def returnsUserAnswersClearUrl(internalId: InternalId): String      = s"$returnsBaseUrl/user-answers/clear/$internalId"
 
+  def getObligationsUrl(vpdId: VpdId): String                         = s"$returnsBaseUrl/obligations/$vpdId"
+
   def submitReturnUrl(vpdId: VpdId)                                   = s"$returnsBaseUrl/vpd-return/$vpdId"
 
   val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/confirm-email-address"

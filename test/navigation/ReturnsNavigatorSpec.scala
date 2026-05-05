@@ -37,7 +37,7 @@ class ReturnsNavigatorSpec extends SpecBase {
 
       "must go from DeclareDuty to EnterAmount when there IS duty to declare" in {
         val ua = returnsUserAnswers.set(DeclareDutyPage, true).success.value
-        navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.returns.routes.EnterDutyAmountController.onPageLoad(NormalMode)
+        navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(NormalMode)
       }
 
       "must go from DeclareDuty to TaskList when there IS NO duty to declare" in {
@@ -46,7 +46,7 @@ class ReturnsNavigatorSpec extends SpecBase {
           .set(DeclareDutyPage, false).success.value
 
         ua.get(EnterDutyAmountPage) mustBe None
-        navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.returns.routes.TaskListController.onPageLoad()
+        navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.returns.submit.routes.TaskListController.onPageLoad()
       }
 
       "must go from DeclareDuty to JourneyRecovery when there is no value present" in {
@@ -57,7 +57,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       "must go from EnterAmount to TaskList " in {
         val ua = returnsUserAnswers.set(EnterDutyAmountPage, 1).success.value
 
-        navigator.nextPage(EnterDutyAmountPage, NormalMode, ua) mustBe controllers.returns.routes.TaskListController.onPageLoad()
+        navigator.nextPage(EnterDutyAmountPage, NormalMode, ua) mustBe controllers.returns.submit.routes.TaskListController.onPageLoad()
       }
 
 
@@ -77,7 +77,7 @@ class ReturnsNavigatorSpec extends SpecBase {
 
       "must go from EnterDutyAmountPage to CheckYourAnswers" in {
 
-        navigator.nextPage(EnterDutyAmountPage, CheckMode, returnsUserAnswers) mustBe controllers.returns.routes.CheckYourAnswersController.onPageLoad()
+        navigator.nextPage(EnterDutyAmountPage, CheckMode, returnsUserAnswers) mustBe controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad()
       }
     }
   }

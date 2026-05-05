@@ -42,7 +42,7 @@ object DutySuspenseSummary {
         key = "returns.CheckYourAnswers.dutySuspended.received",
         value = ValueViewModel("returns.CheckYourAnswers.dutySummary.nothing"),
         actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
+          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
             .withVisuallyHiddenText(messages(""))
         )
       )
@@ -54,7 +54,7 @@ object DutySuspenseSummary {
         key = "returns.CheckYourAnswers.dutySuspended.moved",
         value = ValueViewModel("returns.CheckYourAnswers.dutySummary.nothing"),
         actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
+          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
             .withVisuallyHiddenText(messages(""))
         )
       )
@@ -66,7 +66,7 @@ object DutySuspenseSummary {
         key = "returns.CheckYourAnswers.dutySuspended.total",
         value = ValueViewModel("returns.CheckYourAnswers.dutySuspended.total.nil"),
         actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.routes.BeforeYouStartController.onPageLoad().url)
+          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
             .withVisuallyHiddenText(messages(""))
         )
       )

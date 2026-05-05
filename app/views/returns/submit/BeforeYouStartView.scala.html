@@ -1,0 +1,64 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import components.{Paragraph, Heading, Link, Caption, List}
+@import viewmodels.returns.submit.BeforeYouStartViewModel
+
+@this(
+        layout: templates.ReturnsLayout,
+        govukButton: GovukButton,
+        govukWarningText : GovukWarningText,
+        h1: Heading,
+        p: Paragraph,
+        caption: Caption,
+        list: List
+)
+
+@(vm: BeforeYouStartViewModel)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("returns.beforeYouStart.title"))) {
+
+    @caption(messages("returns.beforeYouStart.caption"))
+    @h1(messages("returns.beforeYouStart.heading"))
+
+    @govukWarningText(WarningText(
+        iconFallbackText = Some(messages("site.warning")),
+        content = Text(messages("returns.beforeYouStart.deadline", vm.dueDate, vm.year.toString))
+    ))
+
+    @p(Seq(messages("returns.beforeYouStart.useThis", vm.returnPeriod, vm.monthLength, vm.year.toString)))
+
+    @p(Seq(messages("returns.beforeYouStart.thereAre")))
+
+    @p(Seq(messages("returns.beforeYouStart.youWill")))
+
+    @list(Seq(
+        messages("returns.beforeYouStart.dutyFor"),
+        messages("returns.beforeYouStart.spoilt"),
+        messages("returns.beforeYouStart.underOver"),
+        messages("returns.beforeYouStart.suspended")
+    ), classes = "govuk-list govuk-list--bullet")
+
+    @p(Seq(messages("returns.beforeYouStart.afterYou")))
+
+    @p(Seq(messages("returns.beforeYouStart.youCannot")))
+
+    @govukButton(
+        ButtonViewModel(messages("site.continue"))
+        .asLink(controllers.returns.submit.routes.TaskListController.onPageLoad().url)
+    )
+
+}

@@ -34,7 +34,7 @@ class EnterDutyAmountSummarySpec extends SpecBase with UnitSpec {
     key = "enterDutyAmount.checkYourAnswersLabel",
     value = ValueViewModel(Text(answer)),
     actions = Seq(
-      ActionItemViewModel(Text("Change"), controllers.returns.routes.EnterDutyAmountController.onPageLoad(CheckMode).url)
+      ActionItemViewModel(Text("Change"), controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(CheckMode).url)
         .withVisuallyHiddenText("enterDutyAmount.change.hidden")
     )
   )

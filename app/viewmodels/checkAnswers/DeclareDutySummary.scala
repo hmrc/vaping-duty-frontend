@@ -36,7 +36,7 @@ object DeclareDutySummary  {
           key     = "declareDuty.checkYourAnswersLabel",
           value   = ValueViewModel(value),
           actions = Seq(
-            ActionItemViewModel("site.change", controllers.returns.routes.DeclareDutyController.onPageLoad(CheckMode).url)
+            ActionItemViewModel("site.change", controllers.returns.submit.routes.DeclareDutyController.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("declareDuty.change.hidden"))
           )
         )

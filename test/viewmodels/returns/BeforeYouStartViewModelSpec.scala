@@ -18,6 +18,7 @@ package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
 import utils.ReturnsDateUtils.getYear
+import viewmodels.returns.submit.BeforeYouStartViewModel
 
 import java.time.format.TextStyle
 import java.time.{LocalDate, Year}

@@ -19,7 +19,7 @@ package data
 import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, UserDetails}
 import models.emailverification.*
 import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
-import models.returns.{ReturnCreateRequest, ReturnSubmittedResponse, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
+import models.returns.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse, ReturnCreateRequest, ReturnSubmittedResponse, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
 
@@ -218,4 +218,49 @@ trait TestData {
     VapingProductsProduced(Seq.empty, Seq.empty),
     TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
   )
+
+  def createMockObligationsResponse(): ObligationsResponse = {
+    val currentDate = LocalDate.now()
+
+    ObligationsResponse(
+      obligation = Seq(
+        // Outstanding return - Due
+        ObligationItem(
+          identification = None,
+          obligationDetails = ObligationDetails(
+            openOrFulfilledStatus = ObligationStatus.O.toString,
+            iCFromDate = LocalDate.of(2027, 12, 1),
+            iCToDate = LocalDate.of(2027, 12, 31),
+            iCDateReceived = None,
+            iCDueDate = currentDate.plusDays(10),
+            periodKey = "27AL"
+          )
+        ),
+        // Outstanding return - Overdue
+        ObligationItem(
+          identification = None,
+          obligationDetails = ObligationDetails(
+            openOrFulfilledStatus = ObligationStatus.O.toString,
+            iCFromDate = LocalDate.of(2027, 11, 1),
+            iCToDate = LocalDate.of(2027, 11, 30),
+            iCDateReceived = None,
+            iCDueDate = currentDate.minusDays(5),
+            periodKey = "27AK"
+          )
+        ),
+        // Completed return
+        ObligationItem(
+          identification = None,
+          obligationDetails = ObligationDetails(
+            openOrFulfilledStatus = "F",
+            iCFromDate = LocalDate.of(2027, 10, 1),
+            iCToDate = LocalDate.of(2027, 10, 31),
+            iCDateReceived = Some(LocalDate.of(2027, 11, 15)),
+            iCDueDate = LocalDate.of(2027, 11, 30),
+            periodKey = "27AJ"
+          )
+        )
+      )
+    )
+  }
 }

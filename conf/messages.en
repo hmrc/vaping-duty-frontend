@@ -247,3 +247,16 @@ returns.confirmation.h2.keep = Keep a copy for your records
 returns.confirmation.button.print = Print or save a copy of this page
 
 returns.confirmation.inset.youHave = You have nothing to pay for this return period.
+returns.overview.title = Your Vaping Products Duty returns
+returns.overview.heading = Your Vaping Products Duty returns
+returns.overview.outstanding.heading = Outstanding returns
+returns.overview.outstanding.month = Month
+returns.overview.outstanding.status = Status
+returns.overview.outstanding.action = Action
+returns.overview.outstanding.submitReturn = Submit return
+returns.overview.outstanding.status.due = Due
+returns.overview.outstanding.status.overdue = Overdue
+returns.overview.completed.heading = Completed returns
+returns.overview.completed.month = Month
+returns.overview.completed.action = Action
+returns.overview.completed.viewReturn = View return

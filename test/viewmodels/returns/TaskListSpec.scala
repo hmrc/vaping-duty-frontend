@@ -19,6 +19,7 @@ package viewmodels.returns
 import base.{SpecBase, UnitSpec}
 import models.TaskStatus
 import play.api.test.Helpers.*
+import viewmodels.returns.submit.{TaskList, TaskRows}
 
 class TaskListSpec extends UnitSpec with SpecBase {
   

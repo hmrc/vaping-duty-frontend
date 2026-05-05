@@ -8,7 +8,7 @@ GET         /language/:lang                              controllers.LanguageSwi
 
 GET         /refresh-preference-session                  controllers.contactPreference.PreferencesKeepAliveController.keepAlive()
 
-GET         /refresh-returns-session                     controllers.returns.ReturnsKeepAliveController.keepAlive()
+GET         /refresh-returns-session                     controllers.returns.submit.ReturnsKeepAliveController.keepAlive()
 
 GET         /there-is-a-problem                          controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 
@@ -49,20 +49,21 @@ GET        /contact-preferences/confirm-email-address                           
 POST       /contact-preferences/confirm-email-address                           controllers.contactPreference.SubmitEmailController.onSubmit()
 
 # Returns
-GET        /complete-return/before-you-start                                    controllers.returns.BeforeYouStartController.onPageLoad()
-GET        /complete-return/task-list                                           controllers.returns.TaskListController.onPageLoad()
+GET        /view-your-returns                                                   controllers.returns.view.ViewMultipleReturnsController.onPageLoad()
+GET        /complete-return/before-you-start                                    controllers.returns.submit.BeforeYouStartController.onPageLoad()
+GET        /complete-return/task-list                                           controllers.returns.submit.TaskListController.onPageLoad()
 
-GET        /complete-return/declare-duty                                        controllers.returns.DeclareDutyController.onPageLoad(mode: Mode = NormalMode)
-POST       /complete-return/declare-duty                                        controllers.returns.DeclareDutyController.onSubmit(mode: Mode = NormalMode)
-GET        /complete-return/change-declare-duty                                 controllers.returns.DeclareDutyController.onPageLoad(mode: Mode = CheckMode)
-POST       /complete-return/change-declare-duty                                 controllers.returns.DeclareDutyController.onSubmit(mode: Mode = CheckMode)
+GET        /complete-return/declare-duty                                        controllers.returns.submit.DeclareDutyController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/declare-duty                                        controllers.returns.submit.DeclareDutyController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/change-declare-duty                                 controllers.returns.submit.DeclareDutyController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/change-declare-duty                                 controllers.returns.submit.DeclareDutyController.onSubmit(mode: Mode = CheckMode)
 
-GET        /complete-return/enter-amount-released                               controllers.returns.EnterDutyAmountController.onPageLoad(mode: Mode = NormalMode)
-POST       /complete-return/enter-amount-released                               controllers.returns.EnterDutyAmountController.onSubmit(mode: Mode = NormalMode)
-GET        /complete-return/change-enter-amount-released                        controllers.returns.EnterDutyAmountController.onPageLoad(mode: Mode = CheckMode)
-POST       /complete-return/change-enter-amount-released                        controllers.returns.EnterDutyAmountController.onSubmit(mode: Mode = CheckMode)
+GET        /complete-return/enter-amount-released                               controllers.returns.submit.EnterDutyAmountController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/enter-amount-released                               controllers.returns.submit.EnterDutyAmountController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/change-enter-amount-released                        controllers.returns.submit.EnterDutyAmountController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/change-enter-amount-released                        controllers.returns.submit.EnterDutyAmountController.onSubmit(mode: Mode = CheckMode)
 
-GET        /complete-return/return-submitted                                    controllers.returns.ConfirmationController.onPageLoad(vpdRef: Option[String])
+GET        /complete-return/return-submitted                                    controllers.returns.submit.ConfirmationController.onPageLoad(vpdRef: Option[String])
 
-GET        /complete-return/check-your-answers                                  controllers.returns.CheckYourAnswersController.onPageLoad()
-POST       /complete-return/check-your-answers                                  controllers.returns.CheckYourAnswersController.onSubmit()
+GET        /complete-return/check-your-answers                                  controllers.returns.submit.CheckYourAnswersController.onPageLoad()
+POST       /complete-return/check-your-answers                                  controllers.returns.submit.CheckYourAnswersController.onSubmit()
