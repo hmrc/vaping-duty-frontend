@@ -20,7 +20,6 @@ import models.returns.ReturnsUserAnswers
 import models.{NormalMode, TaskStatus}
 import play.api.i18n.Messages
 import services.returns.TaskStatusService
-import viewmodels.returns.submit.{TaskListSection, TaskRows}
 
 object TaskList {
 

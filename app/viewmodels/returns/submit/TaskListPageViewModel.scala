@@ -19,7 +19,6 @@ package viewmodels.returns.submit
 import models.returns.ReturnsUserAnswers
 import play.api.i18n.Messages
 import utils.ReturnsDateUtils.*
-import viewmodels.returns.submit.{TaskListPageViewModel, TaskListSection}
 
 case class TaskListPageViewModel(
                                   sections: Seq[TaskListSection],

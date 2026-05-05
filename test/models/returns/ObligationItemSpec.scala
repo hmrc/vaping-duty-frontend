@@ -29,7 +29,7 @@ class ObligationItemSpec extends SpecBase {
   )
 
   val obligationDetails: ObligationDetails = ObligationDetails(
-    openOrFulfilledStatus = "O",
+    openOrFulfilledStatus = ObligationStatus.O.toString,
     iCFromDate = LocalDate.of(2024, 4, 6),
     iCToDate = LocalDate.of(2024, 7, 5),
     iCDateReceived = Some(LocalDate.of(2024, 6, 15)),

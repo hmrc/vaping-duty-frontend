@@ -19,9 +19,8 @@ package data
 import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, UserDetails}
 import models.emailverification.*
 import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
-import models.returns.{ReturnCreateRequest, ReturnSubmittedResponse, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
+import models.returns.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse, ReturnCreateRequest, ReturnSubmittedResponse, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
 import pages.returns.EnterDutyAmountPage
-import models.returns.{ObligationDetails, ObligationItem, ObligationsResponse, ReturnsUserAnswers}
 import play.api.libs.json.{JsObject, Json}
 
 import java.time.{Clock, Instant, LocalDate, ZoneId}
@@ -229,7 +228,7 @@ trait TestData {
         ObligationItem(
           identification = None,
           obligationDetails = ObligationDetails(
-            openOrFulfilledStatus = "O",
+            openOrFulfilledStatus = ObligationStatus.O.toString,
             iCFromDate = LocalDate.of(2027, 12, 1),
             iCToDate = LocalDate.of(2027, 12, 31),
             iCDateReceived = None,
@@ -241,7 +240,7 @@ trait TestData {
         ObligationItem(
           identification = None,
           obligationDetails = ObligationDetails(
-            openOrFulfilledStatus = "O",
+            openOrFulfilledStatus = ObligationStatus.O.toString,
             iCFromDate = LocalDate.of(2027, 11, 1),
             iCToDate = LocalDate.of(2027, 11, 30),
             iCDateReceived = None,

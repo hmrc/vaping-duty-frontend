@@ -16,7 +16,7 @@
 
 package viewmodels.returns.view
 
-import models.returns.{ObligationDetails, ObligationsResponse}
+import models.returns.{ObligationDetails, ObligationStatus, ObligationsResponse}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
 
@@ -31,8 +31,8 @@ case class ViewMultipleReturnsViewModel(
 
 object ViewMultipleReturnsViewModel {
 
-  private val STATUS_OPEN = "O"
-  private val STATUS_FULFILLED = "F"
+  private val STATUS_OPEN = ObligationStatus.O
+  private val STATUS_FULFILLED = ObligationStatus.F
   private val PLACEHOLDER_LINK = "#"
   private val TAG_CLASS_BLUE = "govuk-tag--blue"
   private val TAG_CLASS_RED = "govuk-tag--red"
@@ -40,11 +40,11 @@ object ViewMultipleReturnsViewModel {
   def apply(obligationsResponse: ObligationsResponse)(implicit messages: Messages): ViewMultipleReturnsViewModel = {
 
     val outstandingObligations = obligationsResponse.obligation
-      .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_OPEN)
+      .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_OPEN.toString)
       .map(item => createOutstandingRow(item.obligationDetails))
 
     val completedObligations = obligationsResponse.obligation
-      .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_FULFILLED)
+      .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_FULFILLED.toString)
       .map(item => createCompletedRow(item.obligationDetails))
 
     ViewMultipleReturnsViewModel(
