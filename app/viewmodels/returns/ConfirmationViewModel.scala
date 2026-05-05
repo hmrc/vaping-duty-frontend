@@ -87,7 +87,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
       val warningSection = warning(WarningText(
         iconFallbackText = Some(messages("site.warning")),
-        content = Text(messages("returns.confirmation.warning.youMust", totalDue(valueInMl), monthMessage))
+        content = Text(messages("returns.confirmation.warning.youMust", totalDue(valueInMl), monthMessage, ReturnsDateUtils.getYear.toString))
       ))
 
       HtmlFormat.fill(elems(warningSection))
