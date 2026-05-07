@@ -96,6 +96,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def getObligationsUrl(vpdId: VpdId): String                         = s"$returnsBaseUrl/obligations/$vpdId"
 
   def submitReturnUrl(vpdId: VpdId)                                   = s"$returnsBaseUrl/vpd-return/$vpdId"
+  def getReturnUrl(vpdReference: VpdId, periodKey: String): String    = s"$returnsBaseUrl/vpd-return/$periodKey/$vpdReference"
 
   val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/confirm-email-address"
   val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"
