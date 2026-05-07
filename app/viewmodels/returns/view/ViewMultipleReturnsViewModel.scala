@@ -76,7 +76,7 @@ object ViewMultipleReturnsViewModel {
   private def createCompletedRow(details: ObligationDetails): CompletedReturnRow = {
     CompletedReturnRow(
       monthDisplay = formatMonthYear(details.iCFromDate),
-      viewLink = PLACEHOLDER_LINK
+      viewLink = controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(details.iCDueDate.getYear.toString, details.iCDueDate.getMonth.toString).url
     )
   }
 
