@@ -18,7 +18,7 @@ package connectors.returns
 
 import config.FrontendAppConfig
 import models.identifiers.VpdId
-import models.returns.ObligationsResponse
+import models.obligations.ObligationsResponse
 import play.api.Logging
 import play.api.http.Status.*
 import uk.gov.hmrc.http.*

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,7 @@
  * limitations under the License.
  */
 
-package models.returns
+package models.obligations
 
-import play.api.libs.json.{Json, OFormat}
-
-import java.time.LocalDate
-
-final case class ObligationDetails(
-  openOrFulfilledStatus: String,
-  iCFromDate: LocalDate,
-  iCToDate: LocalDate,
-  iCDateReceived: Option[LocalDate],
-  iCDueDate: LocalDate,
-  periodKey: String
-)
-
-object ObligationDetails {
-  given format: OFormat[ObligationDetails] = Json.format[ObligationDetails]
-}
+enum ObligationStatus: 
+  case O, F

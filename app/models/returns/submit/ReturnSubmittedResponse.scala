@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package models.returns
+package models.returns.submit
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class Identification(
-  referenceType: String,
-  referenceNumber: String,
-  incomeSourceType: Option[String]
+import java.time.{Instant, LocalDate}
+
+case class ReturnSubmittedResponse(
+  processingDate: Instant,
+  vpdReferenceNumber: String,
+  submissionID: Option[String],
+  chargeReference: Option[String],
+  amount: BigDecimal,
+  paymentDueDate: Option[LocalDate]
 )
 
-object Identification {
-  given format: OFormat[Identification] = Json.format[Identification]
+object ReturnSubmittedResponse {
+  given OFormat[ReturnSubmittedResponse] = Json.format[ReturnSubmittedResponse]
 }

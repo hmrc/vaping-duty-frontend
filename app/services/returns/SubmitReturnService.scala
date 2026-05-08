@@ -19,6 +19,7 @@ package services.returns
 import connectors.returns.SubmitReturnConnector
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
+import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import pages.returns.EnterDutyAmountPage
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter

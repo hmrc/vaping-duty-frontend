@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package models.returns
+package models.obligations
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class ObligationItem(
-  identification: Option[Identification],
-  obligationDetails: ObligationDetails
+final case class Identification(
+  referenceType: String,
+  referenceNumber: String,
+  incomeSourceType: Option[String]
 )
 
-object ObligationItem {
-  given format: OFormat[ObligationItem] = Json.format[ObligationItem]
+object Identification {
+  given format: OFormat[Identification] = Json.format[Identification]
 }

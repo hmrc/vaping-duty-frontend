@@ -16,7 +16,7 @@
 
 package viewmodels.returns.view
 
-import models.returns.{ObligationDetails, ObligationStatus, ObligationsResponse}
+import models.obligations.{ObligationDetails, ObligationStatus, ObligationsResponse}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
 

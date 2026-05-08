@@ -19,7 +19,7 @@ package connectors.returns
 import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import data.TestData
-import models.returns.ReturnSubmittedResponse
+import models.returns.submit.ReturnSubmittedResponse
 import play.api.Application
 import play.api.http.Status.*
 import play.api.libs.json.Json

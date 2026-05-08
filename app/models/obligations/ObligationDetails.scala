@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package models.returns
+package models.obligations
 
 import play.api.libs.json.{Json, OFormat}
 
-case class ReturnCreateResponse(
-  success: ReturnSubmittedResponse
+import java.time.LocalDate
+
+final case class ObligationDetails(
+  openOrFulfilledStatus: String,
+  iCFromDate: LocalDate,
+  iCToDate: LocalDate,
+  iCDateReceived: Option[LocalDate],
+  iCDueDate: LocalDate,
+  periodKey: String
 )
 
-object ReturnCreateResponse {
-  given OFormat[ReturnCreateResponse] = Json.format[ReturnCreateResponse]
+object ObligationDetails {
+  given format: OFormat[ObligationDetails] = Json.format[ObligationDetails]
 }

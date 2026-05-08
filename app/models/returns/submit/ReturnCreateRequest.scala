@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package models.returns
+package models.returns.submit
 
+import models.returns.{TotalDutyDue, VapingProductsProduced}
 import play.api.libs.json.{Json, OFormat}
 
 case class ReturnCreateRequest(

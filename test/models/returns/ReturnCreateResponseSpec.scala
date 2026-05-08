@@ -17,6 +17,7 @@
 package models.returns
 
 import base.SpecBase
+import models.returns.submit.{ReturnCreateResponse, ReturnSubmittedResponse}
 import play.api.libs.json.Json
 
 import java.time.Instant

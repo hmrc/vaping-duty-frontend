@@ -18,7 +18,7 @@ package connectors.returns
 
 import config.FrontendAppConfig
 import models.identifiers.VpdId
-import models.returns.{ReturnCreateRequest, ReturnSubmittedResponse}
+import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
