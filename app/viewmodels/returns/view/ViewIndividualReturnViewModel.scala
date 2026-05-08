@@ -18,6 +18,11 @@ package viewmodels.returns.view
 
 import config.CurrencyFormatter
 import models.returns.view.*
+import play.api.i18n.Messages
+import utils.ReturnsDateUtils.*
+
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDateTime, ZoneId}
 
 case class ViewIndividualReturnViewModel(
   chargeReference: String,
@@ -25,12 +30,14 @@ case class ViewIndividualReturnViewModel(
   amountProducedLiquid: Option[BigDecimal],
   dutyDue: Option[String],
   totalDutyDueVapingProducts: String,
-  totalDutyDue: String
+  totalDutyDue: String,
+  month: String,
+  submittedOn: String
 )
 
 object ViewIndividualReturnViewModel extends CurrencyFormatter {
   
-  def apply(returnsData: ReturnDisplayResponse): ViewIndividualReturnViewModel = {
+  def apply(returnsData: ReturnDisplayResponse)(using messages: Messages): ViewIndividualReturnViewModel = {
     val success = returnsData.success
     
     val chargeRef = success.chargeDetails
@@ -51,12 +58,17 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     }
     
     val totalDutyDueVaping = success.totalDutyDue
-      .map(td => currencyFormat(td.totalDutyDueVapingProducts))
-      .getOrElse(currencyFormat(BigDecimal(0)))
+      .fold(currencyFormat(BigDecimal(0)))(td => currencyFormat(td.totalDutyDueVapingProducts))
     
     val totalDuty = success.totalDutyDue
-      .map(td => currencyFormat(td.totalDutyDue))
-      .getOrElse(currencyFormat(BigDecimal(0)))
+      .fold(currencyFormat(BigDecimal(0)))(td => currencyFormat(td.totalDutyDue))
+
+    val periodFrom = returnsData.success.chargeDetails.get.periodFrom
+    val monthYear = s"${getCurrentMonthMessage(periodFrom.getMonth)} ${periodFrom.getYear}"
+
+    val receiptDate = returnsData.success.chargeDetails.get.receiptDate
+
+    val receiptTime = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("d MMM uuuu hh:mm"))
     
     ViewIndividualReturnViewModel(
       chargeReference = chargeRef,
@@ -64,7 +76,9 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       amountProducedLiquid = amountProduced,
       dutyDue = dutyDueAmount,
       totalDutyDueVapingProducts = totalDutyDueVaping,
-      totalDutyDue = totalDuty
+      totalDutyDue = totalDuty,
+      month = monthYear,
+      submittedOn = receiptTime
     )
   }
 }

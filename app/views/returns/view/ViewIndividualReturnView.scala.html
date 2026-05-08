@@ -21,7 +21,11 @@
 @this(
         layout: templates.Layout,
         govukSummaryList: GovukSummaryList,
-        caption: Caption
+        govukInsetText: GovukInsetText,
+        caption: Caption,
+        h1: Heading,
+        p: Paragraph,
+        printLink: PrintLink
 )
 
 @(vm: ViewIndividualReturnViewModel)(implicit request: Request[_], messages: Messages)
@@ -31,7 +35,9 @@
     content = messages("viewIndividualReturn.caption")
   )
 
-  <h1 class="govuk-heading-l">@messages("viewIndividualReturn.heading")</h1>
+  @h1(vm.month)
+
+  @govukInsetText(InsetText(content = HtmlContent(messages("viewIndividualReturn.chargeDetails.chargeReference", vm.chargeReference, vm.submittedOn))))
 
   @govukSummaryList(SummaryList(
     rows = Seq(
