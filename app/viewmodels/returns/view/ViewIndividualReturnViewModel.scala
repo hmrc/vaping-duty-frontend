@@ -16,18 +16,55 @@
 
 package viewmodels.returns.view
 
+import config.CurrencyFormatter
 import models.returns.view.*
 
-import java.time.LocalDate
-
 case class ViewIndividualReturnViewModel(
-                                          chargeReference: String,
-                                        )
+  chargeReference: String,
+  hasVapingProductsDeclaration: Boolean,
+  amountProducedLiquid: Option[BigDecimal],
+  dutyDue: Option[String],
+  totalDutyDueVapingProducts: String,
+  totalDutyDue: String
+)
 
-object ViewIndividualReturnViewModel {
+object ViewIndividualReturnViewModel extends CurrencyFormatter {
+  
   def apply(returnsData: ReturnDisplayResponse): ViewIndividualReturnViewModel = {
-    new ViewIndividualReturnViewModel(
-      returnsData.success.chargeDetails.get.chargeReference.get
+    val success = returnsData.success
+    
+    val chargeRef = success.chargeDetails
+      .flatMap(_.chargeReference)
+      .getOrElse("")
+    
+    val vapingProducts = success.vapingProductsProduced
+    
+    val hasDeclaration = vapingProducts
+      .exists(vp => vp.regularReturn.nonEmpty)
+    
+    val (amountProduced, dutyDueAmount) = vapingProducts match {
+      case Some(vp) if vp.regularReturn.nonEmpty =>
+        val regularReturn = vp.regularReturn.head
+        (Some(regularReturn.amountProducedLiquid), Some(currencyFormat(regularReturn.dutyDue)))
+      case _ =>
+        (None, None)
+    }
+    
+    val totalDutyDueVaping = success.totalDutyDue
+      .map(td => currencyFormat(td.totalDutyDueVapingProducts))
+      .getOrElse(currencyFormat(BigDecimal(0)))
+    
+    val totalDuty = success.totalDutyDue
+      .map(td => currencyFormat(td.totalDutyDue))
+      .getOrElse(currencyFormat(BigDecimal(0)))
+    
+    ViewIndividualReturnViewModel(
+      chargeReference = chargeRef,
+      hasVapingProductsDeclaration = hasDeclaration,
+      amountProducedLiquid = amountProduced,
+      dutyDue = dutyDueAmount,
+      totalDutyDueVapingProducts = totalDutyDueVaping,
+      totalDutyDue = totalDuty
     )
   }
 }

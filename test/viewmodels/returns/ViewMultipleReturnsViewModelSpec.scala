@@ -17,7 +17,7 @@
 package viewmodels.returns
 
 import base.SpecBase
-import models.returns.{ObligationItem, ObligationsResponse}
+import models.obligations.{ObligationItem, ObligationsResponse}
 import play.api.i18n.Messages
 import viewmodels.returns.view.{CompletedReturnRow, OutstandingReturnRow, ViewMultipleReturnsViewModel}
 

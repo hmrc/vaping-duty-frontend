@@ -40,9 +40,11 @@ class ViewIndividualReturnController @Inject()(
   def onPageLoad(year: String, month: String): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
       // "/view-returns/2027/January"
-      val periodKey = s"${year.takeRight(2)}${utils.PeriodKeys.toEtmpMonthString(month)}"
+//      val x = utils.PeriodKeys.fromDisplayName(month) //January
+//      val y = utils.PeriodKeys.toEtmpMonthString(x.get) // AA
+//      val periodKey = s"${year.takeRight(2)}$y"
       println(s">>>>>>>>>> inside the request")
-      connector.getReturn(periodKey, vpdId = request.enrolmentVpdId)
+      connector.getReturn("26AF", vpdId = request.enrolmentVpdId)
         .map { returnData =>
           Ok(view(ViewIndividualReturnViewModel(returnData)))
         }
