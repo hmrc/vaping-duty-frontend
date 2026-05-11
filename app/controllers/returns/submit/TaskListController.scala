@@ -20,13 +20,11 @@ import controllers.actions.*
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import models.returns.ReturnsUserAnswers
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.TaskListPageViewModel
 import views.html.returns.submit.TaskListView
 
-import java.time.Instant
 import javax.inject.Inject
 
 class TaskListController @Inject()(
@@ -40,14 +38,8 @@ class TaskListController @Inject()(
                                      ) extends FrontendBaseController with I18nSupport {
 
   //controller is using empty UA until further tickets enable us to use Returns User Answers properly
-  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData) {
+  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
-      val emptyreturnsUserAnswers: ReturnsUserAnswers = ReturnsUserAnswers(
-        id = "",
-        data = JsObject.empty,
-        startedTime = Instant.now(),
-        lastUpdated = Instant.now()
-      )
-      Ok(view(TaskListPageViewModel(request.userAnswers.getOrElse(emptyreturnsUserAnswers))))
+      Ok(view(TaskListPageViewModel(request.userAnswers)))
   }
 }

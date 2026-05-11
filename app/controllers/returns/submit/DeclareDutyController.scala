@@ -66,19 +66,10 @@ class DeclareDutyController @Inject()(
           Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(getEmptyUA(request.internalId))
+            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(ReturnsUserAnswers.getEmptyReturnsUA(request.internalId))
                                 .set(DeclareDutyPage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(DeclareDutyPage, mode, updatedAnswers))
       )
   }
-
-  private def getEmptyUA(internalId: InternalId): ReturnsUserAnswers =
-    ReturnsUserAnswers(
-      id = internalId.value,
-      data = JsObject.empty,
-      startedTime = Instant.now(),
-      lastUpdated = Instant.now()
-    )
-
 }
