@@ -37,14 +37,9 @@ class ViewIndividualReturnController @Inject()(
                                        returnsEnabled: ReturnsEnabledAction
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(year: String, month: String): Action[AnyContent] = (identify andThen returnsEnabled).async {
+  def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
-      // "/view-returns/2027/January"
-//      val x = utils.PeriodKeys.fromDisplayName(month) //January
-//      val y = utils.PeriodKeys.toEtmpMonthString(x.get) // AA
-//      val periodKey = s"${year.takeRight(2)}$y"
-      println(s">>>>>>>>>> inside the request")
-      connector.getReturn("26AF", vpdId = request.enrolmentVpdId)
+      connector.getReturn(periodKey, vpdId = request.enrolmentVpdId)
         .map { returnData =>
           Ok(view(ViewIndividualReturnViewModel(returnData)))
         }
