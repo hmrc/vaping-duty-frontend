@@ -46,7 +46,7 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
     val zeroValue = BigDecimal(0)
 
     // Will need to either get or pass the period key here
-    val periodKey = "26AF"
+    val periodKey = ua.periodKey.fold("")(x => x)
 
     // Will need to enhance this much more
     val totalDue = totalInMl - zeroValue
@@ -70,7 +70,7 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
     val adjustments = calculateAdjustmentValue(zeroValue, zeroValue, zeroValue)
 
     val totalDutyDue = TotalDutyDue(
-      totalDutyDueVapingProducts  = vapingProductsProduced.regularReturn.head.dutyDue,
+      totalDutyDueVapingProducts  = totalDutyDueVapingProducts,
       totalDutyOverDeclaration    = zeroValue,
       totalDutyUnderDeclaration   = zeroValue,
       totalDutySpoiltProduct      = zeroValue,

@@ -17,6 +17,7 @@
 package models.returns
 
 import models.RichJsObject
+import models.identifiers.InternalId
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 import queries.{Gettable, Settable}
@@ -27,6 +28,7 @@ import scala.util.{Failure, Success, Try}
 
 final case class ReturnsUserAnswers(
   id: String,
+  periodKey: Option[String],
   data: JsObject = Json.obj(),
   startedTime: Instant,
   lastUpdated: Instant
@@ -70,8 +72,18 @@ object ReturnsUserAnswers {
 
   implicit val format: OFormat[ReturnsUserAnswers] = (
       (__ \ "_id").format[String] and
+      (__ \ "periodKey").formatNullable[String] and
       (__ \ "data").formatWithDefault[JsObject](Json.obj()) and
       (__ \ "startedTime").format(MongoJavatimeFormats.instantFormat) and
       (__ \ "lastUpdated").format(MongoJavatimeFormats.instantFormat)
   )(ReturnsUserAnswers.apply, o => Tuple.fromProductTyped(o))
+  
+  def getEmptyReturnsUA(internalId: InternalId): ReturnsUserAnswers =
+    ReturnsUserAnswers(
+      id = internalId.value,
+      periodKey = None,
+      data = JsObject.empty,
+      startedTime = Instant.now(),
+      lastUpdated = Instant.now()
+    )
 }
