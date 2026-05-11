@@ -27,7 +27,7 @@ import viewmodels.returns.view.ViewIndividualReturnViewModel
 import views.html.returns.view.ViewIndividualReturnView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class ViewIndividualReturnController @Inject()(
                                        override val messagesApi: MessagesApi,

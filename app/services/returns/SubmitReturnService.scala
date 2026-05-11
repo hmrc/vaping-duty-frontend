@@ -62,7 +62,8 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
         )))
     }
 
-    val totalDutyDueVapingProducts  = vapingProductsProduced.regularReturn.head.dutyDue
+    val totalDutyDueVapingProducts  = vapingProductsProduced.regularReturn.headOption
+      .fold(zeroValue)(regularReturn => regularReturn.dutyDue)
 
     def calculateAdjustmentValue(over: BigDecimal, under: BigDecimal, spoilt: BigDecimal) = {
       over + under + spoilt
