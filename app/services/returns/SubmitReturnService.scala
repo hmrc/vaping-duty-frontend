@@ -20,7 +20,7 @@ import connectors.returns.SubmitReturnConnector
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
-import pages.returns.EnterDutyAmountPage
+import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -39,6 +39,7 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
 
   private def buildSubmission(ua: ReturnsUserAnswers): ReturnCreateRequest =
 
+    val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
     val totalInMl = ua.get(EnterDutyAmountPage).fold(BigDecimal(0))(value => BigDecimal(value))
 
     // Temp value
@@ -49,10 +50,33 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
 
     // Will need to enhance this much more
     val totalDue = totalInMl - zeroValue
+    val dutyRate = BigDecimal("2.2")
+    val dutyDue = (totalDue * dutyRate).setScale(2, BigDecimal.RoundingMode.HALF_UP)
 
-    ReturnCreateRequest(
-      periodKey,
-      VapingProductsProduced(Seq.empty, Seq.empty),
-      TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
+    val vapingProductsProduced = dutyDeclared match {
+      case false  =>
+        VapingProductsProduced(nilReturn = Seq(NilReturn(vapingProductsProduced = "0")), regularReturn = Seq())
+      case _      =>
+        VapingProductsProduced(nilReturn = Seq(), regularReturn = Seq(RegularReturn(
+          taxType = "301", dutyRate = dutyRate, amountProducedLiquid = totalDue, dutyDue = dutyDue
+        )))
+    }
+
+    val totalDutyDueVapingProducts  = vapingProductsProduced.regularReturn.head.dutyDue
+
+    def calculateAdjustmentValue(over: BigDecimal, under: BigDecimal, spoilt: BigDecimal) = {
+      over + under + spoilt
+    }
+    val adjustments = calculateAdjustmentValue(zeroValue, zeroValue, zeroValue)
+
+    val totalDutyDue = TotalDutyDue(
+      totalDutyDueVapingProducts  = vapingProductsProduced.regularReturn.head.dutyDue,
+      totalDutyOverDeclaration    = zeroValue,
+      totalDutyUnderDeclaration   = zeroValue,
+      totalDutySpoiltProduct      = zeroValue,
+      adjustmentAmount            = adjustments,
+      totalDutyDue                = totalDutyDueVapingProducts + adjustments
     )
+
+    ReturnCreateRequest(periodKey, vapingProductsProduced, totalDutyDue)
 }
