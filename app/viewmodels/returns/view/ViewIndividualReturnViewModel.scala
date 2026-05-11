@@ -19,36 +19,37 @@ package viewmodels.returns.view
 import config.CurrencyFormatter
 import models.returns.view.*
 import play.api.i18n.Messages
+import utils.PeriodKeys
 import utils.ReturnsDateUtils.*
 
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDateTime, ZoneId}
+import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 
 case class ViewIndividualReturnViewModel(
-  chargeReference: String,
-  hasVapingProductsDeclaration: Boolean,
-  amountProducedLiquid: Option[BigDecimal],
-  dutyDue: Option[String],
-  totalDutyDueVapingProducts: String,
-  totalDutyDue: String,
-  month: String,
-  submittedOn: String
-)
+                                          chargeReference: String,
+                                          hasVapingProductsDeclaration: Boolean,
+                                          amountProducedLiquid: Option[BigDecimal],
+                                          dutyDue: Option[String],
+                                          totalDutyDueVapingProducts: String,
+                                          totalDutyDue: String,
+                                          monthYear: String,
+                                          submittedOn: String
+                                        )
 
 object ViewIndividualReturnViewModel extends CurrencyFormatter {
-  
+
   def apply(returnsData: ReturnDisplayResponse)(using messages: Messages): ViewIndividualReturnViewModel = {
     val success = returnsData.success
-    
+
     val chargeRef = success.chargeDetails
       .flatMap(_.chargeReference)
       .getOrElse("")
-    
+
     val vapingProducts = success.vapingProductsProduced
-    
+
     val hasDeclaration = vapingProducts
       .exists(vp => vp.regularReturn.nonEmpty)
-    
+
     val (amountProduced, dutyDueAmount) = vapingProducts match {
       case Some(vp) if vp.regularReturn.nonEmpty =>
         val regularReturn = vp.regularReturn.head
@@ -56,20 +57,31 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       case _ =>
         (None, None)
     }
-    
+
     val totalDutyDueVaping = success.totalDutyDue
       .fold(currencyFormat(BigDecimal(0)))(td => currencyFormat(td.totalDutyDueVapingProducts))
-    
+
     val totalDuty = success.totalDutyDue
       .fold(currencyFormat(BigDecimal(0)))(td => currencyFormat(td.totalDutyDue))
 
-    val periodFrom = returnsData.success.chargeDetails.get.periodFrom
-    val monthYear = s"${getCurrentMonthMessage(periodFrom.getMonth)} ${periodFrom.getYear}"
+    val periodKey = returnsData.success.chargeDetails.get.periodKey
 
-    val receiptDate = returnsData.success.chargeDetails.get.receiptDate
+    val year = s"20${periodKey.take(2)}"
 
-    val receiptTime = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("d MMM uuuu hh:mm"))
-    
+    val monthFromPeriodKey = PeriodKeys.fromEtmpMonthString(periodKey.takeRight(2))
+      .getOrElse(LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault()).getMonth)
+
+    val receiptDate = returnsData.success.chargeDetails.fold(Instant.now())(_.receiptDate)
+    val submittedOn = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault())
+    val submittedOnMonth = PeriodKeys.toDisplayName(submittedOn.getMonth)
+    val submittedOnDay = submittedOn.getDayOfMonth
+    val receiptTime = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("hh:mma"))
+
+
+    val monthYearString = s"${getCurrentMonthMessage(monthFromPeriodKey)} $year"
+    val submittedOnString = s"$submittedOnDay $submittedOnMonth ${messages("viewIndividualReturn.chargeDetails.at")} $receiptTime"
+
+
     ViewIndividualReturnViewModel(
       chargeReference = chargeRef,
       hasVapingProductsDeclaration = hasDeclaration,
@@ -77,8 +89,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       dutyDue = dutyDueAmount,
       totalDutyDueVapingProducts = totalDutyDueVaping,
       totalDutyDue = totalDuty,
-      month = monthYear,
-      submittedOn = receiptTime
+      monthYear = monthYearString,
+      submittedOn = submittedOnString
     )
   }
 }

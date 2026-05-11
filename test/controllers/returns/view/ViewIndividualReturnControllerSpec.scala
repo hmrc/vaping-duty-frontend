@@ -17,11 +17,19 @@
 package controllers.returns.view
 
 import base.SpecBase
+import connectors.returns.GetReturnsConnector
 import controllers.returns
+import models.returns.view.ReturnDisplayResponse
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.inject
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import viewmodels.returns.view.ViewIndividualReturnViewModel
 import views.html.returns.view.ViewIndividualReturnView
+
+import scala.concurrent.Future
 
 class ViewIndividualReturnControllerSpec extends SpecBase {
 
@@ -29,10 +37,18 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val mockConnector = mock[GetReturnsConnector]
+
+      when(mockConnector.getReturn(any(), any())(using any())).thenReturn(Future.successful(
+        createReturnDisplayResponse()
+      ))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(inject.bind[GetReturnsConnector].to(mockConnector))
+        .build()
 
       running(application) {
-        val request = FakeRequest(GET, returns.view.routes.ViewIndividualReturnController.onPageLoad("","").url)
+        val request = FakeRequest(GET, returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url)
 
         val result = route(application, request).value
 

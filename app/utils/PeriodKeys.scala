@@ -25,21 +25,6 @@ object PeriodKeys {
   def fromDisplayName(name: String): Option[Month] =
     Month.values().find(_.getDisplayName(TextStyle.FULL, Locale.ENGLISH) == name)
 
-  def toEtmpMonthString(month: Month): String = month match {
-    case JANUARY   => "AA"
-    case FEBRUARY  => "AB"
-    case MARCH     => "AC"
-    case APRIL     => "AD"
-    case MAY       => "AE"
-    case JUNE      => "AF"
-    case JULY      => "AG"
-    case AUGUST    => "AH"
-    case SEPTEMBER => "AI"
-    case OCTOBER   => "AJ"
-    case NOVEMBER  => "AK"
-    case DECEMBER  => "AL"
-  }
-
   def fromEtmpMonthString(monthKey: String): Option[Month] = monthKey match {
     case "AA" => Some(JANUARY)
     case "AB" => Some(FEBRUARY)
