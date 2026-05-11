@@ -50,7 +50,7 @@ POST       /contact-preferences/confirm-email-address                           
 
 # Returns
 GET        /view-your-returns                                                   controllers.returns.view.ViewMultipleReturnsController.onPageLoad()
-GET        /complete-return/before-you-start                                    controllers.returns.submit.BeforeYouStartController.onPageLoad()
+GET        /complete-return/before-you-start/:periodKey                         controllers.returns.submit.BeforeYouStartController.onPageLoad(periodKey: Option[String])
 GET        /complete-return/task-list                                           controllers.returns.submit.TaskListController.onPageLoad()
 
 GET        /complete-return/declare-duty                                        controllers.returns.submit.DeclareDutyController.onPageLoad(mode: Mode = NormalMode)

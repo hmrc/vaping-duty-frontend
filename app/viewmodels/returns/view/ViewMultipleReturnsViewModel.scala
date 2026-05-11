@@ -17,6 +17,7 @@
 package viewmodels.returns.view
 
 import models.obligations.{ObligationDetails, ObligationStatus, ObligationsResponse}
+import models.returns.ReturnsUserAnswers
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
 
@@ -69,7 +70,7 @@ object ViewMultipleReturnsViewModel {
       monthDisplay = monthDisplay,
       status = status,
       statusClass = statusClass,
-      submitLink = PLACEHOLDER_LINK
+      submitLink = controllers.returns.submit.routes.BeforeYouStartController.onPageLoad(details.periodKey).url
     )
   }
 
