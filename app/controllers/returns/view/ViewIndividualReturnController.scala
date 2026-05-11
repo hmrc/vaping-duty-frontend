@@ -21,7 +21,8 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import connectors.returns.GetReturnsConnector
+import connectors.returns.{GetReturnsConnector, ReturnsUserAnswersConnector}
+import models.returns.ReturnsUserAnswers
 import viewmodels.returns.view.ViewIndividualReturnViewModel
 import views.html.returns.view.ViewIndividualReturnView
 
@@ -34,13 +35,17 @@ class ViewIndividualReturnController @Inject()(
                                        connector: GetReturnsConnector,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ViewIndividualReturnView,
-                                       returnsEnabled: ReturnsEnabledAction
+                                       returnsEnabled: ReturnsEnabledAction,
+                                       returnsRepository: ReturnsUserAnswersConnector,
+                                       getData: ReturnsDataRetrievalAction
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabled).async {
+  def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabled andThen getData).async {
     implicit request =>
       connector.getReturn(periodKey, vpdId = request.enrolmentVpdId)
         .map { returnData =>
+          val ua = request.userAnswers.fold(ReturnsUserAnswers.getEmptyReturnsUA(request.internalId))(ua => ua)
+          returnsRepository.set(ua.copy(periodKey = Some(periodKey)))
           Ok(view(ViewIndividualReturnViewModel(returnData)))
         }
   }

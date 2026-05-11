@@ -16,8 +16,11 @@
 
 package controllers.returns.submit
 
+import connectors.returns.ReturnsUserAnswersConnector
 import controllers.actions.*
-import controllers.actions.returns.ReturnsEnabledAction
+import controllers.actions.contactPreference.DataRetrievalAction
+import controllers.actions.returns.{ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import models.returns.ReturnsUserAnswers
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -29,14 +32,17 @@ import javax.inject.Inject
 class BeforeYouStartController @Inject()(
                                           override val messagesApi: MessagesApi,
                                           identify: ApprovedVapingManufacturerAuthAction,
+                                          sessionRepository: ReturnsUserAnswersConnector,
                                           returnsEnabledAction: ReturnsEnabledAction,
                                           val controllerComponents: MessagesControllerComponents,
                                           view: BeforeYouStartView,
+                                          getData: ReturnsDataRetrievalAction
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction) {
+  def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData) {
     implicit request =>
-
+      val ua = request.userAnswers.fold(ReturnsUserAnswers.getEmptyReturnsUA(request.internalId))(ua => ua)
+      sessionRepository.set(ua.copy(periodKey = Some(periodKey)))
       Ok(view(BeforeYouStartViewModel()))
   }
 }
