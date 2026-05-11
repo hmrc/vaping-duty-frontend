@@ -79,7 +79,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
 
     val monthYearString = s"${getCurrentMonthMessage(monthFromPeriodKey)} $year"
-    val submittedOnString = s"$submittedOnDay $submittedOnMonth ${messages("viewIndividualReturn.chargeDetails.at")} $receiptTime"
+    val submittedOnString = s"$submittedOnDay $submittedOnMonth $year ${messages("viewIndividualReturn.chargeDetails.at")} $receiptTime"
 
 
     ViewIndividualReturnViewModel(
