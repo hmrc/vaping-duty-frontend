@@ -17,7 +17,7 @@
 package controllers.returns.submit
 
 import base.SpecBase
-import models.identifiers.InternalId
+import models.identifiers.VpdId
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalactic.Prettifier.default
@@ -38,7 +38,7 @@ class ReturnsKeepAliveControllerSpec extends SpecBase with MockitoSugar {
       "must keep the answers alive and return OK" in {
 
         val mockService = mock[ReturnsUserAnswersService]
-        when(mockService.keepAlive(any())(any())) thenReturn Future.successful(Right(()))
+        when(mockService.keepAlive(any(), any())(any())) thenReturn Future.successful(Right(()))
 
         val application =
           applicationBuilder(Option(emptyUserAnswers))
@@ -52,7 +52,7 @@ class ReturnsKeepAliveControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          verify(mockService, times(1)).keepAlive(eqTo(InternalId(emptyUserAnswers.internalId)))(any())
+          verify(mockService, times(1)).keepAlive(eqTo(vpdId), periodKey.getOrElse(""))(any())
         }
       }
     }
@@ -62,7 +62,7 @@ class ReturnsKeepAliveControllerSpec extends SpecBase with MockitoSugar {
       "must return OK" in {
 
         val mockService = mock[ReturnsUserAnswersService]
-        when(mockService.keepAlive(any())(any())) thenReturn Future.successful(true)
+        when(mockService.keepAlive(any(), any())(any())) thenReturn Future.successful(true)
 
         val application =
           applicationBuilder(None)
@@ -76,7 +76,7 @@ class ReturnsKeepAliveControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          verify(mockService, never()).keepAlive(any())(any())
+          verify(mockService, never()).keepAlive(any(), any())(any())
         }
       }
     }

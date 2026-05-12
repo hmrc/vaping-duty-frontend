@@ -41,7 +41,7 @@ class ReturnsDataRetrievalActionSpec extends SpecBase with MockitoSugar {
       "must set userAnswers to 'None' in the request" in {
 
         val sessionRepository = mock[ReturnsUserAnswersService]
-        when(sessionRepository.get(any())(any())) thenReturn Future(Left(UpstreamErrorResponse.Upstream4xxResponse))
+        when(sessionRepository.get(any(), any())(any())) thenReturn Future(Left(UpstreamErrorResponse.Upstream4xxResponse))
         val action = new Harness(sessionRepository)
 
         val result = action.callTransform(IdentifierRequest(FakeRequest(), vpdId, groupId, internalId, credId)).futureValue
@@ -55,7 +55,7 @@ class ReturnsDataRetrievalActionSpec extends SpecBase with MockitoSugar {
       "must build a userAnswers object and add it to the request" in {
 
         val sessionRepository = mock[ReturnsUserAnswersService]
-        when(sessionRepository.get(any())(any())) thenReturn Future(Right(returnsUserAnswers))
+        when(sessionRepository.get(any(), any())(any())) thenReturn Future(Right(returnsUserAnswers))
         val action = new Harness(sessionRepository)
 
         val result = action.callTransform(IdentifierRequest(FakeRequest(), vpdId, groupId, internalId, credId)).futureValue

@@ -52,19 +52,19 @@ class ReturnsUserAnswersServiceSpec extends SpecBase {
 
   "get" - {
     "must return a success if the operation was successful" in new Setup {
-      when(mockUserAnswersConnector.get(any())(any()))
+      when(mockUserAnswersConnector.get(any(), any())(any()))
         .thenReturn(Future.successful(Right(userAnswers)))
 
-      whenReady(testService.get(internalId)) {
+      whenReady(testService.get(vpdId, periodKey.getOrElse(""))) {
         _ mustBe Right(userAnswers)
       }
     }
 
     "must return an error if the operation was unsuccessful" in new Setup {
-      when(mockUserAnswersConnector.get(any())(any()))
+      when(mockUserAnswersConnector.get(any(), any())(any()))
         .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
 
-      whenReady(testService.get(internalId)) {
+      whenReady(testService.get(vpdId, periodKey.getOrElse(""))) {
         _ mustBe Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))
       }
     }
@@ -72,19 +72,19 @@ class ReturnsUserAnswersServiceSpec extends SpecBase {
 
   "clear" - {
     "must return a success if the operation was successful" in new Setup {
-      when(mockUserAnswersConnector.clear(any())(any()))
+      when(mockUserAnswersConnector.clear(any(), any())(any()))
         .thenReturn(Future.successful(Right(())))
 
-      whenReady(testService.clear(internalId)) {
+      whenReady(testService.clear(vpdId, periodKey.getOrElse(""))) {
         _ mustBe Right(())
       }
     }
 
     "must return an error if the operation was unsuccessful" in new Setup {
-      when(mockUserAnswersConnector.clear(any())(any()))
+      when(mockUserAnswersConnector.clear(any(), any())(any()))
         .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
 
-      whenReady(testService.clear(internalId)) {
+      whenReady(testService.clear(vpdId, periodKey.getOrElse(""))) {
         _ mustBe Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))
       }
     }
@@ -92,19 +92,19 @@ class ReturnsUserAnswersServiceSpec extends SpecBase {
 
   "keepAlive" - {
     "must return a success if the operation was successful" in new Setup {
-      when(mockUserAnswersConnector.keepAlive(any())(any()))
+      when(mockUserAnswersConnector.keepAlive(any(), any())(any()))
         .thenReturn(Future.successful(Right(())))
 
-      whenReady(testService.keepAlive(internalId)) {
+      whenReady(testService.keepAlive(vpdId, periodKey.getOrElse(""))) {
         _ mustBe Right(())
       }
     }
 
     "must return an error if the operation was unsuccessful" in new Setup {
-      when(mockUserAnswersConnector.keepAlive(any())(any()))
+      when(mockUserAnswersConnector.keepAlive(any(), any())(any()))
         .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
 
-      whenReady(testService.keepAlive(internalId)) {
+      whenReady(testService.keepAlive(vpdId, periodKey.getOrElse(""))) {
         _ mustBe Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))
       }
     }

@@ -18,7 +18,7 @@ package services.returns
 
 import connectors.returns.ReturnsUserAnswersConnector
 import models.emailverification.ErrorModel
-import models.identifiers.InternalId
+import models.identifiers.VpdId
 import models.returns.ReturnsUserAnswers
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 
@@ -27,8 +27,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ReturnsUserAnswersService @Inject()(userAnswersConnector: ReturnsUserAnswersConnector)(implicit ec: ExecutionContext) {
   
-  def get(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ReturnsUserAnswers]] =
-    userAnswersConnector.get(internalId)
+  def get(vpdId: VpdId, periodKey: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ReturnsUserAnswers]] =
+    userAnswersConnector.get(vpdId, periodKey)
   
   def set(userAnswers: ReturnsUserAnswers)(implicit hc: HeaderCarrier): Future[Either[ErrorModel, HttpResponse]] = {
     userAnswersConnector.set(userAnswers).map { response =>
@@ -40,9 +40,9 @@ class ReturnsUserAnswersService @Inject()(userAnswersConnector: ReturnsUserAnswe
     }
   }
 
-  def keepAlive(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
-    userAnswersConnector.keepAlive(internalId)
+  def keepAlive(vpdId: VpdId, periodKey: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+    userAnswersConnector.keepAlive(vpdId, periodKey)
 
-  def clear(internalId: InternalId)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
-    userAnswersConnector.clear(internalId)
+  def clear(vpdId: VpdId, periodKey: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+    userAnswersConnector.clear(vpdId, periodKey)
 }

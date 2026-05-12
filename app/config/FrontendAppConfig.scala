@@ -88,10 +88,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
 
   private val returnsBaseUrl                                          = s"$returnsHost/vaping-duty"
-  def returnsUserAnswersGetUrl(internalId: InternalId): String        = s"$returnsBaseUrl/user-answers/$internalId"
+  def returnsUserAnswersGetUrl(vpdId: VpdId, periodKey: String): String        = s"$returnsBaseUrl/user-answers/$vpdId/$periodKey"
   def returnsUserAnswersUrl: String                                   = s"$returnsBaseUrl/user-answers"
-  def returnsUserAnswersKeepAliveUrl(internalId: InternalId): String  = s"$returnsBaseUrl/user-answers/keep-alive/$internalId"
-  def returnsUserAnswersClearUrl(internalId: InternalId): String      = s"$returnsBaseUrl/user-answers/clear/$internalId"
+  def returnsUserAnswersKeepAliveUrl(vpdId: VpdId, periodKey: String): String  = s"$returnsBaseUrl/user-answers/keep-alive/$vpdId/$periodKey"
+  def returnsUserAnswersClearUrl(vpdId: VpdId, periodKey: String): String      = s"$returnsBaseUrl/user-answers/clear/$vpdId/$periodKey"
 
   def getObligationsUrl(vpdId: VpdId): String                         = s"$returnsBaseUrl/obligations/$vpdId"
 

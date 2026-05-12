@@ -17,8 +17,8 @@
 package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
-import controllers.actions.contactPreference.DataRetrievalAction
-import models.identifiers.InternalId
+import controllers.actions.returns.ReturnsDataRetrievalAction
+import models.identifiers.VpdId
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ReturnsKeepAliveController @Inject()(
                                      val controllerComponents: MessagesControllerComponents,
                                      ifApprovedVapingManufacturer: ApprovedVapingManufacturerAuthAction,
-                                     getData: DataRetrievalAction,
+                                     getData: ReturnsDataRetrievalAction,
                                      userAnswersService: ReturnsUserAnswersService
                                    )(implicit ec: ExecutionContext) extends FrontendBaseController {
 
@@ -38,7 +38,7 @@ class ReturnsKeepAliveController @Inject()(
       request.userAnswers
         .map {
           answers =>
-            userAnswersService.keepAlive(InternalId(answers.internalId)).map(_ => Ok)
+            userAnswersService.keepAlive(VpdId(request.enrolmentVpdId.value), answers.periodKey.getOrElse("")).map(_ => Ok)
         }
         .getOrElse(Future.successful(Ok))
   }

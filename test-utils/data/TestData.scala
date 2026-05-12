@@ -135,6 +135,7 @@ trait TestData {
 
   val returnsUserAnswers: ReturnsUserAnswers = ReturnsUserAnswers(
     id = "",
+    periodKey = periodKey,
     data = JsObject.empty,
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
@@ -211,13 +212,13 @@ trait TestData {
   val zeroValue = BigDecimal(0)
 
   // Will need to either get or pass the period key here
-  val periodKey = "26AF"
+  val periodKey = Some("26AF")
 
   // Will need to enhance this much more
   val totalDue = totalInMl - zeroValue
 
   val testSubmitReturnRequest = ReturnCreateRequest(
-    periodKey,
+    periodKey.getOrElse(""),
     VapingProductsProduced(Seq.empty, Seq.empty),
     TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
   )
@@ -279,7 +280,7 @@ trait TestData {
         ),
         chargeDetails = Some(
           ChargeDetails(
-            periodKey = periodKey,
+            periodKey = periodKey.getOrElse(""),
             chargeReference = Some("XVC123456789012"),
             periodFrom = LocalDate.of(2026, 6, 1),
             periodTo = LocalDate.of(2026, 6, 30),
