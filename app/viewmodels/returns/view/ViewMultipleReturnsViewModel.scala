@@ -70,7 +70,7 @@ object ViewMultipleReturnsViewModel {
       monthDisplay = monthDisplay,
       status = status,
       statusClass = statusClass,
-      submitLink = controllers.returns.submit.routes.BeforeYouStartController.onPageLoad(details.periodKey).url
+      submitLink = s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${details.periodKey}"
     )
   }
 

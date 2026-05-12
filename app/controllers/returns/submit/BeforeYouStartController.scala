@@ -39,10 +39,11 @@ class BeforeYouStartController @Inject()(
                                           getData: ReturnsDataRetrievalAction
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData) {
+  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData) {
     implicit request =>
       val ua = request.userAnswers.fold(ReturnsUserAnswers.getEmptyReturnsUA(request.internalId))(ua => ua)
-      sessionRepository.set(ua.copy(periodKey = Some(periodKey)))
+
+      sessionRepository.set(ua.copy(periodKey = request.getQueryString("period")))
       Ok(view(BeforeYouStartViewModel()))
   }
 }
