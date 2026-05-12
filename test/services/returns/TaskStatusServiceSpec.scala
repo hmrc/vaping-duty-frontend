@@ -24,7 +24,7 @@ import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 class TaskStatusServiceSpec extends SpecBase {
 
   private val emptyAnswers = ReturnsUserAnswers(
-    id = "test-id",
+    vpdId = "test-id",
     periodKey = periodKey,
     startedTime = clock.instant(),
     lastUpdated = clock.instant()

@@ -37,7 +37,6 @@ class TaskListController @Inject()(
                                     view: TaskListView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  //controller is using empty UA until further tickets enable us to use Returns User Answers properly
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
       Ok(view(TaskListPageViewModel(request.userAnswers)))

@@ -28,6 +28,7 @@ import viewmodels.returns.submit.BeforeYouStartViewModel
 import views.html.returns.submit.BeforeYouStartView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class BeforeYouStartController @Inject()(
                                           override val messagesApi: MessagesApi,
@@ -37,13 +38,23 @@ class BeforeYouStartController @Inject()(
                                           val controllerComponents: MessagesControllerComponents,
                                           view: BeforeYouStartView,
                                           getData: ReturnsDataRetrievalAction
-                                     ) extends FrontendBaseController with I18nSupport {
+                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData) {
+  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
     implicit request =>
-      val ua = request.userAnswers.fold(ReturnsUserAnswers.getEmptyReturnsUA(request.internalId))(ua => ua)
+      val pk = request.getQueryString("period").getOrElse("")
+      val session = request.session + ("periodKey" -> pk)
 
-      sessionRepository.set(ua.copy(periodKey = request.getQueryString("period")))
-      Ok(view(BeforeYouStartViewModel()))
+      val ua = request.userAnswers match {
+        case Some(existingUa) if existingUa.periodKey.contains(pk) =>
+          existingUa
+        case _ =>
+          ReturnsUserAnswers.getEmptyReturnsUA(request.enrolmentVpdId, pk)
+      }
+
+      sessionRepository.set(ua.copy(periodKey = Some(pk))).map(_ =>
+        Ok(view(BeforeYouStartViewModel())).withSession(session)
+      )
+
   }
 }

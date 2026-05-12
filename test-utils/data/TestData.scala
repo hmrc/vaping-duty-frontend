@@ -134,7 +134,7 @@ trait TestData {
   )
 
   val returnsUserAnswers: ReturnsUserAnswers = ReturnsUserAnswers(
-    id = "",
+    vpdId = "",
     periodKey = periodKey,
     data = JsObject.empty,
     startedTime = Instant.now(clock),

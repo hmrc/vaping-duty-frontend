@@ -42,6 +42,7 @@ class DeclareDutyController @Inject()(
                                          navigator: ReturnsNavigator,
                                          identify: ApprovedVapingManufacturerAuthAction,
                                          getData: ReturnsDataRetrievalAction,
+                                         requireData: ReturnsDataRequiredAction,
                                          formProvider: DeclareDutyFormProvider,
                                          returnsEnabledAction: ReturnsEnabledAction,
                                          val controllerComponents: MessagesControllerComponents,
@@ -58,7 +59,7 @@ class DeclareDutyController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
@@ -66,8 +67,7 @@ class DeclareDutyController @Inject()(
           Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(ReturnsUserAnswers.getEmptyReturnsUA(request.internalId))
-                                .set(DeclareDutyPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclareDutyPage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(DeclareDutyPage, mode, updatedAnswers))
       )

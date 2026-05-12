@@ -32,10 +32,15 @@ class ReturnsDataRetrievalActionImpl @Inject()(val service: ReturnsUserAnswersSe
   override protected def transform[A](request: IdentifierRequest[A]): Future[ReturnsOptionalDataRequest[A]] = {
 
     val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
-    service.get(request.enrolmentVpdId, request.getQueryString("period").getOrElse(""))(headerCarrier).map {
-      case Left(_)    => ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, None)
-      case Right(ua)  => ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, Some(ua))
+    
+    request.session.get("periodKey") match {
+      case Some(periodKey) =>
+        service.get(request.enrolmentVpdId, periodKey)(headerCarrier).map {
+          case Left(_) => ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, Some(periodKey), None)
+          case Right(ua) => ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, Some(periodKey), Some(ua))
+        }
+      case None =>
+        Future.successful(ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, None, None))
     }
   }
 }

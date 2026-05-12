@@ -44,7 +44,7 @@ class ViewIndividualReturnController @Inject()(
     implicit request =>
       connector.getReturn(periodKey, vpdId = request.enrolmentVpdId)
         .map { returnData =>
-          val ua = request.userAnswers.fold(ReturnsUserAnswers.getEmptyReturnsUA(request.internalId))(ua => ua)
+          val ua = request.userAnswers.fold(ReturnsUserAnswers.getEmptyReturnsUA(request.enrolmentVpdId, returnData.success.chargeDetails.get.periodKey))(ua => ua)
           returnsRepository.set(ua.copy(periodKey = Some(periodKey)))
           Ok(view(ViewIndividualReturnViewModel(returnData)))
         }

@@ -37,7 +37,7 @@ class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
   def submitReturn(returnsSubmission: ReturnCreateRequest, vpdId: VpdId)
                               (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] =
     httpClient
-      .post(url"${config.submitReturnUrl(vpdId)}")
+      .post(url"${config.submitReturnUrl(vpdId, returnsSubmission.periodKey)}")
       .withBody(Json.toJson(returnsSubmission))
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .flatMap(response => submitReturnsParser(response))
