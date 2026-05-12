@@ -28,7 +28,7 @@ import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 case class ViewIndividualReturnViewModel(
                                           chargeReference: String,
                                           hasVapingProductsDeclaration: Boolean,
-                                          amountProducedLiquid: Option[BigDecimal],
+                                          amountProducedLiquid: Option[String],
                                           dutyDue: Option[String],
                                           totalDutyDueVapingProducts: String,
                                           totalDutyDue: String,
@@ -53,7 +53,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val (amountProduced, dutyDueAmount) = vapingProducts match {
       case Some(vp) if vp.regularReturn.nonEmpty =>
         val regularReturn = vp.regularReturn.head
-        (Some(regularReturn.amountProducedLiquid), Some(currencyFormat(regularReturn.dutyDue)))
+        (Some(milliliterFormat(regularReturn.amountProducedLiquid)), Some(currencyFormat(regularReturn.dutyDue)))
       case _ =>
         (None, None)
     }

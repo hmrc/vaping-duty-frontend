@@ -16,8 +16,15 @@
 
 package config
 
+import scala.math.BigDecimal.RoundingMode
+
 trait CurrencyFormatter {
   def currencyFormat(amt: BigDecimal): String = f"£$amt%,1.2f".replace(".00","")
+  
+  def milliliterFormat(amt: BigDecimal): String = {
+    val truncated = amt.setScale(2, RoundingMode.DOWN)
+    f"$truncated%,.2f"
+  }
   
   private val DUTY_MULTIPLIER = "2.2"
   def calculateDuty(amount: Int): BigDecimal = (BigDecimal(amount.toString) / 10) * BigDecimal(DUTY_MULTIPLIER)

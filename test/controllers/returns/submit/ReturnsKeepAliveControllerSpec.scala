@@ -52,7 +52,7 @@ class ReturnsKeepAliveControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          verify(mockService, times(1)).keepAlive(eqTo(vpdId), periodKey.getOrElse(""))(any())
+          verify(mockService, times(1)).keepAlive(eqTo(vpdId), eqTo(periodKey.getOrElse("")))(any())
         }
       }
     }
