@@ -32,7 +32,7 @@ class SubmitReturnConnectorISpec extends ISpecBase with WireMockHelper with Test
       "microservice.services.vaping-duty.port" -> server.port
     ).build()
 
-  private val url = s"/vaping-duty/vpd-return/$vpdId"
+  private val url = s"/vaping-duty/vpd-return/$vpdId/$periodKey"
   private lazy val connector = application.injector.instanceOf[SubmitReturnConnector]
 
   "submitReturn must" - {

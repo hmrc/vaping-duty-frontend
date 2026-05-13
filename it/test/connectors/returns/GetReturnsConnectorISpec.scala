@@ -31,7 +31,7 @@ class GetReturnsConnectorISpec extends ISpecBase with WireMockHelper with TestDa
       "microservice.services.vaping-duty.port" -> server.port
     ).build()
 
-  private val url = s"/vaping-duty/vpd-return/${periodKey.get}/$vpdId"
+  private val url = s"/vaping-duty/vpd-return/$periodKey/$vpdId"
   private lazy val connector = application.injector.instanceOf[GetReturnsConnector]
 
   "getObligations must" - {
@@ -41,7 +41,7 @@ class GetReturnsConnectorISpec extends ISpecBase with WireMockHelper with TestDa
         get(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(createReturnDisplayResponse()).toString))
       )
 
-      val result = connector.getReturn(periodKey.get, vpdId).futureValue
+      val result = connector.getReturn(periodKey, vpdId).futureValue
 
       result mustBe createReturnDisplayResponse()
     }
@@ -51,7 +51,7 @@ class GetReturnsConnectorISpec extends ISpecBase with WireMockHelper with TestDa
         get(url).willReturn(aResponse().withStatus(CREATED).withBody(Json.toJson("InvalidJSON").toString))
       )
 
-      val result = connector.getReturn(periodKey.get, vpdId)
+      val result = connector.getReturn(periodKey, vpdId)
 
       whenReady(result.failed) { exception =>
         exception mustBe an[Exception]
@@ -63,7 +63,7 @@ class GetReturnsConnectorISpec extends ISpecBase with WireMockHelper with TestDa
         get(url).willReturn(aResponse().withStatus(BAD_GATEWAY).withBody(Json.toJson(createMockObligationsResponse()).toString))
       )
 
-      val result = connector.getReturn(periodKey.get, vpdId)
+      val result = connector.getReturn(periodKey, vpdId)
 
       whenReady(result.failed) { exception =>
         exception mustBe an[Exception]

@@ -36,7 +36,7 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
 
   val mockConnector: SubmitReturnConnector = mock[SubmitReturnConnector]
 
-  given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, periodKey.get, returnsUserAnswers)
+  given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, optPeriodKey.get, returnsUserAnswers)
 
   "SubmitReturnService must" - {
 

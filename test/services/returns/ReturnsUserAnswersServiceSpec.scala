@@ -55,7 +55,7 @@ class ReturnsUserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.get(any(), any())(any()))
         .thenReturn(Future.successful(Right(userAnswers)))
 
-      whenReady(testService.get(vpdId, periodKey.getOrElse(""))) {
+      whenReady(testService.get(vpdId, periodKey)) {
         _ mustBe Right(userAnswers)
       }
     }
@@ -64,7 +64,7 @@ class ReturnsUserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.get(any(), any())(any()))
         .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
 
-      whenReady(testService.get(vpdId, periodKey.getOrElse(""))) {
+      whenReady(testService.get(vpdId, periodKey)) {
         _ mustBe Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))
       }
     }
@@ -75,7 +75,7 @@ class ReturnsUserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.clear(any(), any())(any()))
         .thenReturn(Future.successful(Right(())))
 
-      whenReady(testService.clear(vpdId, periodKey.getOrElse(""))) {
+      whenReady(testService.clear(vpdId, periodKey)) {
         _ mustBe Right(())
       }
     }
@@ -84,7 +84,7 @@ class ReturnsUserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.clear(any(), any())(any()))
         .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
 
-      whenReady(testService.clear(vpdId, periodKey.getOrElse(""))) {
+      whenReady(testService.clear(vpdId, periodKey)) {
         _ mustBe Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))
       }
     }
@@ -95,7 +95,7 @@ class ReturnsUserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.keepAlive(any(), any())(any()))
         .thenReturn(Future.successful(Right(())))
 
-      whenReady(testService.keepAlive(vpdId, periodKey.getOrElse(""))) {
+      whenReady(testService.keepAlive(vpdId, periodKey)) {
         _ mustBe Right(())
       }
     }
@@ -104,7 +104,7 @@ class ReturnsUserAnswersServiceSpec extends SpecBase {
       when(mockUserAnswersConnector.keepAlive(any(), any())(any()))
         .thenReturn(Future.successful(Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))))
 
-      whenReady(testService.keepAlive(vpdId, periodKey.getOrElse(""))) {
+      whenReady(testService.keepAlive(vpdId, periodKey)) {
         _ mustBe Left(UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR))
       }
     }

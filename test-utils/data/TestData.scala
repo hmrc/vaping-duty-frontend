@@ -135,7 +135,7 @@ trait TestData {
 
   val returnsUserAnswers: ReturnsUserAnswers = ReturnsUserAnswers(
     vpdId = vpdId.value,
-    periodKey = periodKey,
+    periodKey = optPeriodKey,
     data = JsObject.empty,
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
@@ -208,17 +208,16 @@ trait TestData {
 
   val totalInMl = returnsUserAnswers.get(EnterDutyAmountPage).fold(BigDecimal(0))(value => BigDecimal(value))
 
-  // Temp value
   val zeroValue = BigDecimal(0)
 
-  // Will need to either get or pass the period key here
-  val periodKey = Some("26AF")
+  val optPeriodKey = Some("26AF")
 
-  // Will need to enhance this much more
+  val periodKey = "26AF"
+
   val totalDue = totalInMl - zeroValue
 
   val testSubmitReturnRequest = ReturnCreateRequest(
-    periodKey.getOrElse(""),
+    periodKey,
     VapingProductsProduced(Seq.empty, Seq.empty),
     TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
   )
@@ -280,7 +279,7 @@ trait TestData {
         ),
         chargeDetails = Some(
           ChargeDetails(
-            periodKey = periodKey.getOrElse(""),
+            periodKey = periodKey,
             chargeReference = Some("XVC123456789012"),
             periodFrom = LocalDate.of(2026, 6, 1),
             periodTo = LocalDate.of(2026, 6, 30),

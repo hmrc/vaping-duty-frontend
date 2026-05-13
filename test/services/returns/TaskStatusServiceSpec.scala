@@ -25,7 +25,7 @@ class TaskStatusServiceSpec extends SpecBase {
 
   private val emptyAnswers = ReturnsUserAnswers(
     vpdId = "test-id",
-    periodKey = periodKey,
+    periodKey = optPeriodKey,
     startedTime = clock.instant(),
     lastUpdated = clock.instant()
   )

@@ -87,16 +87,16 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def getSubscriptionUrl(vpdId: VpdId): String                    = s"$contactPreferenceBaseUrl/get-preferences/$vpdId"
 
 
-  private val returnsBaseUrl                                          = s"$returnsHost/vaping-duty"
+  private val returnsBaseUrl                                                   = s"$returnsHost/vaping-duty"
   def returnsUserAnswersGetUrl(vpdId: VpdId, periodKey: String): String        = s"$returnsBaseUrl/user-answers/$vpdId/$periodKey"
-  def returnsUserAnswersUrl: String                                   = s"$returnsBaseUrl/user-answers"
+  def returnsUserAnswersUrl: String                                            = s"$returnsBaseUrl/user-answers"
   def returnsUserAnswersKeepAliveUrl(vpdId: VpdId, periodKey: String): String  = s"$returnsBaseUrl/user-answers/keep-alive/$vpdId/$periodKey"
   def returnsUserAnswersClearUrl(vpdId: VpdId, periodKey: String): String      = s"$returnsBaseUrl/user-answers/clear/$vpdId/$periodKey"
 
-  def getObligationsUrl(vpdId: VpdId): String                         = s"$returnsBaseUrl/obligations/$vpdId"
+  def getObligationsUrl(vpdId: VpdId): String                                  = s"$returnsBaseUrl/obligations/$vpdId"
 
-  def submitReturnUrl(vpdId: VpdId, periodKey: String)                                   = s"$returnsBaseUrl/vpd-return/$vpdId/$periodKey"
-  def getReturnUrl(vpdReference: VpdId, periodKey: String): String    = s"$returnsBaseUrl/vpd-return/$periodKey/$vpdReference"
+  def submitReturnUrl(vpdId: VpdId, periodKey: String)                         = s"$returnsBaseUrl/vpd-return/$vpdId/$periodKey"
+  def getReturnUrl(vpdReference: VpdId, periodKey: String): String              = s"$returnsBaseUrl/vpd-return/$periodKey/$vpdReference"
 
   val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/confirm-email-address"
   val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"
