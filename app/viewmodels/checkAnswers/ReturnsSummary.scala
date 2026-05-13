@@ -16,13 +16,13 @@
 
 package viewmodels.checkAnswers
 
-import config.CurrencyFormatter
 import models.CheckMode
 import models.returns.ReturnsUserAnswers
 import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
+import utils.CurrencyFormatter
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 

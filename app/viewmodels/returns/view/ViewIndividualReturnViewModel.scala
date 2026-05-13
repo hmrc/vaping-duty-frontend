@@ -16,12 +16,11 @@
 
 package viewmodels.returns.view
 
-import config.CurrencyFormatter
 import models.returns.view.*
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import utils.PeriodKeys
+import utils.{CurrencyFormatter, PeriodKeys}
 import utils.ReturnsDateUtils.*
 
 import java.time.format.DateTimeFormatter
