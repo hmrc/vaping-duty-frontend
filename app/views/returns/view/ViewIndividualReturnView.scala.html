@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import views.html.components.*
 @import viewmodels.returns.view.ViewIndividualReturnViewModel
+@import utils.CssConstants.boldFontWeight
 
 @this(
         layout: templates.Layout,
@@ -52,72 +53,13 @@
 
   @h2(messages("viewIndividualReturn.h2.dutySummary"))
 
-  @govukSummaryList(SummaryList(
-    rows = Seq(
-      SummaryListRow(
-        key = Key(
-          content = Text(messages("viewIndividualReturn.vapingProductsDeclaration.question"))
-        ),
-        value = Value(
-          content = Text(
-            if(vm.hasVapingProductsDeclaration) {
-              messages("viewIndividualReturn.vapingProductsDeclaration.yes")
-            } else {
-              messages("viewIndividualReturn.vapingProductsDeclaration.no")
-            }
-          )
-        )
-      )
-    )
-  ))
+  @govukSummaryList(vm.vapingProductsDeclarationSummaryList)
 
-  @if(vm.hasVapingProductsDeclaration) {
-    @govukSummaryList(SummaryList(
-      rows = Seq(
-        vm.amountProducedLiquid.map { amount =>
-          SummaryListRow(
-            key = Key(
-              content = Text(messages("viewIndividualReturn.amountProducedLiquid"))
-            ),
-            value = Value(
-              content = Text(messages("viewIndividualReturn.millilitres", amount.toString))
-            )
-          )
-        },
-        vm.dutyDue.map { duty =>
-          SummaryListRow(
-            key = Key(
-              content = Text(messages("viewIndividualReturn.dutyDue"))
-            ),
-            value = Value(
-              content = Text(duty)
-            )
-          )
-        }
-      ).flatten
-    ))
+  @vm.productDetailsSummaryList.map { summaryList =>
+    @govukSummaryList(summaryList)
   }
 
-  @govukSummaryList(SummaryList(
-    rows = Seq(
-      SummaryListRow(
-        key = Key(
-          content = Text(messages("viewIndividualReturn.totalDutyDueVapingProducts"))
-        ),
-        value = Value(
-          content = Text(vm.totalDutyDueVapingProducts)
-        )
-      ),
-      SummaryListRow(
-        key = Key(
-          content = Text(messages("viewIndividualReturn.totalDutyDue"))
-        ),
-        value = Value(
-          content = Text(vm.totalDutyDue)
-        )
-      )
-    )
-  ))
+  @govukSummaryList(vm.dutyTotalsSummaryList)
 
   @govukButton(ButtonViewModel(messages("site.backToBta")))
 

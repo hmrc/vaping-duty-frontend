@@ -19,6 +19,8 @@ package viewmodels.returns.view
 import config.CurrencyFormatter
 import models.returns.view.*
 import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import utils.PeriodKeys
 import utils.ReturnsDateUtils.*
 
@@ -34,7 +36,80 @@ case class ViewIndividualReturnViewModel(
                                           totalDutyDue: String,
                                           monthYear: String,
                                           submittedOn: String
-                                        )
+                                        ) {
+
+  def vapingProductsDeclarationSummaryList(implicit messages: Messages): SummaryList =
+    SummaryList(
+      rows = Seq(
+        SummaryListRow(
+          key = Key(
+            content = Text(messages("viewIndividualReturn.vapingProductsDeclaration.question"))
+          ),
+          value = Value(
+            content = Text(
+              if(hasVapingProductsDeclaration) {
+                messages("viewIndividualReturn.vapingProductsDeclaration.yes")
+              } else {
+                messages("viewIndividualReturn.vapingProductsDeclaration.no")
+              }
+            )
+          )
+        )
+      )
+    )
+
+  def productDetailsSummaryList(implicit messages: Messages): Option[SummaryList] =
+    if(hasVapingProductsDeclaration) {
+      Some(SummaryList(
+        rows = Seq(
+          amountProducedLiquid.map { amount =>
+            SummaryListRow(
+              key = Key(
+                content = Text(messages("viewIndividualReturn.amountProducedLiquid"))
+              ),
+              value = Value(
+                content = Text(messages("viewIndividualReturn.millilitres", amount))
+              )
+            )
+          },
+          dutyDue.map { duty =>
+            SummaryListRow(
+              key = Key(
+                content = Text(messages("viewIndividualReturn.dutyDue"))
+              ),
+              value = Value(
+                content = Text(duty)
+              )
+            )
+          }
+        ).flatten
+      ))
+    } else {
+      None
+    }
+
+  def dutyTotalsSummaryList(implicit messages: Messages): SummaryList =
+    SummaryList(
+      rows = Seq(
+        SummaryListRow(
+          key = Key(
+            content = Text(messages("viewIndividualReturn.totalDutyDueVapingProducts"))
+          ),
+          value = Value(
+            content = Text(totalDutyDueVapingProducts)
+          )
+        ),
+        SummaryListRow(
+          key = Key(
+            content = Text(messages("viewIndividualReturn.totalDutyDue"))
+          ),
+          value = Value(
+            content = Text(totalDutyDue)
+          )
+        )
+      )
+    )
+}
 
 object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
