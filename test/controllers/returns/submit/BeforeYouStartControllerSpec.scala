@@ -17,18 +17,34 @@
 package controllers.returns.submit
 
 import base.SpecBase
+import org.apache.pekko.http.scaladsl.model.HttpResponse
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.returns.ReturnsUserAnswersService
 import viewmodels.returns.submit.BeforeYouStartViewModel
 import views.html.returns.submit.BeforeYouStartView
+
+import scala.concurrent.Future
 
 class BeforeYouStartControllerSpec extends SpecBase {
 
   "BeforeYouStart Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+
+      val mockService = mock[ReturnsUserAnswersService]
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[ReturnsUserAnswersService].to(mockService))
+        .build()
+
       val vm = BeforeYouStartViewModel()(messages(application))
+
+      when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
 
       running(application) {
         val request = FakeRequest(GET, controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)

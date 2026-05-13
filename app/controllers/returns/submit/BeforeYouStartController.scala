@@ -16,13 +16,12 @@
 
 package controllers.returns.submit
 
-import connectors.returns.ReturnsUserAnswersConnector
 import controllers.actions.*
-import controllers.actions.contactPreference.DataRetrievalAction
 import controllers.actions.returns.{ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import models.returns.ReturnsUserAnswers
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.BeforeYouStartViewModel
 import views.html.returns.submit.BeforeYouStartView
@@ -33,7 +32,7 @@ import scala.concurrent.ExecutionContext
 class BeforeYouStartController @Inject()(
                                           override val messagesApi: MessagesApi,
                                           identify: ApprovedVapingManufacturerAuthAction,
-                                          sessionRepository: ReturnsUserAnswersConnector,
+                                          sessionRepository: ReturnsUserAnswersService,
                                           returnsEnabledAction: ReturnsEnabledAction,
                                           val controllerComponents: MessagesControllerComponents,
                                           view: BeforeYouStartView,
