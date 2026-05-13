@@ -17,6 +17,7 @@
 package viewmodels.returns.view
 
 import base.SpecBase
+import models.returns.{RegularReturn, VapingProductsProduced}
 import models.returns.view.*
 import play.api.i18n.Messages
 
@@ -53,8 +54,8 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       result.hasVapingProductsDeclaration mustBe false
       result.amountProducedLiquid mustBe None
       result.dutyDue mustBe None
-      result.totalDutyDueVapingProducts mustBe "£1,000.00"
-      result.totalDutyDue mustBe "£1,825.00"
+      result.totalDutyDueVapingProducts mustBe "£1,000"
+      result.totalDutyDue mustBe "£1,825"
       result.monthYear mustBe "June 2026"
       result.submittedOn must include("June 2026")
     }
@@ -76,8 +77,8 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
     "must default to £0.00 when totalDutyDue is missing" in {
       val result = ViewIndividualReturnViewModel(returnResponseNoTotalDuty)
 
-      result.totalDutyDueVapingProducts mustBe "£0.00"
-      result.totalDutyDue mustBe "£0.00"
+      result.totalDutyDueVapingProducts mustBe "£0"
+      result.totalDutyDue mustBe "£0"
     }
 
     "must correctly identify when vaping products declaration exists" in {
@@ -103,7 +104,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
 
       result.hasVapingProductsDeclaration mustBe true
       result.amountProducedLiquid mustBe Some("2,000.00")
-      result.dutyDue mustBe Some("£1,000.00")
+      result.dutyDue mustBe Some("£1,000")
     }
   }
 
@@ -132,8 +133,8 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       val result = viewModel.vapingProductsDeclarationSummaryList
 
       result.rows.size mustBe 1
-      result.rows.head.key.content.asHtml.toString must include("viewIndividualReturn.vapingProductsDeclaration.question")
-      result.rows.head.value.content.asHtml.toString must include("viewIndividualReturn.vapingProductsDeclaration.yes")
+      result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.question"))
+      result.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.yes"))
     }
 
     "must show correct answer when no declaration" in {
@@ -141,8 +142,8 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       val result = viewModel.vapingProductsDeclarationSummaryList
 
       result.rows.size mustBe 1
-      result.rows.head.key.content.asHtml.toString must include("viewIndividualReturn.vapingProductsDeclaration.question")
-      result.rows.head.value.content.asHtml.toString must include("viewIndividualReturn.vapingProductsDeclaration.no")
+      result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.question"))
+      result.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.no"))
     }
   }
 
@@ -189,8 +190,8 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       val result = viewModel.dutyTotalsSummaryList
 
       result.rows.size mustBe 2
-      result.rows.head.key.content.asHtml.toString must include("viewIndividualReturn.totalDutyDueVapingProducts")
-      result.rows(1).key.content.asHtml.toString must include("viewIndividualReturn.totalDutyDue")
+      result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDueVapingProducts"))
+      result.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDue"))
     }
   }
 }
