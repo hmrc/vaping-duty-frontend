@@ -33,13 +33,20 @@
 
 @(vm: ViewIndividualReturnViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("viewIndividualReturn.title"))) {
+@layout(pageTitle = titleNoForm(vm.monthYear)) {
 
   @caption(content = messages("viewIndividualReturn.caption"))
 
   @h1(vm.monthYear)
 
-  @govukInsetText(InsetText(content = HtmlContent(messages("viewIndividualReturn.chargeDetails.chargeReference", vm.chargeReference, vm.submittedOn))))
+  @govukInsetText(InsetText(content =
+    HtmlContent(
+      s"${messages("viewIndividualReturn.chargeDetails.chargeReference")}  <span class=$boldFontWeight>${vm.chargeReference}</span>" +
+      "<br>" +
+      s"${messages("viewIndividualReturn.chargeDetails.submittedOn", vm.submittedOn)}"
+    )
+  ))
+
 
   @p(Seq(Text(messages("viewIndividualReturn.dutyDetails"))))
 

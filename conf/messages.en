@@ -262,11 +262,9 @@ returns.overview.completed.month = Month
 returns.overview.completed.action = Action
 returns.overview.completed.viewReturn = View return
 
-viewIndividualReturn.title = viewIndividualReturn
-viewIndividualReturn.heading = viewIndividualReturn
 viewIndividualReturn.caption = Vaping Products Duty return
-viewIndividualReturn.chargeDetails.chargeReference = Charge reference: {0} <br/> Submitted on: {1}
-viewIndividualReturn.chargeDetails.submittedOn = Submitted on {0}
+viewIndividualReturn.chargeDetails.chargeReference = Charge reference:
+viewIndividualReturn.chargeDetails.submittedOn = Submitted on: {0}
 viewIndividualReturn.chargeDetails.at = at
 viewIndividualReturn.dutyDetails = Duty is calculated by multiplying the volume of vaping products released for consumption by the Vaping Product Duty rate of £2.20 per 10ml.
 viewIndividualReturn.p.youCan = You can change information on this return by using the adjustment options on your next Vaping Products Duty return.
