@@ -46,7 +46,7 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
     val zeroValue = BigDecimal(0)
 
     // Will need to either get or pass the period key here
-    val periodKey = ua.periodKey.fold("")(x => x)
+    val periodKey = Option(ua.periodKey).flatten.fold("")(x => x)
 
     // Will need to enhance this much more
     val totalDue = totalInMl - zeroValue

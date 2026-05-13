@@ -38,7 +38,7 @@ class ReturnsKeepAliveController @Inject()(
       request.userAnswers
         .map {
           answers =>
-            userAnswersService.keepAlive(VpdId(request.enrolmentVpdId.value), answers.periodKey.getOrElse("")).map(_ => Ok)
+            userAnswersService.keepAlive(VpdId(request.enrolmentVpdId.value), Option(answers.periodKey).flatten.getOrElse("")).map(_ => Ok)
         }
         .getOrElse(Future.successful(Ok))
   }

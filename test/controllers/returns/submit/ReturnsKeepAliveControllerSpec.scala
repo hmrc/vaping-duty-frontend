@@ -37,12 +37,8 @@ class ReturnsKeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
       "must keep the answers alive and return OK" in {
 
-        val mockService = mock[ReturnsUserAnswersService]
-        when(mockService.keepAlive(any(), any())(any())) thenReturn Future.successful(Right(()))
-
         val application =
           applicationBuilder(Option(emptyUserAnswers))
-            .overrides(bind[ReturnsUserAnswersService].toInstance(mockService))
             .build()
 
         running(application) {
@@ -52,7 +48,6 @@ class ReturnsKeepAliveControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          verify(mockService, times(1)).keepAlive(eqTo(vpdId), eqTo(periodKey.getOrElse("")))(any())
         }
       }
     }

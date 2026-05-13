@@ -40,7 +40,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
   private lazy val connector = application.injector.instanceOf[ReturnsUserAnswersConnector]
   
   private val instant                     = Instant.parse("2026-04-14T07:54:00.483Z")
-  private val answers                     = ReturnsUserAnswers("id", JsObject.empty, instant, instant)
+  private val answers                     = ReturnsUserAnswers("id", periodKey, JsObject.empty, instant, instant)
   private val internalServerErrorResponse = UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR)
 
   ".get" - {
@@ -49,7 +49,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
         get(urlEqualTo(s"$url/$internalId"))
           .willReturn(aResponse().withStatus(OK).withBody(Json.toJson(answers).toString))
       )
-      val result = connector.get(internalId).futureValue
+      val result = connector.get(vpdId, periodKey.get).futureValue
 
       result mustBe Right(answers)
     }
@@ -59,7 +59,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
         get(urlEqualTo(s"$url/$internalId"))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody(internalServerErrorResponse.toString))
       )
-      val result = connector.get(internalId).futureValue
+      val result = connector.get(vpdId, periodKey.get).futureValue
 
       result.isLeft mustBe true
     }
@@ -95,7 +95,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
         post(urlEqualTo(keepAliveUrl))
           .willReturn(aResponse().withStatus(NO_CONTENT))
       )
-      val result = connector.keepAlive(internalId).futureValue
+      val result = connector.keepAlive(vpdId, periodKey.get).futureValue
 
       result.isRight mustBe true
     }
@@ -105,7 +105,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
         post(urlEqualTo(keepAliveUrl))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
       )
-      val result = connector.keepAlive(internalId).futureValue
+      val result = connector.keepAlive(vpdId, periodKey.get).futureValue
 
       result.isLeft mustBe true
     }
@@ -119,7 +119,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
         delete(urlEqualTo(deleteUrl))
           .willReturn(aResponse().withStatus(NO_CONTENT))
       )
-      val result = connector.clear(internalId).futureValue
+      val result = connector.clear(vpdId, periodKey.get).futureValue
 
       result.isRight mustBe true
 
@@ -130,7 +130,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
         delete(urlEqualTo(deleteUrl))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
       )
-      val result = connector.clear(internalId).futureValue
+      val result = connector.clear(vpdId, periodKey.get).futureValue
 
       result.isLeft mustBe true
     }

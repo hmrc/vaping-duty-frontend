@@ -46,7 +46,7 @@ class BeforeYouStartController @Inject()(
       val session = request.session + ("periodKey" -> pk)
 
       val ua = request.userAnswers match {
-        case Some(existingUa) if existingUa.periodKey.contains(pk) =>
+        case Some(existingUa) if Option(existingUa.periodKey).flatten.contains(pk) =>
           existingUa
         case _ =>
           ReturnsUserAnswers.getEmptyReturnsUA(request.enrolmentVpdId, pk)

@@ -35,7 +35,7 @@ class ObligationsServiceSpec extends AnyFreeSpec with Matchers with TestData wit
   
   val mockConnector: ObligationsConnector = mock[ObligationsConnector]
 
-  given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, returnsUserAnswers)
+  given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, periodKey.get, returnsUserAnswers)
 
   "ObligationsService must" - {
 

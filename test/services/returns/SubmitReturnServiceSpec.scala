@@ -34,11 +34,9 @@ import scala.concurrent.Future
 
 class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData with SpecBase {
 
-  implicit val request: DataRequest[?] = DataRequest(FakeRequest(), vpdId, internalId, credId, emptyUserAnswers)
-
   val mockConnector: SubmitReturnConnector = mock[SubmitReturnConnector]
 
-  given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, returnsUserAnswers)
+  given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, periodKey.get, returnsUserAnswers)
 
   "SubmitReturnService must" - {
 
