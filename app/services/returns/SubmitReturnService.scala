@@ -44,21 +44,18 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
     // Temp value
     val zeroValue = BigDecimal("0")
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
-    val totalInMl = ua.get(EnterDutyAmountPage).fold(zeroValue)(value => BigDecimal(value))
+    val liquidInMl = ua.get(EnterDutyAmountPage).fold(zeroValue)(value => BigDecimal(value))
 
+    val periodKey = ua.periodKey
 
-
-    // Will need to either get or pass the period key here
-    val periodKey = Option(ua.periodKey).flatten.fold("")(x => x)
-
-    // Will need to enhance this much more
-    val totalDue = totalInMl - zeroValue
-    val dutyRate = BigDecimal("2.2")
-    val dutyDue = (totalDue * dutyRate).setScale(2, BigDecimal.RoundingMode.HALF_UP)
+    // Will need to be enhanced
+    val liquidInLitres = (liquidInMl - zeroValue) / BigDecimal("1000")
+    val dutyRate = BigDecimal("0.22")
+    val dutyDue = (liquidInMl * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
 
     val vapingProductsProduced = if (dutyDeclared) {
       VapingProductsProduced(nilReturn = Seq(), regularReturn = Seq(RegularReturn(
-        taxType = config.taxType, dutyRate = dutyRate, amountProducedLiquid = totalDue, dutyDue = dutyDue
+        taxType = config.taxType, dutyRate = dutyRate, amountProducedLiquid = liquidInLitres, dutyDue = dutyDue
       )))
     } else {
       VapingProductsProduced(nilReturn = Seq(NilReturn(vapingProductsProduced = "0")), regularReturn = Seq())
