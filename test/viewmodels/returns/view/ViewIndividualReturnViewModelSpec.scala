@@ -103,7 +103,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       val result = ViewIndividualReturnViewModel(responseWithDeclaration)
 
       result.hasVapingProductsDeclaration mustBe true
-      result.amountProducedLiquid mustBe Some("2,000.00")
+      result.amountProducedLiquid mustBe Some("2,000,000.00")
       result.dutyDue mustBe Some("£1,000")
     }
   }
