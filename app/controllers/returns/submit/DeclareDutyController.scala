@@ -47,9 +47,9 @@ class DeclareDutyController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
-      val preparedForm = request.userAnswers.flatMap(_.get(DeclareDutyPage))
+      val preparedForm = request.userAnswers.get(DeclareDutyPage)
         .fold(form)(form.fill)
 
       Ok(view(preparedForm, mode))

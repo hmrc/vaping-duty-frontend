@@ -20,7 +20,6 @@ import base.SpecBase
 import connectors.returns.ObligationsConnector
 import data.TestData
 import models.requests.returns.ReturnsDataRequest
-import models.returns.*
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.freespec.AnyFreeSpec

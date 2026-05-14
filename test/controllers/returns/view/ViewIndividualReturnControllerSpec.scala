@@ -19,7 +19,6 @@ package controllers.returns.view
 import base.SpecBase
 import connectors.returns.GetReturnsConnector
 import controllers.returns
-import models.returns.view.ReturnDisplayResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock

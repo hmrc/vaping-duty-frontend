@@ -21,8 +21,6 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 object PeriodKeys {
-  def fromDisplayName(name: String): Option[Month] =
-    Month.values().find(_.getDisplayName(TextStyle.FULL, Locale.ENGLISH) == name)
 
   def toDisplayName(month: Month): String =
     month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)

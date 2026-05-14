@@ -128,7 +128,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val (amountProduced, dutyDueAmount) = vapingProducts match {
       case Some(vp) if vp.regularReturn.nonEmpty =>
         val regularReturn = vp.regularReturn.head
-        (Some(milliliterFormat(regularReturn.amountProducedLiquid)), Some(currencyFormat(regularReturn.dutyDue)))
+        (Some(milliliterFormat(regularReturn.amountProducedLiquid * 1000)), Some(currencyFormat(regularReturn.dutyDue)))
       case _ =>
         (None, None)
     }
@@ -152,7 +152,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
     val monthYearString = s"${getCurrentMonthMessage(monthFromLocalDate)} $year"
     val submittedOnString = s"$submittedOnDay $submittedOnMonth $year ${messages("viewIndividualReturn.chargeDetails.at")} $receiptTime"
-    
+
     ViewIndividualReturnViewModel(
       chargeReference = chargeRef,
       hasVapingProductsDeclaration = hasDeclaration,
