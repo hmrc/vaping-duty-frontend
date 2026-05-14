@@ -33,6 +33,7 @@ trait TestData {
   val vpdRef: Option[String] = Some("VPDREF123")
   val btaLink = "http://localhost:9020/business-account"
   val groupId: GroupId = GroupId(id = "groupid")
+  val periodKey = "26AF"
   val ukTimeZoneStringId = "Europe/London"
   val epochTime = 1718118467838L
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(epochTime), ZoneId.of(ukTimeZoneStringId))
@@ -135,7 +136,7 @@ trait TestData {
 
   val returnsUserAnswers: ReturnsUserAnswers = ReturnsUserAnswers(
     vpdId = vpdId.value,
-    periodKey = optPeriodKey,
+    periodKey = periodKey,
     data = JsObject.empty,
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
@@ -209,10 +210,6 @@ trait TestData {
   val totalInMl = returnsUserAnswers.get(EnterDutyAmountPage).fold(BigDecimal(0))(value => BigDecimal(value))
 
   val zeroValue = BigDecimal(0)
-
-  val optPeriodKey = Some("26AF")
-
-  val periodKey = "26AF"
 
   val totalDue = totalInMl - zeroValue
 

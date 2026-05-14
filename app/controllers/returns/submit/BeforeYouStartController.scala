@@ -45,13 +45,13 @@ class BeforeYouStartController @Inject()(
       val session = request.session + ("periodKey" -> pk)
 
       val ua = request.userAnswers match {
-        case Some(existingUa) if Option(existingUa.periodKey).flatten.contains(pk) =>
+        case Some(existingUa) if existingUa.periodKey.contains(pk) =>
           existingUa
         case _ =>
           ReturnsUserAnswers.getEmptyReturnsUA(request.enrolmentVpdId, pk)
       }
 
-      sessionRepository.set(ua.copy(periodKey = Some(pk))).map(_ =>
+      sessionRepository.set(ua.copy(periodKey = pk)).map(_ =>
         Ok(view(BeforeYouStartViewModel())).withSession(session)
       )
 

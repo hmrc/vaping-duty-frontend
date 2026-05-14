@@ -36,11 +36,11 @@ class ReturnsDataRetrievalActionImpl @Inject()(val service: ReturnsUserAnswersSe
     request.session.get("periodKey") match {
       case Some(periodKey) =>
         service.get(request.enrolmentVpdId, periodKey)(headerCarrier).map {
-          case Left(_) => ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, Some(periodKey), None)
-          case Right(ua) => ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, Some(periodKey), Some(ua))
+          case Left(_) => ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, periodKey, None)
+          case Right(ua) => ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, periodKey, Some(ua))
         }
       case None =>
-        Future.successful(ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, None, None))
+        Future.successful(ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, "", None))
     }
   }
 }

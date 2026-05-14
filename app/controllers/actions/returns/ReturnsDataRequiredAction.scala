@@ -37,7 +37,7 @@ class ReturnsDataRequiredActionImpl @Inject()(implicit val executionContext: Exe
           request.enrolmentVpdId,
           request.internalId,
           request.credId,
-          Option(data.periodKey).flatten.getOrElse(""),
+          data.periodKey,
           data
         )))
     }

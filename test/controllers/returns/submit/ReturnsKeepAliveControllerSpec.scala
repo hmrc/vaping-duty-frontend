@@ -17,9 +17,8 @@
 package controllers.returns.submit
 
 import base.SpecBase
-import models.identifiers.VpdId
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{never, verify, when}
 import org.scalactic.Prettifier.default
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
