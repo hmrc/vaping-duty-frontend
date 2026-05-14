@@ -17,7 +17,6 @@
 package models.returns.view
 
 import play.api.libs.json.{Json, OFormat}
-import models.returns.view.UnderDeclarationProduct
 
 final case class UnderDeclaration(
   underDeclFilled: String,

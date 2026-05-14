@@ -16,18 +16,17 @@
 
 package controllers.returns.view
 
-import controllers.actions.returns.*
+import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.returns.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import connectors.returns.{GetReturnsConnector, ReturnsUserAnswersConnector}
-import models.returns.ReturnsUserAnswers
 import viewmodels.returns.view.ViewIndividualReturnViewModel
 import views.html.returns.view.ViewIndividualReturnView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class ViewIndividualReturnController @Inject()(
                                        override val messagesApi: MessagesApi,
@@ -35,17 +34,13 @@ class ViewIndividualReturnController @Inject()(
                                        connector: GetReturnsConnector,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ViewIndividualReturnView,
-                                       returnsEnabled: ReturnsEnabledAction,
-                                       returnsRepository: ReturnsUserAnswersConnector,
-                                       getData: ReturnsDataRetrievalAction
+                                       returnsEnabled: ReturnsEnabledAction
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabled andThen getData).async {
+  def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
       connector.getReturn(periodKey, vpdId = request.enrolmentVpdId)
         .map { returnData =>
-          val ua = request.userAnswers.fold(ReturnsUserAnswers.getEmptyReturnsUA(request.enrolmentVpdId, returnData.success.chargeDetails.get.periodKey))(ua => ua)
-          returnsRepository.set(ua.copy(periodKey = Some(periodKey)))
           Ok(view(ViewIndividualReturnViewModel(returnData)))
         }
   }

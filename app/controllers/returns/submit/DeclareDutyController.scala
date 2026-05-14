@@ -20,19 +20,15 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import forms.returns.DeclareDutyFormProvider
 import models.Mode
-import models.identifiers.InternalId
-import models.returns.ReturnsUserAnswers
 import navigation.ReturnsNavigator
 import pages.returns.DeclareDutyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.DeclareDutyView
 
-import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 

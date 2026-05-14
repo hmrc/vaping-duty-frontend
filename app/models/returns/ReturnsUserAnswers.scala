@@ -16,16 +16,14 @@
 
 package models.returns
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerators.UUIDGenerator
 import models.RichJsObject
-import models.identifiers.{InternalId, VpdId}
+import models.identifiers.VpdId
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 import queries.{Gettable, Settable}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
-import java.util.UUID
 import scala.util.{Failure, Success, Try}
 
 final case class ReturnsUserAnswers(

@@ -16,7 +16,6 @@
 
 package models.returns.submit
 
-import models.returns.submit.ReturnSubmittedResponse
 import play.api.libs.json.{Json, OFormat}
 
 case class ReturnCreateResponse(
