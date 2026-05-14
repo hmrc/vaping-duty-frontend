@@ -45,7 +45,7 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
       when(mockConnector.submitReturn(any(), any())(any()))
         .thenReturn(Future.successful(testReturnSubmissionResponse))
 
-      val result = SubmitReturnService(mockConnector).submit(returnsUserAnswers)
+      val result = SubmitReturnService(mockConnector, mockAppConfig).submit(returnsUserAnswers)
 
       whenReady(result) {
         _ mustBe testReturnSubmissionResponse
@@ -57,7 +57,7 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
       when(mockConnector.submitReturn(any(), any())(any()))
         .thenReturn(Future.failed(InternalServerException("error")))
 
-      val result = SubmitReturnService(mockConnector).submit(returnsUserAnswers)
+      val result = SubmitReturnService(mockConnector, mockAppConfig).submit(returnsUserAnswers)
 
       whenReady(result.failed) { exception =>
         exception mustBe an[Exception]

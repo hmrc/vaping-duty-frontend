@@ -113,6 +113,7 @@ case class ViewIndividualReturnViewModel(
 object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
   def apply(returnsData: ReturnDisplayResponse)(using messages: Messages): ViewIndividualReturnViewModel = {
+    val zeroValue = BigDecimal("0")
     val success = returnsData.success
 
     val chargeRef = success.chargeDetails
@@ -133,29 +134,25 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     }
 
     val totalDutyDueVaping = success.totalDutyDue
-      .fold(currencyFormat(BigDecimal(0)))(td => currencyFormat(td.totalDutyDueVapingProducts))
+      .fold(currencyFormat(zeroValue))(td => currencyFormat(td.totalDutyDueVapingProducts))
 
     val totalDuty = success.totalDutyDue
-      .fold(currencyFormat(BigDecimal(0)))(td => currencyFormat(td.totalDutyDue))
+      .fold(currencyFormat(zeroValue))(td => currencyFormat(td.totalDutyDue))
+    
+    val year = success.chargeDetails.fold(LocalDate.now().getYear.toString)(_.periodFrom.getYear.toString)
+    
+    val monthFromLocalDate = success.chargeDetails.fold(LocalDate.now().getMonth)(_.periodFrom.getMonth)
 
-    val periodKey = returnsData.success.chargeDetails.get.periodKey
-
-    val year = s"20${periodKey.take(2)}"
-
-    val monthFromPeriodKey = PeriodKeys.fromEtmpMonthString(periodKey.takeRight(2))
-      .getOrElse(LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault()).getMonth)
-
-    val receiptDate = returnsData.success.chargeDetails.fold(Instant.now())(_.receiptDate)
+    val receiptDate = success.chargeDetails.fold(Instant.now())(_.receiptDate)
     val submittedOn = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault())
-    val submittedOnMonth = PeriodKeys.toDisplayName(submittedOn.getMonth)
     val submittedOnDay = submittedOn.getDayOfMonth
+    val submittedOnMonth = PeriodKeys.toDisplayName(submittedOn.getMonth)
+
     val receiptTime = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("hh:mma"))
 
-
-    val monthYearString = s"${getCurrentMonthMessage(monthFromPeriodKey)} $year"
+    val monthYearString = s"${getCurrentMonthMessage(monthFromLocalDate)} $year"
     val submittedOnString = s"$submittedOnDay $submittedOnMonth $year ${messages("viewIndividualReturn.chargeDetails.at")} $receiptTime"
-
-
+    
     ViewIndividualReturnViewModel(
       chargeReference = chargeRef,
       hasVapingProductsDeclaration = hasDeclaration,

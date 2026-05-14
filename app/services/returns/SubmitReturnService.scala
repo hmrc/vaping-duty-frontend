@@ -16,6 +16,7 @@
 
 package services.returns
 
+import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
@@ -27,7 +28,8 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector)
+class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector,
+                                    config: FrontendAppConfig)
                                    (using ExecutionContext) {
 
   def submit(ua: ReturnsUserAnswers)(implicit request: ReturnsDataRequest[?]): Future[ReturnSubmittedResponse] = {
@@ -39,11 +41,12 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
 
   private def buildSubmission(ua: ReturnsUserAnswers): ReturnCreateRequest =
 
-    val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
-    val totalInMl = ua.get(EnterDutyAmountPage).fold(BigDecimal(0))(value => BigDecimal(value))
-
     // Temp value
-    val zeroValue = BigDecimal(0)
+    val zeroValue = BigDecimal("0")
+    val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
+    val totalInMl = ua.get(EnterDutyAmountPage).fold(zeroValue)(value => BigDecimal(value))
+
+
 
     // Will need to either get or pass the period key here
     val periodKey = Option(ua.periodKey).flatten.fold("")(x => x)
@@ -53,17 +56,15 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
     val dutyRate = BigDecimal("2.2")
     val dutyDue = (totalDue * dutyRate).setScale(2, BigDecimal.RoundingMode.HALF_UP)
 
-    val vapingProductsProduced = dutyDeclared match {
-      case false  =>
-        VapingProductsProduced(nilReturn = Seq(NilReturn(vapingProductsProduced = "0")), regularReturn = Seq())
-      case _      =>
-        VapingProductsProduced(nilReturn = Seq(), regularReturn = Seq(RegularReturn(
-          taxType = "301", dutyRate = dutyRate, amountProducedLiquid = totalDue, dutyDue = dutyDue
-        )))
+    val vapingProductsProduced = if (dutyDeclared) {
+      VapingProductsProduced(nilReturn = Seq(), regularReturn = Seq(RegularReturn(
+        taxType = config.taxType, dutyRate = dutyRate, amountProducedLiquid = totalDue, dutyDue = dutyDue
+      )))
+    } else {
+      VapingProductsProduced(nilReturn = Seq(NilReturn(vapingProductsProduced = "0")), regularReturn = Seq())
     }
 
-    val totalDutyDueVapingProducts  = vapingProductsProduced.regularReturn.headOption
-      .fold(zeroValue)(regularReturn => regularReturn.dutyDue)
+    val totalDutyDueVapingProducts  = if (dutyDeclared) dutyDue else zeroValue
 
     def calculateAdjustmentValue(over: BigDecimal, under: BigDecimal, spoilt: BigDecimal) = {
       over + under + spoilt

@@ -32,7 +32,14 @@ class ReturnsDataRequiredActionImpl @Inject()(implicit val executionContext: Exe
       case None =>
         Future.successful(Left(Redirect(routes.JourneyRecoveryController.onPageLoad())))
       case Some(data) =>
-        Future.successful(Right(ReturnsDataRequest(request.request, request.enrolmentVpdId, request.internalId, request.credId, Option(data.periodKey).flatten.getOrElse(""), data)))
+        Future.successful(Right(ReturnsDataRequest(
+          request.request,
+          request.enrolmentVpdId,
+          request.internalId,
+          request.credId,
+          Option(data.periodKey).flatten.getOrElse(""),
+          data
+        )))
     }
   }
 }

@@ -16,31 +16,28 @@
 
 package connectors.returns
 
-import play.api.Logging
-import play.api.libs.json.Json
-import play.api.libs.ws.JsonBodyWritables.*
-import uk.gov.hmrc.http.*
-import uk.gov.hmrc.http.client.HttpClientV2
 import config.FrontendAppConfig
 import models.identifiers.VpdId
 import models.returns.view.ReturnDisplayResponse
+import play.api.Logging
+import uk.gov.hmrc.http.*
+import uk.gov.hmrc.http.client.HttpClientV2
 
-import java.time.{Clock, Instant}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class GetReturnsConnector @Inject()(clock: Clock)(
-                                      config: FrontendAppConfig,
-                                      implicit val httpClient: HttpClientV2
-)(implicit ec: ExecutionContext)
+class GetReturnsConnector @Inject()(
+                                     config: FrontendAppConfig,
+                                     implicit val httpClient: HttpClientV2
+                                   )(using ExecutionContext)
     extends HttpReadsInstances
     with Logging {
 
   private val parsingError = "Parsing failed for VPD return get response"
 
   def getReturn(periodKey: String, vpdId: VpdId)
-                  (implicit hc: HeaderCarrier): Future[ReturnDisplayResponse] =
+               (using HeaderCarrier): Future[ReturnDisplayResponse] =
     httpClient
       .get(url"${config.getReturnUrl(vpdId, periodKey)}")
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
