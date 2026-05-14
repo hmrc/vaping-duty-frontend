@@ -21,7 +21,7 @@ import controllers.routes
 import models.*
 import models.returns.ReturnsUserAnswers
 import pages.*
-import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage}
 import play.api.Logging
 import play.api.http.HttpVerbs.GET
 import play.api.mvc.Call
@@ -35,6 +35,7 @@ class ReturnsNavigator @Inject()(
 
   private val normalRoutes: Page => ReturnsUserAnswers => Call = {
     case DeclareDutyPage        => ua   => declareDutyPageRoutes(ua)
+    case DeclareDutySuspensePage => _   => controllers.routes.JourneyRecoveryController.onPageLoad()
     case EnterDutyAmountPage    => _    => controllers.returns.submit.routes.TaskListController.onPageLoad()
     case _                      => _    => Call(GET, BtaLink(config))
   }

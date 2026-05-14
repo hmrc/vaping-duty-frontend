@@ -63,6 +63,11 @@ POST       /complete-return/enter-amount-released                               
 GET        /complete-return/change-enter-amount-released                        controllers.returns.submit.EnterDutyAmountController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/change-enter-amount-released                        controllers.returns.submit.EnterDutyAmountController.onSubmit(mode: Mode = CheckMode)
 
+GET        /complete-return/declare-duty-suspense                               controllers.returns.submit.DeclareDutySuspenseController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/declare-duty-suspense                               controllers.returns.submit.DeclareDutySuspenseController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/change-declare-duty-suspense                        controllers.returns.submit.DeclareDutySuspenseController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/change-declare-duty-suspense                        controllers.returns.submit.DeclareDutySuspenseController.onSubmit(mode: Mode = CheckMode)
+
 GET        /complete-return/return-submitted                                    controllers.returns.submit.ConfirmationController.onPageLoad(vpdRef: Option[String])
 
 GET        /complete-return/check-your-answers                                  controllers.returns.submit.CheckYourAnswersController.onPageLoad()

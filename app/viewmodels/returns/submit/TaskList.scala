@@ -75,7 +75,7 @@ object TaskList {
         TaskRows(
           id = "duty-suspended-task-1",
           linkText = messages("returns.taskList.section.dutySuspended.task1"),
-          link = controllers.routes.JourneyRecoveryController.onPageLoad(),
+          link = controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(NormalMode),
           status = TaskStatus.NotStarted
         ).toTaskListItem
       )
