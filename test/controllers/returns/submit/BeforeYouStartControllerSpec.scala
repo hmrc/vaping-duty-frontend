@@ -58,6 +58,30 @@ class BeforeYouStartControllerSpec extends SpecBase {
       }
     }
 
+    "must return OK and the correct view for a GET with no previous answers" in {
+
+      val mockService = mock[ReturnsUserAnswersService]
+
+      val application = applicationBuilder()
+        .overrides(bind[ReturnsUserAnswersService].to(mockService))
+        .build()
+
+      val vm = BeforeYouStartViewModel()(messages(application))
+
+      when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[BeforeYouStartView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+      }
+    }
+
     "must redirect when returns journey is disabled" in {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), returnsEnabled = false).build()
 
