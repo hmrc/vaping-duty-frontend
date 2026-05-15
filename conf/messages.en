@@ -212,6 +212,29 @@ returns.declareDutySuspense.error.required = Select yes if you have received or 
 returns.declareDutySuspense.checkYourAnswersLabel = Declare duty suspense
 returns.declareDutySuspense.change.hidden = declare duty suspense
 
+returns.enterDutySuspense.title = Finished vaping products received or moved under duty suspension
+returns.enterDutySuspense.heading = Finished vaping products received or moved under duty suspension
+returns.enterDutySuspense.caption.text = Report duty suspended vaping products
+returns.enterDutySuspense.p = You must tell us the total volume in millilitres of finished vaping products you received or moved this month.
+
+returns.enterDutySuspense.volumeReceived.label = How much duty suspension did you receive?
+returns.enterDutySuspense.volumeReceived.hintText = Total millilitres of vaping liquid
+returns.enterDutySuspense.volumeReceived.error.required = Enter the amount of duty suspension received
+returns.enterDutySuspense.volumeReceived.error.wholeNumber = Enter the amount of duty suspension received
+returns.enterDutySuspense.volumeReceived.error.nonNumeric = Enter the amount of duty suspension received
+returns.enterDutySuspense.volumeReceived.error.outOfRange = Enter the amount of duty suspension received
+
+returns.enterDutySuspense.volumeMoved.label = How much duty suspension was moved?
+returns.enterDutySuspense.volumeMoved.hintText = Total millilitres of vaping liquid
+returns.enterDutySuspense.volumeMoved.error.required = Enter the amount of duty suspension moved
+returns.enterDutySuspense.volumeMoved.error.wholeNumber = Enter the amount of duty suspension moved
+returns.enterDutySuspense.volumeMoved.error.nonNumeric = Enter the amount of duty suspension moved
+returns.enterDutySuspense.volumeMoved.error.outOfRange = Enter the amount of duty suspension moved
+
+returns.enterDutySuspense.ml = ml
+returns.enterDutySuspense.checkYourAnswersLabel = Enter duty suspense
+returns.enterDutySuspense.change.hidden = enter duty suspense
+
 returns.CheckYourAnswers.title = The duty due is {0}
 returns.CheckYourAnswers.caption = Check your answers
 returns.CheckYourAnswers.heading = The duty due is {0}
