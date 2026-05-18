@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package models.returns
+package utils
 
-import play.api.libs.json.{Json, OFormat}
+import java.time.Month
+import java.time.format.TextStyle
+import java.util.Locale
 
-final case class Identification(
-  referenceType: String,
-  referenceNumber: String,
-  incomeSourceType: Option[String]
-)
+object PeriodKeys {
 
-object Identification {
-  given format: OFormat[Identification] = Json.format[Identification]
+  def toDisplayName(month: Month): String =
+    month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
 }

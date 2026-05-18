@@ -1,6 +1,6 @@
 package viewmodels.checkAnswers
 
-import config.CurrencyFormatter.currencyFormat
+import utils.CurrencyFormatter.currencyFormat
 import controllers.returns.routes
 import models.CheckMode
 import models.returns.ReturnsUserAnswers

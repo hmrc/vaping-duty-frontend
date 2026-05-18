@@ -29,7 +29,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
   "CheckYourAnswersViewModel" - {
 
     "must create a view model with both summary lists" in {
-      val ua = ReturnsUserAnswers("id", JsObject.empty, Instant.now(), Instant.now())
+      val ua = ReturnsUserAnswers("id", periodKey, JsObject.empty, Instant.now(), Instant.now())
         .set(DeclareDutyPage, true).success.value
 
       val vm = CheckYourAnswersViewModel(ua)
@@ -40,7 +40,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
     }
 
     "must create a view model with empty summary lists when no data exists" in {
-      val ua = ReturnsUserAnswers("id", JsObject.empty, Instant.now(), Instant.now())
+      val ua = ReturnsUserAnswers("id", periodKey, JsObject.empty, Instant.now(), Instant.now())
 
       val vm = CheckYourAnswersViewModel(ua)
 
@@ -50,7 +50,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
     }
 
     "must filter out None values from summary rows" in {
-      val ua = ReturnsUserAnswers("id", JsObject.empty, Instant.now(), Instant.now())
+      val ua = ReturnsUserAnswers("id", periodKey, JsObject.empty, Instant.now(), Instant.now())
         .set(DeclareDutyPage, true)
         .flatMap(_.set(EnterDutyAmountPage, 1000)).success.value
 

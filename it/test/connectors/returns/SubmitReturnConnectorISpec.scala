@@ -19,7 +19,7 @@ package connectors.returns
 import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import data.TestData
-import models.returns.ReturnSubmittedResponse
+import models.returns.submit.ReturnSubmittedResponse
 import play.api.Application
 import play.api.http.Status.*
 import play.api.libs.json.Json
@@ -32,7 +32,7 @@ class SubmitReturnConnectorISpec extends ISpecBase with WireMockHelper with Test
       "microservice.services.vaping-duty.port" -> server.port
     ).build()
 
-  private val url = s"/vaping-duty/vpd-return/$vpdId"
+  private val url = s"/vaping-duty/vpd-return/$vpdId/$periodKey"
   private lazy val connector = application.injector.instanceOf[SubmitReturnConnector]
 
   "submitReturn must" - {

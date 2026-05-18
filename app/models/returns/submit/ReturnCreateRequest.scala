@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package config
+package models.returns.submit
 
-trait CurrencyFormatter {
-  def currencyFormat(amt: BigDecimal): String = f"£$amt%,1.2f".replace(".00","")
-  
-  private val DUTY_MULTIPLIER = "2.2"
-  def calculateDuty(amount: Int): BigDecimal = (BigDecimal(amount.toString) / 10) * BigDecimal(DUTY_MULTIPLIER)
+import models.returns.{TotalDutyDue, VapingProductsProduced}
+import play.api.libs.json.{Json, OFormat}
+
+case class ReturnCreateRequest(
+  periodKey: String,
+  vapingProductsProduced: VapingProductsProduced,
+  totalDutyDue: TotalDutyDue
+)
+
+object ReturnCreateRequest {
+  given OFormat[ReturnCreateRequest] = Json.format[ReturnCreateRequest]
 }
-
-object CurrencyFormatter extends CurrencyFormatter

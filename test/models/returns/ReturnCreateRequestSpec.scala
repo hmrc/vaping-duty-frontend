@@ -17,6 +17,7 @@
 package models.returns
 
 import base.SpecBase
+import models.returns.submit.ReturnCreateRequest
 import play.api.libs.json.Json
 
 class ReturnCreateRequestSpec extends SpecBase {

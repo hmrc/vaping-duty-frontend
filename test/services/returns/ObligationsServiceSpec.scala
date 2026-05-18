@@ -20,7 +20,6 @@ import base.SpecBase
 import connectors.returns.ObligationsConnector
 import data.TestData
 import models.requests.returns.ReturnsDataRequest
-import models.returns.*
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.freespec.AnyFreeSpec
@@ -35,7 +34,7 @@ class ObligationsServiceSpec extends AnyFreeSpec with Matchers with TestData wit
   
   val mockConnector: ObligationsConnector = mock[ObligationsConnector]
 
-  given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, returnsUserAnswers)
+  given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, periodKey, returnsUserAnswers)
 
   "ObligationsService must" - {
 

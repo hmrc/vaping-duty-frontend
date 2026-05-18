@@ -18,7 +18,7 @@ package connectors.returns
 
 import config.FrontendAppConfig
 import models.identifiers.VpdId
-import models.returns.{ReturnCreateRequest, ReturnSubmittedResponse}
+import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
@@ -37,7 +37,7 @@ class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
   def submitReturn(returnsSubmission: ReturnCreateRequest, vpdId: VpdId)
                               (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] =
     httpClient
-      .post(url"${config.submitReturnUrl(vpdId)}")
+      .post(url"${config.submitReturnUrl(vpdId, returnsSubmission.periodKey)}")
       .withBody(Json.toJson(returnsSubmission))
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .flatMap(response => submitReturnsParser(response))

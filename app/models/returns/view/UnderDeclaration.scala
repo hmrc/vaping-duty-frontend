@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package models.returns
+package models.returns.view
 
 import play.api.libs.json.{Json, OFormat}
 
-case class ReturnCreateResponse(
-  success: ReturnSubmittedResponse
+final case class UnderDeclaration(
+  underDeclFilled: String,
+  reasonForUnderDec: Option[String],
+  underDeclarationProducts: Option[Seq[UnderDeclarationProduct]]
 )
 
-object ReturnCreateResponse {
-  given OFormat[ReturnCreateResponse] = Json.format[ReturnCreateResponse]
+object UnderDeclaration {
+  given OFormat[UnderDeclaration] = Json.format[UnderDeclaration]
 }

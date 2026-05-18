@@ -16,7 +16,6 @@
 
 package viewmodels.returns.submit
 
-import config.CurrencyFormatter
 import models.returns.ReturnsUserAnswers
 import pages.returns.EnterDutyAmountPage
 import play.api.i18n.Messages
@@ -25,7 +24,7 @@ import uk.gov.hmrc.govukfrontend.views.html.components.{GovukInsetText, GovukWar
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 import uk.gov.hmrc.govukfrontend.views.viewmodels.warningtext.WarningText
-import utils.ReturnsDateUtils
+import utils.{CurrencyFormatter, ReturnsDateUtils}
 import views.html.components.{Heading2, Link, ListWithLinks, Paragraph}
 
 case class ConfirmationViewModel(email: String,

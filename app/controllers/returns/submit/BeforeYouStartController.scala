@@ -17,26 +17,43 @@
 package controllers.returns.submit
 
 import controllers.actions.*
-import controllers.actions.returns.ReturnsEnabledAction
+import controllers.actions.returns.{ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import models.returns.ReturnsUserAnswers
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.BeforeYouStartViewModel
 import views.html.returns.submit.BeforeYouStartView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class BeforeYouStartController @Inject()(
                                           override val messagesApi: MessagesApi,
                                           identify: ApprovedVapingManufacturerAuthAction,
+                                          sessionRepository: ReturnsUserAnswersService,
                                           returnsEnabledAction: ReturnsEnabledAction,
                                           val controllerComponents: MessagesControllerComponents,
                                           view: BeforeYouStartView,
-                                     ) extends FrontendBaseController with I18nSupport {
+                                          getData: ReturnsDataRetrievalAction
+                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction) {
+  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
     implicit request =>
+      val pk = request.getQueryString("period").getOrElse("")
+      val session = request.session + ("periodKey" -> pk)
 
-      Ok(view(BeforeYouStartViewModel()))
+      val ua = request.userAnswers match {
+        case Some(existingUa) if existingUa.periodKey == pk =>
+          existingUa
+        case _ =>
+          ReturnsUserAnswers.getEmptyReturnsUA(request.enrolmentVpdId, pk)
+      }
+
+      sessionRepository.set(ua).map(_ =>
+        Ok(view(BeforeYouStartViewModel())).withSession(session)
+      )
+
   }
 }

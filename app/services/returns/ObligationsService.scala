@@ -18,7 +18,7 @@ package services.returns
 
 import connectors.returns.ObligationsConnector
 import models.identifiers.VpdId
-import models.returns.ObligationsResponse
+import models.obligations.ObligationsResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject

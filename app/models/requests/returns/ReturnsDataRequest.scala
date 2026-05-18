@@ -24,10 +24,12 @@ case class ReturnsOptionalDataRequest[A](request: Request[A],
                                          enrolmentVpdId: VpdId,
                                          internalId: InternalId,
                                          credId: CredentialId,
+                                         periodKey: String,
                                          userAnswers: Option[ReturnsUserAnswers]) extends WrappedRequest[A](request)
 
 case class ReturnsDataRequest[A](request: Request[A],
                                  enrolmentVpdId: VpdId,
                                  internalId: InternalId,
                                  credId: CredentialId,
+                                 periodKey: String,
                                  userAnswers: ReturnsUserAnswers) extends WrappedRequest[A](request)

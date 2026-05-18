@@ -17,6 +17,7 @@
 package models.returns
 
 import base.SpecBase
+import models.obligations.{ObligationDetails, ObligationStatus}
 import play.api.libs.json.Json
 
 import java.time.LocalDate

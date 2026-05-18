@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package models.returns
+package models.returns.view
 
 import play.api.libs.json.{Json, OFormat}
 
-import java.time.LocalDate
-
-final case class ObligationDetails(
-  openOrFulfilledStatus: String,
-  iCFromDate: LocalDate,
-  iCToDate: LocalDate,
-  iCDateReceived: Option[LocalDate],
-  iCDueDate: LocalDate,
-  periodKey: String
+final case class ReturnDisplayResponse(
+  success: ReturnDisplaySuccess
 )
 
-object ObligationDetails {
-  given format: OFormat[ObligationDetails] = Json.format[ObligationDetails]
+object ReturnDisplayResponse {
+  given OFormat[ReturnDisplayResponse] = Json.format[ReturnDisplayResponse]
 }

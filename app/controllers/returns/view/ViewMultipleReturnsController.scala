@@ -17,6 +17,7 @@
 package controllers.returns.view
 
 import controllers.actions.*
+import controllers.actions.contactPreference.DataRetrievalAction
 import controllers.actions.returns.ReturnsEnabledAction
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -34,14 +35,17 @@ class ViewMultipleReturnsController @Inject()(
                                                returnsEnabledAction: ReturnsEnabledAction,
                                                obligationsService: ObligationsService,
                                                val controllerComponents: MessagesControllerComponents,
+                                               getData: DataRetrievalAction,
                                                view: ViewMultipleReturnsView
                                              )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction).async {
+  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
     implicit request =>
 
       obligationsService.get(request.enrolmentVpdId)
-        .map { obligationResponse => Ok(view(ViewMultipleReturnsViewModel(obligationResponse))) }
+        .map { obligationResponse =>
+          Ok(view(ViewMultipleReturnsViewModel(obligationResponse)))
+        }
         .recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
   }
 }

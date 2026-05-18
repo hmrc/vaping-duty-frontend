@@ -16,7 +16,7 @@
 
 package viewmodels.returns.view
 
-import models.returns.{ObligationDetails, ObligationStatus, ObligationsResponse}
+import models.obligations.{ObligationDetails, ObligationStatus, ObligationsResponse}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
 
@@ -33,7 +33,6 @@ object ViewMultipleReturnsViewModel {
 
   private val STATUS_OPEN = ObligationStatus.O
   private val STATUS_FULFILLED = ObligationStatus.F
-  private val PLACEHOLDER_LINK = "#"
   private val TAG_CLASS_BLUE = "govuk-tag--blue"
   private val TAG_CLASS_RED = "govuk-tag--red"
 
@@ -69,14 +68,14 @@ object ViewMultipleReturnsViewModel {
       monthDisplay = monthDisplay,
       status = status,
       statusClass = statusClass,
-      submitLink = PLACEHOLDER_LINK
+      submitLink = s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${details.periodKey}"
     )
   }
 
   private def createCompletedRow(details: ObligationDetails): CompletedReturnRow = {
     CompletedReturnRow(
       monthDisplay = formatMonthYear(details.iCFromDate),
-      viewLink = PLACEHOLDER_LINK
+      viewLink = controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(details.periodKey).url
     )
   }
 

@@ -1,6 +1,6 @@
 package forms
 
-import config.CurrencyFormatter.currencyFormat
+import utils.CurrencyFormatter.currencyFormat
 import forms.behaviours.CurrencyFieldBehaviours
 import org.scalacheck.Gen
 import play.api.data.FormError

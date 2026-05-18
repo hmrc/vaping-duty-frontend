@@ -19,7 +19,10 @@ package data
 import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, UserDetails}
 import models.emailverification.*
 import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
-import models.returns.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse, ReturnCreateRequest, ReturnSubmittedResponse, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
+import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
+import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
+import models.returns.view.*
+import models.returns.{ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
 
@@ -30,6 +33,7 @@ trait TestData {
   val vpdRef: Option[String] = Some("VPDREF123")
   val btaLink = "http://localhost:9020/business-account"
   val groupId: GroupId = GroupId(id = "groupid")
+  val periodKey = "26AF"
   val ukTimeZoneStringId = "Europe/London"
   val epochTime = 1718118467838L
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(epochTime), ZoneId.of(ukTimeZoneStringId))
@@ -131,7 +135,8 @@ trait TestData {
   )
 
   val returnsUserAnswers: ReturnsUserAnswers = ReturnsUserAnswers(
-    id = "",
+    vpdId = vpdId.value,
+    periodKey = periodKey,
     data = JsObject.empty,
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
@@ -204,13 +209,8 @@ trait TestData {
 
   val totalInMl = returnsUserAnswers.get(EnterDutyAmountPage).fold(BigDecimal(0))(value => BigDecimal(value))
 
-  // Temp value
   val zeroValue = BigDecimal(0)
 
-  // Will need to either get or pass the period key here
-  val periodKey = "26AF"
-
-  // Will need to enhance this much more
   val totalDue = totalInMl - zeroValue
 
   val testSubmitReturnRequest = ReturnCreateRequest(
@@ -258,6 +258,116 @@ trait TestData {
             iCDateReceived = Some(LocalDate.of(2027, 11, 15)),
             iCDueDate = LocalDate.of(2027, 11, 30),
             periodKey = "27AJ"
+          )
+        )
+      )
+    )
+  }
+
+  def createReturnDisplayResponse(): ReturnDisplayResponse = {
+    ReturnDisplayResponse(
+      success = ReturnDisplaySuccess(
+        processingDate = Instant.now(clock),
+        idDetails = Some(
+          IdDetails(
+            vpdReference = vpdRef.get,
+            submissionId = Some("SUB123456789")
+          )
+        ),
+        chargeDetails = Some(
+          ChargeDetails(
+            periodKey = periodKey,
+            chargeReference = Some("XVC123456789012"),
+            periodFrom = LocalDate.of(2026, 6, 1),
+            periodTo = LocalDate.of(2026, 6, 30),
+            receiptDate = Instant.now(clock)
+          )
+        ),
+        vapingProductsProduced = Some(
+          VapingProductsProduced(
+            nilReturn = Seq.empty,
+            regularReturn = Seq.empty
+          )
+        ),
+        overDeclaration = Some(
+          OverDeclaration(
+            overDeclFilled = "true",
+            reasonForOverDecl = Some("Correction of previous return"),
+            overDeclarationProducts = Some(
+              Seq(
+                OverDeclarationProduct(
+                  returnPeriodAffected = "26AE",
+                  taxType = "311",
+                  dutyRate = BigDecimal("0.50"),
+                  amountOverDeclaration = BigDecimal("1000.00"),
+                  dutyDue = BigDecimal("500.00")
+                )
+              )
+            )
+          )
+        ),
+        underDeclaration = Some(
+          UnderDeclaration(
+            underDeclFilled = "true",
+            reasonForUnderDec = Some("Additional products found"),
+            underDeclarationProducts = Some(
+              Seq(
+                UnderDeclarationProduct(
+                  returnPeriodAffected = "26AD",
+                  taxType = "312",
+                  dutyRate = BigDecimal("0.75"),
+                  amountUnderDeclaration = BigDecimal("500.00"),
+                  dutyDue = BigDecimal("375.00")
+                )
+              )
+            )
+          )
+        ),
+        spoiltProduct = Some(
+          SpoiltProduct(
+            spoiltProductFilled = "true",
+            spoiltProducts = Some(
+              Seq(
+                SpoiltProductItem(
+                  returnPeriodAffected = "26AE",
+                  taxType = "311",
+                  dutyRate = BigDecimal("0.50"),
+                  amountSpoilt = BigDecimal("200.00"),
+                  dutyDue = BigDecimal("100.00")
+                )
+              )
+            )
+          )
+        ),
+        totalDutyDue = Some(
+          TotalDutyDue(
+            totalDutyDueVapingProducts = BigDecimal("1000.00"),
+            totalDutyOverDeclaration = BigDecimal("500.00"),
+            totalDutyUnderDeclaration = BigDecimal("375.00"),
+            totalDutySpoiltProduct = BigDecimal("100.00"),
+            adjustmentAmount = BigDecimal("50.00"),
+            totalDutyDue = BigDecimal("1825.00")
+          )
+        ),
+        totalDutyDueByTaxType = Some(
+          TotalDutyDue(
+            totalDutyDueVapingProducts = BigDecimal("1000.00"),
+            totalDutyOverDeclaration = BigDecimal("500.00"),
+            totalDutyUnderDeclaration = BigDecimal("375.00"),
+            totalDutySpoiltProduct = BigDecimal("100.00"),
+            adjustmentAmount = BigDecimal("50.00"),
+            totalDutyDue = BigDecimal("1825.00")
+          )
+        ),
+        otherOptions = Some(
+          OtherOptions(
+            otherOptions = "true",
+            vapingProdManufactured = Some("true"),
+            otherVapingProduct = Some("false"),
+            destroyed = Some(BigDecimal("50.00")),
+            imported = Some(BigDecimal("100.00")),
+            exported = Some(BigDecimal("75.00")),
+            amtRecieved = Some(BigDecimal("25.00"))
           )
         )
       )

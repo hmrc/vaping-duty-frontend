@@ -76,6 +76,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+  val taxType: String = configuration.get[String]("taxType.vpd")
   
   private val contactPreferenceBaseUrl                            = s"$contactPreferencesHost/vaping-duty-account"
   def cpUserAnswersGetUrl(vpdId: VpdId): String                   = s"$contactPreferenceBaseUrl/user-answers/$vpdId"
@@ -87,15 +88,16 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def getSubscriptionUrl(vpdId: VpdId): String                    = s"$contactPreferenceBaseUrl/get-preferences/$vpdId"
 
 
-  private val returnsBaseUrl                                          = s"$returnsHost/vaping-duty"
-  def returnsUserAnswersGetUrl(internalId: InternalId): String        = s"$returnsBaseUrl/user-answers/$internalId"
-  def returnsUserAnswersUrl: String                                   = s"$returnsBaseUrl/user-answers"
-  def returnsUserAnswersKeepAliveUrl(internalId: InternalId): String  = s"$returnsBaseUrl/user-answers/keep-alive/$internalId"
-  def returnsUserAnswersClearUrl(internalId: InternalId): String      = s"$returnsBaseUrl/user-answers/clear/$internalId"
+  private val returnsBaseUrl                                                   = s"$returnsHost/vaping-duty"
+  def returnsUserAnswersGetUrl(vpdId: VpdId, periodKey: String): String        = s"$returnsBaseUrl/user-answers/$vpdId/$periodKey"
+  def returnsUserAnswersUrl: String                                            = s"$returnsBaseUrl/user-answers"
+  def returnsUserAnswersKeepAliveUrl(vpdId: VpdId, periodKey: String): String  = s"$returnsBaseUrl/user-answers/keep-alive/$vpdId/$periodKey"
+  def returnsUserAnswersClearUrl(vpdId: VpdId, periodKey: String): String      = s"$returnsBaseUrl/user-answers/clear/$vpdId/$periodKey"
 
-  def getObligationsUrl(vpdId: VpdId): String                         = s"$returnsBaseUrl/obligations/$vpdId"
+  def getObligationsUrl(vpdId: VpdId): String                                  = s"$returnsBaseUrl/obligations/$vpdId"
 
-  def submitReturnUrl(vpdId: VpdId)                                   = s"$returnsBaseUrl/vpd-return/$vpdId"
+  def submitReturnUrl(vpdId: VpdId, periodKey: String)                         = s"$returnsBaseUrl/vpd-return/$vpdId/$periodKey"
+  def getReturnUrl(vpdReference: VpdId, periodKey: String): String             = s"$returnsBaseUrl/vpd-return/$periodKey/$vpdReference"
 
   val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/confirm-email-address"
   val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"

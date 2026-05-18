@@ -17,7 +17,6 @@
 package forms.returns
 
 import forms.behaviours.IntFieldBehaviours
-import forms.returns.EnterDutyAmountFormProvider
 import play.api.data.FormError
 
 class EnterDutyAmountFormProviderSpec extends IntFieldBehaviours {

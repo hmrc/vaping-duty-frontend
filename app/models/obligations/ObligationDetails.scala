@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package models.returns
+package models.obligations
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class ObligationItem(
-  identification: Option[Identification],
-  obligationDetails: ObligationDetails
+import java.time.LocalDate
+
+final case class ObligationDetails(
+  openOrFulfilledStatus: String,
+  iCFromDate: LocalDate,
+  iCToDate: LocalDate,
+  iCDateReceived: Option[LocalDate],
+  iCDueDate: LocalDate,
+  periodKey: String
 )
 
-object ObligationItem {
-  given format: OFormat[ObligationItem] = Json.format[ObligationItem]
+object ObligationDetails {
+  given format: OFormat[ObligationDetails] = Json.format[ObligationDetails]
 }

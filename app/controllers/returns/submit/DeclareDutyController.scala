@@ -20,19 +20,15 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import forms.returns.DeclareDutyFormProvider
 import models.Mode
-import models.identifiers.InternalId
-import models.returns.ReturnsUserAnswers
 import navigation.ReturnsNavigator
 import pages.returns.DeclareDutyPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.JsObject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.DeclareDutyView
 
-import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,6 +38,7 @@ class DeclareDutyController @Inject()(
                                          navigator: ReturnsNavigator,
                                          identify: ApprovedVapingManufacturerAuthAction,
                                          getData: ReturnsDataRetrievalAction,
+                                         requireData: ReturnsDataRequiredAction,
                                          formProvider: DeclareDutyFormProvider,
                                          returnsEnabledAction: ReturnsEnabledAction,
                                          val controllerComponents: MessagesControllerComponents,
@@ -50,15 +47,15 @@ class DeclareDutyController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
-      val preparedForm = request.userAnswers.flatMap(_.get(DeclareDutyPage))
+      val preparedForm = request.userAnswers.get(DeclareDutyPage)
         .fold(form)(form.fill)
 
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
@@ -66,19 +63,9 @@ class DeclareDutyController @Inject()(
           Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(getEmptyUA(request.internalId))
-                                .set(DeclareDutyPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclareDutyPage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(DeclareDutyPage, mode, updatedAnswers))
       )
   }
-
-  private def getEmptyUA(internalId: InternalId): ReturnsUserAnswers =
-    ReturnsUserAnswers(
-      id = internalId.value,
-      data = JsObject.empty,
-      startedTime = Instant.now(),
-      lastUpdated = Instant.now()
-    )
-
 }

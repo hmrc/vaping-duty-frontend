@@ -17,6 +17,7 @@
 package models.returns
 
 import base.SpecBase
+import models.obligations.Identification
 import play.api.libs.json.Json
 
 class IdentificationSpec extends SpecBase {

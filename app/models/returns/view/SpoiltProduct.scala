@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package models.returns
+package models.returns.view
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class ObligationsResponse(
-  obligation: Seq[ObligationItem]
+final case class SpoiltProduct(
+  spoiltProductFilled: String,
+  spoiltProducts: Option[Seq[SpoiltProductItem]]
 )
 
-object ObligationsResponse {
-  given format: OFormat[ObligationsResponse] = Json.format[ObligationsResponse]
+object SpoiltProduct {
+  given OFormat[SpoiltProduct] = Json.format[SpoiltProduct]
 }

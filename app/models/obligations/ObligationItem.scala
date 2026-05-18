@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package models.returns
+package models.obligations
 
 import play.api.libs.json.{Json, OFormat}
 
-case class ReturnCreateRequest(
-  periodKey: String,
-  vapingProductsProduced: VapingProductsProduced,
-  totalDutyDue: TotalDutyDue
+final case class ObligationItem(
+  identification: Option[Identification],
+  obligationDetails: ObligationDetails
 )
 
-object ReturnCreateRequest {
-  given OFormat[ReturnCreateRequest] = Json.format[ReturnCreateRequest]
+object ObligationItem {
+  given format: OFormat[ObligationItem] = Json.format[ObligationItem]
 }
