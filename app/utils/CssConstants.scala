@@ -19,4 +19,6 @@ package utils
 object CssConstants {
 
   val boldFontWeight = "govuk-!-font-weight-bold"
+  
+  val marginBottom9 = "govuk-!-margin-bottom-9"
 }

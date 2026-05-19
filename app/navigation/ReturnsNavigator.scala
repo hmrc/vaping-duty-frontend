@@ -35,8 +35,8 @@ class ReturnsNavigator @Inject()(
 
   private val normalRoutes: Page => ReturnsUserAnswers => Call = {
     case DeclareDutyPage         => ua  => declareDutyPageRoutes(ua)
-    case DeclareDutySuspensePage => ua  => declareDutySuspensePageRoutes(ua)
     case EnterDutyAmountPage     => _   => controllers.returns.submit.routes.TaskListController.onPageLoad()
+    case DeclareDutySuspensePage => ua  => declareDutySuspensePageRoutes(ua)
     case EnterDutySuspensePage   => _   => controllers.returns.submit.routes.TaskListController.onPageLoad()
     case _                       => _   => Call(GET, BtaLink(config))
   }

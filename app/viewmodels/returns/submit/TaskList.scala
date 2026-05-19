@@ -38,7 +38,7 @@ object TaskList {
       headingKey = "returns.taskList.section.declareDuty.heading",
       rows = Seq(
         TaskRows(
-          id       = "duty-task-1",
+          id       = "duty-task",
           linkText = messages("returns.taskList.section.declareDuty.task1"),
           link     = controllers.returns.submit.routes.DeclareDutyController.onPageLoad(NormalMode),
           status   = TaskStatusService.declareDutyTaskStatus(userAnswers)
@@ -73,10 +73,10 @@ object TaskList {
       headingKey = "returns.taskList.section.dutySuspended.heading",
       rows = Seq(
         TaskRows(
-          id = "duty-suspended-task-1",
+          id = "duty-suspended",
           linkText = messages("returns.taskList.section.dutySuspended.task1"),
           link = controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(NormalMode),
-          status = TaskStatus.NotStarted
+          status = TaskStatusService.dutySuspenseTaskStatus(userAnswers)
         ).toTaskListItem
       )
     )

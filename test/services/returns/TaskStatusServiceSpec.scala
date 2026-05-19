@@ -18,8 +18,8 @@ package services.returns
 
 import base.SpecBase
 import models.TaskStatus
-import models.returns.ReturnsUserAnswers
-import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
+import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers}
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage}
 
 class TaskStatusServiceSpec extends SpecBase {
 
@@ -96,10 +96,12 @@ class TaskStatusServiceSpec extends SpecBase {
       result mustBe false
     }
 
-    "must return true when declare duty task is Completed" in {
+    "must return true all tasks are Completed" in {
       val answers = emptyAnswers
         .set(DeclareDutyPage, true)
         .flatMap(_.set(EnterDutyAmountPage, 1000))
+        .flatMap(_.set(DeclareDutySuspensePage, true))
+        .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
         .success
         .value
 
@@ -129,6 +131,8 @@ class TaskStatusServiceSpec extends SpecBase {
       val answers = emptyAnswers
         .set(DeclareDutyPage, true)
         .flatMap(_.set(EnterDutyAmountPage, 1000))
+        .flatMap(_.set(DeclareDutySuspensePage, true))
+        .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
         .success
         .value
 

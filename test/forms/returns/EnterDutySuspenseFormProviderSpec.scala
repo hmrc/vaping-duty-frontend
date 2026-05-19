@@ -48,14 +48,9 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
         result.errors must contain(FormError(fieldName, nonNumericKey))
       }
 
-      "must fail to bind values less than 1" in {
-        val result = form.bind(Map(fieldName -> "0", "volumeMoved" -> "2000"))
-        result.errors must contain(FormError(fieldName, outOfRangeKey, Seq(1, Int.MaxValue)))
-      }
-
       "must fail to bind negative values" in {
         val result = form.bind(Map(fieldName -> "-1", "volumeMoved" -> "2000"))
-        result.errors must contain(FormError(fieldName, outOfRangeKey, Seq(1, Int.MaxValue)))
+        result.errors must contain(FormError(fieldName, outOfRangeKey, Seq(0, Int.MaxValue)))
       }
 
       "must bind maximum integer value" in {
@@ -86,14 +81,9 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
         result.errors must contain(FormError(fieldName, nonNumericKey))
       }
 
-      "must fail to bind values less than 1" in {
-        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "0"))
-        result.errors must contain(FormError(fieldName, outOfRangeKey, Seq(1, Int.MaxValue)))
-      }
-
       "must fail to bind negative values" in {
         val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "-1"))
-        result.errors must contain(FormError(fieldName, outOfRangeKey, Seq(1, Int.MaxValue)))
+        result.errors must contain(FormError(fieldName, outOfRangeKey, Seq(0, Int.MaxValue)))
       }
 
       "must bind maximum integer value" in {

@@ -17,8 +17,8 @@
 package services.returns
 
 import models.TaskStatus
-import models.returns.ReturnsUserAnswers
-import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
+import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers}
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage}
 
 object TaskStatusService {
 
@@ -31,9 +31,18 @@ object TaskStatusService {
     }
   }
 
+  def dutySuspenseTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
+    (answers.get(DeclareDutySuspensePage), answers.get(EnterDutySuspensePage)) match {
+      case (None, _) => TaskStatus.NotStarted
+      case (Some(false), _) => TaskStatus.Completed
+      case (Some(true), None) => TaskStatus.InProgress
+      case (Some(true), Some(_)) => TaskStatus.Completed
+    }
+  }
+
   def allTasksCompleted(answers: ReturnsUserAnswers): Boolean = {
-    declareDutyTaskStatus(answers) == TaskStatus.Completed
-    // Add more task checks here as additional journeys are built
+    declareDutyTaskStatus(answers) == TaskStatus.Completed &&
+    dutySuspenseTaskStatus(answers) == TaskStatus.Completed
   }
 
   def submitTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {

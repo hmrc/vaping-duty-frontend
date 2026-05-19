@@ -188,16 +188,16 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return a Bad Request and errors when zero values are submitted" in {
+    "must return a Bad Request and errors when values less than zero are submitted" in {
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
         val request =
           FakeRequest(POST, enterDutySuspenseRoute)
-            .withFormUrlEncodedBody(("volumeReceived", "0"), ("volumeMoved", "0"))
+            .withFormUrlEncodedBody(("volumeReceived", "-1"), ("volumeMoved", "-1"))
 
-        val boundForm = form.bind(Map("volumeReceived" -> "0", "volumeMoved" -> "0"))
+        val boundForm = form.bind(Map("volumeReceived" -> "-1", "volumeMoved" -> "-1"))
 
         val view = application.injector.instanceOf[EnterDutySuspenseView]
 

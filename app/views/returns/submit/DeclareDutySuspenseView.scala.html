@@ -15,7 +15,7 @@
  *@
 
 @import viewmodels.LegendSize
-@import components.{Caption, Paragraph}
+@import components.{Caption, Paragraph, Heading}
 
 @this(
     layout: templates.ReturnsLayout,
@@ -24,6 +24,7 @@
     govukRadios: GovukRadios,
     govukButton: GovukButton,
     govukDetails: GovukDetails,
+    h1: Heading,
     caption: Caption,
     p: Paragraph
 )
@@ -31,10 +32,9 @@
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @detailsContent = {
-@p(Seq(Text(messages("returns.declareDutySuspense.details.content.p1"))))
-@p(Seq(Text(messages("returns.declareDutySuspense.details.content.p2"))))
-@p(Seq(Text(messages("returns.declareDutySuspense.details.content.p3"))))
-
+    @p(Seq(Text(messages("returns.declareDutySuspense.details.content.p1"))))
+    @p(Seq(Text(messages("returns.declareDutySuspense.details.content.p2"))))
+    @p(Seq(Text(messages("returns.declareDutySuspense.details.content.p3"))))
 }
 
 @layout(pageTitle = title(form, messages("returns.declareDutySuspense.title"))) {
@@ -47,15 +47,13 @@
 
         @caption(messages("returns.declareDutySuspense.caption.text"))
 
-        <h1 class="govuk-heading-l">@messages("returns.declareDutySuspense.heading")</h1>
+        @h1(messages("returns.declareDutySuspense.heading"))
 
         @p(Seq(Text(messages("returns.declareDutySuspense.p"))))
 
         @govukDetails(Details(
             summary = Text(messages("returns.declareDutySuspense.details.summary")),
-            content = HtmlContent(
-                detailsContent
-            )
+            content = HtmlContent(detailsContent)
         ))
 
         @govukRadios(

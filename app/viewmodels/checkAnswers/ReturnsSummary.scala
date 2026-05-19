@@ -22,7 +22,7 @@ import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
-import utils.CurrencyFormatter
+import utils.{CssConstants, CurrencyFormatter}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
@@ -37,7 +37,7 @@ object ReturnsSummary extends CurrencyFormatter {
       buildTotalDutyRow(answers)
     ).flatten
 
-    SummaryList(rows = rows)
+    SummaryList(rows = rows, classes = CssConstants.marginBottom9)
   }
 
   private def dutyRow(value: String)(implicit messages: Messages) = {
