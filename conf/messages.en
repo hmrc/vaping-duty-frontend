@@ -16,6 +16,7 @@ site.backToBta = Go back to your business tax account
 site.getAccess = Find out how to get access to the Vaping Products Duty online service
 site.warning = Warning
 site.print = Print or save a copy of this page
+site.yesNo.error.required = You must select Yes or No
 
 date.day = Day
 date.month = Month
@@ -177,7 +178,6 @@ month.dec = December
 returns.declareDuty.title = Do you need to declare vaping products for duty?
 returns.declareDuty.heading = Do you need to declare vaping products for duty?
 returns.declareDuty.checkYourAnswersLabel = declareDuty
-returns.declareDuty.error.required = You must select Yes or No
 returns.declareDuty.caption.text = Declare vaping duty
 returns.declareDuty.change.hidden = DeclareDuty
 

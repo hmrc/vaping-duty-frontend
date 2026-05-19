@@ -23,8 +23,10 @@ import javax.inject.Inject
 
 class DeclareDutyFormProvider @Inject() extends Mappings {
 
+  val requiredError = "site.yesNo.error.required"
+
   def apply(): Form[Boolean] =
     Form(
-      "value" -> boolean("returns.declareDuty.error.required", "returns.declareDuty.error.required")
+      "value" -> boolean(requiredError, requiredError)
     )
 }
