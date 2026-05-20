@@ -36,7 +36,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   private lazy val returnsHost: String = servicesConfig.baseUrl("vaping-duty")
 
   def feedbackUrl(implicit request: RequestHeader): String =
-    s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
+    s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}?useServiceNavigation"
 
   val enrolmentServiceName: String          = configuration.get[String]("enrolment.serviceName")
   val enrolmentIdentifierKey: String        = configuration.get[String]("enrolment.identifierKey")
@@ -48,7 +48,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val organisationAcctGuidanceUrl: String    = configuration.get[String]("urls.organisationAcctGuidance")
   val applyForVpdIdGuidanceUrl: String       = configuration.get[String]("urls.applyForVpdIdGuidanceUrl")
   val changeAddressGuidanceUrl: String       = configuration.get[String]("urls.addressChangeGuidance")
-  val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount")
+  val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount") + "?useServiceNavigation"
   val accessibilityStatementUrl: String = configuration.get[String]("accessibility-statement.host") ++
     configuration.get[String]("accessibility-statement.url")
 
