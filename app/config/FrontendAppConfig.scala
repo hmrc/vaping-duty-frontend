@@ -57,12 +57,12 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val eacdEnrolmentClaimRedirectUrl: String  =
     configuration.get[String]("urls.enrolmentManagementFrontend") +
-      s"/$enrolmentServiceName/request-access-tax-scheme?continue=$continueToBta"
+      s"/$enrolmentServiceName/request-access-tax-scheme?useServiceNavigation&continue=$continueToBta"
 
   private val enrolmentContinuePath: String  = "/vaping-duty/enrolment/do-you-have-an-approval-id"
 
   val orgSignInUrl: String =
-    s"$loginUrl?continue=${host + enrolmentContinuePath}&affinityGroup=${AffinityGroup.Organisation}"
+    s"$loginUrl?useServiceNavigation&continue=${host + enrolmentContinuePath}&affinityGroup=${AffinityGroup.Organisation}"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
