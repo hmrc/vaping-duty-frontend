@@ -42,9 +42,11 @@ class ReturnsNavigator @Inject()(
   }
 
   private val checkRouteMap: Page => ReturnsUserAnswers => Call = {
-    case EnterDutyAmountPage   => _ => controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad()
-    case EnterDutySuspensePage => _ => controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad()
-    case _                     => _ => routes.JourneyRecoveryController.onPageLoad()
+    case EnterDutyAmountPage      => _  => controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad()
+    case EnterDutySuspensePage    => _  => controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad()
+    case DeclareDutyPage          => ua => checkDeclareDutyPageRoutes(ua)
+    case DeclareDutySuspensePage  => ua => checkDeclareDutySuspensePageRoutes(ua)
+    case _                        => _  => routes.JourneyRecoveryController.onPageLoad()
   }
 
   private def declareDutyPageRoutes(ua: ReturnsUserAnswers) = {
@@ -54,11 +56,25 @@ class ReturnsNavigator @Inject()(
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
+  private def checkDeclareDutyPageRoutes(ua: ReturnsUserAnswers) = {
+    ua.get(DeclareDutyPage) match
+      case Some(true)   => controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(CheckMode)
+      case Some(false)  => controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad()
+      case _            => controllers.routes.JourneyRecoveryController.onPageLoad()
+  }
+
   private def declareDutySuspensePageRoutes(ua: ReturnsUserAnswers) = {
     ua.get(DeclareDutySuspensePage) match
       case Some(true)  => controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(NormalMode)
       case Some(false) => controllers.returns.submit.routes.TaskListController.onPageLoad()
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+  }
+
+  private def checkDeclareDutySuspensePageRoutes(ua: ReturnsUserAnswers) = {
+    ua.get(DeclareDutySuspensePage) match
+      case Some(true)   => controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode)
+      case Some(false)  => controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad()
+      case _            => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
   def nextPage(page: Page, mode: Mode, userAnswers: ReturnsUserAnswers): Call = mode match {

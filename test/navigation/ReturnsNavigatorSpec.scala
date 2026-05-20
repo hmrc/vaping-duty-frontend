@@ -19,9 +19,9 @@ package navigation
 import base.SpecBase
 import controllers.routes
 import models.*
-import models.returns.ReturnsUserAnswers
+import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers}
 import pages.*
-import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage}
 import play.api.libs.json.Json
 import play.api.mvc.Call
 
@@ -54,12 +54,35 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from EnterAmount to TaskList " in {
+      "must go from EnterDutyAmount to TaskList " in {
         val ua = returnsUserAnswers.set(EnterDutyAmountPage, 1).success.value
 
         navigator.nextPage(EnterDutyAmountPage, NormalMode, ua) mustBe controllers.returns.submit.routes.TaskListController.onPageLoad()
       }
 
+      "must go from DeclareDutySuspense to EnterDutySuspense when there IS suspended duty to declare" in {
+        val ua = returnsUserAnswers.set(DeclareDutySuspensePage, true).success.value
+        navigator.nextPage(DeclareDutySuspensePage, NormalMode, ua) mustBe controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(NormalMode)
+      }
+
+      "must go from DeclareDutySuspense to TaskList when there IS NO suspended duty to declare" in {
+        val ua = returnsUserAnswers
+          .set(DeclareDutySuspensePage, false).success.value
+
+        ua.get(EnterDutySuspensePage) mustBe None
+        navigator.nextPage(DeclareDutySuspensePage, NormalMode, ua) mustBe controllers.returns.submit.routes.TaskListController.onPageLoad()
+      }
+
+      "must go from DeclareDutySuspense to JourneyRecovery when there is no value present" in {
+        val ua = ReturnsUserAnswers("id", periodKey, Json.obj(), Instant.now(), Instant.now())
+        navigator.nextPage(DeclareDutySuspensePage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from EnterDutySuspense to TaskList " in {
+        val ua = returnsUserAnswers.set(EnterDutyAmountPage, 1).success.value
+
+        navigator.nextPage(EnterDutySuspensePage, NormalMode, ua) mustBe controllers.returns.submit.routes.TaskListController.onPageLoad()
+      }
 
       "must go from a page that doesn't exist in the route map to Index" in {
         case object UnknownPage extends Page
@@ -78,6 +101,31 @@ class ReturnsNavigatorSpec extends SpecBase {
       "must go from EnterDutyAmountPage to CheckYourAnswers" in {
 
         navigator.nextPage(EnterDutyAmountPage, CheckMode, returnsUserAnswers) mustBe controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from DeclareDutyPage to CheckYourAnswers when selecting 'No'" in {
+        val ua = returnsUserAnswers.set(DeclareDutyPage, false).success.value
+        navigator.nextPage(DeclareDutyPage, CheckMode, ua) mustBe controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from DeclareDutyPage to EnterDutyAmount when selecting 'Yes'" in {
+        val ua = returnsUserAnswers.set(DeclareDutyPage, true).success.value
+        navigator.nextPage(DeclareDutyPage, CheckMode, ua) mustBe controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(CheckMode)
+      }
+
+      "must go from EnterDutySuspensePage to CheckYourAnswers" in {
+
+        navigator.nextPage(EnterDutySuspensePage, CheckMode, returnsUserAnswers) mustBe controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from DeclareDutySuspensePage to EnterDutySuspensePage when selecting 'No" in {
+        val ua = returnsUserAnswers.set(DeclareDutySuspensePage, false).success.value
+        navigator.nextPage(DeclareDutySuspensePage, CheckMode, ua) mustBe controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from DeclareDutySuspensePage to EnterDutySuspensePage when selecting 'Yes" in {
+        val ua = returnsUserAnswers.set(DeclareDutySuspensePage, true).success.value
+        navigator.nextPage(DeclareDutySuspensePage, CheckMode, ua) mustBe controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode)
       }
     }
   }
