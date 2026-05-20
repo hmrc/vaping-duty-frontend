@@ -31,7 +31,7 @@ import java.time.{Clock, Instant, LocalDate, ZoneId}
 trait TestData {
   val vpdId: VpdId = VpdId(id = "VPPAID01")
   val vpdRef: Option[String] = Some("VPDREF123")
-  val btaLink = "http://localhost:9020/business-account"
+  val btaLink = "http://localhost:9020/business-account?useServiceNavigation"
   val groupId: GroupId = GroupId(id = "groupid")
   val periodKey = "26AF"
   val ukTimeZoneStringId = "Europe/London"

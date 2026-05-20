@@ -85,10 +85,10 @@ class UserHasApprovalIdControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         val enrolmentServiceName: String       = application.configuration.get[String]("enrolment.serviceName")
-        val continueToBta: String              = application.configuration.get[String]("urls.businessTaxAccount")
+        val continueToBta: String              = application.configuration.get[String]("urls.businessTaxAccount") + "?useServiceNavigation"
         val expectedEacdRedirectionUrl: String =
           application.configuration.get[String]("urls.enrolmentManagementFrontend") +
-            s"/$enrolmentServiceName/request-access-tax-scheme?continue=$continueToBta"
+            s"/$enrolmentServiceName/request-access-tax-scheme?useServiceNavigation&continue=$continueToBta"
 
         status(result)                 mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual expectedEacdRedirectionUrl

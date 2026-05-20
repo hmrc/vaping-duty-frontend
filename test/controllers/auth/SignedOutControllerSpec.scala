@@ -29,7 +29,7 @@ class SignedOutControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account")
+      when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account?useServiceNavigation")
 
       val application = applicationBuilder(userAnswers = None).build()
 
