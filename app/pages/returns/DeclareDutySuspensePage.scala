@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package forms.returns
+package pages.returns
 
-import forms.mappings.Mappings
-import play.api.data.Form
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-import javax.inject.Inject
+case object DeclareDutySuspensePage extends QuestionPage[Boolean] {
 
-class DeclareDutyFormProvider @Inject() extends Mappings {
+  override def path: JsPath = JsPath \ toString
 
-  val requiredError = "site.yesNo.error.required"
-
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean(requiredError, requiredError)
-    )
+  override def toString: String = "declareDutySuspense"
 }

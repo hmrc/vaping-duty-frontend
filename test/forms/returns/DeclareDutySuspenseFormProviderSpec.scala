@@ -16,17 +16,29 @@
 
 package forms.returns
 
-import forms.mappings.Mappings
-import play.api.data.Form
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-import javax.inject.Inject
+class DeclareDutySuspenseFormProviderSpec extends BooleanFieldBehaviours {
 
-class DeclareDutyFormProvider @Inject() extends Mappings {
+  val requiredKey = "site.yesNo.error.required"
 
-  val requiredError = "site.yesNo.error.required"
+  val form = new DeclareDutySuspenseFormProvider()()
 
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean(requiredError, requiredError)
+  ".value" - {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, requiredKey)
     )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
 }

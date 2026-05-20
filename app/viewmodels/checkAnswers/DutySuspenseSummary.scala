@@ -16,59 +16,78 @@
 
 package viewmodels.checkAnswers
 
+import models.CheckMode
 import models.returns.ReturnsUserAnswers
-import pages.returns.DeclareDutyPage
+import pages.returns.EnterDutySuspensePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
+import utils.CssConstants
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
 object DutySuspenseSummary {
 
   def summaryList(answers: ReturnsUserAnswers)(implicit messages: Messages): SummaryList = {
-    // Commented out until we implement the relevant journeys
     val rows = Seq(
-//      buildProductReceivedRow(answers),
-//      buildProductMovedRow(answers),
-//      buildTotalVolumeRow(answers)
+      buildProductReceivedRow(answers),
+      buildProductMovedRow(answers),
+      buildTotalVolumeRow(answers)
     ).flatten
     
     SummaryList(rows = rows)
   }
 
   private def buildProductReceivedRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclareDutyPage).map { answer =>
+    answers.get(EnterDutySuspensePage).map { answer =>
+
+      val text = if (answer.volumeReceived == 0) {
+        "returns.CheckYourAnswers.dutySummary.nothing"
+      } else {
+        answer.volumeReceived.toString + " ml"
+      }
+
       SummaryListRowViewModel(
         key = "returns.CheckYourAnswers.dutySuspended.received",
-        value = ValueViewModel("returns.CheckYourAnswers.dutySummary.nothing"),
+        value = ValueViewModel(text),
         actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
+          ActionItemViewModel("site.change", controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages(""))
         )
       )
     }
 
   private def buildProductMovedRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclareDutyPage).map { answer =>
+    answers.get(EnterDutySuspensePage).map { answer =>
+
+      val text = if (answer.volumeMoved == 0) {
+        "returns.CheckYourAnswers.dutySummary.nothing"
+      } else {
+        answer.volumeMoved.toString + " ml"
+      }
+
       SummaryListRowViewModel(
         key = "returns.CheckYourAnswers.dutySuspended.moved",
-        value = ValueViewModel("returns.CheckYourAnswers.dutySummary.nothing"),
+        value = ValueViewModel(text),
         actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
+          ActionItemViewModel("site.change", controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages(""))
         )
       )
     }
 
   private def buildTotalVolumeRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclareDutyPage).map { answer =>
+    answers.get(EnterDutySuspensePage).map { answer =>
+
+      val text = if (answer.volumeMoved == 0) {
+        "returns.CheckYourAnswers.dutySuspended.total.nil"
+      } else {
+        s"${answer.volumeReceived - answer.volumeMoved} ml"
+      }
+
       SummaryListRowViewModel(
         key = "returns.CheckYourAnswers.dutySuspended.total",
-        value = ValueViewModel("returns.CheckYourAnswers.dutySuspended.total.nil"),
-        actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
-            .withVisuallyHiddenText(messages(""))
+        value = ValueViewModel(text).withCssClass(CssConstants.boldFontWeight),
+        actions = Seq.empty
         )
-      )
     }
 }

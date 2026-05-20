@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package forms.returns
+package models.returns
 
-import forms.mappings.Mappings
-import play.api.data.Form
+import play.api.libs.json.{Json, OFormat}
 
-import javax.inject.Inject
+final case class DutySuspenseVolumes(
+  volumeReceived: Int,
+  volumeMoved: Int
+)
 
-class DeclareDutyFormProvider @Inject() extends Mappings {
-
-  val requiredError = "site.yesNo.error.required"
-
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean(requiredError, requiredError)
-    )
+object DutySuspenseVolumes {
+  implicit val format: OFormat[DutySuspenseVolumes] = Json.format[DutySuspenseVolumes]
 }

@@ -16,6 +16,7 @@ site.backToBta = Go back to your business tax account
 site.getAccess = Find out how to get access to the Vaping Products Duty online service
 site.warning = Warning
 site.print = Print or save a copy of this page
+site.yesNo.error.required = You must select Yes or No
 
 date.day = Day
 date.month = Month
@@ -177,7 +178,6 @@ month.dec = December
 returns.declareDuty.title = Do you need to declare vaping products for duty?
 returns.declareDuty.heading = Do you need to declare vaping products for duty?
 returns.declareDuty.checkYourAnswersLabel = declareDuty
-returns.declareDuty.error.required = You must select Yes or No
 returns.declareDuty.caption.text = Declare vaping duty
 returns.declareDuty.change.hidden = DeclareDuty
 
@@ -198,6 +198,42 @@ returns.enterDutyAmount.error.required = You must enter a number greater than ze
 returns.enterDutyAmount.error.wholeNumber = You must enter a number greater than zero
 returns.enterDutyAmount.error.outOfRange = You must enter a number greater than zero
 returns.enterDutyAmount.change.hidden = EnterDutyAmount
+
+returns.declareDutySuspense.title = Finished vaping products in duty suspense that have been received or moved
+returns.declareDutySuspense.heading = Finished vaping products in duty suspense that have been received or moved
+returns.declareDutySuspense.caption.text = Report duty suspended vaping products
+returns.declareDutySuspense.p = Vaping Products Duty must be paid when the products are taken out of an approved place to be sold or supplied in the UK.
+returns.declareDutySuspense.details.summary = What finished product and duty suspension mean
+returns.declareDutySuspense.details.content.p1 = Finished product means the product is contained in its final packaging for retail sale, or it has had a duty stamp applied.
+returns.declareDutySuspense.details.content.p2 = Duty suspension is an arrangement with HMRC which means you do not have to pay Vaping Products Duty straight away if the vaping products are stored in certain approved places, for example an excise warehouse or a registered store.
+returns.declareDutySuspense.details.content.p3 = To use duty suspension you must have approval from HMRC.
+returns.declareDutySuspense.question = Have you received or moved any finished vaping products in duty suspense?
+returns.declareDutySuspense.error.required = Select yes if you have received or moved any finished vaping products in duty suspense
+returns.declareDutySuspense.checkYourAnswersLabel = Declare duty suspense
+returns.declareDutySuspense.change.hidden = declare duty suspense
+
+returns.enterDutySuspense.title = Finished vaping products received or moved under duty suspension
+returns.enterDutySuspense.heading = Finished vaping products received or moved under duty suspension
+returns.enterDutySuspense.caption.text = Report duty suspended vaping products
+returns.enterDutySuspense.p = You must tell us the total volume in millilitres of finished vaping products you received or moved this month.
+
+returns.enterDutySuspense.volumeReceived.label = How much duty suspension did you receive?
+returns.enterDutySuspense.volumeReceived.hintText = Total millilitres of vaping liquid
+returns.enterDutySuspense.volumeReceived.error.required = Enter the amount of duty suspension received
+returns.enterDutySuspense.volumeReceived.error.wholeNumber = Enter the amount of duty suspension received
+returns.enterDutySuspense.volumeReceived.error.nonNumeric = Enter the amount of duty suspension received
+returns.enterDutySuspense.volumeReceived.error.outOfRange = Enter the amount of duty suspension received
+
+returns.enterDutySuspense.volumeMoved.label = How much duty suspension was moved?
+returns.enterDutySuspense.volumeMoved.hintText = Total millilitres of vaping liquid
+returns.enterDutySuspense.volumeMoved.error.required = Enter the amount of duty suspension moved
+returns.enterDutySuspense.volumeMoved.error.wholeNumber = Enter the amount of duty suspension moved
+returns.enterDutySuspense.volumeMoved.error.nonNumeric = Enter the amount of duty suspension moved
+returns.enterDutySuspense.volumeMoved.error.outOfRange = Enter the amount of duty suspension moved
+
+returns.enterDutySuspense.ml = ml
+returns.enterDutySuspense.checkYourAnswersLabel = Enter duty suspense
+returns.enterDutySuspense.change.hidden = enter duty suspense
 
 returns.CheckYourAnswers.title = The duty due is {0}
 returns.CheckYourAnswers.caption = Check your answers

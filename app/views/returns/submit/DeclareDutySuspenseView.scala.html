@@ -1,0 +1,71 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import viewmodels.LegendSize
+@import components.{Caption, Paragraph, Heading}
+
+@this(
+    layout: templates.ReturnsLayout,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukRadios: GovukRadios,
+    govukButton: GovukButton,
+    govukDetails: GovukDetails,
+    h1: Heading,
+    caption: Caption,
+    p: Paragraph
+)
+
+@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+
+@detailsContent = {
+    @p(Seq(Text(messages("returns.declareDutySuspense.details.content.p1"))))
+    @p(Seq(Text(messages("returns.declareDutySuspense.details.content.p2"))))
+    @p(Seq(Text(messages("returns.declareDutySuspense.details.content.p3"))))
+}
+
+@layout(pageTitle = title(form, messages("returns.declareDutySuspense.title"))) {
+
+    @formHelper(action = controllers.returns.submit.routes.DeclareDutySuspenseController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
+
+        @caption(messages("returns.declareDutySuspense.caption.text"))
+
+        @h1(messages("returns.declareDutySuspense.heading"))
+
+        @p(Seq(Text(messages("returns.declareDutySuspense.p"))))
+
+        @govukDetails(Details(
+            summary = Text(messages("returns.declareDutySuspense.details.summary")),
+            content = HtmlContent(detailsContent)
+        ))
+
+        @govukRadios(
+            RadiosViewModel.yesNo(
+                field = form("value"),
+                legend = LegendViewModel(messages("returns.declareDutySuspense.question"))
+                    .withCssClass(LegendSize.Medium.toString)
+            )
+        )
+
+        @govukButton(
+            ButtonViewModel(messages("site.saveAndContinue"))
+        )
+    }
+}

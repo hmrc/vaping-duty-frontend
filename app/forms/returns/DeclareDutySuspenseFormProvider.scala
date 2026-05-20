@@ -21,10 +21,10 @@ import play.api.data.Form
 
 import javax.inject.Inject
 
-class DeclareDutyFormProvider @Inject() extends Mappings {
+class DeclareDutySuspenseFormProvider @Inject() extends Mappings {
 
   val requiredError = "site.yesNo.error.required"
-
+  
   def apply(): Form[Boolean] =
     Form(
       "value" -> boolean(requiredError, requiredError)
