@@ -36,7 +36,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   private lazy val returnsHost: String = servicesConfig.baseUrl("vaping-duty")
 
   def feedbackUrl(implicit request: RequestHeader): String =
-    s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}?useServiceNavigation"
+    s"$contactHost/contact/beta-feedback?useServiceNavigation&service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
   val enrolmentServiceName: String          = configuration.get[String]("enrolment.serviceName")
   val enrolmentIdentifierKey: String        = configuration.get[String]("enrolment.identifierKey")
