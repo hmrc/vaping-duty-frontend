@@ -36,7 +36,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   private lazy val returnsHost: String = servicesConfig.baseUrl("vaping-duty")
 
   def feedbackUrl(implicit request: RequestHeader): String =
-    s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
+    s"$contactHost/contact/beta-feedback?useServiceNavigation&service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
   val enrolmentServiceName: String          = configuration.get[String]("enrolment.serviceName")
   val enrolmentIdentifierKey: String        = configuration.get[String]("enrolment.identifierKey")
@@ -48,7 +48,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val organisationAcctGuidanceUrl: String    = configuration.get[String]("urls.organisationAcctGuidance")
   val applyForVpdIdGuidanceUrl: String       = configuration.get[String]("urls.applyForVpdIdGuidanceUrl")
   val changeAddressGuidanceUrl: String       = configuration.get[String]("urls.addressChangeGuidance")
-  val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount")
+  val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount") + "?useServiceNavigation"
   val accessibilityStatementUrl: String = configuration.get[String]("accessibility-statement.host") ++
     configuration.get[String]("accessibility-statement.url")
 
@@ -57,12 +57,12 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val eacdEnrolmentClaimRedirectUrl: String  =
     configuration.get[String]("urls.enrolmentManagementFrontend") +
-      s"/$enrolmentServiceName/request-access-tax-scheme?continue=$continueToBta"
+      s"/$enrolmentServiceName/request-access-tax-scheme?useServiceNavigation&continue=$continueToBta"
 
   private val enrolmentContinuePath: String  = "/vaping-duty/enrolment/do-you-have-an-approval-id"
 
   val orgSignInUrl: String =
-    s"$loginUrl?continue=${host + enrolmentContinuePath}&affinityGroup=${AffinityGroup.Organisation}"
+    s"$loginUrl?useServiceNavigation&continue=${host + enrolmentContinuePath}&affinityGroup=${AffinityGroup.Organisation}"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
@@ -112,7 +112,5 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val emailVerificationRedirectBaseUrl: String =
     configuration.get[String]("microservice.services.email-verification-frontend.prefix")
 
-  val newServiceNavigationEnabled: Boolean = configuration.get[Boolean]("play-frontend-hmrc.forceServiceNavigation")
-  
   val returnsEnabled: Boolean = configuration.get[Boolean]("features.returnsEnabled")
 }

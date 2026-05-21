@@ -28,7 +28,7 @@ class JourneyRecoveryControllerSpec extends SpecBase {
 
   "JourneyRecovery Controller" - {
 
-    when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account")
+    when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account?useServiceNavigation")
 
     "when a relative continue Url is supplied" - {
 

@@ -31,7 +31,7 @@ class LockedEmailControllerSpec extends SpecBase {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-      when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account")
+      when(mockAppConfig.continueToBta).thenReturn("http://localhost:9020/business-account?useServiceNavigation")
 
       running(application) {
         val request = FakeRequest(GET, controllers.contactPreference.routes.LockedEmailController.onPageLoad().url)

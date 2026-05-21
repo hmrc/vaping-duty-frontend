@@ -61,7 +61,7 @@ class StartEmailVerificationJourneyHelper @Inject()(config: FrontendAppConfig)
       email = email,
       labels = labels,
       lang = language,
-      useNewGovUkServiceNavigation = config.newServiceNavigationEnabled
+      useNewGovUkServiceNavigation = true
     )
   }
 
