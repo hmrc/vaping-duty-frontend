@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import base.SpecBase
 import connectors.SubscriptionConnector
+import connectors.returns.GetReturnsConnector
 import models.contactPreference.SubscriptionContactPreferences
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -37,10 +38,12 @@ class ConfirmationControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val mockConnector = mock[SubscriptionConnector]
+      val mockSubscriptionConnector = mock[SubscriptionConnector]
+      val mockGetReturnsConnector = mock[GetReturnsConnector]
 
       val application = applicationBuilder(returnsUserAnswers = Option(returnsUserAnswers))
-        .overrides(bind[SubscriptionConnector].toInstance(mockConnector))
+        .overrides(bind[SubscriptionConnector].toInstance(mockSubscriptionConnector))
+        .overrides(bind[GetReturnsConnector].toInstance(mockGetReturnsConnector))
         .build()
 
       running(application) {
@@ -48,16 +51,21 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val contactPreference = SubscriptionContactPreferences(true, Option(emailAddress))
 
-        when(mockConnector.getSubscriptionContactPreferences(any())(any()))
+        when(mockSubscriptionConnector.getSubscriptionContactPreferences(any())(any()))
           .thenReturn(Future.successful(Right(contactPreference)))
 
-        val request = FakeRequest(GET, controllers.returns.submit.routes.ConfirmationController.onPageLoad(vpdRef).url)
+        when(mockGetReturnsConnector.getReturn(any(), any())(using any()))
+          .thenReturn(Future.successful(createReturnDisplayResponse()))
+
+        val request = FakeRequest(GET, controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[ConfirmationEmailView]
 
-        val vm = ConfirmationViewModel(returnsUserAnswers, emailAddress, vpdRef.get, btaLink)
+        val chargeReference = createReturnDisplayResponse().success.chargeDetails.get.chargeReference.get
+
+        val vm = ConfirmationViewModel(returnsUserAnswers, emailAddress, chargeReference, btaLink, periodKey)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
@@ -77,7 +85,7 @@ class ConfirmationControllerSpec extends SpecBase {
         when(mockConnector.getSubscriptionContactPreferences(any())(any()))
           .thenReturn(Future.successful(Left(ErrorResponse(BAD_REQUEST, "There was an issue"))))
 
-        val request = FakeRequest(GET, controllers.returns.submit.routes.ConfirmationController.onPageLoad(vpdRef).url)
+        val request = FakeRequest(GET, controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
 
         val result = route(application, request).value
 

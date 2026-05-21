@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import config.FrontendAppConfig
 import connectors.SubscriptionConnector
+import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import models.BtaLink
@@ -28,7 +29,7 @@ import viewmodels.returns.submit.ConfirmationViewModel
 import views.html.returns.submit.ConfirmationEmailView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmationController @Inject()(
                                        override val messagesApi: MessagesApi,
@@ -39,19 +40,26 @@ class ConfirmationController @Inject()(
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ConfirmationEmailView,
                                        subscriptionConnector: SubscriptionConnector,
+                                       getReturnsConnector: GetReturnsConnector,
                                        config: FrontendAppConfig
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(vpdRef: Option[String]): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
-      subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).map {
-        case Left(_) => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).flatMap {
+        case Left(_) => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         case Right(value) =>
-          val email = value.emailAddress.getOrElse("")
-          val btaUrl = BtaLink(config)
-          val vm = ConfirmationViewModel(request.userAnswers, email, vpdRef.fold("")(ref => ref), btaUrl)
+          getReturnsConnector.getReturn(request.periodKey, request.enrolmentVpdId).map { returnsResponse =>
+            val chargeReference = returnsResponse.success.chargeDetails
+              .flatMap(_.chargeReference)
+              .getOrElse("")
 
-          Ok(view(vm))
+            val email = value.emailAddress.getOrElse("")
+            val btaUrl = BtaLink(config)
+            val vm = ConfirmationViewModel(request.userAnswers, email, chargeReference.toUpperCase, btaUrl, request.periodKey)
+
+            Ok(view(vm))
+          }
       }
   }
 }

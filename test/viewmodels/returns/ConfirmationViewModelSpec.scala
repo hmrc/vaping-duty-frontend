@@ -34,14 +34,14 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
     
     "must return the email address" in {
       val ua = ReturnsUserAnswers("id", periodKey, Json.obj(), Instant.now(), Instant.now())
-      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink)
+      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink, periodKey)
 
       vm.email mustBe emailAddress
     }
 
     "must return the current date" in {
       val ua = ReturnsUserAnswers("id", periodKey, Json.obj(), Instant.now(), Instant.now())
-      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink)
+      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink, periodKey)
 
       val expectedResult = s"${ReturnsDateUtils.getCurrentDay} $monthMessage ${ReturnsDateUtils.getYear}"
 
@@ -52,7 +52,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
       val ua = ReturnsUserAnswers("id", periodKey, Json.obj(), Instant.now(), Instant.now())
         .set(EnterDutyAmountPage, 1000).success.value
 
-      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink)
+      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink, periodKey)
 
       vm.currentMonth mustBe monthMessage
     }
