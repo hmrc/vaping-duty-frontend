@@ -17,3 +17,24 @@
 .wrap-text {
   overflow-wrap: break-word;
 }
+
+.app-task-list__item {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+.govuk-tag {
+        margin-left: auto;
+        align-self: center;
+        text-wrap: nowrap;
+    }
+
+@media screen and (max-width: 449px) {
+    .app-task-list__item {
+            flex-direction: column;
+    }
+    .govuk-tag {
+        margin-right: auto;
+        margin-left: 0;
+    }
+}
