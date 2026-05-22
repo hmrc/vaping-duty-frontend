@@ -73,8 +73,9 @@ POST       /complete-return/duty-suspended/enter-received-or-moved-amount       
 GET        /complete-return/duty-suspended/change-enter-received-or-moved-amount            controllers.returns.submit.EnterDutySuspenseController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/duty-suspended/change-enter-received-or-moved-amount            controllers.returns.submit.EnterDutySuspenseController.onSubmit(mode: Mode = CheckMode)
 
-GET        /complete-return/return-submitted                                                controllers.returns.submit.ConfirmationController.onPageLoad(vpdRef: Option[String])
+GET        /complete-return/return-submitted                                                controllers.returns.submit.ConfirmationController.onPageLoad()
 
 GET        /complete-return/check-your-answers                                              controllers.returns.submit.CheckYourAnswersController.onPageLoad()
 POST       /complete-return/check-your-answers                                              controllers.returns.submit.CheckYourAnswersController.onSubmit()
+
 GET        /view-your-returns/:periodKey                                                    controllers.returns.view.ViewIndividualReturnController.onPageLoad(periodKey: String)

@@ -32,15 +32,19 @@ case class ConfirmationViewModel(email: String,
                                  currentMonth: String,
                                  content: Html,
                                  vpdRef: String,
-                                 btaLink: String)
+                                 btaLink: String,
+                                 periodKey: String,
+                                 viewReturnUrl: String)
 
 object ConfirmationViewModel extends CurrencyFormatter {
 
-  def apply(ua: ReturnsUserAnswers, email: String, vpdRef: String, btaLink: String)(implicit messages: Messages): ConfirmationViewModel =
-    confirmationViewModel(email, ua, vpdRef, btaLink)
+  def apply(ua: ReturnsUserAnswers, email: String, vpdRef: String, btaLink: String, periodKey: String, viewReturnUrl: String)
+           (implicit messages: Messages): ConfirmationViewModel =
+
+    confirmationViewModel(email, ua, vpdRef, btaLink, periodKey, viewReturnUrl)
 
 
-  private def confirmationViewModel(email: String, ua: ReturnsUserAnswers, vpdRef: String, btaLink: String)(implicit messages: Messages) =
+  private def confirmationViewModel(email: String, ua: ReturnsUserAnswers, vpdRef: String, btaLink: String, periodKey: String, viewReturnUrl: String)(implicit messages: Messages) =
 
     val monthMessage = ReturnsDateUtils.getCurrentMonthMessage(ReturnsDateUtils.month)
 
@@ -48,7 +52,16 @@ object ConfirmationViewModel extends CurrencyFormatter {
       case Some(value) => value
       case None => 0
     }
-    new ConfirmationViewModel(email, makeDateString(monthMessage), monthMessage, getContent(amountInMl), vpdRef, btaLink)
+    new ConfirmationViewModel(
+      email,
+      makeDateString(monthMessage),
+      monthMessage,
+      getContent(amountInMl),
+      vpdRef,
+      btaLink,
+      periodKey,
+      viewReturnUrl
+    )
 
   private def totalDue(valueInMl: Int) =
     currencyFormat(calculateDuty(valueInMl))

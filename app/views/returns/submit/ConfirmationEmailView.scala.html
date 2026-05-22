@@ -45,10 +45,14 @@
     @p(Seq(
         messages("returns.confirmation.p.weHave"),
         HtmlContent(s" <span class=$boldFontWeight>${vm.email}</span>"),
-        messages("returns.confirmation.p.confirming", vm.date),
+        messages("returns.confirmation.p.confirming", vm.date)
     ))
 
-    @p(Seq(HtmlContent(link(id = "view-return", href = "", text = messages("returns.confirmation.link.view")))))
+    @p(Seq(HtmlContent(link(
+        id = "view-return",
+        href = vm.viewReturnUrl,
+        text = messages("returns.confirmation.link.view")
+    ))))
 
     @h2(messages("returns.confirmation.h2.whatYou"))
 

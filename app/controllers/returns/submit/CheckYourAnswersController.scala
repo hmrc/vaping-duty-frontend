@@ -46,7 +46,7 @@ class CheckYourAnswersController @Inject()(
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     submitReturnService.submit(request.userAnswers).map { response =>
-      Redirect(controllers.returns.submit.routes.ConfirmationController.onPageLoad(Some(response.vpdReferenceNumber)))
+      Redirect(controllers.returns.submit.routes.ConfirmationController.onPageLoad())
     }.recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
   }
 }
