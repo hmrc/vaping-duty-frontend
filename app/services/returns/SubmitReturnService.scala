@@ -18,6 +18,7 @@ package services.returns
 
 import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
+import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
@@ -28,18 +29,25 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector,
-                                    config: FrontendAppConfig)
-                                   (using ExecutionContext) {
+class SubmitReturnService @Inject()(
+  submitReturnConnector: SubmitReturnConnector,
+  dutyRateService: DutyRateService,
+  obligationService: ObligationService,
+  config: FrontendAppConfig
+)(using ExecutionContext) {
 
   def submit(ua: ReturnsUserAnswers)(implicit request: ReturnsDataRequest[?]): Future[ReturnSubmittedResponse] = {
 
     given HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
 
-    submitReturnConnector.submitReturn(buildSubmission(ua), request.enrolmentVpdId)
+    for {
+      obligation <- obligationService.getObligationByPeriodKey(request.enrolmentVpdId, ua.periodKey)
+      submission = buildSubmission(ua, obligation.get)
+      result <- submitReturnConnector.submitReturn(submission, request.enrolmentVpdId)
+    } yield result
   }
 
-  private def buildSubmission(ua: ReturnsUserAnswers): ReturnCreateRequest =
+  private def buildSubmission(ua: ReturnsUserAnswers, obligation: ObligationDetails): ReturnCreateRequest = {
 
     // Temp value
     val zeroValue = BigDecimal("0")
@@ -48,9 +56,12 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
 
     val periodKey = ua.periodKey
 
+    // Look up duty rate for this period using the obligation's start date
+    val currentPeriodRate = dutyRateService.getRateForDate(obligation.iCFromDate)
+    val dutyRate = BigDecimal(currentPeriodRate) / 100 // Convert pence to pounds
+
     // Will need to be enhanced
     val liquidInLitres = (liquidInMl - zeroValue) / BigDecimal("1000")
-    val dutyRate = BigDecimal("0.22")
     val dutyDue = (liquidInMl * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
 
     val vapingProductsProduced = if (dutyDeclared) {
@@ -78,4 +89,5 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
     )
 
     ReturnCreateRequest(periodKey, vapingProductsProduced, totalDutyDue)
+  }
 }
