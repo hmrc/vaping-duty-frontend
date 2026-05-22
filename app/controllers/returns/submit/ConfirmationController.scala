@@ -56,7 +56,15 @@ class ConfirmationController @Inject()(
 
             val email = value.emailAddress.getOrElse("")
             val btaUrl = BtaLink(config)
-            val vm = ConfirmationViewModel(request.userAnswers, email, chargeReference.toUpperCase, btaUrl, request.periodKey)
+
+            val vm = ConfirmationViewModel(
+              request.userAnswers,
+              email,
+              chargeReference.toUpperCase,
+              btaUrl,
+              request.periodKey,
+              controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(request.periodKey).url
+            )
 
             Ok(view(vm))
           }

@@ -31,17 +31,18 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
   "ConfirmationViewModel" - {
 
     val monthMessage = ReturnsDateUtils.getCurrentMonthMessage(ReturnsDateUtils.month)
+    val viewReturnUrl = controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url
     
     "must return the email address" in {
       val ua = ReturnsUserAnswers("id", periodKey, Json.obj(), Instant.now(), Instant.now())
-      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink, periodKey)
+      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink, periodKey, viewReturnUrl)
 
       vm.email mustBe emailAddress
     }
 
     "must return the current date" in {
       val ua = ReturnsUserAnswers("id", periodKey, Json.obj(), Instant.now(), Instant.now())
-      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink, periodKey)
+      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink, periodKey, viewReturnUrl)
 
       val expectedResult = s"${ReturnsDateUtils.getCurrentDay} $monthMessage ${ReturnsDateUtils.getYear}"
 
@@ -52,7 +53,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
       val ua = ReturnsUserAnswers("id", periodKey, Json.obj(), Instant.now(), Instant.now())
         .set(EnterDutyAmountPage, 1000).success.value
 
-      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink, periodKey)
+      val vm = ConfirmationViewModel(ua, emailAddress, vpdRef.get, btaLink, periodKey, viewReturnUrl)
 
       vm.currentMonth mustBe monthMessage
     }

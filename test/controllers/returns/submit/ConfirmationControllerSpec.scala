@@ -36,6 +36,8 @@ class ConfirmationControllerSpec extends SpecBase {
 
   "ConfirmationController" - {
 
+    val viewReturnUrl = controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url
+
     "must return OK and the correct view for a GET" in {
 
       val mockSubscriptionConnector = mock[SubscriptionConnector]
@@ -65,7 +67,7 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val chargeReference = createReturnDisplayResponse().success.chargeDetails.get.chargeReference.get
 
-        val vm = ConfirmationViewModel(returnsUserAnswers, emailAddress, chargeReference, btaLink, periodKey)
+        val vm = ConfirmationViewModel(returnsUserAnswers, emailAddress, chargeReference, btaLink, periodKey, viewReturnUrl)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
