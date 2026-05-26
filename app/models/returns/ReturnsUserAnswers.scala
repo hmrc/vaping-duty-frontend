@@ -17,7 +17,7 @@
 package models.returns
 
 import models.RichJsObject
-import models.identifiers.VpdId
+import models.identifiers.{PeriodKey, VpdId}
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 import queries.{Gettable, Settable}
@@ -78,10 +78,10 @@ object ReturnsUserAnswers {
       (__ \ "lastUpdated").format(MongoJavatimeFormats.instantFormat)
   )(ReturnsUserAnswers.apply, o => Tuple.fromProductTyped(o))
   
-  def getEmptyReturnsUA(vpdId: VpdId, periodKey: String): ReturnsUserAnswers =
+  def getEmptyReturnsUA(vpdId: VpdId, periodKey: PeriodKey): ReturnsUserAnswers =
     ReturnsUserAnswers(
       vpdId = vpdId.value,
-      periodKey = periodKey,
+      periodKey = periodKey.value,
       data = JsObject.empty,
       startedTime = Instant.now(),
       lastUpdated = Instant.now()

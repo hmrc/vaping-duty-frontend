@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package models.returns.submit
+package models.identifiers
 
-import models.identifiers.PeriodKey
-import models.returns.{TotalDutyDue, VapingProductsProduced}
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Reads, Writes}
 
-case class ReturnCreateRequest(
-  periodKey: PeriodKey,
-  vapingProductsProduced: VapingProductsProduced,
-  totalDutyDue: TotalDutyDue
-)
+opaque type PeriodKey = String
 
-object ReturnCreateRequest {
-  given OFormat[ReturnCreateRequest] = Json.format[ReturnCreateRequest]
-}
+object PeriodKey:
+  def apply(key: String): PeriodKey = key
+
+  extension (key: PeriodKey)
+    def value: String = key
+
+  given Format[PeriodKey] = Format(
+    Reads.StringReads.map(PeriodKey.apply),
+    Writes.StringWrites.contramap[PeriodKey](_.value)
+  )
