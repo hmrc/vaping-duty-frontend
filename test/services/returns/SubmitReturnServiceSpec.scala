@@ -159,7 +159,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         val result = service.submit(returnsUserAnswers)
 
         whenReady(result.failed) { exception =>
-          exception mustBe a[NoSuchElementException]
+          exception mustBe a[IllegalStateException]
         }
       }
     }
