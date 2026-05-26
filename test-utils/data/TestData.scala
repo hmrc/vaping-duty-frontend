@@ -142,6 +142,9 @@ trait TestData {
     lastUpdated = Instant.now(clock)
   )
 
+  val testSummaryList: uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList =
+    uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList(rows = Seq.empty)
+
   val testVerificationDetails1: GetVerificationStatusResponseEmailAddressDetails =
     GetVerificationStatusResponseEmailAddressDetails(emailAddress = emailAddress, verified = false, locked = false)
   val testVerificationDetails2: GetVerificationStatusResponseEmailAddressDetails =

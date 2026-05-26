@@ -22,7 +22,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.SubmitReturnService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.returns.submit.CheckYourAnswersViewModel
+import viewmodels.returns.submit.CheckYourAnswersViewModelProvider
 import views.html.returns.submit.CheckYourAnswersView
 
 import javax.inject.Inject
@@ -35,13 +35,17 @@ class CheckYourAnswersController @Inject()(
                                        requireData: ReturnsDataRequiredAction,
                                        returnsEnabled: ReturnsEnabledAction,
                                        submitReturnService: SubmitReturnService,
+                                       checkYourAnswersViewModelProvider: CheckYourAnswersViewModelProvider,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: CheckYourAnswersView
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
-    val vm = CheckYourAnswersViewModel(request.userAnswers)
-    Ok(view(vm))
+  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
+    checkYourAnswersViewModelProvider(request.userAnswers).map { vm =>
+      Ok(view(vm))
+    }.recover { _ =>
+      Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+    }
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>

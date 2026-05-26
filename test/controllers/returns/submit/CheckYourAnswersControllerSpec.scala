@@ -25,21 +25,35 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.SubmitReturnService
-import viewmodels.returns.submit.CheckYourAnswersViewModel
+import viewmodels.returns.submit.{CheckYourAnswersViewModel, CheckYourAnswersViewModelProvider}
 import views.html.returns.submit.CheckYourAnswersView
 
 import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase {
 
+  private val mockViewModelProvider = mock[CheckYourAnswersViewModelProvider]
+
+  private val testViewModel = CheckYourAnswersViewModel(
+    finalDutySummaryList = testSummaryList,
+    dutySuspendedSummaryList = testSummaryList,
+    dutyDue = "£2,200",
+    dutyRate = "£2.20"
+  )
+
   "ReturnsCheckYourAnswers Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      when(mockViewModelProvider.apply(any())(any(), any()))
+        .thenReturn(Future.successful(testViewModel))
 
-      val vm = CheckYourAnswersViewModel(returnsUserAnswers)
-      
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(
+          bind[CheckYourAnswersViewModelProvider].toInstance(mockViewModelProvider)
+        )
+        .build()
+
       running(application) {
         val request = FakeRequest(GET, controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url)
 
@@ -48,7 +62,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[CheckYourAnswersView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(testViewModel)(request, messages(application)).toString
       }
     }
 
@@ -59,7 +73,10 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       when(mockService.submit(any())(any())).thenReturn(Future.successful(testReturnSubmissionResponse))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[SubmitReturnService].to(mockService))
+        .overrides(
+          bind[SubmitReturnService].to(mockService),
+          bind[CheckYourAnswersViewModelProvider].toInstance(mockViewModelProvider)
+        )
         .build()
 
 
@@ -80,7 +97,10 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       when(mockService.submit(any())(any())).thenReturn(Future.successful(Left(ErrorModel(BAD_GATEWAY, "Bad gateway"))))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[SubmitReturnService].to(mockService))
+        .overrides(
+          bind[SubmitReturnService].to(mockService),
+          bind[CheckYourAnswersViewModelProvider].toInstance(mockViewModelProvider)
+        )
         .build()
 
 
@@ -93,5 +113,25 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+
+    "must redirect to journey recovery when view model provider fails" in {
+
+      when(mockViewModelProvider.apply(any())(any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("Obligation not found")))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[CheckYourAnswersViewModelProvider].toInstance(mockViewModelProvider))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
   }
 }
+

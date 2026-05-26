@@ -16,34 +16,66 @@
 
 package viewmodels.returns.submit
 
+import models.identifiers.VpdId
+import models.obligations.ObligationDetails
 import models.returns.ReturnsUserAnswers
 import pages.returns.EnterDutyAmountPage
 import play.api.i18n.Messages
+import services.returns.{DutyRateService, ObligationService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import viewmodels.checkAnswers.ReturnsSummary.{calculateDuty, currencyFormat}
+import uk.gov.hmrc.http.HeaderCarrier
+import utils.CurrencyFormatter
 import viewmodels.checkAnswers.{DutySuspenseSummary, ReturnsSummary}
 
-case class CheckYourAnswersViewModel(
-                                      finalDutySummaryList: SummaryList,
-                                      dutySuspendedSummaryList: SummaryList,
-                                      dutyDue: String
-                                    )
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
-object CheckYourAnswersViewModel {
+final case class CheckYourAnswersViewModel(
+                                            finalDutySummaryList: SummaryList,
+                                            dutySuspendedSummaryList: SummaryList,
+                                            dutyDue: String,
+                                            dutyRate: String
+                                          )
+
+@Singleton
+class CheckYourAnswersViewModelProvider @Inject()(
+  dutyRateService: DutyRateService,
+  obligationService: ObligationService
+)(implicit ec: ExecutionContext) extends CurrencyFormatter {
 
   private val ZERO = "0"
-  
-  def apply(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): CheckYourAnswersViewModel =
-    CheckYourAnswersViewModel(
-      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers),
-      dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers),
-      dutyDue = dutyDue(userAnswers)
-    )
 
-  private def dutyDue(userAnswers: ReturnsUserAnswers) = {
+  def apply(userAnswers: ReturnsUserAnswers)
+           (implicit messages: Messages, hc: HeaderCarrier): Future[CheckYourAnswersViewModel] = {
+    obligationService.getObligationByPeriodKey(VpdId(userAnswers.vpdId), userAnswers.periodKey).map {
+      case Some(obligation) =>
+        CheckYourAnswersViewModel(
+          finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, obligation, dutyRateService),
+          dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers),
+          dutyDue = dutyDue(userAnswers, obligation),
+          dutyRate = currencyFormat(dutyRate(obligation))
+        )
+      case None =>
+        throw new RuntimeException(s"Obligation not found for vpdId: ${userAnswers.vpdId}, periodKey: ${userAnswers.periodKey}")
+    }
+  }
+
+  def dutyRate(obligation: ObligationDetails): BigDecimal = {
+    val currentPeriodRate = dutyRateService.getRateForDate(obligation.iCFromDate)
+    val dutyRate = BigDecimal(currentPeriodRate) / 100
+    dutyRate
+  }
+
+  private def dutyDue(
+                       userAnswers: ReturnsUserAnswers,
+                       obligation: ObligationDetails
+                     ): String = {
     userAnswers.get(EnterDutyAmountPage) match {
-      case Some(value) => currencyFormat(calculateDuty(value))
-      case None => currencyFormat(BigDecimal(ZERO))
+      case Some(value) =>
+        val dutyDue = (value * dutyRate(obligation)).setScale(2, BigDecimal.RoundingMode.DOWN)
+        currencyFormat(dutyDue)
+      case None =>
+        currencyFormat(BigDecimal(ZERO))
     }
   }
 }
