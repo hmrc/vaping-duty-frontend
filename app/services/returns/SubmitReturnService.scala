@@ -41,26 +41,27 @@ class SubmitReturnService @Inject()(
     given HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
 
     for {
-      obligation <- obligationService.getObligationByPeriodKey(request.enrolmentVpdId, ua.periodKey)
-      submission = buildSubmission(ua, obligation.get)
+      obligationOpt <- obligationService.getObligationByPeriodKey(request.enrolmentVpdId, ua.periodKey)
+      obligation <- obligationOpt match {
+        case Some(obl) => Future.successful(obl)
+        case None => Future.failed(new IllegalStateException(s"No obligation found for period key: ${ua.periodKey}"))
+      }
+      submission = buildSubmission(ua, obligation)
       result <- submitReturnConnector.submitReturn(submission, request.enrolmentVpdId)
     } yield result
   }
 
   private def buildSubmission(ua: ReturnsUserAnswers, obligation: ObligationDetails): ReturnCreateRequest = {
 
-    // Temp value
     val zeroValue = BigDecimal("0")
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
     val liquidInMl = ua.get(EnterDutyAmountPage).fold(zeroValue)(value => BigDecimal(value))
 
     val periodKey = ua.periodKey
 
-    // Look up duty rate for this period using the obligation's start date
     val currentPeriodRate = dutyRateService.getRateForDate(obligation.iCFromDate)
-    val dutyRate = BigDecimal(currentPeriodRate) / 100 // Convert pence to pounds
+    val dutyRate = BigDecimal(currentPeriodRate) / 100
 
-    // Will need to be enhanced
     val liquidInLitres = (liquidInMl - zeroValue) / BigDecimal("1000")
     val dutyDue = (liquidInMl * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
 

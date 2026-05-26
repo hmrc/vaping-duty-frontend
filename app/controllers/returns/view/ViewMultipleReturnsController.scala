@@ -42,8 +42,7 @@ class ViewMultipleReturnsController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
     implicit request =>
 
-      obligationService.getObligations(request.enrolmentVpdId)
-        .map { obligationResponse =>
+      obligationService.getObligations(request.enrolmentVpdId).map { obligationResponse =>
           Ok(view(ViewMultipleReturnsViewModel(obligationResponse)))
         }
         .recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))

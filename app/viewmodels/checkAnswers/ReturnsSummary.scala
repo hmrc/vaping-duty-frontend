@@ -62,7 +62,7 @@ object ReturnsSummary extends CurrencyFormatter {
     dutyRate: BigDecimal
   )(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(EnterDutyAmountPage) match {
-      case Some(value) if value < 10 => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
+      case Some(value) if value == 0 => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
       case Some(value) => 
         val dutyDue = calculateDuty(value, dutyRate)
         dutyRow(currencyFormat(dutyDue))

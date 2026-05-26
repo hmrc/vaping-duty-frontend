@@ -19,7 +19,6 @@ package controllers.returns.view
 import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import models.identifiers.VpdId
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ObligationService
@@ -43,11 +42,8 @@ class ViewIndividualReturnController @Inject()(
   def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
       for {
-        returnData <- connector.getReturn(periodKey, vpdId = request.enrolmentVpdId)
-        dutyRateOpt <- obligationService.getDutyRateForPeriod(
-          request.enrolmentVpdId,
-          periodKey
-        )
+        returnData <- connector.getReturn(periodKey, request.enrolmentVpdId)
+        dutyRateOpt <- obligationService.getDutyRateForPeriod(request.enrolmentVpdId, periodKey)
       } yield {
         val dutyRate = dutyRateOpt.getOrElse(BigDecimal(0))
         Ok(view(ViewIndividualReturnViewModel(returnData, dutyRate)))

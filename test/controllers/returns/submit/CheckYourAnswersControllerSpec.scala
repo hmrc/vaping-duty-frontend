@@ -32,8 +32,6 @@ import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase {
 
-  private val testDutyRate = BigDecimal("3.15")
-
   "ReturnsCheckYourAnswers Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -44,9 +42,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .thenReturn(Future.successful(Some(testDutyRate)))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(
-          bind[ObligationService].toInstance(mockObligationService)
-        )
+        .overrides(bind[ObligationService].toInstance(mockObligationService))
         .build()
 
       running(application) {
@@ -70,9 +66,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .thenReturn(Future.successful(None))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(
-          bind[ObligationService].toInstance(mockObligationService)
-        )
+        .overrides(bind[ObligationService].toInstance(mockObligationService))
         .build()
 
       running(application) {

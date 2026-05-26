@@ -22,8 +22,6 @@ import viewmodels.returns.submit.CheckYourAnswersViewModel
 
 class CheckYourAnswersViewModelSpec extends SpecBase {
 
-  private val testDutyRate = BigDecimal("3.15")
-
   "CheckYourAnswersViewModel" - {
 
     "must create view model with correct duty due" in {

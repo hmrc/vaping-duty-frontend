@@ -61,7 +61,7 @@ class DutyRateConfig @Inject()(configuration: Configuration) {
           dayAfterCurrentEnd.isEqual(next.startDate),
           s"Gap or overlap detected between periods: ${current.endDate} and ${next.startDate}"
         )
-      case _ => // Single element, no validation needed
+      case _ => RuntimeException("Duty rates misconfigured")
     }
     
     // Ensure current date is covered

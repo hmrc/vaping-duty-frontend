@@ -18,7 +18,7 @@ package services.returns
 
 import base.SpecBase
 import connectors.returns.ObligationsConnector
-import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse}
+import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -32,7 +32,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
   private val mockDutyRateService = mock[DutyRateService]
   
   private val obligation1 = ObligationDetails(
-    openOrFulfilledStatus = "O",
+    openOrFulfilledStatus = ObligationStatus.O.toString,
     iCFromDate = LocalDate.of(2026, 1, 1),
     iCToDate = LocalDate.of(2026, 1, 31),
     iCDateReceived = None,
@@ -41,7 +41,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
   )
   
   private val obligation2 = ObligationDetails(
-    openOrFulfilledStatus = "O",
+    openOrFulfilledStatus = ObligationStatus.O.toString,
     iCFromDate = LocalDate.of(2026, 2, 1),
     iCToDate = LocalDate.of(2026, 2, 28),
     iCDateReceived = None,
@@ -50,7 +50,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
   )
   
   private val obligation3 = ObligationDetails(
-    openOrFulfilledStatus = "F",
+    openOrFulfilledStatus = ObligationStatus.F.toString,
     iCFromDate = LocalDate.of(2026, 3, 1),
     iCToDate = LocalDate.of(2026, 3, 31),
     iCDateReceived = Some(LocalDate.of(2026, 4, 15)),

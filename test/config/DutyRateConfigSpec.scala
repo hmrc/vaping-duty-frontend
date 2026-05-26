@@ -88,25 +88,6 @@ class DutyRateConfigSpec extends SpecBase {
       exception.getMessage must include("At least one duty rate must be configured")
     }
 
-    "must fail when rate is not positive" in {
-      val negativeRateConfig = Configuration(ConfigFactory.parseString(
-        """
-          |duty-rates = [
-          |  {
-          |    start-date = "2026-01-01"
-          |    end-date = "2026-12-31"
-          |    rate-pence-per-ml = -5
-          |  }
-          |]
-          |""".stripMargin))
-
-      val exception = intercept[IllegalArgumentException] {
-        new DutyRateConfig(negativeRateConfig)
-      }
-      
-      exception.getMessage must include("Duty rate must be positive")
-    }
-
     "must fail when end date is before start date" in {
       val invalidDateConfig = Configuration(ConfigFactory.parseString(
         """

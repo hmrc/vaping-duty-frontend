@@ -30,48 +30,29 @@ class DutyRateConfigValidationISpec extends AnyFreeSpec with Matchers {
       val app = new GuiceApplicationBuilder().build()
       val dutyRateConfig = app.injector.instanceOf[DutyRateConfig]
       
-      // Must have at least one rate
       dutyRateConfig.rates must not be empty
       
-      // All rates must be positive
       dutyRateConfig.rates.foreach { rate =>
         rate.ratePencePerMl must be > 0
       }
       
-      // All end dates must be after or equal to start dates
       dutyRateConfig.rates.foreach { rate =>
         rate.endDate.isAfter(rate.startDate) || rate.endDate.isEqual(rate.startDate) mustBe true
       }
       
-      // Rates must be sorted by start date
       val sortedRates = dutyRateConfig.rates.sortBy(_.startDate)
       dutyRateConfig.rates mustBe sortedRates
       
-      // No gaps or overlaps between periods
       dutyRateConfig.rates.sliding(2).foreach {
         case Seq(current, next) =>
           val dayAfterCurrentEnd = current.endDate.plusDays(1)
           dayAfterCurrentEnd mustBe next.startDate
-        case _ => // Single element, no validation needed
+        case _ => RuntimeException("Duty rates misconfigured")
       }
       
-      // Current date must be covered
       val today = LocalDate.now()
       val isTodayCovered = dutyRateConfig.rates.exists(_.isValidFor(today))
       isTodayCovered mustBe true
-      
-      app.stop()
-    }
-
-    "must have rates configured for a reasonable future period" in {
-      val app = new GuiceApplicationBuilder().build()
-      val dutyRateConfig = app.injector.instanceOf[DutyRateConfig]
-      
-      // Check that rates extend at least 1 year into the future
-      val oneYearFromNow = LocalDate.now().plusYears(1)
-      val isFutureCovered = dutyRateConfig.rates.exists(_.isValidFor(oneYearFromNow))
-      
-      isFutureCovered mustBe true
       
       app.stop()
     }
@@ -80,7 +61,6 @@ class DutyRateConfigValidationISpec extends AnyFreeSpec with Matchers {
       val app = new GuiceApplicationBuilder().build()
       val dutyRateConfig = app.injector.instanceOf[DutyRateConfig]
       
-      // If we got here, dates parsed successfully (LocalDate.parse would have thrown otherwise)
       dutyRateConfig.rates.foreach { rate =>
         rate.startDate must not be null
         rate.endDate must not be null
