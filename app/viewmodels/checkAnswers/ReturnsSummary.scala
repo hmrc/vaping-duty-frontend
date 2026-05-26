@@ -17,11 +17,9 @@
 package viewmodels.checkAnswers
 
 import models.CheckMode
-import models.obligations.ObligationDetails
 import models.returns.ReturnsUserAnswers
 import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import play.api.i18n.Messages
-import services.returns.DutyRateService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
 import utils.{CssConstants, CurrencyFormatter}
@@ -32,15 +30,14 @@ object ReturnsSummary extends CurrencyFormatter {
 
   def summaryList(
     answers: ReturnsUserAnswers,
-    obligation: ObligationDetails,
-    dutyRateService: DutyRateService
+    dutyRate: BigDecimal
   )(implicit messages: Messages): SummaryList = {
     val rows = Seq(
-      buildDutyRow(answers, obligation, dutyRateService),
+      buildDutyRow(answers, dutyRate),
       //      buildSpoiltRow(answers),
       //      buildOverRow(answers),
       //      buildUnderRow(answers),
-      buildTotalDutyRow(answers, obligation, dutyRateService)
+      buildTotalDutyRow(answers, dutyRate)
     ).flatten
 
     SummaryList(rows = rows, classes = CssConstants.marginBottom9)
@@ -57,17 +54,17 @@ object ReturnsSummary extends CurrencyFormatter {
     ))
   }
 
+  def calculateDuty(amount: BigDecimal, dutyRate: BigDecimal): BigDecimal =
+    (amount * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
+
   private def buildDutyRow(
     answers: ReturnsUserAnswers,
-    obligation: ObligationDetails,
-    dutyRateService: DutyRateService
+    dutyRate: BigDecimal
   )(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(EnterDutyAmountPage) match {
       case Some(value) if value < 10 => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
       case Some(value) => 
-        val currentPeriodRate = dutyRateService.getRateForDate(obligation.iCFromDate)
-        val dutyRate = BigDecimal(currentPeriodRate) / 100
-        val dutyDue = (value * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
+        val dutyDue = calculateDuty(value, dutyRate)
         dutyRow(currencyFormat(dutyDue))
       case None => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
     }
@@ -118,14 +115,11 @@ object ReturnsSummary extends CurrencyFormatter {
 
   private def buildTotalDutyRow(
     answers: ReturnsUserAnswers,
-    obligation: ObligationDetails,
-    dutyRateService: DutyRateService
+    dutyRate: BigDecimal
   )(implicit messages: Messages): Option[SummaryListRow] = {
     answers.get(EnterDutyAmountPage) match {
       case Some(value) => 
-        val currentPeriodRate = dutyRateService.getRateForDate(obligation.iCFromDate)
-        val dutyRate = BigDecimal(currentPeriodRate) / 100
-        val dutyDue = (value * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
+        val dutyDue = calculateDuty(value, dutyRate)
         totalDutyRow(currencyFormat(dutyDue))
       case None => totalDutyRow(messages("returns.CheckYourAnswers.dutySummary.total.nil"))
     }

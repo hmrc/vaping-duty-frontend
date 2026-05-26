@@ -18,39 +18,34 @@ package controllers.returns.submit
 
 import base.SpecBase
 import models.emailverification.ErrorModel
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.SubmitReturnService
-import viewmodels.returns.submit.{CheckYourAnswersViewModel, CheckYourAnswersViewModelProvider}
+import services.returns.{ObligationService, SubmitReturnService}
+import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
 
 import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase {
 
-  private val mockViewModelProvider = mock[CheckYourAnswersViewModelProvider]
-
-  private val testViewModel = CheckYourAnswersViewModel(
-    finalDutySummaryList = testSummaryList,
-    dutySuspendedSummaryList = testSummaryList,
-    dutyDue = "£2,200",
-    dutyRate = "£2.20"
-  )
+  private val testDutyRate = BigDecimal("3.15")
 
   "ReturnsCheckYourAnswers Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      when(mockViewModelProvider.apply(any())(any(), any()))
-        .thenReturn(Future.successful(testViewModel))
+      val mockObligationService = mock[ObligationService]
+
+      when(mockObligationService.getDutyRateForPeriod(eqTo(vpdId), eqTo(periodKey))(any()))
+        .thenReturn(Future.successful(Some(testDutyRate)))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(
-          bind[CheckYourAnswersViewModelProvider].toInstance(mockViewModelProvider)
+          bind[ObligationService].toInstance(mockObligationService)
         )
         .build()
 
@@ -60,22 +55,50 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[CheckYourAnswersView]
+        val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate)(messages(application))
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(testViewModel)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+      }
+    }
+
+    "must use zero duty rate when obligation service returns None" in {
+
+      val mockObligationService = mock[ObligationService]
+
+      when(mockObligationService.getDutyRateForPeriod(eqTo(vpdId), eqTo(periodKey))(any()))
+        .thenReturn(Future.successful(None))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(
+          bind[ObligationService].toInstance(mockObligationService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[CheckYourAnswersView]
+        val vm = CheckYourAnswersViewModel(returnsUserAnswers, BigDecimal(0))(messages(application))
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
       }
     }
 
     "must submit and return the correct response for a POST" in {
 
       val mockService = mock[SubmitReturnService]
+      val mockObligationService = mock[ObligationService]
 
       when(mockService.submit(any())(any())).thenReturn(Future.successful(testReturnSubmissionResponse))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(
           bind[SubmitReturnService].to(mockService),
-          bind[CheckYourAnswersViewModelProvider].toInstance(mockViewModelProvider)
+          bind[ObligationService].toInstance(mockObligationService)
         )
         .build()
 
@@ -93,13 +116,14 @@ class CheckYourAnswersControllerSpec extends SpecBase {
     "must redirect to journey recovery when there is an issue submitting" in {
 
       val mockService = mock[SubmitReturnService]
+      val mockObligationService = mock[ObligationService]
 
       when(mockService.submit(any())(any())).thenReturn(Future.successful(Left(ErrorModel(BAD_GATEWAY, "Bad gateway"))))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(
           bind[SubmitReturnService].to(mockService),
-          bind[CheckYourAnswersViewModelProvider].toInstance(mockViewModelProvider)
+          bind[ObligationService].toInstance(mockObligationService)
         )
         .build()
 
@@ -114,13 +138,15 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to journey recovery when view model provider fails" in {
+    "must redirect to journey recovery when obligation service fails" in {
 
-      when(mockViewModelProvider.apply(any())(any(), any()))
+      val mockObligationService = mock[ObligationService]
+
+      when(mockObligationService.getDutyRateForPeriod(eqTo(vpdId), eqTo(periodKey))(any()))
         .thenReturn(Future.failed(new RuntimeException("Obligation not found")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[CheckYourAnswersViewModelProvider].toInstance(mockViewModelProvider))
+        .overrides(bind[ObligationService].toInstance(mockObligationService))
         .build()
 
       running(application) {
@@ -134,4 +160,3 @@ class CheckYourAnswersControllerSpec extends SpecBase {
     }
   }
 }
-
