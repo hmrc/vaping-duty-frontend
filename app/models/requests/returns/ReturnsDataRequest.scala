@@ -16,7 +16,7 @@
 
 package models.requests.returns
 
-import models.identifiers.{CredentialId, InternalId, VpdId}
+import models.identifiers.{CredentialId, InternalId, PeriodKey, VpdId}
 import models.returns.ReturnsUserAnswers
 import play.api.mvc.{Request, WrappedRequest}
 
@@ -24,12 +24,12 @@ case class ReturnsOptionalDataRequest[A](request: Request[A],
                                          enrolmentVpdId: VpdId,
                                          internalId: InternalId,
                                          credId: CredentialId,
-                                         periodKey: String,
+                                         periodKey: PeriodKey,
                                          userAnswers: Option[ReturnsUserAnswers]) extends WrappedRequest[A](request)
 
 case class ReturnsDataRequest[A](request: Request[A],
                                  enrolmentVpdId: VpdId,
                                  internalId: InternalId,
                                  credId: CredentialId,
-                                 periodKey: String,
+                                 periodKey: PeriodKey,
                                  userAnswers: ReturnsUserAnswers) extends WrappedRequest[A](request)

@@ -18,6 +18,7 @@ package services.returns
 
 import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
+import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
@@ -57,7 +58,7 @@ class SubmitReturnService @Inject()(
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
     val liquidInMl = ua.get(EnterDutyAmountPage).fold(zeroValue)(value => BigDecimal(value))
 
-    val periodKey = ua.periodKey
+    val periodKey = PeriodKey(ua.periodKey)
 
     val dutyRateInPencePerMl: Int = dutyRateService.getRateForDate(obligation.iCFromDate)
 
