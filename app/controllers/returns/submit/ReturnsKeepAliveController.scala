@@ -18,7 +18,7 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.ReturnsDataRetrievalAction
-import models.identifiers.VpdId
+import models.identifiers.PeriodKey
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -38,7 +38,7 @@ class ReturnsKeepAliveController @Inject()(
       request.userAnswers
         .map {
           answers =>
-            userAnswersService.keepAlive(VpdId(request.enrolmentVpdId.value), answers.periodKey).map(_ => Ok)
+            userAnswersService.keepAlive(request.enrolmentVpdId, PeriodKey(answers.periodKey)).map(_ => Ok)
         }
         .getOrElse(Future.successful(Ok))
   }
