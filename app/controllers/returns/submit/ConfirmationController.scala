@@ -22,6 +22,7 @@ import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import models.BtaLink
+import models.identifiers.PeriodKey
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -63,7 +64,7 @@ class ConfirmationController @Inject()(
               chargeReference.toUpperCase,
               btaUrl,
               request.periodKey,
-              controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(request.periodKey).url
+              controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(request.periodKey.value).url
             )
 
             Ok(view(vm))

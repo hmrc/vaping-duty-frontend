@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import controllers.actions.*
 import controllers.actions.returns.{ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -48,7 +49,7 @@ class BeforeYouStartController @Inject()(
         case Some(existingUa) if existingUa.periodKey == pk =>
           existingUa
         case _ =>
-          ReturnsUserAnswers.getEmptyReturnsUA(request.enrolmentVpdId, pk)
+          ReturnsUserAnswers.getEmptyReturnsUA(request.enrolmentVpdId, PeriodKey(pk))
       }
 
       sessionRepository.set(ua).map(_ =>
