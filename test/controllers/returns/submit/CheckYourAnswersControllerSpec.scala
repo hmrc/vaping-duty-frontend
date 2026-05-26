@@ -40,7 +40,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
       val mockObligationService = mock[ObligationService]
 
-      when(mockObligationService.getDutyRateForPeriod(eqTo(vpdId), eqTo(periodKey))(any()))
+      when(mockObligationService.getDutyRateForPeriod(eqTo(vpdId), eqTo(periodKey))(using any()))
         .thenReturn(Future.successful(Some(testDutyRate)))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
@@ -66,7 +66,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
       val mockObligationService = mock[ObligationService]
 
-      when(mockObligationService.getDutyRateForPeriod(eqTo(vpdId), eqTo(periodKey))(any()))
+      when(mockObligationService.getDutyRateForPeriod(eqTo(vpdId), eqTo(periodKey))(using any()))
         .thenReturn(Future.successful(None))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
@@ -142,7 +142,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
       val mockObligationService = mock[ObligationService]
 
-      when(mockObligationService.getDutyRateForPeriod(eqTo(vpdId), eqTo(periodKey))(any()))
+      when(mockObligationService.getDutyRateForPeriod(eqTo(vpdId), eqTo(periodKey))(using any()))
         .thenReturn(Future.failed(new RuntimeException("Obligation not found")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))

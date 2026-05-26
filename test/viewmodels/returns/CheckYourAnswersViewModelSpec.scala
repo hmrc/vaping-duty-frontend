@@ -27,7 +27,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
   "CheckYourAnswersViewModel" - {
 
     "must create view model with correct duty due" in {
-      val userAnswers = returnsUserAnswers.set(EnterDutyAmountPage, BigDecimal("1000")).success.value
+      val userAnswers = returnsUserAnswers.set(EnterDutyAmountPage, 1000).success.value
 
       val result = CheckYourAnswersViewModel(userAnswers, testDutyRate)
 
@@ -43,7 +43,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
     }
 
     "must create view model with correct summary lists" in {
-      val userAnswers = returnsUserAnswers.set(EnterDutyAmountPage, BigDecimal("500")).success.value
+      val userAnswers = returnsUserAnswers.set(EnterDutyAmountPage, 500).success.value
 
       val result = CheckYourAnswersViewModel(userAnswers, testDutyRate)
 
