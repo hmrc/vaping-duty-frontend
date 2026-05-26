@@ -19,8 +19,10 @@ package controllers.returns.view
 import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import models.identifiers.VpdId
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.view.ViewIndividualReturnViewModel
 import views.html.returns.view.ViewIndividualReturnView
@@ -32,6 +34,7 @@ class ViewIndividualReturnController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        connector: GetReturnsConnector,
+                                       obligationService: ObligationService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ViewIndividualReturnView,
                                        returnsEnabled: ReturnsEnabledAction
@@ -39,9 +42,15 @@ class ViewIndividualReturnController @Inject()(
 
   def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
-      connector.getReturn(periodKey, vpdId = request.enrolmentVpdId)
-        .map { returnData =>
-          Ok(view(ViewIndividualReturnViewModel(returnData)))
-        }
+      for {
+        returnData <- connector.getReturn(periodKey, vpdId = request.enrolmentVpdId)
+        dutyRateOpt <- obligationService.getDutyRateForPeriod(
+          request.enrolmentVpdId,
+          periodKey
+        )
+      } yield {
+        val dutyRate = dutyRateOpt.getOrElse(BigDecimal(0))
+        Ok(view(ViewIndividualReturnViewModel(returnData, dutyRate)))
+      }
   }
 }

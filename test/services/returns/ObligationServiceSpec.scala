@@ -19,7 +19,7 @@ package services.returns
 import base.SpecBase
 import connectors.returns.ObligationsConnector
 import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse}
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 
@@ -29,6 +29,7 @@ import scala.concurrent.Future
 class ObligationServiceSpec extends SpecBase with MockitoSugar {
 
   private val mockObligationsConnector = mock[ObligationsConnector]
+  private val mockDutyRateService = mock[DutyRateService]
   
   private val obligation1 = ObligationDetails(
     openOrFulfilledStatus = "O",
@@ -67,13 +68,26 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
 
   "ObligationService" - {
 
+    "getObligations" - {
+      "must return the obligations response" in {
+        when(mockObligationsConnector.getObligations(any())(using any()))
+          .thenReturn(Future.successful(mockObligationsResponse))
+        
+        val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
+        
+        val result = service.getObligations(vpdId).futureValue
+        
+        result mustBe mockObligationsResponse
+      }
+    }
+
     "getObligationByPeriodKey" - {
 
       "must return the correct obligation when periodKey exists" in {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(mockObligationsResponse))
         
-        val service = new ObligationService(mockObligationsConnector)
+        val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
         
         val result = service.getObligationByPeriodKey(vpdId, "26AB").futureValue
         
@@ -84,7 +98,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(mockObligationsResponse))
         
-        val service = new ObligationService(mockObligationsConnector)
+        val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
         
         val result = service.getObligationByPeriodKey(vpdId, "26XX").futureValue
         
@@ -103,7 +117,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(responseWithDuplicates))
         
-        val service = new ObligationService(mockObligationsConnector)
+        val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
         
         val result = service.getObligationByPeriodKey(vpdId, "26AA").futureValue
         
@@ -116,9 +130,48 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(emptyResponse))
         
-        val service = new ObligationService(mockObligationsConnector)
+        val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
         
         val result = service.getObligationByPeriodKey(vpdId, "26AA").futureValue
+        
+        result mustBe None
+      }
+    }
+
+    "getDutyRateForPeriod" - {
+      "must return the calculated duty rate when obligation exists" in {
+        when(mockObligationsConnector.getObligations(any())(using any()))
+          .thenReturn(Future.successful(mockObligationsResponse))
+        when(mockDutyRateService.getRateForDate(eqTo(obligation1.iCFromDate)))
+          .thenReturn(315)
+        
+        val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
+        
+        val result = service.getDutyRateForPeriod(vpdId, "26AA").futureValue
+        
+        result mustBe Some(BigDecimal("3.15"))
+      }
+
+      "must return None when the obligation does not exist" in {
+        when(mockObligationsConnector.getObligations(any())(using any()))
+          .thenReturn(Future.successful(mockObligationsResponse))
+        
+        val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
+        
+        val result = service.getDutyRateForPeriod(vpdId, "26XX").futureValue
+        
+        result mustBe None
+      }
+
+      "must return None when obligations response is empty" in {
+        val emptyResponse = ObligationsResponse(obligation = Seq.empty)
+        
+        when(mockObligationsConnector.getObligations(any())(using any()))
+          .thenReturn(Future.successful(emptyResponse))
+        
+        val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
+        
+        val result = service.getDutyRateForPeriod(vpdId, "26AA").futureValue
         
         result mustBe None
       }

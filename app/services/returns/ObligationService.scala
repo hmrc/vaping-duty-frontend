@@ -19,15 +19,19 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import connectors.returns.ObligationsConnector
 import models.identifiers.VpdId
-import models.obligations.ObligationDetails
+import models.obligations.{ObligationDetails, ObligationsResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ObligationService @Inject()(
-  obligationsConnector: ObligationsConnector
+  obligationsConnector: ObligationsConnector,
+  dutyRateService: DutyRateService
 )(using ExecutionContext) {
+  
+  def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[ObligationsResponse] =
+    obligationsConnector.getObligations(vpdId)
   
   def getObligationByPeriodKey(vpdId: VpdId, periodKey: String)
                               (using HeaderCarrier): Future[Option[ObligationDetails]] =
@@ -35,5 +39,14 @@ class ObligationService @Inject()(
       response.obligation
         .map(_.obligationDetails)
         .find(_.periodKey == periodKey)
+    }
+  
+  def getDutyRateForPeriod(vpdId: VpdId, periodKey: String)
+                          (using HeaderCarrier): Future[Option[BigDecimal]] =
+    getObligationByPeriodKey(vpdId, periodKey).map { obligationOpt =>
+      obligationOpt.map { obligation =>
+        val rate = dutyRateService.getRateForDate(obligation.iCFromDate)
+        BigDecimal(rate) / 100
+      }
     }
 }

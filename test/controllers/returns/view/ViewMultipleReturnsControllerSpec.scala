@@ -23,7 +23,7 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.ObligationsService
+import services.returns.ObligationService
 import uk.gov.hmrc.http.InternalServerException
 import viewmodels.returns.view.ViewMultipleReturnsViewModel
 import views.html.returns.view.ViewMultipleReturnsView
@@ -35,13 +35,13 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
   "ViewMultipleReturns Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val mockService = mock[ObligationsService]
+      val mockService = mock[ObligationService]
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationsService].to(mockService))
+        .overrides(bind[ObligationService].to(mockService))
         .build()
 
-      when(mockService.get(any())(any())).thenReturn(Future.successful(createMockObligationsResponse()))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(createMockObligationsResponse()))
 
       val vm = ViewMultipleReturnsViewModel(createMockObligationsResponse())(messages(application))
 
@@ -58,13 +58,13 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
     }
 
     "must redirect when obligation service request fails" in {
-      val mockService = mock[ObligationsService]
+      val mockService = mock[ObligationService]
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationsService].to(mockService))
+        .overrides(bind[ObligationService].to(mockService))
         .build()
 
-      when(mockService.get(any())(any())).thenReturn(Future.failed(InternalServerException("")))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.failed(InternalServerException("")))
 
       running(application) {
         val request = FakeRequest(GET, controllers.returns.view.routes.ViewMultipleReturnsController.onPageLoad().url)

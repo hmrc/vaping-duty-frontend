@@ -34,7 +34,8 @@ case class ViewIndividualReturnViewModel(
                                           totalDutyDueVapingProducts: String,
                                           totalDutyDue: String,
                                           monthYear: String,
-                                          submittedOn: String
+                                          submittedOn: String,
+                                          dutyRate: String
                                         ) {
 
   def vapingProductsDeclarationSummaryList(implicit messages: Messages): SummaryList =
@@ -112,7 +113,7 @@ case class ViewIndividualReturnViewModel(
 
 object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
-  def apply(returnsData: ReturnDisplayResponse)(using messages: Messages): ViewIndividualReturnViewModel = {
+  def apply(returnsData: ReturnDisplayResponse, dutyRate: BigDecimal)(using messages: Messages): ViewIndividualReturnViewModel = {
     val zeroValue = BigDecimal("0")
     val success = returnsData.success
 
@@ -161,7 +162,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       totalDutyDueVapingProducts = totalDutyDueVaping,
       totalDutyDue = totalDuty,
       monthYear = monthYearString,
-      submittedOn = submittedOnString
+      submittedOn = submittedOnString,
+      dutyRate = currencyFormat(dutyRate)
     )
   }
 }

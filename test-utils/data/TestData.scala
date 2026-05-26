@@ -37,6 +37,7 @@ trait TestData {
   val ukTimeZoneStringId = "Europe/London"
   val epochTime = 1718118467838L
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(epochTime), ZoneId.of(ukTimeZoneStringId))
+  val testDutyRate = BigDecimal("3.15")
 
   val internalId: InternalId = InternalId(id = "user-id")
   val credId: CredentialId = CredentialId(id = "cred-id")

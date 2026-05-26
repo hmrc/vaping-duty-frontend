@@ -21,7 +21,7 @@ import controllers.actions.contactPreference.DataRetrievalAction
 import controllers.actions.returns.ReturnsEnabledAction
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.ObligationsService
+import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.view.ViewMultipleReturnsViewModel
 import views.html.returns.view.ViewMultipleReturnsView
@@ -33,7 +33,7 @@ class ViewMultipleReturnsController @Inject()(
                                                override val messagesApi: MessagesApi,
                                                identify: ApprovedVapingManufacturerAuthAction,
                                                returnsEnabledAction: ReturnsEnabledAction,
-                                               obligationsService: ObligationsService,
+                                               obligationService: ObligationService,
                                                val controllerComponents: MessagesControllerComponents,
                                                getData: DataRetrievalAction,
                                                view: ViewMultipleReturnsView
@@ -42,7 +42,7 @@ class ViewMultipleReturnsController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
     implicit request =>
 
-      obligationsService.get(request.enrolmentVpdId)
+      obligationService.getObligations(request.enrolmentVpdId)
         .map { obligationResponse =>
           Ok(view(ViewMultipleReturnsViewModel(obligationResponse)))
         }
