@@ -20,6 +20,7 @@ import base.SpecBase
 import connectors.SubscriptionConnector
 import connectors.returns.GetReturnsConnector
 import models.contactPreference.SubscriptionContactPreferences
+import models.identifiers.PeriodKey
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -67,7 +68,7 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val chargeReference = createReturnDisplayResponse().success.chargeDetails.get.chargeReference.get
 
-        val vm = ConfirmationViewModel(returnsUserAnswers, emailAddress, chargeReference, btaLink, periodKey, viewReturnUrl)
+        val vm = ConfirmationViewModel(returnsUserAnswers, emailAddress, chargeReference, btaLink, PeriodKey(periodKey), viewReturnUrl)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString

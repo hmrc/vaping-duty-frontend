@@ -19,6 +19,7 @@ package connectors.returns
 import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import data.TestData
+import models.identifiers.PeriodKey
 import play.api.Application
 import play.api.http.Status.*
 import play.api.libs.json.Json
@@ -41,7 +42,7 @@ class GetReturnsConnectorISpec extends ISpecBase with WireMockHelper with TestDa
         get(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(createReturnDisplayResponse()).toString))
       )
 
-      val result = connector.getReturn(periodKey, vpdId).futureValue
+      val result = connector.getReturn(PeriodKey(periodKey), vpdId).futureValue
 
       result mustBe createReturnDisplayResponse()
     }
@@ -51,7 +52,7 @@ class GetReturnsConnectorISpec extends ISpecBase with WireMockHelper with TestDa
         get(url).willReturn(aResponse().withStatus(CREATED).withBody(Json.toJson("InvalidJSON").toString))
       )
 
-      val result = connector.getReturn(periodKey, vpdId)
+      val result = connector.getReturn(PeriodKey(periodKey), vpdId)
 
       whenReady(result.failed) { exception =>
         exception mustBe an[Exception]
@@ -63,7 +64,7 @@ class GetReturnsConnectorISpec extends ISpecBase with WireMockHelper with TestDa
         get(url).willReturn(aResponse().withStatus(BAD_GATEWAY).withBody(Json.toJson(createMockObligationsResponse()).toString))
       )
 
-      val result = connector.getReturn(periodKey, vpdId)
+      val result = connector.getReturn(PeriodKey(periodKey), vpdId)
 
       whenReady(result.failed) { exception =>
         exception mustBe an[Exception]
