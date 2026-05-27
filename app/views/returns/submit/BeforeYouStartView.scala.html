@@ -16,6 +16,7 @@
 
 @import components.{Paragraph, Heading, Link, Caption, List}
 @import viewmodels.returns.submit.BeforeYouStartViewModel
+@import models.requests.returns.ReturnsOptionalDataRequest
 
 @this(
         layout: templates.ReturnsLayout,
@@ -27,7 +28,7 @@
         list: List
 )
 
-@(vm: BeforeYouStartViewModel)(implicit request: Request[_], messages: Messages)
+@(vm: BeforeYouStartViewModel)(implicit request: ReturnsOptionalDataRequest[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("returns.beforeYouStart.title"))) {
 
@@ -58,7 +59,7 @@
 
     @govukButton(
         ButtonViewModel(messages("site.continue"))
-        .asLink(controllers.returns.submit.routes.TaskListController.onPageLoad().url)
+        .asLink(s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=${request.periodKey.value}")
     )
 
 }

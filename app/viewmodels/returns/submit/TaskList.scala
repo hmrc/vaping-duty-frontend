@@ -24,16 +24,17 @@ import services.returns.TaskStatusService
 object TaskList {
 
   def sections(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): Seq[TaskListSection] = {
+    val periodKey = userAnswers.periodKey
     Seq(
-      declareDutySection(userAnswers),
-      declareAdjustmentsSection(userAnswers),
-      dutySuspendedSection(userAnswers),
-      submissionSection(userAnswers)
+      declareDutySection(userAnswers, periodKey),
+      declareAdjustmentsSection(userAnswers, periodKey),
+      dutySuspendedSection(userAnswers, periodKey),
+      submissionSection(userAnswers, periodKey)
     )
   }
 
 
-  private def declareDutySection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSection = {
+  private def declareDutySection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
       headingKey = "returns.taskList.section.declareDuty.heading",
       rows = Seq(
@@ -41,13 +42,14 @@ object TaskList {
           id       = "duty-task",
           linkText = messages("returns.taskList.section.declareDuty.task1"),
           link     = controllers.returns.submit.routes.DeclareDutyController.onPageLoad(NormalMode),
-          status   = TaskStatusService.declareDutyTaskStatus(userAnswers)
+          status   = TaskStatusService.declareDutyTaskStatus(userAnswers),
+          periodKey = Some(periodKey)
         ).toTaskListItem
       )
     )
   }
 
-  private def declareAdjustmentsSection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSection = {
+  private def declareAdjustmentsSection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
       headingKey = "returns.taskList.section.declareAdjustments.heading",
       rows = Seq(
@@ -55,20 +57,22 @@ object TaskList {
           id = "declareAdjustments-task-1",
           linkText = messages("returns.taskList.declareAdjustments.task1"),
           link = controllers.routes.JourneyRecoveryController.onPageLoad(),
-          status = TaskStatus.NotStarted
+          status = TaskStatus.NotStarted,
+          periodKey = Some(periodKey)
         ).toTaskListItem,
         TaskRows(
           id = "declareAdjustments-task-2",
           linkText = messages("returns.taskList.declareAdjustments.task2"),
           link = controllers.routes.JourneyRecoveryController.onPageLoad(),
-          status = TaskStatus.NotStarted
+          status = TaskStatus.NotStarted,
+          periodKey = Some(periodKey)
         ).toTaskListItem
       )
     )
   }
 
 
-  private def dutySuspendedSection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSection = {
+  private def dutySuspendedSection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
       headingKey = "returns.taskList.section.dutySuspended.heading",
       rows = Seq(
@@ -76,13 +80,14 @@ object TaskList {
           id = "duty-suspended",
           linkText = messages("returns.taskList.section.dutySuspended.task1"),
           link = controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(NormalMode),
-          status = TaskStatusService.dutySuspenseTaskStatus(userAnswers)
+          status = TaskStatusService.dutySuspenseTaskStatus(userAnswers),
+          periodKey = Some(periodKey)
         ).toTaskListItem
       )
     )
   }
 
-  def submissionSection(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListSection = {
+  def submissionSection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
       headingKey = "returns.taskList.section.submitReturn.heading",
       rows = Seq(
@@ -91,7 +96,8 @@ object TaskList {
           linkText = messages("returns.taskList.submitReturn.task1"),
           link = controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(),
           status = TaskStatusService.submitTaskStatus(userAnswers),
-          hint = Some(messages("returns.taskList.submitReturn.task1.hint"))
+          hint = Some(messages("returns.taskList.submitReturn.task1.hint")),
+          periodKey = Some(periodKey)
         ).toTaskListItem
       )
     )

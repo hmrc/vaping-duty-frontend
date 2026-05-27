@@ -17,6 +17,7 @@
 @import utils.CssConstants.boldFontWeight
 @import components._
 @import viewmodels.returns.submit.ConfirmationViewModel
+@import models.requests.returns.ReturnsDataRequest
 
 @this(
         layout: templates.ReturnsLayout,
@@ -30,7 +31,7 @@
         link: Link
 )
 
-@(vm: ConfirmationViewModel)(implicit request: Request[_], messages: Messages)
+@(vm: ConfirmationViewModel)(implicit request: ReturnsDataRequest[_], messages: Messages)
 
 @dynamicContent = { @vm.content }
 

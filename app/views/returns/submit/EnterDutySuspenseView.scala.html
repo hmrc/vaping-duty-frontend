@@ -17,6 +17,8 @@
 @import viewmodels.InputWidth.*
 @import components.{Caption, Paragraph, Heading}
 @import viewmodels.LegendSize
+@import models.requests.returns.ReturnsDataRequest
+@import play.api.mvc.Call
 
 @this(
     layout: templates.ReturnsLayout,
@@ -29,11 +31,11 @@
     h1: Heading
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode)(implicit request: ReturnsDataRequest[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("returns.enterDutySuspense.title"))) {
 
-    @formHelper(action = controllers.returns.submit.routes.EnterDutySuspenseController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.EnterDutySuspenseController.onSubmit(mode).url}?period=${request.periodKey.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

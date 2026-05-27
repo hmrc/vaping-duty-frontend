@@ -16,6 +16,7 @@
 
 @import components.*
 @import viewmodels.returns.submit.CheckYourAnswersViewModel
+@import models.requests.returns.ReturnsDataRequest
 
 @this(
         layout: templates.ReturnsLayout,
@@ -29,7 +30,7 @@
         list: List
 )
 
-@(vm: CheckYourAnswersViewModel)(implicit request: Request[_], messages: Messages)
+@(vm: CheckYourAnswersViewModel)(implicit request: ReturnsDataRequest[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("returns.CheckYourAnswers.title", vm.dutyDue))) {
 
@@ -64,7 +65,7 @@
 
     @p(Seq(messages("returns.CheckYourAnswers.p.checkYour")))
 
-    @formHelper(action = controllers.returns.submit.routes.CheckYourAnswersController.onSubmit(), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url}?period=${request.periodKey.value}"), Symbol("autoComplete") -> "off") {
         @govukButton(ButtonViewModel(messages("returns.CheckYourAnswers.button")))
     }
 }
