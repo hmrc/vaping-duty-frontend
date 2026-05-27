@@ -34,7 +34,7 @@ class ReturnsDataRetrievalActionImpl @Inject()(val service: ReturnsUserAnswersSe
 
     val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     
-    request.session.get("periodKey") match {
+    request.getQueryString("period") match {
       case Some(periodKeyStr) =>
         val periodKey = PeriodKey(periodKeyStr)
         service.get(request.enrolmentVpdId, periodKey)(headerCarrier).map {

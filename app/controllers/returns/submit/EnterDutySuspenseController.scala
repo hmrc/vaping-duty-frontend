@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import controllers.returns.ReturnsControllerHelpers
 import forms.returns.EnterDutySuspenseFormProvider
 import models.Mode
 import models.returns.DutySuspenseVolumes
@@ -44,7 +45,7 @@ class EnterDutySuspenseController @Inject()(
                                         returnsEnabledAction: ReturnsEnabledAction,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: EnterDutySuspenseView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with ReturnsControllerHelpers {
 
   val form: Form[DutySuspenseVolumes] = formProvider()
 

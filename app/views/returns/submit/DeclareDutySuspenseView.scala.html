@@ -16,6 +16,8 @@
 
 @import viewmodels.LegendSize
 @import components.{Caption, Paragraph, Heading}
+@import models.requests.returns.ReturnsDataRequest
+@import play.api.mvc.Call
 
 @this(
     layout: templates.ReturnsLayout,
@@ -29,7 +31,7 @@
     p: Paragraph
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode)(implicit request: ReturnsDataRequest[_], messages: Messages)
 
 @detailsContent = {
     @p(Seq(Text(messages("returns.declareDutySuspense.details.content.p1"))))
@@ -39,7 +41,7 @@
 
 @layout(pageTitle = title(form, messages("returns.declareDutySuspense.title"))) {
 
-    @formHelper(action = controllers.returns.submit.routes.DeclareDutySuspenseController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclareDutySuspenseController.onSubmit(mode).url}?period=${request.periodKey.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
