@@ -19,6 +19,7 @@ package connectors.returns
 import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import data.TestData
+import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
 import play.api.Application
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
@@ -50,7 +51,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
         get(urlEqualTo(s"$getUrl"))
           .willReturn(aResponse().withStatus(OK).withBody(Json.toJson(answers).toString))
       )
-      val result = connector.get(vpdId, periodKey).futureValue
+      val result = connector.get(vpdId, PeriodKey(periodKey)).futureValue
 
       result mustBe Right(answers)
     }
@@ -60,7 +61,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
         get(urlEqualTo(s"$getUrl"))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR).withBody(internalServerErrorResponse.toString))
       )
-      val result = connector.get(vpdId, periodKey).futureValue
+      val result = connector.get(vpdId, PeriodKey(periodKey)).futureValue
 
       result.isLeft mustBe true
     }
@@ -96,7 +97,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
         post(urlEqualTo(keepAliveUrl))
           .willReturn(aResponse().withStatus(NO_CONTENT))
       )
-      val result = connector.keepAlive(vpdId, periodKey).futureValue
+      val result = connector.keepAlive(vpdId, PeriodKey(periodKey)).futureValue
 
       result.isRight mustBe true
     }
@@ -106,7 +107,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
         post(urlEqualTo(keepAliveUrl))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
       )
-      val result = connector.keepAlive(vpdId, periodKey).futureValue
+      val result = connector.keepAlive(vpdId, PeriodKey(periodKey)).futureValue
 
       result.isLeft mustBe true
     }
@@ -120,7 +121,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
         delete(urlEqualTo(deleteUrl))
           .willReturn(aResponse().withStatus(NO_CONTENT))
       )
-      val result = connector.clear(vpdId, periodKey).futureValue
+      val result = connector.clear(vpdId, PeriodKey(periodKey)).futureValue
 
       result.isRight mustBe true
 
@@ -131,7 +132,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
         delete(urlEqualTo(deleteUrl))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
       )
-      val result = connector.clear(vpdId, periodKey).futureValue
+      val result = connector.clear(vpdId, PeriodKey(periodKey)).futureValue
 
       result.isLeft mustBe true
     }

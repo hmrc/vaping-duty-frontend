@@ -18,7 +18,7 @@ package data
 
 import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, UserDetails}
 import models.emailverification.*
-import models.identifiers.{CredentialId, GroupId, InternalId, VpdId}
+import models.identifiers.{CredentialId, GroupId, InternalId, PeriodKey, VpdId}
 import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
@@ -224,7 +224,7 @@ trait TestData {
   val totalDue = totalInMl - zeroValue
 
   val testSubmitReturnRequest = ReturnCreateRequest(
-    periodKey,
+    PeriodKey(periodKey),
     VapingProductsProduced(Seq.empty, Seq.empty),
     TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
   )
