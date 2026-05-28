@@ -16,6 +16,7 @@
 
 package viewmodels.returns.view
 
+import models.returns.ConvertToMl
 import models.returns.view.*
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
@@ -129,7 +130,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val (amountProduced, dutyDueAmount) = vapingProducts match {
       case Some(vp) if vp.regularReturn.nonEmpty =>
         val regularReturn = vp.regularReturn.head
-        (Some(milliliterFormat(regularReturn.amountProducedLiquid * 1000)), Some(currencyFormat(regularReturn.dutyDue)))
+        (Some(milliliterFormat(ConvertToMl(regularReturn.amountProducedLiquid).toMl)), Some(currencyFormat(regularReturn.dutyDue)))
       case _ =>
         (None, None)
     }

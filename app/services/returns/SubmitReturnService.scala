@@ -60,9 +60,10 @@ class SubmitReturnService @Inject()(
     val periodKey = ua.periodKey
 
     val currentPeriodRate = dutyRateService.getRateForDate(obligation.iCFromDate)
-    val dutyRate = BigDecimal(currentPeriodRate) / 100
+    val dutyRate = DutyRateToPence(currentPeriodRate).toPence
 
-    val liquidInLitres = (liquidInMl - zeroValue) / BigDecimal("1000")
+    val liquidInLitres = ConvertToLitres(liquidInMl - zeroValue).toLitres
+
     val dutyDue = (liquidInMl * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
 
     val vapingProductsProduced = if (dutyDeclared) {
