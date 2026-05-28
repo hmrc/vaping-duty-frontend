@@ -164,10 +164,10 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
       }
 
       "must return None when obligations response is empty" in {
-        val emptyResponse = ObligationsResponse(obligation = Seq.empty)
+        val noObligations = ObligationsResponse(obligation = Seq.empty)
         
         when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(emptyResponse))
+          .thenReturn(Future.successful(noObligations))
         
         val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
         

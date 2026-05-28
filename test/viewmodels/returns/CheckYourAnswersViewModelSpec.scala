@@ -27,27 +27,27 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
     "must create view model with correct duty due" in {
       val userAnswers = returnsUserAnswers.set(EnterDutyAmountPage, 1000).success.value
 
-      val result = CheckYourAnswersViewModel(userAnswers, testDutyRate)
+      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate)
 
-      result.dutyDue mustBe "£3,150"
-      result.dutyRate mustBe "£3.15"
+      vm.dutyDue mustBe "£3,150"
+      vm.dutyRate mustBe "£3.15"
     }
 
     "must create view model with zero duty when no amount entered" in {
-      val result = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate)
+      val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate)
 
-      result.dutyDue mustBe "£0"
-      result.dutyRate mustBe "£3.15"
+      vm.dutyDue mustBe "£0"
+      vm.dutyRate mustBe "£3.15"
     }
 
     "must create view model with correct summary lists" in {
       val userAnswers = returnsUserAnswers.set(EnterDutyAmountPage, 500).success.value
 
-      val result = CheckYourAnswersViewModel(userAnswers, testDutyRate)
+      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate)
 
-      result.finalDutySummaryList.rows must not be empty
-      result.dutySuspendedSummaryList.rows must not be empty
-      result.dutyDue mustBe "£1,575"
+      vm.finalDutySummaryList.rows must not be empty
+      vm.dutySuspendedSummaryList.rows must not be empty
+      vm.dutyDue mustBe "£1,575"
     }
   }
 }
