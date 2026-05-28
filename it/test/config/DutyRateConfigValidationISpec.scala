@@ -37,16 +37,16 @@ class DutyRateConfigValidationISpec extends AnyFreeSpec with Matchers {
       }
       
       dutyRateConfig.rates.foreach { rate =>
-        rate.endDate.isAfter(rate.startDate) || rate.endDate.isEqual(rate.startDate) mustBe true
+        rate.period.end.isAfter(rate.period.start) || rate.period.end.isEqual(rate.period.start) mustBe true
       }
       
-      val sortedRates = dutyRateConfig.rates.sortBy(_.startDate)
+      val sortedRates = dutyRateConfig.rates.sortBy(_.period.start)
       dutyRateConfig.rates mustBe sortedRates
       
       dutyRateConfig.rates.sliding(2).foreach {
         case Seq(current, next) =>
-          val dayAfterCurrentEnd = current.endDate.plusDays(1)
-          dayAfterCurrentEnd mustBe next.startDate
+          val dayAfterCurrentEnd = current.period.end.plusDays(1)
+          dayAfterCurrentEnd mustBe next.period.start
         case _ => RuntimeException("Duty rates misconfigured")
       }
       
@@ -62,8 +62,8 @@ class DutyRateConfigValidationISpec extends AnyFreeSpec with Matchers {
       val dutyRateConfig = app.injector.instanceOf[DutyRateConfig]
       
       dutyRateConfig.rates.foreach { rate =>
-        rate.startDate must not be null
-        rate.endDate must not be null
+        rate.period.start must not be null
+        rate.period.end must not be null
       }
       
       app.stop()
