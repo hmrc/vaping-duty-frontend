@@ -17,7 +17,7 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
-import models.returns.{DutyRate, DutyRateValidationError}
+import models.returns.{DutyRate, DutyRateValidationError, DateRange}
 import play.api.Configuration
 
 import java.time.LocalDate
@@ -31,7 +31,7 @@ class DutyRateConfig @Inject()(configuration: Configuration) {
     val configList = configuration.get[Seq[Configuration]](DUTY_RATES_KEY)
     val parsedRates = configList.map { rateConfig =>
       DutyRate(
-        period = models.returns.DateRange(
+        period = DateRange(
           start = LocalDate.parse(rateConfig.get[String]("start-date")),
           end = LocalDate.parse(rateConfig.get[String]("end-date"))
         ),
