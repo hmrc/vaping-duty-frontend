@@ -19,18 +19,11 @@ package models.returns
 import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 
 final case class DateRange(start: LocalDate, end: LocalDate) {
   
   def contains(date: LocalDate): Boolean =
     !date.isBefore(start) && !date.isAfter(end)
-  
-  def overlaps(other: DateRange): Boolean =
-    !this.end.isBefore(other.start) && !other.end.isBefore(this.start)
-  
-  def durationInDays: Long =
-    ChronoUnit.DAYS.between(start, end)
 }
 
 object DateRange {
