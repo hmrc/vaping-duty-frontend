@@ -39,6 +39,13 @@ trait TestData {
   val clock: Clock = Clock.fixed(Instant.ofEpochMilli(epochTime), ZoneId.of(ukTimeZoneStringId))
   val testDutyRate = BigDecimal("3.15")
 
+  val sampleRegularReturn: models.returns.RegularReturn = models.returns.RegularReturn(
+    taxType = "351",
+    dutyRate = testDutyRate,
+    amountProducedLiquid = BigDecimal("1000"),
+    dutyDue = BigDecimal("3150")
+  )
+
   val internalId: InternalId = InternalId(id = "user-id")
   val credId: CredentialId = CredentialId(id = "cred-id")
 
@@ -290,7 +297,7 @@ trait TestData {
         vapingProductsProduced = Some(
           VapingProductsProduced(
             nilReturn = Seq.empty,
-            regularReturn = Seq.empty
+            regularReturn = Seq(sampleRegularReturn)
           )
         ),
         overDeclaration = Some(

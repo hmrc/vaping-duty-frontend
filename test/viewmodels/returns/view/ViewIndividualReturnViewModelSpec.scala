@@ -51,9 +51,9 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       val result = ViewIndividualReturnViewModel(returnResponse, testDutyRate)
 
       result.chargeReference mustBe "XVC123456789012"
-      result.hasVapingProductsDeclaration mustBe false
-      result.amountProducedLiquid mustBe None
-      result.dutyDue mustBe None
+      result.hasVapingProductsDeclaration mustBe true
+      result.amountProducedLiquid mustBe Some("1,000,000.00")
+      result.dutyDue mustBe Some("£3,150")
       result.totalDutyDueVapingProducts mustBe "£1,000"
       result.totalDutyDue mustBe "£1,825"
       result.monthYear mustBe "June 2026"

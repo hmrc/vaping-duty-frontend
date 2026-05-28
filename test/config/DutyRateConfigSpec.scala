@@ -24,26 +24,25 @@ import java.time.LocalDate
 
 class DutyRateConfigSpec extends SpecBase {
 
-  private val validConfig = Configuration(ConfigFactory.parseString(
-    """
-      |duty-rates = [
-      |  {
-      |    start-date = "2026-01-01"
-      |    end-date = "2026-12-31"
-      |    rate-pence-per-ml = 22
-      |  },
-      |  {
-      |    start-date = "2027-01-01"
-      |    end-date = "9999-12-31"
-      |    rate-pence-per-ml = 30
-      |  }
-      |]
-      |""".stripMargin))
-
   "DutyRateConfig" - {
 
     "must parse valid configuration" in {
-      val config = new DutyRateConfig(validConfig)
+
+      val config = new DutyRateConfig(Configuration(ConfigFactory.parseString(
+        """
+          |duty-rates = [
+          |  {
+          |    start-date = "2026-01-01"
+          |    end-date = "2026-12-31"
+          |    rate-pence-per-ml = 22
+          |  },
+          |  {
+          |    start-date = "2027-01-01"
+          |    end-date = "9999-12-31"
+          |    rate-pence-per-ml = 30
+          |  }
+          |]
+          |""".stripMargin)))
       
       config.rates must have size 2
       config.rates.head.startDate mustBe LocalDate.of(2026, 1, 1)
@@ -173,6 +172,26 @@ class DutyRateConfigSpec extends SpecBase {
       
       exception.getMessage must include("Current date")
       exception.getMessage must include("is not covered by any configured duty rate period")
+    }
+
+    "must accept a single valid rate that covers the current date" in {
+      val singleRateConfig = Configuration(ConfigFactory.parseString(
+        """
+          |duty-rates = [
+          |  {
+          |    start-date = "2026-01-01"
+          |    end-date = "9999-12-31"
+          |    rate-pence-per-ml = 25
+          |  }
+          |]
+          |""".stripMargin))
+
+      val config = new DutyRateConfig(singleRateConfig)
+      
+      config.rates must have size 1
+      config.rates.head.startDate mustBe LocalDate.of(2026, 1, 1)
+      config.rates.head.endDate mustBe LocalDate.of(9999, 12, 31)
+      config.rates.head.ratePencePerMl mustBe 25
     }
   }
 }

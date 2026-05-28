@@ -17,7 +17,7 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
-import models.returns.DutyRate
+import models.returns.{DutyRate, DutyRateValidationError}
 import play.api.Configuration
 
 import java.time.LocalDate
@@ -37,38 +37,12 @@ class DutyRateConfig @Inject()(configuration: Configuration) {
       )
     }.sortBy(_.startDate)
     
-    validateRates(parsedRates)
-    parsedRates
-  }
-  
-  private def validateRates(rates: Seq[DutyRate]): Unit = {
-    require(rates.nonEmpty, "At least one duty rate must be configured")
-    
-    // Validate each rate
-    rates.foreach { rate =>
-      require(rate.ratePencePerMl > 0, s"Duty rate must be positive: ${rate.ratePencePerMl}")
-      require(
-        rate.endDate.isAfter(rate.startDate) || rate.endDate.isEqual(rate.startDate),
-        s"End date must be after or equal to start date: ${rate.startDate} to ${rate.endDate}"
-      )
+    DutyRateValidator.validate(parsedRates) match {
+      case Right(validRates) => validRates
+      case Left(errors)      => 
+        val errorMessage = errors.map(_.message).mkString("\n  - ", "\n  - ", "")
+        // scalafix:off DisableSyntax.throw
+        throw new IllegalArgumentException(s"Invalid duty rate configuration:$errorMessage")
     }
-    
-    // Check for gaps and overlaps
-    rates.sliding(2).foreach {
-      case Seq(current, next) =>
-        val dayAfterCurrentEnd = current.endDate.plusDays(1)
-        require(
-          dayAfterCurrentEnd.isEqual(next.startDate),
-          s"Gap or overlap detected between periods: ${current.endDate} and ${next.startDate}"
-        )
-      case _ => RuntimeException("Duty rates misconfigured")
-    }
-    
-    // Ensure current date is covered
-    val today = LocalDate.now()
-    require(
-      rates.exists(_.isValidFor(today)),
-      s"Current date $today is not covered by any configured duty rate period"
-    )
   }
 }

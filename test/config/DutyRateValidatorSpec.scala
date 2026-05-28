@@ -1,0 +1,330 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package config
+
+import base.SpecBase
+import models.returns.{DutyRate, DutyRateValidationError}
+import DutyRateValidationError._
+
+import java.time.LocalDate
+
+class DutyRateValidatorSpec extends SpecBase {
+
+  private val validRate1 = DutyRate(
+    startDate = LocalDate.of(2026, 1, 1),
+    endDate = LocalDate.of(2026, 12, 31),
+    ratePencePerMl = 22
+  )
+
+  private val validRate2 = DutyRate(
+    startDate = LocalDate.of(2027, 1, 1),
+    endDate = LocalDate.of(9999, 12, 31),
+    ratePencePerMl = 30
+  )
+
+  "validateNonEmpty" - {
+
+    "must return Right for a non-empty sequence" in {
+      val rates = Seq(validRate1)
+
+      val result = DutyRateValidator.validateNonEmpty(rates)
+
+      result mustBe Right(rates)
+    }
+
+    "must return Left(EmptyRates) for an empty sequence" in {
+      val rates = Seq.empty[DutyRate]
+
+      val result = DutyRateValidator.validateNonEmpty(rates)
+
+      result mustBe Left(List(EmptyRates))
+    }
+  }
+
+  "validatePositiveRates" - {
+
+    "must return Right when all rates are positive" in {
+      val rates = Seq(validRate1, validRate2)
+
+      val result = DutyRateValidator.validatePositiveRates(rates)
+
+      result mustBe Right(rates)
+    }
+
+    "must return Left(NegativeRate) when a rate is zero" in {
+      val zeroRate = validRate1.copy(ratePencePerMl = 0)
+      val rates = Seq(zeroRate)
+
+      val result = DutyRateValidator.validatePositiveRates(rates)
+
+      result mustBe Left(List(NegativeRate(zeroRate)))
+    }
+
+    "must return Left(NegativeRate) when a rate is negative" in {
+      val negativeRate = validRate1.copy(ratePencePerMl = -10)
+      val rates = Seq(negativeRate)
+
+      val result = DutyRateValidator.validatePositiveRates(rates)
+
+      result mustBe Left(List(NegativeRate(negativeRate)))
+    }
+
+    "must return Left with all invalid rates when multiple rates are invalid" in {
+      val zeroRate = validRate1.copy(ratePencePerMl = 0)
+      val negativeRate = validRate2.copy(ratePencePerMl = -5)
+      val rates = Seq(zeroRate, negativeRate)
+
+      val result = DutyRateValidator.validatePositiveRates(rates)
+
+      result mustBe Left(List(NegativeRate(zeroRate), NegativeRate(negativeRate)))
+    }
+  }
+
+  "validateDateRanges" - {
+
+    "must return Right when all date ranges are valid" in {
+      val rates = Seq(validRate1, validRate2)
+
+      val result = DutyRateValidator.validateDateRanges(rates)
+
+      result mustBe Right(rates)
+    }
+
+    "must return Right when end date equals start date" in {
+      val sameDate = LocalDate.of(2026, 6, 15)
+      val rate = validRate1.copy(startDate = sameDate, endDate = sameDate)
+      val rates = Seq(rate)
+
+      val result = DutyRateValidator.validateDateRanges(rates)
+
+      result mustBe Right(rates)
+    }
+
+    "must return Left(InvalidDateRange) when end date is before start date" in {
+      val invalidRate = validRate1.copy(
+        startDate = LocalDate.of(2026, 12, 31),
+        endDate = LocalDate.of(2026, 1, 1)
+      )
+      val rates = Seq(invalidRate)
+
+      val result = DutyRateValidator.validateDateRanges(rates)
+
+      result mustBe Left(List(InvalidDateRange(invalidRate)))
+    }
+  }
+
+  "validateNoGapsOrOverlaps" - {
+
+    "must return Right for a single rate" in {
+      val rates = Seq(validRate1)
+
+      val result = DutyRateValidator.validateNoGapsOrOverlaps(rates)
+
+      result mustBe Right(rates)
+    }
+
+    "must return Right for consecutive rates with no gaps" in {
+      val rates = Seq(validRate1, validRate2)
+
+      val result = DutyRateValidator.validateNoGapsOrOverlaps(rates)
+
+      result mustBe Right(rates)
+    }
+
+    "must return Right and sort rates by start date" in {
+      val rates = Seq(validRate2, validRate1)
+
+      val result = DutyRateValidator.validateNoGapsOrOverlaps(rates)
+
+      result mustBe Right(Seq(validRate1, validRate2))
+    }
+
+    "must return Left(GapOrOverlap) when there is a gap between periods" in {
+      val rate1 = validRate1.copy(endDate = LocalDate.of(2026, 6, 30))
+      val rate2 = validRate2.copy(startDate = LocalDate.of(2026, 7, 2))
+      val rates = Seq(rate1, rate2)
+
+      val result = DutyRateValidator.validateNoGapsOrOverlaps(rates)
+
+      result mustBe Left(List(GapOrOverlap(rate1, rate2)))
+    }
+
+    "must return Left(GapOrOverlap) when there is an overlap between periods" in {
+      val rate1 = validRate1.copy(endDate = LocalDate.of(2026, 7, 1))
+      val rate2 = validRate2.copy(startDate = LocalDate.of(2026, 7, 1))
+      val rates = Seq(rate1, rate2)
+
+      val result = DutyRateValidator.validateNoGapsOrOverlaps(rates)
+
+      result mustBe Left(List(GapOrOverlap(rate1, rate2)))
+    }
+  }
+
+  "validateCurrentDateCovered" - {
+
+    "must return Right when the current date is covered" in {
+      val today = LocalDate.now()
+      val rate = validRate1.copy(
+        startDate = today.minusDays(10),
+        endDate = today.plusDays(10)
+      )
+      val rates = Seq(rate)
+
+      val result = DutyRateValidator.validateCurrentDateCovered(rates, today)
+
+      result mustBe Right(rates)
+    }
+
+    "must return Left(CurrentDateNotCovered) when the current date is not covered" in {
+      val today = LocalDate.now()
+      val rate = validRate1.copy(
+        startDate = today.minusYears(2),
+        endDate = today.minusYears(1)
+      )
+      val rates = Seq(rate)
+
+      val result = DutyRateValidator.validateCurrentDateCovered(rates, today)
+
+      result mustBe Left(List(CurrentDateNotCovered(today)))
+    }
+  }
+
+  "validate (composed)" - {
+
+    "must return Right for fully valid rates" in {
+      val today = LocalDate.now()
+      val rate1 = validRate1.copy(
+        startDate = today.minusDays(100),
+        endDate = today.plusDays(100)
+      )
+      val rate2 = validRate2.copy(
+        startDate = today.plusDays(101),
+        endDate = today.plusYears(1)
+      )
+      val rates = Seq(rate1, rate2)
+
+      val result = DutyRateValidator.validate(rates)
+
+      result.isRight mustBe true
+    }
+
+    "must return Left(EmptyRates) when rates are empty" in {
+      val rates = Seq.empty[DutyRate]
+      val today = LocalDate.now()
+
+      val result = DutyRateValidator.validate(rates)
+
+      result.isLeft mustBe true
+      result.left.map { errors =>
+        errors must contain(EmptyRates)
+        errors must contain(CurrentDateNotCovered(today))
+      }
+
+      result mustBe Left(List(EmptyRates, CurrentDateNotCovered(today)))
+
+    }
+
+    "must return Left(NegativeRate) when a rate is invalid" in {
+      val today = LocalDate.now()
+      val invalidRate = validRate1.copy(
+        startDate = today.minusDays(10),
+        endDate = today.plusDays(10),
+        ratePencePerMl = -5
+      )
+      val rates = Seq(invalidRate)
+
+      val result = DutyRateValidator.validate(rates)
+
+      result mustBe Left(List(NegativeRate(invalidRate)))
+    }
+
+    "must return Left(InvalidDateRange) when date range is invalid" in {
+      val today = LocalDate.now()
+      val invalidRate = validRate1.copy(
+        startDate = today.plusDays(10),
+        endDate = today.minusDays(10),
+        ratePencePerMl = 25
+      )
+      val rates = Seq(invalidRate)
+
+      val result = DutyRateValidator.validate(rates)
+
+      result.isLeft mustBe true
+
+      result mustBe Left(List(InvalidDateRange(invalidRate), CurrentDateNotCovered(today)))
+    }
+
+    "must return Left(GapOrOverlap) when there is a gap" in {
+      val today = LocalDate.now()
+      val rate1 = validRate1.copy(
+        startDate = today.minusDays(100),
+        endDate = today.minusDays(50)
+      )
+      val rate2 = validRate2.copy(
+        startDate = today.minusDays(48), // Gap of 1 day
+        endDate = today.plusDays(100)
+      )
+      val rates = Seq(rate1, rate2)
+
+      val result = DutyRateValidator.validate(rates)
+
+      result mustBe Left(List(GapOrOverlap(rate1, rate2)))
+    }
+
+    "must return Left(CurrentDateNotCovered) when current date is not covered" in {
+      val today = LocalDate.now()
+      val rate = validRate1.copy(
+        startDate = today.minusYears(2),
+        endDate = today.minusYears(1)
+      )
+      val rates = Seq(rate)
+
+      val result = DutyRateValidator.validate(rates)
+
+      result mustBe Left(List(CurrentDateNotCovered(today)))
+    }
+
+    "must return all errors when multiple validations fail" in {
+      val today = LocalDate.of(2026, 5, 28)
+
+      val rate1 = validRate1.copy(
+        startDate = LocalDate.of(2026, 6, 1),
+        endDate = LocalDate.of(2026, 6, 10),
+        ratePencePerMl = -5
+      )
+
+      val rate2 = validRate2.copy(
+        startDate = LocalDate.of(2026, 6, 15),
+        endDate = LocalDate.of(2026, 6, 12),
+        ratePencePerMl = 10
+      )
+
+      val rates = Seq(rate1, rate2)
+
+      val result = DutyRateValidator.validate(rates)
+
+      result.isLeft mustBe true
+
+      result mustBe Left(List(
+        NegativeRate(rate1),
+        InvalidDateRange(rate2),
+        GapOrOverlap(rate1, rate2),
+        CurrentDateNotCovered(today)
+      ))
+    }
+  }
+}
