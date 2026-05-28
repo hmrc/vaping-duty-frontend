@@ -19,15 +19,20 @@ package models.returns
 import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
-final case class DutyRate(
-                           period: DateRange,
-                           ratePencePerMl: Int
-                         ) {
-
-  def isValidFor(date: LocalDate): Boolean = period.contains(date)
+final case class DateRange(start: LocalDate, end: LocalDate) {
+  
+  def contains(date: LocalDate): Boolean =
+    !date.isBefore(start) && !date.isAfter(end)
+  
+  def overlaps(other: DateRange): Boolean =
+    !this.end.isBefore(other.start) && !other.end.isBefore(this.start)
+  
+  def durationInDays: Long =
+    ChronoUnit.DAYS.between(start, end)
 }
 
-object DutyRate {
-  given format: OFormat[DutyRate] = Json.format[DutyRate]
+object DateRange {
+  given format: OFormat[DateRange] = Json.format[DateRange]
 }

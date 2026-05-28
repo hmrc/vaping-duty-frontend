@@ -33,11 +33,11 @@ object DutyRateValidationError {
   }
 
   final case class InvalidDateRange(rate: DutyRate) extends DutyRateValidationError {
-    val message: String = s"End date must be after or equal to start date: ${rate.startDate} to ${rate.endDate}"
+    val message: String = s"End date must be after or equal to start date: ${rate.period.start} to ${rate.period.end}"
   }
 
   final case class GapOrOverlap(current: DutyRate, next: DutyRate) extends DutyRateValidationError {
-    val message: String = s"Gap or overlap detected between periods: ${current.endDate} and ${next.startDate}"
+    val message: String = s"Gap or overlap detected between periods: ${current.period.end} and ${next.period.start}"
   }
 
   final case class CurrentDateNotCovered(date: LocalDate) extends DutyRateValidationError {

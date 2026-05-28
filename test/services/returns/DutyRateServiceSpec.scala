@@ -30,18 +30,24 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
   
   private val testRates = Seq(
     DutyRate(
-      startDate = LocalDate.of(2026, 1, 1),
-      endDate = LocalDate.of(2026, 12, 31),
+      period = models.returns.DateRange(
+        start = LocalDate.of(2026, 1, 1),
+        end = LocalDate.of(2026, 12, 31)
+      ),
       ratePencePerMl = 22
     ),
     DutyRate(
-      startDate = LocalDate.of(2027, 1, 1),
-      endDate = LocalDate.of(2027, 12, 31),
+      period = models.returns.DateRange(
+        start = LocalDate.of(2027, 1, 1),
+        end = LocalDate.of(2027, 12, 31)
+      ),
       ratePencePerMl = 30
     ),
     DutyRate(
-      startDate = LocalDate.of(2028, 1, 1),
-      endDate = LocalDate.of(9999, 12, 31),
+      period = models.returns.DateRange(
+        start = LocalDate.of(2028, 1, 1),
+        end = LocalDate.of(9999, 12, 31)
+      ),
       ratePencePerMl = 40
     )
   )

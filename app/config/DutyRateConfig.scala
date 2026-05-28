@@ -31,11 +31,13 @@ class DutyRateConfig @Inject()(configuration: Configuration) {
     val configList = configuration.get[Seq[Configuration]](DUTY_RATES_KEY)
     val parsedRates = configList.map { rateConfig =>
       DutyRate(
-        startDate = LocalDate.parse(rateConfig.get[String]("start-date")),
-        endDate = LocalDate.parse(rateConfig.get[String]("end-date")),
+        period = models.returns.DateRange(
+          start = LocalDate.parse(rateConfig.get[String]("start-date")),
+          end = LocalDate.parse(rateConfig.get[String]("end-date"))
+        ),
         ratePencePerMl = rateConfig.get[Int]("rate-pence-per-ml")
       )
-    }.sortBy(_.startDate)
+    }.sortBy(_.period.start)
     
     DutyRateValidator.validate(parsedRates) match {
       case Right(validRates) => validRates

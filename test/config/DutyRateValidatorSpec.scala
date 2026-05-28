@@ -25,14 +25,18 @@ import java.time.LocalDate
 class DutyRateValidatorSpec extends SpecBase {
 
   private val validRate1 = DutyRate(
-    startDate = LocalDate.of(2026, 1, 1),
-    endDate = LocalDate.of(2026, 12, 31),
+    period = models.returns.DateRange(
+      start = LocalDate.of(2026, 1, 1),
+      end = LocalDate.of(2026, 12, 31)
+    ),
     ratePencePerMl = 22
   )
 
   private val validRate2 = DutyRate(
-    startDate = LocalDate.of(2027, 1, 1),
-    endDate = LocalDate.of(9999, 12, 31),
+    period = models.returns.DateRange(
+      start = LocalDate.of(2027, 1, 1),
+      end = LocalDate.of(9999, 12, 31)
+    ),
     ratePencePerMl = 30
   )
 
@@ -106,7 +110,7 @@ class DutyRateValidatorSpec extends SpecBase {
 
     "must return Right when end date equals start date" in {
       val sameDate = LocalDate.of(2026, 6, 15)
-      val rate = validRate1.copy(startDate = sameDate, endDate = sameDate)
+      val rate = validRate1.copy(period = models.returns.DateRange(start = sameDate, end = sameDate))
       val rates = Seq(rate)
 
       val result = DutyRateValidator.validateDateRanges(rates)
@@ -116,8 +120,10 @@ class DutyRateValidatorSpec extends SpecBase {
 
     "must return Left(InvalidDateRange) when end date is before start date" in {
       val invalidRate = validRate1.copy(
-        startDate = LocalDate.of(2026, 12, 31),
-        endDate = LocalDate.of(2026, 1, 1)
+        period = models.returns.DateRange(
+          start = LocalDate.of(2026, 12, 31),
+          end = LocalDate.of(2026, 1, 1)
+        )
       )
       val rates = Seq(invalidRate)
 
@@ -154,8 +160,8 @@ class DutyRateValidatorSpec extends SpecBase {
     }
 
     "must return Left(GapOrOverlap) when there is a gap between periods" in {
-      val rate1 = validRate1.copy(endDate = LocalDate.of(2026, 6, 30))
-      val rate2 = validRate2.copy(startDate = LocalDate.of(2026, 7, 2))
+      val rate1 = validRate1.copy(period = validRate1.period.copy(end = LocalDate.of(2026, 6, 30)))
+      val rate2 = validRate2.copy(period = validRate2.period.copy(start = LocalDate.of(2026, 7, 2)))
       val rates = Seq(rate1, rate2)
 
       val result = DutyRateValidator.validateNoGapsOrOverlaps(rates)
@@ -164,8 +170,8 @@ class DutyRateValidatorSpec extends SpecBase {
     }
 
     "must return Left(GapOrOverlap) when there is an overlap between periods" in {
-      val rate1 = validRate1.copy(endDate = LocalDate.of(2026, 7, 1))
-      val rate2 = validRate2.copy(startDate = LocalDate.of(2026, 7, 1))
+      val rate1 = validRate1.copy(period = validRate1.period.copy(end = LocalDate.of(2026, 7, 1)))
+      val rate2 = validRate2.copy(period = validRate2.period.copy(start = LocalDate.of(2026, 7, 1)))
       val rates = Seq(rate1, rate2)
 
       val result = DutyRateValidator.validateNoGapsOrOverlaps(rates)
@@ -179,8 +185,10 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Right when the current date is covered" in {
       val today = LocalDate.now()
       val rate = validRate1.copy(
-        startDate = today.minusDays(10),
-        endDate = today.plusDays(10)
+        period = models.returns.DateRange(
+          start = today.minusDays(10),
+          end = today.plusDays(10)
+        )
       )
       val rates = Seq(rate)
 
@@ -192,8 +200,10 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Left(CurrentDateNotCovered) when the current date is not covered" in {
       val today = LocalDate.now()
       val rate = validRate1.copy(
-        startDate = today.minusYears(2),
-        endDate = today.minusYears(1)
+        period = models.returns.DateRange(
+          start = today.minusYears(2),
+          end = today.minusYears(1)
+        )
       )
       val rates = Seq(rate)
 
@@ -208,12 +218,16 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Right for fully valid rates" in {
       val today = LocalDate.now()
       val rate1 = validRate1.copy(
-        startDate = today.minusDays(100),
-        endDate = today.plusDays(100)
+        period = models.returns.DateRange(
+          start = today.minusDays(100),
+          end = today.plusDays(100)
+        )
       )
       val rate2 = validRate2.copy(
-        startDate = today.plusDays(101),
-        endDate = today.plusYears(1)
+        period = models.returns.DateRange(
+          start = today.plusDays(101),
+          end = today.plusYears(1)
+        )
       )
       val rates = Seq(rate1, rate2)
 
@@ -241,8 +255,10 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Left(NegativeRate) when a rate is invalid" in {
       val today = LocalDate.now()
       val invalidRate = validRate1.copy(
-        startDate = today.minusDays(10),
-        endDate = today.plusDays(10),
+        period = models.returns.DateRange(
+          start = today.minusDays(10),
+          end = today.plusDays(10)
+        ),
         ratePencePerMl = -5
       )
       val rates = Seq(invalidRate)
@@ -255,8 +271,10 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Left(InvalidDateRange) when date range is invalid" in {
       val today = LocalDate.now()
       val invalidRate = validRate1.copy(
-        startDate = today.plusDays(10),
-        endDate = today.minusDays(10),
+        period = models.returns.DateRange(
+          start = today.plusDays(10),
+          end = today.minusDays(10)
+        ),
         ratePencePerMl = 25
       )
       val rates = Seq(invalidRate)
@@ -271,12 +289,16 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Left(GapOrOverlap) when there is a gap" in {
       val today = LocalDate.now()
       val rate1 = validRate1.copy(
-        startDate = today.minusDays(100),
-        endDate = today.minusDays(50)
+        period = models.returns.DateRange(
+          start = today.minusDays(100),
+          end = today.minusDays(50)
+        )
       )
       val rate2 = validRate2.copy(
-        startDate = today.minusDays(48), // Gap of 1 day
-        endDate = today.plusDays(100)
+        period = models.returns.DateRange(
+          start = today.minusDays(48), // Gap of 1 day
+          end = today.plusDays(100)
+        )
       )
       val rates = Seq(rate1, rate2)
 
@@ -288,8 +310,10 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Left(CurrentDateNotCovered) when current date is not covered" in {
       val today = LocalDate.now()
       val rate = validRate1.copy(
-        startDate = today.minusYears(2),
-        endDate = today.minusYears(1)
+        period = models.returns.DateRange(
+          start = today.minusYears(2),
+          end = today.minusYears(1)
+        )
       )
       val rates = Seq(rate)
 
@@ -302,14 +326,18 @@ class DutyRateValidatorSpec extends SpecBase {
       val today = LocalDate.of(2026, 5, 28)
 
       val rate1 = validRate1.copy(
-        startDate = LocalDate.of(2026, 6, 1),
-        endDate = LocalDate.of(2026, 6, 10),
+        period = models.returns.DateRange(
+          start = LocalDate.of(2026, 6, 1),
+          end = LocalDate.of(2026, 6, 10)
+        ),
         ratePencePerMl = -5
       )
 
       val rate2 = validRate2.copy(
-        startDate = LocalDate.of(2026, 6, 15),
-        endDate = LocalDate.of(2026, 6, 12),
+        period = models.returns.DateRange(
+          start = LocalDate.of(2026, 6, 15),
+          end = LocalDate.of(2026, 6, 12)
+        ),
         ratePencePerMl = 10
       )
 

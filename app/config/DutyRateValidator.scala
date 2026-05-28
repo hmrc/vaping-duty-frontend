@@ -39,7 +39,7 @@ object DutyRateValidator {
 
   def validateDateRanges(rates: Seq[DutyRate]): Either[List[DutyRateValidationError], Seq[DutyRate]] = {
     val invalidRanges = rates.collect {
-      case rate if rate.endDate.isBefore(rate.startDate) => InvalidDateRange(rate)
+      case rate if rate.period.end.isBefore(rate.period.start) => InvalidDateRange(rate)
     }
     invalidRanges match {
       case Nil    => Right(rates)
@@ -51,9 +51,9 @@ object DutyRateValidator {
     if (rates.size <= 1) {
       Right(rates)
     } else {
-      val sortedRates = rates.sortBy(_.startDate)
+      val sortedRates = rates.sortBy(_.period.start)
       val gaps = sortedRates.sliding(2).collect {
-        case Seq(current, next) if !current.endDate.plusDays(1).isEqual(next.startDate) =>
+        case Seq(current, next) if !current.period.end.plusDays(1).isEqual(next.period.start) =>
           GapOrOverlap(current, next)
       }.toList
       
@@ -78,7 +78,7 @@ object DutyRateValidator {
     ).collect { case Left(errors) => errors }.flatten
     
     if (allErrors.isEmpty) {
-      Right(rates.sortBy(_.startDate))
+      Right(rates.sortBy(_.period.start))
     } else {
       Left(allErrors)
     }
