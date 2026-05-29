@@ -63,6 +63,11 @@ POST       /complete-return/enter-amount-released                               
 GET        /complete-return/change-enter-amount-released                                    controllers.returns.submit.EnterDutyAmountController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/change-enter-amount-released                                    controllers.returns.submit.EnterDutyAmountController.onSubmit(mode: Mode = CheckMode)
 
+GET        /complete-return/adjustment/declare-spoilt-products                              controllers.returns.submit.DeclareSpoiltProductsController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/adjustment/declare-spoilt-products                              controllers.returns.submit.DeclareSpoiltProductsController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/adjustment/change-declare-spoilt-products                       controllers.returns.submit.DeclareSpoiltProductsController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/adjustment/change-declare-spoilt-products                       controllers.returns.submit.DeclareSpoiltProductsController.onSubmit(mode: Mode = CheckMode)
+
 GET        /complete-return/duty-suspended/suspended-products                               controllers.returns.submit.DeclareDutySuspenseController.onPageLoad(mode: Mode = NormalMode)
 POST       /complete-return/duty-suspended/suspended-products                               controllers.returns.submit.DeclareDutySuspenseController.onSubmit(mode: Mode = NormalMode)
 GET        /complete-return/duty-suspended/change-suspended-products                        controllers.returns.submit.DeclareDutySuspenseController.onPageLoad(mode: Mode = CheckMode)

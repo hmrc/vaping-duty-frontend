@@ -21,7 +21,7 @@ import controllers.routes
 import models.*
 import models.returns.ReturnsUserAnswers
 import pages.*
-import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage}
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage}
 import play.api.Logging
 import play.api.http.HttpVerbs.GET
 import play.api.mvc.Call
@@ -41,6 +41,7 @@ class ReturnsNavigator @Inject()(
     case EnterDutyAmountPage     => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage => ua  => declareDutySuspensePageRoutes(ua, periodKey)
     case EnterDutySuspensePage   => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
+    case DeclareSpoiltProductsPage    => _  => controllers.returns.submit.routes.TaskListController.onPageLoad()
     case _                       => _   => Call(GET, BtaLink(config))
   }
 
@@ -49,6 +50,7 @@ class ReturnsNavigator @Inject()(
     case EnterDutySuspensePage    => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareDutyPage          => ua => checkDeclareDutyPageRoutes(ua, periodKey)
     case DeclareDutySuspensePage  => ua => checkDeclareDutySuspensePageRoutes(ua, periodKey)
+    case DeclareSpoiltProductsPage => _  => controllers.returns.submit.routes.TaskListController.onPageLoad()
     case _                        => _  => routes.JourneyRecoveryController.onPageLoad()
   }
 
