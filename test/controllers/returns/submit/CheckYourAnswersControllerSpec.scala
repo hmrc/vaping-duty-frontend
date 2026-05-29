@@ -19,6 +19,8 @@ package controllers.returns.submit
 import base.SpecBase
 import models.emailverification.ErrorModel
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import models.identifiers.PeriodKey
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
@@ -78,7 +80,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val vm = CheckYourAnswersViewModel(returnsUserAnswers, BigDecimal(0))(messages(application))
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(PeriodKey(periodKey), vm)(request, messages(application)).toString
       }
     }
 
@@ -103,7 +105,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.returns.submit.routes.ConfirmationController.onPageLoad().url
+        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=$periodKey"
       }
     }
 

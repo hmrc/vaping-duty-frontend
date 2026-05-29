@@ -19,6 +19,7 @@ package controllers.returns.submit
 import base.SpecBase
 import forms.returns.DeclareDutySuspenseFormProvider
 import models.NormalMode
+import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
@@ -58,7 +59,7 @@ class DeclareDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[DeclareDutySuspenseView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(PeriodKey(periodKey), form, NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -76,7 +77,7 @@ class DeclareDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(PeriodKey(periodKey), form.fill(true), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -148,7 +149,7 @@ class DeclareDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(PeriodKey(periodKey), boundForm, NormalMode)(request, messages(application)).toString
       }
     }
   }
