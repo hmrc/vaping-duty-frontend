@@ -18,7 +18,6 @@ package config
 
 import base.SpecBase
 import com.typesafe.config.ConfigFactory
-import models.returns.PencePerMillilitre
 import play.api.Configuration
 
 import java.time.LocalDate
@@ -48,8 +47,8 @@ class DutyRateConfigSpec extends SpecBase {
       config.rates must have size 2
       config.rates.head.period.start mustBe LocalDate.of(2026, 1, 1)
       config.rates.head.period.end mustBe LocalDate.of(2026, 12, 31)
-      config.rates.head.ratePencePerMl mustBe PencePerMillilitre(22)
-      config.rates(1).ratePencePerMl mustBe PencePerMillilitre(30)
+      config.rates.head.ratePencePerMl mustBe 22
+      config.rates(1).ratePencePerMl mustBe 30
     }
 
 

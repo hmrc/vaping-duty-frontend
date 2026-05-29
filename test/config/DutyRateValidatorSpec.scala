@@ -323,7 +323,7 @@ class DutyRateValidatorSpec extends SpecBase {
     }
 
     "must return all errors when multiple validations fail" in {
-      val today = LocalDate.of(2026, 5, 28)
+      val today = LocalDate.now()
 
       val rate1 = validRate1.copy(
         period = models.returns.DateRange(

@@ -64,7 +64,7 @@ class SubmitReturnService @Inject()(
 
     val liquidInLitres = ConvertToLitres(liquidInMl - zeroValue).toLitres
 
-    val dutyDue = (liquidInMl * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
+    val dutyDue = ((liquidInMl * dutyRate) / 10).setScale(2, BigDecimal.RoundingMode.DOWN)
 
     val vapingProductsProduced = if (dutyDeclared) {
       VapingProductsProduced(nilReturn = Seq(), regularReturn = Seq(RegularReturn(

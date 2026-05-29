@@ -55,7 +55,7 @@ object ReturnsSummary extends CurrencyFormatter {
   }
 
   def calculateDuty(amount: BigDecimal, dutyRate: BigDecimal): BigDecimal =
-    (amount * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
+    ((amount * dutyRate) / 10).setScale(2, BigDecimal.RoundingMode.DOWN)
 
   private def buildDutyRow(
     answers: ReturnsUserAnswers,
