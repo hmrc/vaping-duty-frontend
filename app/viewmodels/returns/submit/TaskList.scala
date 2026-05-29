@@ -54,8 +54,8 @@ object TaskList {
         TaskRows(
           id = "declareAdjustments-task-1",
           linkText = messages("returns.taskList.declareAdjustments.task1"),
-          link = controllers.routes.JourneyRecoveryController.onPageLoad(),
-          status = TaskStatus.NotStarted
+          link = controllers.returns.submit.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode),
+          status = TaskStatusService.declareSpoiltProductsTaskStatus(userAnswers)
         ).toTaskListItem,
         TaskRows(
           id = "declareAdjustments-task-2",
