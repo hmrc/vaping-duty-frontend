@@ -17,7 +17,7 @@
 @import viewmodels.InputWidth.*
 @import components.{Caption, Paragraph, Heading}
 @import viewmodels.LegendSize
-@import models.requests.returns.ReturnsDataRequest
+@import models.identifiers.PeriodKey
 @import play.api.mvc.Call
 
 @this(
@@ -33,7 +33,7 @@
     h1: Heading
 )
 
-@(form: Form[_], mode: Mode)(implicit request: ReturnsDataRequest[_], messages: Messages)
+@(periodKey: PeriodKey, form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @detailsContent = {
     @p(Seq(messages("returns.enterDutyAmount.details.value.p1")))
@@ -42,7 +42,7 @@
 
 @layout(pageTitle = title(form, messages("returns.enterDutyAmount.title"))) {
 
-    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.EnterDutyAmountController.onSubmit(mode).url}?period=${request.periodKey.value}"), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.EnterDutyAmountController.onSubmit(mode).url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

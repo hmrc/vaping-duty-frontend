@@ -16,7 +16,6 @@
 
 @import views.html.components.*
 @import viewmodels.returns.submit.TaskListPageViewModel
-@import models.requests.returns.ReturnsDataRequest
 
 @this(
     layout: templates.ReturnsLayout,
@@ -27,7 +26,7 @@
     p: Paragraph
 )
 
-@(vm:  TaskListPageViewModel)(implicit request: ReturnsDataRequest[_], messages: Messages)
+@(vm:  TaskListPageViewModel)(implicit request: Request[_], messages: Messages)
 @layout(pageTitle = messages("returns.taskList.title")) {
   @caption(messages("returns.taskList.caption", vm.returnPeriod, vm.year, vm.monthLength))
     @h1(messages("returns.taskList.heading"))

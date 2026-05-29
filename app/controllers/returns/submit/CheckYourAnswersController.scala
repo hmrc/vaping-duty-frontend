@@ -42,7 +42,7 @@ class CheckYourAnswersController @Inject()(
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
     val vm = CheckYourAnswersViewModel(request.userAnswers)
-    Ok(view(vm))
+    Ok(view(request.periodKey, vm))
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>

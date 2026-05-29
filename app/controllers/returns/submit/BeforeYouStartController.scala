@@ -54,7 +54,7 @@ class BeforeYouStartController @Inject()(
       }
 
       sessionRepository.set(ua).map(_ =>
-        Ok(view(BeforeYouStartViewModel()))
+        Ok(view(periodKey, BeforeYouStartViewModel()))
       )
 
   }
