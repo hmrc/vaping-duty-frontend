@@ -18,6 +18,7 @@ package services.returns
 
 import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
+import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
@@ -28,30 +29,42 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector,
-                                    config: FrontendAppConfig)
-                                   (using ExecutionContext) {
+class SubmitReturnService @Inject()(
+  submitReturnConnector: SubmitReturnConnector,
+  dutyRateService: DutyRateService,
+  obligationService: ObligationService,
+  config: FrontendAppConfig
+)(using ExecutionContext) {
 
   def submit(ua: ReturnsUserAnswers)(implicit request: ReturnsDataRequest[?]): Future[ReturnSubmittedResponse] = {
 
     given HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
 
-    submitReturnConnector.submitReturn(buildSubmission(ua), request.enrolmentVpdId)
+    for {
+      obligationOpt <- obligationService.getObligationByPeriodKey(request.enrolmentVpdId, ua.periodKey)
+      obligation <- obligationOpt match {
+        case Some(obl) => Future.successful(obl)
+        case None => Future.failed(new IllegalStateException(s"No obligation found for period key: ${ua.periodKey}"))
+      }
+      submission = buildSubmission(ua, obligation)
+      result <- submitReturnConnector.submitReturn(submission, request.enrolmentVpdId)
+    } yield result
   }
 
-  private def buildSubmission(ua: ReturnsUserAnswers): ReturnCreateRequest =
+  private def buildSubmission(ua: ReturnsUserAnswers, obligation: ObligationDetails): ReturnCreateRequest = {
 
-    // Temp value
     val zeroValue = BigDecimal("0")
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
     val liquidInMl = ua.get(EnterDutyAmountPage).fold(zeroValue)(value => BigDecimal(value))
 
     val periodKey = ua.periodKey
 
-    // Will need to be enhanced
-    val liquidInLitres = (liquidInMl - zeroValue) / BigDecimal("1000")
-    val dutyRate = BigDecimal("0.22")
-    val dutyDue = (liquidInMl * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
+    val currentPeriodRate = dutyRateService.getRateForDate(obligation.iCFromDate)
+    val dutyRate = DutyRateToPence(currentPeriodRate).toPence
+
+    val liquidInLitres = ConvertToLitres(liquidInMl - zeroValue).toLitres
+
+    val dutyDue = ((liquidInMl * dutyRate) / 10).setScale(2, BigDecimal.RoundingMode.DOWN)
 
     val vapingProductsProduced = if (dutyDeclared) {
       VapingProductsProduced(nilReturn = Seq(), regularReturn = Seq(RegularReturn(
@@ -78,4 +91,5 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
     )
 
     ReturnCreateRequest(periodKey, vapingProductsProduced, totalDutyDue)
+  }
 }

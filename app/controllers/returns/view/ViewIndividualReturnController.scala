@@ -19,6 +19,8 @@ package controllers.returns.view
 import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import models.returns.view.ReturnDisplayResponse
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -35,13 +37,23 @@ class ViewIndividualReturnController @Inject()(
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ViewIndividualReturnView,
                                        returnsEnabled: ReturnsEnabledAction
-                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging{
 
   def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
-      connector.getReturn(periodKey, vpdId = request.enrolmentVpdId)
-        .map { returnData =>
-          Ok(view(ViewIndividualReturnViewModel(returnData)))
+      connector.getReturn(periodKey, request.enrolmentVpdId).map { returnData =>
+        extractDutyRate(returnData) match {
+          case Some(dutyRate) =>
+            Ok(view(ViewIndividualReturnViewModel(returnData, dutyRate)))
+          case None =>
+            logger.warn(s"No regular return found for period $periodKey")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         }
+      }
   }
+
+  private def extractDutyRate(returnData: ReturnDisplayResponse): Option[BigDecimal] =
+    returnData.success.vapingProductsProduced
+      .flatMap(_.regularReturn.headOption)
+      .map(_.dutyRate)
 }

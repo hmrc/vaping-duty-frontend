@@ -19,6 +19,7 @@ package controllers.returns.view
 import base.SpecBase
 import connectors.returns.GetReturnsConnector
 import controllers.returns
+import models.returns.VapingProductsProduced
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -31,7 +32,7 @@ import views.html.returns.view.ViewIndividualReturnView
 import scala.concurrent.Future
 
 class ViewIndividualReturnControllerSpec extends SpecBase {
-
+  
   "ViewIndividualReturn Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -43,7 +44,9 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
       ))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(inject.bind[GetReturnsConnector].to(mockConnector))
+        .overrides(
+          inject.bind[GetReturnsConnector].to(mockConnector)
+        )
         .build()
 
       running(application) {
@@ -51,12 +54,45 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse())
+        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), testDutyRate)
 
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to journey recovery when no regular return exists" in {
+
+      val mockConnector = mock[GetReturnsConnector]
+      
+      val returnDataWithoutRegularReturn = createReturnDisplayResponse().copy(
+        success = createReturnDisplayResponse().success.copy(
+          vapingProductsProduced = Some(VapingProductsProduced(
+            nilReturn = Seq.empty,
+            regularReturn = Seq.empty
+          ))
+        )
+      )
+
+      when(mockConnector.getReturn(any(), any())(using any())).thenReturn(Future.successful(
+        returnDataWithoutRegularReturn
+      ))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(
+          inject.bind[GetReturnsConnector].to(mockConnector)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

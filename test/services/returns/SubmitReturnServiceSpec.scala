@@ -17,48 +17,150 @@
 package services.returns
 
 import base.SpecBase
+import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
-import data.TestData
+import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.mockito.MockitoSugar.mock
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{reset, when}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.InternalServerException
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
-class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData with SpecBase {
+class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
-  val mockConnector: SubmitReturnConnector = mock[SubmitReturnConnector]
+  private val mockConnector = mock[SubmitReturnConnector]
+  private val mockDutyRateService = mock[DutyRateService]
+  private val mockObligationService = mock[ObligationService]
+  private val mockAppConfig = mock[FrontendAppConfig]
 
-  given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, periodKey, returnsUserAnswers)
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockConnector, mockDutyRateService, mockObligationService, mockAppConfig)
+  }
 
-  "SubmitReturnService must" - {
+  private val testObligation = ObligationDetails(
+    openOrFulfilledStatus = "O",
+    iCFromDate = LocalDate.of(2026, 1, 1),
+    iCToDate = LocalDate.of(2026, 1, 31),
+    iCDateReceived = None,
+    iCDueDate = LocalDate.of(2026, 2, 28),
+    periodKey = periodKey
+  )
 
-    "return Success when a preference is submitted successfully" in {
+  given ReturnsDataRequest[?] = ReturnsDataRequest(
+    FakeRequest(), 
+    vpdId, 
+    internalId, 
+    credId, 
+    periodKey, 
+    returnsUserAnswers
+  )
 
-      when(mockConnector.submitReturn(any(), any())(any()))
-        .thenReturn(Future.successful(testReturnSubmissionResponse))
+  "SubmitReturnService" - {
 
-      val result = SubmitReturnService(mockConnector, mockAppConfig).submit(returnsUserAnswers)
+    "submit" - {
 
-      whenReady(result) {
-        _ mustBe testReturnSubmissionResponse
+      "must return success when a return is submitted successfully" in {
+        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
+          .thenReturn(Future.successful(Some(testObligation)))
+        
+        when(mockDutyRateService.getRateForDate(eqTo(testObligation.iCFromDate)))
+          .thenReturn(22)
+        
+        when(mockAppConfig.taxType).thenReturn("VPD")
+        
+        when(mockConnector.submitReturn(any(), eqTo(vpdId))(any()))
+          .thenReturn(Future.successful(testReturnSubmissionResponse))
+
+        val service = new SubmitReturnService(
+          mockConnector, 
+          mockDutyRateService, 
+          mockObligationService, 
+          mockAppConfig
+        )
+        
+        val result = service.submit(returnsUserAnswers)
+
+        whenReady(result) { response =>
+          response mustBe testReturnSubmissionResponse
+        }
       }
-   }
 
-    "return Failure when there was an error submitting a preference" in {
+      "must use the correct duty rate from the obligation's start date" in {
+        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
+          .thenReturn(Future.successful(Some(testObligation)))
+        
+        when(mockDutyRateService.getRateForDate(eqTo(testObligation.iCFromDate)))
+          .thenReturn(30)
+        
+        when(mockAppConfig.taxType).thenReturn("VPD")
+        
+        when(mockConnector.submitReturn(any(), eqTo(vpdId))(any()))
+          .thenReturn(Future.successful(testReturnSubmissionResponse))
 
-      when(mockConnector.submitReturn(any(), any())(any()))
-        .thenReturn(Future.failed(InternalServerException("error")))
+        val service = new SubmitReturnService(
+          mockConnector, 
+          mockDutyRateService, 
+          mockObligationService, 
+          mockAppConfig
+        )
+        
+        val result = service.submit(returnsUserAnswers)
 
-      val result = SubmitReturnService(mockConnector, mockAppConfig).submit(returnsUserAnswers)
+        whenReady(result) { _ =>
+          // Verify that the duty rate service was called with the correct date
+          org.mockito.Mockito.verify(mockDutyRateService)
+            .getRateForDate(eqTo(testObligation.iCFromDate))
+        }
+      }
 
-      whenReady(result.failed) { exception =>
-        exception mustBe an[Exception]
+      "must return failure when there was an error submitting a return" in {
+        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
+          .thenReturn(Future.successful(Some(testObligation)))
+        
+        when(mockDutyRateService.getRateForDate(eqTo(testObligation.iCFromDate)))
+          .thenReturn(22)
+        
+        when(mockAppConfig.taxType).thenReturn("VPD")
+        
+        when(mockConnector.submitReturn(any(), eqTo(vpdId))(any()))
+          .thenReturn(Future.failed(InternalServerException("error")))
+
+        val service = new SubmitReturnService(
+          mockConnector, 
+          mockDutyRateService, 
+          mockObligationService, 
+          mockAppConfig
+        )
+        
+        val result = service.submit(returnsUserAnswers)
+
+        whenReady(result.failed) { exception =>
+          exception mustBe an[InternalServerException]
+        }
+      }
+
+      "must return failure when obligation is not found" in {
+        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
+          .thenReturn(Future.successful(None))
+
+        val service = new SubmitReturnService(
+          mockConnector, 
+          mockDutyRateService, 
+          mockObligationService, 
+          mockAppConfig
+        )
+        
+        val result = service.submit(returnsUserAnswers)
+
+        whenReady(result.failed) { exception =>
+          exception mustBe a[IllegalStateException]
+        }
       }
     }
   }

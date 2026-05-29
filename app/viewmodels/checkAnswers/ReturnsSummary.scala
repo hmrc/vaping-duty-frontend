@@ -28,13 +28,16 @@ import viewmodels.implicits.*
 
 object ReturnsSummary extends CurrencyFormatter {
 
-  def summaryList(answers: ReturnsUserAnswers)(implicit messages: Messages): SummaryList = {
+  def summaryList(
+    answers: ReturnsUserAnswers,
+    dutyRate: BigDecimal
+  )(implicit messages: Messages): SummaryList = {
     val rows = Seq(
-      buildDutyRow(answers),
+      buildDutyRow(answers, dutyRate),
       //      buildSpoiltRow(answers),
       //      buildOverRow(answers),
       //      buildUnderRow(answers),
-      buildTotalDutyRow(answers)
+      buildTotalDutyRow(answers, dutyRate)
     ).flatten
 
     SummaryList(rows = rows, classes = CssConstants.marginBottom9)
@@ -51,10 +54,18 @@ object ReturnsSummary extends CurrencyFormatter {
     ))
   }
 
-  private def buildDutyRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  def calculateDuty(amount: BigDecimal, dutyRate: BigDecimal): BigDecimal =
+    ((amount * dutyRate) / 10).setScale(2, BigDecimal.RoundingMode.DOWN)
+
+  private def buildDutyRow(
+    answers: ReturnsUserAnswers,
+    dutyRate: BigDecimal
+  )(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(EnterDutyAmountPage) match {
-      case Some(value) if value < 10 => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
-      case Some(value) => dutyRow(currencyFormat(calculateDuty(value)))
+      case Some(value) if value == 0 => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
+      case Some(value) => 
+        val dutyDue = calculateDuty(value, dutyRate)
+        dutyRow(currencyFormat(dutyDue))
       case None => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
     }
 
@@ -102,9 +113,14 @@ object ReturnsSummary extends CurrencyFormatter {
     ))
   }
 
-  private def buildTotalDutyRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] = {
+  private def buildTotalDutyRow(
+    answers: ReturnsUserAnswers,
+    dutyRate: BigDecimal
+  )(implicit messages: Messages): Option[SummaryListRow] = {
     answers.get(EnterDutyAmountPage) match {
-      case Some(value) => totalDutyRow(currencyFormat(calculateDuty(value)))
+      case Some(value) => 
+        val dutyDue = calculateDuty(value, dutyRate)
+        totalDutyRow(currencyFormat(dutyDue))
       case None => totalDutyRow(messages("returns.CheckYourAnswers.dutySummary.total.nil"))
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package services.returns
+package models.returns
 
-import connectors.returns.ObligationsConnector
-import models.identifiers.VpdId
-import models.obligations.ObligationsResponse
-import uk.gov.hmrc.http.HeaderCarrier
-
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-
-class ObligationsService @Inject()(connector: ObligationsConnector)(using ExecutionContext) {
-
-  def get(vpdId: VpdId)(implicit hc: HeaderCarrier): Future[ObligationsResponse] = {
-    connector.getObligations(vpdId)
-  }
+case class DutyRateToPence(currentPeriodRate: Int) {
+  def toPence: BigDecimal = BigDecimal(currentPeriodRate) / 100
 }

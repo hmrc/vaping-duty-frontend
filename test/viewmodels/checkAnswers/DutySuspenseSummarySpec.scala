@@ -21,9 +21,7 @@ import models.CheckMode
 import models.returns.DutySuspenseVolumes
 import pages.returns.{DeclareDutySuspensePage, EnterDutySuspensePage}
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
 import utils.CssConstants
-import viewmodels.govuk.all.{ActionItemViewModel, SummaryListRowViewModel, ValueViewModel, stringToKey}
 
 class DutySuspenseSummarySpec extends SpecBase with UnitSpec {
 
