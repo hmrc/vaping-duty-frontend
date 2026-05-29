@@ -19,6 +19,7 @@ package controllers.returns.view
 import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import models.identifiers.PeriodKey
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -39,7 +40,7 @@ class ViewIndividualReturnController @Inject()(
 
   def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
-      connector.getReturn(periodKey, vpdId = request.enrolmentVpdId)
+      connector.getReturn(PeriodKey(periodKey), vpdId = request.enrolmentVpdId)
         .map { returnData =>
           Ok(view(ViewIndividualReturnViewModel(returnData)))
         }

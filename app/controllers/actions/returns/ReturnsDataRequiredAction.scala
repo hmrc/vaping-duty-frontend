@@ -17,6 +17,7 @@
 package controllers.actions.returns
 
 import controllers.routes
+import models.identifiers.PeriodKey
 import models.requests.returns.{ReturnsDataRequest, ReturnsOptionalDataRequest}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
@@ -37,7 +38,7 @@ class ReturnsDataRequiredActionImpl @Inject()(implicit val executionContext: Exe
           request.enrolmentVpdId,
           request.internalId,
           request.credId,
-          data.periodKey,
+          PeriodKey(data.periodKey),
           data
         )))
     }

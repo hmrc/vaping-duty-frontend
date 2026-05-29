@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import controllers.returns.ReturnsControllerHelpers
 import forms.returns.DeclareDutySuspenseFormProvider
 import models.Mode
 import navigation.ReturnsNavigator
@@ -43,7 +44,7 @@ class DeclareDutySuspenseController @Inject()(
                                          returnsEnabledAction: ReturnsEnabledAction,
                                          val controllerComponents: MessagesControllerComponents,
                                          view: DeclareDutySuspenseView
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with ReturnsControllerHelpers {
 
   val form: Form[Boolean] = formProvider()
 
@@ -52,7 +53,7 @@ class DeclareDutySuspenseController @Inject()(
       val preparedForm = request.userAnswers.get(DeclareDutySuspensePage)
         .fold(form)(form.fill)
 
-      Ok(view(preparedForm, mode))
+      Ok(view(request.periodKey, preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -60,7 +61,7 @@ class DeclareDutySuspenseController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclareDutySuspensePage, value))

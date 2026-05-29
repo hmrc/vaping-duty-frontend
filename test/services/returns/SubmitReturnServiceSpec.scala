@@ -19,6 +19,7 @@ package services.returns
 import base.SpecBase
 import connectors.returns.SubmitReturnConnector
 import data.TestData
+import models.identifiers.PeriodKey
 import models.requests.returns.ReturnsDataRequest
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -34,7 +35,7 @@ class SubmitReturnServiceSpec extends AnyFreeSpec with Matchers with TestData wi
 
   val mockConnector: SubmitReturnConnector = mock[SubmitReturnConnector]
 
-  given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, periodKey, returnsUserAnswers)
+  given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, PeriodKey(periodKey), returnsUserAnswers)
 
   "SubmitReturnService must" - {
 

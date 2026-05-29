@@ -17,7 +17,7 @@
 package connectors.returns
 
 import config.FrontendAppConfig
-import models.identifiers.VpdId
+import models.identifiers.{PeriodKey, VpdId}
 import models.returns.ReturnsUserAnswers
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ReturnsUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit val httpClient: HttpClientV2)
                                            (implicit ec: ExecutionContext) extends HttpReadsInstances {
 
-  def get(vpdId: VpdId, periodKey: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ReturnsUserAnswers]] =
+  def get(vpdId: VpdId, periodKey: PeriodKey)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, ReturnsUserAnswers]] =
     httpClient
       .get(url"${config.returnsUserAnswersGetUrl(vpdId, periodKey)}")
       .execute[Either[UpstreamErrorResponse, ReturnsUserAnswers]]
@@ -44,14 +44,14 @@ class ReturnsUserAnswersConnector @Inject()(config: FrontendAppConfig, implicit 
       .execute[HttpResponse]
   }
 
-  def keepAlive(vpdId: VpdId, periodKey: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+  def keepAlive(vpdId: VpdId, periodKey: PeriodKey)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
       .post(url"${config.returnsUserAnswersKeepAliveUrl(vpdId, periodKey)}")
       .setHeader("Csrf-Token" -> "nocheck")
       .execute[HttpResponse]
       .flatMap(parseResponse(_, "keepAlive failed"))
 
-  def clear(vpdId: VpdId, periodKey: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
+  def clear(vpdId: VpdId, periodKey: PeriodKey)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] =
     httpClient
       .delete(url"${config.returnsUserAnswersClearUrl(vpdId, periodKey)}")
       .setHeader("Csrf-Token" -> "nocheck")

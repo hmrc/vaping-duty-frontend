@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import controllers.returns.ReturnsControllerHelpers
 import forms.returns.EnterDutyAmountFormProvider
 import models.Mode
 import navigation.ReturnsNavigator
@@ -43,7 +44,7 @@ class EnterDutyAmountController @Inject()(
                                         returnsEnabledAction: ReturnsEnabledAction,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: EnterDutyAmountView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with ReturnsControllerHelpers {
 
   val form: Form[Int] = formProvider()
 
@@ -55,7 +56,7 @@ class EnterDutyAmountController @Inject()(
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, mode))
+      Ok(view(request.periodKey, preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
@@ -63,7 +64,7 @@ class EnterDutyAmountController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
 
         value =>
           for {

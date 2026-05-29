@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import controllers.returns.ReturnsControllerHelpers
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.SubmitReturnService
@@ -37,16 +38,16 @@ class CheckYourAnswersController @Inject()(
                                        submitReturnService: SubmitReturnService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: CheckYourAnswersView
-                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport with ReturnsControllerHelpers {
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
     val vm = CheckYourAnswersViewModel(request.userAnswers)
-    Ok(view(vm))
+    Ok(view(request.periodKey, vm))
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     submitReturnService.submit(request.userAnswers).map { response =>
-      Redirect(controllers.returns.submit.routes.ConfirmationController.onPageLoad())
+      redirectWithPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad())(request)
     }.recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
   }
 }

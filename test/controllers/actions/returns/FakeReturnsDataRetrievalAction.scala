@@ -16,6 +16,7 @@
 
 package controllers.actions.returns
 
+import models.identifiers.PeriodKey
 import models.requests.IdentifierRequest
 import models.requests.returns.ReturnsOptionalDataRequest
 import models.returns.ReturnsUserAnswers
@@ -26,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class FakeReturnsDataRetrievalAction(dataToReturn: Option[ReturnsUserAnswers]) extends ReturnsDataRetrievalAction {
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[ReturnsOptionalDataRequest[A]] =
-    Future(ReturnsOptionalDataRequest(request.request, request.enrolmentVpdId, request.internalId, request.credId, "26AA", dataToReturn))
+    Future(ReturnsOptionalDataRequest(request.request, request.enrolmentVpdId, request.internalId, request.credId, PeriodKey("26AA"), dataToReturn))
 
   override protected implicit val executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global

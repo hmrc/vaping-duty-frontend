@@ -18,6 +18,7 @@ package services.returns
 
 import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
+import models.identifiers.PeriodKey
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
@@ -46,7 +47,7 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
     val liquidInMl = ua.get(EnterDutyAmountPage).fold(zeroValue)(value => BigDecimal(value))
 
-    val periodKey = ua.periodKey
+    val periodKey = PeriodKey(ua.periodKey)
 
     // Will need to be enhanced
     val liquidInLitres = (liquidInMl - zeroValue) / BigDecimal("1000")

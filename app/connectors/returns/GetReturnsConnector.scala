@@ -17,7 +17,7 @@
 package connectors.returns
 
 import config.FrontendAppConfig
-import models.identifiers.VpdId
+import models.identifiers.{PeriodKey, VpdId}
 import models.returns.view.ReturnDisplayResponse
 import play.api.Logging
 import uk.gov.hmrc.http.*
@@ -36,7 +36,7 @@ class GetReturnsConnector @Inject()(
 
   private val parsingError = "Parsing failed for VPD return get response"
 
-  def getReturn(periodKey: String, vpdId: VpdId)
+  def getReturn(periodKey: PeriodKey, vpdId: VpdId)
                (using HeaderCarrier): Future[ReturnDisplayResponse] =
     httpClient
       .get(url"${config.getReturnUrl(vpdId, periodKey)}")
