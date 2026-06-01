@@ -17,33 +17,50 @@
 package viewmodels.returns.submit
 
 import models.returns.ReturnsUserAnswers
-import pages.returns.EnterDutyAmountPage
+import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import play.api.i18n.Messages
+import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import viewmodels.checkAnswers.ReturnsSummary.{calculateDuty, currencyFormat}
+import viewmodels.checkAnswers.ReturnsSummary.currencyFormat
 import viewmodels.checkAnswers.{DutySuspenseSummary, ReturnsSummary}
+import views.html.components.Paragraph
 
 case class CheckYourAnswersViewModel(
                                       finalDutySummaryList: SummaryList,
                                       dutySuspendedSummaryList: SummaryList,
-                                      dutyDue: String
+                                      dutyDue: String,
+                                      dutyRate: String,
+                                      dutyRateParagraph: HtmlFormat.Appendable
                                     )
 
 object CheckYourAnswersViewModel {
 
   private val ZERO = "0"
-  
-  def apply(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): CheckYourAnswersViewModel =
+
+  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal)(implicit messages: Messages): CheckYourAnswersViewModel =
     CheckYourAnswersViewModel(
-      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers),
+      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRate),
       dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers),
-      dutyDue = dutyDue(userAnswers)
+      dutyDue = dutyDue(userAnswers, dutyRate),
+      dutyRate = currencyFormat(dutyRate),
+      dutyRateParagraph = dutyRateParagraph(userAnswers, dutyRate)
     )
 
-  private def dutyDue(userAnswers: ReturnsUserAnswers) = {
+  private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal): String = {
     userAnswers.get(EnterDutyAmountPage) match {
-      case Some(value) => currencyFormat(calculateDuty(value))
-      case None => currencyFormat(BigDecimal(ZERO))
+      case Some(volumeInMl)  => currencyFormat(ReturnsSummary.calculateDuty(volumeInMl, dutyRate))
+      case None              => currencyFormat(BigDecimal(ZERO))
+    }
+  }
+
+  private def dutyRateParagraph(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal)(implicit messages: Messages) = {
+    val p = new Paragraph()
+
+    userAnswers.get(DeclareDutyPage) match {
+      case Some(true)   => p(Seq(Text(messages("returns.CheckYourAnswers.p.duty", currencyFormat(dutyRate)))))
+      case Some(false)  => p(Seq(Text(messages("NIL RETURN, CONTENT TBC"))))
+      case None         => p(Seq(Text("")))
     }
   }
 }

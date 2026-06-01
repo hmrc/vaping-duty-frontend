@@ -17,49 +17,37 @@
 package viewmodels.returns
 
 import base.SpecBase
-import models.returns.ReturnsUserAnswers
-import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
-import play.api.libs.json.JsObject
+import pages.returns.EnterDutyAmountPage
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 
-import java.time.Instant
-
 class CheckYourAnswersViewModelSpec extends SpecBase {
-  
+
   "CheckYourAnswersViewModel" - {
 
-    "must create a view model with both summary lists" in {
-      val ua = ReturnsUserAnswers("id", periodKey, JsObject.empty, Instant.now(), Instant.now())
-        .set(DeclareDutyPage, true).success.value
+    "must create view model with correct duty due" in {
+      val userAnswers = returnsUserAnswers.set(EnterDutyAmountPage, 1000).success.value
 
-      val vm = CheckYourAnswersViewModel(ua)
+      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate)
+
+      vm.dutyDue mustBe "£3,150"
+      vm.dutyRate mustBe "£3.15"
+    }
+
+    "must create view model with zero duty when no amount entered" in {
+      val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate)
+
+      vm.dutyDue mustBe "£0"
+      vm.dutyRate mustBe "£3.15"
+    }
+
+    "must create view model with correct summary lists" in {
+      val userAnswers = returnsUserAnswers.set(EnterDutyAmountPage, 500).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate)
 
       vm.finalDutySummaryList.rows must not be empty
-      // Commented until we show these rows
       vm.dutySuspendedSummaryList.rows must not be empty
-    }
-
-    "must create a view model with empty summary lists when no data exists" in {
-      val ua = ReturnsUserAnswers("id", periodKey, JsObject.empty, Instant.now(), Instant.now())
-
-      val vm = CheckYourAnswersViewModel(ua)
-
-      // Will always show two rows at least
-      vm.finalDutySummaryList.rows.size mustBe 2
-      vm.dutySuspendedSummaryList.rows.size mustBe 3
-    }
-
-    "must filter out None values from summary rows" in {
-      val ua = ReturnsUserAnswers("id", periodKey, JsObject.empty, Instant.now(), Instant.now())
-        .set(DeclareDutyPage, true)
-        .flatMap(_.set(EnterDutyAmountPage, 1000)).success.value
-
-      val vm = CheckYourAnswersViewModel(ua)
-
-      // Will always show two rows at least
-      vm.finalDutySummaryList.rows.size mustBe 2
-      // Commented until we show these rows
-      //vm.dutySuspendedSummaryList.rows.size mustBe 3
+      vm.dutyDue mustBe "£1,575"
     }
   }
 }

@@ -16,6 +16,7 @@
 
 package viewmodels.returns.view
 
+import models.returns.ConvertToMl
 import models.returns.view.*
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
@@ -34,7 +35,8 @@ case class ViewIndividualReturnViewModel(
                                           totalDutyDueVapingProducts: String,
                                           totalDutyDue: String,
                                           monthYear: String,
-                                          submittedOn: String
+                                          submittedOn: String,
+                                          dutyRate: String
                                         ) {
 
   def vapingProductsDeclarationSummaryList(implicit messages: Messages): SummaryList =
@@ -112,7 +114,7 @@ case class ViewIndividualReturnViewModel(
 
 object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
-  def apply(returnsData: ReturnDisplayResponse)(using messages: Messages): ViewIndividualReturnViewModel = {
+  def apply(returnsData: ReturnDisplayResponse, dutyRate: BigDecimal)(using messages: Messages): ViewIndividualReturnViewModel = {
     val zeroValue = BigDecimal("0")
     val success = returnsData.success
 
@@ -128,7 +130,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val (amountProduced, dutyDueAmount) = vapingProducts match {
       case Some(vp) if vp.regularReturn.nonEmpty =>
         val regularReturn = vp.regularReturn.head
-        (Some(milliliterFormat(regularReturn.amountProducedLiquid * 1000)), Some(currencyFormat(regularReturn.dutyDue)))
+        (Some(milliliterFormat(ConvertToMl(regularReturn.amountProducedLiquid).toMl)), Some(currencyFormat(regularReturn.dutyDue)))
       case _ =>
         (None, None)
     }
@@ -161,7 +163,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       totalDutyDueVapingProducts = totalDutyDueVaping,
       totalDutyDue = totalDuty,
       monthYear = monthYearString,
-      submittedOn = submittedOnString
+      submittedOn = submittedOnString,
+      dutyRate = currencyFormat(dutyRate)
     )
   }
 }

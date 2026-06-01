@@ -48,26 +48,27 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
   "ViewIndividualReturnViewModel" - {
 
     "must create view model with all fields from ReturnDisplayResponse" in {
-      val result = ViewIndividualReturnViewModel(returnResponse)
+      val result = ViewIndividualReturnViewModel(returnResponse, testDutyRate)
 
       result.chargeReference mustBe "XVC123456789012"
-      result.hasVapingProductsDeclaration mustBe false
-      result.amountProducedLiquid mustBe None
-      result.dutyDue mustBe None
+      result.hasVapingProductsDeclaration mustBe true
+      result.amountProducedLiquid mustBe Some("1,000,000.00")
+      result.dutyDue mustBe Some("£3,150")
       result.totalDutyDueVapingProducts mustBe "£1,000"
       result.totalDutyDue mustBe "£1,825"
       result.monthYear mustBe "June 2026"
-      result.submittedOn must include("June 2026")
+      result.submittedOn must include("February 2026")
+      result.dutyRate mustBe "£3.15"
     }
 
     "must handle missing charge reference" in {
-      val result = ViewIndividualReturnViewModel(returnResponseNoChargeRef)
+      val result = ViewIndividualReturnViewModel(returnResponseNoChargeRef, testDutyRate)
 
       result.chargeReference mustBe ""
     }
 
     "must handle missing vaping products declaration" in {
-      val result = ViewIndividualReturnViewModel(returnResponseNoDeclaration)
+      val result = ViewIndividualReturnViewModel(returnResponseNoDeclaration, testDutyRate)
 
       result.hasVapingProductsDeclaration mustBe false
       result.amountProducedLiquid mustBe None
@@ -75,7 +76,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
     }
 
     "must default to £0.00 when totalDutyDue is missing" in {
-      val result = ViewIndividualReturnViewModel(returnResponseNoTotalDuty)
+      val result = ViewIndividualReturnViewModel(returnResponseNoTotalDuty, testDutyRate)
 
       result.totalDutyDueVapingProducts mustBe "£0"
       result.totalDutyDue mustBe "£0"
@@ -100,7 +101,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         )
       )
 
-      val result = ViewIndividualReturnViewModel(responseWithDeclaration)
+      val result = ViewIndividualReturnViewModel(responseWithDeclaration, testDutyRate)
 
       result.hasVapingProductsDeclaration mustBe true
       result.amountProducedLiquid mustBe Some("2,000,000.00")
@@ -129,7 +130,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         )
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration)
+      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration, testDutyRate)
       val result = viewModel.vapingProductsDeclarationSummaryList
 
       result.rows.size mustBe 1
@@ -138,7 +139,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
     }
 
     "must show correct answer when no declaration" in {
-      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration)
+      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, testDutyRate)
       val result = viewModel.vapingProductsDeclarationSummaryList
 
       result.rows.size mustBe 1
@@ -168,7 +169,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         )
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration)
+      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration, testDutyRate)
       val result = viewModel.productDetailsSummaryList
 
       result mustBe defined
@@ -176,7 +177,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
     }
 
     "must return None when no declaration exists" in {
-      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration)
+      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, testDutyRate)
       val result = viewModel.productDetailsSummaryList
 
       result mustBe None
@@ -186,7 +187,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
   "dutyTotalsSummaryList" - {
 
     "must return summary list with two rows" in {
-      val viewModel = ViewIndividualReturnViewModel(returnResponse)
+      val viewModel = ViewIndividualReturnViewModel(returnResponse, testDutyRate)
       val result = viewModel.dutyTotalsSummaryList
 
       result.rows.size mustBe 2

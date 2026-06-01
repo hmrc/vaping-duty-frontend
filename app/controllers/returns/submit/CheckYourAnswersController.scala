@@ -18,9 +18,10 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import models.identifiers.VpdId
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.SubmitReturnService
+import services.returns.{ObligationService, SubmitReturnService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
@@ -35,13 +36,20 @@ class CheckYourAnswersController @Inject()(
                                        requireData: ReturnsDataRequiredAction,
                                        returnsEnabled: ReturnsEnabledAction,
                                        submitReturnService: SubmitReturnService,
+                                       obligationService: ObligationService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: CheckYourAnswersView
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
-    val vm = CheckYourAnswersViewModel(request.userAnswers)
-    Ok(view(vm))
+  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
+    obligationService.getDutyRateForPeriod(
+      VpdId(request.userAnswers.vpdId),
+      request.userAnswers.periodKey
+    ).map { dutyRateOpt =>
+      val dutyRate = dutyRateOpt.getOrElse(BigDecimal(0))
+      val vm = CheckYourAnswersViewModel(request.userAnswers, dutyRate)
+      Ok(view(vm))
+    }
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>

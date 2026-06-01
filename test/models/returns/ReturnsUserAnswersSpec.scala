@@ -32,7 +32,7 @@ class ReturnsUserAnswersSpec extends SpecBase {
 
   "ReturnsUserAnswers" - {
     val json =
-      s"""{"vpdId":"$vpdId","periodKey":"26AF","data":{},"startedTime":{"$$date":{"$$numberLong":"1718118467838"}},"lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}}}"""
+      s"""{"vpdId":"$vpdId","periodKey":"26AF","data":{},"startedTime":{"$$date":{"$$numberLong":"1770894786000"}},"lastUpdated":{"$$date":{"$$numberLong":"1770894786000"}}}"""
 
     val errorJson =
       s"""{"vpdId":"$vpdId","periodKey":"26AF","lastUpdated":{"$$date":{"$$numberLong":"1718118467838"}}}"""
