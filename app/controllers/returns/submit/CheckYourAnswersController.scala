@@ -49,8 +49,6 @@ class CheckYourAnswersController @Inject()(
       val dutyRate = dutyRateOpt.getOrElse(BigDecimal(0))
       val vm = CheckYourAnswersViewModel(request.userAnswers, dutyRate)
       Ok(view(vm))
-    }.recover { _ =>
-      Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
     }
   }
 

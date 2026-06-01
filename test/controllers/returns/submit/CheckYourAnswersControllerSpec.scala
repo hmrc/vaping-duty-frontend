@@ -132,7 +132,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to journey recovery when obligation service fails" in {
+    "must return INTERNAL_SERVER_ERROR when obligation service fails" in {
 
       val mockObligationService = mock[ObligationService]
 
@@ -148,8 +148,10 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[RuntimeException]
+          exception.getMessage mustBe "Obligation not found"
+        }
       }
     }
   }
