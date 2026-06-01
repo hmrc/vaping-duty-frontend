@@ -18,7 +18,6 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import controllers.returns.ReturnsControllerHelpers
 import forms.returns.EnterDutyAmountFormProvider
 import models.Mode
 import navigation.ReturnsNavigator
@@ -44,7 +43,7 @@ class EnterDutyAmountController @Inject()(
                                         returnsEnabledAction: ReturnsEnabledAction,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: EnterDutyAmountView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with ReturnsControllerHelpers {
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Int] = formProvider()
 

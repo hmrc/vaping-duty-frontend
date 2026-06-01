@@ -33,7 +33,7 @@ trait TestData {
   val vpdRef: Option[String] = Some("VPDREF123")
   val btaLink = "http://localhost:9020/business-account?useServiceNavigation"
   val groupId: GroupId = GroupId(id = "groupid")
-  val periodKey = "26AF"
+  val periodKey = PeriodKey("26AF")
   val ukTimeZoneStringId = "Europe/London"
   val clock: Clock = Clock.fixed(LocalDateTime.parse("2026-02-12T11:13:06").toInstant(ZoneOffset.UTC), ZoneId.of(ukTimeZoneStringId))
   val testDutyRate = BigDecimal("3.15")
@@ -143,7 +143,7 @@ trait TestData {
 
   val returnsUserAnswers: ReturnsUserAnswers = ReturnsUserAnswers(
     vpdId = vpdId.value,
-    periodKey = periodKey,
+    periodKey = periodKey.value,
     data = JsObject.empty,
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
@@ -224,7 +224,7 @@ trait TestData {
   val totalDue = totalInMl - zeroValue
 
   val testSubmitReturnRequest = ReturnCreateRequest(
-    PeriodKey(periodKey),
+    periodKey.toString,
     VapingProductsProduced(Seq.empty, Seq.empty),
     TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
   )
@@ -286,7 +286,7 @@ trait TestData {
         ),
         chargeDetails = Some(
           ChargeDetails(
-            periodKey = periodKey,
+            periodKey = periodKey.value,
             chargeReference = Some("XVC123456789012"),
             periodFrom = LocalDate.of(2026, 6, 1),
             periodTo = LocalDate.of(2026, 6, 30),

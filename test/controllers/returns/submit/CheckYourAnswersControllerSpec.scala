@@ -80,7 +80,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val vm = CheckYourAnswersViewModel(returnsUserAnswers, BigDecimal(0))(messages(application))
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(PeriodKey(periodKey), vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
       }
     }
 
@@ -105,7 +105,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=$periodKey"
+        redirectLocation(result).value mustBe controllers.returns.submit.routes.ConfirmationController.onPageLoad().url
       }
     }
 

@@ -40,7 +40,7 @@ class CheckYourAnswersController @Inject()(
                                        obligationService: ObligationService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: CheckYourAnswersView
-                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport with ReturnsControllerHelpers {
+                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     obligationService.getDutyRateForPeriod(
@@ -55,7 +55,7 @@ class CheckYourAnswersController @Inject()(
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     submitReturnService.submit(request.userAnswers).map { response =>
-      redirectWithPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad())(request)
+      Redirect(controllers.returns.submit.routes.ConfirmationController.onPageLoad())
     }.recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
   }
 }
