@@ -23,7 +23,7 @@ import play.api.Configuration
 import java.time.LocalDate
 
 @Singleton
-class DutyRateConfig @Inject()(configuration: Configuration) {
+class DutyRateConfig @Inject()(configuration: Configuration, dutyRateValidator: DutyRateValidator) {
   
   val rates: Seq[DutyRate] = {
     val parsedRates: Seq[DutyRate] = parseRatesFromConfig(configuration)
