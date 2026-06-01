@@ -59,17 +59,21 @@ class SubmitReturnService @Inject()(
 
     val periodKey = ua.periodKey
 
-    val currentPeriodRate = dutyRateService.getRateForDate(obligation.iCFromDate)
-    val dutyRate = DutyRateToPence(currentPeriodRate).toPence
+    val dutyRateInPencePerMl: Int = dutyRateService.getRateForDate(obligation.iCFromDate)
 
-    val liquidInLitres = ConvertToLitres(liquidInMl - zeroValue).toLitres
+    val liquidInLitres = ConvertToLitres(liquidInMl).toLitres
 
-    val dutyDue = ((liquidInMl * dutyRate) / 10).setScale(2, BigDecimal.RoundingMode.DOWN)
+    val dutyDue = (liquidInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
 
+    val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) / 100) * 10
     val vapingProductsProduced = if (dutyDeclared) {
-      VapingProductsProduced(nilReturn = Seq(), regularReturn = Seq(RegularReturn(
-        taxType = config.taxType, dutyRate = dutyRate, amountProducedLiquid = liquidInLitres, dutyDue = dutyDue
-      )))
+      VapingProductsProduced(nilReturn = Seq(), regularReturn = Seq(
+        RegularReturn(
+          taxType = config.taxType,
+          dutyRate = dutyRateInPoundsPer10Ml,
+          amountProducedLiquid = liquidInLitres,
+          dutyDue = dutyDue
+        )))
     } else {
       VapingProductsProduced(nilReturn = Seq(NilReturn(vapingProductsProduced = "0")), regularReturn = Seq())
     }

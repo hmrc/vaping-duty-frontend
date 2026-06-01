@@ -43,10 +43,10 @@ object ReturnsSummary extends CurrencyFormatter {
     SummaryList(rows = rows, classes = CssConstants.marginBottom9)
   }
 
-  private def dutyRow(value: String)(implicit messages: Messages) = {
+  private def dutyRow(dutyDue: String)(implicit messages: Messages) = {
     Option(SummaryListRowViewModel(
       key = "returns.CheckYourAnswers.dutySummary.vaping",
-      value = ValueViewModel(Text(value)),
+      value = ValueViewModel(Text(dutyDue)),
       actions = Seq(
         ActionItemViewModel("site.change", controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(CheckMode).url)
           .withVisuallyHiddenText(messages(""))
@@ -54,17 +54,17 @@ object ReturnsSummary extends CurrencyFormatter {
     ))
   }
 
-  def calculateDuty(amount: BigDecimal, dutyRate: BigDecimal): BigDecimal =
-    ((amount * dutyRate) / 10).setScale(2, BigDecimal.RoundingMode.DOWN)
+  def calculateDuty(volumeInMl: BigDecimal, dutyRate: BigDecimal): BigDecimal =
+    (volumeInMl * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
 
   private def buildDutyRow(
     answers: ReturnsUserAnswers,
     dutyRate: BigDecimal
   )(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(EnterDutyAmountPage) match {
-      case Some(value) if value == 0 => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
-      case Some(value) => 
-        val dutyDue = calculateDuty(value, dutyRate)
+      case Some(volumeInMl) if volumeInMl == 0 => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
+      case Some(volumeInMl) => 
+        val dutyDue = calculateDuty(volumeInMl, dutyRate)
         dutyRow(currencyFormat(dutyDue))
       case None => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
     }
@@ -118,8 +118,8 @@ object ReturnsSummary extends CurrencyFormatter {
     dutyRate: BigDecimal
   )(implicit messages: Messages): Option[SummaryListRow] = {
     answers.get(EnterDutyAmountPage) match {
-      case Some(value) => 
-        val dutyDue = calculateDuty(value, dutyRate)
+      case Some(volumeInMl) => 
+        val dutyDue = calculateDuty(volumeInMl, dutyRate)
         totalDutyRow(currencyFormat(dutyDue))
       case None => totalDutyRow(messages("returns.CheckYourAnswers.dutySummary.total.nil"))
     }

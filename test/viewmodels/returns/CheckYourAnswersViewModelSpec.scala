@@ -29,7 +29,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
 
       val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate)
 
-      vm.dutyDue mustBe "£315"
+      vm.dutyDue mustBe "£3,150"
       vm.dutyRate mustBe "£3.15"
     }
 
@@ -47,7 +47,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
 
       vm.finalDutySummaryList.rows must not be empty
       vm.dutySuspendedSummaryList.rows must not be empty
-      vm.dutyDue mustBe "£157.50"
+      vm.dutyDue mustBe "£1,575"
     }
   }
 }

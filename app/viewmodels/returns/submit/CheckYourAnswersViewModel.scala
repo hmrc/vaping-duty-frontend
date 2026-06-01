@@ -49,8 +49,8 @@ object CheckYourAnswersViewModel {
 
   private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal): String = {
     userAnswers.get(EnterDutyAmountPage) match {
-      case Some(value)  => currencyFormat(ReturnsSummary.calculateDuty(value, dutyRate))
-      case None         => currencyFormat(BigDecimal(ZERO))
+      case Some(volumeInMl)  => currencyFormat(ReturnsSummary.calculateDuty(volumeInMl, dutyRate))
+      case None              => currencyFormat(BigDecimal(ZERO))
     }
   }
 

@@ -45,8 +45,9 @@ class ObligationService @Inject()(
                           (using HeaderCarrier): Future[Option[BigDecimal]] =
     getObligationByPeriodKey(vpdId, periodKey).map { obligationOpt =>
       obligationOpt.map { obligation =>
-        val rate = dutyRateService.getRateForDate(obligation.iCFromDate)
-        BigDecimal(rate) / 100
+        val rateInPencePerMl: Int = dutyRateService.getRateForDate(obligation.iCFromDate)
+        val dutyRateInPoundsPerMl = BigDecimal(rateInPencePerMl) / 100
+        dutyRateInPoundsPerMl
       }
     }
 }
