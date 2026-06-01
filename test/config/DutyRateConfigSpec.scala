@@ -17,10 +17,15 @@
 package config
 
 import base.SpecBase
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{ConfigException, ConfigFactory}
+import models.returns.{DateRange, DutyRate, DutyRateValidationError}
+import org.mockito.Mockito.*
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Configuration
 
 import java.time.LocalDate
+import java.time.format.DateTimeParseException
+import scala.collection.immutable.Seq
 
 class DutyRateConfigSpec extends SpecBase {
 
@@ -63,6 +68,211 @@ class DutyRateConfigSpec extends SpecBase {
       }
 
       exception.getMessage must include("At least one duty rate must be configured")
+    }
+    
+    "parseRatesFromConfig" - {
+      "must be able to parse correct config" in {
+        val config = Configuration(ConfigFactory.parseString(
+          """
+            |duty-rates = [
+            |  {
+            |    start-date = "2026-01-01"
+            |    end-date = "2026-12-31"
+            |    rate-pence-per-ml = 22
+            |  },
+            |  {
+            |    start-date = "2027-01-01"
+            |    end-date = "9999-12-31"
+            |    rate-pence-per-ml = 30
+            |  }
+            |]
+            |""".stripMargin))
+
+        parseRatesFromConfig(config) mustBe Seq(
+          DutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-12-31")), 22),
+          DutyRate(DateRange(LocalDate.parse("2027-01-01"), LocalDate.parse("9999-12-31")), 30)
+        )
+      }
+
+      "must be able to parse syntactically correct, but invalid config" in {
+        val config = Configuration(ConfigFactory.parseString(
+          """
+            |duty-rates = [
+            |  {
+            |    start-date = "2026-01-01"
+            |    end-date = "2026-11-30"
+            |    rate-pence-per-ml = 22
+            |  },
+            |  # Gap between Nov and Feb can be read but will fail later validation checks!
+            |  {
+            |    start-date = "2027-02-01"
+            |    end-date = "9999-12-31"
+            |    rate-pence-per-ml = 30
+            |  }
+            |]
+            |""".stripMargin))
+
+        parseRatesFromConfig(config) mustBe Seq(
+          DutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-11-30")), 22),
+          DutyRate(DateRange(LocalDate.parse("2027-02-01"), LocalDate.parse("9999-12-31")), 30)
+        )
+      }
+
+      "will fail to parse incorrect dates" in {
+        val config = Configuration(ConfigFactory.parseString(
+          """
+            |duty-rates = [
+            |  {
+            |    start-date = "2026-01-01"
+            |    # The 31st Nov does not exist! 
+            |    end-date = "2026-11-31"
+            |    rate-pence-per-ml = 22
+            |  }
+            |]
+            |""".stripMargin))
+
+        val exception = intercept[DateTimeParseException] {
+          parseRatesFromConfig(config)
+        }
+
+        exception.getMessage must include("Text '2026-11-31' could not be parsed: Invalid date 'NOVEMBER 31'")
+      }
+
+      "will fail to parse non-integer rate-pence-per-ml" in {
+        val config = Configuration(ConfigFactory.parseString(
+          """
+            |duty-rates = [
+            |  {
+            |    start-date = "2026-01-01"
+            |    end-date = "2026-11-30"
+            |    rate-pence-per-ml = 22.5
+            |  }
+            |]
+            |""".stripMargin))
+
+        val exception = intercept[NumberFormatException] {
+          parseRatesFromConfig(config)
+        }
+
+        exception.getMessage must include("For input string: \"22.5\"")
+      }
+
+      "will fail to parse non-numeric reate-pence-per-ml" in {
+        val config = Configuration(ConfigFactory.parseString(
+          """
+            |duty-rates = [
+            |  {
+            |    start-date = "2026-01-01"
+            |    end-date = "2026-11-30"
+            |    rate-pence-per-ml = "foo-bar"
+            |  }
+            |]
+            |""".stripMargin))
+
+        val exception = intercept[NumberFormatException] {
+          parseRatesFromConfig(config)
+        }
+
+        exception.getMessage must include("For input string: \"foo-bar\"")
+      }
+
+      "will fail to parse if the start date is missing" in {
+        val config = Configuration(ConfigFactory.parseString(
+          """
+            |duty-rates = [
+            |  {
+            |    # start-date missing!
+            |    end-date = "2026-11-31"
+            |    rate-pence-per-ml = 22
+            |  }
+            |]
+            |""".stripMargin))
+
+        val exception = intercept[ConfigException.Missing] {
+          parseRatesFromConfig(config)
+        }
+
+        exception.getMessage must include("No configuration setting found for key 'start-date'")
+      }
+
+      "will fail to parse if the end date is missing" in {
+        val config = Configuration(ConfigFactory.parseString(
+          """
+            |duty-rates = [
+            |  {
+            |    start-date = "2026-01-01"
+            |    # end-date missing!
+            |    rate-pence-per-ml = 22
+            |  }
+            |]
+            |""".stripMargin))
+
+        val exception = intercept[ConfigException.Missing] {
+          parseRatesFromConfig(config)
+        }
+
+        exception.getMessage must include("No configuration setting found for key 'end-date'")
+      }
+
+      "will fail to parse if the rate-pence-per-ml is missing" in {
+        val config = Configuration(ConfigFactory.parseString(
+          """
+            |duty-rates = [
+            |  {
+            |    start-date = "2026-01-01"
+            |    end-date = "2026-11-30"
+            |    # rate-pence-per-ml missing!
+            |  }
+            |]
+            |""".stripMargin))
+
+        val exception = intercept[ConfigException.Missing] {
+          parseRatesFromConfig(config)
+        }
+
+        exception.getMessage must include("No configuration setting found for key 'rate-pence-per-ml'")
+      }
+    }
+
+    "throwExceptionIfInvalid" - {
+
+      val validDutyRate1 = DutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-12-31")), 22)
+      val validDutyRate2 = DutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-12-31")), 30)
+      
+      "will return a single duty rates if valid" in {
+        throwExceptionIfInvalid(Right(Seq(validDutyRate1))) mustBe
+          Seq(validDutyRate1)
+      }
+
+      "will return a multiple duty rates if valid" in {
+        throwExceptionIfInvalid(Right(Seq(validDutyRate1, validDutyRate2))) mustBe
+          Seq(validDutyRate1, validDutyRate2)
+      }
+
+      val error1 = mock[DutyRateValidationError]
+      when(error1.message) thenReturn "Error 1"
+      
+      val error2 = mock[DutyRateValidationError]
+      when(error2.message) thenReturn "Error 2"
+
+      "will throw an exception if one validation error is detected" in {
+        val exception = intercept[IllegalArgumentException] {
+          throwExceptionIfInvalid(Left(List(error1)))
+        }
+
+        exception.getMessage must include("Invalid duty rate configuration:")
+        exception.getMessage must include("Error 1")
+      }
+
+      "will throw an exception if multiple validation errors are detected" in {
+        val exception = intercept[IllegalArgumentException] {
+          throwExceptionIfInvalid(Left(List(error1, error2)))
+        }
+
+        exception.getMessage must include("Invalid duty rate configuration:")
+        exception.getMessage must include("Error 1")
+        exception.getMessage must include("Error 2")
+      }
     }
   }
 }

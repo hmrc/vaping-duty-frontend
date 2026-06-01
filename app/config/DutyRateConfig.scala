@@ -25,26 +25,31 @@ import java.time.LocalDate
 @Singleton
 class DutyRateConfig @Inject()(configuration: Configuration) {
   
-  private val DUTY_RATES_KEY = "duty-rates"
-  
   val rates: Seq[DutyRate] = {
-    val configList = configuration.get[Seq[Configuration]](DUTY_RATES_KEY)
-    val parsedRates = configList.map { rateConfig =>
-      DutyRate(
-        period = DateRange(
-          start = LocalDate.parse(rateConfig.get[String]("start-date")),
-          end = LocalDate.parse(rateConfig.get[String]("end-date"))
-        ),
-        ratePencePerMl = rateConfig.get[Int]("rate-pence-per-ml")
-      )
-    }.sortBy(_.period.start)
-    
-    DutyRateValidator.validate(parsedRates) match {
-      case Right(validRates) => validRates
-      case Left(errors)      => 
-        val errorMessage = errors.map(_.message).mkString("\n  - ", "\n  - ", "")
-        // scalafix:off DisableSyntax.throw
-        throw new IllegalArgumentException(s"Invalid duty rate configuration:$errorMessage")
-    }
+    val parsedRates: Seq[DutyRate] = parseRatesFromConfig(configuration)
+    throwExceptionIfInvalid(dutyRateValidator.validate(parsedRates))
+  }
+}
+
+def parseRatesFromConfig(configuration: Configuration): Seq[DutyRate] = {
+  val configList = configuration.get[Seq[Configuration]]("duty-rates")
+  configList.map { rateConfig =>
+    DutyRate(
+      period = DateRange(
+        start = LocalDate.parse(rateConfig.get[String]("start-date")),
+        end   = LocalDate.parse(rateConfig.get[String]("end-date"))
+      ),
+      ratePencePerMl = Integer.parseInt(rateConfig.get[String]("rate-pence-per-ml"))
+    )
+  }.sortBy(_.period.start)
+}
+
+def throwExceptionIfInvalid(validatedRates: Either[List[DutyRateValidationError], Seq[DutyRate]]): Seq[DutyRate] = {
+  validatedRates match {
+    case Right(validRates) => validRates
+    case Left(errors) =>
+      val errorMessage = errors.map(_.message).mkString(start = "\n  - ", sep = "\n  - ", end = "")
+      // scalafix:off DisableSyntax.throw
+      throw new IllegalArgumentException(s"Invalid duty rate configuration:$errorMessage")
   }
 }
