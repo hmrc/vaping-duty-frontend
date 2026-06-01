@@ -16,12 +16,11 @@
 
 package models.returns.submit
 
-import models.identifiers.PeriodKey
 import models.returns.{TotalDutyDue, VapingProductsProduced}
 import play.api.libs.json.{Json, OFormat}
 
 case class ReturnCreateRequest(
-  periodKey: PeriodKey,
+  periodKey: String,
   vapingProductsProduced: VapingProductsProduced,
   totalDutyDue: TotalDutyDue
 )

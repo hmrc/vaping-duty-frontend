@@ -17,15 +17,17 @@
 package models.returns
 
 import base.SpecBase
-import models.identifiers.PeriodKey
 import models.returns.submit.ReturnCreateRequest
 import play.api.libs.json.Json
 
 class ReturnCreateRequestSpec extends SpecBase {
+
   val returnCreateRequest: ReturnCreateRequest =
-    ReturnCreateRequest(periodKey = PeriodKey(periodKey),
+    ReturnCreateRequest(
+      periodKey = periodKey.toString,
       vapingProductsProduced = VapingProductsProduced(Seq(), Seq()),
-      totalDutyDue = TotalDutyDue(1, 1, 1, 1, 1, 1))
+      totalDutyDue = TotalDutyDue(1, 1, 1, 1, 1, 1)
+    )
 
   "ReturnCreateRequest" - {
     val json = """{"periodKey":"26AF","vapingProductsProduced":{"nilReturn":[],"regularReturn":[]},"totalDutyDue":{"totalDutyDueVapingProducts":1,"totalDutyOverDeclaration":1,"totalDutyUnderDeclaration":1,"totalDutySpoiltProduct":1,"adjustmentAmount":1,"totalDutyDue":1}}"""

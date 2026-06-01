@@ -17,7 +17,6 @@
 package controllers.returns.submit
 
 import base.SpecBase
-import models.identifiers.PeriodKey
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -55,7 +54,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[BeforeYouStartView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(PeriodKey(periodKey), vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
       }
     }
 
@@ -79,7 +78,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[BeforeYouStartView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(PeriodKey(periodKey), vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
       }
     }
 

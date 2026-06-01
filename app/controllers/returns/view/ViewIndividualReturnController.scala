@@ -38,9 +38,9 @@ class ViewIndividualReturnController @Inject()(
                                        returnsEnabled: ReturnsEnabledAction
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabled).async {
+  def onPageLoad(periodKey: PeriodKey): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
-      connector.getReturn(PeriodKey(periodKey), vpdId = request.enrolmentVpdId)
+      connector.getReturn(periodKey, request.enrolmentVpdId)
         .map { returnData =>
           Ok(view(ViewIndividualReturnViewModel(returnData)))
         }

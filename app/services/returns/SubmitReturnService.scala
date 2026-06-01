@@ -78,5 +78,5 @@ class SubmitReturnService @Inject()(submitReturnConnector: SubmitReturnConnector
       totalDutyDue                = totalDutyDueVapingProducts + adjustments
     )
 
-    ReturnCreateRequest(periodKey, vapingProductsProduced, totalDutyDue)
+    ReturnCreateRequest(periodKey.toString, vapingProductsProduced, totalDutyDue)
 }

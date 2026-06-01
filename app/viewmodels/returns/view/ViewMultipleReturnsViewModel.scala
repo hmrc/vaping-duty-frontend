@@ -16,6 +16,7 @@
 
 package viewmodels.returns.view
 
+import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationStatus, ObligationsResponse}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
@@ -75,7 +76,7 @@ object ViewMultipleReturnsViewModel {
   private def createCompletedRow(details: ObligationDetails): CompletedReturnRow = {
     CompletedReturnRow(
       monthDisplay = formatMonthYear(details.iCFromDate),
-      viewLink = controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(details.periodKey).url
+      viewLink = controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(PeriodKey(details.periodKey)).url
     )
   }
 

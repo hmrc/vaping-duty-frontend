@@ -16,17 +16,31 @@
 
 package models.identifiers
 
-import play.api.libs.json.{Format, Reads, Writes}
+import play.api.libs.json.{Json, OFormat, Reads, Writes}
+import play.api.mvc.PathBindable
 
-opaque type PeriodKey = String
+case class PeriodKey(value: String) {
+  override def toString: String = value
+}
 
-object PeriodKey:
-  def apply(key: String): PeriodKey = key
+object PeriodKey {
+  private val periodKeyPattern = "^\\d{2}[A-Z]{2}$".r
 
-  extension (key: PeriodKey)
-    def value: String = key
+  given PathBindable[PeriodKey] = new PathBindable[PeriodKey] {
 
-  given Format[PeriodKey] = Format(
-    Reads.StringReads.map(PeriodKey.apply),
-    Writes.StringWrites.contramap[PeriodKey](_.value)
-  )
+    override def bind(key: String, value: String): Either[String, PeriodKey] = {
+      validate(value)
+    }
+
+    override def unbind(key: String, periodKey: PeriodKey): String = periodKey.toString
+  }
+
+  private def validate(value: String) =
+    if (periodKeyPattern.matches(value)) {
+      Right(PeriodKey(value))
+    } else {
+      Left(s"Invalid PeriodKey format: $value. Expected format: YYPP (e.g., 24AA for Jan 2024)")
+    }
+
+  given OFormat[PeriodKey] = Json.format[PeriodKey]
+}
