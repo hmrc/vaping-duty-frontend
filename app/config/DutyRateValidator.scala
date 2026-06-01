@@ -17,11 +17,12 @@
 package config
 
 import models.returns.{DutyRate, DutyRateValidationError}
-import DutyRateValidationError._
+import DutyRateValidationError.*
 
-import java.time.LocalDate
+import java.time.{Clock, LocalDate}
+import javax.inject.Inject
 
-object DutyRateValidator {
+class DutyRateValidator @Inject()(clock: Clock) {
 
   def validateNonEmpty(rates: Seq[DutyRate]): Either[List[DutyRateValidationError], Seq[DutyRate]] =
     if (rates.nonEmpty) Right(rates)
@@ -63,7 +64,7 @@ object DutyRateValidator {
 
   def validateCurrentDateCovered(
     rates: Seq[DutyRate],
-    date: LocalDate = LocalDate.now()
+    date: LocalDate = LocalDate.now(clock)
   ): Either[List[DutyRateValidationError], Seq[DutyRate]] =
     if (rates.exists(_.isValidFor(date))) Right(rates)
     else Left(List(CurrentDateNotCovered(date)))
