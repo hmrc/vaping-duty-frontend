@@ -57,7 +57,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       result.totalDutyDueVapingProducts mustBe "£1,000"
       result.totalDutyDue mustBe "£1,825"
       result.monthYear mustBe "June 2026"
-      result.submittedOn must include("June 2026")
+      result.submittedOn must include("February 2026")
       result.dutyRate mustBe "£3.15"
     }
 

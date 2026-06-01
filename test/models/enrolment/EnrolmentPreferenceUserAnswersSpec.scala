@@ -24,7 +24,7 @@ import java.time.Instant
 import scala.util.Success
 
 class EnrolmentPreferenceUserAnswersSpec extends SpecBase {
-  val ua = EnrolmentUserAnswers(id = internalId.toString, startedTime = Instant.now(clock), lastUpdated = Instant.now(clock))
+  val ua = EnrolmentUserAnswers(id = internalId.toString, startedTime = Instant.ofEpochMilli(1718118467838L), lastUpdated = Instant.ofEpochMilli(1718118467838L))
 
   case object TestPage extends Gettable[String] with Settable[String] {
     override def path: JsPath = JsPath \ toString

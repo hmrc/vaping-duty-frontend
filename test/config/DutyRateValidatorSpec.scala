@@ -18,12 +18,14 @@ package config
 
 import base.SpecBase
 import models.returns.{DutyRate, DutyRateValidationError}
-import DutyRateValidationError._
+import DutyRateValidationError.*
 
 import java.time.LocalDate
 
 class DutyRateValidatorSpec extends SpecBase {
 
+  val validator = new DutyRateValidator(clock)
+  
   private val validRate1 = DutyRate(
     period = models.returns.DateRange(
       start = LocalDate.of(2026, 1, 1),
@@ -45,7 +47,7 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Right for a non-empty sequence" in {
       val rates = Seq(validRate1)
 
-      val result = DutyRateValidator.validateNonEmpty(rates)
+      val result = validator.validateNonEmpty(rates)
 
       result mustBe Right(rates)
     }
@@ -53,7 +55,7 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Left(EmptyRates) for an empty sequence" in {
       val rates = Seq.empty[DutyRate]
 
-      val result = DutyRateValidator.validateNonEmpty(rates)
+      val result = validator.validateNonEmpty(rates)
 
       result mustBe Left(List(EmptyRates))
     }
@@ -64,7 +66,7 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Right when all rates are positive" in {
       val rates = Seq(validRate1, validRate2)
 
-      val result = DutyRateValidator.validatePositiveRates(rates)
+      val result = validator.validatePositiveRates(rates)
 
       result mustBe Right(rates)
     }
@@ -73,7 +75,7 @@ class DutyRateValidatorSpec extends SpecBase {
       val zeroRate = validRate1.copy(ratePencePerMl = 0)
       val rates = Seq(zeroRate)
 
-      val result = DutyRateValidator.validatePositiveRates(rates)
+      val result = validator.validatePositiveRates(rates)
 
       result mustBe Left(List(NegativeRate(zeroRate)))
     }
@@ -82,7 +84,7 @@ class DutyRateValidatorSpec extends SpecBase {
       val negativeRate = validRate1.copy(ratePencePerMl = -10)
       val rates = Seq(negativeRate)
 
-      val result = DutyRateValidator.validatePositiveRates(rates)
+      val result = validator.validatePositiveRates(rates)
 
       result mustBe Left(List(NegativeRate(negativeRate)))
     }
@@ -92,7 +94,7 @@ class DutyRateValidatorSpec extends SpecBase {
       val negativeRate = validRate2.copy(ratePencePerMl = -5)
       val rates = Seq(zeroRate, negativeRate)
 
-      val result = DutyRateValidator.validatePositiveRates(rates)
+      val result = validator.validatePositiveRates(rates)
 
       result mustBe Left(List(NegativeRate(zeroRate), NegativeRate(negativeRate)))
     }
@@ -103,7 +105,7 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Right when all date ranges are valid" in {
       val rates = Seq(validRate1, validRate2)
 
-      val result = DutyRateValidator.validateDateRanges(rates)
+      val result = validator.validateDateRanges(rates)
 
       result mustBe Right(rates)
     }
@@ -113,7 +115,7 @@ class DutyRateValidatorSpec extends SpecBase {
       val rate = validRate1.copy(period = models.returns.DateRange(start = sameDate, end = sameDate))
       val rates = Seq(rate)
 
-      val result = DutyRateValidator.validateDateRanges(rates)
+      val result = validator.validateDateRanges(rates)
 
       result mustBe Right(rates)
     }
@@ -127,7 +129,7 @@ class DutyRateValidatorSpec extends SpecBase {
       )
       val rates = Seq(invalidRate)
 
-      val result = DutyRateValidator.validateDateRanges(rates)
+      val result = validator.validateDateRanges(rates)
 
       result mustBe Left(List(InvalidDateRange(invalidRate)))
     }
@@ -138,7 +140,7 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Right for a single rate" in {
       val rates = Seq(validRate1)
 
-      val result = DutyRateValidator.validateNoGapsOrOverlaps(rates)
+      val result = validator.validateNoGapsOrOverlaps(rates)
 
       result mustBe Right(rates)
     }
@@ -146,7 +148,7 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Right for consecutive rates with no gaps" in {
       val rates = Seq(validRate1, validRate2)
 
-      val result = DutyRateValidator.validateNoGapsOrOverlaps(rates)
+      val result = validator.validateNoGapsOrOverlaps(rates)
 
       result mustBe Right(rates)
     }
@@ -154,7 +156,7 @@ class DutyRateValidatorSpec extends SpecBase {
     "must return Right and sort rates by start date" in {
       val rates = Seq(validRate2, validRate1)
 
-      val result = DutyRateValidator.validateNoGapsOrOverlaps(rates)
+      val result = validator.validateNoGapsOrOverlaps(rates)
 
       result mustBe Right(Seq(validRate1, validRate2))
     }
@@ -164,7 +166,7 @@ class DutyRateValidatorSpec extends SpecBase {
       val rate2 = validRate2.copy(period = validRate2.period.copy(start = LocalDate.of(2026, 7, 2)))
       val rates = Seq(rate1, rate2)
 
-      val result = DutyRateValidator.validateNoGapsOrOverlaps(rates)
+      val result = validator.validateNoGapsOrOverlaps(rates)
 
       result mustBe Left(List(GapOrOverlap(rate1, rate2)))
     }
@@ -174,7 +176,7 @@ class DutyRateValidatorSpec extends SpecBase {
       val rate2 = validRate2.copy(period = validRate2.period.copy(start = LocalDate.of(2026, 7, 1)))
       val rates = Seq(rate1, rate2)
 
-      val result = DutyRateValidator.validateNoGapsOrOverlaps(rates)
+      val result = validator.validateNoGapsOrOverlaps(rates)
 
       result mustBe Left(List(GapOrOverlap(rate1, rate2)))
     }
@@ -183,7 +185,7 @@ class DutyRateValidatorSpec extends SpecBase {
   "validateCurrentDateCovered" - {
 
     "must return Right when the current date is covered" in {
-      val today = LocalDate.now()
+      val today = LocalDate.now(clock)
       val rate = validRate1.copy(
         period = models.returns.DateRange(
           start = today.minusDays(10),
@@ -192,13 +194,13 @@ class DutyRateValidatorSpec extends SpecBase {
       )
       val rates = Seq(rate)
 
-      val result = DutyRateValidator.validateCurrentDateCovered(rates, today)
+      val result = validator.validateCurrentDateCovered(rates, today)
 
       result mustBe Right(rates)
     }
 
     "must return Left(CurrentDateNotCovered) when the current date is not covered" in {
-      val today = LocalDate.now()
+      val today = LocalDate.now(clock)
       val rate = validRate1.copy(
         period = models.returns.DateRange(
           start = today.minusYears(2),
@@ -207,7 +209,7 @@ class DutyRateValidatorSpec extends SpecBase {
       )
       val rates = Seq(rate)
 
-      val result = DutyRateValidator.validateCurrentDateCovered(rates, today)
+      val result = validator.validateCurrentDateCovered(rates, today)
 
       result mustBe Left(List(CurrentDateNotCovered(today)))
     }
@@ -216,7 +218,7 @@ class DutyRateValidatorSpec extends SpecBase {
   "validate (composed)" - {
 
     "must return Right for fully valid rates" in {
-      val today = LocalDate.now()
+      val today = LocalDate.now(clock)
       val rate1 = validRate1.copy(
         period = models.returns.DateRange(
           start = today.minusDays(100),
@@ -231,16 +233,16 @@ class DutyRateValidatorSpec extends SpecBase {
       )
       val rates = Seq(rate1, rate2)
 
-      val result = DutyRateValidator.validate(rates)
+      val result = validator.validate(rates)
 
       result.isRight mustBe true
     }
 
     "must return Left(EmptyRates) when rates are empty" in {
       val rates = Seq.empty[DutyRate]
-      val today = LocalDate.now()
+      val today = LocalDate.now(clock)
 
-      val result = DutyRateValidator.validate(rates)
+      val result = validator.validate(rates)
 
       result.isLeft mustBe true
       result.left.map { errors =>
@@ -253,7 +255,7 @@ class DutyRateValidatorSpec extends SpecBase {
     }
 
     "must return Left(NegativeRate) when a rate is invalid" in {
-      val today = LocalDate.now()
+      val today = LocalDate.now(clock)
       val invalidRate = validRate1.copy(
         period = models.returns.DateRange(
           start = today.minusDays(10),
@@ -263,13 +265,13 @@ class DutyRateValidatorSpec extends SpecBase {
       )
       val rates = Seq(invalidRate)
 
-      val result = DutyRateValidator.validate(rates)
+      val result = validator.validate(rates)
 
       result mustBe Left(List(NegativeRate(invalidRate)))
     }
 
     "must return Left(InvalidDateRange) when date range is invalid" in {
-      val today = LocalDate.now()
+      val today = LocalDate.now(clock)
       val invalidRate = validRate1.copy(
         period = models.returns.DateRange(
           start = today.plusDays(10),
@@ -279,7 +281,7 @@ class DutyRateValidatorSpec extends SpecBase {
       )
       val rates = Seq(invalidRate)
 
-      val result = DutyRateValidator.validate(rates)
+      val result = validator.validate(rates)
 
       result.isLeft mustBe true
 
@@ -287,7 +289,7 @@ class DutyRateValidatorSpec extends SpecBase {
     }
 
     "must return Left(GapOrOverlap) when there is a gap" in {
-      val today = LocalDate.now()
+      val today = LocalDate.now(clock)
       val rate1 = validRate1.copy(
         period = models.returns.DateRange(
           start = today.minusDays(100),
@@ -302,13 +304,13 @@ class DutyRateValidatorSpec extends SpecBase {
       )
       val rates = Seq(rate1, rate2)
 
-      val result = DutyRateValidator.validate(rates)
+      val result = validator.validate(rates)
 
       result mustBe Left(List(GapOrOverlap(rate1, rate2)))
     }
 
     "must return Left(CurrentDateNotCovered) when current date is not covered" in {
-      val today = LocalDate.now()
+      val today = LocalDate.now(clock)
       val rate = validRate1.copy(
         period = models.returns.DateRange(
           start = today.minusYears(2),
@@ -317,13 +319,13 @@ class DutyRateValidatorSpec extends SpecBase {
       )
       val rates = Seq(rate)
 
-      val result = DutyRateValidator.validate(rates)
+      val result = validator.validate(rates)
 
       result mustBe Left(List(CurrentDateNotCovered(today)))
     }
 
     "must return all errors when multiple validations fail" in {
-      val today = LocalDate.now()
+      val today = LocalDate.now(clock)
 
       val rate1 = validRate1.copy(
         period = models.returns.DateRange(
@@ -343,7 +345,7 @@ class DutyRateValidatorSpec extends SpecBase {
 
       val rates = Seq(rate1, rate2)
 
-      val result = DutyRateValidator.validate(rates)
+      val result = validator.validate(rates)
 
       result.isLeft mustBe true
 

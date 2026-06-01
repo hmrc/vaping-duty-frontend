@@ -26,7 +26,7 @@ import models.returns.{ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
 
-import java.time.{Clock, Instant, LocalDate, ZoneId}
+import java.time.{Clock, Instant, LocalDate, LocalDateTime, ZoneId, ZoneOffset}
 
 trait TestData {
   val vpdId: VpdId = VpdId(id = "VPPAID01")
@@ -35,8 +35,7 @@ trait TestData {
   val groupId: GroupId = GroupId(id = "groupid")
   val periodKey = "26AF"
   val ukTimeZoneStringId = "Europe/London"
-  val epochTime = 1718118467838L
-  val clock: Clock = Clock.fixed(Instant.ofEpochMilli(epochTime), ZoneId.of(ukTimeZoneStringId))
+  val clock: Clock = Clock.fixed(LocalDateTime.parse("2026-02-12T11:13:06").toInstant(ZoneOffset.UTC), ZoneId.of(ukTimeZoneStringId))
   val testDutyRate = BigDecimal("3.15")
 
   val sampleRegularReturn: models.returns.RegularReturn = models.returns.RegularReturn(

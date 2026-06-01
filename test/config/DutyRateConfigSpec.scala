@@ -31,6 +31,8 @@ class DutyRateConfigSpec extends SpecBase {
 
   "DutyRateConfig" - {
 
+    val validator = new DutyRateValidator(clock)
+
     "must parse valid configuration" in {
 
       val config = new DutyRateConfig(Configuration(ConfigFactory.parseString(
@@ -47,7 +49,7 @@ class DutyRateConfigSpec extends SpecBase {
           |    rate-pence-per-ml = 30
           |  }
           |]
-          |""".stripMargin)))
+          |""".stripMargin)), validator)
 
       config.rates must have size 2
       config.rates.head.period.start mustBe LocalDate.of(2026, 1, 1)
@@ -64,7 +66,7 @@ class DutyRateConfigSpec extends SpecBase {
           |""".stripMargin))
 
       val exception = intercept[IllegalArgumentException] {
-        new DutyRateConfig(emptyConfig)
+        new DutyRateConfig(emptyConfig, validator)
       }
 
       exception.getMessage must include("At least one duty rate must be configured")
