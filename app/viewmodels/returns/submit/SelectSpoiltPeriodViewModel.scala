@@ -42,7 +42,6 @@ object SelectSpoiltPeriodViewModel {
 
     val currentDate = LocalDate.now()
     val threeYearsAgo = currentDate.minusYears(YEARS_TO_SHOW)
-    val currentYear = selectedYear.getOrElse(currentDate.getYear)
 
     val fulfilledObligations = obligationsResponse.obligation
       .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_FULFILLED)
@@ -66,6 +65,10 @@ object SelectSpoiltPeriodViewModel {
       .map(_.obligationDetails.iCFromDate.getYear)
       .distinct
       .sorted(Ordering[Int].reverse)
+
+    val currentYear = selectedYear.getOrElse(
+      availableYears.headOption.getOrElse(currentDate.getYear)
+    )
 
     val paginationYears = availableYears.take(YEARS_TO_SHOW)
 
