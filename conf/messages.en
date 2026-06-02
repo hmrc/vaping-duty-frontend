@@ -237,6 +237,12 @@ returns.spoiltVolumeByPeriod.error.wholeNumber = You must enter a number greater
 returns.spoiltVolumeByPeriod.error.nonNumeric = You must enter a number greater than zero
 returns.spoiltVolumeByPeriod.error.outOfRange = You must enter a number greater than zero
 
+returns.addSpoiltAdjustment.title = Do you want to make an adjustment for another month?
+returns.addSpoiltAdjustment.heading = Do you want to make an adjustment for another month?
+returns.addSpoiltAdjustment.caption = Adjust spoilt vaping products
+returns.addSpoiltAdjustment.checkYourAnswersLabel = Add another spoilt adjustment
+returns.addSpoiltAdjustment.change.hidden = add another spoilt adjustment
+
 returns.declareDutySuspense.title = Finished vaping products in duty suspense that have been received or moved
 returns.declareDutySuspense.heading = Finished vaping products in duty suspense that have been received or moved
 returns.declareDutySuspense.caption.text = Report duty suspended vaping products

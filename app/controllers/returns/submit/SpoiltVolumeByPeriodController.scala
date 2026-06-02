@@ -97,7 +97,7 @@ class SpoiltVolumeByPeriodController @Inject()(
                   for {
                     updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltVolumeByPeriodPage, SpoiltVolumeByPeriod(volume, spoiltPeriod)))
                     _              <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=${request.periodKey.value}")
+                  } yield Redirect(s"${controllers.returns.submit.routes.AddSpoiltAdjustmentController.onPageLoad(models.NormalMode).url}?period=${request.periodKey.value}")
               )
               
             case None =>
