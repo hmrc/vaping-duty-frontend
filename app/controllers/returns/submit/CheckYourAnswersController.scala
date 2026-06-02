@@ -47,7 +47,7 @@ class CheckYourAnswersController @Inject()(
       request.periodKey
     ).map { dutyRateOpt =>
       val dutyRate = dutyRateOpt.getOrElse(BigDecimal(0))
-      val vm = CheckYourAnswersViewModel(request.userAnswers, dutyRate)
+      val vm = CheckYourAnswersViewModel(request.userAnswers, dutyRate, request.periodKey)
       Ok(view(request.periodKey, vm))
     }
   }

@@ -17,6 +17,7 @@
 package viewmodels.checkAnswers
 
 import models.CheckMode
+import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
 import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import play.api.i18n.Messages
@@ -30,26 +31,29 @@ object ReturnsSummary extends CurrencyFormatter {
 
   def summaryList(
     answers: ReturnsUserAnswers,
-    dutyRate: BigDecimal
+    dutyRate: BigDecimal,
+    periodKey: PeriodKey
   )(implicit messages: Messages): SummaryList = {
     val rows = Seq(
-      buildDutyRow(answers, dutyRate),
-      //      buildSpoiltRow(answers),
-      //      buildOverRow(answers),
-      //      buildUnderRow(answers),
+      buildDutyRow(answers, dutyRate, periodKey),
+      //      buildSpoiltRow(answers, periodKey),
+      //      buildOverRow(answers, periodKey),
+      //      buildUnderRow(answers, periodKey),
       buildTotalDutyRow(answers, dutyRate)
     ).flatten
 
     SummaryList(rows = rows, classes = CssConstants.marginBottom9)
   }
 
-  private def dutyRow(dutyDue: String)(implicit messages: Messages) = {
+  private def dutyRow(dutyDue: String, periodKey: PeriodKey)(implicit messages: Messages) = {
     Option(SummaryListRowViewModel(
       key = "returns.CheckYourAnswers.dutySummary.vaping",
       value = ValueViewModel(Text(dutyDue)),
       actions = Seq(
-        ActionItemViewModel("site.change", controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(CheckMode).url)
-          .withVisuallyHiddenText(messages(""))
+        ActionItemViewModel(
+          "site.change", 
+          s"${controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+        ).withVisuallyHiddenText(messages(""))
       )
     ))
   }
@@ -59,14 +63,15 @@ object ReturnsSummary extends CurrencyFormatter {
 
   private def buildDutyRow(
     answers: ReturnsUserAnswers,
-    dutyRate: BigDecimal
+    dutyRate: BigDecimal,
+    periodKey: PeriodKey
   )(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(EnterDutyAmountPage) match {
-      case Some(volumeInMl) if volumeInMl == 0 => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
+      case Some(volumeInMl) if volumeInMl == 0 => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"), periodKey)
       case Some(volumeInMl) => 
         val dutyDue = calculateDuty(volumeInMl, dutyRate)
-        dutyRow(currencyFormat(dutyDue))
-      case None => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"))
+        dutyRow(currencyFormat(dutyDue), periodKey)
+      case None => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"), periodKey)
     }
 
   private def buildSpoiltRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =

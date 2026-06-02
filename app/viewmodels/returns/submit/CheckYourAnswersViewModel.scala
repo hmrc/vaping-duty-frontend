@@ -16,6 +16,7 @@
 
 package viewmodels.returns.submit
 
+import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
 import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import play.api.i18n.Messages
@@ -38,10 +39,10 @@ object CheckYourAnswersViewModel {
 
   private val ZERO = "0"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal)(implicit messages: Messages): CheckYourAnswersViewModel =
+  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): CheckYourAnswersViewModel =
     CheckYourAnswersViewModel(
-      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRate),
-      dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers),
+      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRate, periodKey),
+      dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers, periodKey),
       dutyDue = dutyDue(userAnswers, dutyRate),
       dutyRate = currencyFormat(dutyRate),
       dutyRateParagraph = dutyRateParagraph(userAnswers, dutyRate)
