@@ -17,7 +17,7 @@
 package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
-import controllers.actions.contactPreference.DataRetrievalAction
+import controllers.actions.contactPreference.{DataRequiredAction, DataRetrievalAction}
 import controllers.actions.returns.ReturnsEnabledAction
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -34,13 +34,14 @@ class SelectSpoiltPeriodController @Inject()(
   identify: ApprovedVapingManufacturerAuthAction,
   returnsEnabledAction: ReturnsEnabledAction,
   getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
   obligationService: ObligationService,
   val controllerComponents: MessagesControllerComponents,
   view: SelectSpoiltPeriodView
 )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(year: Option[Int]): Action[AnyContent] =
-    (identify andThen returnsEnabledAction andThen getData).async { implicit request =>
+    (identify andThen returnsEnabledAction andThen getData andThen requireData).async { implicit request =>
 
       obligationService.getObligations(request.enrolmentVpdId).map { obligationsResponse =>
         val viewModel = SelectSpoiltPeriodViewModel(obligationsResponse, year)
