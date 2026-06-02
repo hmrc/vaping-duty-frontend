@@ -79,7 +79,7 @@ object SelectSpoiltPeriodViewModel {
       PaginationItem(
         number = Some(year.toString),
         current = Some(year == currentYear),
-        href = s"${controllers.returns.submit.routes.SelectSpoiltPeriodController.onPageLoad(Some(year)).url}?period=${currentReturnPeriod.value}"
+        href = s"${controllers.returns.submit.routes.SelectSpoiltPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
       )
     }
 
