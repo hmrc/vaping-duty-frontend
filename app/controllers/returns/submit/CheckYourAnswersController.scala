@@ -47,14 +47,14 @@ class CheckYourAnswersController @Inject()(
       request.periodKey
     ).map { dutyRateOpt =>
       val dutyRate = dutyRateOpt.getOrElse(BigDecimal(0))
-      val vm = CheckYourAnswersViewModel(request.userAnswers, dutyRate)
+      val vm = CheckYourAnswersViewModel(request.userAnswers, dutyRate, request.periodKey)
       Ok(view(request.periodKey, vm))
     }
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     submitReturnService.submit(request.userAnswers).map { response =>
-      Redirect(controllers.returns.submit.routes.ConfirmationController.onPageLoad())
+      Redirect(s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${request.periodKey.value}")
     }.recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
   }
 }

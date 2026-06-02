@@ -36,25 +36,25 @@ class DutySuspenseSummarySpec extends SpecBase with UnitSpec {
       val ua = returnsUserAnswers.set(DeclareDutySuspensePage, false).success.value
 
       "must render product received row with one action" in {
-        val result = DutySuspenseSummary.summaryList(ua)
+        val result = DutySuspenseSummary.summaryList(ua, periodKey)
         
         result.rows.length mustBe 3
         
         val receivedRow = result.rows.head
         receivedRow.actions.value.items.length mustBe 1
-        receivedRow.actions.value.items.head.href mustBe controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url
+        receivedRow.actions.value.items.head.href mustBe s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
       }
 
       "must render product moved row with one action" in {
-        val result = DutySuspenseSummary.summaryList(ua)
+        val result = DutySuspenseSummary.summaryList(ua, periodKey)
         
         val movedRow = result.rows(1)
         movedRow.actions.value.items.length mustBe 1
-        movedRow.actions.value.items.head.href mustBe controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url
+        movedRow.actions.value.items.head.href mustBe s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
       }
 
       "must render total volume row with no actions and bold styling" in {
-        val result = DutySuspenseSummary.summaryList(ua)
+        val result = DutySuspenseSummary.summaryList(ua, periodKey)
         
         val totalRow = result.rows(2)
         totalRow.value.classes must include(CssConstants.boldFontWeight)
@@ -69,25 +69,25 @@ class DutySuspenseSummarySpec extends SpecBase with UnitSpec {
         .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
 
       "must render product received row with volume in ml" in {
-        val result = DutySuspenseSummary.summaryList(ua)
+        val result = DutySuspenseSummary.summaryList(ua, periodKey)
         
         val receivedRow = result.rows.head
         receivedRow.value.content mustBe Text(s"$volumeReceived ml")
         receivedRow.actions.value.items.length mustBe 1
-        receivedRow.actions.value.items.head.href mustBe controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url
+        receivedRow.actions.value.items.head.href mustBe s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
       }
 
       "must render product moved row with volume in ml" in {
-        val result = DutySuspenseSummary.summaryList(ua)
+        val result = DutySuspenseSummary.summaryList(ua, periodKey)
         
         val movedRow = result.rows(1)
         movedRow.value.content mustBe Text(s"$volumeMoved ml")
         movedRow.actions.value.items.length mustBe 1
-        movedRow.actions.value.items.head.href mustBe controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url
+        movedRow.actions.value.items.head.href mustBe s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
       }
 
       "must render total volume row with calculated total in ml and bold styling" in {
-        val result = DutySuspenseSummary.summaryList(ua)
+        val result = DutySuspenseSummary.summaryList(ua, periodKey)
         
         val expectedTotal = volumeReceived - volumeMoved
         val totalRow = result.rows(2)

@@ -20,7 +20,6 @@ import base.SpecBase
 import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
 import models.obligations.ObligationDetails
-import data.TestData
 import models.requests.returns.ReturnsDataRequest
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, when}

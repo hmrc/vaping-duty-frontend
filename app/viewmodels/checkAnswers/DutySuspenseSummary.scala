@@ -17,6 +17,7 @@
 package viewmodels.checkAnswers
 
 import models.CheckMode
+import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
 import pages.returns.{DeclareDutySuspensePage, EnterDutySuspensePage}
 import play.api.i18n.Messages
@@ -31,10 +32,10 @@ object DutySuspenseSummary {
   private val VOLUME_UNIT = " ml"
   private val ZERO_VOLUME = 0
 
-  def summaryList(answers: ReturnsUserAnswers)(implicit messages: Messages): SummaryList = {
+  def summaryList(answers: ReturnsUserAnswers, periodKey: PeriodKey)(implicit messages: Messages): SummaryList = {
     val rows = Seq(
-      buildProductReceivedRow(answers),
-      buildProductMovedRow(answers),
+      buildProductReceivedRow(answers, periodKey),
+      buildProductMovedRow(answers, periodKey),
       buildTotalVolumeRow(answers)
     ).flatten
 
@@ -45,9 +46,9 @@ object DutySuspenseSummary {
     if (volume == ZERO_VOLUME) messages("returns.CheckYourAnswers.dutySummary.nothing")
     else s"$volume$VOLUME_UNIT"
 
-  private def createChangeAction(url: String, messageKey: String)(implicit messages: Messages) =
+  private def createChangeAction(url: String, messageKey: String, periodKey: PeriodKey)(implicit messages: Messages) =
     Seq(
-      ActionItemViewModel("site.change", url)
+      ActionItemViewModel("site.change", s"$url?period=${periodKey.value}")
         .withVisuallyHiddenText(messages(messageKey))
     )
 
@@ -69,41 +70,41 @@ object DutySuspenseSummary {
     )
   }
 
-  private def buildProductReceivedRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] = {
+  private def buildProductReceivedRow(answers: ReturnsUserAnswers, periodKey: PeriodKey)(implicit messages: Messages): Option[SummaryListRow] = {
     val declareDutySuspense = answers.get(DeclareDutySuspensePage).getOrElse(false)
 
     if (!declareDutySuspense) {
       Some(buildRow(
         messages("returns.CheckYourAnswers.dutySuspended.received"),
         messages("returns.CheckYourAnswers.dutySummary.nothing"),
-        createChangeAction(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url, "")
+        createChangeAction(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url, "", periodKey)
       ))
     } else {
       answers.get(EnterDutySuspensePage).map { answer =>
         buildRow(
           messages("returns.CheckYourAnswers.dutySuspended.received"),
           formatVolume(answer.volumeReceived),
-          createChangeAction(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url, "")
+          createChangeAction(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url, "", periodKey)
         )
       }
     }
   }
 
-  private def buildProductMovedRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] = {
+  private def buildProductMovedRow(answers: ReturnsUserAnswers, periodKey: PeriodKey)(implicit messages: Messages): Option[SummaryListRow] = {
     val declareDutySuspense = answers.get(DeclareDutySuspensePage).getOrElse(false)
 
     if (!declareDutySuspense) {
       Some(buildRow(
         messages("returns.CheckYourAnswers.dutySuspended.moved"),
         messages("returns.CheckYourAnswers.dutySummary.nothing"),
-        createChangeAction(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url, "")
+        createChangeAction(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url, "", periodKey)
       ))
     } else {
       answers.get(EnterDutySuspensePage).map { answer =>
         buildRow(
           messages("returns.CheckYourAnswers.dutySuspended.moved"),
           formatVolume(answer.volumeMoved),
-          createChangeAction(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url, "")
+          createChangeAction(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url, "", periodKey)
         )
       }
     }
