@@ -41,5 +41,5 @@
 
     @govukTaskList(TaskList(items = vm.periods))
 
-    @govukPagination(Pagination(items = vm.paginationItems))
+    @govukPagination(Pagination(items = Some(vm.paginationItems)))
 }
