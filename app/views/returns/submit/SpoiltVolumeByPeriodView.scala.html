@@ -18,6 +18,7 @@
 @import components.{Caption, Heading}
 @import viewmodels.LegendSize
 @import viewmodels.returns.submit.SpoiltVolumeByPeriodViewModel
+@import play.api.mvc.Call
 
 @this(
     layout: templates.ReturnsLayout,
@@ -33,7 +34,7 @@
 
 @layout(pageTitle = title(form, messages("returns.spoiltVolumeByPeriod.title"))) {
 
-    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.SpoiltVolumeByPeriodController.onSubmit().url}?period=${vm.periodKey.value}"), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.SpoiltVolumeByPeriodController.onSubmit().url}?period=${vm.currentReturnPeriod.value}&spoiltPeriod=${vm.periodKey.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

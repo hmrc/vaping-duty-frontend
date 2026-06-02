@@ -21,7 +21,7 @@ import controllers.routes
 import models.*
 import models.returns.ReturnsUserAnswers
 import pages.*
-import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage}
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
 import play.api.Logging
 import play.api.http.HttpVerbs.GET
 import play.api.mvc.Call
@@ -37,12 +37,12 @@ class ReturnsNavigator @Inject()(
     Call(call.method, s"${call.url}?period=$periodKey")
 
   private def normalRoutes(periodKey: String): Page => ReturnsUserAnswers => Call = {
-    case DeclareDutyPage         => ua  => declareDutyPageRoutes(ua, periodKey)
-    case EnterDutyAmountPage     => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
-    case DeclareDutySuspensePage => ua  => declareDutySuspensePageRoutes(ua, periodKey)
-    case EnterDutySuspensePage   => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
-    case DeclareSpoiltProductsPage    => ua  => declareSpoiltProductsPageRoutes(ua)
-    case _                       => _   => Call(GET, BtaLink(config))
+    case DeclareDutyPage           => ua  => declareDutyPageRoutes(ua, periodKey)
+    case EnterDutyAmountPage       => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
+    case DeclareDutySuspensePage   => ua  => declareDutySuspensePageRoutes(ua, periodKey)
+    case EnterDutySuspensePage     => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
+    case DeclareSpoiltProductsPage => ua  => declareSpoiltProductsPageRoutes(ua, periodKey)
+    case _                         => _   => Call(GET, BtaLink(config))
   }
 
   private def checkRouteMap(periodKey: String): Page => ReturnsUserAnswers => Call = {
@@ -82,10 +82,10 @@ class ReturnsNavigator @Inject()(
       case _            => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
-  private def declareSpoiltProductsPageRoutes(ua: ReturnsUserAnswers) = {
+  private def declareSpoiltProductsPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(DeclareSpoiltProductsPage) match
-      case Some(true)  => controllers.returns.submit.routes.SelectSpoiltPeriodController.onPageLoad(None)
-      case Some(false) => controllers.returns.submit.routes.TaskListController.onPageLoad()
+      case Some(true)  => withPeriod(controllers.returns.submit.routes.SelectSpoiltPeriodController.onPageLoad(None), periodKey)
+      case Some(false) => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 

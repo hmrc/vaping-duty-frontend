@@ -16,6 +16,8 @@
 
 @import viewmodels.LegendSize
 @import components.{Caption, Paragraph, Heading, Link}
+@import models.identifiers.PeriodKey
+@import play.api.mvc.Call
 
 @this(
     layout: templates.ReturnsLayout,
@@ -31,7 +33,7 @@
     link: Link
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @detailsContent = {
     @p(Seq(Text(messages("returns.declareSpoiltProducts.details.content.p1"))))
@@ -55,7 +57,7 @@
 
 @layout(pageTitle = title(form, messages("returns.declareSpoiltProducts.title"))) {
 
-    @formHelper(action = controllers.returns.submit.routes.DeclareSpoiltProductsController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclareSpoiltProductsController.onSubmit(mode).url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

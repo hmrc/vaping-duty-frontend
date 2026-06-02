@@ -18,18 +18,29 @@ package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
-import utils.PeriodKeys
+import play.api.i18n.Messages
+
+import java.time.format.TextStyle
+import java.util.Locale
 
 case class SpoiltVolumeByPeriodViewModel(
-  periodKey: PeriodKey,
   monthName: String,
-  year: Int
+  year: String,
+  periodKey: PeriodKey,
+  currentReturnPeriod: PeriodKey
 )
 
 object SpoiltVolumeByPeriodViewModel {
-  def apply(obligation: ObligationDetails, periodKey: PeriodKey): SpoiltVolumeByPeriodViewModel = {
-    val monthName = PeriodKeys.toDisplayName(obligation.iCFromDate.getMonth)
-    val year = obligation.iCFromDate.getYear
-    SpoiltVolumeByPeriodViewModel(periodKey, monthName, year)
+  def apply(obligation: ObligationDetails, spoiltPeriodKey: PeriodKey, currentReturnPeriod: PeriodKey)(implicit messages: Messages): SpoiltVolumeByPeriodViewModel = {
+    val month = obligation.iCFromDate.getMonth
+    val monthName = month.getDisplayName(TextStyle.FULL, Locale.UK)
+    val year = obligation.iCFromDate.getYear.toString
+
+    SpoiltVolumeByPeriodViewModel(
+      monthName = monthName,
+      year = year,
+      periodKey = spoiltPeriodKey,
+      currentReturnPeriod = currentReturnPeriod
+    )
   }
 }

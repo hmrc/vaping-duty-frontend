@@ -52,15 +52,15 @@ class DeclareSpoiltProductsController @Inject()(
       val preparedForm = request.userAnswers.get(DeclareSpoiltProductsPage)
         .fold(form)(form.fill)
 
-      Ok(view(preparedForm, mode))
+      Ok(view(request.periodKey, preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclareSpoiltProductsPage, value))

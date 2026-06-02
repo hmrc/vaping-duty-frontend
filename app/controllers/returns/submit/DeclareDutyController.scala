@@ -55,7 +55,7 @@ class DeclareDutyController @Inject()(
       Ok(view(request.periodKey, preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(

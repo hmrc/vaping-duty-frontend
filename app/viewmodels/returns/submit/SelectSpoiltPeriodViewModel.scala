@@ -16,6 +16,7 @@
 
 package viewmodels.returns.submit
 
+import models.identifiers.PeriodKey
 import models.obligations.ObligationsResponse
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -37,7 +38,8 @@ object SelectSpoiltPeriodViewModel {
 
   def apply(
     obligationsResponse: ObligationsResponse,
-    selectedYear: Option[Int]
+    selectedYear: Option[Int],
+    currentReturnPeriod: PeriodKey
   )(implicit messages: Messages): SelectSpoiltPeriodViewModel = {
 
     val currentDate = LocalDate.now()
@@ -63,10 +65,11 @@ object SelectSpoiltPeriodViewModel {
     val taskListItems = obligationsForYear.map { obligation =>
       val month = obligation.obligationDetails.iCFromDate.getMonthValue
       val monthKey = getMonthMessageKey(month)
+      val periodKey = obligation.obligationDetails.periodKey
 
       TaskListItem(
         title = TaskListItemTitle(content = Text(messages(monthKey))),
-        href = Some(controllers.returns.submit.routes.TaskListController.onPageLoad().url)
+        href = Some(s"${controllers.returns.submit.routes.SpoiltVolumeByPeriodController.onPageLoad().url}?period=${currentReturnPeriod.value}&spoiltPeriod=$periodKey")
       )
     }
 
@@ -76,7 +79,7 @@ object SelectSpoiltPeriodViewModel {
       PaginationItem(
         number = Some(year.toString),
         current = Some(year == currentYear),
-        href = controllers.returns.submit.routes.SelectSpoiltPeriodController.onPageLoad(Some(year)).url
+        href = s"${controllers.returns.submit.routes.SelectSpoiltPeriodController.onPageLoad(Some(year)).url}?period=${currentReturnPeriod.value}"
       )
     }
 
