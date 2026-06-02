@@ -27,7 +27,8 @@ final case class TaskRows(
                                    linkText: String,
                                    link: Call,
                                    status: TaskStatus,
-                                   hint: Option[String] = None
+                                   hint: Option[String] = None,
+                                   periodKey: Option[String] = None
                                  ) {
 
   def toTaskListItem(implicit messages: Messages): TaskListItem = {
@@ -42,9 +43,14 @@ final case class TaskRows(
       taskListStatusType(msgKey, extraClasses)
     }
 
+    val urlWithPeriod = periodKey match {
+      case Some(pk) => s"${link.url}?period=$pk"
+      case None => link.url
+    }
+
     TaskListItem(
       title = TaskListItemTitle(Text(linkText)),
-      href = if (status != TaskStatus.TasksRemaining) Some(link.url) else None,
+      href = if (status != TaskStatus.TasksRemaining) Some(urlWithPeriod) else None,
       hint = hint.map(h => HintViewModel(Text(h))),
       status = statusBlock,
       classes = "govuk-task-list__status--cannot-start-yet"

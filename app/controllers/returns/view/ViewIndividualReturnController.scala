@@ -19,6 +19,7 @@ package controllers.returns.view
 import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import models.identifiers.PeriodKey
 import models.returns.view.ReturnDisplayResponse
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -39,7 +40,7 @@ class ViewIndividualReturnController @Inject()(
                                        returnsEnabled: ReturnsEnabledAction
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging{
 
-  def onPageLoad(periodKey: String): Action[AnyContent] = (identify andThen returnsEnabled).async {
+  def onPageLoad(periodKey: PeriodKey): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
       connector.getReturn(periodKey, request.enrolmentVpdId).map { returnData =>
         extractDutyRate(returnData) match {

@@ -20,6 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
 import models.obligations.ObligationDetails
+import data.TestData
 import models.requests.returns.ReturnsDataRequest
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, when}
@@ -49,15 +50,15 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     iCToDate = LocalDate.of(2026, 1, 31),
     iCDateReceived = None,
     iCDueDate = LocalDate.of(2026, 2, 28),
-    periodKey = periodKey
+    periodKey = periodKey.toString
   )
 
   given ReturnsDataRequest[?] = ReturnsDataRequest(
-    FakeRequest(), 
-    vpdId, 
-    internalId, 
-    credId, 
-    periodKey, 
+    FakeRequest(),
+    vpdId,
+    internalId,
+    credId,
+    periodKey,
     returnsUserAnswers
   )
 
@@ -68,22 +69,22 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
       "must return success when a return is submitted successfully" in {
         when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
           .thenReturn(Future.successful(Some(testObligation)))
-        
+
         when(mockDutyRateService.getRateForDate(eqTo(testObligation.iCFromDate)))
           .thenReturn(22)
-        
+
         when(mockAppConfig.taxType).thenReturn("VPD")
-        
+
         when(mockConnector.submitReturn(any(), eqTo(vpdId))(any()))
           .thenReturn(Future.successful(testReturnSubmissionResponse))
 
         val service = new SubmitReturnService(
-          mockConnector, 
-          mockDutyRateService, 
-          mockObligationService, 
+          mockConnector,
+          mockDutyRateService,
+          mockObligationService,
           mockAppConfig
         )
-        
+
         val result = service.submit(returnsUserAnswers)
 
         whenReady(result) { response =>
@@ -94,22 +95,22 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
       "must use the correct duty rate from the obligation's start date" in {
         when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
           .thenReturn(Future.successful(Some(testObligation)))
-        
+
         when(mockDutyRateService.getRateForDate(eqTo(testObligation.iCFromDate)))
           .thenReturn(30)
-        
+
         when(mockAppConfig.taxType).thenReturn("VPD")
-        
+
         when(mockConnector.submitReturn(any(), eqTo(vpdId))(any()))
           .thenReturn(Future.successful(testReturnSubmissionResponse))
 
         val service = new SubmitReturnService(
-          mockConnector, 
-          mockDutyRateService, 
-          mockObligationService, 
+          mockConnector,
+          mockDutyRateService,
+          mockObligationService,
           mockAppConfig
         )
-        
+
         val result = service.submit(returnsUserAnswers)
 
         whenReady(result) { _ =>
@@ -122,22 +123,22 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
       "must return failure when there was an error submitting a return" in {
         when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
           .thenReturn(Future.successful(Some(testObligation)))
-        
+
         when(mockDutyRateService.getRateForDate(eqTo(testObligation.iCFromDate)))
           .thenReturn(22)
-        
+
         when(mockAppConfig.taxType).thenReturn("VPD")
-        
+
         when(mockConnector.submitReturn(any(), eqTo(vpdId))(any()))
           .thenReturn(Future.failed(InternalServerException("error")))
 
         val service = new SubmitReturnService(
-          mockConnector, 
-          mockDutyRateService, 
-          mockObligationService, 
+          mockConnector,
+          mockDutyRateService,
+          mockObligationService,
           mockAppConfig
         )
-        
+
         val result = service.submit(returnsUserAnswers)
 
         whenReady(result.failed) { exception =>
@@ -150,12 +151,12 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .thenReturn(Future.successful(None))
 
         val service = new SubmitReturnService(
-          mockConnector, 
-          mockDutyRateService, 
-          mockObligationService, 
+          mockConnector,
+          mockDutyRateService,
+          mockObligationService,
           mockAppConfig
         )
-        
+
         val result = service.submit(returnsUserAnswers)
 
         whenReady(result.failed) { exception =>

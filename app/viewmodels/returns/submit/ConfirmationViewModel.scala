@@ -16,6 +16,7 @@
 
 package viewmodels.returns.submit
 
+import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
 import pages.returns.EnterDutyAmountPage
 import play.api.i18n.Messages
@@ -33,18 +34,18 @@ case class ConfirmationViewModel(email: String,
                                  content: Html,
                                  vpdRef: String,
                                  btaLink: String,
-                                 periodKey: String,
+                                 periodKey: PeriodKey,
                                  viewReturnUrl: String)
 
 object ConfirmationViewModel extends CurrencyFormatter {
 
-  def apply(ua: ReturnsUserAnswers, email: String, vpdRef: String, btaLink: String, periodKey: String, viewReturnUrl: String)
+  def apply(ua: ReturnsUserAnswers, email: String, vpdRef: String, btaLink: String, periodKey: PeriodKey, viewReturnUrl: String)
            (implicit messages: Messages): ConfirmationViewModel =
 
     confirmationViewModel(email, ua, vpdRef, btaLink, periodKey, viewReturnUrl)
 
 
-  private def confirmationViewModel(email: String, ua: ReturnsUserAnswers, vpdRef: String, btaLink: String, periodKey: String, viewReturnUrl: String)(implicit messages: Messages) =
+  private def confirmationViewModel(email: String, ua: ReturnsUserAnswers, vpdRef: String, btaLink: String, periodKey: PeriodKey, viewReturnUrl: String)(implicit messages: Messages) =
 
     val monthMessage = ReturnsDateUtils.getCurrentMonthMessage(ReturnsDateUtils.month)
 

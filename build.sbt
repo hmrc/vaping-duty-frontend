@@ -34,6 +34,7 @@ lazy val microservice = (project in file("."))
       "controllers.routes._",
       "viewmodels.govuk.all._"
     ),
+    RoutesKeys.routesImport += "models.identifiers.PeriodKey",
     PlayKeys.playDefaultPort := 8140,
     ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*handlers.*;.*components.*;" +
       ".*Routes.*;.*viewmodels.govuk.*;.*config.Service*;.*models.*;",

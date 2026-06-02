@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import controllers.actions.*
 import controllers.actions.returns.{ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -41,18 +42,17 @@ class BeforeYouStartController @Inject()(
 
   def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
     implicit request =>
-      val pk = request.getQueryString("period").getOrElse("")
-      val session = request.session + ("periodKey" -> pk)
+      val periodKey = PeriodKey(request.getQueryString("period").getOrElse(""))
 
       val ua = request.userAnswers match {
-        case Some(existingUa) if existingUa.periodKey == pk =>
+        case Some(existingUa) if existingUa.periodKey == periodKey.toString =>
           existingUa
         case _ =>
-          ReturnsUserAnswers.getEmptyReturnsUA(request.enrolmentVpdId, pk)
+          ReturnsUserAnswers.getEmptyReturnsUA(request.enrolmentVpdId, periodKey)
       }
 
       sessionRepository.set(ua).map(_ =>
-        Ok(view(BeforeYouStartViewModel())).withSession(session)
+        Ok(view(periodKey, BeforeYouStartViewModel()))
       )
 
   }

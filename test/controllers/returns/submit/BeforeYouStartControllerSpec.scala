@@ -47,14 +47,14 @@ class BeforeYouStartControllerSpec extends SpecBase {
       when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=$periodKey")
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[BeforeYouStartView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
       }
     }
 
@@ -71,14 +71,14 @@ class BeforeYouStartControllerSpec extends SpecBase {
       when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=$periodKey")
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[BeforeYouStartView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
       }
     }
 
@@ -86,7 +86,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), returnsEnabled = false).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=$periodKey")
 
         val result = route(application, request).value
 

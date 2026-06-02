@@ -44,11 +44,11 @@ class CheckYourAnswersController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     obligationService.getDutyRateForPeriod(
       VpdId(request.userAnswers.vpdId),
-      request.userAnswers.periodKey
+      request.periodKey
     ).map { dutyRateOpt =>
       val dutyRate = dutyRateOpt.getOrElse(BigDecimal(0))
       val vm = CheckYourAnswersViewModel(request.userAnswers, dutyRate)
-      Ok(view(vm))
+      Ok(view(request.periodKey, vm))
     }
   }
 

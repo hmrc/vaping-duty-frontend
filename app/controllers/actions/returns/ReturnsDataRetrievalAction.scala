@@ -16,6 +16,7 @@
 
 package controllers.actions.returns
 
+import models.identifiers.PeriodKey
 import models.requests.IdentifierRequest
 import models.requests.returns.ReturnsOptionalDataRequest
 import play.api.mvc.ActionTransformer
@@ -33,14 +34,15 @@ class ReturnsDataRetrievalActionImpl @Inject()(val service: ReturnsUserAnswersSe
 
     val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     
-    request.session.get("periodKey") match {
-      case Some(periodKey) =>
+    request.getQueryString("period") match {
+      case Some(periodKeyStr) =>
+        val periodKey = PeriodKey(periodKeyStr)
         service.get(request.enrolmentVpdId, periodKey)(headerCarrier).map {
           case Left(_) => ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, periodKey, None)
           case Right(ua) => ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, periodKey, Some(ua))
         }
       case None =>
-        Future.successful(ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, "", None))
+        Future.successful(ReturnsOptionalDataRequest(request, request.enrolmentVpdId, request.internalId, request.credId, PeriodKey(""), None))
     }
   }
 }

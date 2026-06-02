@@ -18,7 +18,7 @@ package services.returns
 
 import com.google.inject.{Inject, Singleton}
 import connectors.returns.ObligationsConnector
-import models.identifiers.VpdId
+import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.{ObligationDetails, ObligationsResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -33,15 +33,15 @@ class ObligationService @Inject()(
   def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[ObligationsResponse] =
     obligationsConnector.getObligations(vpdId)
   
-  def getObligationByPeriodKey(vpdId: VpdId, periodKey: String)
+  def getObligationByPeriodKey(vpdId: VpdId, periodKey: PeriodKey)
                               (using HeaderCarrier): Future[Option[ObligationDetails]] =
     obligationsConnector.getObligations(vpdId).map { response =>
       response.obligation
         .map(_.obligationDetails)
-        .find(_.periodKey == periodKey)
+        .find(_.periodKey == periodKey.toString)
     }
   
-  def getDutyRateForPeriod(vpdId: VpdId, periodKey: String)
+  def getDutyRateForPeriod(vpdId: VpdId, periodKey: PeriodKey)
                           (using HeaderCarrier): Future[Option[BigDecimal]] =
     getObligationByPeriodKey(vpdId, periodKey).map { obligationOpt =>
       obligationOpt.map { obligation =>

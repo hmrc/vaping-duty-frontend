@@ -17,7 +17,7 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
-import models.identifiers.{CredentialId, InternalId, VpdId}
+import models.identifiers.{CredentialId, InternalId, PeriodKey, VpdId}
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
@@ -89,15 +89,15 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
 
   private val returnsBaseUrl                                                   = s"$returnsHost/vaping-duty"
-  def returnsUserAnswersGetUrl(vpdId: VpdId, periodKey: String): String        = s"$returnsBaseUrl/user-answers/$vpdId/$periodKey"
+  def returnsUserAnswersGetUrl(vpdId: VpdId, periodKey: PeriodKey): String        = s"$returnsBaseUrl/user-answers/$vpdId/$periodKey"
   def returnsUserAnswersUrl: String                                            = s"$returnsBaseUrl/user-answers"
-  def returnsUserAnswersKeepAliveUrl(vpdId: VpdId, periodKey: String): String  = s"$returnsBaseUrl/user-answers/keep-alive/$vpdId/$periodKey"
-  def returnsUserAnswersClearUrl(vpdId: VpdId, periodKey: String): String      = s"$returnsBaseUrl/user-answers/clear/$vpdId/$periodKey"
+  def returnsUserAnswersKeepAliveUrl(vpdId: VpdId, periodKey: PeriodKey): String  = s"$returnsBaseUrl/user-answers/keep-alive/$vpdId/$periodKey"
+  def returnsUserAnswersClearUrl(vpdId: VpdId, periodKey: PeriodKey): String      = s"$returnsBaseUrl/user-answers/clear/$vpdId/$periodKey"
 
   def getObligationsUrl(vpdId: VpdId): String                                  = s"$returnsBaseUrl/obligations/$vpdId"
 
-  def submitReturnUrl(vpdId: VpdId, periodKey: String)                         = s"$returnsBaseUrl/vpd-return/$vpdId/$periodKey"
-  def getReturnUrl(vpdReference: VpdId, periodKey: String): String             = s"$returnsBaseUrl/vpd-return/$periodKey/$vpdReference"
+  def submitReturnUrl(vpdId: VpdId, periodKey: PeriodKey)                         = s"$returnsBaseUrl/vpd-return/$vpdId/$periodKey"
+  def getReturnUrl(vpdReference: VpdId, periodKey: PeriodKey): String             = s"$returnsBaseUrl/vpd-return/$periodKey/$vpdReference"
 
   val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/confirm-email-address"
   val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"
