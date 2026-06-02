@@ -47,6 +47,15 @@ object SelectSpoiltPeriodViewModel {
       .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_FULFILLED)
       .filter(_.obligationDetails.iCFromDate.isAfter(threeYearsAgo))
 
+    val availableYears = fulfilledObligations
+      .map(_.obligationDetails.iCFromDate.getYear)
+      .distinct
+      .sorted(Ordering[Int].reverse)
+
+    val currentYear = selectedYear.getOrElse(
+      availableYears.headOption.getOrElse(currentDate.getYear)
+    )
+
     val obligationsForYear = fulfilledObligations
       .filter(_.obligationDetails.iCFromDate.getYear == currentYear)
       .sortBy(_.obligationDetails.iCFromDate.getMonthValue)(Ordering[Int].reverse)
@@ -60,15 +69,6 @@ object SelectSpoiltPeriodViewModel {
         href = Some(controllers.returns.submit.routes.TaskListController.onPageLoad().url)
       )
     }
-
-    val availableYears = fulfilledObligations
-      .map(_.obligationDetails.iCFromDate.getYear)
-      .distinct
-      .sorted(Ordering[Int].reverse)
-
-    val currentYear = selectedYear.getOrElse(
-      availableYears.headOption.getOrElse(currentDate.getYear)
-    )
 
     val paginationYears = availableYears.take(YEARS_TO_SHOW)
 
