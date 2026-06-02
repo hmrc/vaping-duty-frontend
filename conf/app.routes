@@ -68,6 +68,8 @@ POST       /complete-return/adjustment/declare-spoilt-products                  
 GET        /complete-return/adjustment/change-declare-spoilt-products                       controllers.returns.submit.DeclareSpoiltProductsController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/adjustment/change-declare-spoilt-products                       controllers.returns.submit.DeclareSpoiltProductsController.onSubmit(mode: Mode = CheckMode)
 
+GET        /complete-return/adjustment/select-spoilt-period                                 controllers.returns.submit.SelectSpoiltPeriodController.onPageLoad(year: Option[Int] ?= None)
+
 GET        /complete-return/duty-suspended/suspended-products                               controllers.returns.submit.DeclareDutySuspenseController.onPageLoad(mode: Mode = NormalMode)
 POST       /complete-return/duty-suspended/suspended-products                               controllers.returns.submit.DeclareDutySuspenseController.onSubmit(mode: Mode = NormalMode)
 GET        /complete-return/duty-suspended/change-suspended-products                        controllers.returns.submit.DeclareDutySuspenseController.onPageLoad(mode: Mode = CheckMode)

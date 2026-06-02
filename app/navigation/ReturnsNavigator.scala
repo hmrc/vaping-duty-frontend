@@ -41,7 +41,7 @@ class ReturnsNavigator @Inject()(
     case EnterDutyAmountPage     => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage => ua  => declareDutySuspensePageRoutes(ua, periodKey)
     case EnterDutySuspensePage   => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
-    case DeclareSpoiltProductsPage    => _  => controllers.returns.submit.routes.TaskListController.onPageLoad()
+    case DeclareSpoiltProductsPage    => _  => declareSpoiltProductsPageRoutes(ua)
     case _                       => _   => Call(GET, BtaLink(config))
   }
 
@@ -80,6 +80,13 @@ class ReturnsNavigator @Inject()(
       case Some(true)   => withPeriod(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode), periodKey)
       case Some(false)  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
       case _            => controllers.routes.JourneyRecoveryController.onPageLoad()
+  }
+
+  private def declareSpoiltProductsPageRoutes(ua: ReturnsUserAnswers) = {
+    ua.get(DeclareSpoiltProductsPage) match
+      case Some(true)  => controllers.returns.submit.routes.SelectSpoiltPeriodController.onPageLoad(None)
+      case Some(false) => controllers.returns.submit.routes.TaskListController.onPageLoad()
+      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
   def nextPage(page: Page, mode: Mode, userAnswers: ReturnsUserAnswers): Call = mode match {

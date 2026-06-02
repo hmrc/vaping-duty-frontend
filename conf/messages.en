@@ -221,6 +221,12 @@ returns.declareSpoiltProducts.question = Do you have any spoilt vaping products 
 returns.declareSpoiltProducts.checkYourAnswersLabel = Declare spoilt products
 returns.declareSpoiltProducts.change.hidden = declare spoilt products
 
+returns.selectSpoiltPeriod.title = When did you release the products?
+returns.selectSpoiltPeriod.heading = When did you release the products?
+returns.selectSpoiltPeriod.caption = Spoilt vaping products
+returns.selectSpoiltPeriod.p1 = Tell us which month you released the now-spoilt vaping products, so we can calculate the duty paid.
+returns.selectSpoiltPeriod.p2 = You will not be able to claim back more duty than you paid on these products.
+
 returns.declareDutySuspense.title = Finished vaping products in duty suspense that have been received or moved
 returns.declareDutySuspense.heading = Finished vaping products in duty suspense that have been received or moved
 returns.declareDutySuspense.caption.text = Report duty suspended vaping products
