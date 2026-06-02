@@ -53,7 +53,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[CheckYourAnswersView]
-        val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate)(messages(application))
+        val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate, periodKey)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
@@ -77,7 +77,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[CheckYourAnswersView]
-        val vm = CheckYourAnswersViewModel(returnsUserAnswers, BigDecimal(0))(messages(application))
+        val vm = CheckYourAnswersViewModel(returnsUserAnswers, BigDecimal(0), periodKey)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
