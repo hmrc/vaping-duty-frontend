@@ -21,7 +21,6 @@ import connectors.SubscriptionConnector
 import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import controllers.returns.ReturnsControllerHelpers
 import models.BtaLink
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -43,7 +42,7 @@ class ConfirmationController @Inject()(
                                        subscriptionConnector: SubscriptionConnector,
                                        getReturnsConnector: GetReturnsConnector,
                                        config: FrontendAppConfig
-                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport with ReturnsControllerHelpers {
+                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>

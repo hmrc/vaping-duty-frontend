@@ -42,7 +42,7 @@ class SubmitReturnService @Inject()(
     given HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
 
     for {
-      obligationOpt <- obligationService.getObligationByPeriodKey(request.enrolmentVpdId, ua.periodKey)
+      obligationOpt <- obligationService.getObligationByPeriodKey(request.enrolmentVpdId, request.periodKey)
       obligation <- obligationOpt match {
         case Some(obl) => Future.successful(obl)
         case None => Future.failed(new IllegalStateException(s"No obligation found for period key: ${ua.periodKey}"))
@@ -79,21 +79,23 @@ class SubmitReturnService @Inject()(
       VapingProductsProduced(nilReturn = Seq(NilReturn(vapingProductsProduced = "0")), regularReturn = Seq())
     }
 
-    val totalDutyDueVapingProducts  = if (dutyDeclared) dutyDue else zeroValue
+    val totalDutyDueVapingProducts = if (dutyDeclared) dutyDue else zeroValue
 
     def calculateAdjustmentValue(over: BigDecimal, under: BigDecimal, spoilt: BigDecimal) = {
       over + under + spoilt
     }
+
     val adjustments = calculateAdjustmentValue(zeroValue, zeroValue, zeroValue)
 
     val totalDutyDue = TotalDutyDue(
-      totalDutyDueVapingProducts  = totalDutyDueVapingProducts,
-      totalDutyOverDeclaration    = zeroValue,
-      totalDutyUnderDeclaration   = zeroValue,
-      totalDutySpoiltProduct      = zeroValue,
-      adjustmentAmount            = adjustments,
-      totalDutyDue                = totalDutyDueVapingProducts + adjustments
+      totalDutyDueVapingProducts = totalDutyDueVapingProducts,
+      totalDutyOverDeclaration = zeroValue,
+      totalDutyUnderDeclaration = zeroValue,
+      totalDutySpoiltProduct = zeroValue,
+      adjustmentAmount = adjustments,
+      totalDutyDue = totalDutyDueVapingProducts + adjustments
     )
 
     ReturnCreateRequest(periodKey.toString, vapingProductsProduced, totalDutyDue)
+  }
 }

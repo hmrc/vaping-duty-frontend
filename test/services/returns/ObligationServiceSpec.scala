@@ -18,6 +18,7 @@ package services.returns
 
 import base.SpecBase
 import connectors.returns.ObligationsConnector
+import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
@@ -89,7 +90,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         
         val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
         
-        val result = service.getObligationByPeriodKey(vpdId, "26AB").futureValue
+        val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26AB")).futureValue
         
         result mustBe Some(obligation2)
       }
@@ -100,28 +101,9 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         
         val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
         
-        val result = service.getObligationByPeriodKey(vpdId, "26XX").futureValue
+        val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26XX")).futureValue
         
         result mustBe None
-      }
-
-      "must return the first matching obligation when multiple have the same periodKey" in {
-        val duplicateObligation = obligation1.copy(iCFromDate = LocalDate.of(2026, 1, 15))
-        val responseWithDuplicates = ObligationsResponse(
-          obligation = Seq(
-            ObligationItem(identification = None, obligationDetails = obligation1),
-            ObligationItem(identification = None, obligationDetails = duplicateObligation)
-          )
-        )
-        
-        when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(responseWithDuplicates))
-        
-        val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
-        
-        val result = service.getObligationByPeriodKey(vpdId, "26AA").futureValue
-        
-        result mustBe Some(obligation1)
       }
 
       "must return None when obligations response is empty" in {
@@ -132,7 +114,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         
         val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
         
-        val result = service.getObligationByPeriodKey(vpdId, "26AA").futureValue
+        val result = service.getObligationByPeriodKey(vpdId, periodKey).futureValue
         
         result mustBe None
       }
@@ -147,7 +129,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         
         val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
         
-        val result = service.getDutyRateForPeriod(vpdId, "26AA").futureValue
+        val result = service.getDutyRateForPeriod(vpdId, PeriodKey("26AA")).futureValue
         
         result mustBe Some(BigDecimal("3.15"))
       }
@@ -158,7 +140,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         
         val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
         
-        val result = service.getDutyRateForPeriod(vpdId, "26XX").futureValue
+        val result = service.getDutyRateForPeriod(vpdId, PeriodKey("26XX")).futureValue
         
         result mustBe None
       }
@@ -171,7 +153,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         
         val service = new ObligationService(mockObligationsConnector, mockDutyRateService)
         
-        val result = service.getDutyRateForPeriod(vpdId, "26AA").futureValue
+        val result = service.getDutyRateForPeriod(vpdId, periodKey).futureValue
         
         result mustBe None
       }

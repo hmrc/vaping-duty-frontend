@@ -18,7 +18,6 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import controllers.returns.ReturnsControllerHelpers
 import models.identifiers.VpdId
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -45,11 +44,11 @@ class CheckYourAnswersController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     obligationService.getDutyRateForPeriod(
       VpdId(request.userAnswers.vpdId),
-      request.userAnswers.periodKey
+      request.periodKey
     ).map { dutyRateOpt =>
       val dutyRate = dutyRateOpt.getOrElse(BigDecimal(0))
       val vm = CheckYourAnswersViewModel(request.userAnswers, dutyRate)
-      Ok(view(vm))
+      Ok(view(request.periodKey, vm))
     }
   }
 

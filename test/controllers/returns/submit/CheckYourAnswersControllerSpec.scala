@@ -56,7 +56,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate)(messages(application))
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
       }
     }
 

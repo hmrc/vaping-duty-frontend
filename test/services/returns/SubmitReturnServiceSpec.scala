@@ -50,7 +50,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     iCToDate = LocalDate.of(2026, 1, 31),
     iCDateReceived = None,
     iCDueDate = LocalDate.of(2026, 2, 28),
-    periodKey = periodKey
+    periodKey = periodKey.toString
   )
 
   given ReturnsDataRequest[?] = ReturnsDataRequest(
@@ -78,9 +78,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         when(mockConnector.submitReturn(any(), eqTo(vpdId))(any()))
           .thenReturn(Future.successful(testReturnSubmissionResponse))
 
-  val mockConnector: SubmitReturnConnector = mock[SubmitReturnConnector]
-
-  given ReturnsDataRequest[?] = ReturnsDataRequest(FakeRequest(), vpdId, internalId, credId, PeriodKey(periodKey), returnsUserAnswers)
         val service = new SubmitReturnService(
           mockConnector,
           mockDutyRateService,
