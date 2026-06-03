@@ -93,7 +93,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val vm = SelectSpoiltPeriodViewModel(obligationsResponse, None)(messages(application))
+        val vm = SelectSpoiltPeriodViewModel(obligationsResponse, None, periodKey)(messages(application))
         val view = application.injector.instanceOf[SelectSpoiltPeriodView]
 
         status(result) mustEqual OK
@@ -117,7 +117,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val vm = SelectSpoiltPeriodViewModel(obligationsResponse, Some(specificYear))(messages(application))
+        val vm = SelectSpoiltPeriodViewModel(obligationsResponse, Some(specificYear), periodKey)(messages(application))
         val view = application.injector.instanceOf[SelectSpoiltPeriodView]
 
         status(result) mustEqual OK

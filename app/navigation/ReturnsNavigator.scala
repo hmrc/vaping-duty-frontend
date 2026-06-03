@@ -21,7 +21,7 @@ import controllers.routes
 import models.*
 import models.returns.ReturnsUserAnswers
 import pages.*
-import pages.returns.{AddSpoiltAdjustmentPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import pages.returns.*
 import play.api.Logging
 import play.api.http.HttpVerbs.GET
 import play.api.mvc.Call
