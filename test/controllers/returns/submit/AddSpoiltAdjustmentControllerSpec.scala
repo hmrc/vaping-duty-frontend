@@ -17,45 +17,44 @@
 package controllers.returns.submit
 
 import base.SpecBase
-import forms.returns.DeclareSpoiltProductsFormProvider
+import forms.returns.AddSpoiltAdjustmentFormProvider
 import models.NormalMode
-import models.returns.ReturnsUserAnswers
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.returns.DeclareSpoiltProductsPage
+import pages.returns.AddSpoiltAdjustmentPage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.ReturnsUserAnswersService
-import views.html.returns.submit.DeclareSpoiltProductsView
+import views.html.returns.submit.AddSpoiltAdjustmentView
 
 import scala.concurrent.Future
 
-class DeclareSpoiltProductsControllerSpec extends SpecBase with MockitoSugar {
+class AddSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new DeclareSpoiltProductsFormProvider()
+  val formProvider = new AddSpoiltAdjustmentFormProvider()
   val form: Form[Boolean] = formProvider()
 
-  lazy val declareSpoiltProductsRoute: String = controllers.returns.submit.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode).url
+  lazy val addSpoiltAdjustmentRoute: String = controllers.returns.submit.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode).url
 
-  "DeclareSpoiltProducts Controller" - {
+  "AddSpoiltAdjustment Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, declareSpoiltProductsRoute)
+        val request = FakeRequest(GET, addSpoiltAdjustmentRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[DeclareSpoiltProductsView]
+        val view = application.injector.instanceOf[AddSpoiltAdjustmentView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, form, NormalMode)(request, messages(application)).toString
@@ -64,14 +63,14 @@ class DeclareSpoiltProductsControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = returnsUserAnswers.set(DeclareSpoiltProductsPage, true).success.value
+      val userAnswers = returnsUserAnswers.set(AddSpoiltAdjustmentPage, true).success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, declareSpoiltProductsRoute)
+        val request = FakeRequest(GET, addSpoiltAdjustmentRoute)
 
-        val view = application.injector.instanceOf[DeclareSpoiltProductsView]
+        val view = application.injector.instanceOf[AddSpoiltAdjustmentView]
 
         val result = route(application, request).value
 
@@ -79,32 +78,6 @@ class DeclareSpoiltProductsControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(periodKey, form.fill(true), NormalMode)(request, messages(application)).toString
       }
     }
-
-//    "must redirect to the next page and clear entered spoilt products amount when false" in {
-//
-//      val mockSessionRepository = mock[ReturnsUserAnswersService]
-//
-//      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
-//
-//      val application =
-//        applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-//          .overrides(
-//            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
-//            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
-//          )
-//          .build()
-//
-//      running(application) {
-//        val request =
-//          FakeRequest(POST, declareSpoiltProductsRoute)
-//            .withFormUrlEncodedBody(("value", "false"))
-//
-//        val result = route(application, request).value
-//
-//        status(result) mustEqual SEE_OTHER
-//        redirectLocation(result).value mustEqual onwardRoute.url
-//      }
-//    }
 
     "must redirect to the next page when valid data is submitted" in {
 
@@ -122,7 +95,7 @@ class DeclareSpoiltProductsControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, declareSpoiltProductsRoute)
+          FakeRequest(POST, addSpoiltAdjustmentRoute)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
@@ -138,17 +111,47 @@ class DeclareSpoiltProductsControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, declareSpoiltProductsRoute)
+          FakeRequest(POST, addSpoiltAdjustmentRoute)
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[DeclareSpoiltProductsView]
+        val view = application.injector.instanceOf[AddSpoiltAdjustmentView]
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(periodKey, boundForm, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+
+      val application = applicationBuilder(returnsUserAnswers = None).build()
+
+      running(application) {
+        val request = FakeRequest(GET, addSpoiltAdjustmentRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a POST if no existing data is found" in {
+
+      val application = applicationBuilder(returnsUserAnswers = None).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, addSpoiltAdjustmentRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }
