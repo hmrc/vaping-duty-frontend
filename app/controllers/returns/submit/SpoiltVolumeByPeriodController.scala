@@ -19,10 +19,12 @@ package controllers.returns.submit
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import forms.returns.SpoiltVolumeByPeriodFormProvider
+import models.NormalMode
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.SpoiltVolumeByPeriod
+import navigation.ReturnsNavigator
 import pages.returns.SpoiltVolumeByPeriodPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -44,6 +46,7 @@ class SpoiltVolumeByPeriodController @Inject()(
                                                 formProvider: SpoiltVolumeByPeriodFormProvider,
                                                 returnsEnabledAction: ReturnsEnabledAction,
                                                 obligationService: ObligationService,
+                                                navigator: ReturnsNavigator,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 view: SpoiltVolumeByPeriodView
                                               )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
@@ -83,11 +86,11 @@ class SpoiltVolumeByPeriodController @Inject()(
             volume =>
               val existingList = request.userAnswers.get(SpoiltVolumeByPeriodPage).getOrElse(List.empty)
               val updatedList = existingList.filterNot(_.periodKey == spoiltPeriod) :+ SpoiltVolumeByPeriod(volume, spoiltPeriod)
-              
+
               for {
                 updatedAnswers  <- Future.fromTry(request.userAnswers.set(SpoiltVolumeByPeriodPage, updatedList))
                 _               <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(s"${controllers.returns.submit.routes.AddSpoiltAdjustmentController.onPageLoad(models.NormalMode).url}?period=${request.periodKey.value}")
+              } yield Redirect(navigator.nextPage(SpoiltVolumeByPeriodPage, NormalMode, updatedAnswers))
           )
         }
       }
@@ -108,11 +111,11 @@ class SpoiltVolumeByPeriodController @Inject()(
                             (implicit request: ReturnsDataRequest[AnyContent]): Future[Result] = {
 
     obligationService.getObligationByPeriodKey(request.enrolmentVpdId, spoiltPeriod).flatMap {
-        case Some(obligation) => block(obligation)
-        case None => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-      }.recover {
-        case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      }
+      case Some(obligation) => block(obligation)
+      case None => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+    }.recover {
+      case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+    }
   }
 
   private def createViewModel(obligation: models.obligations.ObligationDetails, spoiltPeriod: PeriodKey)

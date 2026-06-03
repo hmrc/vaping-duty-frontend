@@ -43,6 +43,7 @@ class ReturnsNavigator @Inject()(
     case EnterDutySuspensePage     => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
     case DeclareSpoiltProductsPage => ua  => declareSpoiltProductsPageRoutes(ua, periodKey)
     case AddSpoiltAdjustmentPage   => ua  => addSpoiltAdjustmentPageRoutes(ua, periodKey)
+    case SpoiltVolumeByPeriodPage  => _   => withPeriod(controllers.returns.submit.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode), periodKey)
     case _                         => _   => Call(GET, BtaLink(config))
   }
 
