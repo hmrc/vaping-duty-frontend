@@ -57,8 +57,12 @@ class SpoiltVolumeByPeriodController @Inject()(
           val vm = createViewModel(obligation, spoiltPeriod)
 
           val preparedForm = request.userAnswers.get(SpoiltVolumeByPeriodPage) match {
-            case Some(spoiltVolume) if spoiltVolume.periodKey == spoiltPeriod => form.fill(spoiltVolume.volume)
-            case _ => form
+            case Some(list) =>
+              list.find(_.periodKey == spoiltPeriod) match {
+                case Some(spoiltVolume) => form.fill(spoiltVolume.volume)
+                case None => form
+              }
+            case None => form
           }
 
           Future.successful(Ok(view(vm, preparedForm)))
@@ -77,8 +81,11 @@ class SpoiltVolumeByPeriodController @Inject()(
               Future.successful(BadRequest(view(vm, formWithErrors))),
 
             volume =>
+              val existingList = request.userAnswers.get(SpoiltVolumeByPeriodPage).getOrElse(List.empty)
+              val updatedList = existingList.filterNot(_.periodKey == spoiltPeriod) :+ SpoiltVolumeByPeriod(volume, spoiltPeriod)
+              
               for {
-                updatedAnswers  <- Future.fromTry(request.userAnswers.set(SpoiltVolumeByPeriodPage, SpoiltVolumeByPeriod(volume, spoiltPeriod)))
+                updatedAnswers  <- Future.fromTry(request.userAnswers.set(SpoiltVolumeByPeriodPage, updatedList))
                 _               <- sessionRepository.set(updatedAnswers)
               } yield Redirect(s"${controllers.returns.submit.routes.AddSpoiltAdjustmentController.onPageLoad(models.NormalMode).url}?period=${request.periodKey.value}")
           )

@@ -20,7 +20,7 @@ import models.returns.SpoiltVolumeByPeriod
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object SpoiltVolumeByPeriodPage extends QuestionPage[SpoiltVolumeByPeriod] {
+case object SpoiltVolumeByPeriodPage extends QuestionPage[List[SpoiltVolumeByPeriod]] {
 
   override def path: JsPath = JsPath \ toString
 

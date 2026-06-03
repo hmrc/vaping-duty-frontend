@@ -93,7 +93,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers = returnsUserAnswers.set(
         SpoiltVolumeByPeriodPage,
-        SpoiltVolumeByPeriod(testVolume, spoiltPeriodKey)
+        List(SpoiltVolumeByPeriod(testVolume, spoiltPeriodKey))
       ).success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
