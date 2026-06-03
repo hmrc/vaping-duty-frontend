@@ -16,13 +16,22 @@
 
 package pages.returns
 
-import models.returns.SpoiltVolumeByPeriod
+import models.returns.{ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+
+import scala.util.Try
 
 case object SpoiltVolumeByPeriodPage extends QuestionPage[List[SpoiltVolumeByPeriod]] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "spoiltVolumeByPeriod"
+
+  override def cleanup(value: Option[List[SpoiltVolumeByPeriod]], userAnswers: ReturnsUserAnswers): Try[ReturnsUserAnswers] = {
+    value match {
+      case Some(value) => userAnswers.set(DeclareSpoiltProductsPage, true)
+      case _ => super.cleanup(value, userAnswers)
+    }
+  }
 }

@@ -33,7 +33,7 @@
     link: Link
 )
 
-@(periodKey: PeriodKey, form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, form: Form[_], mode: Mode, guidanceUrl: String)(implicit request: Request[_], messages: Messages)
 
 @detailsContent = {
     @p(Seq(Text(messages("returns.declareSpoiltProducts.details.content.p1"))))
@@ -51,7 +51,11 @@
     @p(Seq(Text(messages("returns.declareSpoiltProducts.details.content.p5"))))
     @p(Seq(
         Text(messages("returns.declareSpoiltProducts.details.content.p6.text") + " "),
-        HtmlContent(link("drawback-scheme-link", messages("returns.declareSpoiltProducts.details.content.p6.link"), "#").toString + ".")
+        HtmlContent(link(
+            id = "drawback-scheme-link",
+            text = messages("returns.declareSpoiltProducts.details.content.p6.link"),
+            newTabText = Some(messages("site.newTab")),
+            href = guidanceUrl).toString + ".")
     ))
 }
 

@@ -47,6 +47,8 @@ class DeclareSpoiltProductsControllerSpec extends SpecBase with MockitoSugar {
   "DeclareSpoiltProducts Controller" - {
 
     "must return OK and the correct view for a GET" in {
+      when(mockAppConfig.claimDutyBackGuidance)
+        .thenReturn("https://www.gov.uk/government/publications/excise-notice-207-excise-duty-drawback/excise-notice-207-excise-duty-drawback")
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
@@ -58,12 +60,15 @@ class DeclareSpoiltProductsControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[DeclareSpoiltProductsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, form, NormalMode, mockAppConfig.claimDutyBackGuidance)(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
+      when(mockAppConfig.claimDutyBackGuidance)
+        .thenReturn("https://www.gov.uk/government/publications/excise-notice-207-excise-duty-drawback/excise-notice-207-excise-duty-drawback")
+      
       val userAnswers = returnsUserAnswers.set(DeclareSpoiltProductsPage, true).success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
@@ -76,37 +81,40 @@ class DeclareSpoiltProductsControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, form.fill(true), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, form.fill(true), NormalMode, mockAppConfig.claimDutyBackGuidance)(request, messages(application)).toString
       }
     }
 
-//    "must redirect to the next page and clear entered spoilt products amount when false" in {
-//
-//      val mockSessionRepository = mock[ReturnsUserAnswersService]
-//
-//      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
-//
-//      val application =
-//        applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-//          .overrides(
-//            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
-//            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
-//          )
-//          .build()
-//
-//      running(application) {
-//        val request =
-//          FakeRequest(POST, declareSpoiltProductsRoute)
-//            .withFormUrlEncodedBody(("value", "false"))
-//
-//        val result = route(application, request).value
-//
-//        status(result) mustEqual SEE_OTHER
-//        redirectLocation(result).value mustEqual onwardRoute.url
-//      }
-//    }
+    "must redirect to the next page and clear entered spoilt products amount when false" in {
+
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+          .overrides(
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, declareSpoiltProductsRoute)
+            .withFormUrlEncodedBody(("value", "false"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
 
     "must redirect to the next page when valid data is submitted" in {
+
+      when(mockAppConfig.claimDutyBackGuidance)
+        .thenReturn("https://www.gov.uk/government/publications/excise-notice-207-excise-duty-drawback/excise-notice-207-excise-duty-drawback")
 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
 
@@ -134,6 +142,9 @@ class DeclareSpoiltProductsControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
+      when(mockAppConfig.claimDutyBackGuidance)
+        .thenReturn("https://www.gov.uk/government/publications/excise-notice-207-excise-duty-drawback/excise-notice-207-excise-duty-drawback")
+
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
@@ -148,7 +159,7 @@ class DeclareSpoiltProductsControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(periodKey, boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, boundForm, NormalMode, mockAppConfig.claimDutyBackGuidance)(request, messages(application)).toString
       }
     }
   }

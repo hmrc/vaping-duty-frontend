@@ -16,6 +16,7 @@
 
 package controllers.returns.submit
 
+import config.FrontendAppConfig
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import forms.returns.DeclareSpoiltProductsFormProvider
@@ -42,7 +43,8 @@ class DeclareSpoiltProductsController @Inject()(
                                          formProvider: DeclareSpoiltProductsFormProvider,
                                          returnsEnabledAction: ReturnsEnabledAction,
                                          val controllerComponents: MessagesControllerComponents,
-                                         view: DeclareSpoiltProductsView
+                                         view: DeclareSpoiltProductsView,
+                                         config: FrontendAppConfig
                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
@@ -52,7 +54,7 @@ class DeclareSpoiltProductsController @Inject()(
       val preparedForm = request.userAnswers.get(DeclareSpoiltProductsPage)
         .fold(form)(form.fill)
 
-      Ok(view(request.periodKey, preparedForm, mode))
+      Ok(view(request.periodKey, preparedForm, mode, config.claimDutyBackGuidance))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
@@ -60,7 +62,7 @@ class DeclareSpoiltProductsController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
+          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode, config.claimDutyBackGuidance))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclareSpoiltProductsPage, value))
