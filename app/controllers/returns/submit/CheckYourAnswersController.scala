@@ -54,7 +54,7 @@ class CheckYourAnswersController @Inject()(
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     submitReturnService.submit(request.userAnswers).map { response =>
-      Redirect(s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${request.periodKey.value}")
+      Redirect(controllers.returns.submit.routes.ConfirmationController.onPageLoad().url + s"?period=${request.periodKey}")
     }.recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
   }
 }

@@ -36,7 +36,7 @@ class ConfirmationControllerSpec extends SpecBase {
 
   "ConfirmationController" - {
 
-    val viewReturnUrl = controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url
+    val viewReturnUrl = s"${controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url}"
 
     "must return OK and the correct view for a GET" in {
 
@@ -59,15 +59,17 @@ class ConfirmationControllerSpec extends SpecBase {
         when(mockGetReturnsConnector.getReturn(any(), any())(using any()))
           .thenReturn(Future.successful(createReturnDisplayResponse()))
 
-        val request = FakeRequest(GET, controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=$periodKey")
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[ConfirmationEmailView]
 
         val chargeReference = createReturnDisplayResponse().success.chargeDetails.get.chargeReference.get
+        
+        val dutyDue = createReturnDisplayResponse().success.totalDutyDue.get.totalDutyDue
 
-        val vm = ConfirmationViewModel(returnsUserAnswers, emailAddress, chargeReference, btaLink, periodKey, viewReturnUrl)
+        val vm = ConfirmationViewModel(dutyDue, emailAddress, chargeReference, btaLink, periodKey, viewReturnUrl)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
@@ -86,6 +88,39 @@ class ConfirmationControllerSpec extends SpecBase {
 
         when(mockConnector.getSubscriptionContactPreferences(any())(any()))
           .thenReturn(Future.successful(Left(ErrorResponse(BAD_REQUEST, "There was an issue"))))
+
+        val request = FakeRequest(GET, controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to journey recovery when totalDutyDue is None" in {
+
+      val mockSubscriptionConnector = mock[SubscriptionConnector]
+      val mockGetReturnsConnector = mock[GetReturnsConnector]
+
+      val application = applicationBuilder(returnsUserAnswers = Option(returnsUserAnswers))
+        .overrides(bind[SubscriptionConnector].toInstance(mockSubscriptionConnector))
+        .overrides(bind[GetReturnsConnector].toInstance(mockGetReturnsConnector))
+        .build()
+
+      running(application) {
+
+        val contactPreference = SubscriptionContactPreferences(true, Option(emailAddress))
+
+        when(mockSubscriptionConnector.getSubscriptionContactPreferences(any())(any()))
+          .thenReturn(Future.successful(Right(contactPreference)))
+
+        val responseWithoutDuty = createReturnDisplayResponse().copy(
+          success = createReturnDisplayResponse().success.copy(totalDutyDue = None)
+        )
+
+        when(mockGetReturnsConnector.getReturn(any(), any())(using any()))
+          .thenReturn(Future.successful(responseWithoutDuty))
 
         val request = FakeRequest(GET, controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
 

@@ -17,8 +17,6 @@
 package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
-import models.returns.ReturnsUserAnswers
-import pages.returns.EnterDutyAmountPage
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.govukfrontend.views.html.components.{GovukInsetText, GovukWarningText}
@@ -39,33 +37,30 @@ case class ConfirmationViewModel(email: String,
 
 object ConfirmationViewModel extends CurrencyFormatter {
 
-  def apply(ua: ReturnsUserAnswers, email: String, vpdRef: String, btaLink: String, periodKey: PeriodKey, viewReturnUrl: String)
+  def apply(dutyDue: BigDecimal, email: String, vpdRef: String, btaLink: String, periodKey: PeriodKey, viewReturnUrl: String)
            (implicit messages: Messages): ConfirmationViewModel =
 
-    confirmationViewModel(email, ua, vpdRef, btaLink, periodKey, viewReturnUrl)
+    confirmationViewModel(email, dutyDue, vpdRef, btaLink, periodKey, viewReturnUrl)
 
 
-  private def confirmationViewModel(email: String, ua: ReturnsUserAnswers, vpdRef: String, btaLink: String, periodKey: PeriodKey, viewReturnUrl: String)(implicit messages: Messages) =
+  private def confirmationViewModel(email: String, dutyDue: BigDecimal, vpdRef: String, btaLink: String, periodKey: PeriodKey, viewReturnUrl: String)(implicit messages: Messages) =
 
     val monthMessage = ReturnsDateUtils.getCurrentMonthMessage(ReturnsDateUtils.month)
 
-    val amountInMl = ua.get(EnterDutyAmountPage) match {
-      case Some(value) => value
-      case None => 0
-    }
     new ConfirmationViewModel(
       email,
       makeDateString(monthMessage),
       monthMessage,
-      getContent(amountInMl),
+      getContent(dutyDue),
       vpdRef,
       btaLink,
       periodKey,
       viewReturnUrl
     )
 
-  private def totalDue(valueInMl: Int) =
-    currencyFormat(calculateDuty(valueInMl))
+  private def totalDue(dutyDue: BigDecimal) = {
+    currencyFormat(dutyDue)
+  }
 
 
   private def makeDateString(monthMessage: String)(implicit messages: Messages) = {
@@ -91,16 +86,16 @@ object ConfirmationViewModel extends CurrencyFormatter {
       ), classes = "govuk-list govuk-list--bullet")
     )
 
-  private def getContent(valueInMl: Int)(implicit messages: Messages) = {
+  private def getContent(dutyDue: BigDecimal)(implicit messages: Messages) = {
 
     val monthMessage = ReturnsDateUtils.getCurrentMonthMessage(ReturnsDateUtils.month)
 
-    if (valueInMl > 9) {
+    if (dutyDue != 0) {
       val warning = GovukWarningText()
 
       val warningSection = warning(WarningText(
         iconFallbackText = Some(messages("site.warning")),
-        content = Text(messages("returns.confirmation.warning.youMust", totalDue(valueInMl), monthMessage, ReturnsDateUtils.getYear.toString))
+        content = Text(messages("returns.confirmation.warning.youMust", totalDue(dutyDue), monthMessage, ReturnsDateUtils.getYear.toString))
       ))
 
       HtmlFormat.fill(elems(warningSection))
