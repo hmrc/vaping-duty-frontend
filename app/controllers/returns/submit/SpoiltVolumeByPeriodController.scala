@@ -20,11 +20,13 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import forms.returns.SpoiltVolumeByPeriodFormProvider
 import models.identifiers.PeriodKey
+import models.obligations.ObligationDetails
+import models.requests.returns.ReturnsDataRequest
 import models.returns.SpoiltVolumeByPeriod
 import pages.returns.SpoiltVolumeByPeriodPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request, Result}
 import services.returns.{ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.SpoiltVolumeByPeriodViewModel
@@ -34,77 +36,81 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SpoiltVolumeByPeriodController @Inject()(
-  override val messagesApi: MessagesApi,
-  sessionRepository: ReturnsUserAnswersService,
-  identify: ApprovedVapingManufacturerAuthAction,
-  getData: ReturnsDataRetrievalAction,
-  requireData: ReturnsDataRequiredAction,
-  formProvider: SpoiltVolumeByPeriodFormProvider,
-  returnsEnabledAction: ReturnsEnabledAction,
-  obligationService: ObligationService,
-  val controllerComponents: MessagesControllerComponents,
-  view: SpoiltVolumeByPeriodView
-)(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                override val messagesApi: MessagesApi,
+                                                sessionRepository: ReturnsUserAnswersService,
+                                                identify: ApprovedVapingManufacturerAuthAction,
+                                                getData: ReturnsDataRetrievalAction,
+                                                requireData: ReturnsDataRequiredAction,
+                                                formProvider: SpoiltVolumeByPeriodFormProvider,
+                                                returnsEnabledAction: ReturnsEnabledAction,
+                                                obligationService: ObligationService,
+                                                val controllerComponents: MessagesControllerComponents,
+                                                view: SpoiltVolumeByPeriodView
+                                              )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Int] = formProvider()
 
   def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-      
-      request.getQueryString("spoiltPeriod") match {
-        case None =>
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-        case Some(spoiltPeriodStr) =>
-          val spoiltPeriod = PeriodKey(spoiltPeriodStr)
-          
-          obligationService.getObligationByPeriodKey(request.enrolmentVpdId, spoiltPeriod).map {
-            case Some(obligation) =>
-              val viewModel = SpoiltVolumeByPeriodViewModel(obligation, spoiltPeriod, request.periodKey)
-              
-              val preparedForm = request.userAnswers.get(SpoiltVolumeByPeriodPage) match {
-                case Some(spoiltVolume) if spoiltVolume.periodKey == spoiltPeriod => form.fill(spoiltVolume.volume)
-                case _ => form
-              }
-              
-              Ok(view(viewModel, preparedForm))
-              
-            case None =>
-              Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-          }.recover {
-            case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      withSpoiltPeriod { spoiltPeriod =>
+        withObligation(spoiltPeriod) { obligation =>
+          val vm = createViewModel(obligation, spoiltPeriod)
+
+          val preparedForm = request.userAnswers.get(SpoiltVolumeByPeriodPage) match {
+            case Some(spoiltVolume) if spoiltVolume.periodKey == spoiltPeriod => form.fill(spoiltVolume.volume)
+            case _ => form
           }
+
+          Future.successful(Ok(view(vm, preparedForm)))
+        }
       }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-      
-      request.getQueryString("spoiltPeriod") match {
-        case None =>
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-        case Some(spoiltPeriodStr) =>
-          val spoiltPeriod = PeriodKey(spoiltPeriodStr)
-          
-          obligationService.getObligationByPeriodKey(request.enrolmentVpdId, spoiltPeriod).flatMap {
-            case Some(obligation) =>
-              val viewModel = SpoiltVolumeByPeriodViewModel(obligation, spoiltPeriod, request.periodKey)
-              
-              form.bindFromRequest().fold(
-                formWithErrors =>
-                  Future.successful(BadRequest(view(viewModel, formWithErrors))),
+      withSpoiltPeriod { spoiltPeriod =>
+        withObligation(spoiltPeriod) { obligation =>
+          val vm = createViewModel(obligation, spoiltPeriod)
 
-                volume =>
-                  for {
-                    updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltVolumeByPeriodPage, SpoiltVolumeByPeriod(volume, spoiltPeriod)))
-                    _              <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(s"${controllers.returns.submit.routes.AddSpoiltAdjustmentController.onPageLoad(models.NormalMode).url}?period=${request.periodKey.value}")
-              )
-              
-            case None =>
-              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-          }.recover {
-            case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-          }
+          form.bindFromRequest().fold(
+            formWithErrors =>
+              Future.successful(BadRequest(view(vm, formWithErrors))),
+
+            volume =>
+              for {
+                updatedAnswers  <- Future.fromTry(request.userAnswers.set(SpoiltVolumeByPeriodPage, SpoiltVolumeByPeriod(volume, spoiltPeriod)))
+                _               <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(s"${controllers.returns.submit.routes.AddSpoiltAdjustmentController.onPageLoad(models.NormalMode).url}?period=${request.periodKey.value}")
+          )
+        }
       }
+  }
+
+  private def withSpoiltPeriod[A](block: PeriodKey => Future[Result])
+                                 (implicit request: Request[A]): Future[Result] = {
+
+    request.getQueryString("spoiltPeriod") match {
+      case None =>
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      case Some(spoiltPeriodStr) =>
+        block(PeriodKey(spoiltPeriodStr))
+    }
+  }
+
+  private def withObligation(spoiltPeriod: PeriodKey)(block: ObligationDetails => Future[Result])
+                            (implicit request: ReturnsDataRequest[AnyContent]): Future[Result] = {
+
+    obligationService.getObligationByPeriodKey(request.enrolmentVpdId, spoiltPeriod).flatMap {
+        case Some(obligation) => block(obligation)
+        case None => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      }.recover {
+        case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      }
+  }
+
+  private def createViewModel(obligation: models.obligations.ObligationDetails, spoiltPeriod: PeriodKey)
+                             (implicit request: ReturnsDataRequest[AnyContent]): SpoiltVolumeByPeriodViewModel = {
+
+    SpoiltVolumeByPeriodViewModel(obligation, spoiltPeriod, request.periodKey)
   }
 }
