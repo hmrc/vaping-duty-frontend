@@ -16,7 +16,8 @@
 
 package viewmodels.returns.submit
 
-import models.returns.ReturnsUserAnswers
+import models.obligations.ObligationItem
+import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import play.api.i18n.Messages
 import utils.ReturnsDateUtils.*
 
@@ -30,12 +31,16 @@ case class TaskListPageViewModel(
 
 object TaskListPageViewModel {
 
-  def apply(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): TaskListPageViewModel =
+  def apply(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationItem])(implicit messages: Messages): TaskListPageViewModel = {
+    
+    val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations)
+    
     TaskListPageViewModel(
-      sections     = TaskList.sections(userAnswers),
+      sections     = TaskList.sections(userAnswers, adjustmentsEligibility),
       returnPeriod = getReturnPeriod(month),
       year         = getYear.toString,
       dueDate      = getDueDate(month),
       monthLength  = getMonthLength(month)
     )
+  }
 }

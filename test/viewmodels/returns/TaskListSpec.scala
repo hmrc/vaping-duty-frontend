@@ -18,6 +18,7 @@ package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
 import models.TaskStatus
+import models.returns.AdjustmentsEligibility
 import play.api.test.Helpers.*
 import viewmodels.returns.submit.{TaskList, TaskRows}
 
@@ -25,16 +26,31 @@ class TaskListSpec extends UnitSpec with SpecBase {
   
   "TaskListViewModel.sections" - {
 
-    "returns four sections in the correct order" in {
+    "returns four sections in the correct order when adjustments are eligible" in {
       val application = applicationBuilder().build()
       running(application) {
-        val sections = TaskList.sections(returnsUserAnswers)
+        val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.Eligible)
 
         sections.length mustBe 4
         sections(0).headingKey mustBe "returns.taskList.section.declareDuty.heading"
         sections(1).headingKey mustBe "returns.taskList.section.declareAdjustments.heading"
         sections(2).headingKey mustBe "returns.taskList.section.dutySuspended.heading"
         sections(3).headingKey mustBe "returns.taskList.section.submitReturn.heading"
+      }
+    }
+
+    "returns three sections excluding adjustments when not eligible" in {
+      val application = applicationBuilder().build()
+      running(application) {
+        val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.NotEligible)
+
+        sections.length mustBe 3
+        sections(0).headingKey mustBe "returns.taskList.section.declareDuty.heading"
+        sections(1).headingKey mustBe "returns.taskList.section.dutySuspended.heading"
+        sections(2).headingKey mustBe "returns.taskList.section.submitReturn.heading"
+        
+        // Verify adjustments section is NOT present
+        sections.map(_.headingKey) must not contain "returns.taskList.section.declareAdjustments.heading"
       }
     }
 
