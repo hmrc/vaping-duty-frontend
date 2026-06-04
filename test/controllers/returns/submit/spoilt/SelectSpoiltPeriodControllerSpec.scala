@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.returns.submit
+package controllers.returns.submit.spoilt
 
 import base.SpecBase
 import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
@@ -27,7 +27,7 @@ import play.api.test.Helpers.*
 import services.returns.ObligationService
 import uk.gov.hmrc.http.InternalServerException
 import viewmodels.returns.submit.SelectSpoiltPeriodViewModel
-import views.html.returns.submit.SelectSpoiltPeriodView
+import views.html.returns.submit.spoilt.SelectSpoiltPeriodView
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -89,7 +89,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.routes.SelectSpoiltPeriodController.onPageLoad(None).url)
+        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None).url)
 
         val result = route(application, request).value
 
@@ -113,7 +113,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.routes.SelectSpoiltPeriodController.onPageLoad(Some(specificYear)).url)
+        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(specificYear)).url)
 
         val result = route(application, request).value
 
@@ -135,7 +135,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.routes.SelectSpoiltPeriodController.onPageLoad(None).url)
+        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None).url)
 
         val result = route(application, request).value
 
@@ -148,7 +148,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), returnsEnabled = false).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.routes.SelectSpoiltPeriodController.onPageLoad(None).url)
+        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None).url)
 
         val result = route(application, request).value
 

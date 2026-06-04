@@ -60,7 +60,7 @@ object TaskList {
         TaskRows(
           id = "declareAdjustments-task-1",
           linkText = messages("returns.taskList.declareAdjustments.task1"),
-          link = controllers.returns.submit.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode),
+          link = controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode),
           status = TaskStatusService.declareSpoiltProductsTaskStatus(userAnswers),
           periodKey = Some(periodKey)
         ).toTaskListItem,

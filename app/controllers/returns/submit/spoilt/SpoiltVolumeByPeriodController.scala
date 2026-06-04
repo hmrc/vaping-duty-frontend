@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.returns.submit
+package controllers.returns.submit.spoilt
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
@@ -28,11 +28,11 @@ import navigation.ReturnsNavigator
 import pages.returns.SpoiltVolumeByPeriodPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request, Result}
+import play.api.mvc.*
 import services.returns.{ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.SpoiltVolumeByPeriodViewModel
-import views.html.returns.submit.SpoiltVolumeByPeriodView
+import views.html.returns.submit.spoilt.SpoiltVolumeByPeriodView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

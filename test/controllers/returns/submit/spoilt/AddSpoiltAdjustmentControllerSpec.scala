@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.returns.submit
+package controllers.returns.submit.spoilt
 
 import base.SpecBase
 import forms.returns.AddSpoiltAdjustmentFormProvider
@@ -30,7 +30,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.ReturnsUserAnswersService
-import views.html.returns.submit.AddSpoiltAdjustmentView
+import views.html.returns.submit.spoilt.AddSpoiltAdjustmentView
 
 import scala.concurrent.Future
 
@@ -41,7 +41,7 @@ class AddSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new AddSpoiltAdjustmentFormProvider()
   val form: Form[Boolean] = formProvider()
 
-  lazy val addSpoiltAdjustmentRoute: String = controllers.returns.submit.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode).url
+  lazy val addSpoiltAdjustmentRoute: String = controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode).url
 
   "AddSpoiltAdjustment Controller" - {
 

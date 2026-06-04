@@ -33,7 +33,7 @@
 
 @layout(pageTitle = title(form, messages("returns.addSpoiltAdjustment.title"))) {
 
-    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.AddSpoiltAdjustmentController.onSubmit(mode).url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onSubmit(mode).url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

@@ -69,7 +69,7 @@ object SelectSpoiltPeriodViewModel {
 
       TaskListItem(
         title = TaskListItemTitle(content = Text(messages(monthKey))),
-        href = Some(s"${controllers.returns.submit.routes.SpoiltVolumeByPeriodController.onPageLoad().url}?period=${currentReturnPeriod.value}&spoiltPeriod=$periodKey")
+        href = Some(s"${controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad().url}?period=${currentReturnPeriod.value}&spoiltPeriod=$periodKey")
       )
     }
 
@@ -79,7 +79,7 @@ object SelectSpoiltPeriodViewModel {
       PaginationItem(
         number = Some(year.toString),
         current = Some(year == currentYear),
-        href = s"${controllers.returns.submit.routes.SelectSpoiltPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
+        href = s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
       )
     }
 

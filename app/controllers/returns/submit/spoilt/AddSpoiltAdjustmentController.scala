@@ -14,47 +14,45 @@
  * limitations under the License.
  */
 
-package controllers.returns.submit
+package controllers.returns.submit.spoilt
 
-import config.FrontendAppConfig
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import forms.returns.DeclareSpoiltProductsFormProvider
+import forms.returns.AddSpoiltAdjustmentFormProvider
 import models.Mode
 import navigation.ReturnsNavigator
-import pages.returns.DeclareSpoiltProductsPage
+import pages.returns.AddSpoiltAdjustmentPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.returns.submit.DeclareSpoiltProductsView
+import views.html.returns.submit.spoilt.AddSpoiltAdjustmentView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeclareSpoiltProductsController @Inject()(
+class AddSpoiltAdjustmentController @Inject()(
                                          override val messagesApi: MessagesApi,
                                          sessionRepository: ReturnsUserAnswersService,
                                          navigator: ReturnsNavigator,
                                          identify: ApprovedVapingManufacturerAuthAction,
                                          getData: ReturnsDataRetrievalAction,
                                          requireData: ReturnsDataRequiredAction,
-                                         formProvider: DeclareSpoiltProductsFormProvider,
+                                         formProvider: AddSpoiltAdjustmentFormProvider,
                                          returnsEnabledAction: ReturnsEnabledAction,
                                          val controllerComponents: MessagesControllerComponents,
-                                         view: DeclareSpoiltProductsView,
-                                         config: FrontendAppConfig
+                                         view: AddSpoiltAdjustmentView
                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
-      val preparedForm = request.userAnswers.get(DeclareSpoiltProductsPage)
+      val preparedForm = request.userAnswers.get(AddSpoiltAdjustmentPage)
         .fold(form)(form.fill)
 
-      Ok(view(request.periodKey, preparedForm, mode, config.claimDutyBackGuidance))
+      Ok(view(request.periodKey, preparedForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
@@ -62,12 +60,12 @@ class DeclareSpoiltProductsController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode, config.claimDutyBackGuidance))),
+          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclareSpoiltProductsPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddSpoiltAdjustmentPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(DeclareSpoiltProductsPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(AddSpoiltAdjustmentPage, mode, updatedAnswers))
       )
   }
 }

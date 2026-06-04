@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.returns.submit
+package controllers.returns.submit.spoilt
 
 import base.SpecBase
 import forms.returns.DeclareSpoiltProductsFormProvider
@@ -31,7 +31,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.ReturnsUserAnswersService
-import views.html.returns.submit.DeclareSpoiltProductsView
+import views.html.returns.submit.spoilt.DeclareSpoiltProductsView
 
 import scala.concurrent.Future
 
@@ -42,7 +42,7 @@ class DeclareSpoiltProductsControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new DeclareSpoiltProductsFormProvider()
   val form: Form[Boolean] = formProvider()
 
-  lazy val declareSpoiltProductsRoute: String = controllers.returns.submit.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode).url
+  lazy val declareSpoiltProductsRoute: String = controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode).url
 
   "DeclareSpoiltProducts Controller" - {
 
