@@ -56,8 +56,8 @@ class SpoiltVolumeByPeriodController @Inject()(
   def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withSpoiltPeriod { spoiltPeriod =>
-        withObligation(spoiltPeriod) { obligation =>
-          val vm = createViewModel(obligation, spoiltPeriod)
+        withObligation(spoiltPeriod) { spoiltObligation =>
+          val vm = createViewModel(spoiltObligation, spoiltPeriod)
 
           val preparedForm = request.userAnswers.get(SpoiltVolumeByPeriodPage) match {
             case Some(list) =>
@@ -76,8 +76,8 @@ class SpoiltVolumeByPeriodController @Inject()(
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withSpoiltPeriod { spoiltPeriod =>
-        withObligation(spoiltPeriod) { obligation =>
-          val vm = createViewModel(obligation, spoiltPeriod)
+        withObligation(spoiltPeriod) { spoiltObligation =>
+          val vm = createViewModel(spoiltObligation, spoiltPeriod)
 
           form.bindFromRequest().fold(
             formWithErrors =>
@@ -111,16 +111,16 @@ class SpoiltVolumeByPeriodController @Inject()(
                             (implicit request: ReturnsDataRequest[AnyContent]): Future[Result] = {
 
     obligationService.getObligationByPeriodKey(request.enrolmentVpdId, spoiltPeriod).flatMap {
-      case Some(obligation) => block(obligation)
+      case Some(spoiltObligation) => block(spoiltObligation)
       case None => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     }.recover {
       case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
     }
   }
 
-  private def createViewModel(obligation: models.obligations.ObligationDetails, spoiltPeriod: PeriodKey)
+  private def createViewModel(spoiltObligation: ObligationDetails, spoiltPeriod: PeriodKey)
                              (implicit request: ReturnsDataRequest[AnyContent]): SpoiltVolumeByPeriodViewModel = {
 
-    SpoiltVolumeByPeriodViewModel(obligation, spoiltPeriod, request.periodKey)
+    SpoiltVolumeByPeriodViewModel(spoiltObligation, spoiltPeriod, request.periodKey)
   }
 }
