@@ -53,10 +53,8 @@ class BeforeYouStartController @Inject()(
       }
 
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-
         sessionRepository.set(ua).map(_ =>
-
-          Ok(view(periodKey, BeforeYouStartViewModel(obligations.obligation)))
+          Ok(view(periodKey, BeforeYouStartViewModel(obligations.obligation, periodKey)))
         )
       }
 

@@ -16,6 +16,7 @@
 
 package viewmodels.returns.submit
 
+import models.identifiers.PeriodKey
 import models.obligations.ObligationItem
 import models.returns.AdjustmentsEligibility
 import play.api.i18n.Messages
@@ -26,25 +27,28 @@ import java.time.{LocalDate, Month}
 case class BeforeYouStartViewModel(
   returnPeriod: String,
   dueDate: String,
-  monthLength: Int,
   year: Int,
   adjustmentsEligibility: AdjustmentsEligibility
 )
 
 object BeforeYouStartViewModel {
 
-  val month: Month = LocalDate.now().getMonth
-
-  def apply(obligations: Seq[ObligationItem])(implicit messages: Messages): BeforeYouStartViewModel = {
+  def apply(obligations: Seq[ObligationItem], periodKey: PeriodKey)(implicit messages: Messages): BeforeYouStartViewModel = {
     val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations)
-    beforeYouStartViewModel(adjustmentsEligibility)
+    
+    val month: Month = obligations
+      .map(_.obligationDetails)
+      .find(_.periodKey == periodKey.toString)
+      .map(_.iCFromDate.getMonth)
+      .getOrElse(LocalDate.now().getMonth)
+    
+    beforeYouStartViewModel(adjustmentsEligibility, month)
   }
 
-  private def beforeYouStartViewModel(adjustmentsEligibility: AdjustmentsEligibility)(implicit messages: Messages) =
+  private def beforeYouStartViewModel(adjustmentsEligibility: AdjustmentsEligibility, month: Month)(implicit messages: Messages) =
     new BeforeYouStartViewModel(
       getReturnPeriod(month),
       getDueDate(month),
-      getMonthLength(month),
       getYear,
       adjustmentsEligibility
     )

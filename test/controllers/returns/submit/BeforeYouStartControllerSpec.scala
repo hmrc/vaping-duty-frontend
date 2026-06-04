@@ -17,6 +17,7 @@
 package controllers.returns.submit
 
 import base.SpecBase
+import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse, ObligationStatus}
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
@@ -52,13 +53,13 @@ class BeforeYouStartControllerSpec extends SpecBase {
         )
         .build()
 
-      val vm = BeforeYouStartViewModel(testObligations)(messages(application))
+      val vm = BeforeYouStartViewModel(testObligations, periodKey)(messages(application))
 
       when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
       when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(testObligationsResponse))
 
       running(application) {
-        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=$periodKey")
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${periodKey.value}")
 
         val result = route(application, request).value
 
@@ -81,13 +82,13 @@ class BeforeYouStartControllerSpec extends SpecBase {
         )
         .build()
 
-      val vm = BeforeYouStartViewModel(testObligations)(messages(application))
+      val vm = BeforeYouStartViewModel(testObligations, periodKey)(messages(application))
 
       when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
       when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(testObligationsResponse))
 
       running(application) {
-        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=$periodKey")
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${periodKey.value}")
 
         val result = route(application, request).value
 
@@ -102,7 +103,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), returnsEnabled = false).build()
 
       running(application) {
-        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=$periodKey")
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${periodKey.value}")
 
         val result = route(application, request).value
 
