@@ -21,7 +21,7 @@ import controllers.actions.returns.*
 import models.identifiers.VpdId
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{ObligationService, SubmitReturnService}
+import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
@@ -37,6 +37,7 @@ class CheckYourAnswersController @Inject()(
                                        returnsEnabled: ReturnsEnabledAction,
                                        submitReturnService: SubmitReturnService,
                                        obligationService: ObligationService,
+                                       userAnswersService: ReturnsUserAnswersService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: CheckYourAnswersView
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
@@ -46,15 +47,20 @@ class CheckYourAnswersController @Inject()(
       VpdId(request.userAnswers.vpdId),
       request.periodKey
     ).map { dutyRateOpt =>
-      val dutyRate = dutyRateOpt.getOrElse(BigDecimal(0))
+      val dutyRate = dutyRateOpt.getOrElse(BigDecimal("0"))
       val vm = CheckYourAnswersViewModel(request.userAnswers, dutyRate, request.periodKey)
       Ok(view(request.periodKey, vm))
     }
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
-    submitReturnService.submit(request.userAnswers).map { response =>
-      Redirect(controllers.returns.submit.routes.ConfirmationController.onPageLoad().url + s"?period=${request.periodKey}")
+    submitReturnService.submit(request.userAnswers).flatMap { response =>
+
+      userAnswersService.clear(request.enrolmentVpdId, request.periodKey).map {
+        case Left(_)  => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case Right(_) => Redirect(s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${request.periodKey}")
+      }
+
     }.recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
   }
 }
