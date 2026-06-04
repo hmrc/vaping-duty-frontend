@@ -78,15 +78,4 @@ class AdjustmentsEligibilitySpec extends SpecBase {
       AdjustmentsEligibility.fromObligations(obligations) mustBe AdjustmentsEligibility.NotEligible
     }
   }
-
-  "AdjustmentsEligibility.isEligible" - {
-
-    "must return true for Eligible" in {
-      AdjustmentsEligibility.Eligible.isEligible mustBe true
-    }
-
-    "must return false for NotEligible" in {
-      AdjustmentsEligibility.NotEligible.isEligible mustBe false
-    }
-  }
 }

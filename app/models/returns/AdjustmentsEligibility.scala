@@ -18,17 +18,15 @@ package models.returns
 
 import models.obligations.{ObligationItem, ObligationStatus}
 
-sealed trait AdjustmentsEligibility {
-  def isEligible: Boolean
-}
+sealed trait AdjustmentsEligibility
 
 object AdjustmentsEligibility {
   case object Eligible extends AdjustmentsEligibility {
-    override val isEligible: Boolean = true
+    val isEligible: Boolean = true
   }
 
   case object NotEligible extends AdjustmentsEligibility {
-    override val isEligible: Boolean = false
+    val isEligible: Boolean = false
   }
 
   def fromObligations(obligations: Seq[ObligationItem]): AdjustmentsEligibility = {
