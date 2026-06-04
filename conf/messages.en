@@ -215,17 +215,15 @@ returns.declareDutySuspense.change.hidden = declare duty suspense
 returns.enterDutySuspense.title = Finished vaping products received or moved under duty suspension
 returns.enterDutySuspense.heading = Finished vaping products received or moved under duty suspension
 returns.enterDutySuspense.caption.text = Report duty suspended vaping products
-returns.enterDutySuspense.p = You must tell us the total volume in millilitres of finished vaping products you received or moved this month.
+returns.enterDutySuspense.p = Enter the total millilitres for this period.
 
-returns.enterDutySuspense.volumeReceived.label = How much duty suspension did you receive?
-returns.enterDutySuspense.volumeReceived.hintText = Total millilitres of vaping liquid
+returns.enterDutySuspense.volumeReceived.label = Amount received
 returns.enterDutySuspense.volumeReceived.error.required = Enter the amount of duty suspension received
 returns.enterDutySuspense.volumeReceived.error.wholeNumber = Enter the amount of duty suspension received
 returns.enterDutySuspense.volumeReceived.error.nonNumeric = Enter the amount of duty suspension received
 returns.enterDutySuspense.volumeReceived.error.outOfRange = Enter the amount of duty suspension received
 
-returns.enterDutySuspense.volumeMoved.label = How much duty suspension was moved?
-returns.enterDutySuspense.volumeMoved.hintText = Total millilitres of vaping liquid
+returns.enterDutySuspense.volumeMoved.label = Amount moved
 returns.enterDutySuspense.volumeMoved.error.required = Enter the amount of duty suspension moved
 returns.enterDutySuspense.volumeMoved.error.wholeNumber = Enter the amount of duty suspension moved
 returns.enterDutySuspense.volumeMoved.error.nonNumeric = Enter the amount of duty suspension moved
