@@ -48,12 +48,12 @@ class ReturnsNavigator @Inject()(
   }
 
   private def checkRouteMap(periodKey: String): Page => ReturnsUserAnswers => Call = {
-    case EnterDutyAmountPage      => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
-    case EnterDutySuspensePage    => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
-    case DeclareDutyPage          => ua => checkDeclareDutyPageRoutes(ua, periodKey)
-    case DeclareDutySuspensePage  => ua => checkDeclareDutySuspensePageRoutes(ua, periodKey)
-    case DeclareSpoiltProductsPage => _  => controllers.returns.submit.routes.TaskListController.onPageLoad()
-    case _                        => _  => routes.JourneyRecoveryController.onPageLoad()
+    case EnterDutyAmountPage        => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
+    case EnterDutySuspensePage      => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
+    case DeclareDutyPage            => ua => checkDeclareDutyPageRoutes(ua, periodKey)
+    case DeclareDutySuspensePage    => ua => checkDeclareDutySuspensePageRoutes(ua, periodKey)
+    case DeclareSpoiltProductsPage  => _  => controllers.returns.submit.routes.TaskListController.onPageLoad()
+    case _                          => _  => routes.JourneyRecoveryController.onPageLoad()
   }
 
   private def declareDutyPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
