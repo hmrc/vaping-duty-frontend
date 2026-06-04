@@ -199,6 +199,50 @@ returns.enterDutyAmount.error.wholeNumber = You must enter a number greater than
 returns.enterDutyAmount.error.outOfRange = You must enter a number greater than zero
 returns.enterDutyAmount.change.hidden = EnterDutyAmount
 
+returns.declareSpoiltProducts.title = Declare spoilt products from an earlier return
+returns.declareSpoiltProducts.heading = Declare spoilt products from an earlier return
+returns.declareSpoiltProducts.caption.text = Spoilt vaping products
+returns.declareSpoiltProducts.p = Tell us about any vaping products declared in previous returns that have become spoilt.
+returns.declareSpoiltProducts.details.summary = What ‘spoilt products’ and ‘fit for consumption’ mean
+returns.declareSpoiltProducts.details.content.p1 = Spoilt vaping products are products that:
+returns.declareSpoiltProducts.details.content.bullet1 = you have already paid duty on
+returns.declareSpoiltProducts.details.content.and1 = and
+returns.declareSpoiltProducts.details.content.bullet2 = you have destroyed because they are no longer fit for consumption
+returns.declareSpoiltProducts.details.content.p2 = Vaping products are not fit for consumption if they:
+returns.declareSpoiltProducts.details.content.bullet3 = have passed their expiry date
+returns.declareSpoiltProducts.details.content.or1 = or
+returns.declareSpoiltProducts.details.content.bullet4 = have been recalled for safety reasons
+returns.declareSpoiltProducts.details.content.p3 = You do not need to declare vaping products destroyed before duty was paid. These are not considered spoilt products.
+returns.declareSpoiltProducts.details.content.p4 = You must keep a record of destroyed products in your business records.
+returns.declareSpoiltProducts.details.content.p5 = Vaping products that have been returned because they are not selling well, are not considered spoilt products.
+returns.declareSpoiltProducts.details.content.p6.text = If you intend to destroy these products, you may be able to
+returns.declareSpoiltProducts.details.content.p6.link = claim the duty back under the excise duty drawback scheme
+returns.declareSpoiltProducts.question = Do you have any spoilt vaping products to declare?
+returns.declareSpoiltProducts.checkYourAnswersLabel = Declare spoilt products
+returns.declareSpoiltProducts.change.hidden = declare spoilt products
+
+returns.selectSpoiltPeriod.title = When did you release the products?
+returns.selectSpoiltPeriod.heading = When did you release the products?
+returns.selectSpoiltPeriod.caption = Spoilt vaping products
+returns.selectSpoiltPeriod.p1 = Tell us which month you released the now-spoilt vaping products, so we can calculate the duty paid.
+returns.selectSpoiltPeriod.p2 = You will not be able to claim back more duty than you paid on these products.
+
+returns.spoiltVolumeByPeriod.title = Tell us about your spoilt vaping products
+returns.spoiltVolumeByPeriod.heading = Tell us about your spoilt vaping products
+returns.spoiltVolumeByPeriod.caption = Spoilt vaping products — {0} {1}
+returns.spoiltVolumeByPeriod.label = How many millilitres do you need to declare as spoilt?
+returns.spoiltVolumeByPeriod.hint = Total millilitres of spoilt vaping products
+returns.spoiltVolumeByPeriod.error.required = You must enter a number greater than zero
+returns.spoiltVolumeByPeriod.error.wholeNumber = You must enter a number greater than zero
+returns.spoiltVolumeByPeriod.error.nonNumeric = You must enter a number greater than zero
+returns.spoiltVolumeByPeriod.error.outOfRange = You must enter a number greater than zero
+
+returns.addSpoiltAdjustment.title = Do you want to make an adjustment for another month?
+returns.addSpoiltAdjustment.heading = Do you want to make an adjustment for another month?
+returns.addSpoiltAdjustment.caption = Adjust spoilt vaping products
+returns.addSpoiltAdjustment.checkYourAnswersLabel = Add another spoilt adjustment
+returns.addSpoiltAdjustment.change.hidden = add another spoilt adjustment
+
 returns.declareDutySuspense.title = Finished vaping products in duty suspense that have been received or moved
 returns.declareDutySuspense.heading = Finished vaping products in duty suspense that have been received or moved
 returns.declareDutySuspense.caption.text = Report duty suspended vaping products

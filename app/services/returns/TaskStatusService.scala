@@ -18,7 +18,7 @@ package services.returns
 
 import models.TaskStatus
 import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers}
-import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage}
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage}
 
 object TaskStatusService {
 
@@ -40,8 +40,16 @@ object TaskStatusService {
     }
   }
 
+  def declareSpoiltProductsTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
+    answers.get(DeclareSpoiltProductsPage) match {
+      case None    => TaskStatus.NotStarted
+      case Some(_) => TaskStatus.Completed
+    }
+  }
+
   def allTasksCompleted(answers: ReturnsUserAnswers): Boolean = {
     declareDutyTaskStatus(answers) == TaskStatus.Completed &&
+    declareSpoiltProductsTaskStatus(answers) == TaskStatus.Completed &&
     dutySuspenseTaskStatus(answers) == TaskStatus.Completed
   }
 

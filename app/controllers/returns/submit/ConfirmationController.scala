@@ -22,6 +22,8 @@ import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import models.BtaLink
+import models.identifiers.PeriodKey
+import models.returns.TotalDutyDue
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -32,41 +34,45 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmationController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: ApprovedVapingManufacturerAuthAction,
-                                       getData: ReturnsDataRetrievalAction,
-                                       requireData: ReturnsDataRequiredAction,
-                                       returnsEnabled: ReturnsEnabledAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: ConfirmationEmailView,
-                                       subscriptionConnector: SubscriptionConnector,
-                                       getReturnsConnector: GetReturnsConnector,
-                                       config: FrontendAppConfig
-                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                        override val messagesApi: MessagesApi,
+                                        identify: ApprovedVapingManufacturerAuthAction,
+                                        returnsEnabled: ReturnsEnabledAction,
+                                        val controllerComponents: MessagesControllerComponents,
+                                        view: ConfirmationEmailView,
+                                        subscriptionConnector: SubscriptionConnector,
+                                        getReturnsConnector: GetReturnsConnector,
+                                        config: FrontendAppConfig
+                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
+
+      val periodKey = request.getQueryString("period").fold(PeriodKey("99XX"))(PeriodKey(_))
+
       subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).flatMap {
         case Left(_) => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         case Right(value) =>
-          getReturnsConnector.getReturn(request.periodKey, request.enrolmentVpdId).map { returnsResponse =>
+          getReturnsConnector.getReturn(periodKey, request.enrolmentVpdId).map { returnsResponse =>
             val chargeReference = returnsResponse.success.chargeDetails
               .flatMap(_.chargeReference)
               .getOrElse("")
 
             val email = value.emailAddress.getOrElse("")
-            val btaUrl = BtaLink(config)
-
-            val vm = ConfirmationViewModel(
-              request.userAnswers,
-              email,
-              chargeReference.toUpperCase,
-              btaUrl,
-              request.periodKey,
-              controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(request.periodKey).url
-            )
-
-            Ok(view(vm))
+            
+            returnsResponse.success.totalDutyDue match {
+              case Some(totalDutyDueData) =>
+                val vm = ConfirmationViewModel(
+                  totalDutyDueData.totalDutyDue,
+                  email,
+                  chargeReference.toUpperCase,
+                  BtaLink(config),
+                  periodKey,
+                  controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url
+                )
+                Ok(view(vm))
+              case None =>
+                Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+            }
           }
       }
   }

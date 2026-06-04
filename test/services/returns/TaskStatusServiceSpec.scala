@@ -19,7 +19,7 @@ package services.returns
 import base.SpecBase
 import models.TaskStatus
 import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers}
-import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage}
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage}
 
 class TaskStatusServiceSpec extends SpecBase {
 
@@ -102,6 +102,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .flatMap(_.set(EnterDutyAmountPage, 1000))
         .flatMap(_.set(DeclareDutySuspensePage, true))
         .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
+        .flatMap(_.set(DeclareSpoiltProductsPage, true))
         .success
         .value
 
@@ -133,6 +134,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .flatMap(_.set(EnterDutyAmountPage, 1000))
         .flatMap(_.set(DeclareDutySuspensePage, true))
         .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
+        .flatMap(_.set(DeclareSpoiltProductsPage, true))
         .success
         .value
 

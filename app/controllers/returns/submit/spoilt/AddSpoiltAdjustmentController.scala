@@ -14,42 +14,42 @@
  * limitations under the License.
  */
 
-package controllers.returns.submit
+package controllers.returns.submit.spoilt
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import forms.returns.DeclareDutyFormProvider
+import forms.returns.AddSpoiltAdjustmentFormProvider
 import models.Mode
 import navigation.ReturnsNavigator
-import pages.returns.DeclareDutyPage
+import pages.returns.AddSpoiltAdjustmentPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.returns.submit.DeclareDutyView
+import views.html.returns.submit.spoilt.AddSpoiltAdjustmentView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeclareDutyController @Inject()(
+class AddSpoiltAdjustmentController @Inject()(
                                          override val messagesApi: MessagesApi,
                                          sessionRepository: ReturnsUserAnswersService,
                                          navigator: ReturnsNavigator,
                                          identify: ApprovedVapingManufacturerAuthAction,
                                          getData: ReturnsDataRetrievalAction,
                                          requireData: ReturnsDataRequiredAction,
-                                         formProvider: DeclareDutyFormProvider,
+                                         formProvider: AddSpoiltAdjustmentFormProvider,
                                          returnsEnabledAction: ReturnsEnabledAction,
                                          val controllerComponents: MessagesControllerComponents,
-                                         view: DeclareDutyView
+                                         view: AddSpoiltAdjustmentView
                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
-      val preparedForm = request.userAnswers.get(DeclareDutyPage)
+      val preparedForm = request.userAnswers.get(AddSpoiltAdjustmentPage)
         .fold(form)(form.fill)
 
       Ok(view(request.periodKey, preparedForm, mode))
@@ -63,9 +63,9 @@ class DeclareDutyController @Inject()(
           Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclareDutyPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddSpoiltAdjustmentPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(DeclareDutyPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(AddSpoiltAdjustmentPage, mode, updatedAnswers))
       )
   }
 }

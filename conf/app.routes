@@ -63,6 +63,21 @@ POST       /complete-return/enter-amount-released                               
 GET        /complete-return/change-enter-amount-released                                    controllers.returns.submit.EnterDutyAmountController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/change-enter-amount-released                                    controllers.returns.submit.EnterDutyAmountController.onSubmit(mode: Mode = CheckMode)
 
+GET        /complete-return/adjustment/declare-spoilt-products                              controllers.returns.submit.spoilt.DeclareSpoiltProductsController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/adjustment/declare-spoilt-products                              controllers.returns.submit.spoilt.DeclareSpoiltProductsController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/adjustment/change-declare-spoilt-products                       controllers.returns.submit.spoilt.DeclareSpoiltProductsController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/adjustment/change-declare-spoilt-products                       controllers.returns.submit.spoilt.DeclareSpoiltProductsController.onSubmit(mode: Mode = CheckMode)
+
+GET        /complete-return/adjustment/select-spoilt-period                                 controllers.returns.submit.spoilt.SelectSpoiltPeriodController.onPageLoad(year: Option[Int] ?= None)
+
+GET        /complete-return/adjustment/enter-spoilt-amount                                  controllers.returns.submit.spoilt.SpoiltVolumeByPeriodController.onPageLoad()
+POST       /complete-return/adjustment/enter-spoilt-amount                                  controllers.returns.submit.spoilt.SpoiltVolumeByPeriodController.onSubmit()
+
+GET        /complete-return/adjustment/add-another-spoilt-adjustment                        controllers.returns.submit.spoilt.AddSpoiltAdjustmentController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/adjustment/add-another-spoilt-adjustment                        controllers.returns.submit.spoilt.AddSpoiltAdjustmentController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/adjustment/change-add-another-spoilt-adjustment                 controllers.returns.submit.spoilt.AddSpoiltAdjustmentController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/adjustment/change-add-another-spoilt-adjustment                 controllers.returns.submit.spoilt.AddSpoiltAdjustmentController.onSubmit(mode: Mode = CheckMode)
+
 GET        /complete-return/duty-suspended/suspended-products                               controllers.returns.submit.DeclareDutySuspenseController.onPageLoad(mode: Mode = NormalMode)
 POST       /complete-return/duty-suspended/suspended-products                               controllers.returns.submit.DeclareDutySuspenseController.onSubmit(mode: Mode = NormalMode)
 GET        /complete-return/duty-suspended/change-suspended-products                        controllers.returns.submit.DeclareDutySuspenseController.onPageLoad(mode: Mode = CheckMode)

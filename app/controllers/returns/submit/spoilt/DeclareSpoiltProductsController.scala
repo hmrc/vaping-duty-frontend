@@ -14,45 +14,47 @@
  * limitations under the License.
  */
 
-package controllers.returns.submit
+package controllers.returns.submit.spoilt
 
+import config.FrontendAppConfig
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import forms.returns.DeclareDutyFormProvider
+import forms.returns.DeclareSpoiltProductsFormProvider
 import models.Mode
 import navigation.ReturnsNavigator
-import pages.returns.DeclareDutyPage
+import pages.returns.DeclareSpoiltProductsPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.returns.submit.DeclareDutyView
+import views.html.returns.submit.spoilt.DeclareSpoiltProductsView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeclareDutyController @Inject()(
+class DeclareSpoiltProductsController @Inject()(
                                          override val messagesApi: MessagesApi,
                                          sessionRepository: ReturnsUserAnswersService,
                                          navigator: ReturnsNavigator,
                                          identify: ApprovedVapingManufacturerAuthAction,
                                          getData: ReturnsDataRetrievalAction,
                                          requireData: ReturnsDataRequiredAction,
-                                         formProvider: DeclareDutyFormProvider,
+                                         formProvider: DeclareSpoiltProductsFormProvider,
                                          returnsEnabledAction: ReturnsEnabledAction,
                                          val controllerComponents: MessagesControllerComponents,
-                                         view: DeclareDutyView
+                                         view: DeclareSpoiltProductsView,
+                                         config: FrontendAppConfig
                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
-      val preparedForm = request.userAnswers.get(DeclareDutyPage)
+      val preparedForm = request.userAnswers.get(DeclareSpoiltProductsPage)
         .fold(form)(form.fill)
 
-      Ok(view(request.periodKey, preparedForm, mode))
+      Ok(view(request.periodKey, preparedForm, mode, config.claimDutyBackGuidance))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
@@ -60,12 +62,12 @@ class DeclareDutyController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
+          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode, config.claimDutyBackGuidance))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclareDutyPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclareSpoiltProductsPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(DeclareDutyPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(DeclareSpoiltProductsPage, mode, updatedAnswers))
       )
   }
 }
