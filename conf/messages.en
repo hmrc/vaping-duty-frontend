@@ -152,7 +152,7 @@ returns.taskList.section.declareDuty.heading = Declare vaping products for duty
 returns.taskList.section.declareDuty.task1 = Tell us if you need to declare duty
 
 returns.taskList.section.declareAdjustments.heading = Declare adjustments
-returns.taskList.declareAdjustments.task1 = Tell us if you have any spoilt adjustments
+returns.taskList.declareAdjustments.task1 = Tell us if any products have become spoilt
 returns.taskList.declareAdjustments.task2 = Tell us if you have any under or over-declared adjustments
 
 returns.taskList.section.dutySuspended.heading = Report duty suspended vaping deliveries
