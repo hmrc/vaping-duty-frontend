@@ -31,15 +31,15 @@ case class SpoiltVolumeByPeriodViewModel(
 )
 
 object SpoiltVolumeByPeriodViewModel {
-  def apply(obligation: ObligationDetails, spoiltPeriodKey: PeriodKey, currentReturnPeriod: PeriodKey)(implicit messages: Messages): SpoiltVolumeByPeriodViewModel = {
-    val month = obligation.iCFromDate.getMonth
+  def apply(spoiltObligation: ObligationDetails, currentReturnPeriod: PeriodKey)(implicit messages: Messages): SpoiltVolumeByPeriodViewModel = {
+    val month = spoiltObligation.iCFromDate.getMonth
     val monthName = month.getDisplayName(TextStyle.FULL, Locale.UK)
-    val year = obligation.iCFromDate.getYear.toString
+    val year = spoiltObligation.iCFromDate.getYear.toString
 
     SpoiltVolumeByPeriodViewModel(
       monthName = monthName,
       year = year,
-      periodKey = spoiltPeriodKey,
+      periodKey = PeriodKey(spoiltObligation.periodKey),
       currentReturnPeriod = currentReturnPeriod
     )
   }

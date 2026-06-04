@@ -17,13 +17,8 @@
 package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
-import models.returns.ReturnsUserAnswers
-import pages.returns.EnterDutyAmountPage
-import play.api.libs.json.Json
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.ConfirmationViewModel
-
-import java.time.Instant
 
 
 class ConfirmationViewModelSpec extends SpecBase with UnitSpec {

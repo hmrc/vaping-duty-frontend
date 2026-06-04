@@ -57,7 +57,7 @@ class SpoiltVolumeByPeriodController @Inject()(
     implicit request =>
       withSpoiltPeriod { spoiltPeriod =>
         withObligation(spoiltPeriod) { spoiltObligation =>
-          val vm = createViewModel(spoiltObligation, spoiltPeriod)
+          val vm = createViewModel(spoiltObligation)
 
           val preparedForm = request.userAnswers.get(SpoiltVolumeByPeriodPage) match {
             case Some(list) =>
@@ -77,7 +77,7 @@ class SpoiltVolumeByPeriodController @Inject()(
     implicit request =>
       withSpoiltPeriod { spoiltPeriod =>
         withObligation(spoiltPeriod) { spoiltObligation =>
-          val vm = createViewModel(spoiltObligation, spoiltPeriod)
+          val vm = createViewModel(spoiltObligation)
 
           form.bindFromRequest().fold(
             formWithErrors =>
@@ -118,9 +118,9 @@ class SpoiltVolumeByPeriodController @Inject()(
     }
   }
 
-  private def createViewModel(spoiltObligation: ObligationDetails, spoiltPeriod: PeriodKey)
+  private def createViewModel(spoiltObligation: ObligationDetails)
                              (implicit request: ReturnsDataRequest[AnyContent]): SpoiltVolumeByPeriodViewModel = {
 
-    SpoiltVolumeByPeriodViewModel(spoiltObligation, spoiltPeriod, request.periodKey)
+    SpoiltVolumeByPeriodViewModel(spoiltObligation, request.periodKey)
   }
 }

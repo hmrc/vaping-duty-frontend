@@ -78,7 +78,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[SpoiltVolumeByPeriodView]
-        val vm = SpoiltVolumeByPeriodViewModel(mockObligation, spoiltPeriodKey, periodKey)
+        val vm = SpoiltVolumeByPeriodViewModel(mockObligation, periodKey)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm, form)(request, messages(application)).toString
@@ -104,7 +104,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, spoiltVolumeByPeriodRoute)
 
         val view = application.injector.instanceOf[SpoiltVolumeByPeriodView]
-        val vm = SpoiltVolumeByPeriodViewModel(mockObligation, spoiltPeriodKey, periodKey)
+        val vm = SpoiltVolumeByPeriodViewModel(mockObligation, periodKey)
 
         val result = route(application, request).value
 
@@ -227,7 +227,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
         val boundForm = form.bind(Map("value" -> "invalid"))
 
         val view = application.injector.instanceOf[SpoiltVolumeByPeriodView]
-        val vm = SpoiltVolumeByPeriodViewModel(mockObligation, spoiltPeriodKey, periodKey)
+        val vm = SpoiltVolumeByPeriodViewModel(mockObligation, periodKey)
 
         val result = route(application, request).value
 
