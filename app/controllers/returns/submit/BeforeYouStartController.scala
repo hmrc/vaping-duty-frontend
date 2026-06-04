@@ -22,7 +22,7 @@ import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.ReturnsUserAnswersService
+import services.returns.{ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.BeforeYouStartViewModel
 import views.html.returns.submit.BeforeYouStartView
@@ -35,6 +35,7 @@ class BeforeYouStartController @Inject()(
                                           identify: ApprovedVapingManufacturerAuthAction,
                                           sessionRepository: ReturnsUserAnswersService,
                                           returnsEnabledAction: ReturnsEnabledAction,
+                                          obligationService: ObligationService,
                                           val controllerComponents: MessagesControllerComponents,
                                           view: BeforeYouStartView,
                                           getData: ReturnsDataRetrievalAction
@@ -51,9 +52,13 @@ class BeforeYouStartController @Inject()(
           ReturnsUserAnswers.getEmptyReturnsUA(request.enrolmentVpdId, periodKey)
       }
 
-      sessionRepository.set(ua).map(_ =>
-        Ok(view(periodKey, BeforeYouStartViewModel()))
-      )
+      obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
+
+        sessionRepository.set(ua).map(_ =>
+
+          Ok(view(periodKey, BeforeYouStartViewModel(obligations.obligation)))
+        )
+      }
 
   }
 }

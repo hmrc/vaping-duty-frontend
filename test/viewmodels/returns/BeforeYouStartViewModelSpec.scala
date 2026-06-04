@@ -17,11 +17,14 @@
 package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
+import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
+import models.returns.AdjustmentsEligibility
 import utils.ReturnsDateUtils.getYear
 import viewmodels.returns.submit.BeforeYouStartViewModel
 
+import java.time.LocalDate
 import java.time.format.TextStyle
-import java.time.{LocalDate, Year}
+import java.time.{Year}
 import java.util.Locale
 
 
@@ -29,31 +32,85 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
   
   "BeforeYouStartViewModel" - {
 
-    val vm = BeforeYouStartViewModel()
+    val obligationsWithFulfilled = createMockObligationsResponse().obligation
+    val obligationsWithoutFulfilled = Seq(
+      ObligationItem(
+        identification = None,
+        obligationDetails = ObligationDetails(
+          openOrFulfilledStatus = ObligationStatus.O.toString,
+          iCFromDate = LocalDate.of(2027, 12, 1),
+          iCToDate = LocalDate.of(2027, 12, 31),
+          iCDateReceived = None,
+          iCDueDate = LocalDate.now().plusDays(10),
+          periodKey = "27AL"
+        )
+      )
+    )
 
-    "return the correct year" in {
-      val expectedResult = LocalDate.now().getYear
+    "when user has fulfilled returns" - {
+      val vm = BeforeYouStartViewModel(obligationsWithFulfilled)
 
-      vm.year mustBe expectedResult
+      "return the correct year" in {
+        val expectedResult = LocalDate.now().getYear
+
+        vm.year mustBe expectedResult
+      }
+
+      "return the correct month length" in {
+        val isLeapYear = Year.of(getYear).isLeap
+        val expectedResult = LocalDate.now().getMonth.length(isLeapYear)
+
+        vm.monthLength mustBe expectedResult
+      }
+
+      "return the correct month due" in {
+        val expectedResult = LocalDate.now().getMonth.plus(1).getDisplayName(TextStyle.FULL, Locale.UK)
+
+        vm.dueDate mustBe expectedResult
+      }
+
+      "return the correct return period month" in {
+        val expectedResult = LocalDate.now().getMonth.getDisplayName(TextStyle.FULL, Locale.UK)
+
+        vm.returnPeriod mustBe expectedResult
+      }
+
+      "return Eligible for adjustmentsEligibility" in {
+        vm.adjustmentsEligibility mustBe AdjustmentsEligibility.Eligible
+      }
     }
 
-    "return the correct month length" in {
-      val isLeapYear = Year.of(getYear).isLeap
-      val expectedResult = LocalDate.now().getMonth.length(isLeapYear)
+    "when user has no fulfilled returns" - {
+      val vm = BeforeYouStartViewModel(obligationsWithoutFulfilled)
 
-      vm.monthLength mustBe expectedResult
-    }
+      "return the correct year" in {
+        val expectedResult = LocalDate.now().getYear
 
-    "return the correct month due" in {
-      val expectedResult = LocalDate.now().getMonth.plus(1).getDisplayName(TextStyle.FULL, Locale.UK)
+        vm.year mustBe expectedResult
+      }
 
-      vm.dueDate mustBe expectedResult
-    }
+      "return the correct month length" in {
+        val isLeapYear = Year.of(getYear).isLeap
+        val expectedResult = LocalDate.now().getMonth.length(isLeapYear)
 
-    "return the correct return period month" in {
-      val expectedResult = LocalDate.now().getMonth.getDisplayName(TextStyle.FULL, Locale.UK)
+        vm.monthLength mustBe expectedResult
+      }
 
-      vm.returnPeriod mustBe expectedResult
+      "return the correct month due" in {
+        val expectedResult = LocalDate.now().getMonth.plus(1).getDisplayName(TextStyle.FULL, Locale.UK)
+
+        vm.dueDate mustBe expectedResult
+      }
+
+      "return the correct return period month" in {
+        val expectedResult = LocalDate.now().getMonth.getDisplayName(TextStyle.FULL, Locale.UK)
+
+        vm.returnPeriod mustBe expectedResult
+      }
+
+      "return NotEligible for adjustmentsEligibility" in {
+        vm.adjustmentsEligibility mustBe AdjustmentsEligibility.NotEligible
+      }
     }
   }
 }
