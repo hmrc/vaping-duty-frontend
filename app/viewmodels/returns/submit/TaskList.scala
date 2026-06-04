@@ -16,21 +16,25 @@
 
 package viewmodels.returns.submit
 
-import models.returns.ReturnsUserAnswers
+import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import models.{NormalMode, TaskStatus}
 import play.api.i18n.Messages
 import services.returns.TaskStatusService
 
 object TaskList {
 
-  def sections(userAnswers: ReturnsUserAnswers)(implicit messages: Messages): Seq[TaskListSection] = {
+  def sections(userAnswers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility)(implicit messages: Messages): Seq[TaskListSection] = {
     val periodKey = userAnswers.periodKey
+    
     Seq(
-      declareDutySection(userAnswers, periodKey),
-      declareAdjustmentsSection(userAnswers, periodKey),
-      dutySuspendedSection(userAnswers, periodKey),
-      submissionSection(userAnswers, periodKey)
-    )
+      Some(declareDutySection(userAnswers, periodKey)),
+      adjustmentsEligibility match {
+        case AdjustmentsEligibility.Eligible    => Some(declareAdjustmentsSection(userAnswers, periodKey))
+        case AdjustmentsEligibility.NotEligible => None
+      },
+      Some(dutySuspendedSection(userAnswers, periodKey)),
+      Some(submissionSection(userAnswers, periodKey))
+    ).flatten
   }
 
 

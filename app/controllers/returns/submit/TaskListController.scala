@@ -20,11 +20,13 @@ import controllers.actions.*
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.TaskListPageViewModel
 import views.html.returns.submit.TaskListView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class TaskListController @Inject()(
                                     override val messagesApi: MessagesApi,
@@ -32,12 +34,15 @@ class TaskListController @Inject()(
                                     getData: ReturnsDataRetrievalAction,
                                     requireData: ReturnsDataRequiredAction,
                                     returnsEnabledAction: ReturnsEnabledAction,
+                                    obligationService: ObligationService,
                                     val controllerComponents: MessagesControllerComponents,
                                     view: TaskListView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                  )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-      Ok(view(TaskListPageViewModel(request.userAnswers)))
+      obligationService.getObligations(request.enrolmentVpdId).map { obligations =>
+        Ok(view(TaskListPageViewModel(request.userAnswers, obligations.obligation)))
+      }
   }
 }

@@ -17,29 +17,90 @@
 package controllers.returns.submit
 
 import base.SpecBase
+import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse, ObligationStatus}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.returns.ObligationService
 import viewmodels.returns.submit.TaskListPageViewModel
 import views.html.returns.submit.TaskListView
 
-class TaskListControllerSpec extends SpecBase {
+import java.time.LocalDate
+import scala.concurrent.Future
+
+class TaskListControllerSpec extends SpecBase with MockitoSugar {
+
+  private val testPeriodKey = "24AC"
+  private val testFromDate = LocalDate.of(2024, 10, 1)
+  private val testToDate = LocalDate.of(2024, 10, 31)
+  private val testDueDate = LocalDate.of(2024, 11, 30)
+
+  private def createObligation(status: ObligationStatus): ObligationItem = 
+    ObligationItem(
+      identification = None,
+      obligationDetails = ObligationDetails(
+        openOrFulfilledStatus = status.toString,
+        iCFromDate = testFromDate,
+        iCToDate = testToDate,
+        iCDateReceived = None,
+        iCDueDate = testDueDate,
+        periodKey = testPeriodKey
+      )
+    )
 
   "TaskList Controller" - {
 
-    "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+    "must return OK and the correct view for a GET with fulfilled obligations" in {
+      val mockObligationService = mock[ObligationService]
+      val fulfilledObligation = createObligation(ObligationStatus.F)
+      
+      when(mockObligationService.getObligations(any())(using any()))
+        .thenReturn(Future.successful(ObligationsResponse(Seq(fulfilledObligation))))
+      
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .build()
+      
       given Messages = messages(application)
 
       running(application) {
         val request = FakeRequest(GET, controllers.returns.submit.routes.TaskListController.onPageLoad().url)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[TaskListView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(TaskListPageViewModel(returnsUserAnswers))(request).toString
+        contentAsString(result) mustEqual view(
+          TaskListPageViewModel(returnsUserAnswers, Seq(fulfilledObligation))
+        )(request).toString
+      }
+    }
+    
+    "must return OK and the correct view for a GET with no fulfilled obligations" in {
+      val mockObligationService = mock[ObligationService]
+      val openObligation = createObligation(ObligationStatus.O)
+      
+      when(mockObligationService.getObligations(any())(using any()))
+        .thenReturn(Future.successful(ObligationsResponse(Seq(openObligation))))
+      
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .build()
+      
+      given Messages = messages(application)
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.TaskListController.onPageLoad().url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[TaskListView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          TaskListPageViewModel(returnsUserAnswers, Seq(openObligation))
+        )(request).toString
       }
     }
   }
