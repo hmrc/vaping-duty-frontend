@@ -17,7 +17,7 @@
 package services.returns
 
 import models.TaskStatus
-import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers}
+import models.returns.{AdjustmentsEligibility, DutySuspenseVolumes, ReturnsUserAnswers}
 import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage}
 
 object TaskStatusService {
@@ -47,14 +47,18 @@ object TaskStatusService {
     }
   }
 
-  def allTasksCompleted(answers: ReturnsUserAnswers): Boolean = {
+  def allTasksCompleted(answers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility): Boolean = {
+    val spoiltTaskComplete = adjustmentsEligibility match {
+      case AdjustmentsEligibility.NotEligible => true
+      case AdjustmentsEligibility.Eligible    => declareSpoiltProductsTaskStatus(answers) == TaskStatus.Completed
+    }
+    
     declareDutyTaskStatus(answers) == TaskStatus.Completed &&
-    declareSpoiltProductsTaskStatus(answers) == TaskStatus.Completed &&
-    dutySuspenseTaskStatus(answers) == TaskStatus.Completed
+    spoiltTaskComplete && dutySuspenseTaskStatus(answers) == TaskStatus.Completed
   }
 
-  def submitTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
-    if (allTasksCompleted(answers)) TaskStatus.NotStarted
+  def submitTaskStatus(answers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility): TaskStatus = {
+    if (allTasksCompleted(answers, adjustmentsEligibility)) TaskStatus.NotStarted
     else TaskStatus.TasksRemaining
   }
 }

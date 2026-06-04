@@ -18,6 +18,7 @@ package services.returns
 
 import base.SpecBase
 import models.TaskStatus
+import models.returns.AdjustmentsEligibility.Eligible
 import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers}
 import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage}
 
@@ -82,7 +83,7 @@ class TaskStatusServiceSpec extends SpecBase {
   "allTasksCompleted" - {
 
     "must return false when no tasks are completed" in {
-      val result = TaskStatusService.allTasksCompleted(emptyAnswers)
+      val result = TaskStatusService.allTasksCompleted(emptyAnswers, Eligible)
       result mustBe false
     }
 
@@ -92,7 +93,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.allTasksCompleted(answers)
+      val result = TaskStatusService.allTasksCompleted(answers, Eligible)
       result mustBe false
     }
 
@@ -106,7 +107,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.allTasksCompleted(answers)
+      val result = TaskStatusService.allTasksCompleted(answers, Eligible)
       result mustBe true
     }
   }
@@ -114,7 +115,7 @@ class TaskStatusServiceSpec extends SpecBase {
   "submitTaskStatus" - {
 
     "must return TasksRemaining when no tasks are completed" in {
-      val result = TaskStatusService.submitTaskStatus(emptyAnswers)
+      val result = TaskStatusService.submitTaskStatus(emptyAnswers, Eligible)
       result mustBe TaskStatus.TasksRemaining
     }
 
@@ -124,7 +125,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.submitTaskStatus(answers)
+      val result = TaskStatusService.submitTaskStatus(answers, Eligible)
       result mustBe TaskStatus.TasksRemaining
     }
 
@@ -138,7 +139,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.submitTaskStatus(answers)
+      val result = TaskStatusService.submitTaskStatus(answers, Eligible)
       result mustBe TaskStatus.NotStarted
     }
   }
