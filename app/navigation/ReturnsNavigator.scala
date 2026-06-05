@@ -38,7 +38,7 @@ class ReturnsNavigator @Inject()(
 
   private def normalRoutes(periodKey: String): Page => ReturnsUserAnswers => Call = {
     case DeclareDutyPage           => ua  => declareDutyPageRoutes(ua, periodKey)
-    case EnterDutyAmountPage       => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
+    case EnterDutyAmountPage       => _   => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage   => ua  => declareDutySuspensePageRoutes(ua, periodKey)
     case EnterDutySuspensePage     => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
     case DeclareSpoiltProductsPage => ua  => declareSpoiltProductsPageRoutes(ua, periodKey)

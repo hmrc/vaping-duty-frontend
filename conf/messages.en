@@ -277,6 +277,14 @@ returns.enterDutySuspense.ml = ml
 returns.enterDutySuspense.checkYourAnswersLabel = Enter duty suspense
 returns.enterDutySuspense.change.hidden = enter duty suspense
 
+returns.declareDutyCheckAnswers.title = Your duty is {0}
+returns.declareDutyCheckAnswers.caption = Check your answers
+returns.declareDutyCheckAnswers.heading = Your duty is {0}
+returns.declareDutyCheckAnswers.entryDetails = Entry details
+returns.declareDutyCheckAnswers.volume = Volume
+returns.declareDutyCheckAnswers.dutyDue = Duty due
+returns.declareDutyCheckAnswers.volume.change.hidden = vaping products volume
+
 returns.CheckYourAnswers.title = The duty due is {0}
 returns.CheckYourAnswers.caption = Check your answers
 returns.CheckYourAnswers.heading = The duty due is {0}
