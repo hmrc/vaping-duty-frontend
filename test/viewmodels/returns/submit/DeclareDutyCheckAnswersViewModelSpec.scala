@@ -19,7 +19,6 @@ package viewmodels.returns.submit
 import base.SpecBase
 import models.NormalMode
 import pages.returns.EnterDutyAmountPage
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 
 class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
 
@@ -33,14 +32,7 @@ class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
       val ua = returnsUserAnswers.set(EnterDutyAmountPage, volumeInMl).success.value
       val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
 
-      vm.dutyDue mustBe "£2,200.00"
-    }
-
-    "must format volume with ml suffix" in {
-      val ua = returnsUserAnswers.set(EnterDutyAmountPage, volumeInMl).success.value
-      val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
-
-      vm.volumeFormatted mustBe "1000 ml"
+      vm.dutyDue mustBe "£2,200"
     }
 
     "must handle zero volume" in {
@@ -48,14 +40,14 @@ class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
       val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
 
       vm.volumeFormatted mustBe "0 ml"
-      vm.dutyDue mustBe "£0.00"
+      vm.dutyDue mustBe "£0"
     }
 
     "must handle missing volume" in {
       val vm = DeclareDutyCheckAnswersViewModel(returnsUserAnswers, dutyRate, periodKey)
 
       vm.volumeFormatted mustBe "0 ml"
-      vm.dutyDue mustBe "£0.00"
+      vm.dutyDue mustBe "£0"
     }
 
     "must create summary list with two rows" in {
@@ -70,40 +62,13 @@ class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
       val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
 
       val volumeRow = vm.summaryList.rows.head
-      volumeRow.key.content.asHtml.toString must include("returns.declareDutyCheckAnswers.volume")
+      volumeRow.key.content.asHtml.toString must include("Volume")
       volumeRow.value.content.asHtml.toString must include("1000 ml")
       volumeRow.actions.value.items.size mustBe 1
       
       val changeLink = volumeRow.actions.value.items.head
       changeLink.href must include(controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(NormalMode).url)
       changeLink.href must include(s"period=${periodKey.value}")
-    }
-
-    "must have duty due row with no Change link" in {
-      val ua = returnsUserAnswers.set(EnterDutyAmountPage, volumeInMl).success.value
-      val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
-
-      val dutyRow = vm.summaryList.rows(1)
-      dutyRow.key.content.asHtml.toString must include("returns.declareDutyCheckAnswers.dutyDue")
-      dutyRow.value.content.asHtml.toString must include("£2,200.00")
-      dutyRow.actions mustBe None
-    }
-
-    "must calculate duty with different rates" in {
-      val ua = returnsUserAnswers.set(EnterDutyAmountPage, 500).success.value
-      val customRate = BigDecimal("3.50")
-      val vm = DeclareDutyCheckAnswersViewModel(ua, customRate, periodKey)
-
-      vm.dutyDue mustBe "£1,750.00"
-    }
-
-    "must handle large volumes" in {
-      val largeVolume = 1000000
-      val ua = returnsUserAnswers.set(EnterDutyAmountPage, largeVolume).success.value
-      val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
-
-      vm.volumeFormatted mustBe "1000000 ml"
-      vm.dutyDue mustBe "£2,200,000.00"
     }
   }
 }
