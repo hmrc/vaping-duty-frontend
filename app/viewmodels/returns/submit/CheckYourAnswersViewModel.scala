@@ -59,7 +59,7 @@ object CheckYourAnswersViewModel {
     val p = new Paragraph()
 
     userAnswers.get(DeclareDutyPage) match {
-      case Some(true)   => p(Seq(Text(messages("returns.CheckYourAnswers.p.duty", currencyFormat(dutyRate)))))
+      case Some(true)   => p(Seq(Text(messages("returns.CheckYourAnswers.p.duty", currencyFormat(dutyRate * 10)))))
       case Some(false)  => p(Seq(Text(messages("NIL RETURN, CONTENT TBC"))))
       case None         => p(Seq(Text("")))
     }
