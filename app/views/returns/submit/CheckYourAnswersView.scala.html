@@ -66,6 +66,6 @@
     @p(Seq(messages("returns.CheckYourAnswers.p.checkYour")))
 
     @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
-        @govukButton(ButtonViewModel(messages("returns.CheckYourAnswers.button")))
+        @govukButton(ButtonViewModel(messages("site.saveAndContinue")))
     }
 }

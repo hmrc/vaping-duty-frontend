@@ -22,7 +22,7 @@ import models.identifiers.{CredentialId, GroupId, InternalId, PeriodKey, VpdId}
 import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
-import models.returns.{ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
+import models.returns.{DeclarationDetails, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
 
@@ -223,10 +223,17 @@ trait TestData {
 
   val totalDue = totalInMl - zeroValue
 
+  val testDeclarationDetails: DeclarationDetails = DeclarationDetails(
+    fullName = "Test User",
+    capacityInWhichSigned = "Director",
+    signeesEmailAddress = "test@example.com"
+  )
+
   val testSubmitReturnRequest = ReturnCreateRequest(
     periodKey.toString,
     VapingProductsProduced(Seq.empty, Seq.empty),
-    TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
+    TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue),
+    testDeclarationDetails
   )
 
   def createMockObligationsResponse(): ObligationsResponse = {

@@ -82,23 +82,9 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must submit and return the correct response for a POST" in {
+    "must redirect to Declaration page for a POST" in {
 
-      val mockService = mock[SubmitReturnService]
-      val mockObligationService = mock[ObligationService]
-      val mockUserAnswersService = mock[ReturnsUserAnswersService]
-
-      when(mockService.submit(any())(any())).thenReturn(Future.successful(testReturnSubmissionResponse))
-      when(mockUserAnswersService.clear(eqTo(vpdId), eqTo(periodKey))(any()))
-        .thenReturn(Future.successful(Right(())))
-
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(
-          bind[SubmitReturnService].to(mockService),
-          bind[ObligationService].toInstance(mockObligationService),
-          bind[ReturnsUserAnswersService].toInstance(mockUserAnswersService)
-        )
-        .build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(POST, controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url)
@@ -106,28 +92,13 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${periodKey.value}"
-        
-        verify(mockUserAnswersService).clear(eqTo(vpdId), eqTo(periodKey))(any())
+        redirectLocation(result).value mustBe controllers.returns.submit.routes.DeclarationController.onPageLoad().url
       }
     }
 
-    "must redirect to journey recovery when there is an issue submitting" in {
+    "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
-      val mockService = mock[SubmitReturnService]
-      val mockObligationService = mock[ObligationService]
-      val mockUserAnswersService = mock[ReturnsUserAnswersService]
-
-      when(mockService.submit(any())(any())).thenReturn(Future.successful(Left(ErrorModel(BAD_GATEWAY, "Bad gateway"))))
-
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(
-          bind[SubmitReturnService].to(mockService),
-          bind[ObligationService].toInstance(mockObligationService),
-          bind[ReturnsUserAnswersService].toInstance(mockUserAnswersService)
-        )
-        .build()
-
+      val application = applicationBuilder(returnsUserAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(POST, controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url)
@@ -136,70 +107,6 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
-        
-        verify(mockUserAnswersService, never()).clear(any(), any())(any())
-      }
-    }
-
-    "must redirect to confirmation even when clearing user answers fails after successful submission" in {
-
-      val mockService = mock[SubmitReturnService]
-      val mockObligationService = mock[ObligationService]
-      val mockUserAnswersService = mock[ReturnsUserAnswersService]
-
-      when(mockService.submit(any())(any())).thenReturn(Future.successful(testReturnSubmissionResponse))
-      when(mockUserAnswersService.clear(eqTo(vpdId), eqTo(periodKey))(any()))
-        .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "Failed to clear"))))
-
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(
-          bind[SubmitReturnService].to(mockService),
-          bind[ObligationService].toInstance(mockObligationService),
-          bind[ReturnsUserAnswersService].toInstance(mockUserAnswersService)
-        )
-        .build()
-
-      running(application) {
-        val request = FakeRequest(POST, controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${periodKey.value}"
-        
-        verify(mockService).submit(any())(any())
-        verify(mockUserAnswersService).clear(eqTo(vpdId), eqTo(periodKey))(any())
-      }
-    }
-
-    "must redirect to confirmation even when clearing user answers fails with a failed future" in {
-
-      val mockService = mock[SubmitReturnService]
-      val mockObligationService = mock[ObligationService]
-      val mockUserAnswersService = mock[ReturnsUserAnswersService]
-
-      when(mockService.submit(any())(any())).thenReturn(Future.successful(testReturnSubmissionResponse))
-      when(mockUserAnswersService.clear(eqTo(vpdId), eqTo(periodKey))(any()))
-        .thenReturn(Future.failed(InternalServerException("")))
-
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(
-          bind[SubmitReturnService].to(mockService),
-          bind[ObligationService].toInstance(mockObligationService),
-          bind[ReturnsUserAnswersService].toInstance(mockUserAnswersService)
-        )
-        .build()
-
-      running(application) {
-        val request = FakeRequest(POST, controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${periodKey.value}"
-
-        verify(mockService).submit(any())(any())
-        verify(mockUserAnswersService).clear(eqTo(vpdId), eqTo(periodKey))(any())
       }
     }
 

@@ -23,7 +23,7 @@ import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
-import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
+import pages.returns.{DeclarationPage, DeclareDutyPage, EnterDutyAmountPage}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -96,6 +96,10 @@ class SubmitReturnService @Inject()(
       totalDutyDue = totalDutyDueVapingProducts + adjustments
     )
 
-    ReturnCreateRequest(periodKey.toString, vapingProductsProduced, totalDutyDue)
+    val declaration = ua.get(DeclarationPage).getOrElse(
+      throw new IllegalStateException("Declaration details are required for submission")
+    )
+
+    ReturnCreateRequest(periodKey.toString, vapingProductsProduced, totalDutyDue, declaration)
   }
 }

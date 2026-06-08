@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package models.returns.submit
+package pages.returns
 
-import models.returns.{DeclarationDetails, TotalDutyDue, VapingProductsProduced}
-import play.api.libs.json.{Json, OFormat}
+import models.returns.DeclarationDetails
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-final case class ReturnCreateRequest(
-  periodKey: String,
-  vapingProductsProduced: VapingProductsProduced,
-  totalDutyDue: TotalDutyDue,
-  declaration: DeclarationDetails
-)
+case object DeclarationPage extends QuestionPage[DeclarationDetails] {
+  override def path: JsPath = JsPath \ toString
 
-object ReturnCreateRequest {
-  given OFormat[ReturnCreateRequest] = Json.format[ReturnCreateRequest]
+  override def toString: String = "declaration"
 }

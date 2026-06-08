@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package models.returns.submit
+package models.returns
 
-import models.returns.{DeclarationDetails, TotalDutyDue, VapingProductsProduced}
 import play.api.libs.json.{Json, OFormat}
 
-final case class ReturnCreateRequest(
-  periodKey: String,
-  vapingProductsProduced: VapingProductsProduced,
-  totalDutyDue: TotalDutyDue,
-  declaration: DeclarationDetails
+final case class DeclarationDetails(
+  fullName: String,
+  capacityInWhichSigned: String,
+  signeesEmailAddress: String
 )
 
-object ReturnCreateRequest {
-  given OFormat[ReturnCreateRequest] = Json.format[ReturnCreateRequest]
+object DeclarationDetails {
+  implicit val format: OFormat[DeclarationDetails] = Json.format[DeclarationDetails]
 }
