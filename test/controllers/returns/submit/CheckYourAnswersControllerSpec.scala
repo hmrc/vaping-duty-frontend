@@ -58,7 +58,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must use zero duty rate when obligation service returns None" in {
+    "must throw RuntimeException when obligation service returns None" in {
 
       val mockObligationService = mock[ObligationService]
 
@@ -74,11 +74,10 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[CheckYourAnswersView]
-        val vm = CheckYourAnswersViewModel(returnsUserAnswers, BigDecimal(0), periodKey)(messages(application))
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
+        whenReady(result.failed) { exception =>
+          exception mustBe a[RuntimeException]
+          exception.getMessage mustBe "No duty rate found"
+        }
       }
     }
 
@@ -99,7 +98,6 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           bind[ReturnsUserAnswersService].toInstance(mockUserAnswersService)
         )
         .build()
-
 
       running(application) {
         val request = FakeRequest(POST, controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url)
@@ -142,7 +140,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to journey recovery when clearing user answers fails after successful submission" in {
+    "must redirect to confirmation even when clearing user answers fails after successful submission" in {
 
       val mockService = mock[SubmitReturnService]
       val mockObligationService = mock[ObligationService]
@@ -160,14 +158,13 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         )
         .build()
 
-
       running(application) {
         val request = FakeRequest(POST, controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url)
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${periodKey.value}"
         
         verify(mockService).submit(any())(any())
         verify(mockUserAnswersService).clear(eqTo(vpdId), eqTo(periodKey))(any())

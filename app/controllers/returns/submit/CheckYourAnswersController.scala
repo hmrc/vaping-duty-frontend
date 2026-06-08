@@ -18,7 +18,7 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import models.identifiers.VpdId
+import models.requests.returns.ReturnsDataRequest
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
@@ -27,7 +27,7 @@ import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourAnswersController @Inject()(
                                        override val messagesApi: MessagesApi,
@@ -43,24 +43,27 @@ class CheckYourAnswersController @Inject()(
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
-    obligationService.getDutyRateForPeriod(
-      VpdId(request.userAnswers.vpdId),
-      request.periodKey
-    ).map { dutyRateOpt =>
-      val dutyRate = dutyRateOpt.getOrElse(BigDecimal("0"))
+    getDutyRate(obligationService).map { dutyRate =>
       val vm = CheckYourAnswersViewModel(request.userAnswers, dutyRate, request.periodKey)
       Ok(view(request.periodKey, vm))
     }
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
+    
+    val confirmationRedirect = Redirect(s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${request.periodKey}")
+    
     submitReturnService.submit(request.userAnswers).flatMap { response =>
 
-      userAnswersService.clear(request.enrolmentVpdId, request.periodKey).map {
-        case Left(_)  => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-        case Right(_) => Redirect(s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${request.periodKey}")
-      }
+      userAnswersService.clear(request.enrolmentVpdId, request.periodKey).map(_  => confirmationRedirect)
 
     }.recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+  }
+
+  private def getDutyRate(obligationService: ObligationService)(using request: ReturnsDataRequest[?]) = {
+    obligationService.getDutyRateForPeriod(request.enrolmentVpdId, request.periodKey).flatMap {
+      case Some(dutyRate) => Future.successful(dutyRate)
+      case None           => Future.failed(RuntimeException("No duty rate found"))
+    }
   }
 }
