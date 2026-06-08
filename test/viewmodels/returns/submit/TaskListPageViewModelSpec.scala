@@ -1,4 +1,4 @@
-AI/*
+/*
  * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,7 +54,6 @@ class TaskListPageViewModelSpec extends SpecBase {
       result.returnPeriod must not be empty
       result.year must not be empty
       result.dueDate must not be empty
-      result.monthLength mustBe 30
     }
 
     "must create a view model successfully when multiple obligations exist with matching period key" in {

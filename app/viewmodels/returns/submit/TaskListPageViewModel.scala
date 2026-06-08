@@ -26,8 +26,8 @@ case class TaskListPageViewModel(
                                   sections: Seq[TaskListSection],
                                   returnPeriod: String,
                                   year: String,
-                                  dueDate: String,
-                                  monthLength: Int
+                                  dueYear: String,
+                                  dueDate: String
                                 )
 
 object TaskListPageViewModel {
@@ -42,13 +42,16 @@ object TaskListPageViewModel {
       .getOrElse(throw new IllegalStateException(s"No obligation found for period key: ${periodKey.toString}."))
 
     val monthOfObligation = currentObligation.obligationDetails.iCFromDate.getMonth
+    val monthDue          = currentObligation.obligationDetails.iCDueDate.getMonth
+    val yearOfObligation  = currentObligation.obligationDetails.iCFromDate.getYear.toString
+    val yearDue           = currentObligation.obligationDetails.iCDueDate.getYear.toString
 
     TaskListPageViewModel(
       sections     = TaskList.sections(userAnswers, adjustmentsEligibility),
-      returnPeriod = getReturnPeriod(monthOfObligation),
-      year         = getYear.toString,
-      dueDate      = getDueDate(monthOfObligation),
-      monthLength  = getMonthLength(monthOfObligation)
+      returnPeriod = getReturnMonth(monthOfObligation),
+      year         = yearOfObligation,
+      dueYear      = yearDue,
+      dueDate      = getDueDate(monthDue)
     )
   }
 }
