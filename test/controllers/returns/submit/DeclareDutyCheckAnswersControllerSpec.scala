@@ -57,7 +57,7 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must use zero duty rate when obligation service returns None" in {
+    "must fail when obligation service returns None" in {
 
       val mockObligationService = mock[ObligationService]
 
@@ -73,11 +73,10 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[DeclareDutyCheckAnswersView]
-        val vm = DeclareDutyCheckAnswersViewModel(returnsUserAnswers, BigDecimal(0), periodKey)(messages(application))
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
+        whenReady(result.failed) { exception =>
+          exception mustBe a[RuntimeException]
+          exception.getMessage mustBe "No duty rate found"
+        }
       }
     }
 

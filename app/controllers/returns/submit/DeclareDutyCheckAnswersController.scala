@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import models.requests.returns.ReturnsDataRequest
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ObligationService
@@ -26,22 +27,21 @@ import viewmodels.returns.submit.DeclareDutyCheckAnswersViewModel
 import views.html.returns.submit.DeclareDutyCheckAnswersView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class DeclareDutyCheckAnswersController @Inject()(
-  override val messagesApi: MessagesApi,
-  identify: ApprovedVapingManufacturerAuthAction,
-  getData: ReturnsDataRetrievalAction,
-  requireData: ReturnsDataRequiredAction,
-  returnsEnabled: ReturnsEnabledAction,
-  obligationService: ObligationService,
-  val controllerComponents: MessagesControllerComponents,
-  view: DeclareDutyCheckAnswersView
-)(using ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                   override val messagesApi: MessagesApi,
+                                                   identify: ApprovedVapingManufacturerAuthAction,
+                                                   getData: ReturnsDataRetrievalAction,
+                                                   requireData: ReturnsDataRequiredAction,
+                                                   returnsEnabled: ReturnsEnabledAction,
+                                                   obligationService: ObligationService,
+                                                   val controllerComponents: MessagesControllerComponents,
+                                                   view: DeclareDutyCheckAnswersView
+                                                 )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
-    obligationService.getDutyRateForPeriod(request.enrolmentVpdId, request.periodKey).map { dutyRateOpt =>
-      val dutyRate = dutyRateOpt.getOrElse(BigDecimal(0))
+    getDutyRate(obligationService).map { dutyRate =>
       val vm = DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, request.periodKey)
       Ok(view(request.periodKey, vm))
     }
@@ -49,5 +49,12 @@ class DeclareDutyCheckAnswersController @Inject()(
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
     Redirect(controllers.returns.submit.routes.TaskListController.onPageLoad().url + s"?period=${request.periodKey.value}")
+  }
+
+  private def getDutyRate(obligationService: ObligationService)(using request: ReturnsDataRequest[?]) = {
+    obligationService.getDutyRateForPeriod(request.enrolmentVpdId, request.periodKey).flatMap {
+      case Some(dutyRate) => Future.successful(dutyRate)
+      case None => Future.failed(RuntimeException("No duty rate found"))
+    }
   }
 }
