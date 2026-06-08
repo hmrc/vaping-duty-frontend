@@ -17,6 +17,8 @@
 package controllers.returns.submit
 
 import base.SpecBase
+import models.identifiers.PeriodKey
+import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse, ObligationStatus}
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -24,30 +26,40 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.ReturnsUserAnswersService
+import services.returns.{ObligationService, ReturnsUserAnswersService}
 import viewmodels.returns.submit.BeforeYouStartViewModel
 import views.html.returns.submit.BeforeYouStartView
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class BeforeYouStartControllerSpec extends SpecBase {
+
+  private val testObligations = createMockObligationsResponse().obligation
+
+  private val testObligationsResponse = ObligationsResponse(testObligations)
 
   "BeforeYouStart Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val mockService = mock[ReturnsUserAnswersService]
+      val mockObligationService = mock[ObligationService]
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ReturnsUserAnswersService].to(mockService))
+        .overrides(
+          bind[ReturnsUserAnswersService].to(mockService),
+          bind[ObligationService].to(mockObligationService)
+        )
         .build()
 
-      val vm = BeforeYouStartViewModel()(messages(application))
+      val vm = BeforeYouStartViewModel(testObligations, periodKey)(messages(application))
 
       when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
+      when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(testObligationsResponse))
 
       running(application) {
-        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=$periodKey")
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${periodKey.value}")
 
         val result = route(application, request).value
 
@@ -61,17 +73,22 @@ class BeforeYouStartControllerSpec extends SpecBase {
     "must return OK and the correct view for a GET with no previous answers" in {
 
       val mockService = mock[ReturnsUserAnswersService]
+      val mockObligationService = mock[ObligationService]
 
       val application = applicationBuilder()
-        .overrides(bind[ReturnsUserAnswersService].to(mockService))
+        .overrides(
+          bind[ReturnsUserAnswersService].to(mockService),
+          bind[ObligationService].to(mockObligationService)
+        )
         .build()
 
-      val vm = BeforeYouStartViewModel()(messages(application))
+      val vm = BeforeYouStartViewModel(testObligations, periodKey)(messages(application))
 
       when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
+      when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(testObligationsResponse))
 
       running(application) {
-        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=$periodKey")
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${periodKey.value}")
 
         val result = route(application, request).value
 
@@ -86,7 +103,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), returnsEnabled = false).build()
 
       running(application) {
-        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=$periodKey")
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${periodKey.value}")
 
         val result = route(application, request).value
 

@@ -126,12 +126,12 @@ returns.beforeYouStart.title = Before you start
 returns.beforeYouStart.heading = Before you start
 returns.beforeYouStart.caption = Vaping Products Duty return
 returns.beforeYouStart.deadline = The deadline for completing this return is 7 {0} {1}.
-returns.beforeYouStart.useThis = Use this service to submit your Vaping Products Duty return for 1 {0} {2} to {1} {0} {2}.
+returns.beforeYouStart.useThis = Use this service to submit your Vaping Products Duty return for {0} {1}.
 returns.beforeYouStart.thereAre = There are tasks to complete before you can submit the return.
 returns.beforeYouStart.youWill = You will need to declare:
 returns.beforeYouStart.dutyFor = duty for all your finished vaping products that have been released for consumption in the UK
 returns.beforeYouStart.spoilt = any spoilt vaping products
-returns.beforeYouStart.underOver = any under or over-declared vaping product adjustments from a previous return
+returns.beforeYouStart.underOver = any over or under-declared vaping product adjustments from a previous return
 returns.beforeYouStart.suspended = any duty-suspended goods
 returns.beforeYouStart.afterYou = After you tell us this information, we will calculate how much you owe for this period.
 returns.beforeYouStart.youCannot = You cannot use this service to declare or pay VAT.
@@ -153,7 +153,7 @@ returns.taskList.section.declareDuty.task1 = Tell us if you need to declare duty
 
 returns.taskList.section.declareAdjustments.heading = Declare adjustments
 returns.taskList.declareAdjustments.task1 = Tell us if any products have become spoilt
-returns.taskList.declareAdjustments.task2 = Tell us if you have any under or over-declared adjustments
+returns.taskList.declareAdjustments.task2 = Tell us if you have any over or under-declared adjustments
 
 returns.taskList.section.dutySuspended.heading = Report duty suspended vaping deliveries
 returns.taskList.section.dutySuspended.task1 = Tell us if you have received or moved any vaping products in duty suspense

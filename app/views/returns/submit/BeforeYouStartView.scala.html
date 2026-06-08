@@ -17,6 +17,7 @@
 @import components.{Paragraph, Heading, Link, Caption, List}
 @import viewmodels.returns.submit.BeforeYouStartViewModel
 @import models.identifiers.PeriodKey
+@import models.returns.AdjustmentsEligibility
 
 @this(
         layout: templates.ReturnsLayout,
@@ -40,18 +41,28 @@
         content = Text(messages("returns.beforeYouStart.deadline", vm.dueDate, vm.year.toString))
     ))
 
-    @p(Seq(messages("returns.beforeYouStart.useThis", vm.returnPeriod, vm.monthLength, vm.year.toString)))
+    @p(Seq(messages("returns.beforeYouStart.useThis", vm.returnPeriod, vm.year.toString)))
 
     @p(Seq(messages("returns.beforeYouStart.thereAre")))
 
     @p(Seq(messages("returns.beforeYouStart.youWill")))
 
-    @list(Seq(
-        messages("returns.beforeYouStart.dutyFor"),
-        messages("returns.beforeYouStart.spoilt"),
-        messages("returns.beforeYouStart.underOver"),
-        messages("returns.beforeYouStart.suspended")
-    ), classes = "govuk-list govuk-list--bullet")
+    @list(
+        if(vm.adjustmentsEligibility == AdjustmentsEligibility.Eligible) {
+            Seq(
+                messages("returns.beforeYouStart.dutyFor"),
+                messages("returns.beforeYouStart.spoilt"),
+                messages("returns.beforeYouStart.underOver"),
+                messages("returns.beforeYouStart.suspended")
+            )
+        } else {
+            Seq(
+                messages("returns.beforeYouStart.dutyFor"),
+                messages("returns.beforeYouStart.suspended")
+            )
+        },
+        classes = "govuk-list govuk-list--bullet"
+    )
 
     @p(Seq(messages("returns.beforeYouStart.afterYou")))
 
