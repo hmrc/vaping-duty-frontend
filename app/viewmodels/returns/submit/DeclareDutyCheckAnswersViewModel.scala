@@ -35,7 +35,6 @@ case class DeclareDutyCheckAnswersViewModel(
 
 object DeclareDutyCheckAnswersViewModel {
 
-  private val ZERO = "0"
   private val ML_SUFFIX = " ml"
 
   def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): DeclareDutyCheckAnswersViewModel = {

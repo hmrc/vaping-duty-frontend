@@ -24,7 +24,6 @@ class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
 
   private val dutyRate = BigDecimal("2.20")
   private val volumeInMl = 1000
-  private val expectedDuty = BigDecimal("2200.00")
 
   "DeclareDutyCheckAnswersViewModel" - {
 

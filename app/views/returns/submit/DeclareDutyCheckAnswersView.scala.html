@@ -22,36 +22,25 @@
     layout: templates.ReturnsLayout,
     formHelper: FormWithCSRF,
     govukButton: GovukButton,
-    govukSummaryList: GovukSummaryList,
     caption: Caption,
-    h1: Heading
+    h1: Heading,
+    summaryCard: SummaryCard
 )
 
 @(periodKey: PeriodKey, vm: DeclareDutyCheckAnswersViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("returns.declareDutyCheckAnswers.title", vm.dutyDue))) {
 
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
 
-            @caption(messages("returns.declareDutyCheckAnswers.caption"))
-            @h1(messages("returns.declareDutyCheckAnswers.heading", vm.dutyDue))
+    @caption(messages("returns.declareDutyCheckAnswers.caption"))
+    @h1(messages("returns.declareDutyCheckAnswers.heading", vm.dutyDue))
 
-            <div class="govuk-summary-card">
-                <div class="govuk-summary-card__title-wrapper">
-                    <h2 class="govuk-summary-card__title">
-                        @messages("returns.declareDutyCheckAnswers.entryDetails")
-                    </h2>
-                </div>
-                <div class="govuk-summary-card__content">
-                    @govukSummaryList(vm.summaryList)
-                </div>
-            </div>
+    @summaryCard(
+        title = messages("returns.declareDutyCheckAnswers.entryDetails"),
+        summaryList = vm.summaryList
+    )
 
-            @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
-                @govukButton(ButtonViewModel(messages("site.saveAndContinue")))
-            }
-
-        </div>
-    </div>
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
+        @govukButton(ButtonViewModel(messages("site.saveAndContinue")))
+    }
 }
