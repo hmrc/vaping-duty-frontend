@@ -54,7 +54,7 @@ class DeclareDutyCheckAnswersController @Inject()(
   private def getDutyRate(obligationService: ObligationService)(using request: ReturnsDataRequest[?]) = {
     obligationService.getDutyRateForPeriod(request.enrolmentVpdId, request.periodKey).flatMap {
       case Some(dutyRate) => Future.successful(dutyRate)
-      case None => Future.failed(RuntimeException("No duty rate found"))
+      case None           => Future.failed(RuntimeException("No duty rate found"))
     }
   }
 }
