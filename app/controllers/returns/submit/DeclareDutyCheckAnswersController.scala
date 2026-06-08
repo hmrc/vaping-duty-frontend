@@ -18,7 +18,6 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import models.identifiers.VpdId
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ObligationService
@@ -41,10 +40,7 @@ class DeclareDutyCheckAnswersController @Inject()(
 )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
-    obligationService.getDutyRateForPeriod(
-      VpdId(request.userAnswers.vpdId),
-      request.periodKey
-    ).map { dutyRateOpt =>
+    obligationService.getDutyRateForPeriod(request.enrolmentVpdId, request.periodKey).map { dutyRateOpt =>
       val dutyRate = dutyRateOpt.getOrElse(BigDecimal(0))
       val vm = DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, request.periodKey)
       Ok(view(request.periodKey, vm))
