@@ -17,8 +17,7 @@
 package controllers.returns.submit
 
 import base.SpecBase
-import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse, ObligationStatus}
+import models.obligations.ObligationsResponse
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -30,7 +29,6 @@ import services.returns.{ObligationService, ReturnsUserAnswersService}
 import viewmodels.returns.submit.BeforeYouStartViewModel
 import views.html.returns.submit.BeforeYouStartView
 
-import java.time.LocalDate
 import scala.concurrent.Future
 
 class BeforeYouStartControllerSpec extends SpecBase {

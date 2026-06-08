@@ -20,12 +20,10 @@ import base.{SpecBase, UnitSpec}
 import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
 import models.returns.AdjustmentsEligibility
-import utils.ReturnsDateUtils.getYear
 import viewmodels.returns.submit.BeforeYouStartViewModel
 
-import java.time.LocalDate
+import java.time.{LocalDate, Month}
 import java.time.format.TextStyle
-import java.time.{Month, Year}
 import java.util.Locale
 
 
