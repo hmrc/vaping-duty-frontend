@@ -16,6 +16,7 @@
 
 @import views.html.components.*
 @import viewmodels.returns.submit.TaskListPageViewModel
+@import play.twirl.api.Html
 
 @this(
     layout: templates.ReturnsLayout,
@@ -31,7 +32,10 @@
   @caption(messages("returns.taskList.caption", vm.returnPeriod, vm.year, vm.monthLength))
     @h1(messages("returns.taskList.heading"))
 
-    @p(Seq(messages("returns.taskList.bodyL", vm.dueDate, vm.year.toString)), classes = "govuk-body-l")
+    @* Using raw HTML here to correctly render nbsp. *@
+
+    <p class="govuk-body-l">@Html(messages("returns.taskList.bodyL", vm.dueDate, vm.year.toString))</p>
+
     @p(Seq(messages("returns.taskList.body")))
 
     @vm.sections.map { section =>
