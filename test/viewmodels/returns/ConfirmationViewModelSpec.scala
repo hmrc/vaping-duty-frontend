@@ -25,7 +25,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
   
   "ConfirmationViewModel" - {
 
-    val monthMessage = ReturnsDateUtils.getCurrentMonthMessage(ReturnsDateUtils.month)
+    val monthMessage = ReturnsDateUtils.getMonthMessage(ReturnsDateUtils.month)
     val viewReturnUrl = controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url
     val dutyDue = BigDecimal("300")
     

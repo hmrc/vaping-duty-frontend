@@ -31,19 +31,19 @@ object ReturnsDateUtils {
     val isLeapYear = Year.of(getYear).isLeap
     month.length(isLeapYear)
     
-  def getReturnPeriod(month: Month)(implicit messages: Messages): String = {
-      getCurrentMonthMessage(month)
+  def getReturnMonth(month: Month)(implicit messages: Messages): String = {
+      getMonthMessage(month)
     }
 
   def getDueDate(month: Month)(implicit messages: Messages): String = {
-      getCurrentMonthMessage(month.plus(1))
-    }
+      getMonthMessage(month)
+  }
 
   def getCurrentDay(implicit messages: Messages): String = {
     LocalDate.now().getDayOfMonth.toString
   }
 
-  def getCurrentMonthMessage(month: Month)(implicit messages: Messages): String =
+  def getMonthMessage(month: Month)(implicit messages: Messages): String =
     month match {
       case Month.JANUARY => messages("month.jan")
       case Month.FEBRUARY => messages("month.feb")
