@@ -152,7 +152,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
     val receiptTime = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("hh:mma"))
 
-    val monthYearString = s"${getCurrentMonthMessage(monthFromLocalDate)} $year"
+    val monthYearString = s"${getMonthMessage(monthFromLocalDate)} $year"
     val submittedOnString = s"$submittedOnDay $submittedOnMonth $year ${messages("viewIndividualReturn.chargeDetails.at")} $receiptTime"
 
     ViewIndividualReturnViewModel(
