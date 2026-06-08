@@ -36,7 +36,6 @@ import scala.concurrent.Future
 
 class TaskListControllerSpec extends SpecBase with MockitoSugar {
 
-  private val testPeriodKey = "24AC"
   private val testFromDate = LocalDate.of(2024, 10, 1)
   private val testToDate = LocalDate.of(2024, 10, 31)
   private val testDueDate = LocalDate.of(2024, 11, 30)
@@ -50,7 +49,7 @@ class TaskListControllerSpec extends SpecBase with MockitoSugar {
         iCToDate = testToDate,
         iCDateReceived = None,
         iCDueDate = testDueDate,
-        periodKey = testPeriodKey
+        periodKey = periodKey.value
       )
     )
   }
@@ -77,7 +76,7 @@ class TaskListControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          TaskListPageViewModel(returnsUserAnswers, Seq(fulfilledObligation))
+          TaskListPageViewModel(returnsUserAnswers, Seq(fulfilledObligation), periodKey)
         )(request).toString
       }
     }
@@ -92,7 +91,7 @@ class TaskListControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockRepository.set(any())(using any()))
         .thenReturn(Future.successful(Right(HttpResponse(OK))))
-      
+
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].toInstance(mockObligationService))
         .overrides(bind[ReturnsUserAnswersService].toInstance(mockRepository))
@@ -107,7 +106,7 @@ class TaskListControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          TaskListPageViewModel(returnsUserAnswers, Seq(openObligation))
+          TaskListPageViewModel(returnsUserAnswers, Seq(openObligation), periodKey)
         )(request).toString
       }
     }

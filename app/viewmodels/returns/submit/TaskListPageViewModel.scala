@@ -16,6 +16,7 @@
 
 package viewmodels.returns.submit
 
+import models.identifiers.PeriodKey
 import models.obligations.ObligationItem
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import play.api.i18n.Messages
@@ -31,16 +32,23 @@ case class TaskListPageViewModel(
 
 object TaskListPageViewModel {
 
-  def apply(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationItem])(implicit messages: Messages): TaskListPageViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationItem], periodKey: PeriodKey)(implicit messages: Messages): TaskListPageViewModel = {
     
     val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations)
-    
+
+    val currentObligation = obligations
+      .find(obligation => obligation.obligationDetails.periodKey == periodKey.toString)
+      // scalafix:off DisableSyntax.throw
+      .getOrElse(throw new IllegalStateException(s"No obligation found for period key: ${periodKey.toString}."))
+
+    val monthOfObligation = currentObligation.obligationDetails.iCFromDate.getMonth
+
     TaskListPageViewModel(
       sections     = TaskList.sections(userAnswers, adjustmentsEligibility),
-      returnPeriod = getReturnPeriod(month),
+      returnPeriod = getReturnPeriod(monthOfObligation),
       year         = getYear.toString,
-      dueDate      = getDueDate(month),
-      monthLength  = getMonthLength(month)
+      dueDate      = getDueDate(monthOfObligation),
+      monthLength  = getMonthLength(monthOfObligation)
     )
   }
 }
