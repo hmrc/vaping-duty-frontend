@@ -20,7 +20,7 @@ import base.SpecBase
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, verify, when}
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.DeclareSpoiltProductsPage
@@ -72,6 +72,7 @@ class TaskListPreparationServiceSpec extends SpecBase with MockitoSugar with Bef
 
         result.get(DeclareSpoiltProductsPage) mustBe Some(false)
         result mustBe answersWithFalse
+        verify(mockRepository, times(0)).set(any())(any())
       }
     }
 
@@ -82,6 +83,7 @@ class TaskListPreparationServiceSpec extends SpecBase with MockitoSugar with Bef
 
         result mustBe emptyAnswers
         result.get(DeclareSpoiltProductsPage) mustBe None
+        verify(mockRepository, times(0)).set(any())(any())
       }
 
       "must return answers unchanged when answered true" in {
@@ -91,6 +93,7 @@ class TaskListPreparationServiceSpec extends SpecBase with MockitoSugar with Bef
 
         result mustBe answersWithTrue
         result.get(DeclareSpoiltProductsPage) mustBe Some(true)
+        verify(mockRepository, times(0)).set(any())(any())
       }
 
       "must return answers unchanged when answered false" in {
@@ -100,6 +103,7 @@ class TaskListPreparationServiceSpec extends SpecBase with MockitoSugar with Bef
 
         result mustBe answersWithFalse
         result.get(DeclareSpoiltProductsPage) mustBe Some(false)
+        verify(mockRepository, times(0)).set(any())(any())
       }
     }
   }
