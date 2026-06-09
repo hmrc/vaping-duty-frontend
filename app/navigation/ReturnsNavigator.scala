@@ -44,6 +44,7 @@ class ReturnsNavigator @Inject()(
     case DeclareSpoiltProductsPage => ua  => declareSpoiltProductsPageRoutes(ua, periodKey)
     case AddSpoiltAdjustmentPage   => ua  => addSpoiltAdjustmentPageRoutes(ua, periodKey)
     case SpoiltVolumeByPeriodPage  => _   => withPeriod(controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode), periodKey)
+    case DeclarationPage           => _   => withPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad(), periodKey)
     case _                         => _   => Call(GET, BtaLink(config))
   }
 

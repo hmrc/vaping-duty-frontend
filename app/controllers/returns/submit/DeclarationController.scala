@@ -19,7 +19,9 @@ package controllers.returns.submit
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import forms.returns.DeclarationFormProvider
+import models.NormalMode
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
+import navigation.ReturnsNavigator
 import pages.returns.DeclarationPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -42,7 +44,8 @@ class DeclarationController @Inject()(
                                        submitReturnService: SubmitReturnService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: DeclarationView,
-                                       userAnswersService: ReturnsUserAnswersService,
+                                       navigator: ReturnsNavigator,
+                                       userAnswersService: ReturnsUserAnswersService
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[DeclarationDetails] = formProvider()
@@ -70,7 +73,7 @@ class DeclarationController @Inject()(
             _              <- sessionRepository.set(updatedAnswers)
             _              <- submitReturnService.submit(updatedAnswers)
             _              <- userAnswersService.clear(request.enrolmentVpdId, request.periodKey)
-          } yield Redirect(controllers.returns.submit.routes.ConfirmationController.onPageLoad().url + s"?period=${request.periodKey}")
+          } yield Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers))
       )
   }
 }

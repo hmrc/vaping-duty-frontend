@@ -329,21 +329,20 @@ returns.confirmation.inset.youHave = You have nothing to pay for this return per
 
 returns.declaration.title = Declaration
 returns.declaration.heading = Declaration
-returns.declaration.caption = Vaping Products Duty return
 returns.declaration.authorised = I am authorised to submit this return.
 returns.declaration.fullName.label = Your full name
 returns.declaration.capacity.label = Capacity in which signed, for example, proprietor, director
-returns.declaration.emailAddress.label = Business email address
+returns.declaration.emailAddress.label = Your business email address
 returns.declaration.bySubmitting = By submitting this return, you are confirming that the details you are providing are correct.
 returns.declaration.makingFalse = Making a false declaration carries serious consequences, such as a financial penalty.
 returns.declaration.button = Confirm and submit
 
 returns.declaration.fullName.error.required = Enter your full name
-returns.declaration.fullName.error.length = Full name must be 255 characters or fewer
+returns.declaration.fullName.error.length = Full name must be 120 characters or fewer
 returns.declaration.capacity.error.required = Enter your role in the company, for example, proprietor, director
-returns.declaration.capacity.error.length = Capacity must be 255 characters or fewer
+returns.declaration.capacity.error.length = Capacity must be 100 characters or fewer
 returns.declaration.emailAddress.error.required = Enter your business email address
-returns.declaration.emailAddress.error.length = Email address must be 254 characters or fewer
+returns.declaration.emailAddress.error.length = Email address must be 132 characters or fewer
 returns.declaration.emailAddress.error.format = Enter an email address in the correct format, like name@example.com
 
 returns.overview.title = Your Vaping Products Duty returns
