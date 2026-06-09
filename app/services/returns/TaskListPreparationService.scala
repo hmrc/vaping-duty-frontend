@@ -30,9 +30,27 @@ class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService
                           adjustmentsEligibility: AdjustmentsEligibility
                         )(using HeaderCarrier): Future[ReturnsUserAnswers] = {
 
+    val updatedUa = updateUserAnswers(userAnswers, adjustmentsEligibility)
+
+    storeUserAnswersIfChanged(userAnswers, updatedUa)
+  }
+
+  def storeUserAnswersIfChanged(userAnswers: ReturnsUserAnswers,
+                                updatedUa: Future[ReturnsUserAnswers])(using HeaderCarrier) = {
+    updatedUa.flatMap((uua: ReturnsUserAnswers) =>
+      if (uua != userAnswers)
+        repository.set(uua).map(_ => uua)
+      else
+        Future.successful(userAnswers)
+    )
+  }
+
+  def updateUserAnswers(userAnswers: ReturnsUserAnswers,
+                        adjustmentsEligibility: AdjustmentsEligibility)
+                       (using HeaderCarrier): Future[ReturnsUserAnswers] = {
     adjustmentsEligibility match {
       case AdjustmentsEligibility.NotEligible => autoSetDeclareSpoiltProducts(userAnswers, answer = false)
-      case AdjustmentsEligibility.Eligible    => Future.successful(userAnswers)
+      case AdjustmentsEligibility.Eligible => Future.successful(userAnswers)
     }
   }
 
@@ -45,8 +63,8 @@ class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService
       case Some(value) if value == answer => Future.successful(userAnswers)
       case _ =>
         userAnswers.set(DeclareSpoiltProductsPage, answer).fold(
-          _   => Future.successful(userAnswers),
-          ua  => repository.set(ua).map(_ => ua)
+          _ => Future.successful(userAnswers),
+          ua => Future.successful(ua)
         )
     }
   }
