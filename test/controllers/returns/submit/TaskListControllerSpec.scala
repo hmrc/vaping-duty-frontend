@@ -17,15 +17,17 @@
 package controllers.returns.submit
 
 import base.SpecBase
-import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse, ObligationStatus}
+import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
+import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.ObligationService
+import services.returns.{ObligationService, ReturnsUserAnswersService}
 import viewmodels.returns.submit.TaskListPageViewModel
 import views.html.returns.submit.TaskListView
 
@@ -39,7 +41,7 @@ class TaskListControllerSpec extends SpecBase with MockitoSugar {
   private val testToDate = LocalDate.of(2024, 10, 31)
   private val testDueDate = LocalDate.of(2024, 11, 30)
 
-  private def createObligation(status: ObligationStatus): ObligationItem = 
+  private def createObligation(status: ObligationStatus): ObligationItem = {
     ObligationItem(
       identification = None,
       obligationDetails = ObligationDetails(
@@ -51,6 +53,7 @@ class TaskListControllerSpec extends SpecBase with MockitoSugar {
         periodKey = testPeriodKey
       )
     )
+  }
 
   "TaskList Controller" - {
 
@@ -81,13 +84,18 @@ class TaskListControllerSpec extends SpecBase with MockitoSugar {
     
     "must return OK and the correct view for a GET with no fulfilled obligations" in {
       val mockObligationService = mock[ObligationService]
+      val mockRepository = mock[ReturnsUserAnswersService]
       val openObligation = createObligation(ObligationStatus.O)
       
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(ObligationsResponse(Seq(openObligation))))
+
+      when(mockRepository.set(any())(using any()))
+        .thenReturn(Future.successful(Right(HttpResponse(OK))))
       
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(bind[ReturnsUserAnswersService].toInstance(mockRepository))
         .build()
       
       given Messages = messages(application)
