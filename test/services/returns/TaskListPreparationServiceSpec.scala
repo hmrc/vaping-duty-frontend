@@ -107,4 +107,58 @@ class TaskListPreparationServiceSpec extends SpecBase with MockitoSugar with Bef
       }
     }
   }
+
+  "updateUserAnswers" - {
+
+    "when it is the user's first return and they are not eligible for adjustments" - {
+
+      "must set DeclareSpoiltProductsPage to false when not answered" in {
+        val result = TaskListPreparationService.updateUserAnswers(emptyAnswers, AdjustmentsEligibility.NotEligible)
+
+        result.get(DeclareSpoiltProductsPage) mustBe Some(false)
+      }
+
+      "must set DeclareSpoiltProductsPage to false when answered true" in {
+        val answersWithTrue = emptyAnswers.set(DeclareSpoiltProductsPage, true).success.value
+
+        val result = TaskListPreparationService.updateUserAnswers(answersWithTrue, AdjustmentsEligibility.NotEligible)
+
+        result.get(DeclareSpoiltProductsPage) mustBe Some(false)
+      }
+
+      "must not update DeclareSpoiltProductsPage when already false" in {
+        val answersWithFalse = emptyAnswers.set(DeclareSpoiltProductsPage, false).success.value
+
+        val result = TaskListPreparationService.updateUserAnswers(answersWithFalse, AdjustmentsEligibility.NotEligible)
+
+        result mustBe answersWithFalse
+      }
+    }
+
+    "when it is not the user's first return and they are eligible for adjustments" - {
+
+      "must return answers unchanged when not answered" in {
+        val result = TaskListPreparationService.updateUserAnswers(emptyAnswers, AdjustmentsEligibility.Eligible)
+
+        result mustBe emptyAnswers
+      }
+
+      "must return answers unchanged when answered true" in {
+        val answersWithTrue = emptyAnswers.set(DeclareSpoiltProductsPage, true).success.value
+
+        val result = TaskListPreparationService.updateUserAnswers(answersWithTrue, AdjustmentsEligibility.Eligible)
+
+        result mustBe answersWithTrue
+      }
+
+      "must return answers unchanged when answered false" in {
+        val answersWithFalse = emptyAnswers.set(DeclareSpoiltProductsPage, false).success.value
+
+        val result = TaskListPreparationService.updateUserAnswers(answersWithFalse, AdjustmentsEligibility.Eligible)
+
+        result mustBe answersWithFalse
+      }
+    }
+  }
+
 }

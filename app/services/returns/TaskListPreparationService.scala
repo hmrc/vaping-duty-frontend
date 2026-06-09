@@ -30,7 +30,7 @@ class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService
                           adjustmentsEligibility: AdjustmentsEligibility
                         )(using HeaderCarrier): Future[ReturnsUserAnswers] = {
 
-    val updatedUa = updateUserAnswers(userAnswers, adjustmentsEligibility)
+    val updatedUa = TaskListPreparationService.updateUserAnswers(userAnswers, adjustmentsEligibility)
 
     storeUserAnswersIfChanged(userAnswers, updatedUa)
   }
@@ -42,6 +42,10 @@ class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService
     else
       Future.successful(userAnswers)
   }
+
+}
+
+object TaskListPreparationService {
 
   def updateUserAnswers(userAnswers: ReturnsUserAnswers,
                         adjustmentsEligibility: AdjustmentsEligibility)
@@ -56,7 +60,6 @@ class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService
                                             userAnswers: ReturnsUserAnswers,
                                             answer: Boolean
                                           )(using HeaderCarrier): ReturnsUserAnswers = {
-
     userAnswers.get(DeclareSpoiltProductsPage) match {
       case Some(value) if value == answer => userAnswers
       case _ =>
@@ -66,4 +69,5 @@ class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService
         )
     }
   }
+
 }
