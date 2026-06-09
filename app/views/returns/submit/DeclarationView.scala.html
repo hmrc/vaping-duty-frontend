@@ -61,8 +61,7 @@
             InputViewModel(
                 field = form("signeesEmailAddress"),
                 label = LabelViewModel(messages("returns.declaration.emailAddress.label"))
-            )
-            .withAutocomplete("email")
+            ).asEmail()
         )
 
         @p(Seq(messages("returns.declaration.bySubmitting")))
