@@ -18,8 +18,8 @@ package services.returns
 
 import base.SpecBase
 import models.TaskStatus
-import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers}
-import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage}
+import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
+import pages.returns.*
 
 class TaskStatusServiceSpec extends SpecBase {
 
@@ -77,6 +77,47 @@ class TaskStatusServiceSpec extends SpecBase {
       val result = TaskStatusService.declareDutyTaskStatus(answers)
       result mustBe TaskStatus.Completed
     }
+
+    "must return Completed when DeclareDutySuspensePage is false" in {
+      val answers = emptyAnswers
+        .set(DeclareDutySuspensePage, false)
+        .success
+        .value
+
+      val result = TaskStatusService.dutySuspenseTaskStatus(answers)
+      result mustBe TaskStatus.Completed
+    }
+
+    "must return Completed when DeclareDutySuspensePage is true" in {
+      val answers = emptyAnswers
+        .set(DeclareDutySuspensePage, true)
+        .success
+        .value
+
+      val result = TaskStatusService.dutySuspenseTaskStatus(answers)
+      result mustBe TaskStatus.InProgress
+    }
+
+    "must return InProgress when DeclareSpoiltProductsPage is true" in {
+      val answers = emptyAnswers
+        .set(DeclareSpoiltProductsPage, true)
+        .success
+        .value
+
+      val result = TaskStatusService.declareSpoiltProductsTaskStatus(answers)
+      result mustBe TaskStatus.InProgress
+    }
+
+    "must return Completed when DeclareSpoiltProductsPage is true and SpoiltVolumeByPeriodPage has values" in {
+      val answers = emptyAnswers
+        .set(DeclareSpoiltProductsPage, true)
+        .flatMap(_.set(SpoiltVolumeByPeriodPage, List(SpoiltVolumeByPeriod(1000, periodKey))))
+        .success
+        .value
+
+      val result = TaskStatusService.declareSpoiltProductsTaskStatus(answers)
+      result mustBe TaskStatus.Completed
+    }
   }
 
   "allTasksCompleted" - {
@@ -102,7 +143,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .flatMap(_.set(EnterDutyAmountPage, 1000))
         .flatMap(_.set(DeclareDutySuspensePage, true))
         .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
-        .flatMap(_.set(DeclareSpoiltProductsPage, true))
+        .flatMap(_.set(DeclareSpoiltProductsPage, false))
         .success
         .value
 
@@ -134,7 +175,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .flatMap(_.set(EnterDutyAmountPage, 1000))
         .flatMap(_.set(DeclareDutySuspensePage, true))
         .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
-        .flatMap(_.set(DeclareSpoiltProductsPage, true))
+        .flatMap(_.set(DeclareSpoiltProductsPage, false))
         .success
         .value
 

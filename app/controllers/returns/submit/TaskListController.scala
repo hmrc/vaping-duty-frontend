@@ -18,9 +18,10 @@ package controllers.returns.submit
 
 import controllers.actions.*
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import models.returns.AdjustmentsEligibility
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.ObligationService
+import services.returns.{ObligationService, TaskListPreparationService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.TaskListPageViewModel
 import views.html.returns.submit.TaskListView
@@ -35,14 +36,19 @@ class TaskListController @Inject()(
                                     requireData: ReturnsDataRequiredAction,
                                     returnsEnabledAction: ReturnsEnabledAction,
                                     obligationService: ObligationService,
+                                    preparationService: TaskListPreparationService,
                                     val controllerComponents: MessagesControllerComponents,
                                     view: TaskListView
                                   )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-      obligationService.getObligations(request.enrolmentVpdId).map { obligations =>
-        Ok(view(TaskListPageViewModel(request.userAnswers, obligations.obligation)))
+      obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
+        val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations.obligation)
+        
+        preparationService.prepareUserAnswers(request.userAnswers, adjustmentsEligibility).map { updatedAnswers =>
+          Ok(view(TaskListPageViewModel(updatedAnswers, obligations.obligation)))
+        }
       }
   }
 }

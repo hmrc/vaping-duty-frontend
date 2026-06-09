@@ -18,16 +18,16 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import models.identifiers.VpdId
+import models.requests.returns.ReturnsDataRequest
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{ObligationService, SubmitReturnService}
+import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourAnswersController @Inject()(
                                        override val messagesApi: MessagesApi,
@@ -37,24 +37,33 @@ class CheckYourAnswersController @Inject()(
                                        returnsEnabled: ReturnsEnabledAction,
                                        submitReturnService: SubmitReturnService,
                                        obligationService: ObligationService,
+                                       userAnswersService: ReturnsUserAnswersService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: CheckYourAnswersView
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
-    obligationService.getDutyRateForPeriod(
-      VpdId(request.userAnswers.vpdId),
-      request.periodKey
-    ).map { dutyRateOpt =>
-      val dutyRate = dutyRateOpt.getOrElse(BigDecimal(0))
+    getDutyRate(obligationService).map { dutyRate =>
       val vm = CheckYourAnswersViewModel(request.userAnswers, dutyRate, request.periodKey)
       Ok(view(request.periodKey, vm))
     }
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
+
     submitReturnService.submit(request.userAnswers).map { response =>
-      Redirect(controllers.returns.submit.routes.ConfirmationController.onPageLoad().url + s"?period=${request.periodKey}")
+
+      userAnswersService.clear(request.enrolmentVpdId, request.periodKey)
+
+      Redirect(s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${request.periodKey}")
+
     }.recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+  }
+
+  private def getDutyRate(obligationService: ObligationService)(using request: ReturnsDataRequest[?]) = {
+    obligationService.getDutyRateForPeriod(request.enrolmentVpdId, request.periodKey).flatMap {
+      case Some(dutyRate) => Future.successful(dutyRate)
+      case None           => Future.failed(RuntimeException("No duty rate found"))
+    }
   }
 }

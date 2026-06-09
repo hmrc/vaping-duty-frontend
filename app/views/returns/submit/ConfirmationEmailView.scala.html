@@ -34,7 +34,7 @@
 
 @dynamicContent = { @vm.content }
 
-@layout(pageTitle = titleNoForm(messages("returns.confirmation.title"))) {
+@layout(pageTitle = titleNoForm(messages("returns.confirmation.title")), showBackLink = false) {
     @govukPanel(Panel(
         title = Text(messages("returns.confirmation.panel.title")),
         content = HtmlContent(
