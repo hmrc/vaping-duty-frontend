@@ -33,7 +33,7 @@ object TaskList {
         case AdjustmentsEligibility.NotEligible => None
       },
       Some(dutySuspendedSection(userAnswers, periodKey)),
-      Some(submissionSection(userAnswers, periodKey, adjustmentsEligibility))
+      Some(submissionSection(userAnswers, periodKey))
     ).flatten
   }
 
@@ -91,7 +91,7 @@ object TaskList {
     )
   }
 
-  def submissionSection(userAnswers: ReturnsUserAnswers, periodKey: String, adjustmentsEligibility: AdjustmentsEligibility)(implicit messages: Messages): TaskListSection = {
+  def submissionSection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
       headingKey = "returns.taskList.section.submitReturn.heading",
       rows = Seq(
@@ -99,7 +99,7 @@ object TaskList {
           id = "submit",
           linkText = messages("returns.taskList.submitReturn.task1"),
           link = controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(),
-          status = TaskStatusService.submitTaskStatus(userAnswers, adjustmentsEligibility),
+          status = TaskStatusService.submitTaskStatus(userAnswers),
           hint = Some(messages("returns.taskList.submitReturn.task1.hint")),
           periodKey = Some(periodKey)
         ).toTaskListItem

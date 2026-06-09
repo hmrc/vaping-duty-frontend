@@ -17,8 +17,8 @@
 package services.returns
 
 import models.TaskStatus
-import models.returns.{AdjustmentsEligibility, DutySuspenseVolumes, ReturnsUserAnswers}
-import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage}
+import models.returns.ReturnsUserAnswers
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
 
 object TaskStatusService {
 
@@ -33,32 +33,30 @@ object TaskStatusService {
 
   def dutySuspenseTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
     (answers.get(DeclareDutySuspensePage), answers.get(EnterDutySuspensePage)) match {
-      case (None, _) => TaskStatus.NotStarted
-      case (Some(false), _) => TaskStatus.Completed
-      case (Some(true), None) => TaskStatus.InProgress
-      case (Some(true), Some(_)) => TaskStatus.Completed
+      case (None, _)              => TaskStatus.NotStarted
+      case (Some(false), _)       => TaskStatus.Completed
+      case (Some(true), None)     => TaskStatus.InProgress
+      case (Some(true), Some(_))  => TaskStatus.Completed
     }
   }
 
   def declareSpoiltProductsTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
-    answers.get(DeclareSpoiltProductsPage) match {
-      case None    => TaskStatus.NotStarted
-      case Some(_) => TaskStatus.Completed
+    (answers.get(DeclareSpoiltProductsPage), answers.get(SpoiltVolumeByPeriodPage)) match {
+      case (None, _)             => TaskStatus.NotStarted
+      case (Some(false), _)      => TaskStatus.Completed
+      case (Some(true), None)    => TaskStatus.InProgress
+      case (Some(true), Some(_)) => TaskStatus.Completed
     }
   }
 
-  def allTasksCompleted(answers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility): Boolean = {
-    val spoiltTaskComplete = adjustmentsEligibility match {
-      case AdjustmentsEligibility.NotEligible => true
-      case AdjustmentsEligibility.Eligible    => declareSpoiltProductsTaskStatus(answers) == TaskStatus.Completed
-    }
-    
+  def allTasksCompleted(answers: ReturnsUserAnswers): Boolean = {
     declareDutyTaskStatus(answers) == TaskStatus.Completed &&
-    spoiltTaskComplete && dutySuspenseTaskStatus(answers) == TaskStatus.Completed
+    declareSpoiltProductsTaskStatus(answers) == TaskStatus.Completed &&
+    dutySuspenseTaskStatus(answers) == TaskStatus.Completed
   }
 
-  def submitTaskStatus(answers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility): TaskStatus = {
-    if (allTasksCompleted(answers, adjustmentsEligibility)) TaskStatus.NotStarted
+  def submitTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
+    if (allTasksCompleted(answers)) TaskStatus.NotStarted
     else TaskStatus.TasksRemaining
   }
 }
