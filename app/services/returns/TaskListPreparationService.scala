@@ -63,10 +63,8 @@ object TaskListPreparationService {
     userAnswers.get(DeclareSpoiltProductsPage) match {
       case Some(value) if value == answer => userAnswers
       case _ =>
-        userAnswers.set(DeclareSpoiltProductsPage, answer).fold(
-          _  => userAnswers,  // Failure to marshall to JSON, unlikely to happen
-          ua => ua
-        )
+        userAnswers.set(DeclareSpoiltProductsPage, answer)
+          .getOrElse(userAnswers)   // Failure to marshall to JSON, unlikely to happen
     }
   }
 
