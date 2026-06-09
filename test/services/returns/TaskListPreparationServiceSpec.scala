@@ -19,7 +19,7 @@ package services.returns
 import base.SpecBase
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import org.apache.pekko.http.scaladsl.model.HttpResponse
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
@@ -42,67 +42,27 @@ class TaskListPreparationServiceSpec extends SpecBase with MockitoSugar with Bef
 
   override def beforeEach(): Unit = reset(mockRepository)
 
-  "prepareUserAnswers" - {
+  "storeUserAnswersIfChanged" - {
 
     "when user is not eligible for adjustments" - {
 
-      "must set DeclareSpoiltProductsPage to false when not answered" in {
+      "must update user answers when changed" in {
         when(mockRepository.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
 
-        val result = service.prepareUserAnswers(emptyAnswers, AdjustmentsEligibility.NotEligible).futureValue
+        val changedAnswers = emptyAnswers.set(DeclareSpoiltProductsPage, true).success.value
 
-        result.get(DeclareSpoiltProductsPage) mustBe Some(false)
-        verify(mockRepository).set(any())(any())
+        val result = service.storeUserAnswersIfChanged(emptyAnswers, changedAnswers).futureValue
+
+        verify(mockRepository).set(eqTo(changedAnswers))(any())
       }
 
-      "must set DeclareSpoiltProductsPage to false when answered true" in {
-        val answersWithTrue = emptyAnswers.set(DeclareSpoiltProductsPage, true).success.value
+      "must not update user answers when not changed" in {
         when(mockRepository.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
 
-        val result = service.prepareUserAnswers(answersWithTrue, AdjustmentsEligibility.NotEligible).futureValue
+        val changedAnswers = emptyAnswers.set(DeclareSpoiltProductsPage, true).success.value
 
-        result.get(DeclareSpoiltProductsPage) mustBe Some(false)
-        verify(mockRepository).set(any())(any())
-      }
+        val result = service.storeUserAnswersIfChanged(emptyAnswers, emptyAnswers).futureValue
 
-      "must not update DeclareSpoiltProductsPage when already false" in {
-        val answersWithFalse = emptyAnswers.set(DeclareSpoiltProductsPage, false).success.value
-
-        val result = service.prepareUserAnswers(answersWithFalse, AdjustmentsEligibility.NotEligible).futureValue
-
-        result.get(DeclareSpoiltProductsPage) mustBe Some(false)
-        result mustBe answersWithFalse
-        verify(mockRepository, times(0)).set(any())(any())
-      }
-    }
-
-    "when user is eligible for adjustments" - {
-
-      "must return answers unchanged when not answered" in {
-        val result = service.prepareUserAnswers(emptyAnswers, AdjustmentsEligibility.Eligible).futureValue
-
-        result mustBe emptyAnswers
-        result.get(DeclareSpoiltProductsPage) mustBe None
-        verify(mockRepository, times(0)).set(any())(any())
-      }
-
-      "must return answers unchanged when answered true" in {
-        val answersWithTrue = emptyAnswers.set(DeclareSpoiltProductsPage, true).success.value
-
-        val result = service.prepareUserAnswers(answersWithTrue, AdjustmentsEligibility.Eligible).futureValue
-
-        result mustBe answersWithTrue
-        result.get(DeclareSpoiltProductsPage) mustBe Some(true)
-        verify(mockRepository, times(0)).set(any())(any())
-      }
-
-      "must return answers unchanged when answered false" in {
-        val answersWithFalse = emptyAnswers.set(DeclareSpoiltProductsPage, false).success.value
-
-        val result = service.prepareUserAnswers(answersWithFalse, AdjustmentsEligibility.Eligible).futureValue
-
-        result mustBe answersWithFalse
-        result.get(DeclareSpoiltProductsPage) mustBe Some(false)
         verify(mockRepository, times(0)).set(any())(any())
       }
     }
