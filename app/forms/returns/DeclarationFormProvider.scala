@@ -32,14 +32,14 @@ class DeclarationFormProvider @Inject() extends Mappings {
   def apply(): Form[DeclarationDetails] =
     Form(
       mapping(
-        FULL_NAME_FIELD -> text("returns.declaration.fullName.error.required")
-          .verifying(maxLength(255, "returns.declaration.fullName.error.length")),
+        FULL_NAME_FIELD -> textWithSpaces("returns.declaration.fullName.error.required")
+          .verifying(maxLength(120, "returns.declaration.fullName.error.length")),
         
-        CAPACITY_FIELD -> text("returns.declaration.capacity.error.required")
-          .verifying(maxLength(255, "returns.declaration.capacity.error.length")),
+        CAPACITY_FIELD -> textWithSpaces("returns.declaration.capacity.error.required")
+          .verifying(maxLength(100, "returns.declaration.capacity.error.length")),
         
         EMAIL_FIELD -> text("returns.declaration.emailAddress.error.required")
-          .verifying(maxLength(254, "returns.declaration.emailAddress.error.length"))
+          .verifying(maxLength(132, "returns.declaration.emailAddress.error.length"))
           .verifying(email("returns.declaration.emailAddress.error.format"))
       )((fullName, capacityInWhichSigned, signeesEmailAddress) => 
         DeclarationDetails(fullName, capacityInWhichSigned, signeesEmailAddress))(o => Some((o.fullName, o.capacityInWhichSigned, o.signeesEmailAddress)))

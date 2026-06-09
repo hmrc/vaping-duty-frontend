@@ -19,7 +19,7 @@ package controllers.returns.submit
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import forms.returns.DeclarationFormProvider
-import models.returns.DeclarationDetails
+import models.returns.{DeclarationDetails, ReturnsUserAnswers}
 import pages.returns.DeclarationPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}

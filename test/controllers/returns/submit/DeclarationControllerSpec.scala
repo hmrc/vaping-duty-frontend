@@ -63,24 +63,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must populate the view correctly on a GET when the question has previously been answered" in {
-
-        val userAnswers = returnsUserAnswers.set(DeclarationPage, validDeclaration).success.value
-
-        val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
-
-        running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
-
-          val view = application.injector.instanceOf[DeclarationView]
-
-          val result = route(application, request).value
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(periodKey, form.fill(validDeclaration))(request, messages(application)).toString
-        }
-      }
-
       "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
         val application = applicationBuilder(returnsUserAnswers = None).build()

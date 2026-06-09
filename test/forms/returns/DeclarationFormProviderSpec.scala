@@ -16,10 +16,12 @@
 
 package forms.returns
 
-import forms.behaviours.StringFieldBehaviours
+import forms.FormSpec
+import forms.mappings.Constraints
+import models.returns.DeclarationDetails
 import play.api.data.FormError
 
-class DeclarationFormProviderSpec extends StringFieldBehaviours {
+class DeclarationFormProviderSpec extends FormSpec with Constraints {
 
   private val form = new DeclarationFormProvider()()
 
@@ -33,52 +35,90 @@ class DeclarationFormProviderSpec extends StringFieldBehaviours {
 
       val requiredKey = "returns.declaration.fullName.error.required"
       val lengthKey = "returns.declaration.fullName.error.length"
-      val maxLength = 255
+      val maxLength = 120
 
-      behave like fieldThatBindsValidData(
-        form,
-        FULL_NAME_FIELD,
-        "John Smith"
-      )
+      "must bind valid data" in {
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> "John Smith",
+          CAPACITY_FIELD -> "Director",
+          EMAIL_FIELD -> "test@example.com"
+        ))
+        result.value.value mustEqual DeclarationDetails("John Smith", "Director", "test@example.com")
+      }
 
-      behave like fieldWithMaxLength(
-        form,
-        FULL_NAME_FIELD,
-        maxLength = maxLength,
-        lengthError = FormError(FULL_NAME_FIELD, lengthKey, Seq(maxLength))
-      )
+      "must fail to bind when value is omitted" in {
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> "",
+          CAPACITY_FIELD -> "Director",
+          EMAIL_FIELD -> "test@example.com"
+        ))
+        result.errors must contain(FormError(FULL_NAME_FIELD, requiredKey))
+      }
 
-      behave like mandatoryField(
-        form,
-        FULL_NAME_FIELD,
-        requiredError = FormError(FULL_NAME_FIELD, requiredKey)
-      )
+      "must fail to bind when value exceeds maximum length" in {
+        val tooLongName = "a" * (maxLength + 1)
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> tooLongName,
+          CAPACITY_FIELD -> "Director",
+          EMAIL_FIELD -> "test@example.com"
+        ))
+        result.errors must contain(FormError(FULL_NAME_FIELD, lengthKey, Seq(maxLength)))
+      }
+
+      "must bind maximum length value" in {
+        val maxLengthName = "a" * maxLength
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> maxLengthName,
+          CAPACITY_FIELD -> "Director",
+          EMAIL_FIELD -> "test@example.com"
+        ))
+        result.value.value mustEqual DeclarationDetails(maxLengthName, "Director", "test@example.com")
+      }
     }
 
     "capacityInWhichSigned field" - {
 
       val requiredKey = "returns.declaration.capacity.error.required"
       val lengthKey = "returns.declaration.capacity.error.length"
-      val maxLength = 255
+      val maxLength = 100
 
-      behave like fieldThatBindsValidData(
-        form,
-        CAPACITY_FIELD,
-        "Director"
-      )
+      "must bind valid data" in {
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> "John Smith",
+          CAPACITY_FIELD -> "Director",
+          EMAIL_FIELD -> "test@example.com"
+        ))
+        result.value.value mustEqual DeclarationDetails("John Smith", "Director", "test@example.com")
+      }
 
-      behave like fieldWithMaxLength(
-        form,
-        CAPACITY_FIELD,
-        maxLength = maxLength,
-        lengthError = FormError(CAPACITY_FIELD, lengthKey, Seq(maxLength))
-      )
+      "must fail to bind when value is omitted" in {
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> "John Smith",
+          CAPACITY_FIELD -> "",
+          EMAIL_FIELD -> "test@example.com"
+        ))
+        result.errors must contain(FormError(CAPACITY_FIELD, requiredKey))
+      }
 
-      behave like mandatoryField(
-        form,
-        CAPACITY_FIELD,
-        requiredError = FormError(CAPACITY_FIELD, requiredKey)
-      )
+      "must fail to bind when value exceeds maximum length" in {
+        val tooLongCapacity = "a" * (maxLength + 1)
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> "John Smith",
+          CAPACITY_FIELD -> tooLongCapacity,
+          EMAIL_FIELD -> "test@example.com"
+        ))
+        result.errors must contain(FormError(CAPACITY_FIELD, lengthKey, Seq(maxLength)))
+      }
+
+      "must bind maximum length value" in {
+        val maxLengthCapacity = "a" * maxLength
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> "John Smith",
+          CAPACITY_FIELD -> maxLengthCapacity,
+          EMAIL_FIELD -> "test@example.com"
+        ))
+        result.value.value mustEqual DeclarationDetails("John Smith", maxLengthCapacity, "test@example.com")
+      }
     }
 
     "signeesEmailAddress field" - {
@@ -86,43 +126,102 @@ class DeclarationFormProviderSpec extends StringFieldBehaviours {
       val requiredKey = "returns.declaration.emailAddress.error.required"
       val lengthKey = "returns.declaration.emailAddress.error.length"
       val formatKey = "returns.declaration.emailAddress.error.format"
-      val maxLength = 254
+      val maxLength = 132
 
-      behave like fieldThatBindsValidData(
-        form,
-        EMAIL_FIELD,
-        "test@example.com"
-      )
-
-      behave like fieldWithMaxLength(
-        form,
-        EMAIL_FIELD,
-        maxLength = maxLength,
-        lengthError = FormError(EMAIL_FIELD, lengthKey, Seq(maxLength))
-      )
-
-      behave like mandatoryField(
-        form,
-        EMAIL_FIELD,
-        requiredError = FormError(EMAIL_FIELD, requiredKey)
-      )
-
-      "must not bind invalid email addresses" in {
-        val result = form.bind(Map(
-          FULL_NAME_FIELD -> "John Smith",
-          CAPACITY_FIELD -> "Director",
-          EMAIL_FIELD -> "invalid-email"
-        ))
-        result.errors must contain(FormError(EMAIL_FIELD, formatKey))
-      }
-
-      "must bind valid email addresses" in {
+      "must bind valid data" in {
         val result = form.bind(Map(
           FULL_NAME_FIELD -> "John Smith",
           CAPACITY_FIELD -> "Director",
           EMAIL_FIELD -> "test@example.com"
         ))
-        result.errors mustBe empty
+        result.value.value mustEqual DeclarationDetails("John Smith", "Director", "test@example.com")
+      }
+
+      "must fail to bind when value is omitted" in {
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> "John Smith",
+          CAPACITY_FIELD -> "Director",
+          EMAIL_FIELD -> ""
+        ))
+        result.errors must contain(FormError(EMAIL_FIELD, requiredKey))
+      }
+
+      "must fail to bind when value exceeds maximum length" in {
+        val tooLongEmail = "a" * (maxLength + 1) + "@example.com"
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> "John Smith",
+          CAPACITY_FIELD -> "Director",
+          EMAIL_FIELD -> tooLongEmail
+        ))
+        result.errors must contain(FormError(EMAIL_FIELD, lengthKey, Seq(maxLength)))
+      }
+
+      "must fail to bind invalid email format" in {
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> "John Smith",
+          CAPACITY_FIELD -> "Director",
+          EMAIL_FIELD -> "invalid-email"
+        ))
+        result.errors must contain(FormError(EMAIL_FIELD, formatKey, Seq(emailRegex)))
+      }
+
+      "must bind valid email addresses with various formats" in {
+        val validEmails = Seq(
+          "test@example.com",
+          "user.name@example.co.uk",
+          "user+tag@example.com"
+        )
+
+        validEmails.foreach { email =>
+          val result = form.bind(Map(
+            FULL_NAME_FIELD -> "John Smith",
+            CAPACITY_FIELD -> "Director",
+            EMAIL_FIELD -> email
+          ))
+          result.errors mustBe empty
+          result.value.value mustEqual DeclarationDetails("John Smith", "Director", email)
+        }
+      }
+
+      "must not bind invalid email addresses" in {
+        val invalidEmails = Seq(
+          "invalid",
+          "@example.com",
+          "user@"
+        )
+
+        invalidEmails.foreach { email =>
+          val result = form.bind(Map(
+            FULL_NAME_FIELD -> "John Smith",
+            CAPACITY_FIELD -> "Director",
+            EMAIL_FIELD -> email
+          ))
+          result.errors must contain(FormError(EMAIL_FIELD, formatKey, Seq(emailRegex)))
+        }
+      }
+    }
+
+    "all fields" - {
+
+      "must fail when all fields are empty" in {
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> "",
+          CAPACITY_FIELD -> "",
+          EMAIL_FIELD -> ""
+        ))
+        result.errors.size mustBe 3
+        result.errors must contain(FormError(FULL_NAME_FIELD, "returns.declaration.fullName.error.required"))
+        result.errors must contain(FormError(CAPACITY_FIELD, "returns.declaration.capacity.error.required"))
+        result.errors must contain(FormError(EMAIL_FIELD, "returns.declaration.emailAddress.error.required"))
+      }
+
+      "must bind when all fields have valid values" in {
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> "Jane Doe",
+          CAPACITY_FIELD -> "Chief Financial Officer",
+          EMAIL_FIELD -> "jane.doe@example.com"
+        ))
+        result.value.value mustEqual DeclarationDetails("Jane Doe", "Chief Financial Officer", "jane.doe@example.com")
       }
     }
   }

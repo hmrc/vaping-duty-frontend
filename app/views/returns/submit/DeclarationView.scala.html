@@ -33,8 +33,7 @@
 
 @layout(pageTitle = title(form, messages("returns.declaration.title"))) {
 
-    @formHelper(action = controllers.returns.submit.routes.DeclarationController.onSubmit(), Symbol("autoComplete") -> "off") {
-
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclarationController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
