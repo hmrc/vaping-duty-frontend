@@ -36,35 +36,33 @@ class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService
   }
 
   def storeUserAnswersIfChanged(userAnswers: ReturnsUserAnswers,
-                                updatedUa: Future[ReturnsUserAnswers])(using HeaderCarrier) = {
-    updatedUa.flatMap((uua: ReturnsUserAnswers) =>
-      if (uua != userAnswers)
-        repository.set(uua).map(_ => uua)
-      else
-        Future.successful(userAnswers)
-    )
+                                updatedUa: ReturnsUserAnswers)(using HeaderCarrier): Future[ReturnsUserAnswers] = {
+    if (updatedUa != userAnswers)
+      repository.set(updatedUa).map(_ => updatedUa)
+    else
+      Future.successful(userAnswers)
   }
 
   def updateUserAnswers(userAnswers: ReturnsUserAnswers,
                         adjustmentsEligibility: AdjustmentsEligibility)
-                       (using HeaderCarrier): Future[ReturnsUserAnswers] = {
+                       (using HeaderCarrier): ReturnsUserAnswers = {
     adjustmentsEligibility match {
       case AdjustmentsEligibility.NotEligible => autoSetDeclareSpoiltProducts(userAnswers, answer = false)
-      case AdjustmentsEligibility.Eligible => Future.successful(userAnswers)
+      case AdjustmentsEligibility.Eligible => userAnswers
     }
   }
 
   private def autoSetDeclareSpoiltProducts(
                                             userAnswers: ReturnsUserAnswers,
                                             answer: Boolean
-                                          )(using HeaderCarrier): Future[ReturnsUserAnswers] = {
+                                          )(using HeaderCarrier): ReturnsUserAnswers = {
 
     userAnswers.get(DeclareSpoiltProductsPage) match {
-      case Some(value) if value == answer => Future.successful(userAnswers)
+      case Some(value) if value == answer => userAnswers
       case _ =>
         userAnswers.set(DeclareSpoiltProductsPage, answer).fold(
-          _ => Future.successful(userAnswers),
-          ua => Future.successful(ua)
+          _  => userAnswers,  // Failure to marshall to JSON, unlikely to happen
+          ua => ua
         )
     }
   }
