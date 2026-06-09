@@ -18,17 +18,19 @@ package services.returns
 
 import base.SpecBase
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
+import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{reset, times, verify, when}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.DeclareSpoiltProductsPage
-import repositories.ReturnsUserAnswersRepository
+import play.api.http.Status.OK
 
 import scala.concurrent.Future
 
-class TaskListPreparationServiceSpec extends SpecBase with MockitoSugar {
+class TaskListPreparationServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
-  private val mockRepository = mock[ReturnsUserAnswersRepository]
+  private val mockRepository = mock[ReturnsUserAnswersService]
   private val service = new TaskListPreparationService(mockRepository)
 
   private val emptyAnswers = ReturnsUserAnswers(
@@ -38,27 +40,29 @@ class TaskListPreparationServiceSpec extends SpecBase with MockitoSugar {
     lastUpdated = clock.instant()
   )
 
+  override def beforeEach(): Unit = reset(mockRepository)
+
   "prepareUserAnswers" - {
 
     "when user is not eligible for adjustments" - {
 
       "must set DeclareSpoiltProductsPage to false when not answered" in {
-        when(mockRepository.set(any())).thenReturn(Future.successful(true))
+        when(mockRepository.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
 
         val result = service.prepareUserAnswers(emptyAnswers, AdjustmentsEligibility.NotEligible).futureValue
 
         result.get(DeclareSpoiltProductsPage) mustBe Some(false)
-        verify(mockRepository).set(any())
+        verify(mockRepository).set(any())(any())
       }
 
       "must set DeclareSpoiltProductsPage to false when answered true" in {
         val answersWithTrue = emptyAnswers.set(DeclareSpoiltProductsPage, true).success.value
-        when(mockRepository.set(any())).thenReturn(Future.successful(true))
+        when(mockRepository.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
 
         val result = service.prepareUserAnswers(answersWithTrue, AdjustmentsEligibility.NotEligible).futureValue
 
         result.get(DeclareSpoiltProductsPage) mustBe Some(false)
-        verify(mockRepository).set(any())
+        verify(mockRepository).set(any())(any())
       }
 
       "must not update DeclareSpoiltProductsPage when already false" in {

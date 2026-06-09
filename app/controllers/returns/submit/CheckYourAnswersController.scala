@@ -50,12 +50,12 @@ class CheckYourAnswersController @Inject()(
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
-    
-    val confirmationRedirect = Redirect(s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${request.periodKey}")
-    
-    submitReturnService.submit(request.userAnswers).flatMap { response =>
 
-      userAnswersService.clear(request.enrolmentVpdId, request.periodKey).map(_  => confirmationRedirect)
+    submitReturnService.submit(request.userAnswers).map { response =>
+
+      userAnswersService.clear(request.enrolmentVpdId, request.periodKey)
+
+      Redirect(s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${request.periodKey}")
 
     }.recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
   }

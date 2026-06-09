@@ -18,9 +18,8 @@ package services.returns
 
 import base.SpecBase
 import models.TaskStatus
-import models.returns.AdjustmentsEligibility.Eligible
-import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers}
-import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage}
+import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
+import pages.returns.*
 
 class TaskStatusServiceSpec extends SpecBase {
 
@@ -78,12 +77,53 @@ class TaskStatusServiceSpec extends SpecBase {
       val result = TaskStatusService.declareDutyTaskStatus(answers)
       result mustBe TaskStatus.Completed
     }
+
+    "must return Completed when DeclareDutySuspensePage is false" in {
+      val answers = emptyAnswers
+        .set(DeclareDutySuspensePage, false)
+        .success
+        .value
+
+      val result = TaskStatusService.dutySuspenseTaskStatus(answers)
+      result mustBe TaskStatus.Completed
+    }
+
+    "must return Completed when DeclareDutySuspensePage is true" in {
+      val answers = emptyAnswers
+        .set(DeclareDutySuspensePage, true)
+        .success
+        .value
+
+      val result = TaskStatusService.dutySuspenseTaskStatus(answers)
+      result mustBe TaskStatus.InProgress
+    }
+
+    "must return InProgress when DeclareSpoiltProductsPage is true" in {
+      val answers = emptyAnswers
+        .set(DeclareSpoiltProductsPage, true)
+        .success
+        .value
+
+      val result = TaskStatusService.declareSpoiltProductsTaskStatus(answers)
+      result mustBe TaskStatus.InProgress
+    }
+
+    "must return Completed when DeclareSpoiltProductsPage is true and SpoiltVolumeByPeriodPage has values" in {
+      val answers = emptyAnswers
+        .set(DeclareSpoiltProductsPage, true)
+        .flatMap(_.set(SpoiltVolumeByPeriodPage, List(SpoiltVolumeByPeriod(1000, periodKey))))
+        .success
+        .value
+
+      val result = TaskStatusService.declareSpoiltProductsTaskStatus(answers)
+      result mustBe TaskStatus.Completed
+    }
   }
 
   "allTasksCompleted" - {
 
     "must return false when no tasks are completed" in {
-      val result = TaskStatusService.allTasksCompleted(emptyAnswers, Eligible)
+      val result = TaskStatusService.allTasksCompleted(emptyAnswers)
       result mustBe false
     }
 
@@ -93,7 +133,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.allTasksCompleted(answers, Eligible)
+      val result = TaskStatusService.allTasksCompleted(answers)
       result mustBe false
     }
 
@@ -103,11 +143,11 @@ class TaskStatusServiceSpec extends SpecBase {
         .flatMap(_.set(EnterDutyAmountPage, 1000))
         .flatMap(_.set(DeclareDutySuspensePage, true))
         .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
-        .flatMap(_.set(DeclareSpoiltProductsPage, true))
+        .flatMap(_.set(DeclareSpoiltProductsPage, false))
         .success
         .value
 
-      val result = TaskStatusService.allTasksCompleted(answers, Eligible)
+      val result = TaskStatusService.allTasksCompleted(answers)
       result mustBe true
     }
   }
@@ -115,7 +155,7 @@ class TaskStatusServiceSpec extends SpecBase {
   "submitTaskStatus" - {
 
     "must return TasksRemaining when no tasks are completed" in {
-      val result = TaskStatusService.submitTaskStatus(emptyAnswers, Eligible)
+      val result = TaskStatusService.submitTaskStatus(emptyAnswers)
       result mustBe TaskStatus.TasksRemaining
     }
 
@@ -125,7 +165,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.submitTaskStatus(answers, Eligible)
+      val result = TaskStatusService.submitTaskStatus(answers)
       result mustBe TaskStatus.TasksRemaining
     }
 
@@ -135,11 +175,11 @@ class TaskStatusServiceSpec extends SpecBase {
         .flatMap(_.set(EnterDutyAmountPage, 1000))
         .flatMap(_.set(DeclareDutySuspensePage, true))
         .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
-        .flatMap(_.set(DeclareSpoiltProductsPage, true))
+        .flatMap(_.set(DeclareSpoiltProductsPage, false))
         .success
         .value
 
-      val result = TaskStatusService.submitTaskStatus(answers, Eligible)
+      val result = TaskStatusService.submitTaskStatus(answers)
       result mustBe TaskStatus.NotStarted
     }
   }

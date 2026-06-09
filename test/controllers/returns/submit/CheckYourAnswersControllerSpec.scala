@@ -25,6 +25,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
+import uk.gov.hmrc.http.InternalServerException
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
 
@@ -58,7 +59,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must throw RuntimeException when obligation service returns None" in {
+    "must send the user to the error page if no duty rate is found for the month of the return" in {
 
       val mockObligationService = mock[ObligationService]
 
@@ -166,6 +167,37 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${periodKey.value}"
         
+        verify(mockService).submit(any())(any())
+        verify(mockUserAnswersService).clear(eqTo(vpdId), eqTo(periodKey))(any())
+      }
+    }
+
+    "must redirect to confirmation even when clearing user answers fails with a failed future" in {
+
+      val mockService = mock[SubmitReturnService]
+      val mockObligationService = mock[ObligationService]
+      val mockUserAnswersService = mock[ReturnsUserAnswersService]
+
+      when(mockService.submit(any())(any())).thenReturn(Future.successful(testReturnSubmissionResponse))
+      when(mockUserAnswersService.clear(eqTo(vpdId), eqTo(periodKey))(any()))
+        .thenReturn(Future.failed(InternalServerException("")))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(
+          bind[SubmitReturnService].to(mockService),
+          bind[ObligationService].toInstance(mockObligationService),
+          bind[ReturnsUserAnswersService].toInstance(mockUserAnswersService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${periodKey.value}"
+
         verify(mockService).submit(any())(any())
         verify(mockUserAnswersService).clear(eqTo(vpdId), eqTo(periodKey))(any())
       }

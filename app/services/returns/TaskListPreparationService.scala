@@ -18,24 +18,21 @@ package services.returns
 
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import pages.returns.DeclareSpoiltProductsPage
-import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class TaskListPreparationService @Inject()(
-                                            repository: ReturnsUserAnswersService
-                                          )(using ExecutionContext) {
+class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService)(using ExecutionContext) {
 
   def prepareUserAnswers(
                           userAnswers: ReturnsUserAnswers,
                           adjustmentsEligibility: AdjustmentsEligibility
                         )(using HeaderCarrier): Future[ReturnsUserAnswers] = {
-    
+
     adjustmentsEligibility match {
       case AdjustmentsEligibility.NotEligible => autoSetDeclareSpoiltProducts(userAnswers, answer = false)
-      case AdjustmentsEligibility.Eligible => Future.successful(userAnswers)
+      case AdjustmentsEligibility.Eligible    => Future.successful(userAnswers)
     }
   }
 
@@ -43,7 +40,7 @@ class TaskListPreparationService @Inject()(
                                             userAnswers: ReturnsUserAnswers,
                                             answer: Boolean
                                           )(using HeaderCarrier): Future[ReturnsUserAnswers] = {
-    
+
     userAnswers.get(DeclareSpoiltProductsPage) match {
       case Some(value) if value == answer => Future.successful(userAnswers)
       case _ =>
