@@ -238,6 +238,7 @@ trait TestData {
   )
 
   def createMockObligationsResponse(): ObligationsResponse = {
+    // Hmm... we need to do something about managing the time during tests.
     val currentDate = LocalDate.now()
 
     val october2027 = PeriodKey("27AJ")
@@ -247,45 +248,44 @@ trait TestData {
     ObligationsResponse(
       obligation = Seq(
         // Outstanding return - Due
-        ObligationItem(
-          identification = None,
-          obligationDetails = ObligationDetails(
-            openOrFulfilledStatus = ObligationStatus.O.toString,
-            iCFromDate = firstDayOf(december2027),
-            iCToDate = lastDayOf(december2027),
-            iCDateReceived = None,
-            iCDueDate = dueDate(december2027),
-            periodKey = december2027.value
-          )
-        ),
+        outstandingReturn(december2027),
         // Outstanding return - Overdue
-        ObligationItem(
-          identification = None,
-          obligationDetails = ObligationDetails(
-            openOrFulfilledStatus = ObligationStatus.O.toString,
-            iCFromDate = firstDayOf(november2027),
-            iCToDate = lastDayOf(november2027),
-            iCDateReceived = None,
-            iCDueDate = dueDate(november2027),
-            periodKey = november2027.value
-          )
-        ),
+        outstandingReturn(november2027),
         // Completed return
-        ObligationItem(
-          identification = None,
-          obligationDetails = ObligationDetails(
-            openOrFulfilledStatus = ObligationStatus.F.toString,
-            iCFromDate = firstDayOf(october2027),
-            iCToDate = lastDayOf(october2027),
-            iCDateReceived = receivedAfterDueDate(october2027),
-            iCDueDate = dueDate(october2027),
-            periodKey = october2027.value
-          )
-        )
+        completedReturn(october2027)
       )
     )
   }
 
+  private def completedReturn(periodKey: PeriodKey) = {
+    val obligationStatus = ObligationStatus.F
+    ObligationItem(
+      identification = None,
+      obligationDetails = ObligationDetails(
+        openOrFulfilledStatus = obligationStatus.toString,
+        iCFromDate = firstDayOf(periodKey),
+        iCToDate = lastDayOf(periodKey),
+        iCDateReceived = receivedAfterDueDate(periodKey),
+        iCDueDate = dueDate(periodKey),
+        periodKey = periodKey.value
+      )
+    )
+  }
+
+  private def outstandingReturn(periodKey: PeriodKey) = {
+    val obligationStatus = ObligationStatus.O
+    ObligationItem(
+      identification = None,
+      obligationDetails = ObligationDetails(
+        openOrFulfilledStatus = obligationStatus.toString,
+        iCFromDate = firstDayOf(periodKey),
+        iCToDate = lastDayOf(periodKey),
+        iCDateReceived = None,
+        iCDueDate = dueDate(periodKey),
+        periodKey = periodKey.value
+      )
+    )
+  }
 
   def firstDayOf(periodKey: PeriodKey) = LocalDate.of(year(periodKey), month(periodKey), 1)
   def lastDayOf(periodKey: PeriodKey)  = firstDayOf(periodKey).plusMonths(1).minusDays(1)
