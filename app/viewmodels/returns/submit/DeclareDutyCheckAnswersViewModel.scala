@@ -37,15 +37,18 @@ object DeclareDutyCheckAnswersViewModel {
 
   private val ML_SUFFIX = " ml"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): DeclareDutyCheckAnswersViewModel = {
-    val volumeInMl = userAnswers.get(EnterDutyAmountPage).getOrElse(0)
-    val dutyAmount = ReturnsSummary.calculateDuty(volumeInMl, dutyRate)
+  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)
+           (implicit messages: Messages): Option[DeclareDutyCheckAnswersViewModel] = {
     
-    DeclareDutyCheckAnswersViewModel(
-      volumeFormatted = formatVolume(volumeInMl),
-      dutyDue = ReturnsSummary.currencyFormat(dutyAmount),
-      summaryList = buildSummaryList(volumeInMl, dutyAmount, periodKey)
-    )
+    userAnswers.get(EnterDutyAmountPage).map { volumeInMl =>
+      val dutyAmount = ReturnsSummary.calculateDuty(volumeInMl, dutyRate)
+      
+      DeclareDutyCheckAnswersViewModel(
+        volumeFormatted = formatVolume(volumeInMl),
+        dutyDue = ReturnsSummary.currencyFormat(dutyAmount),
+        summaryList = buildSummaryList(volumeInMl, dutyAmount, periodKey)
+      )
+    }
   }
 
   private def formatVolume(volumeInMl: Int): String = 

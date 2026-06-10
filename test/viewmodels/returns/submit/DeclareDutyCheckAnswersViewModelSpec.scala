@@ -31,36 +31,39 @@ class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
       val ua = returnsUserAnswers.set(EnterDutyAmountPage, volumeInMl).success.value
       val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
 
-      vm.dutyDue mustBe "£2,200"
+      vm mustBe defined
+      vm.get.dutyDue mustBe "£2,200"
     }
 
     "must handle zero volume" in {
       val ua = returnsUserAnswers.set(EnterDutyAmountPage, 0).success.value
       val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
 
-      vm.volumeFormatted mustBe "0 ml"
-      vm.dutyDue mustBe "£0"
+      vm mustBe defined
+      vm.get.volumeFormatted mustBe "0 ml"
+      vm.get.dutyDue mustBe "£0"
     }
 
-    "must handle missing volume" in {
+    "must return None when EnterDutyAmountPage is not answered" in {
       val vm = DeclareDutyCheckAnswersViewModel(returnsUserAnswers, dutyRate, periodKey)
 
-      vm.volumeFormatted mustBe "0 ml"
-      vm.dutyDue mustBe "£0"
+      vm mustBe None
     }
 
     "must create summary list with two rows" in {
       val ua = returnsUserAnswers.set(EnterDutyAmountPage, volumeInMl).success.value
       val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
 
-      vm.summaryList.rows.size mustBe 2
+      vm mustBe defined
+      vm.get.summaryList.rows.size mustBe 2
     }
 
     "must have volume row with Change link in NormalMode" in {
       val ua = returnsUserAnswers.set(EnterDutyAmountPage, volumeInMl).success.value
       val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
 
-      val volumeRow = vm.summaryList.rows.head
+      vm mustBe defined
+      val volumeRow = vm.get.summaryList.rows.head
       volumeRow.key.content.asHtml.toString must include("Volume")
       volumeRow.value.content.asHtml.toString must include("1000 ml")
       volumeRow.actions.value.items.size mustBe 1

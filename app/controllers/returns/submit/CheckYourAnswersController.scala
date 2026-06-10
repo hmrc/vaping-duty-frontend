@@ -18,10 +18,9 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
-import models.requests.returns.ReturnsDataRequest
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
+import services.returns.{DutyRateService, SubmitReturnService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
@@ -30,21 +29,21 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourAnswersController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: ApprovedVapingManufacturerAuthAction,
-                                       getData: ReturnsDataRetrievalAction,
-                                       requireData: ReturnsDataRequiredAction,
-                                       returnsEnabled: ReturnsEnabledAction,
-                                       submitReturnService: SubmitReturnService,
-                                       obligationService: ObligationService,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: CheckYourAnswersView
-                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                            override val messagesApi: MessagesApi,
+                                            identify: ApprovedVapingManufacturerAuthAction,
+                                            getData: ReturnsDataRetrievalAction,
+                                            requireData: ReturnsDataRequiredAction,
+                                            returnsEnabled: ReturnsEnabledAction,
+                                            submitReturnService: SubmitReturnService,
+                                            dutyRateService: DutyRateService,
+                                            val controllerComponents: MessagesControllerComponents,
+                                            view: CheckYourAnswersView
+                                          )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
-    getDutyRate(obligationService).map { dutyRate =>
-      val vm = CheckYourAnswersViewModel(request.userAnswers, dutyRate, request.periodKey)
-      Ok(view(request.periodKey, vm))
+    dutyRateService.getDutyRate.map { dutyRate =>
+      val pk = request.periodKey
+      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRate, pk)))
     }
   }
 
