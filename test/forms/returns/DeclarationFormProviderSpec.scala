@@ -74,6 +74,77 @@ class DeclarationFormProviderSpec extends FormSpec with Constraints {
         ))
         result.value.value mustEqual DeclarationDetails(maxLengthName, "Director", "test@example.com")
       }
+
+      "must bind valid names with allowed characters" in {
+        val validNames = Seq(
+          "John Smith",
+          "Mary-Jane",
+          "Dr. Smith",
+          "O'Connor",
+          "Jean-Paul O'Brien",
+          "User123",
+          "A-B.C'D 123"
+        )
+
+        validNames.foreach { name =>
+          val result = form.bind(Map(
+            FULL_NAME_FIELD -> name,
+            CAPACITY_FIELD -> "Director",
+            EMAIL_FIELD -> "test@example.com"
+          ))
+          result.errors mustBe empty
+          result.value.value mustEqual DeclarationDetails(name, "Director", "test@example.com")
+        }
+      }
+
+      "must fail to bind names with invalid characters" in {
+        val invalidCharactersKey = "returns.declaration.fullName.error.invalidCharacters"
+        val invalidNames = Seq(
+          ("Smith, John", "comma"),
+          ("John@Smith", "@ symbol"),
+          ("Mary!Jane", "exclamation mark"),
+          ("User#123", "hash symbol"),
+          ("Test&Name", "ampersand"),
+          ("Name*Test", "asterisk"),
+          ("Name(Test)", "parentheses"),
+          ("Name[Test]", "brackets"),
+          ("Name{Test}", "braces"),
+          ("Name/Test", "forward slash"),
+          ("Name\\Test", "backslash"),
+          ("Name|Test", "pipe"),
+          ("Name<Test>", "angle brackets"),
+          ("Name=Test", "equals sign"),
+          ("Name+Test", "plus sign"),
+          ("Name_Test", "underscore"),
+          ("Name~Test", "tilde"),
+          ("Name`Test", "backtick"),
+          ("Name;Test", "semicolon"),
+          ("Name:Test", "colon"),
+          ("Name\"Test", "quotation mark"),
+          ("Name?Test", "question mark"),
+          ("Name%Test", "percent sign"),
+          ("Name$Test", "dollar sign"),
+          ("Name^Test", "caret")
+        )
+
+        invalidNames.foreach { case (name, description) =>
+          val result = form.bind(Map(
+            FULL_NAME_FIELD -> name,
+            CAPACITY_FIELD -> "Director",
+            EMAIL_FIELD -> "test@example.com"
+          ))
+          result.errors must contain(FormError(FULL_NAME_FIELD, invalidCharactersKey, Seq("""^[a-zA-Z0-9\-\.\s']+$""")))
+        }
+      }
+
+      "must trim leading and trailing spaces" in {
+        val result = form.bind(Map(
+          FULL_NAME_FIELD -> "  John Smith  ",
+          CAPACITY_FIELD -> "Director",
+          EMAIL_FIELD -> "test@example.com"
+        ))
+        result.value.value mustEqual DeclarationDetails("John Smith", "Director", "test@example.com")
+      }
     }
 
     "capacityInWhichSigned field" - {

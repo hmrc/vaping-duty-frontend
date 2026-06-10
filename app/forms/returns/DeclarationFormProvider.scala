@@ -33,7 +33,8 @@ class DeclarationFormProvider @Inject() extends Mappings {
     Form(
       mapping(
         FULL_NAME_FIELD -> textWithSpaces("returns.declaration.fullName.error.required")
-          .verifying(maxLength(120, "returns.declaration.fullName.error.length")),
+          .verifying(maxLength(120, "returns.declaration.fullName.error.length"))
+          .verifying(regexp("""^[a-zA-Z0-9\-\.\s']+$""", "returns.declaration.fullName.error.invalidCharacters")),
         
         CAPACITY_FIELD -> textWithSpaces("returns.declaration.capacity.error.required")
           .verifying(maxLength(100, "returns.declaration.capacity.error.length")),

@@ -339,6 +339,7 @@ returns.declaration.button = Confirm and submit
 
 returns.declaration.fullName.error.required = Enter your full name
 returns.declaration.fullName.error.length = Full name must be 120 characters or fewer
+returns.declaration.fullName.error.invalidCharacters = Full name must only contain letters, numbers, hyphens, periods, apostrophes and spaces
 returns.declaration.capacity.error.required = Enter your role in the company, for example, proprietor, director
 returns.declaration.capacity.error.length = Capacity must be 100 characters or fewer
 returns.declaration.emailAddress.error.required = Enter your business email address
