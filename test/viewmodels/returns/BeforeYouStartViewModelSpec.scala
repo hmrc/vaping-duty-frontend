@@ -59,7 +59,7 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
       }
 
       "return the correct month due" in {
-        vm.dueDate mustBe "30 November"
+        vm.dueDate mustBe "7 November"
       }
 
       "return the correct return period month" in {

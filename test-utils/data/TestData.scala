@@ -240,6 +240,10 @@ trait TestData {
   def createMockObligationsResponse(): ObligationsResponse = {
     val currentDate = LocalDate.now()
 
+    val october2027 = PeriodKey("27AJ")
+    val november2027 = PeriodKey("27AK")
+    val december2027 = PeriodKey("27AL")
+    
     ObligationsResponse(
       obligation = Seq(
         // Outstanding return - Due
@@ -247,11 +251,11 @@ trait TestData {
           identification = None,
           obligationDetails = ObligationDetails(
             openOrFulfilledStatus = ObligationStatus.O.toString,
-            iCFromDate = LocalDate.of(2027, 12, 1),
-            iCToDate = LocalDate.of(2027, 12, 31),
+            iCFromDate = firstDayOf(december2027),
+            iCToDate = lastDayOf(december2027),
             iCDateReceived = None,
-            iCDueDate = LocalDate.of(2028, 1, 7),
-            periodKey = "27AL"
+            iCDueDate = dueDate(december2027),
+            periodKey = december2027.value
           )
         ),
         // Outstanding return - Overdue
@@ -259,28 +263,39 @@ trait TestData {
           identification = None,
           obligationDetails = ObligationDetails(
             openOrFulfilledStatus = ObligationStatus.O.toString,
-            iCFromDate = LocalDate.of(2027, 11, 1),
-            iCToDate = LocalDate.of(2027, 11, 30),
+            iCFromDate = firstDayOf(november2027),
+            iCToDate = lastDayOf(november2027),
             iCDateReceived = None,
-            iCDueDate = currentDate.minusDays(5),
-            periodKey = "27AK"
+            iCDueDate = dueDate(november2027),
+            periodKey = november2027.value
           )
         ),
         // Completed return
         ObligationItem(
           identification = None,
           obligationDetails = ObligationDetails(
-            openOrFulfilledStatus = "F",
-            iCFromDate = LocalDate.of(2027, 10, 1),
-            iCToDate = LocalDate.of(2027, 10, 31),
-            iCDateReceived = Some(LocalDate.of(2027, 11, 15)),
-            iCDueDate = LocalDate.of(2027, 11, 30),
-            periodKey = "27AJ"
+            openOrFulfilledStatus = ObligationStatus.F.toString,
+            iCFromDate = firstDayOf(october2027),
+            iCToDate = lastDayOf(october2027),
+            iCDateReceived = receivedAfterDueDate(october2027),
+            iCDueDate = dueDate(october2027),
+            periodKey = october2027.value
           )
         )
       )
     )
   }
+
+
+  def firstDayOf(periodKey: PeriodKey) = LocalDate.of(year(periodKey), month(periodKey), 1)
+  def lastDayOf(periodKey: PeriodKey)  = firstDayOf(periodKey).plusMonths(1).minusDays(1)
+  def dueDate(periodKey: PeriodKey)    = firstDayOf(periodKey).plusMonths(1).plusDays(6)
+
+  def receivedBeforeDueDate(october2027: PeriodKey) = Some(dueDate(october2027).minusDays(1))
+  def receivedAfterDueDate(october2027: PeriodKey)  = Some(dueDate(october2027).plusDays(1))
+
+  def month(periodKey: PeriodKey): Int = (periodKey.value.last - 'A') + 1
+  def year(periodKey: PeriodKey): Int = ("20" + periodKey.value.take(2)).toInt
 
   def createReturnDisplayResponse(): ReturnDisplayResponse = {
     ReturnDisplayResponse(
