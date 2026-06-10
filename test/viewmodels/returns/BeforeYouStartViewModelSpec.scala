@@ -22,19 +22,14 @@ import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
 import models.returns.AdjustmentsEligibility
 import viewmodels.returns.submit.BeforeYouStartViewModel
 
-import java.time.{LocalDate, Month}
-import java.time.format.TextStyle
-import java.util.Locale
+import java.time.LocalDate
 
 
 class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
   
   "BeforeYouStartViewModel" - {
-    val testPeriodKeyOctober = PeriodKey("27AJ")
-    val testMonthOctober = Month.OCTOBER
-
-    val testPeriodKeyDecember = PeriodKey("27AL")
-    val testMonthDecember = Month.DECEMBER
+    val october2027 = PeriodKey("27AJ")
+    val december2027 = PeriodKey("27AL")
 
     val obligationsWithFulfilled = createMockObligationsResponse().obligation
 
@@ -47,42 +42,28 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
           iCToDate = LocalDate.of(2027, 12, 31),
           iCDateReceived = None,
           iCDueDate = LocalDate.of(2028, 1, 7),
-          periodKey = testPeriodKeyDecember.toString
+          periodKey = december2027.toString
         )
       )
     )
 
     "when user has fulfilled returns" - {
-      val vm = BeforeYouStartViewModel(obligationsWithFulfilled, testPeriodKeyOctober).get
+      val vm = BeforeYouStartViewModel(obligationsWithFulfilled, october2027).get
 
       "return the correct year of the return" in {
-        val expectedResult = obligationsWithFulfilled
-          .find(_.obligationDetails.periodKey == testPeriodKeyOctober.toString)
-          .map(_.obligationDetails.iCFromDate.getYear)
-          .getOrElse(fail("Test setup error: October obligation not found"))
-
-        vm.yearOfReturn mustBe expectedResult
+        vm.yearOfReturn mustBe 2027
       }
 
       "return the correct year the return is due" in {
-        val expectedResult = obligationsWithFulfilled
-          .find(_.obligationDetails.periodKey == testPeriodKeyOctober.toString)
-          .map(_.obligationDetails.iCDueDate.getYear)
-          .getOrElse(fail("Test setup error: October obligation not found"))
-
-        vm.dueYear mustBe expectedResult
+        vm.dueYear mustBe 2027
       }
 
       "return the correct month due" in {
-        val expectedResult = s"30 ${testMonthOctober.plus(1).getDisplayName(TextStyle.FULL, Locale.UK)}"
-
-        vm.dueDate mustBe expectedResult
+        vm.dueDate mustBe "30 November"
       }
 
       "return the correct return period month" in {
-        val expectedResult = testMonthOctober.getDisplayName(TextStyle.FULL, Locale.UK)
-
-        vm.returnPeriod mustBe expectedResult
+        vm.returnPeriod mustBe "October"
       }
 
       "return Eligible for adjustmentsEligibility" in {
@@ -91,18 +72,14 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
     }
 
     "when user has no fulfilled returns" - {
-      val vm = BeforeYouStartViewModel(obligationsWithoutFulfilled, testPeriodKeyDecember).get
+      val vm = BeforeYouStartViewModel(obligationsWithoutFulfilled, december2027).get
 
       "return the correct month due" in {
-        val expectedResult = s"7 ${testMonthDecember.plus(1).getDisplayName(TextStyle.FULL, Locale.UK)}"
-
-        vm.dueDate mustBe expectedResult
+        vm.dueDate mustBe "7 January"
       }
 
       "return the correct return period month" in {
-        val expectedResult = testMonthDecember.getDisplayName(TextStyle.FULL, Locale.UK)
-
-        vm.returnPeriod mustBe expectedResult
+        vm.returnPeriod mustBe "December"
       }
 
       "return NotEligible for adjustmentsEligibility" in {
