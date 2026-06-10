@@ -20,13 +20,10 @@ import base.SpecBase
 import config.DutyRateConfig
 import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationStatus}
-import models.requests.returns.ReturnsDataRequest
 import models.returns.DutyRate
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -165,42 +162,25 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
       "must return the duty rate when obligation exists" in {
         val expectedDutyRate = BigDecimal("0.22")
         
-        given request: ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
-          FakeRequest(),
-          vpdId,
-          internalId,
-          credId,
-          periodKey,
-          returnsUserAnswers
-        )
-        
         when(mockDutyRateConfig.rates).thenReturn(testRates)
         when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
           .thenReturn(Future.successful(Some(testObligation)))
         
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
-        whenReady(service.getDutyRate) { result =>
+        whenReady(service.getDutyRate(vpdId, periodKey)) { result =>
           result mustBe expectedDutyRate
         }
       }
 
       "must fail with RuntimeException when obligation does not exist" in {
-        given request: ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
-          FakeRequest(),
-          vpdId,
-          internalId,
-          credId,
-          periodKey,
-          returnsUserAnswers
-        )
         
         when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
           .thenReturn(Future.successful(None))
         
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
-        whenReady(service.getDutyRate.failed) { exception =>
+        whenReady(service.getDutyRate(vpdId, periodKey).failed) { exception =>
           exception mustBe a[RuntimeException]
           exception.getMessage mustBe "No duty rate found"
         }

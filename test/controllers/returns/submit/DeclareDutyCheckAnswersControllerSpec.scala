@@ -38,13 +38,13 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
 
       val ua = returnsUserAnswers.set(EnterDutyAmountPage, 100).success.value
 
-      val mockObligationService = mock[DutyRateService]
+      val mockDutyRateService = mock[DutyRateService]
 
-      when(mockObligationService.getDutyRate(using any(), any(), any()))
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
 
       val application = applicationBuilder(returnsUserAnswers = Some(ua))
-        .overrides(bind[DutyRateService].toInstance(mockObligationService))
+        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
         .build()
 
       running(application) {
@@ -62,13 +62,13 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
 
     "must redirect to journey recovery when EnterDutyAmountPage is not answered" in {
 
-      val mockObligationService = mock[DutyRateService]
+      val mockDutyRateService = mock[DutyRateService]
 
-      when(mockObligationService.getDutyRate(using any(), any(), any()))
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[DutyRateService].toInstance(mockObligationService))
+        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
         .build()
 
       running(application) {
@@ -83,13 +83,13 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
 
     "must fail when obligation service returns None" in {
 
-      val mockObligationService = mock[DutyRateService]
+      val mockDutyRateService = mock[DutyRateService]
 
-      when(mockObligationService.getDutyRate(using any(), any(), any()))
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.failed(RuntimeException("No duty rate found")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[DutyRateService].toInstance(mockObligationService))
+        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
         .build()
 
       running(application) {

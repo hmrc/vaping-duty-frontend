@@ -41,8 +41,9 @@ class CheckYourAnswersController @Inject()(
                                           )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
-    dutyRateService.getDutyRate.map { dutyRate =>
-      val pk = request.periodKey
+    val pk = request.periodKey
+    
+    dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
       Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRate, pk)))
     }
   }

@@ -40,9 +40,11 @@ class DeclareDutyCheckAnswersController @Inject()(
                                                  )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
-    dutyRateService.getDutyRate.map { dutyRate =>
-      DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, request.periodKey) match {
-        case Some(vm) => Ok(view(request.periodKey, vm))
+    val pk = request.periodKey
+    
+    dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
+      DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk) match {
+        case Some(vm) => Ok(view(pk, vm))
         case None     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }

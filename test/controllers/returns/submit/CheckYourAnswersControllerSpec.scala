@@ -38,7 +38,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
       val mockDutyRateService = mock[DutyRateService]
 
-      when(mockDutyRateService.getDutyRate(using any(), any(), any()))
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
@@ -60,13 +60,13 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
     "must fail when obligation service returns None" in {
 
-      val mockObligationService = mock[DutyRateService]
+      val mockDutyRateService = mock[DutyRateService]
 
-      when(mockObligationService.getDutyRate(using any(), any(), any()))
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.failed(RuntimeException("No duty rate found")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[DutyRateService].toInstance(mockObligationService))
+        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
         .build()
 
       running(application) {
