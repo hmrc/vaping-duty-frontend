@@ -20,7 +20,7 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{DutyRateService, SubmitReturnService}
+import services.returns.{DutyRateService, ReturnsUserAnswersService, SubmitReturnService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
@@ -34,6 +34,7 @@ class CheckYourAnswersController @Inject()(
                                             getData: ReturnsDataRetrievalAction,
                                             requireData: ReturnsDataRequiredAction,
                                             returnsEnabled: ReturnsEnabledAction,
+                                            userAnswersService: ReturnsUserAnswersService,
                                             submitReturnService: SubmitReturnService,
                                             dutyRateService: DutyRateService,
                                             val controllerComponents: MessagesControllerComponents,
@@ -50,12 +51,5 @@ class CheckYourAnswersController @Inject()(
 
   def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
       Redirect(s"${controllers.returns.submit.routes.DeclarationController.onPageLoad().url}?period=${request.periodKey}")
-  }
-
-  private def getDutyRate(obligationService: ObligationService)(using request: ReturnsDataRequest[?]) = {
-    obligationService.getDutyRateForPeriod(request.enrolmentVpdId, request.periodKey).flatMap {
-      case Some(dutyRate) => Future.successful(dutyRate)
-      case None           => Future.failed(RuntimeException("No duty rate found"))
-    }
   }
 }

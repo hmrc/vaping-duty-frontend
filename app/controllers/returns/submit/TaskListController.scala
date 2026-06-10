@@ -47,7 +47,7 @@ class TaskListController @Inject()(
         val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations.obligation)
 
         preparationService.prepareUserAnswers(request.userAnswers, adjustmentsEligibility).map { updatedAnswers =>
-          Ok(view(TaskListPageViewModel(updatedAnswers, obligations.obligation)))
+          Ok(view(TaskListPageViewModel(updatedAnswers, obligations.obligation, request.periodKey)))
         }
       }
   }
