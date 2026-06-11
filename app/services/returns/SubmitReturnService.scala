@@ -97,6 +97,7 @@ class SubmitReturnService @Inject()(
     )
 
     val declaration = ua.get(DeclarationPage).getOrElse(
+      // scalafix:off DisableSyntax.throw
       throw new IllegalStateException("Declaration details are required for submission")
     )
 

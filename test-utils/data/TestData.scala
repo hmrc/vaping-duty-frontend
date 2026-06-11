@@ -69,6 +69,12 @@ trait TestData {
     countryCode = Some(countryCode)
   )
 
+  val testDeclarationDetails: DeclarationDetails = DeclarationDetails(
+    fullName = "Test User",
+    capacityInWhichSigned = "Director",
+    signeesEmailAddress = "test@example.com"
+  )
+
   val subscriptionSummaryPostWithEmail: SubscriptionSummary = subscriptionSummaryEmail.copy(paperlessPreference = false)
 
   val subscriptionSummaryPostNoEmail: SubscriptionSummary = SubscriptionSummary(
@@ -223,12 +229,6 @@ trait TestData {
   val zeroValue = BigDecimal(0)
 
   val totalDue = totalInMl - zeroValue
-
-  val testDeclarationDetails: DeclarationDetails = DeclarationDetails(
-    fullName = "Test User",
-    capacityInWhichSigned = "Director",
-    signeesEmailAddress = "test@example.com"
-  )
 
   val testSubmitReturnRequest = ReturnCreateRequest(
     periodKey.toString,
