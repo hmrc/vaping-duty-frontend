@@ -54,10 +54,10 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from EnterDutyAmount to TaskList " in {
+      "must go from EnterDutyAmount to DeclareDutyCheckAnswers (mini CYA)" in {
         val ua = returnsUserAnswers.set(EnterDutyAmountPage, 1).success.value
 
-        navigator.nextPage(EnterDutyAmountPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(EnterDutyAmountPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from DeclareDutySuspense to EnterDutySuspense when there IS suspended duty to declare" in {

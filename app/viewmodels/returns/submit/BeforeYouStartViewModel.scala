@@ -22,35 +22,48 @@ import models.returns.AdjustmentsEligibility
 import play.api.i18n.Messages
 import utils.ReturnsDateUtils.*
 
-import java.time.{LocalDate, Month}
+import java.time.Month
 
 case class BeforeYouStartViewModel(
-  returnPeriod: String,
-  dueDate: String,
-  year: Int,
-  adjustmentsEligibility: AdjustmentsEligibility
-)
+                                    returnPeriod: String,
+                                    yearOfReturn: Int,
+                                    dueDate: String,
+                                    dueYear: Int,
+                                    adjustmentsEligibility: AdjustmentsEligibility
+                                  )
 
 object BeforeYouStartViewModel {
 
-  def apply(obligations: Seq[ObligationItem], periodKey: PeriodKey)(implicit messages: Messages): BeforeYouStartViewModel = {
+  def apply(obligations: Seq[ObligationItem], periodKey: PeriodKey)(implicit messages: Messages): Option[BeforeYouStartViewModel] = {
     val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations)
-    
-    val month: Month = obligations
+
+    obligations
       .map(_.obligationDetails)
       .find(_.periodKey == periodKey.toString)
-      .map(_.iCFromDate.getMonth)
-      .getOrElse(LocalDate.now().getMonth)
-    
-    beforeYouStartViewModel(adjustmentsEligibility, month)
+      .map { details =>
+        val monthDue: Month = details.iCDueDate.getMonth
+        val yearDue: Int = details.iCDueDate.getYear
+
+        val returnMonth: Month = details.iCFromDate.getMonth
+        val returnYear: Int = details.iCFromDate.getYear
+
+        beforeYouStartViewModel(adjustmentsEligibility, monthDue, returnMonth, returnYear, yearDue)
+      }
   }
 
-  private def beforeYouStartViewModel(adjustmentsEligibility: AdjustmentsEligibility, month: Month)(implicit messages: Messages) =
+  private def beforeYouStartViewModel(
+                                       adjustmentsEligibility: AdjustmentsEligibility,
+                                       monthDue: Month,
+                                       returnMonth: Month,
+                                       returnYear: Int,
+                                       dueYear: Int)
+                                     (implicit messages: Messages) =
+
     new BeforeYouStartViewModel(
-      getReturnPeriod(month),
-      getDueDate(month),
-      getYear,
+      getMonthMessage(returnMonth),
+      returnYear,
+      getDueDate(monthDue),
+      dueYear,
       adjustmentsEligibility
     )
-  
 }

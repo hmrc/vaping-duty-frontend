@@ -18,7 +18,7 @@ package controllers.returns.submit
 
 import base.SpecBase
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse, ObligationStatus}
+import models.obligations.ObligationsResponse
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -30,7 +30,6 @@ import services.returns.{ObligationService, ReturnsUserAnswersService}
 import viewmodels.returns.submit.BeforeYouStartViewModel
 import views.html.returns.submit.BeforeYouStartView
 
-import java.time.LocalDate
 import scala.concurrent.Future
 
 class BeforeYouStartControllerSpec extends SpecBase {
@@ -45,6 +44,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
 
       val mockService = mock[ReturnsUserAnswersService]
       val mockObligationService = mock[ObligationService]
+      val validPeriodKey = PeriodKey("27AJ")
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(
@@ -53,20 +53,20 @@ class BeforeYouStartControllerSpec extends SpecBase {
         )
         .build()
 
-      val vm = BeforeYouStartViewModel(testObligations, periodKey)(messages(application))
+      val vm = BeforeYouStartViewModel(testObligations, validPeriodKey)(messages(application)).get
 
       when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
       when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(testObligationsResponse))
 
       running(application) {
-        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${periodKey.value}")
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${validPeriodKey.value}")
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[BeforeYouStartView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(validPeriodKey, vm)(request, messages(application)).toString
       }
     }
 
@@ -74,6 +74,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
 
       val mockService = mock[ReturnsUserAnswersService]
       val mockObligationService = mock[ObligationService]
+      val validPeriodKey = PeriodKey("27AJ")
 
       val application = applicationBuilder()
         .overrides(
@@ -82,20 +83,45 @@ class BeforeYouStartControllerSpec extends SpecBase {
         )
         .build()
 
-      val vm = BeforeYouStartViewModel(testObligations, periodKey)(messages(application))
+      val vm = BeforeYouStartViewModel(testObligations, validPeriodKey)(messages(application)).get
 
       when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
       when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(testObligationsResponse))
 
       running(application) {
-        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${periodKey.value}")
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${validPeriodKey.value}")
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[BeforeYouStartView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(validPeriodKey, vm)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to journey recovery when period key is not found" in {
+      val mockService = mock[ReturnsUserAnswersService]
+      val mockObligationService = mock[ObligationService]
+      val invalidPeriodKey = PeriodKey("99ZZ")
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(
+          bind[ReturnsUserAnswersService].to(mockService),
+          bind[ObligationService].to(mockObligationService)
+        )
+        .build()
+
+      when(mockObligationService.getObligations(any())(using any()))
+        .thenReturn(Future.successful(testObligationsResponse))
+
+      running(application) {
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${invalidPeriodKey.value}")
+        
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 

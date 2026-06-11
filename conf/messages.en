@@ -137,10 +137,10 @@ returns.beforeYouStart.afterYou = After you tell us this information, we will ca
 returns.beforeYouStart.youCannot = You cannot use this service to declare or pay VAT.
 
 
-returns.taskList.caption = Return for 1 {0} {1} to {2} {0} {1}
+returns.taskList.caption = Return for {0} {1}
 returns.taskList.title = Complete your Vaping Products Duty return
 returns.taskList.heading = Complete your Vaping Products Duty return
-returns.taskList.bodyL = Complete all the tasks and submit this return on or before 7 {0} {1}.
+returns.taskList.bodyL = Complete all the tasks and submit this return on or before 7&nbsp;{0}&nbsp;{1}.
 returns.taskList.body = Your answers can be changed until this return is submitted.
 
 returns.taskList.taskStatus.tasksRemaining = Tasks remaining
@@ -276,6 +276,14 @@ returns.enterDutySuspense.volumeMoved.error.outOfRange = Enter the amount of dut
 returns.enterDutySuspense.ml = ml
 returns.enterDutySuspense.checkYourAnswersLabel = Enter duty suspense
 returns.enterDutySuspense.change.hidden = enter duty suspense
+
+returns.declareDutyCheckAnswers.title = Your duty is {0}
+returns.declareDutyCheckAnswers.caption = Check your answers
+returns.declareDutyCheckAnswers.heading = Your duty is {0}
+returns.declareDutyCheckAnswers.entryDetails = Summary
+returns.declareDutyCheckAnswers.volume = Volume
+returns.declareDutyCheckAnswers.dutyDue = Duty due
+returns.declareDutyCheckAnswers.volume.change.hidden = vaping products volume
 
 returns.CheckYourAnswers.title = The duty due is {0}
 returns.CheckYourAnswers.caption = Check your answers

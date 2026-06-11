@@ -25,10 +25,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ObligationService @Inject()(
-  obligationsConnector: ObligationsConnector,
-  dutyRateService: DutyRateService
-)(using ExecutionContext) {
+class ObligationService @Inject()(obligationsConnector: ObligationsConnector)
+                                 (using ExecutionContext) {
   
   def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[ObligationsResponse] =
     obligationsConnector.getObligations(vpdId)
@@ -39,15 +37,5 @@ class ObligationService @Inject()(
       response.obligation
         .map(_.obligationDetails)
         .find(_.periodKey == periodKey.toString)
-    }
-  
-  def getDutyRateForPeriod(vpdId: VpdId, periodKey: PeriodKey)
-                          (using HeaderCarrier): Future[Option[BigDecimal]] =
-    getObligationByPeriodKey(vpdId, periodKey).map { obligationOpt =>
-      obligationOpt.map { obligation =>
-        val rateInPencePerMl: Int = dutyRateService.getRateForDate(obligation.iCFromDate)
-        val dutyRateInPoundsPerMl = BigDecimal(rateInPencePerMl) / 100
-        dutyRateInPoundsPerMl
-      }
     }
 }

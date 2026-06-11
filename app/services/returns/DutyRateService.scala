@@ -18,15 +18,38 @@ package services.returns
 
 import com.google.inject.{Inject, Singleton}
 import config.DutyRateConfig
+import models.identifiers.{PeriodKey, VpdId}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig) {
+class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationService: ObligationService) {
   
   def getRateForDate(date: LocalDate): Int =
     dutyRateConfig.rates
       .find(_.isValidFor(date))
       .map(_.ratePencePerMl)
       .get  // Safe because validation ensures there's always a rate
+
+
+  def getDutyRate(vpdId: VpdId, periodKey: PeriodKey)
+                 (using ec: ExecutionContext, hc: HeaderCarrier): Future[BigDecimal] =
+
+    getDutyRateForPeriod(vpdId, periodKey).flatMap {
+      case Some(dutyRate) => Future.successful(dutyRate)
+      case None => Future.failed(RuntimeException("No duty rate found"))
+    }
+
+  def getDutyRateForPeriod(vpdId: VpdId, periodKey: PeriodKey)
+                          (using ec: ExecutionContext, hc: HeaderCarrier): Future[Option[BigDecimal]] =
+
+    obligationService.getObligationByPeriodKey(vpdId, periodKey).map { obligationOpt =>
+      obligationOpt.map { obligation =>
+        val rateInPencePerMl: Int = getRateForDate(obligation.iCFromDate)
+        val dutyRateInPoundsPerMl = BigDecimal(rateInPencePerMl) / 100
+        dutyRateInPoundsPerMl
+      }
+    }
 }

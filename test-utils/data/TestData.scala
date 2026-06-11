@@ -250,7 +250,7 @@ trait TestData {
             iCFromDate = LocalDate.of(2027, 12, 1),
             iCToDate = LocalDate.of(2027, 12, 31),
             iCDateReceived = None,
-            iCDueDate = currentDate.plusDays(10),
+            iCDueDate = LocalDate.of(2028, 1, 7),
             periodKey = "27AL"
           )
         ),

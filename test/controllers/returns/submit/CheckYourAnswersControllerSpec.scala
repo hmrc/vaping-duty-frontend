@@ -18,14 +18,13 @@ package controllers.returns.submit
 
 import base.SpecBase
 import models.emailverification.ErrorModel
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
-import uk.gov.hmrc.http.InternalServerException
+import services.returns.{DutyRateService, ObligationService, SubmitReturnService}
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
 
@@ -37,13 +36,13 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val mockObligationService = mock[ObligationService]
+      val mockDutyRateService = mock[DutyRateService]
 
-      when(mockObligationService.getDutyRateForPeriod(eqTo(vpdId), eqTo(periodKey))(using any()))
-        .thenReturn(Future.successful(Some(testDutyRate)))
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
         .build()
 
       running(application) {
@@ -59,15 +58,15 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must send the user to the error page if no duty rate is found for the month of the return" in {
+    "must fail when obligation service returns None" in {
 
-      val mockObligationService = mock[ObligationService]
+      val mockDutyRateService = mock[DutyRateService]
 
-      when(mockObligationService.getDutyRateForPeriod(eqTo(vpdId), eqTo(periodKey))(using any()))
-        .thenReturn(Future.successful(None))
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
+        .thenReturn(Future.failed(RuntimeException("No duty rate found")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
         .build()
 
       running(application) {
@@ -107,29 +106,6 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must return INTERNAL_SERVER_ERROR when obligation service fails" in {
-
-      val mockObligationService = mock[ObligationService]
-
-      when(mockObligationService.getDutyRateForPeriod(eqTo(vpdId), eqTo(periodKey))(using any()))
-        .thenReturn(Future.failed(new RuntimeException("Obligation not found")))
-
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        whenReady(result.failed) { exception =>
-          exception mustBe a[RuntimeException]
-          exception.getMessage mustBe "Obligation not found"
-        }
       }
     }
   }

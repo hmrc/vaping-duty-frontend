@@ -45,7 +45,7 @@ class ReturnsDateUtilSpec extends SpecBase with Matchers {
       lazy val app = applicationBuilder().build()
 
       months.foreach(el =>
-        ReturnsDateUtils.getCurrentMonthMessage(el._1)(messages(app)) mustBe el._2
+        ReturnsDateUtils.getMonthMessage(el._1)(messages(app)) mustBe el._2
       )
     }
   }

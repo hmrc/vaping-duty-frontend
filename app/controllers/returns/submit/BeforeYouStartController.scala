@@ -28,7 +28,7 @@ import viewmodels.returns.submit.BeforeYouStartViewModel
 import views.html.returns.submit.BeforeYouStartView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class BeforeYouStartController @Inject()(
                                           override val messagesApi: MessagesApi,
@@ -53,9 +53,12 @@ class BeforeYouStartController @Inject()(
       }
 
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-        sessionRepository.set(ua).map(_ =>
-          Ok(view(periodKey, BeforeYouStartViewModel(obligations.obligation, periodKey)))
-        )
+        BeforeYouStartViewModel(obligations.obligation, periodKey) match {
+          case Some(vm) =>
+            sessionRepository.set(ua).map(_ => Ok(view(periodKey, vm)))
+          case None =>
+            Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        }
       }
 
   }

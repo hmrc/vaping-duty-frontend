@@ -45,7 +45,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
   private def confirmationViewModel(email: String, dutyDue: BigDecimal, vpdRef: String, btaLink: String, periodKey: PeriodKey, viewReturnUrl: String)(implicit messages: Messages) =
 
-    val monthMessage = ReturnsDateUtils.getCurrentMonthMessage(ReturnsDateUtils.month)
+    val monthMessage = ReturnsDateUtils.getMonthMessage(ReturnsDateUtils.month)
 
     new ConfirmationViewModel(
       email,
@@ -88,7 +88,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
   private def getContent(dutyDue: BigDecimal)(implicit messages: Messages) = {
 
-    val monthMessage = ReturnsDateUtils.getCurrentMonthMessage(ReturnsDateUtils.month)
+    val monthMessage = ReturnsDateUtils.getMonthMessage(ReturnsDateUtils.month)
 
     if (dutyDue != 0) {
       val warning = GovukWarningText()
