@@ -125,7 +125,7 @@ emailVerificationJourney.signature = Vaping Products Duty
 returns.beforeYouStart.title = Before you start
 returns.beforeYouStart.heading = Before you start
 returns.beforeYouStart.caption = Vaping Products Duty return
-returns.beforeYouStart.deadline = The deadline for completing this return is 7 {0} {1}.
+returns.beforeYouStart.deadline = The deadline for completing this return is {0} {1}.
 returns.beforeYouStart.useThis = Use this service to submit your Vaping Products Duty return for {0} {1}.
 returns.beforeYouStart.thereAre = There are tasks to complete before you can submit the return.
 returns.beforeYouStart.youWill = You will need to declare:
@@ -140,7 +140,7 @@ returns.beforeYouStart.youCannot = You cannot use this service to declare or pay
 returns.taskList.caption = Return for {0} {1}
 returns.taskList.title = Complete your Vaping Products Duty return
 returns.taskList.heading = Complete your Vaping Products Duty return
-returns.taskList.bodyL = Complete all the tasks and submit this return on or before 7&nbsp;{0}&nbsp;{1}.
+returns.taskList.bodyL = Complete all the tasks and submit this return on or before {0}&nbsp;{1}&nbsp;{2}.
 returns.taskList.body = Your answers can be changed until this return is submitted.
 
 returns.taskList.taskStatus.tasksRemaining = Tasks remaining

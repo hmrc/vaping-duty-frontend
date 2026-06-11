@@ -74,7 +74,7 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
       }
 
       "return the correct month due" in {
-        val expectedResult = testMonthOctober.plus(1).getDisplayName(TextStyle.FULL, Locale.UK)
+        val expectedResult = s"30 ${testMonthOctober.plus(1).getDisplayName(TextStyle.FULL, Locale.UK)}"
 
         vm.dueDate mustBe expectedResult
       }
@@ -94,7 +94,7 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
       val vm = BeforeYouStartViewModel(obligationsWithoutFulfilled, testPeriodKeyDecember).get
 
       "return the correct month due" in {
-        val expectedResult = testMonthDecember.plus(1).getDisplayName(TextStyle.FULL, Locale.UK)
+        val expectedResult = s"7 ${testMonthDecember.plus(1).getDisplayName(TextStyle.FULL, Locale.UK)}"
 
         vm.dueDate mustBe expectedResult
       }

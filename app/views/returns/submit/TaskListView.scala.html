@@ -35,7 +35,7 @@
 
     @* Using raw HTML here to correctly render nbsp. *@
 
-    <p class="govuk-body-l">@Html(messages("returns.taskList.bodyL", vm.dueDate, vm.dueYear.toString))</p>
+    <p class="govuk-body-l">@Html(messages("returns.taskList.bodyL", vm.dayDue, vm.dueDate, vm.dueYear.toString))</p>
 
     @p(Seq(messages("returns.taskList.body")))
 
