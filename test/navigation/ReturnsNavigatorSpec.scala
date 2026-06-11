@@ -78,10 +78,10 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareDutySuspensePage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from EnterDutySuspense to TaskList" in {
-        val ua = returnsUserAnswers.set(EnterDutyAmountPage, 1).success.value
+      "must go from EnterDutySuspense to DutySuspenseCheckAnswers (mini CYA)" in {
+        val ua = returnsUserAnswers.set(EnterDutySuspensePage, DutySuspenseVolumes(1, 1)).success.value
 
-        navigator.nextPage(EnterDutySuspensePage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(EnterDutySuspensePage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from DeclareSpoiltProductsPage to SelectSpoiltPeriodPage when there are spoilt products to declare" in {

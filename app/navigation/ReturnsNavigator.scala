@@ -37,15 +37,15 @@ class ReturnsNavigator @Inject()(
     Call(call.method, s"${call.url}?period=$periodKey")
 
   private def normalRoutes(periodKey: String): Page => ReturnsUserAnswers => Call = {
-    case DeclareDutyPage           => ua  => declareDutyPageRoutes(ua, periodKey)
-    case EnterDutyAmountPage       => _   => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(), periodKey)
-    case DeclareDutySuspensePage   => ua  => declareDutySuspensePageRoutes(ua, periodKey)
-    case EnterDutySuspensePage     => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
-    case DeclareSpoiltProductsPage => ua  => declareSpoiltProductsPageRoutes(ua, periodKey)
-    case AddSpoiltAdjustmentPage   => ua  => addSpoiltAdjustmentPageRoutes(ua, periodKey)
-    case SpoiltVolumeByPeriodPage  => _   => withPeriod(controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode), periodKey)
-    case DeclarationPage           => _   => withPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad(), periodKey)
-    case _                         => _   => Call(GET, BtaLink(config))
+    case DeclareDutyPage                => ua  => declareDutyPageRoutes(ua, periodKey)
+    case EnterDutyAmountPage            => _   => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(), periodKey)
+    case DeclareDutySuspensePage        => ua  => declareDutySuspensePageRoutes(ua, periodKey)
+    case EnterDutySuspensePage          => _   => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(), periodKey)
+    case DeclareSpoiltProductsPage      => ua  => declareSpoiltProductsPageRoutes(ua, periodKey)
+    case AddSpoiltAdjustmentPage        => ua  => addSpoiltAdjustmentPageRoutes(ua, periodKey)
+    case SpoiltVolumeByPeriodPage       => _   => withPeriod(controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode), periodKey)
+    case DeclarationPage                => _   => withPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad(), periodKey)
+    case _                              => _   => Call(GET, BtaLink(config))
   }
 
   private def checkRouteMap(periodKey: String): Page => ReturnsUserAnswers => Call = {

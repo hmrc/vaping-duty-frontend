@@ -20,7 +20,6 @@ import base.SpecBase
 import forms.returns.DeclarationFormProvider
 import models.emailverification.ErrorModel
 import models.returns.DeclarationDetails
-import models.returns.submit.ReturnSubmittedResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -29,7 +28,7 @@ import pages.returns.DeclarationPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
+import services.returns.{ReturnsUserAnswersService, SubmitReturnService}
 import views.html.returns.submit.DeclarationView
 
 import scala.concurrent.Future
