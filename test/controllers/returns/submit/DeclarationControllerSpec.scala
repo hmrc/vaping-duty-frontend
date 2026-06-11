@@ -18,16 +18,18 @@ package controllers.returns.submit
 
 import base.SpecBase
 import forms.returns.DeclarationFormProvider
+import models.emailverification.ErrorModel
 import models.returns.DeclarationDetails
 import models.returns.submit.ReturnSubmittedResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.returns.DeclarationPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import services.returns.{ReturnsUserAnswersService, SubmitReturnService}
+import play.api.test.Helpers.*
+import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
 import views.html.returns.submit.DeclarationView
 
 import scala.concurrent.Future
@@ -201,6 +203,36 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+      "must redirect to journey recovery when there is an issue submitting" in {
+
+        val mockService = mock[SubmitReturnService]
+        val mockSessionRepository = mock[ReturnsUserAnswersService]
+
+        when(mockService.submit(any())(any())).thenReturn(Future.successful(Left(ErrorModel(BAD_GATEWAY, "Bad gateway"))))
+        when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+          .overrides(
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[SubmitReturnService].to(mockService)
+          )
+          .build()
+
+
+        running(application) {
+          val request = FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
+            .withFormUrlEncodedBody(
+              ("fullName", "John Smith"),
+              ("capacityInWhichSigned", "Director"),
+              ("signeesEmailAddress", "john.smith@example.com")
+            )
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
         }
       }
     }

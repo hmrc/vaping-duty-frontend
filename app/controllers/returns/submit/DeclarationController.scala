@@ -20,12 +20,13 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import forms.returns.DeclarationFormProvider
 import models.NormalMode
+import models.requests.returns.ReturnsDataRequest
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
 import navigation.ReturnsNavigator
 import pages.returns.DeclarationPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.returns.{ReturnsUserAnswersService, SubmitReturnService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.DeclarationView
@@ -64,16 +65,23 @@ class DeclarationController @Inject()(
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(request.periodKey, formWithErrors))),
+          formWithErrors =>
+            Future.successful(BadRequest(view(request.periodKey, formWithErrors))),
 
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclarationPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-            _              <- submitReturnService.submit(updatedAnswers)
-            _              <- userAnswersService.clear(request.enrolmentVpdId, request.periodKey)
-          } yield Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers))
-      )
+          value =>
+            Future.fromTry(request.userAnswers.set(DeclarationPage, value))
+        .flatMap { updatedAnswers =>
+          sessionRepository.set(updatedAnswers).flatMap { _ =>
+            submitAndContinue(updatedAnswers)
+          }
+        }
+    )
+  }
+
+  private def submitAndContinue(updatedAnswers: ReturnsUserAnswers)(using request: ReturnsDataRequest[?]): Future[Result] = {
+    submitReturnService.submit(updatedAnswers)
+      .flatMap(_ => userAnswersService.clear(request.enrolmentVpdId, request.periodKey))
+      .map(_ => Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers)))
+      .recover { case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()) }
   }
 }

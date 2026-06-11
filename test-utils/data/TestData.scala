@@ -214,7 +214,8 @@ trait TestData {
     submissionID = Option("submissionID"),
     chargeReference = Option("chargeReference"),
     amount = BigDecimal(0),
-    paymentDueDate = Option(LocalDate.now())
+    paymentDueDate = Option(LocalDate.now()),
+    declaration = testDeclarationDetails
   )
 
   val totalInMl = returnsUserAnswers.get(EnterDutyAmountPage).fold(BigDecimal(0))(value => BigDecimal(value))
@@ -386,7 +387,8 @@ trait TestData {
             exported = Some(BigDecimal("75.00")),
             amtRecieved = Some(BigDecimal("25.00"))
           )
-        )
+        ),
+        declaration = testDeclarationDetails
       )
     )
   }
