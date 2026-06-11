@@ -20,13 +20,13 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{DutyRateService, ReturnsUserAnswersService, SubmitReturnService}
+import services.returns.DutyRateService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class CheckYourAnswersController @Inject()(
                                             override val messagesApi: MessagesApi,
@@ -34,8 +34,6 @@ class CheckYourAnswersController @Inject()(
                                             getData: ReturnsDataRetrievalAction,
                                             requireData: ReturnsDataRequiredAction,
                                             returnsEnabled: ReturnsEnabledAction,
-                                            userAnswersService: ReturnsUserAnswersService,
-                                            submitReturnService: SubmitReturnService,
                                             dutyRateService: DutyRateService,
                                             val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourAnswersView

@@ -20,8 +20,7 @@ import base.SpecBase
 import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{reset, when}
-import org.scalatest.BeforeAndAfterEach
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.api.inject.bind
