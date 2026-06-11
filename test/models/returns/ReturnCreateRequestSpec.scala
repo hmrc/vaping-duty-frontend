@@ -22,15 +22,22 @@ import play.api.libs.json.Json
 
 class ReturnCreateRequestSpec extends SpecBase {
 
+  val testDeclaration: DeclarationDetails = DeclarationDetails(
+    fullName = "Test User",
+    capacityInWhichSigned = "Director",
+    signeesEmailAddress = "test@example.com"
+  )
+
   val returnCreateRequest: ReturnCreateRequest =
     ReturnCreateRequest(
       periodKey = periodKey.toString,
       vapingProductsProduced = VapingProductsProduced(Seq(), Seq()),
-      totalDutyDue = TotalDutyDue(1, 1, 1, 1, 1, 1)
+      totalDutyDue = TotalDutyDue(1, 1, 1, 1, 1, 1),
+      declaration = testDeclaration
     )
 
   "ReturnCreateRequest" - {
-    val json = """{"periodKey":"26AF","vapingProductsProduced":{"nilReturn":[],"regularReturn":[]},"totalDutyDue":{"totalDutyDueVapingProducts":1,"totalDutyOverDeclaration":1,"totalDutyUnderDeclaration":1,"totalDutySpoiltProduct":1,"adjustmentAmount":1,"totalDutyDue":1}}"""
+    val json = """{"periodKey":"26AF","vapingProductsProduced":{"nilReturn":[],"regularReturn":[]},"totalDutyDue":{"totalDutyDueVapingProducts":1,"totalDutyOverDeclaration":1,"totalDutyUnderDeclaration":1,"totalDutySpoiltProduct":1,"adjustmentAmount":1,"totalDutyDue":1},"declaration":{"fullName":"Test User","capacityInWhichSigned":"Director","signeesEmailAddress":"test@example.com"}}"""
 
     "must serialise to json" in {
       Json.toJson(returnCreateRequest).toString() mustBe json

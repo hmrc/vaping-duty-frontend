@@ -16,13 +16,14 @@
 
 package models.returns.submit
 
-import models.returns.{TotalDutyDue, VapingProductsProduced}
+import models.returns.{DeclarationDetails, TotalDutyDue, VapingProductsProduced}
 import play.api.libs.json.{Json, OFormat}
 
-case class ReturnCreateRequest(
+final case class ReturnCreateRequest(
   periodKey: String,
   vapingProductsProduced: VapingProductsProduced,
-  totalDutyDue: TotalDutyDue
+  totalDutyDue: TotalDutyDue,
+  declaration: DeclarationDetails
 )
 
 object ReturnCreateRequest {

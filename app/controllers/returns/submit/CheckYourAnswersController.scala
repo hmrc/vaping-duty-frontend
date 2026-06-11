@@ -37,7 +37,6 @@ class CheckYourAnswersController @Inject()(
                                        returnsEnabled: ReturnsEnabledAction,
                                        submitReturnService: SubmitReturnService,
                                        obligationService: ObligationService,
-                                       userAnswersService: ReturnsUserAnswersService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: CheckYourAnswersView
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
@@ -49,15 +48,8 @@ class CheckYourAnswersController @Inject()(
     }
   }
 
-  def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
-
-    submitReturnService.submit(request.userAnswers).map { response =>
-
-      userAnswersService.clear(request.enrolmentVpdId, request.periodKey)
-
-      Redirect(s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${request.periodKey}")
-
-    }.recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+  def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
+      Redirect(s"${controllers.returns.submit.routes.DeclarationController.onPageLoad().url}?period=${request.periodKey}")
   }
 
   private def getDutyRate(obligationService: ObligationService)(using request: ReturnsDataRequest[?]) = {

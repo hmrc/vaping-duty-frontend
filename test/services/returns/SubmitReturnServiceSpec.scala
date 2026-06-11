@@ -25,6 +25,7 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
+import pages.returns.DeclarationPage
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.InternalServerException
 
@@ -52,13 +53,18 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     periodKey = periodKey.toString
   )
 
+  private val userAnswersWithDeclaration = returnsUserAnswers
+    .set(DeclarationPage, testDeclarationDetails)
+    .success
+    .value
+
   given ReturnsDataRequest[?] = ReturnsDataRequest(
     FakeRequest(),
     vpdId,
     internalId,
     credId,
     periodKey,
-    returnsUserAnswers
+    userAnswersWithDeclaration
   )
 
   "SubmitReturnService" - {
@@ -84,7 +90,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           mockAppConfig
         )
 
-        val result = service.submit(returnsUserAnswers)
+        val result = service.submit(userAnswersWithDeclaration)
 
         whenReady(result) { response =>
           response mustBe testReturnSubmissionResponse
@@ -110,7 +116,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           mockAppConfig
         )
 
-        val result = service.submit(returnsUserAnswers)
+        val result = service.submit(userAnswersWithDeclaration)
 
         whenReady(result) { _ =>
           // Verify that the duty rate service was called with the correct date
@@ -138,7 +144,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           mockAppConfig
         )
 
-        val result = service.submit(returnsUserAnswers)
+        val result = service.submit(userAnswersWithDeclaration)
 
         whenReady(result.failed) { exception =>
           exception mustBe an[InternalServerException]
@@ -156,7 +162,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           mockAppConfig
         )
 
-        val result = service.submit(returnsUserAnswers)
+        val result = service.submit(userAnswersWithDeclaration)
 
         whenReady(result.failed) { exception =>
           exception mustBe a[IllegalStateException]

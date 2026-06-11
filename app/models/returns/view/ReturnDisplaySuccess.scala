@@ -31,7 +31,8 @@ final case class ReturnDisplaySuccess(
   spoiltProduct: Option[SpoiltProduct],
   totalDutyDue: Option[TotalDutyDue],
   totalDutyDueByTaxType: Option[TotalDutyDue],
-  otherOptions: Option[OtherOptions]
+  otherOptions: Option[OtherOptions],
+  declaration: DeclarationDetails
 )
 
 object ReturnDisplaySuccess {

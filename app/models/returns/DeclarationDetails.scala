@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package models.returns.submit
+package models.returns
 
-import models.returns.DeclarationDetails
 import play.api.libs.json.{Json, OFormat}
 
-import java.time.{Instant, LocalDate}
-
-case class ReturnSubmittedResponse(
-  processingDate: Instant,
-  vpdReferenceNumber: String,
-  submissionID: Option[String],
-  chargeReference: Option[String],
-  amount: BigDecimal,
-  paymentDueDate: Option[LocalDate],
-  declaration: DeclarationDetails
+final case class DeclarationDetails(
+  fullName: String,
+  capacityInWhichSigned: String,
+  signeesEmailAddress: String
 )
 
-object ReturnSubmittedResponse {
-  given OFormat[ReturnSubmittedResponse] = Json.format[ReturnSubmittedResponse]
+object DeclarationDetails {
+  implicit val format: OFormat[DeclarationDetails] = Json.format[DeclarationDetails]
 }

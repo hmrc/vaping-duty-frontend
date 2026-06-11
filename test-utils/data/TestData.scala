@@ -22,7 +22,7 @@ import models.identifiers.{CredentialId, GroupId, InternalId, PeriodKey, VpdId}
 import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
-import models.returns.{ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
+import models.returns.{DeclarationDetails, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
 
@@ -67,6 +67,12 @@ trait TestData {
     bouncedEmail = Some(false),
     correspondenceAddress = correspondenceAddress,
     countryCode = Some(countryCode)
+  )
+
+  val testDeclarationDetails: DeclarationDetails = DeclarationDetails(
+    fullName = "Test User",
+    capacityInWhichSigned = "Director",
+    signeesEmailAddress = "test@example.com"
   )
 
   val subscriptionSummaryPostWithEmail: SubscriptionSummary = subscriptionSummaryEmail.copy(paperlessPreference = false)
@@ -214,7 +220,8 @@ trait TestData {
     submissionID = Option("submissionID"),
     chargeReference = Option("chargeReference"),
     amount = BigDecimal(0),
-    paymentDueDate = Option(LocalDate.now())
+    paymentDueDate = Option(LocalDate.now()),
+    declaration = testDeclarationDetails
   )
 
   val totalInMl = returnsUserAnswers.get(EnterDutyAmountPage).fold(BigDecimal(0))(value => BigDecimal(value))
@@ -226,7 +233,8 @@ trait TestData {
   val testSubmitReturnRequest = ReturnCreateRequest(
     periodKey.toString,
     VapingProductsProduced(Seq.empty, Seq.empty),
-    TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue)
+    TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue),
+    testDeclarationDetails
   )
 
   def createMockObligationsResponse(): ObligationsResponse = {
@@ -379,7 +387,8 @@ trait TestData {
             exported = Some(BigDecimal("75.00")),
             amtRecieved = Some(BigDecimal("25.00"))
           )
-        )
+        ),
+        declaration = testDeclarationDetails
       )
     )
   }

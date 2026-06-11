@@ -30,11 +30,12 @@ class ReturnCreateResponseSpec extends SpecBase {
       submissionID = Some("SUbID"),
       chargeReference = Some("CR123"),
       amount = BigDecimal(1.0),
-     paymentDueDate = Some(java.time.LocalDate.parse("2024-01-31"))))
+      paymentDueDate = Some(java.time.LocalDate.parse("2024-01-31")),
+      declaration = testDeclarationDetails))
 
 
   "ReturnCreateResponse" - {
-    val json = """{"success":{"processingDate":"2024-01-01T00:00:00Z","vpdReferenceNumber":"VPD1234567890","submissionID":"SUbID","chargeReference":"CR123","amount":1,"paymentDueDate":"2024-01-31"}}"""
+    val json = """{"success":{"processingDate":"2024-01-01T00:00:00Z","vpdReferenceNumber":"VPD1234567890","submissionID":"SUbID","chargeReference":"CR123","amount":1,"paymentDueDate":"2024-01-31","declaration":{"fullName":"Test User","capacityInWhichSigned":"Director","signeesEmailAddress":"test@example.com"}}}"""
 
     "must serialise to json" in {
       Json.toJson(returnCreateResponse).toString() mustBe json
