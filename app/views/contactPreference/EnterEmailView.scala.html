@@ -16,13 +16,15 @@
 
 @import viewmodels.InputWidth._
 @import viewmodels.LabelSize
+@import forms.contactPreference.EnterEmailFormProvider
 
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    enterEmailFormProvider: EnterEmailFormProvider
 )
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
@@ -37,7 +39,7 @@
 
         @govukInput(
             InputViewModel(
-                field = form("value"),
+                field = form(enterEmailFormProvider.EMAIL),
                 label = LabelViewModel(messages("contactPreference.enterEmail.heading")).asPageHeading(LabelSize.Large)
             ).asEmail()
             .withWidth(Full)

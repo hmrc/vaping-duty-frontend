@@ -25,21 +25,21 @@ import javax.inject.Inject
 
 class DeclarationFormProvider @Inject() extends Mappings {
 
-  private val FULL_NAME_FIELD = "fullName"
-  private val CAPACITY_FIELD = "capacityInWhichSigned"
-  private val EMAIL_FIELD = "signeesEmailAddress"
+  val FULL_NAME = "fullName"
+  val CAPACITY = "capacityInWhichSigned"
+  val EMAIL = "email"
 
   def apply(): Form[DeclarationDetails] =
     Form(
       mapping(
-        FULL_NAME_FIELD -> textWithSpaces("returns.declaration.fullName.error.required")
+        FULL_NAME -> textWithSpaces("returns.declaration.fullName.error.required")
           .verifying(maxLength(120, "returns.declaration.fullName.error.length"))
           .verifying(regexp("""^[a-zA-Z0-9\-\.\s']+$""", "returns.declaration.fullName.error.invalidCharacters")),
         
-        CAPACITY_FIELD -> textWithSpaces("returns.declaration.capacity.error.required")
+        CAPACITY -> textWithSpaces("returns.declaration.capacity.error.required")
           .verifying(maxLength(100, "returns.declaration.capacity.error.length")),
         
-        EMAIL_FIELD -> text("returns.declaration.emailAddress.error.required")
+        EMAIL -> text("returns.declaration.emailAddress.error.required")
           .verifying(maxLength(132, "returns.declaration.emailAddress.error.length"))
           .verifying(email("returns.declaration.emailAddress.error.format"))
       )((fullName, capacityInWhichSigned, signeesEmailAddress) => 
