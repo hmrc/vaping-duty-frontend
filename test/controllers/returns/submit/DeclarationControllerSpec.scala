@@ -121,9 +121,9 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val request =
             FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
               .withFormUrlEncodedBody(
-                ("fullName", "John Smith"),
-                ("capacityInWhichSigned", "Director"),
-                ("signeesEmailAddress", "john.smith@example.com")
+                (formProvider.FULL_NAME, "John Smith"),
+                (formProvider.CAPACITY, "Director"),
+                (formProvider.EMAIL, "john.smith@example.com")
               )
 
           val result = route(application, request).value
@@ -223,9 +223,9 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
             .withFormUrlEncodedBody(
-              ("fullName", "John Smith"),
-              ("capacityInWhichSigned", "Director"),
-              ("signeesEmailAddress", "john.smith@example.com")
+              (formProvider.FULL_NAME, "John Smith"),
+              (formProvider.CAPACITY, "Director"),
+              (formProvider.EMAIL, "john.smith@example.com")
             )
 
           val result = route(application, request).value

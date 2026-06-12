@@ -113,7 +113,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody(("value", emailAddress))
+            .withFormUrlEncodedBody((formProvider.EMAIL, emailAddress))
 
         val result = route(application, request).value
 
@@ -143,7 +143,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody(("value", emailAddress))
+            .withFormUrlEncodedBody((formProvider.EMAIL, emailAddress))
 
         val result = route(application, request).value
 
@@ -178,7 +178,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody(("value", emailAddress))
+            .withFormUrlEncodedBody((formProvider.EMAIL, emailAddress))
 
         val result = route(application, request).value
 
@@ -207,7 +207,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody(("value", emailAddress))
+            .withFormUrlEncodedBody((formProvider.EMAIL, emailAddress))
 
         val result = route(application, request).value
 
@@ -241,7 +241,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody(("value", emailAddress2))
+            .withFormUrlEncodedBody((formProvider.EMAIL, emailAddress2))
 
         val result = route(application, request).value
 
@@ -275,7 +275,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody(("value", emailAddress2))
+            .withFormUrlEncodedBody((formProvider.EMAIL, emailAddress2))
 
         val result = route(application, request).value
 

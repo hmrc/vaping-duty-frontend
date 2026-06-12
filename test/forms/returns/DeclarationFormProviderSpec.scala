@@ -23,11 +23,13 @@ import play.api.data.FormError
 
 class DeclarationFormProviderSpec extends FormSpec with Constraints {
 
-  private val form = new DeclarationFormProvider()()
 
-  private val FULL_NAME_FIELD = "fullName"
-  private val CAPACITY_FIELD = "capacityInWhichSigned"
-  private val EMAIL_FIELD = "signeesEmailAddress"
+  private val formProvider = DeclarationFormProvider()
+  private val form = formProvider()
+
+  private val FULL_NAME_FIELD = formProvider.FULL_NAME
+  private val CAPACITY_FIELD = formProvider.CAPACITY
+  private val EMAIL_FIELD = formProvider.EMAIL
 
   "DeclarationFormProvider" - {
 

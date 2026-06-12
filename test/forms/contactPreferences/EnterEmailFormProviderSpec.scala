@@ -42,11 +42,12 @@ class EnterEmailFormProviderSpec extends StringFieldBehaviours with Constraints 
       " email with spaces @ some address .co .uk "
     )
 
-  val form = new EnterEmailFormProvider()()
+  private val formProvider = EnterEmailFormProvider()
+  private val form = formProvider()
 
   ".value" - {
 
-    val fieldName = "value"
+    val fieldName = formProvider.EMAIL
 
     behave like emailFieldWithValidData(
       form,
