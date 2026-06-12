@@ -55,6 +55,7 @@
                 field = form("capacityInWhichSigned"),
                 label = LabelViewModel(messages("returns.declaration.capacity.label"))
             )
+            .withAutocomplete("organization")
         )
 
         @govukInput(
