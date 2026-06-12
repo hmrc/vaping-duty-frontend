@@ -26,6 +26,7 @@ import models.identifiers.PeriodKey
 import models.returns.TotalDutyDue
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.ConfirmationViewModel
 import views.html.returns.submit.ConfirmationEmailView
@@ -41,35 +42,48 @@ class ConfirmationController @Inject()(
                                         view: ConfirmationEmailView,
                                         subscriptionConnector: SubscriptionConnector,
                                         getReturnsConnector: GetReturnsConnector,
+                                        obligationService: ObligationService,
                                         config: FrontendAppConfig
                                       )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
-
       val periodKey = request.getQueryString("period").fold(PeriodKey("99XX"))(PeriodKey(_))
 
       subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).flatMap {
         case Left(_) => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
         case Right(value) =>
-          getReturnsConnector.getReturn(periodKey, request.enrolmentVpdId).map { returnsResponse =>
-            val chargeReference = returnsResponse.success.chargeDetails
-              .flatMap(_.chargeReference)
-              .getOrElse("")
+          for {
+            returnsResponse <- getReturnsConnector.getReturn(periodKey, request.enrolmentVpdId)
+            obligationOpt <- obligationService.getObligationByPeriodKey(request.enrolmentVpdId, periodKey)
+          } yield {
+            obligationOpt match {
+              case Some(obligation) =>
+                val chargeReference = returnsResponse.success.chargeDetails
+                  .flatMap(_.chargeReference)
+                  .map(_.toUpperCase)
 
-            val email = value.emailAddress.getOrElse("")
-            
-            returnsResponse.success.totalDutyDue match {
-              case Some(totalDutyDueData) =>
-                val vm = ConfirmationViewModel(
-                  totalDutyDueData.totalDutyDue,
-                  email,
-                  chargeReference.toUpperCase,
-                  BtaLink(config),
-                  periodKey,
-                  controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url
-                )
-                Ok(view(vm))
+                val email = value.emailAddress.getOrElse("")
+                
+                returnsResponse.success.totalDutyDue match {
+                  case Some(totalDutyDueData) =>
+                    val vm = ConfirmationViewModel(
+                      totalDutyDueData.totalDutyDue,
+                      email,
+                      chargeReference,
+                      returnsResponse.success.processingDate,
+                      obligation.iCFromDate,
+                      obligation.iCToDate,
+                      obligation.iCDueDate,
+                      chargeReference.getOrElse(""),
+                      BtaLink(config),
+                      periodKey,
+                      controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url
+                    )
+                    Ok(view(vm))
+                  case None =>
+                    Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+                }
               case None =>
                 Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
             }

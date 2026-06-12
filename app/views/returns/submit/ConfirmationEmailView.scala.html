@@ -35,33 +35,51 @@
 @dynamicContent = { @vm.content }
 
 @layout(pageTitle = titleNoForm(messages("returns.confirmation.title")), showBackLink = false) {
-    @govukPanel(Panel(
-        title = Text(messages("returns.confirmation.panel.title")),
-        content = HtmlContent(
-            s"${messages("returns.confirmation.panel.yourReturn")} <span class=$boldFontWeight>${vm.vpdRef}</span>"
-        )
-    ))
+    @if(vm.totalDutyAmount == 0) {
+        @govukPanel(Panel(
+            title = Text(messages("returns.confirmation.panel.title"))
+        ))
+    } else {
+        @govukPanel(Panel(
+            title = Text(messages("returns.confirmation.panel.title")),
+            content = HtmlContent(
+                s"${messages("returns.confirmation.panel.chargeReference")}<br><span class=$boldFontWeight>${vm.chargeReference.getOrElse("")}</span>"
+            )
+        ))
+    }
 
     @p(Seq(
-        messages("returns.confirmation.p.weHave"),
-        HtmlContent(s" <span class=$boldFontWeight>${vm.email}</span>"),
-        messages("returns.confirmation.p.confirming", vm.date)
+        Text(messages("returns.confirmation.p.submitted", vm.submissionDate, vm.periodMonthYear))
     ))
 
-    @p(Seq(HtmlContent(link(
-        id = "view-return",
-        href = vm.viewReturnUrl,
-        text = messages("returns.confirmation.link.view")
-    ))))
+    @if(vm.showEmailConfirmation) {
+        @p(Seq(
+            messages("returns.confirmation.p.weHave"),
+            HtmlContent(s" <span class=$boldFontWeight>${vm.email}</span>"),
+            messages("returns.confirmation.p.confirming", vm.date)
+        ))
+    }
 
-    @h2(messages("returns.confirmation.h2.whatYou"))
+    @if(vm.showViewReturnLink) {
+        @p(Seq(HtmlContent(link(
+            id = "view-return",
+            href = vm.viewReturnUrl,
+            text = messages("returns.confirmation.link.view")
+        ))))
+    }
+
+    @if(vm.showWhatYouMustDoNext) {
+        @h2(messages("returns.confirmation.h2.whatYou"))
+    }
 
     @dynamicContent
 
     @h2(messages("returns.confirmation.h2.keep"))
 
-    @p(Seq(HtmlContent(printLink(id = "print", text = messages("returns.confirmation.button.print")))))
+    @p(Seq(HtmlContent(printLink(id = "print", text = messages("site.print")))))
 
-    @govukButton(ButtonViewModel(messages("returns.confirmation.button.goTo"))
-        .asLink(vm.btaLink))
+    @if(vm.showBtaButton) {
+        @govukButton(ButtonViewModel(messages("returns.confirmation.button.goTo"))
+            .asLink(vm.btaLink))
+    }
 }
