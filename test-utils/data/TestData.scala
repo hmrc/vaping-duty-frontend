@@ -258,41 +258,39 @@ trait TestData {
   }
 
   private def completedReturn(periodKey: PeriodKey) = {
-    val obligationStatus = ObligationStatus.F
-    ObligationItem(
-      identification = None,
-      obligationDetails = ObligationDetails(
-        openOrFulfilledStatus = obligationStatus.toString,
-        iCFromDate = firstDayOf(periodKey),
-        iCToDate = lastDayOf(periodKey),
-        iCDateReceived = receivedAfterDueDate(periodKey),
-        iCDueDate = dueDate(periodKey),
-        periodKey = periodKey.value
-      )
-    )
+    buildObligationItem(periodKey, ObligationStatus.F)
   }
 
   private def outstandingReturn(periodKey: PeriodKey) = {
-    val obligationStatus = ObligationStatus.O
+    buildObligationItem(periodKey, ObligationStatus.O)
+  }
+
+  private def buildObligationItem(periodKey: PeriodKey,
+                                  obligationStatus: ObligationStatus) = {
     ObligationItem(
       identification = None,
       obligationDetails = ObligationDetails(
         openOrFulfilledStatus = obligationStatus.toString,
         iCFromDate = firstDayOf(periodKey),
         iCToDate = lastDayOf(periodKey),
-        iCDateReceived = None,
+        iCDateReceived = dateReceived(periodKey, obligationStatus),
         iCDueDate = dueDate(periodKey),
         periodKey = periodKey.value
       )
     )
   }
 
-  def firstDayOf(periodKey: PeriodKey) = LocalDate.of(year(periodKey), month(periodKey), 1)
-  def lastDayOf(periodKey: PeriodKey)  = firstDayOf(periodKey).plusMonths(1).minusDays(1)
-  def dueDate(periodKey: PeriodKey)    = firstDayOf(periodKey).plusMonths(1).plusDays(6)
+  private def firstDayOf(periodKey: PeriodKey) = LocalDate.of(year(periodKey), month(periodKey), 1)
+  private def lastDayOf(periodKey: PeriodKey)  = firstDayOf(periodKey).plusMonths(1).minusDays(1)
+  private def dueDate(periodKey: PeriodKey)    = firstDayOf(periodKey).plusMonths(1).plusDays(6)
 
-  def receivedBeforeDueDate(october2027: PeriodKey) = Some(dueDate(october2027).minusDays(1))
-  def receivedAfterDueDate(october2027: PeriodKey)  = Some(dueDate(october2027).plusDays(1))
+  private def dateReceived(periodKey: PeriodKey, obligationStatus: ObligationStatus) =
+    obligationStatus match {
+      case ObligationStatus.F => Some(receivedAfterDueDate(periodKey))
+      case ObligationStatus.O => None
+  }
+  private def receivedBeforeDueDate(october2027: PeriodKey) = dueDate(october2027).minusDays(1)
+  private def receivedAfterDueDate(october2027: PeriodKey)  = dueDate(october2027).plusDays(1)
 
   def month(periodKey: PeriodKey): Int = (periodKey.value.last - 'A') + 1
   def year(periodKey: PeriodKey): Int = ("20" + periodKey.value.take(2)).toInt
