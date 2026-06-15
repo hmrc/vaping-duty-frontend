@@ -18,29 +18,23 @@ package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
+import models.obligations.ObligationDetails
 import models.returns.AdjustmentsEligibility
 import viewmodels.returns.submit.BeforeYouStartViewModel
-
-import java.time.LocalDate
 
 
 class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
   
   "BeforeYouStartViewModel" - {
-    val obligationsWithFulfilled = obligations(
-      Seq(
-        openObligation(december2027),
-        openObligation(november2027),
-        fulfilledObligation(october2027)
-      )
-    )
-
-    val obligationsWithoutFulfilled = obligations(
-      Seq(openObligation(december2027))
-    )
 
     "when user has fulfilled returns" - {
+      val obligationsWithFulfilled = obligations(
+        Seq(
+          openObligation(december2027),
+          openObligation(november2027),
+          fulfilledObligation(october2027)
+        )
+      )
       val vm = BeforeYouStartViewModel(obligationsWithFulfilled, november2027).get
 
       "return the correct year of the return" in {
@@ -65,6 +59,9 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
     }
 
     "when user has no fulfilled returns" - {
+      val obligationsWithoutFulfilled = obligations(
+        Seq(openObligation(december2027))
+      )
       val vm = BeforeYouStartViewModel(obligationsWithoutFulfilled, december2027).get
 
       "return the correct month due" in {
@@ -84,7 +81,10 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
       val nonExistentPeriodKey = PeriodKey("99ZZ")
 
       "return None" in {
-        val result = BeforeYouStartViewModel(obligationsWithFulfilled, nonExistentPeriodKey)
+        val anyOldObligations = obligations(
+          Seq(openObligation(december2027))
+        )
+        val result = BeforeYouStartViewModel(anyOldObligations, nonExistentPeriodKey)
         
         result mustBe None
       }
