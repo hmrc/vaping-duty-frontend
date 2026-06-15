@@ -237,23 +237,24 @@ trait TestData {
     testDeclarationDetails
   )
 
-  def createMockObligationsResponse(): ObligationsResponse = {
-    // Hmm... we need to do something about managing the time during tests.
-    val currentDate = LocalDate.now()
+  val october2027 = PeriodKey("27AJ")
+  val november2027 = PeriodKey("27AK")
+  val december2027 = PeriodKey("27AL")
 
-    val october2027 = PeriodKey("27AJ")
-    val november2027 = PeriodKey("27AK")
-    val december2027 = PeriodKey("27AL")
-    
+  def createMockObligationsResponse(): ObligationsResponse = {
     ObligationsResponse(
-      obligation = Seq(
-        // Outstanding return - Due
-        outstandingReturn(december2027),
-        // Outstanding return - Overdue
-        outstandingReturn(november2027),
-        // Completed return
-        completedReturn(october2027)
-      )
+      obligation = createMockObligations()
+    )
+  }
+
+  def createMockObligations(): Seq[ObligationItem] = {
+    Seq(
+      // Outstanding return - Due
+      outstandingReturn(december2027),
+      // Outstanding return - Overdue
+      outstandingReturn(november2027),
+      // Completed return
+      completedReturn(october2027)
     )
   }
 
@@ -269,14 +270,18 @@ trait TestData {
                                   obligationStatus: ObligationStatus) = {
     ObligationItem(
       identification = None,
-      obligationDetails = ObligationDetails(
-        openOrFulfilledStatus = obligationStatus.toString,
-        iCFromDate = firstDayOf(periodKey),
-        iCToDate = lastDayOf(periodKey),
-        iCDateReceived = dateReceived(periodKey, obligationStatus),
-        iCDueDate = dueDate(periodKey),
-        periodKey = periodKey.value
-      )
+      obligationDetails = buildObligationDetails(periodKey, obligationStatus)
+    )
+  }
+
+  private def buildObligationDetails(periodKey: PeriodKey, obligationStatus: ObligationStatus) = {
+    ObligationDetails(
+      openOrFulfilledStatus = obligationStatus.toString,
+      iCFromDate = firstDayOf(periodKey),
+      iCToDate = lastDayOf(periodKey),
+      iCDateReceived = dateReceived(periodKey, obligationStatus),
+      iCDueDate = dueDate(periodKey),
+      periodKey = periodKey.value
     )
   }
 

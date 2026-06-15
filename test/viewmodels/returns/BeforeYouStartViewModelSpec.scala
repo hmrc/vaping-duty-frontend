@@ -31,7 +31,7 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
     val october2027 = PeriodKey("27AJ")
     val december2027 = PeriodKey("27AL")
 
-    val obligationsWithFulfilled = createMockObligationsResponse().obligation
+    val obligationsWithFulfilled = createMockObligations()
 
     val obligationsWithoutFulfilled = Seq(
       ObligationItem(
