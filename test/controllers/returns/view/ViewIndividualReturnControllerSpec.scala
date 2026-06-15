@@ -50,7 +50,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url)
+        val request = FakeRequest(GET, routes.ViewIndividualReturnController.onPageLoad(periodKey).url)
 
         val result = route(application, request).value
 
@@ -87,7 +87,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url)
+        val request = FakeRequest(GET, routes.ViewIndividualReturnController.onPageLoad(periodKey).url)
 
         val result = route(application, request).value
 
