@@ -17,14 +17,13 @@
 package controllers.returns.submit
 
 import base.SpecBase
-import models.emailverification.ErrorModel
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.{DutyRateService, ObligationService, SubmitReturnService}
+import services.returns.DutyRateService
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
 

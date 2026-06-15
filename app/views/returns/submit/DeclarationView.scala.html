@@ -17,6 +17,7 @@
 @import components.*
 @import models.identifiers.PeriodKey
 @import models.returns.DeclarationDetails
+@import forms.returns.DeclarationFormProvider
 
 @this(
         layout: templates.ReturnsLayout,
@@ -26,7 +27,8 @@
         govukButton: GovukButton,
         caption: Caption,
         h1: Heading,
-        p: Paragraph
+        p: Paragraph,
+        declarationFormProvider: DeclarationFormProvider
 )
 
 @(periodKey: PeriodKey, form: Form[DeclarationDetails])(implicit request: Request[_], messages: Messages)
@@ -44,22 +46,23 @@
 
         @govukInput(
             InputViewModel(
-                field = form("fullName"),
+                field = form(declarationFormProvider.FULL_NAME),
                 label = LabelViewModel(messages("returns.declaration.fullName.label"))
             )
             .withAutocomplete("name")
         )
-
+        
         @govukInput(
             InputViewModel(
-                field = form("capacityInWhichSigned"),
+                field = form(declarationFormProvider.CAPACITY),
                 label = LabelViewModel(messages("returns.declaration.capacity.label"))
             )
+            .withAutocomplete("organization")
         )
 
         @govukInput(
             InputViewModel(
-                field = form("signeesEmailAddress"),
+                field = form(declarationFormProvider.EMAIL),
                 label = LabelViewModel(messages("returns.declaration.emailAddress.label"))
             ).asEmail()
         )

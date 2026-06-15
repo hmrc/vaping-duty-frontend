@@ -41,29 +41,34 @@ object BeforeYouStartViewModel {
       .map(_.obligationDetails)
       .find(_.periodKey == periodKey.toString)
       .map { details =>
+        val dayDue: Int = details.iCDueDate.getDayOfMonth
         val monthDue: Month = details.iCDueDate.getMonth
         val yearDue: Int = details.iCDueDate.getYear
 
         val returnMonth: Month = details.iCFromDate.getMonth
         val returnYear: Int = details.iCFromDate.getYear
 
-        beforeYouStartViewModel(adjustmentsEligibility, monthDue, returnMonth, returnYear, yearDue)
+        beforeYouStartViewModel(adjustmentsEligibility, dayDue, monthDue, returnMonth, returnYear, yearDue)
       }
   }
 
   private def beforeYouStartViewModel(
                                        adjustmentsEligibility: AdjustmentsEligibility,
+                                       dayDue: Int,
                                        monthDue: Month,
                                        returnMonth: Month,
                                        returnYear: Int,
                                        dueYear: Int)
-                                     (implicit messages: Messages) =
+                                     (implicit messages: Messages) = {
+
+    val dueMonthWithDay = s"${dayDue.toString} ${getDueDate(monthDue)}"
 
     new BeforeYouStartViewModel(
       getMonthMessage(returnMonth),
       returnYear,
-      getDueDate(monthDue),
+      dueMonthWithDay,
       dueYear,
       adjustmentsEligibility
     )
+  }
 }
