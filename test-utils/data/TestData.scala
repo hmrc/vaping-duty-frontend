@@ -250,21 +250,24 @@ trait TestData {
   def createMockObligations(): Seq[ObligationItem] = {
     Seq(
       // Outstanding return - Due
-      outstandingReturn(december2027),
+      openObligation(december2027),
       // Outstanding return - Overdue
-      outstandingReturn(november2027),
+      openObligation(november2027),
       // Completed return
-      completedReturn(october2027)
+      fulfilledObligation(october2027)
+    ).map(od =>     ObligationItem(
+      identification = None,
+      obligationDetails = od
+    )
     )
   }
 
-  private def completedReturn(periodKey: PeriodKey) = {
-    buildObligationItem(periodKey, ObligationStatus.F)
-  }
+  // Synonyms for obligations in terms of returns
+  def completedReturn(periodKey: PeriodKey): ObligationDetails = fulfilledObligation(periodKey)
+  def outstandingReturn(periodKey: PeriodKey): ObligationDetails = openObligation(periodKey)
 
-  private def outstandingReturn(periodKey: PeriodKey) = {
-    buildObligationItem(periodKey, ObligationStatus.O)
-  }
+  def fulfilledObligation(periodKey: PeriodKey): ObligationDetails = buildObligationDetails(periodKey, ObligationStatus.F)
+  def openObligation(periodKey: PeriodKey): ObligationDetails = buildObligationDetails(periodKey, ObligationStatus.O)
 
   private def buildObligationItem(periodKey: PeriodKey,
                                   obligationStatus: ObligationStatus) = {
