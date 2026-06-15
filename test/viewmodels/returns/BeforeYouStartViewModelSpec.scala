@@ -41,7 +41,7 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
     )
 
     "when user has fulfilled returns" - {
-      val vm = BeforeYouStartViewModel(obligationsWithFulfilled, october2027).get
+      val vm = BeforeYouStartViewModel(obligationsWithFulfilled, november2027).get
 
       "return the correct year of the return" in {
         vm.yearOfReturn mustBe 2027
@@ -52,11 +52,11 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
       }
 
       "return the correct month due" in {
-        vm.dueDate mustBe "7 November"
+        vm.dueDate mustBe "7 December"
       }
 
       "return the correct return period month" in {
-        vm.returnPeriod mustBe "October"
+        vm.returnPeriod mustBe "November"
       }
 
       "return Eligible for adjustmentsEligibility" in {
