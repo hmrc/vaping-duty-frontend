@@ -100,8 +100,6 @@ object ConfirmationViewModel extends CurrencyFormatter {
   private def getContent(dutyDue: BigDecimal, paymentDueDate: String)(implicit messages: Messages): Html = {
     if (dutyDue > 0) {
       getPositiveContent(dutyDue, paymentDueDate)
-    } else if (dutyDue < 0) {
-      getNegativeContent(dutyDue)
     } else {
       getZeroContent()
     }
@@ -112,7 +110,6 @@ object ConfirmationViewModel extends CurrencyFormatter {
     val p = Paragraph()
     val h2 = Heading2()
     val list = ListWithLinks()
-    val link = Link()
 
     val warningSection = warning(WarningText(
       iconFallbackText = Some(messages("site.warning")),
@@ -129,16 +126,6 @@ object ConfirmationViewModel extends CurrencyFormatter {
     ), classes = "govuk-list govuk-list--bullet")
 
     HtmlFormat.fill(Seq(warningSection, directDebitParagraph, whatNextHeading, bulletList))
-  }
-
-  private def getNegativeContent(dutyDue: BigDecimal)(implicit messages: Messages): Html = {
-    val govukInsetText = GovukInsetText()
-    
-    val insetSection = govukInsetText(InsetText(
-      content = Text(messages("returns.confirmation.inset.youAreOwed", currencyFormat(dutyDue.abs)))
-    ))
-
-    insetSection
   }
 
   private def getZeroContent()(implicit messages: Messages): Html = {
