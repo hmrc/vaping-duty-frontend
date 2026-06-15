@@ -36,8 +36,6 @@ class ConfirmationControllerSpec extends SpecBase {
 
   "ConfirmationController" - {
 
-    val viewReturnUrl = s"${controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url}"
-
     "must return OK and the correct view for a GET" in {
 
       val mockSubscriptionConnector = mock[SubscriptionConnector]
@@ -50,6 +48,7 @@ class ConfirmationControllerSpec extends SpecBase {
 
       running(application) {
 
+        val viewReturnUrl = s"${controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url}"
 
         val contactPreference = SubscriptionContactPreferences(true, Option(emailAddress))
 
