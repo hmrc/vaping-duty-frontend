@@ -274,12 +274,14 @@ trait TestData {
     )
   }
 
-  private def buildObligationDetails(periodKey: PeriodKey, obligationStatus: ObligationStatus) = {
+  private def buildObligationDetails(periodKey: PeriodKey,
+                                     obligationStatus: ObligationStatus,
+                                     submittedOnTime: Boolean = false) = {
     ObligationDetails(
       openOrFulfilledStatus = obligationStatus.toString,
       iCFromDate = firstDayOf(periodKey),
       iCToDate = lastDayOf(periodKey),
-      iCDateReceived = dateReceived(periodKey, obligationStatus),
+      iCDateReceived = dateReceived(periodKey, obligationStatus, submittedOnTime),
       iCDueDate = dueDate(periodKey),
       periodKey = periodKey.value
     )
@@ -289,9 +291,15 @@ trait TestData {
   private def lastDayOf(periodKey: PeriodKey)  = firstDayOf(periodKey).plusMonths(1).minusDays(1)
   private def dueDate(periodKey: PeriodKey)    = firstDayOf(periodKey).plusMonths(1).plusDays(6)
 
-  private def dateReceived(periodKey: PeriodKey, obligationStatus: ObligationStatus) =
+  private def dateReceived(periodKey: PeriodKey,
+                           obligationStatus: ObligationStatus,
+                           submittedOnTime: Boolean) =
     obligationStatus match {
-      case ObligationStatus.F => Some(receivedAfterDueDate(periodKey))
+      case ObligationStatus.F => Some(
+        submittedOnTime match {
+          case true  => receivedBeforeDueDate(periodKey)
+          case false => receivedAfterDueDate(periodKey)
+          })
       case ObligationStatus.O => None
   }
   private def receivedBeforeDueDate(october2027: PeriodKey) = dueDate(october2027).minusDays(1)
