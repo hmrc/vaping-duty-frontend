@@ -28,23 +28,16 @@ import java.time.LocalDate
 class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
   
   "BeforeYouStartViewModel" - {
-    val october2027 = PeriodKey("27AJ")
-    val december2027 = PeriodKey("27AL")
-
-    val obligationsWithFulfilled = createMockObligations()
-
-    val obligationsWithoutFulfilled = Seq(
-      ObligationItem(
-        identification = None,
-        obligationDetails = ObligationDetails(
-          openOrFulfilledStatus = ObligationStatus.O.toString,
-          iCFromDate = LocalDate.of(2027, 12, 1),
-          iCToDate = LocalDate.of(2027, 12, 31),
-          iCDateReceived = None,
-          iCDueDate = LocalDate.of(2028, 1, 7),
-          periodKey = december2027.toString
-        )
+    val obligationsWithFulfilled = obligations(
+      Seq(
+        openObligation(december2027),
+        openObligation(november2027),
+        fulfilledObligation(october2027)
       )
+    )
+
+    val obligationsWithoutFulfilled = obligations(
+      Seq(openObligation(december2027))
     )
 
     "when user has fulfilled returns" - {
