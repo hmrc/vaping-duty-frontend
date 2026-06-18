@@ -202,7 +202,7 @@ returns.enterDutyAmount.error.nonNumeric = Enter a volume with up to 12 digits a
 returns.enterDutyAmount.error.required = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.enterDutyAmount.error.wholeNumber = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.enterDutyAmount.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
-returns.enterDutyAmount.error.invalidDecimalPlaces = Enter a volume to the correct number of decimal places (1 decimal place for 1 litre or more, 2 decimal places for less than 1 litre)
+returns.enterDutyAmount.error.invalidDecimalPlaces = Enter 1 decimal place for amounts of 1 litre or more, for example 1.5 and 2 decimal places for amounts less than 1 litre, for example 0.75
 returns.enterDutyAmount.change.hidden = EnterDutyAmount
 
 returns.declareSpoiltProducts.title = Declare spoilt products from an earlier return
