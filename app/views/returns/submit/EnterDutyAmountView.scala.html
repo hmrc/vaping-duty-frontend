@@ -15,7 +15,7 @@
  *@
 
 @import viewmodels.InputWidth.*
-@import components.{Caption, Paragraph, Heading}
+@import components.{Caption, Paragraph, Heading, List}
 @import viewmodels.LegendSize
 @import models.identifiers.PeriodKey
 @import play.api.mvc.Call
@@ -30,7 +30,8 @@
     caption: Caption,
     p: Paragraph,
     govukHint: GovukHint,
-    h1: Heading
+    h1: Heading,
+    list: List
 )
 
 @(periodKey: PeriodKey, form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
@@ -51,11 +52,19 @@
         @caption(messages("returns.enterDutyAmount.caption.text"))
         @h1(messages("returns.enterDutyAmount.heading"))
 
-        @p(Seq(
-            HtmlContent(
-                messages("returns.enterDutyAmount.p")
-            )
-        ))
+        @p(Seq(messages("returns.enterDutyAmount.p")))
+        @p(Seq(messages("returns.enterDutyAmount.p1")))
+
+        @list(
+            Seq(
+                    messages("returns.enterDutyAmount.list1"),
+                    messages("returns.enterDutyAmount.list2")
+                ),
+            classes = "govuk-list govuk-list--bullet"
+        )
+
+        @p(Seq(messages("returns.enterDutyAmount.p2")))
+        @p(Seq(messages("returns.enterDutyAmount.p3")))
 
         @govukDetails(Details(
             summary = messages("returns.enterDutyAmount.details.key"),
