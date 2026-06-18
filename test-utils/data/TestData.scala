@@ -237,50 +237,77 @@ trait TestData {
     testDeclarationDetails
   )
 
-  def createMockObligationsResponse(): ObligationsResponse = {
-    val currentDate = LocalDate.now()
+  val october2027 = PeriodKey("27AJ")
+  val november2027 = PeriodKey("27AK")
+  val december2027 = PeriodKey("27AL")
 
+  def createMockObligationsResponse(): ObligationsResponse = {
     ObligationsResponse(
-      obligation = Seq(
+      obligation = createMockObligations()
+    )
+  }
+
+  def createMockObligations(): Seq[ObligationItem] = {
+    obligations(
+      Seq(
         // Outstanding return - Due
-        ObligationItem(
-          identification = None,
-          obligationDetails = ObligationDetails(
-            openOrFulfilledStatus = ObligationStatus.O.toString,
-            iCFromDate = LocalDate.of(2027, 12, 1),
-            iCToDate = LocalDate.of(2027, 12, 31),
-            iCDateReceived = None,
-            iCDueDate = LocalDate.of(2028, 1, 7),
-            periodKey = "27AL"
-          )
-        ),
+        openObligation(december2027),
         // Outstanding return - Overdue
-        ObligationItem(
-          identification = None,
-          obligationDetails = ObligationDetails(
-            openOrFulfilledStatus = ObligationStatus.O.toString,
-            iCFromDate = LocalDate.of(2027, 11, 1),
-            iCToDate = LocalDate.of(2027, 11, 30),
-            iCDateReceived = None,
-            iCDueDate = currentDate.minusDays(5),
-            periodKey = "27AK"
-          )
-        ),
+        openObligation(november2027),
         // Completed return
-        ObligationItem(
-          identification = None,
-          obligationDetails = ObligationDetails(
-            openOrFulfilledStatus = "F",
-            iCFromDate = LocalDate.of(2027, 10, 1),
-            iCToDate = LocalDate.of(2027, 10, 31),
-            iCDateReceived = Some(LocalDate.of(2027, 11, 15)),
-            iCDueDate = LocalDate.of(2027, 11, 30),
-            periodKey = "27AJ"
-          )
-        )
+        fulfilledObligation(october2027)
       )
     )
   }
+
+  // Synonyms for obligations in terms of returns
+  def returns(returns: Seq[ObligationDetails]): Seq[ObligationItem] = obligations(returns)
+  def completedReturn(periodKey: PeriodKey): ObligationDetails = fulfilledObligation(periodKey)
+  def outstandingReturn(periodKey: PeriodKey): ObligationDetails = openObligation(periodKey)
+
+  def obligations(obligations: Seq[ObligationDetails]): Seq[ObligationItem] = {
+    obligations.map(obligationDetails =>
+      ObligationItem(
+        identification = None,
+        obligationDetails = obligationDetails)
+    )
+  }
+  def fulfilledObligation(periodKey: PeriodKey): ObligationDetails = obligationDetails(periodKey, ObligationStatus.F)
+  def openObligation(periodKey: PeriodKey): ObligationDetails      = obligationDetails(periodKey, ObligationStatus.O)
+
+  private def obligationDetails(periodKey: PeriodKey,
+                                obligationStatus: ObligationStatus,
+                                submittedOnTime: Boolean = false) = {
+    ObligationDetails(
+      openOrFulfilledStatus = obligationStatus.toString,
+      iCFromDate            = firstDayOf(periodKey),
+      iCToDate              = lastDayOf(periodKey),
+      iCDateReceived        = dateReceived(periodKey, obligationStatus, submittedOnTime),
+      iCDueDate             = dueDate(periodKey),
+      periodKey             = periodKey.value
+    )
+  }
+
+  private def firstDayOf(periodKey: PeriodKey) = LocalDate.of(year(periodKey), month(periodKey), 1)
+  private def lastDayOf(periodKey: PeriodKey)  = firstDayOf(periodKey).plusMonths(1).minusDays(1)
+  private def dueDate(periodKey: PeriodKey)    = firstDayOf(periodKey).plusMonths(1).plusDays(6)
+
+  private def dateReceived(periodKey: PeriodKey,
+                           obligationStatus: ObligationStatus,
+                           submittedOnTime: Boolean) =
+    obligationStatus match {
+      case ObligationStatus.F => Some(
+        submittedOnTime match {
+          case true  => receivedBeforeDueDate(periodKey)
+          case false => receivedAfterDueDate(periodKey)
+          })
+      case ObligationStatus.O => None
+  }
+  private def receivedBeforeDueDate(october2027: PeriodKey) = dueDate(october2027).minusDays(1)
+  private def receivedAfterDueDate(october2027: PeriodKey)  = dueDate(october2027).plusDays(1)
+
+  def month(periodKey: PeriodKey): Int = (periodKey.value.last - 'A') + 1
+  def year(periodKey: PeriodKey): Int = ("20" + periodKey.value.take(2)).toInt
 
   def createReturnDisplayResponse(): ReturnDisplayResponse = {
     ReturnDisplayResponse(

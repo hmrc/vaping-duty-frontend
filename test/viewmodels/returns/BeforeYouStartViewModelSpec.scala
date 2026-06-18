@@ -18,71 +18,39 @@ package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
+import models.obligations.ObligationDetails
 import models.returns.AdjustmentsEligibility
 import viewmodels.returns.submit.BeforeYouStartViewModel
-
-import java.time.{LocalDate, Month}
-import java.time.format.TextStyle
-import java.util.Locale
 
 
 class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
   
   "BeforeYouStartViewModel" - {
-    val testPeriodKeyOctober = PeriodKey("27AJ")
-    val testMonthOctober = Month.OCTOBER
-
-    val testPeriodKeyDecember = PeriodKey("27AL")
-    val testMonthDecember = Month.DECEMBER
-
-    val obligationsWithFulfilled = createMockObligationsResponse().obligation
-
-    val obligationsWithoutFulfilled = Seq(
-      ObligationItem(
-        identification = None,
-        obligationDetails = ObligationDetails(
-          openOrFulfilledStatus = ObligationStatus.O.toString,
-          iCFromDate = LocalDate.of(2027, 12, 1),
-          iCToDate = LocalDate.of(2027, 12, 31),
-          iCDateReceived = None,
-          iCDueDate = LocalDate.of(2028, 1, 7),
-          periodKey = testPeriodKeyDecember.toString
-        )
-      )
-    )
 
     "when user has fulfilled returns" - {
-      val vm = BeforeYouStartViewModel(obligationsWithFulfilled, testPeriodKeyOctober).get
+      val obligationsWithFulfilled = obligations(
+        Seq(
+          openObligation(december2027),
+          openObligation(november2027),
+          fulfilledObligation(october2027)
+        )
+      )
+      val vm = BeforeYouStartViewModel(obligationsWithFulfilled, november2027).get
 
       "return the correct year of the return" in {
-        val expectedResult = obligationsWithFulfilled
-          .find(_.obligationDetails.periodKey == testPeriodKeyOctober.toString)
-          .map(_.obligationDetails.iCFromDate.getYear)
-          .getOrElse(fail("Test setup error: October obligation not found"))
-
-        vm.yearOfReturn mustBe expectedResult
+        vm.yearOfReturn mustBe 2027
       }
 
       "return the correct year the return is due" in {
-        val expectedResult = obligationsWithFulfilled
-          .find(_.obligationDetails.periodKey == testPeriodKeyOctober.toString)
-          .map(_.obligationDetails.iCDueDate.getYear)
-          .getOrElse(fail("Test setup error: October obligation not found"))
-
-        vm.dueYear mustBe expectedResult
+        vm.dueYear mustBe 2027
       }
 
       "return the correct month due" in {
-        val expectedResult = s"30 ${testMonthOctober.plus(1).getDisplayName(TextStyle.FULL, Locale.UK)}"
-
-        vm.dueDate mustBe expectedResult
+        vm.dueDate mustBe "7 December"
       }
 
       "return the correct return period month" in {
-        val expectedResult = testMonthOctober.getDisplayName(TextStyle.FULL, Locale.UK)
-
-        vm.returnPeriod mustBe expectedResult
+        vm.returnPeriod mustBe "November"
       }
 
       "return Eligible for adjustmentsEligibility" in {
@@ -91,18 +59,17 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
     }
 
     "when user has no fulfilled returns" - {
-      val vm = BeforeYouStartViewModel(obligationsWithoutFulfilled, testPeriodKeyDecember).get
+      val obligationsWithoutFulfilled = obligations(
+        Seq(openObligation(december2027))
+      )
+      val vm = BeforeYouStartViewModel(obligationsWithoutFulfilled, december2027).get
 
       "return the correct month due" in {
-        val expectedResult = s"7 ${testMonthDecember.plus(1).getDisplayName(TextStyle.FULL, Locale.UK)}"
-
-        vm.dueDate mustBe expectedResult
+        vm.dueDate mustBe "7 January"
       }
 
       "return the correct return period month" in {
-        val expectedResult = testMonthDecember.getDisplayName(TextStyle.FULL, Locale.UK)
-
-        vm.returnPeriod mustBe expectedResult
+        vm.returnPeriod mustBe "December"
       }
 
       "return NotEligible for adjustmentsEligibility" in {
@@ -114,7 +81,10 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
       val nonExistentPeriodKey = PeriodKey("99ZZ")
 
       "return None" in {
-        val result = BeforeYouStartViewModel(obligationsWithFulfilled, nonExistentPeriodKey)
+        val anyOldObligations = obligations(
+          Seq(openObligation(december2027))
+        )
+        val result = BeforeYouStartViewModel(anyOldObligations, nonExistentPeriodKey)
         
         result mustBe None
       }
