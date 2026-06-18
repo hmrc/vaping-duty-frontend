@@ -41,7 +41,6 @@ object DutySuspenseCheckAnswersViewModel {
     
     userAnswers.get(DeclareDutySuspensePage).flatMap { declareDutySuspense =>
       if (declareDutySuspense) {
-        // User answered YES - must have volumes or return None (journey recovery)
         userAnswers.get(EnterDutySuspensePage).map { volumes =>
           DutySuspenseCheckAnswersViewModel(
             heading = messages("returns.dutySuspenseCheckAnswers.heading"),
@@ -55,7 +54,6 @@ object DutySuspenseCheckAnswersViewModel {
           )
         }
       } else {
-        // User answered NO - nil return, no volumes needed
         Some(DutySuspenseCheckAnswersViewModel(
           heading = messages("returns.dutySuspenseCheckAnswers.noDutyHeading"),
           summaryList = buildSummaryListNilReturn(declareDutySuspense, periodKey),

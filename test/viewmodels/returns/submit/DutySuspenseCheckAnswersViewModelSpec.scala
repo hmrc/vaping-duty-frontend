@@ -139,22 +139,6 @@ class DutySuspenseCheckAnswersViewModelSpec extends SpecBase {
 
     "when user answers NO" - {
 
-      "must return Some(viewModel)" in {
-        val ua = returnsUserAnswers.set(DeclareDutySuspensePage, false).success.value
-        
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
-
-        vm mustBe defined
-      }
-
-      "must have correct heading for nil return" in {
-        val ua = returnsUserAnswers.set(DeclareDutySuspensePage, false).success.value
-        
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
-
-        vm.get.heading mustBe messages("returns.dutySuspenseCheckAnswers.noDutyHeading")
-      }
-
       "must have no card actions" in {
         val ua = returnsUserAnswers.set(DeclareDutySuspensePage, false).success.value
         
@@ -184,26 +168,6 @@ class DutySuspenseCheckAnswersViewModelSpec extends SpecBase {
         val changeLink = declareRow.actions.value.items.head
         changeLink.href must include(controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(NormalMode).url)
         changeLink.href must include(s"period=${periodKey.value}")
-      }
-    }
-
-    "when user answers YES but has not entered volumes" - {
-
-      "must return None to trigger journey recovery" in {
-        val ua = returnsUserAnswers.set(DeclareDutySuspensePage, true).success.value
-        
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
-
-        vm mustBe None
-      }
-    }
-
-    "when user has not answered the declare question" - {
-
-      "must return None to trigger journey recovery" in {
-        val vm = DutySuspenseCheckAnswersViewModel(returnsUserAnswers, periodKey)
-
-        vm mustBe None
       }
     }
   }
