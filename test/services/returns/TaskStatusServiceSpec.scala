@@ -50,7 +50,7 @@ class TaskStatusServiceSpec extends SpecBase {
     "must return Completed when both DeclareDutyPage and EnterDutyAmountPage are answered" in {
       val answers = emptyAnswers
         .set(DeclareDutyPage, true)
-        .flatMap(_.set(EnterDutyAmountPage, 1000))
+        .flatMap(_.set(EnterDutyAmountPage, BigDecimal(1000)))
         .success
         .value
 
@@ -70,7 +70,7 @@ class TaskStatusServiceSpec extends SpecBase {
 
     "must return Completed when only EnterDutyAmountPage value has change from CYA" in {
       val answers = emptyAnswers
-        .set(EnterDutyAmountPage, 1000)
+        .set(EnterDutyAmountPage, BigDecimal(1000))
         .success
         .value
 
@@ -140,7 +140,7 @@ class TaskStatusServiceSpec extends SpecBase {
     "must return true all tasks are Completed" in {
       val answers = emptyAnswers
         .set(DeclareDutyPage, true)
-        .flatMap(_.set(EnterDutyAmountPage, 1000))
+        .flatMap(_.set(EnterDutyAmountPage, BigDecimal(1000)))
         .flatMap(_.set(DeclareDutySuspensePage, true))
         .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
         .flatMap(_.set(DeclareSpoiltProductsPage, false))
@@ -172,7 +172,7 @@ class TaskStatusServiceSpec extends SpecBase {
     "must return NotStarted when all tasks are Completed" in {
       val answers = emptyAnswers
         .set(DeclareDutyPage, true)
-        .flatMap(_.set(EnterDutyAmountPage, 1000))
+        .flatMap(_.set(EnterDutyAmountPage, BigDecimal(1000)))
         .flatMap(_.set(DeclareDutySuspensePage, true))
         .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
         .flatMap(_.set(DeclareSpoiltProductsPage, false))

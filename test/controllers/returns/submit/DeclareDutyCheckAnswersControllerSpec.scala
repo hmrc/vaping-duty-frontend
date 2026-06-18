@@ -36,7 +36,7 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET" in {
 
-      val ua = returnsUserAnswers.set(EnterDutyAmountPage, 100).success.value
+      val ua = returnsUserAnswers.set(EnterDutyAmountPage, BigDecimal(100)).success.value
 
       val mockDutyRateService = mock[DutyRateService]
 

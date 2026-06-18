@@ -51,10 +51,10 @@ object DeclareDutyCheckAnswersViewModel {
     }
   }
 
-  private def formatVolume(volumeInMl: Int): String = 
+  private def formatVolume(volumeInMl: BigDecimal): String =
     s"${volumeInMl.toString}$ML_SUFFIX"
 
-  private def buildSummaryList(volumeInMl: Int, dutyAmount: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): SummaryList = {
+  private def buildSummaryList(volumeInMl: BigDecimal, dutyAmount: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): SummaryList = {
     val rows = Seq(
       buildVolumeRow(volumeInMl, periodKey),
       buildDutyDueRow(dutyAmount)
@@ -63,7 +63,7 @@ object DeclareDutyCheckAnswersViewModel {
     SummaryList(rows = rows)
   }
 
-  private def buildVolumeRow(volumeInMl: Int, periodKey: PeriodKey)(implicit messages: Messages): SummaryListRow = {
+  private def buildVolumeRow(volumeInMl: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): SummaryListRow = {
     SummaryListRowViewModel(
       key = "returns.declareDutyCheckAnswers.volume",
       value = ValueViewModel(Text(formatVolume(volumeInMl))),

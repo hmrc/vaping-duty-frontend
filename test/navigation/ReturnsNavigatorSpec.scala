@@ -42,7 +42,7 @@ class ReturnsNavigatorSpec extends SpecBase {
 
       "must go from DeclareDuty to TaskList when there IS NO duty to declare" in {
         val ua = returnsUserAnswers
-          .set(EnterDutyAmountPage, 1).success.value
+          .set(EnterDutyAmountPage, BigDecimal(1)).success.value
           .set(DeclareDutyPage, false).success.value
 
         ua.get(EnterDutyAmountPage) mustBe None
@@ -55,7 +55,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from EnterDutyAmount to DeclareDutyCheckAnswers (mini CYA)" in {
-        val ua = returnsUserAnswers.set(EnterDutyAmountPage, 1).success.value
+        val ua = returnsUserAnswers.set(EnterDutyAmountPage, BigDecimal(1)).success.value
 
         navigator.nextPage(EnterDutyAmountPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad().url}?period=$periodKey"
       }

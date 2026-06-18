@@ -27,7 +27,7 @@ import viewmodels.govuk.summarylist.FluentActionItem
 
 class EnterDutyAmountSummarySpec extends SpecBase with UnitSpec {
 
-  val ml = 1000
+  val ml = BigDecimal(1000)
   val ua = returnsUserAnswers.set(EnterDutyAmountPage, ml).success.value
 
   def summaryList(answer: String): SummaryListRow = SummaryListRowViewModel(

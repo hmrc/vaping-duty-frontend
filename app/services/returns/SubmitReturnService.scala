@@ -56,7 +56,7 @@ class SubmitReturnService @Inject()(
 
     val zeroValue = BigDecimal("0")
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
-    val liquidInMl = ua.get(EnterDutyAmountPage).fold(zeroValue)(value => BigDecimal(value))
+    val liquidInMl = ua.get(EnterDutyAmountPage).getOrElse(zeroValue)
 
     val periodKey = PeriodKey(ua.periodKey)
 

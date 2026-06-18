@@ -23,7 +23,7 @@ import pages.returns.EnterDutyAmountPage
 class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
 
   private val dutyRate = BigDecimal("2.20")
-  private val volumeInMl = 1000
+  private val volumeInMl = BigDecimal(1000)
 
   "DeclareDutyCheckAnswersViewModel" - {
 
@@ -36,7 +36,7 @@ class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
     }
 
     "must handle zero volume" in {
-      val ua = returnsUserAnswers.set(EnterDutyAmountPage, 0).success.value
+      val ua = returnsUserAnswers.set(EnterDutyAmountPage, BigDecimal(0)).success.value
       val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
 
       vm mustBe defined

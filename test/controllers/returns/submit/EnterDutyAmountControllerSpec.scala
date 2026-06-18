@@ -39,11 +39,11 @@ import scala.concurrent.Future
 class EnterDutyAmountControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new EnterDutyAmountFormProvider()
-  val form: Form[Int] = formProvider()
+  val form: Form[BigDecimal] = formProvider()
 
   def onwardRoute = Call("GET", "/foo")
 
-  val validAnswer = 1
+  val validAnswer = BigDecimal("1000.1")
 
   lazy val enterDutyAmountRoute: String = controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(NormalMode).url
 
