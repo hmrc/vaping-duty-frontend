@@ -89,23 +89,5 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
 
       vm.chargeReference mustBe None
     }
-
-    "must set showWhatYouMustDoNext to true for positive duty" in {
-      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink)
-
-      vm.showWhatYouMustDoNext mustBe true
-    }
-
-    "must set showWhatYouMustDoNext to false for nil return" in {
-      val nilReturnResponse = returnsResponse.copy(
-        success = returnsResponse.success.copy(
-          totalDutyDue = Some(returnsResponse.success.totalDutyDue.get.copy(totalDutyDue = BigDecimal(0)))
-        )
-      )
-
-      val vm = ConfirmationViewModel(nilReturnResponse, obligation, btaLink)
-
-      vm.showWhatYouMustDoNext mustBe false
-    }
   }
 }

@@ -52,10 +52,6 @@
         Text(messages("returns.confirmation.p.submitted", vm.submissionDate, vm.periodMonthYear))
     ))
 
-    @if(vm.showWhatYouMustDoNext) {
-        @h2(messages("returns.confirmation.h2.whatYou"))
-    }
-
     @dynamicContent
 
     @h2(messages("returns.confirmation.h2.keep"))

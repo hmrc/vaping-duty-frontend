@@ -40,8 +40,7 @@ case class ConfirmationViewModel(
   chargeReference: Option[String],
   content: Html,
   btaLink: String,
-  periodKey: PeriodKey,
-  showWhatYouMustDoNext: Boolean
+  periodKey: PeriodKey
 )
 
 object ConfirmationViewModel extends CurrencyFormatter {
@@ -75,7 +74,6 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
     val periodMonthYearFormatted = obligation.iCFromDate.format(MONTH_YEAR_FORMATTER)
     val paymentDueDateFormatted = obligation.iCDueDate.format(PAYMENT_DUE_FORMATTER)
-    val isNilReturn = totalDutyDue == 0
 
     new ConfirmationViewModel(
       submissionDate = submissionDateFormatted,
@@ -86,8 +84,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
       chargeReference = chargeReference,
       content = getContent(totalDutyDue, paymentDueDateFormatted, btaLink),
       btaLink = btaLink,
-      periodKey = PeriodKey(obligation.periodKey),
-      showWhatYouMustDoNext = !isNilReturn
+      periodKey = PeriodKey(obligation.periodKey)
     )
   }
 
