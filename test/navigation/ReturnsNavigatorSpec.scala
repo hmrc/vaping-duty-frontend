@@ -40,13 +40,13 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareDutyPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
-      "must go from DeclareDuty to TaskList when there IS NO duty to declare" in {
+      "must go from DeclareDuty to DeclareDutyCheckAnswers (mini CYA) when there IS NO duty to declare" in {
         val ua = returnsUserAnswers
           .set(EnterDutyAmountPage, BigDecimal(1)).success.value
           .set(DeclareDutyPage, false).success.value
 
         ua.get(EnterDutyAmountPage) mustBe None
-        navigator.nextPage(DeclareDutyPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(DeclareDutyPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from DeclareDuty to JourneyRecovery when there is no value present" in {

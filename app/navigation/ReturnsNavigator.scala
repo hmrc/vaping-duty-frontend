@@ -60,7 +60,7 @@ class ReturnsNavigator @Inject()(
   private def declareDutyPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(DeclareDutyPage) match
       case Some(true)  => withPeriod(controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(NormalMode), periodKey)
-      case Some(false) => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
+      case Some(false) => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(), periodKey)
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 

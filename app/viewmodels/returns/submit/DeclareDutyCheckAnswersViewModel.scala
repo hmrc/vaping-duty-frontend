@@ -28,7 +28,8 @@ import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
 case class DeclareDutyCheckAnswersViewModel(
-  volumeFormatted: String,
+  heading: String,
+  volumeFormatted: Option[String],
   dutyDue: String,
   summaryList: SummaryList
 )
@@ -40,24 +41,63 @@ object DeclareDutyCheckAnswersViewModel {
   def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)
            (implicit messages: Messages): Option[DeclareDutyCheckAnswersViewModel] = {
     
-    userAnswers.get(EnterDutyAmountPage).map { volumeInMl =>
-      val dutyAmount = ReturnsSummary.calculateDuty(volumeInMl, dutyRate)
-      
-      DeclareDutyCheckAnswersViewModel(
-        volumeFormatted = formatVolume(volumeInMl),
-        dutyDue = ReturnsSummary.currencyFormat(dutyAmount),
-        summaryList = buildSummaryList(volumeInMl, dutyAmount, periodKey)
-      )
+    userAnswers.get(pages.returns.DeclareDutyPage).flatMap { declareDuty =>
+      if (declareDuty) {
+        userAnswers.get(EnterDutyAmountPage).map { volumeInMl =>
+          val dutyAmount = ReturnsSummary.calculateDuty(volumeInMl, dutyRate)
+          DeclareDutyCheckAnswersViewModel(
+            heading = messages("returns.declareDutyCheckAnswers.heading", ReturnsSummary.currencyFormat(dutyAmount)),
+            volumeFormatted = Some(formatVolume(volumeInMl)),
+            dutyDue = ReturnsSummary.currencyFormat(dutyAmount),
+            summaryList = buildSummaryListWithDuty(declareDuty, volumeInMl, dutyAmount, periodKey)
+          )
+        }
+      } else {
+        Some(DeclareDutyCheckAnswersViewModel(
+          heading = messages("returns.declareDutyCheckAnswers.noDutyHeading"),
+          volumeFormatted = None,
+          dutyDue = ReturnsSummary.currencyFormat(BigDecimal(0)),
+          summaryList = buildSummaryListNilReturn(declareDuty, periodKey)
+        ))
+      }
     }
   }
 
   private def formatVolume(volumeInMl: BigDecimal): String =
     s"${volumeInMl.toString}$ML_SUFFIX"
 
-  private def buildSummaryList(volumeInMl: BigDecimal, dutyAmount: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): SummaryList = {
+  private def buildDeclareDutyRow(declareDuty: Boolean, periodKey: PeriodKey)
+                                 (implicit messages: Messages): SummaryListRow = {
+    val value = if (declareDuty) "site.yes" else "site.no"
+
+    SummaryListRowViewModel(
+      key = "returns.declareDutyCheckAnswers.declareDuty",
+      value = ValueViewModel(value),
+      actions = Seq(
+        ActionItemViewModel(
+          "site.change",
+          s"${controllers.returns.submit.routes.DeclareDutyController.onPageLoad(NormalMode).url}?period=${periodKey.value}"
+        ).withVisuallyHiddenText(messages("returns.declareDutyCheckAnswers.declareDuty.change.hidden"))
+      )
+    )
+  }
+
+  private def buildSummaryListWithDuty(declareDuty: Boolean, volumeInMl: Int,
+                                       dutyAmount: BigDecimal, periodKey: PeriodKey)
+                                      (implicit messages: Messages): SummaryList = {
     val rows = Seq(
+      buildDeclareDutyRow(declareDuty, periodKey),
       buildVolumeRow(volumeInMl, periodKey),
       buildDutyDueRow(dutyAmount)
+    )
+
+    SummaryList(rows = rows)
+  }
+
+  private def buildSummaryListNilReturn(declareDuty: Boolean, periodKey: PeriodKey)
+                                       (implicit messages: Messages): SummaryList = {
+    val rows = Seq(
+      buildDeclareDutyRow(declareDuty, periodKey)
     )
 
     SummaryList(rows = rows)
