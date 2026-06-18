@@ -65,12 +65,12 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareDutySuspensePage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
-      "must go from DeclareDutySuspense to TaskList when there IS NO suspended duty to declare" in {
+      "must go from DeclareDutySuspense to DutySuspenseCheckAnswers (mini CYA) when there IS NO suspended duty to declare" in {
         val ua = returnsUserAnswers
           .set(DeclareDutySuspensePage, false).success.value
 
         ua.get(EnterDutySuspensePage) mustBe None
-        navigator.nextPage(DeclareDutySuspensePage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(DeclareDutySuspensePage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from DeclareDutySuspense to JourneyRecovery when there is no value present" in {

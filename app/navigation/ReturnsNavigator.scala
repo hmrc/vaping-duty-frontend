@@ -74,7 +74,7 @@ class ReturnsNavigator @Inject()(
   private def declareDutySuspensePageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(DeclareDutySuspensePage) match
       case Some(true)  => withPeriod(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(NormalMode), periodKey)
-      case Some(false) => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
+      case Some(false) => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(), periodKey)
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 

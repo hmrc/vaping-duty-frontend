@@ -285,11 +285,15 @@ returns.enterDutySuspense.change.hidden = enter duty suspense
 
 returns.dutySuspenseCheckAnswers.title = Check your answers
 returns.dutySuspenseCheckAnswers.heading = Check your answers
+returns.dutySuspenseCheckAnswers.noDutyHeading = You have no duty suspense to declare
 returns.dutySuspenseCheckAnswers.caption = Duty suspense
 returns.dutySuspenseCheckAnswers.p = These answers will not affect the total duty due.
 returns.dutySuspenseCheckAnswers.cardTitle = Duty suspense
+returns.dutySuspenseCheckAnswers.declareDutySuspense = Have you received or moved any finished vaping products in duty suspense?
+returns.dutySuspenseCheckAnswers.declareDutySuspense.change.hidden = duty suspense declaration
 returns.dutySuspenseCheckAnswers.productReceived = Product received
 returns.dutySuspenseCheckAnswers.productMoved = Product moved
+returns.dutySuspenseCheckAnswers.cardActions.change.hidden = duty suspense details
 returns.dutySuspenseCheckAnswers.change.hidden = product received into duty suspension
 
 returns.declareDutyCheckAnswers.title = Your duty is {0}

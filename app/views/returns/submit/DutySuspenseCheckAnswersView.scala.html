@@ -33,13 +33,14 @@
 @layout(pageTitle = titleNoForm(messages("returns.dutySuspenseCheckAnswers.title"))) {
 
     @caption(messages("returns.dutySuspenseCheckAnswers.caption"))
-    @h1(messages("returns.dutySuspenseCheckAnswers.heading"))
+    @h1(vm.heading)
 
     @p(Seq(messages("returns.dutySuspenseCheckAnswers.p")))
 
     @summaryCard(
         title = messages("returns.dutySuspenseCheckAnswers.cardTitle"),
-        summaryList = vm.summaryList
+        summaryList = vm.summaryList,
+        actions = vm.cardActions
     )
 
     @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
