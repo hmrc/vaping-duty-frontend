@@ -89,5 +89,44 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
 
       vm.chargeReference mustBe None
     }
+
+    "must generate correct content for negative duty amount (user is owed money)" in {
+      val negativeAmount = BigDecimal(-150.50)
+      val responseWithNegativeAmount = returnsResponse.copy(
+        success = returnsResponse.success.copy(
+          totalDutyDue = Some(returnsResponse.success.totalDutyDue.get.copy(totalDutyDue = negativeAmount))
+        )
+      )
+
+      val vm = ConfirmationViewModel(responseWithNegativeAmount, obligation, btaLink)
+
+      vm.totalDutyAmount mustBe negativeAmount
+      vm.content.toString must include("You are owed")
+      vm.content.toString must include("£150.50")
+      vm.content.toString must include("repayment")
+      vm.content.toString must include("This amount will be credited to your next Vaping Duty return")
+    }
+
+    "must generate correct content for positive duty amount (user owes money)" in {
+      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink)
+
+      vm.totalDutyAmount must be > BigDecimal(0)
+      vm.content.toString must include("You must pay")
+      vm.content.toString must include("business tax account")
+    }
+
+    "must generate correct content for zero duty amount" in {
+      val zeroAmount = BigDecimal(0)
+      val responseWithZeroAmount = returnsResponse.copy(
+        success = returnsResponse.success.copy(
+          totalDutyDue = Some(returnsResponse.success.totalDutyDue.get.copy(totalDutyDue = zeroAmount))
+        )
+      )
+
+      val vm = ConfirmationViewModel(responseWithZeroAmount, obligation, btaLink)
+
+      vm.totalDutyAmount mustBe zeroAmount
+      vm.content.toString must include("You have nothing to pay for this return period")
+    }
   }
 }

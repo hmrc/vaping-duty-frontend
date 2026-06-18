@@ -339,6 +339,9 @@ returns.confirmation.bullet.interest = interest will be charged if you do not pa
 returns.confirmation.h2.keep = Keep a copy for your records
 
 returns.confirmation.inset.youHave = You have nothing to pay for this return period.
+returns.confirmation.inset.negative.prefix = You are owed {0}. This amount will be credited to your next Vaping Duty return unless you claim a
+returns.confirmation.inset.negative.linkText = repayment
+returns.confirmation.inset.negative.suffix = .
 
 returns.declaration.title = Declaration
 returns.declaration.heading = Declaration

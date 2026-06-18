@@ -21,6 +21,7 @@ import models.obligations.ObligationDetails
 import models.returns.view.ReturnDisplayResponse
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
+import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.html.components.{GovukInsetText, GovukWarningText}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
@@ -92,6 +93,8 @@ object ConfirmationViewModel extends CurrencyFormatter {
                         (implicit messages: Messages): Html = {
     if (dutyDue > 0) {
       getPositiveContent(dutyDue, paymentDueDate, btaLink)
+    } else if (dutyDue < 0) {
+      getNegativeContent(dutyDue)
     } else {
       getZeroContent()
     }
@@ -125,6 +128,27 @@ object ConfirmationViewModel extends CurrencyFormatter {
     ), classes = "govuk-list govuk-list--bullet")
 
     HtmlFormat.fill(Seq(warningSection, directDebitParagraph, whatNextHeading, bulletList))
+  }
+
+  private def getNegativeContent(dutyDue: BigDecimal)(implicit messages: Messages): Html = {
+    val govukInsetText = GovukInsetText()
+    val link = Link()
+
+    val prefix = messages("returns.confirmation.inset.negative.prefix", currencyFormat(dutyDue.abs))
+    val repaymentLink = link(
+      id = "repayment-link",
+      href = "#",
+      text = messages("returns.confirmation.inset.negative.linkText")
+    )
+    val suffix = messages("returns.confirmation.inset.negative.suffix")
+
+    val content = HtmlFormat.fill(Seq(Html(prefix), repaymentLink, Html(suffix)))
+
+    val insetSection = govukInsetText(InsetText(
+      content = HtmlContent(content)
+    ))
+
+    insetSection
   }
 
   private def getZeroContent()(implicit messages: Messages): Html = {
