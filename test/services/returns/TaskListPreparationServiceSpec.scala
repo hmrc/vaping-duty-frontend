@@ -50,7 +50,8 @@ class TaskListPreparationServiceSpec extends SpecBase with MockitoSugar with Bef
         when(mockRepository.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
 
         val changedAnswers = emptyAnswers.set(DeclareSpoiltProductsPage, true).success.value
-
+        
+        service.storeUserAnswersIfChanged(emptyAnswers, changedAnswers).futureValue
         verify(mockRepository).set(eqTo(changedAnswers))(any())
       }
 
