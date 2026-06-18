@@ -23,12 +23,14 @@ import javax.inject.Inject
 
 class EnterDutyAmountFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Int] =
+  private val maxVolume = "999999999999.9"
+  
+  def apply(): Form[BigDecimal] =
     Form(
-      "value" -> int(
+      "value" -> volume(
         "returns.enterDutyAmount.error.required",
-        "returns.enterDutyAmount.error.wholeNumber",
-        "returns.enterDutyAmount.error.nonNumeric")
-          .verifying(inRange(1, Int.MaxValue, "returns.enterDutyAmount.error.outOfRange"))
+        "returns.enterDutyAmount.error.nonNumeric",
+        "returns.enterDutyAmount.error.invalidDecimalPlaces")
+          .verifying(inRange(BigDecimal(1), BigDecimal(maxVolume), "returns.enterDutyAmount.error.outOfRange"))
     )
 }

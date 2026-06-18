@@ -224,7 +224,7 @@ trait TestData {
     declaration = testDeclarationDetails
   )
 
-  val totalInMl = returnsUserAnswers.get(EnterDutyAmountPage).fold(BigDecimal(0))(value => BigDecimal(value))
+  val totalInMl = returnsUserAnswers.get(EnterDutyAmountPage).getOrElse(BigDecimal(0))
 
   val zeroValue = BigDecimal(0)
 

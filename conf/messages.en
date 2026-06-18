@@ -193,10 +193,11 @@ returns.enterDutyAmount.details.value.p2 = Product released for consumption mean
 returns.enterDutyAmount.q.hintText = Total millilitres of vaping liquid
 returns.enterDutyAmount.q.ml = ml
 
-returns.enterDutyAmount.error.nonNumeric = You must enter a number greater than zero
-returns.enterDutyAmount.error.required = You must enter a number greater than zero
-returns.enterDutyAmount.error.wholeNumber = You must enter a number greater than zero
-returns.enterDutyAmount.error.outOfRange = You must enter a number greater than zero
+returns.enterDutyAmount.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
+returns.enterDutyAmount.error.required = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
+returns.enterDutyAmount.error.wholeNumber = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
+returns.enterDutyAmount.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
+returns.enterDutyAmount.error.invalidDecimalPlaces = Enter a volume to the correct number of decimal places (1 decimal place for 1 litre or more, 2 decimal places for less than 1 litre)
 returns.enterDutyAmount.change.hidden = EnterDutyAmount
 
 returns.declareSpoiltProducts.title = Declare spoilt products from an earlier return
