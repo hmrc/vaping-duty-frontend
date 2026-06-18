@@ -17,21 +17,21 @@
 package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
+import models.obligations.ObligationDetails
+import models.returns.view.ReturnDisplayResponse
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.govukfrontend.views.html.components.{GovukInsetText, GovukWarningText}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 import uk.gov.hmrc.govukfrontend.views.viewmodels.warningtext.WarningText
-import utils.{CurrencyFormatter, DateTimeFormats}
+import utils.CurrencyFormatter
 import views.html.components.{Heading2, Link, ListWithLinks, Paragraph}
 
-import java.time.{Instant, LocalDate, ZoneId}
+import java.time.{LocalDate, ZoneId}
 import java.time.format.DateTimeFormatter
 
 case class ConfirmationViewModel(
-  email: String,
-  date: String,
   submissionDate: String,
   periodMonthYear: String,
   totalDutyAmount: BigDecimal,
@@ -39,14 +39,9 @@ case class ConfirmationViewModel(
   paymentDueDate: String,
   chargeReference: Option[String],
   content: Html,
-  vpdRef: String,
   btaLink: String,
   periodKey: PeriodKey,
-  viewReturnUrl: String,
-  showEmailConfirmation: Boolean,
-  showViewReturnLink: Boolean,
-  showWhatYouMustDoNext: Boolean,
-  showBtaButton: Boolean
+  showWhatYouMustDoNext: Boolean
 )
 
 object ConfirmationViewModel extends CurrencyFormatter {
@@ -57,59 +52,61 @@ object ConfirmationViewModel extends CurrencyFormatter {
   private val ZONE_ID = ZoneId.of("Europe/London")
 
   def apply(
-    dutyDue: BigDecimal,
-    email: String,
-    chargeReference: Option[String],
-    submissionDate: Instant,
-    periodFrom: LocalDate,
-    periodTo: LocalDate,
-    paymentDueDate: LocalDate,
-    vpdRef: String,
-    btaLink: String,
-    periodKey: PeriodKey,
-    viewReturnUrl: String
+    returnsResponse: ReturnDisplayResponse,
+    obligation: ObligationDetails,
+    btaLink: String
   )(implicit messages: Messages): ConfirmationViewModel = {
 
-    val submissionDateFormatted = LocalDate.ofInstant(submissionDate, ZONE_ID).format(SUBMISSION_DATE_FORMATTER)
-    val periodMonthYearFormatted = periodFrom.format(MONTH_YEAR_FORMATTER)
-    val paymentDueDateFormatted = paymentDueDate.format(PAYMENT_DUE_FORMATTER)
-    val currentDateString = submissionDateFormatted
-    val isNilReturn = dutyDue == 0
+    val totalDutyDue = returnsResponse.success.totalDutyDue
+      .map(_.totalDutyDue)
+      .getOrElse(
+        // scalafix:off DisableSyntax.throw
+        throw new RuntimeException("Total duty due not found")
+      )
+
+    val chargeReference = returnsResponse.success.chargeDetails
+      .flatMap(_.chargeReference)
+      .map(_.toUpperCase)
+
+    val submissionDateFormatted = LocalDate.ofInstant(
+      returnsResponse.success.processingDate,
+      ZONE_ID
+    ).format(SUBMISSION_DATE_FORMATTER)
+
+    val periodMonthYearFormatted = obligation.iCFromDate.format(MONTH_YEAR_FORMATTER)
+    val paymentDueDateFormatted = obligation.iCDueDate.format(PAYMENT_DUE_FORMATTER)
+    val isNilReturn = totalDutyDue == 0
 
     new ConfirmationViewModel(
-      email = email,
-      date = currentDateString,
       submissionDate = submissionDateFormatted,
       periodMonthYear = periodMonthYearFormatted,
-      totalDutyAmount = dutyDue,
-      totalDutyFormatted = currencyFormat(dutyDue.abs),
+      totalDutyAmount = totalDutyDue,
+      totalDutyFormatted = currencyFormat(totalDutyDue.abs),
       paymentDueDate = paymentDueDateFormatted,
       chargeReference = chargeReference,
-      content = getContent(dutyDue, paymentDueDateFormatted),
-      vpdRef = vpdRef,
+      content = getContent(totalDutyDue, paymentDueDateFormatted, btaLink),
       btaLink = btaLink,
-      periodKey = periodKey,
-      viewReturnUrl = viewReturnUrl,
-      showEmailConfirmation = !isNilReturn,
-      showViewReturnLink = !isNilReturn,
-      showWhatYouMustDoNext = !isNilReturn,
-      showBtaButton = !isNilReturn
+      periodKey = PeriodKey(obligation.periodKey),
+      showWhatYouMustDoNext = !isNilReturn
     )
   }
 
-  private def getContent(dutyDue: BigDecimal, paymentDueDate: String)(implicit messages: Messages): Html = {
+  private def getContent(dutyDue: BigDecimal, paymentDueDate: String, btaLink: String)
+                        (implicit messages: Messages): Html = {
     if (dutyDue > 0) {
-      getPositiveContent(dutyDue, paymentDueDate)
+      getPositiveContent(dutyDue, paymentDueDate, btaLink)
     } else {
       getZeroContent()
     }
   }
 
-  private def getPositiveContent(dutyDue: BigDecimal, paymentDueDate: String)(implicit messages: Messages): Html = {
+  private def getPositiveContent(dutyDue: BigDecimal, paymentDueDate: String, btaLink: String)
+                                (implicit messages: Messages): Html = {
     val warning = GovukWarningText()
     val p = Paragraph()
     val h2 = Heading2()
     val list = ListWithLinks()
+    val link = Link()
 
     val warningSection = warning(WarningText(
       iconFallbackText = Some(messages("site.warning")),
@@ -120,8 +117,13 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
     val whatNextHeading = h2(Text(messages("returns.confirmation.h2.whatNext")))
 
+    val payNowBulletWithLink = Html(
+      messages("returns.confirmation.bullet.bta.prefix") + " " +
+      link(id = "bta-link", href = btaLink, text = messages("returns.confirmation.bullet.bta.linkText"))
+    )
+
     val bulletList = list(Seq(
-      Html(messages("returns.confirmation.bullet.payNow")),
+      payNowBulletWithLink,
       Html(messages("returns.confirmation.bullet.interest", paymentDueDate))
     ), classes = "govuk-list govuk-list--bullet")
 

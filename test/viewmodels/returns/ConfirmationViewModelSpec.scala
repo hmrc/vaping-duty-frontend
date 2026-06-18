@@ -17,36 +17,95 @@
 package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
-import utils.ReturnsDateUtils
+import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
 import viewmodels.returns.submit.ConfirmationViewModel
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
   
+  private def createObligation(): ObligationItem = {
+    ObligationItem(
+      identification = None,
+      obligationDetails = ObligationDetails(
+        openOrFulfilledStatus = ObligationStatus.F.toString,
+        iCFromDate = LocalDate.of(2026, 1, 1),
+        iCToDate = LocalDate.of(2026, 1, 31),
+        iCDateReceived = Some(LocalDate.of(2026, 2, 1)),
+        iCDueDate = LocalDate.of(2026, 2, 7),
+        periodKey = periodKey.value
+      )
+    )
+  }
+
   "ConfirmationViewModel" - {
 
-    val monthMessage = ReturnsDateUtils.getMonthMessage(ReturnsDateUtils.month)
-    val viewReturnUrl = controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url
-    val dutyDue = BigDecimal("300")
+    val returnsResponse = createReturnDisplayResponse()
+    val obligation = createObligation().obligationDetails
     
-    "must return the email address" in {
-      val vm = ConfirmationViewModel(dutyDue, emailAddress, vpdRef.get, btaLink, periodKey, viewReturnUrl)
+    "must extract and format submission date correctly" in {
+      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink)
 
-      vm.email mustBe emailAddress
+      val expectedFormat = DateTimeFormatter.ofPattern("d MMMM yyyy")
+      val expectedDate = java.time.LocalDate.ofInstant(
+        returnsResponse.success.processingDate,
+        java.time.ZoneId.of("Europe/London")
+      ).format(expectedFormat)
+
+      vm.submissionDate mustBe expectedDate
     }
 
-    "must return the current date" in {
-      val vm = ConfirmationViewModel(dutyDue, emailAddress, vpdRef.get, btaLink, periodKey, viewReturnUrl)
+    "must extract and format period month/year correctly" in {
+      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink)
 
-      val expectedResult = s"${ReturnsDateUtils.getCurrentDay} $monthMessage ${ReturnsDateUtils.getYear}"
+      val expectedFormat = DateTimeFormatter.ofPattern("MMMM yyyy")
+      val expectedPeriod = obligation.iCFromDate.format(expectedFormat)
 
-      vm.date mustBe expectedResult
+      vm.periodMonthYear mustBe expectedPeriod
     }
     
-    "must return the current month from messages" in {
-      val vm = ConfirmationViewModel(dutyDue, emailAddress, vpdRef.get, btaLink, periodKey, viewReturnUrl)
+    "must extract total duty amount correctly" in {
+      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink)
 
-      vm.currentMonth mustBe monthMessage
+      vm.totalDutyAmount mustBe returnsResponse.success.totalDutyDue.get.totalDutyDue
+    }
+
+    "must extract and uppercase charge reference when present" in {
+      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink)
+
+      vm.chargeReference mustBe defined
+      vm.chargeReference.get mustBe returnsResponse.success.chargeDetails.get.chargeReference.get.toUpperCase
+    }
+
+    "must handle missing charge reference" in {
+      val responseWithoutChargeRef = returnsResponse.copy(
+        success = returnsResponse.success.copy(
+          chargeDetails = Some(returnsResponse.success.chargeDetails.get.copy(chargeReference = None))
+        )
+      )
+
+      val vm = ConfirmationViewModel(responseWithoutChargeRef, obligation, btaLink)
+
+      vm.chargeReference mustBe None
+    }
+
+    "must set showWhatYouMustDoNext to true for positive duty" in {
+      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink)
+
+      vm.showWhatYouMustDoNext mustBe true
+    }
+
+    "must set showWhatYouMustDoNext to false for nil return" in {
+      val nilReturnResponse = returnsResponse.copy(
+        success = returnsResponse.success.copy(
+          totalDutyDue = Some(returnsResponse.success.totalDutyDue.get.copy(totalDutyDue = BigDecimal(0)))
+        )
+      )
+
+      val vm = ConfirmationViewModel(nilReturnResponse, obligation, btaLink)
+
+      vm.showWhatYouMustDoNext mustBe false
     }
   }
 }

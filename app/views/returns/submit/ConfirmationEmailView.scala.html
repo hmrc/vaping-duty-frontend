@@ -52,22 +52,6 @@
         Text(messages("returns.confirmation.p.submitted", vm.submissionDate, vm.periodMonthYear))
     ))
 
-    @if(vm.showEmailConfirmation) {
-        @p(Seq(
-            messages("returns.confirmation.p.weHave"),
-            HtmlContent(s" <span class=$boldFontWeight>${vm.email}</span>"),
-            messages("returns.confirmation.p.confirming", vm.date)
-        ))
-    }
-
-    @if(vm.showViewReturnLink) {
-        @p(Seq(HtmlContent(link(
-            id = "view-return",
-            href = vm.viewReturnUrl,
-            text = messages("returns.confirmation.link.view")
-        ))))
-    }
-
     @if(vm.showWhatYouMustDoNext) {
         @h2(messages("returns.confirmation.h2.whatYou"))
     }
@@ -77,9 +61,4 @@
     @h2(messages("returns.confirmation.h2.keep"))
 
     @p(Seq(HtmlContent(printLink(id = "print", text = messages("site.print")))))
-
-    @if(vm.showBtaButton) {
-        @govukButton(ButtonViewModel(messages("returns.confirmation.button.goTo"))
-            .asLink(vm.btaLink))
-    }
 }

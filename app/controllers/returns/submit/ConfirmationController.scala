@@ -17,7 +17,6 @@
 package controllers.returns.submit
 
 import config.FrontendAppConfig
-import connectors.SubscriptionConnector
 import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
@@ -25,8 +24,7 @@ import models.BtaLink
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.requests.IdentifierRequest
-import models.returns.view.ReturnDisplayResponse
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
 import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -42,7 +40,6 @@ class ConfirmationController @Inject()(
                                         returnsEnabled: ReturnsEnabledAction,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: ConfirmationEmailView,
-                                        subscriptionConnector: SubscriptionConnector,
                                         getReturnsConnector: GetReturnsConnector,
                                         obligationService: ObligationService,
                                         config: FrontendAppConfig
@@ -54,59 +51,25 @@ class ConfirmationController @Inject()(
     }
   }
 
-  private def getPeriodKey()(using request: Request[?]): PeriodKey =
-    request.getQueryString("period").fold(PeriodKey("99XX"))(PeriodKey(_))
-
   private def buildConfirmationPage(periodKey: PeriodKey)
                                    (using request: IdentifierRequest[?]): Future[Result] =
     for {
-      email           <- getContactEmail()
       returnsResponse <- getReturnsConnector.getReturn(periodKey, request.enrolmentVpdId)
       obligation      <- getObligation(periodKey)
-      viewModel       <- buildViewModel(returnsResponse, obligation, email, periodKey)
-    } yield Ok(view(viewModel))
-
-  private def getContactEmail()(implicit request: IdentifierRequest[?]): Future[String] =
-    subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).map {
-      case Right(prefs) => prefs.emailAddress.getOrElse("")
-      case Left(_)      => throw new RuntimeException("Failed to get contact preferences")
+    } yield {
+      val viewModel = ConfirmationViewModel(returnsResponse, obligation, BtaLink(config))
+      Ok(view(viewModel))
     }
 
   private def getObligation(periodKey: PeriodKey)
-                           (implicit request: IdentifierRequest[?]): Future[ObligationDetails] =
+                           (using request: IdentifierRequest[?]): Future[ObligationDetails] =
     obligationService.getObligationByPeriodKey(request.enrolmentVpdId, periodKey).map {
       case Some(obligation) => obligation
-      case None             => throw new RuntimeException("Obligation not found")
+      case None             =>
+        // scalafix:off DisableSyntax.throw
+        throw new RuntimeException("Obligation not found")
     }
 
-  private def buildViewModel(
-                              returnsResponse: ReturnDisplayResponse,
-                              obligation: ObligationDetails,
-                              email: String,
-                              periodKey: PeriodKey
-                            )(using Messages): Future[ConfirmationViewModel] =
-    returnsResponse.success.totalDutyDue match {
-      case Some(totalDutyDueData) =>
-        val chargeReference = extractChargeReference(returnsResponse)
-
-        Future.successful(ConfirmationViewModel(
-          totalDutyDueData.totalDutyDue,
-          email,
-          chargeReference,
-          returnsResponse.success.processingDate,
-          obligation.iCFromDate,
-          obligation.iCToDate,
-          obligation.iCDueDate,
-          chargeReference.getOrElse(""),
-          BtaLink(config),
-          periodKey,
-          controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url
-        ))
-      case None => throw new RuntimeException("Total duty due not found")
-    }
-
-  private def extractChargeReference(returnsResponse: ReturnDisplayResponse): Option[String] =
-    returnsResponse.success.chargeDetails
-      .flatMap(_.chargeReference)
-      .map(_.toUpperCase)
+  private def getPeriodKey()(using request: Request[?]): PeriodKey =
+    request.getQueryString("period").fold(PeriodKey("99XX"))(PeriodKey(_))
 }
