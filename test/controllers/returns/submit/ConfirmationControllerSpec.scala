@@ -18,7 +18,7 @@ package controllers.returns.submit
 
 import base.SpecBase
 import connectors.returns.GetReturnsConnector
-import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
+import models.obligations.ObligationDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -29,24 +29,11 @@ import services.returns.ObligationService
 import viewmodels.returns.submit.ConfirmationViewModel
 import views.html.returns.submit.ConfirmationEmailView
 
-import java.time.LocalDate
 import scala.concurrent.Future
 
 class ConfirmationControllerSpec extends SpecBase {
 
-  private def createObligation(): ObligationItem = {
-    ObligationItem(
-      identification = None,
-      obligationDetails = ObligationDetails(
-        openOrFulfilledStatus = ObligationStatus.F.toString,
-        iCFromDate = LocalDate.of(2026, 1, 1),
-        iCToDate = LocalDate.of(2026, 1, 31),
-        iCDateReceived = Some(LocalDate.of(2026, 2, 1)),
-        iCDueDate = LocalDate.of(2026, 2, 7),
-        periodKey = periodKey.value
-      )
-    )
-  }
+  private def createObligation(): ObligationDetails = fulfilledObligation(periodKey)
 
   "ConfirmationController" - {
 
@@ -63,7 +50,7 @@ class ConfirmationControllerSpec extends SpecBase {
       running(application) {
 
         val returnsResponse = createReturnDisplayResponse()
-        val obligation = createObligation().obligationDetails
+        val obligation = createObligation()
 
         when(mockGetReturnsConnector.getReturn(any(), any())(using any()))
           .thenReturn(Future.successful(returnsResponse))
@@ -101,7 +88,7 @@ class ConfirmationControllerSpec extends SpecBase {
             totalDutyDue = Some(createReturnDisplayResponse().success.totalDutyDue.get.copy(totalDutyDue = BigDecimal(0)))
           )
         )
-        val obligation = createObligation().obligationDetails
+        val obligation = createObligation()
 
         when(mockGetReturnsConnector.getReturn(any(), any())(using any()))
           .thenReturn(Future.successful(nilReturnResponse))
