@@ -323,6 +323,7 @@ returns.CheckYourAnswers.p.making = Making a false declaration carries serious c
 returns.CheckYourAnswers.p.checkYour = Check your answers before submitting this return, as they can’t be changed afterwards.
 returns.CheckYourAnswers.button = Confirm and submit
 
+returns.CheckYourAnswers.declareDuty.vaping = Do you need to declare vaping products for duty?
 returns.CheckYourAnswers.dutySummary.vaping = Vaping duty
 returns.CheckYourAnswers.dutySummary.spoilt = Spoilt products
 returns.CheckYourAnswers.dutySummary.over = Over declared
@@ -331,6 +332,7 @@ returns.CheckYourAnswers.dutySummary.total = Total duty
 returns.CheckYourAnswers.dutySummary.total.nil = £0
 returns.CheckYourAnswers.dutySummary.nothing = Nothing to declare
 
+returns.CheckYourAnswers.declareDutySuspense.question = Have you received or moved any finished vaping products in duty suspense?
 returns.CheckYourAnswers.dutySuspended.received = Product received
 returns.CheckYourAnswers.dutySuspended.moved = Product moved
 returns.CheckYourAnswers.dutySuspended.total = Total volume
