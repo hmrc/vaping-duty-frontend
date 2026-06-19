@@ -31,9 +31,8 @@
 
 @layout(pageTitle = titleNoForm(messages("returns.declareDutyCheckAnswers.title", vm.dutyDue))) {
 
-
     @caption(messages("returns.declareDutyCheckAnswers.caption"))
-    @h1(messages("returns.declareDutyCheckAnswers.heading", vm.dutyDue))
+    @h1(vm.heading)
 
     @summaryCard(
         title = messages("returns.declareDutyCheckAnswers.entryDetails"),

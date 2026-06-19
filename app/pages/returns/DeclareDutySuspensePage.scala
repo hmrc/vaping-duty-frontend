@@ -16,12 +16,22 @@
 
 package pages.returns
 
+import models.returns.ReturnsUserAnswers
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+
+import scala.util.Try
 
 case object DeclareDutySuspensePage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "declareDutySuspense"
+
+  override def cleanup(value: Option[Boolean], userAnswers: ReturnsUserAnswers): Try[ReturnsUserAnswers] = {
+    value match {
+      case Some(value) if !value  => userAnswers.remove(EnterDutySuspensePage)
+      case _                      => super.cleanup(value, userAnswers)
+    }
+  }
 }

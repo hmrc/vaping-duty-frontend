@@ -24,12 +24,27 @@
 @(
   title: String,
   summaryList: SummaryList,
-  classes: String = ""
+  classes: String = "",
+  actions: Option[Seq[ActionItem]] = None
 )
 
 <div class="govuk-summary-card @classes">
     <div class="govuk-summary-card__title-wrapper">
         @h2(Text(title), classes = "govuk-summary-card__title")
+        @actions.map { actionItems =>
+            <ul class="govuk-summary-card__actions">
+            @actionItems.map { action =>
+                <li class="govuk-summary-card__action">
+                    <a class="govuk-link" href="@action.href">
+                        @action.content.asHtml
+                        @action.visuallyHiddenText.map { hidden =>
+                            <span class="govuk-visually-hidden"> @hidden</span>
+                        }
+                    </a>
+                </li>
+            }
+            </ul>
+        }
     </div>
     <div class="govuk-summary-card__content">
         @govukSummaryList(summaryList)

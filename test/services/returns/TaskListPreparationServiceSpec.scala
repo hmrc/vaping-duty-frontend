@@ -50,18 +50,13 @@ class TaskListPreparationServiceSpec extends SpecBase with MockitoSugar with Bef
         when(mockRepository.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
 
         val changedAnswers = emptyAnswers.set(DeclareSpoiltProductsPage, true).success.value
-
-        val result = service.storeUserAnswersIfChanged(emptyAnswers, changedAnswers).futureValue
-
+        
+        service.storeUserAnswersIfChanged(emptyAnswers, changedAnswers).futureValue
         verify(mockRepository).set(eqTo(changedAnswers))(any())
       }
 
       "must not update user answers when not changed" in {
         when(mockRepository.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
-
-        val changedAnswers = emptyAnswers.set(DeclareSpoiltProductsPage, true).success.value
-
-        val result = service.storeUserAnswersIfChanged(emptyAnswers, emptyAnswers).futureValue
 
         verify(mockRepository, times(0)).set(any())(any())
       }
