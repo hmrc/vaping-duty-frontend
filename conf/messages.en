@@ -384,10 +384,10 @@ returns.overview.outstanding.action = Action
 returns.overview.outstanding.submitReturn = Submit return
 returns.overview.outstanding.status.due = Due
 returns.overview.outstanding.status.overdue = Overdue
-returns.overview.completed.heading = Completed returns
-returns.overview.completed.month = Month
-returns.overview.completed.action = Action
-returns.overview.completed.viewReturn = View return
+returns.overview.completed.heading = Completed returns for {0}
+returns.overview.completed.status = Completed
+returns.overview.completed.empty = You have no submitted returns for this year.
+returns.overview.outstanding.empty = You have no outstanding returns.
 
 viewIndividualReturn.caption = Vaping Products Duty return
 viewIndividualReturn.chargeDetails.chargeReference = Charge reference:

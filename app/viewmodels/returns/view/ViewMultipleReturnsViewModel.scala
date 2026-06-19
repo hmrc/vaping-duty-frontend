@@ -19,15 +19,18 @@ package viewmodels.returns.view
 import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationStatus, ObligationsResponse}
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
+import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist._
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-case class ViewMultipleReturnsViewModel(
-  outstandingReturns: Seq[Seq[TableRow]],
-  completedReturns: Seq[Seq[TableRow]]
+final case class ViewMultipleReturnsViewModel(
+  outstandingReturnsSection: OutstandingReturnsSection,
+  completedReturnsSections: Seq[CompletedReturnsSection],
+  paginationViewModel: Option[PaginationViewModel]
 )
 
 object ViewMultipleReturnsViewModel {
@@ -37,23 +40,68 @@ object ViewMultipleReturnsViewModel {
   private val TAG_CLASS_BLUE = "govuk-tag--blue"
   private val TAG_CLASS_RED = "govuk-tag--red"
 
-  def apply(obligationsResponse: ObligationsResponse)(implicit messages: Messages): ViewMultipleReturnsViewModel = {
+  def apply(
+    obligationsResponse: ObligationsResponse,
+    currentYear: Int
+  )(implicit messages: Messages): ViewMultipleReturnsViewModel = {
 
-    val outstandingObligations = obligationsResponse.obligation
+    // Outstanding returns
+    val outstandingItems = obligationsResponse.obligation
       .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_OPEN.toString)
-      .map(item => createOutstandingRow(item.obligationDetails))
+      .map(item => createOutstandingTaskListItem(item.obligationDetails))
 
-    val completedObligations = obligationsResponse.obligation
-      .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_FULFILLED.toString)
-      .map(item => createCompletedRow(item.obligationDetails))
+    val outstandingSection = OutstandingReturnsSection(
+      items = outstandingItems,
+      showEmptyMessage = outstandingItems.isEmpty
+    )
+
+    // Group completed by year
+    val completedByYear: Map[Int, Seq[ObligationDetails]] =
+      obligationsResponse.obligation
+        .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_FULFILLED.toString)
+        .map(_.obligationDetails)
+        .groupBy(_.iCFromDate.getYear)
+
+    // Calculate pagination
+    val allYears = completedByYear.keys.toSeq.sorted.reverse
+    val currentYearIndex = allYears.indexOf(currentYear)
+
+    val paginationViewModel = if (allYears.length > 1) {
+      val hasPreviousPage = currentYearIndex > 0
+      val hasNextPage = currentYearIndex < allYears.length - 1
+
+      val previousPageUrl = if (hasPreviousPage) {
+        Some(controllers.returns.view.routes.ViewMultipleReturnsController
+          .onPageLoad(Some(allYears(currentYearIndex - 1))).url)
+      } else None
+
+      val nextPageUrl = if (hasNextPage) {
+        Some(controllers.returns.view.routes.ViewMultipleReturnsController
+          .onPageLoad(Some(allYears(currentYearIndex + 1))).url)
+      } else None
+
+      Some(PaginationViewModel(previousPageUrl, nextPageUrl))
+    } else None
+
+    // Create section for current year - always show section, even if empty
+    val completedSections = Seq(
+      CompletedReturnsSection(
+        year = currentYear,
+        items = completedByYear.get(currentYear).map(_.map(createCompletedTaskListItem)).getOrElse(Seq.empty),
+        showEmptyMessage = completedByYear.get(currentYear).isEmpty
+      )
+    )
 
     ViewMultipleReturnsViewModel(
-      outstandingReturns = outstandingObligations.map(_.toTableRows),
-      completedReturns = completedObligations.map(_.toTableRows)
+      outstandingReturnsSection = outstandingSection,
+      completedReturnsSections = completedSections,
+      paginationViewModel = paginationViewModel
     )
   }
 
-  private def createOutstandingRow(details: ObligationDetails)(implicit messages: Messages): OutstandingReturnRow = {
+  private def createOutstandingTaskListItem(
+    details: ObligationDetails
+  )(implicit messages: Messages): TaskListItem = {
     val monthDisplay = formatMonthYear(details.iCFromDate)
     val isOverdue = details.iCDueDate.isBefore(LocalDate.now())
 
@@ -65,23 +113,38 @@ object ViewMultipleReturnsViewModel {
 
     val statusClass = if (isOverdue) TAG_CLASS_RED else TAG_CLASS_BLUE
 
-    OutstandingReturnRow(
-      monthDisplay = monthDisplay,
-      status = status,
-      statusClass = statusClass,
-      submitLink = s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${details.periodKey}"
+    TaskListItem(
+      title = TaskListItemTitle(content = Text(monthDisplay)),
+      href = Some(s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${details.periodKey}"),
+      status = TaskListItemStatus(
+        tag = Some(Tag(
+          content = Text(status),
+          classes = statusClass
+        ))
+      )
     )
   }
 
-  private def createCompletedRow(details: ObligationDetails): CompletedReturnRow = {
-    CompletedReturnRow(
-      monthDisplay = formatMonthYear(details.iCFromDate),
-      viewLink = controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(PeriodKey(details.periodKey)).url
+  private def createCompletedTaskListItem(
+    details: ObligationDetails
+  )(implicit messages: Messages): TaskListItem = {
+    TaskListItem(
+      title = TaskListItemTitle(content = Text(formatMonthOnly(details.iCFromDate))),
+      href = Some(controllers.returns.view.routes.ViewIndividualReturnController
+        .onPageLoad(PeriodKey(details.periodKey)).url),
+      status = TaskListItemStatus(
+        content = Text(messages("returns.overview.completed.status"))
+      )
     )
   }
 
   private def formatMonthYear(date: LocalDate): String = {
     val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH)
+    date.format(formatter)
+  }
+
+  private def formatMonthOnly(date: LocalDate): String = {
+    val formatter = DateTimeFormatter.ofPattern("MMMM", Locale.ENGLISH)
     date.format(formatter)
   }
 }

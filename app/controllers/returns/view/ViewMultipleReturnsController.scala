@@ -39,11 +39,24 @@ class ViewMultipleReturnsController @Inject()(
                                                view: ViewMultipleReturnsView
                                              )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
+  def onPageLoad(year: Option[Int] = None): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
     implicit request =>
 
       obligationService.getObligations(request.enrolmentVpdId).map { obligationResponse =>
-          Ok(view(ViewMultipleReturnsViewModel(obligationResponse)))
+          // Get all years with completed returns
+          val completedYears = obligationResponse.obligation
+            .filter(_.obligationDetails.openOrFulfilledStatus == "F")
+            .map(_.obligationDetails.iCFromDate.getYear)
+            .distinct
+            .sorted
+            .reverse
+
+          // Default to most recent year if not specified
+          val currentYear = year.getOrElse(
+            completedYears.headOption.getOrElse(java.time.LocalDate.now().getYear)
+          )
+
+          Ok(view(ViewMultipleReturnsViewModel(obligationResponse, currentYear)))
         }
         .recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
   }
