@@ -18,16 +18,10 @@ package viewmodels.checkAnswers
 
 import base.{SpecBase, UnitSpec}
 import models.CheckMode
-import models.returns.DutySuspenseVolumes
-import pages.returns.{DeclareDutySuspensePage, EnterDutySuspensePage}
+import pages.returns.DeclareDutySuspensePage
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
-import utils.CssConstants
 
 class DutySuspenseSummarySpec extends SpecBase with UnitSpec {
-
-  val volumeReceived = 1000
-  val volumeMoved = 300
-  val dutySuspenseVolumes = DutySuspenseVolumes(volumeReceived, volumeMoved)
 
   "DutySuspenseSummary" - {
 
@@ -35,65 +29,65 @@ class DutySuspenseSummarySpec extends SpecBase with UnitSpec {
 
       val ua = returnsUserAnswers.set(DeclareDutySuspensePage, false).success.value
 
-      "must render product received row with one action" in {
+      "must render only the yes/no question row" in {
         val result = DutySuspenseSummary.summaryList(ua, periodKey)
         
-        result.rows.length mustBe 3
-        
-        val receivedRow = result.rows.head
-        receivedRow.actions.value.items.length mustBe 1
-        receivedRow.actions.value.items.head.href mustBe s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+        result.rows.length mustBe 1
       }
 
-      "must render product moved row with one action" in {
+      "must render yes/no row with 'No' value" in {
         val result = DutySuspenseSummary.summaryList(ua, periodKey)
         
-        val movedRow = result.rows(1)
-        movedRow.actions.value.items.length mustBe 1
-        movedRow.actions.value.items.head.href mustBe s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+        val questionRow = result.rows.head
+        questionRow.value.content mustBe Text("No")
       }
 
-      "must render total volume row with no actions and bold styling" in {
+      "must render yes/no row with change link to DeclareDutySuspenseController" in {
         val result = DutySuspenseSummary.summaryList(ua, periodKey)
         
-        val totalRow = result.rows(2)
-        totalRow.value.classes must include(CssConstants.boldFontWeight)
-        totalRow.actions.value.items mustBe Seq.empty
+        val questionRow = result.rows.head
+        questionRow.actions.value.items.length mustBe 1
+        questionRow.actions.value.items.head.href mustBe s"${controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
       }
     }
 
-    "when duty suspense is declared with values" - {
+    "when duty suspense is declared" - {
 
-      val ua = returnsUserAnswers
-        .set(DeclareDutySuspensePage, true).success.value
-        .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
+      val ua = returnsUserAnswers.set(DeclareDutySuspensePage, true).success.value
 
-      "must render product received row with volume in ml" in {
+      "must render two rows" in {
         val result = DutySuspenseSummary.summaryList(ua, periodKey)
         
-        val receivedRow = result.rows.head
-        receivedRow.value.content mustBe Text(s"$volumeReceived ml")
-        receivedRow.actions.value.items.length mustBe 1
-        receivedRow.actions.value.items.head.href mustBe s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+        result.rows.length mustBe 2
       }
 
-      "must render product moved row with volume in ml" in {
+      "must render yes/no row with 'Yes' value" in {
         val result = DutySuspenseSummary.summaryList(ua, periodKey)
         
-        val movedRow = result.rows(1)
-        movedRow.value.content mustBe Text(s"$volumeMoved ml")
-        movedRow.actions.value.items.length mustBe 1
-        movedRow.actions.value.items.head.href mustBe s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+        val questionRow = result.rows.head
+        questionRow.value.content mustBe Text("Yes")
       }
 
-      "must render total volume row with calculated total in ml and bold styling" in {
+      "must render yes/no row with change link to DeclareDutySuspenseController" in {
         val result = DutySuspenseSummary.summaryList(ua, periodKey)
         
-        val expectedTotal = volumeReceived - volumeMoved
-        val totalRow = result.rows(2)
-        totalRow.value.content mustBe Text(s"$expectedTotal ml")
-        totalRow.value.classes must include(CssConstants.boldFontWeight)
-        totalRow.actions.value.items mustBe Seq.empty
+        val questionRow = result.rows.head
+        questionRow.actions.value.items.head.href mustBe s"${controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+      }
+
+      "must render declared row with 'Declared' value" in {
+        val result = DutySuspenseSummary.summaryList(ua, periodKey)
+        
+        val declaredRow = result.rows(1)
+        declaredRow.value.content mustBe Text("Declared")
+      }
+
+      "must render declared row with change link to EnterDutySuspenseController" in {
+        val result = DutySuspenseSummary.summaryList(ua, periodKey)
+        
+        val declaredRow = result.rows(1)
+        declaredRow.actions.value.items.length mustBe 1
+        declaredRow.actions.value.items.head.href mustBe s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
       }
     }
   }
