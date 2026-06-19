@@ -17,15 +17,16 @@
 package controllers.returns.submit
 
 import config.FrontendAppConfig
-import connectors.SubscriptionConnector
 import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import models.BtaLink
 import models.identifiers.PeriodKey
-import models.returns.TotalDutyDue
+import models.obligations.ObligationDetails
+import models.requests.IdentifierRequest
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.*
+import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.ConfirmationViewModel
 import views.html.returns.submit.ConfirmationEmailView
@@ -39,41 +40,36 @@ class ConfirmationController @Inject()(
                                         returnsEnabled: ReturnsEnabledAction,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: ConfirmationEmailView,
-                                        subscriptionConnector: SubscriptionConnector,
                                         getReturnsConnector: GetReturnsConnector,
+                                        obligationService: ObligationService,
                                         config: FrontendAppConfig
                                       )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabled).async {
-    implicit request =>
-
-      val periodKey = request.getQueryString("period").fold(PeriodKey("99XX"))(PeriodKey(_))
-
-      subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).flatMap {
-        case Left(_) => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-        case Right(value) =>
-          getReturnsConnector.getReturn(periodKey, request.enrolmentVpdId).map { returnsResponse =>
-            val chargeReference = returnsResponse.success.chargeDetails
-              .flatMap(_.chargeReference)
-              .getOrElse("")
-
-            val email = value.emailAddress.getOrElse("")
-            
-            returnsResponse.success.totalDutyDue match {
-              case Some(totalDutyDueData) =>
-                val vm = ConfirmationViewModel(
-                  totalDutyDueData.totalDutyDue,
-                  email,
-                  chargeReference.toUpperCase,
-                  BtaLink(config),
-                  periodKey,
-                  controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url
-                )
-                Ok(view(vm))
-              case None =>
-                Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-            }
-          }
-      }
+  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabled).async { implicit request =>
+    buildConfirmationPage(getPeriodKey()).recover {
+      case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+    }
   }
+
+  private def buildConfirmationPage(periodKey: PeriodKey)
+                                   (using request: IdentifierRequest[?]): Future[Result] =
+    for {
+      returnsResponse <- getReturnsConnector.getReturn(periodKey, request.enrolmentVpdId)
+      obligation      <- getObligation(periodKey)
+    } yield {
+      val viewModel = ConfirmationViewModel(returnsResponse, obligation, BtaLink(config))
+      Ok(view(viewModel))
+    }
+
+  private def getObligation(periodKey: PeriodKey)
+                           (using request: IdentifierRequest[?]): Future[ObligationDetails] =
+    obligationService.getObligationByPeriodKey(request.enrolmentVpdId, periodKey).map {
+      case Some(obligation) => obligation
+      case None             =>
+        // scalafix:off DisableSyntax.throw
+        throw new RuntimeException("Obligation not found")
+    }
+
+  private def getPeriodKey()(using request: Request[?]): PeriodKey =
+    request.getQueryString("period").fold(PeriodKey("99XX"))(PeriodKey(_))
 }

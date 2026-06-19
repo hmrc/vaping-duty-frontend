@@ -17,16 +17,15 @@
 package controllers.returns.submit
 
 import base.SpecBase
-import connectors.SubscriptionConnector
 import connectors.returns.GetReturnsConnector
-import models.contactPreference.SubscriptionContactPreferences
+import models.obligations.ObligationDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.play.bootstrap.http.ErrorResponse
+import services.returns.ObligationService
 import viewmodels.returns.submit.ConfirmationViewModel
 import views.html.returns.submit.ConfirmationEmailView
 
@@ -34,29 +33,30 @@ import scala.concurrent.Future
 
 class ConfirmationControllerSpec extends SpecBase {
 
+  private def createObligation(): ObligationDetails = fulfilledObligation(periodKey)
+
   "ConfirmationController" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET with positive duty" in {
 
-      val mockSubscriptionConnector = mock[SubscriptionConnector]
       val mockGetReturnsConnector = mock[GetReturnsConnector]
+      val mockObligationService = mock[ObligationService]
 
       val application = applicationBuilder(returnsUserAnswers = Option(returnsUserAnswers))
-        .overrides(bind[SubscriptionConnector].toInstance(mockSubscriptionConnector))
         .overrides(bind[GetReturnsConnector].toInstance(mockGetReturnsConnector))
+        .overrides(bind[ObligationService].toInstance(mockObligationService))
         .build()
 
       running(application) {
 
-        val viewReturnUrl = s"${controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(periodKey).url}"
-
-        val contactPreference = SubscriptionContactPreferences(true, Option(emailAddress))
-
-        when(mockSubscriptionConnector.getSubscriptionContactPreferences(any())(any()))
-          .thenReturn(Future.successful(Right(contactPreference)))
+        val returnsResponse = createReturnDisplayResponse()
+        val obligation = createObligation()
 
         when(mockGetReturnsConnector.getReturn(any(), any())(using any()))
-          .thenReturn(Future.successful(createReturnDisplayResponse()))
+          .thenReturn(Future.successful(returnsResponse))
+
+        when(mockObligationService.getObligationByPeriodKey(any(), any())(using any()))
+          .thenReturn(Future.successful(Some(obligation)))
 
         val request = FakeRequest(GET, s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=$periodKey")
 
@@ -64,29 +64,73 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[ConfirmationEmailView]
 
-        val chargeReference = createReturnDisplayResponse().success.chargeDetails.get.chargeReference.get
-        
-        val dutyDue = createReturnDisplayResponse().success.totalDutyDue.get.totalDutyDue
-
-        val vm = ConfirmationViewModel(dutyDue, emailAddress, chargeReference, btaLink, periodKey, viewReturnUrl)(messages(application))
+        val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
       }
     }
 
-    "must redirect to journey recovery when there is an issue calling subscription summary API" in {
+    "must return OK and the correct view for a GET with nil return" in {
 
-      val mockConnector = mock[SubscriptionConnector]
+      val mockGetReturnsConnector = mock[GetReturnsConnector]
+      val mockObligationService = mock[ObligationService]
 
       val application = applicationBuilder(returnsUserAnswers = Option(returnsUserAnswers))
-        .overrides(bind[SubscriptionConnector].toInstance(mockConnector))
+        .overrides(bind[GetReturnsConnector].toInstance(mockGetReturnsConnector))
+        .overrides(bind[ObligationService].toInstance(mockObligationService))
         .build()
 
       running(application) {
 
-        when(mockConnector.getSubscriptionContactPreferences(any())(any()))
-          .thenReturn(Future.successful(Left(ErrorResponse(BAD_REQUEST, "There was an issue"))))
+        val nilReturnResponse = createReturnDisplayResponse().copy(
+          success = createReturnDisplayResponse().success.copy(
+            totalDutyDue = Some(createReturnDisplayResponse().success.totalDutyDue.get.copy(totalDutyDue = BigDecimal(0)))
+          )
+        )
+        val obligation = createObligation()
+
+        when(mockGetReturnsConnector.getReturn(any(), any())(using any()))
+          .thenReturn(Future.successful(nilReturnResponse))
+
+        when(mockObligationService.getObligationByPeriodKey(any(), any())(using any()))
+          .thenReturn(Future.successful(Some(obligation)))
+
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=$periodKey")
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[ConfirmationEmailView]
+
+        val vm = ConfirmationViewModel(nilReturnResponse, obligation, btaLink)(messages(application))
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to journey recovery when totalDutyDue is None" in {
+
+      val mockGetReturnsConnector = mock[GetReturnsConnector]
+      val mockObligationService = mock[ObligationService]
+
+      val application = applicationBuilder(returnsUserAnswers = Option(returnsUserAnswers))
+        .overrides(bind[GetReturnsConnector].toInstance(mockGetReturnsConnector))
+        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .build()
+
+      running(application) {
+
+        val responseWithoutDuty = createReturnDisplayResponse().copy(
+          success = createReturnDisplayResponse().success.copy(totalDutyDue = None)
+        )
+        val obligation = createObligation()
+
+        when(mockGetReturnsConnector.getReturn(any(), any())(using any()))
+          .thenReturn(Future.successful(responseWithoutDuty))
+
+        when(mockObligationService.getObligationByPeriodKey(any(), any())(using any()))
+          .thenReturn(Future.successful(Some(obligation)))
 
         val request = FakeRequest(GET, controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
 
@@ -97,29 +141,25 @@ class ConfirmationControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to journey recovery when totalDutyDue is None" in {
+    "must redirect to journey recovery when obligation is not found" in {
 
-      val mockSubscriptionConnector = mock[SubscriptionConnector]
       val mockGetReturnsConnector = mock[GetReturnsConnector]
+      val mockObligationService = mock[ObligationService]
 
       val application = applicationBuilder(returnsUserAnswers = Option(returnsUserAnswers))
-        .overrides(bind[SubscriptionConnector].toInstance(mockSubscriptionConnector))
         .overrides(bind[GetReturnsConnector].toInstance(mockGetReturnsConnector))
+        .overrides(bind[ObligationService].toInstance(mockObligationService))
         .build()
 
       running(application) {
 
-        val contactPreference = SubscriptionContactPreferences(true, Option(emailAddress))
-
-        when(mockSubscriptionConnector.getSubscriptionContactPreferences(any())(any()))
-          .thenReturn(Future.successful(Right(contactPreference)))
-
-        val responseWithoutDuty = createReturnDisplayResponse().copy(
-          success = createReturnDisplayResponse().success.copy(totalDutyDue = None)
-        )
+        val returnsResponse = createReturnDisplayResponse()
 
         when(mockGetReturnsConnector.getReturn(any(), any())(using any()))
-          .thenReturn(Future.successful(responseWithoutDuty))
+          .thenReturn(Future.successful(returnsResponse))
+
+        when(mockObligationService.getObligationByPeriodKey(any(), any())(using any()))
+          .thenReturn(Future.successful(None))
 
         val request = FakeRequest(GET, controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
 

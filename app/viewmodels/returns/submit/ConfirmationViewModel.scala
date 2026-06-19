@@ -17,94 +17,147 @@
 package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
+import models.obligations.ObligationDetails
+import models.returns.view.ReturnDisplayResponse
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
+import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.html.components.{GovukInsetText, GovukWarningText}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 import uk.gov.hmrc.govukfrontend.views.viewmodels.warningtext.WarningText
-import utils.{CurrencyFormatter, ReturnsDateUtils}
+import utils.CurrencyFormatter
 import views.html.components.{Heading2, Link, ListWithLinks, Paragraph}
 
-case class ConfirmationViewModel(email: String,
-                                 date: String,
-                                 currentMonth: String,
-                                 content: Html,
-                                 vpdRef: String,
-                                 btaLink: String,
-                                 periodKey: PeriodKey,
-                                 viewReturnUrl: String)
+import java.time.{LocalDate, ZoneId}
+import java.time.format.DateTimeFormatter
+
+case class ConfirmationViewModel(
+  submissionDate: String,
+  periodMonthYear: String,
+  totalDutyAmount: BigDecimal,
+  totalDutyFormatted: String,
+  paymentDueDate: String,
+  chargeReference: Option[String],
+  content: Html,
+  btaLink: String,
+  periodKey: PeriodKey
+)
 
 object ConfirmationViewModel extends CurrencyFormatter {
 
-  def apply(dutyDue: BigDecimal, email: String, vpdRef: String, btaLink: String, periodKey: PeriodKey, viewReturnUrl: String)
-           (implicit messages: Messages): ConfirmationViewModel =
+  private val SUBMISSION_DATE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private val MONTH_YEAR_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy")
+  private val PAYMENT_DUE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private val ZONE_ID = ZoneId.of("Europe/London")
 
-    confirmationViewModel(email, dutyDue, vpdRef, btaLink, periodKey, viewReturnUrl)
+  def apply(
+    returnsResponse: ReturnDisplayResponse,
+    obligation: ObligationDetails,
+    btaLink: String
+  )(implicit messages: Messages): ConfirmationViewModel = {
 
+    val totalDutyDue = returnsResponse.success.totalDutyDue
+      .map(_.totalDutyDue)
+      .getOrElse(
+        // scalafix:off DisableSyntax.throw
+        throw new RuntimeException("Total duty due not found")
+      )
 
-  private def confirmationViewModel(email: String, dutyDue: BigDecimal, vpdRef: String, btaLink: String, periodKey: PeriodKey, viewReturnUrl: String)(implicit messages: Messages) =
+    val chargeReference = returnsResponse.success.chargeDetails
+      .flatMap(_.chargeReference)
+      .map(_.toUpperCase)
 
-    val monthMessage = ReturnsDateUtils.getMonthMessage(ReturnsDateUtils.month)
+    val submissionDateFormatted = LocalDate.ofInstant(
+      returnsResponse.success.processingDate,
+      ZONE_ID
+    ).format(SUBMISSION_DATE_FORMATTER)
+
+    val periodMonthYearFormatted = obligation.iCFromDate.format(MONTH_YEAR_FORMATTER)
+    val paymentDueDateFormatted = obligation.iCDueDate.format(PAYMENT_DUE_FORMATTER)
 
     new ConfirmationViewModel(
-      email,
-      makeDateString(monthMessage),
-      monthMessage,
-      getContent(dutyDue),
-      vpdRef,
-      btaLink,
-      periodKey,
-      viewReturnUrl
+      submissionDate = submissionDateFormatted,
+      periodMonthYear = periodMonthYearFormatted,
+      totalDutyAmount = totalDutyDue,
+      totalDutyFormatted = currencyFormat(totalDutyDue.abs),
+      paymentDueDate = paymentDueDateFormatted,
+      chargeReference = chargeReference,
+      content = getContent(totalDutyDue, paymentDueDateFormatted, btaLink),
+      btaLink = btaLink,
+      periodKey = PeriodKey(obligation.periodKey)
     )
-
-  private def totalDue(dutyDue: BigDecimal) = {
-    currencyFormat(dutyDue)
   }
 
-
-  private def makeDateString(monthMessage: String)(implicit messages: Messages) = {
-    s"${ReturnsDateUtils.getCurrentDay} $monthMessage ${ReturnsDateUtils.getYear}"
+  private def getContent(dutyDue: BigDecimal, paymentDueDate: String, btaLink: String)
+                        (implicit messages: Messages): Html = {
+    if (dutyDue > 0) {
+      getPositiveContent(dutyDue, paymentDueDate, btaLink)
+    } else if (dutyDue < 0) {
+      getNegativeContent(dutyDue)
+    } else {
+      getZeroContent()
+    }
   }
 
-  private def elems(html: HtmlFormat.Appendable)(implicit messages: Messages) =
-
+  private def getPositiveContent(dutyDue: BigDecimal, paymentDueDate: String, btaLink: String)
+                                (implicit messages: Messages): Html = {
+    val warning = GovukWarningText()
     val p = Paragraph()
     val h2 = Heading2()
     val list = ListWithLinks()
     val link = Link()
 
-    Seq(
-      html,
-      p(Seq(Text(messages("returns.confirmation.p.youWill")))),
-      p(Seq(Text(messages("returns.confirmation.p.yourReturn")))),
-      h2(Text(messages("returns.confirmation.h2.howTo"))),
-      p(Seq(Text(messages("returns.confirmation.selectOne")))),
-      list(Seq(
-        link(id = "ddLink", href = "#", text = messages("returns.confirmation.link.directDebit")),
-        link(id = "payNowLink", href = "#", text = messages("returns.confirmation.link.payNow"))
-      ), classes = "govuk-list govuk-list--bullet")
+    val warningSection = warning(WarningText(
+      iconFallbackText = Some(messages("site.warning")),
+      content = Text(messages("returns.confirmation.warning.youMust", currencyFormat(dutyDue), paymentDueDate))
+    ))
+
+    val directDebitParagraph = p(Seq(Text(messages("returns.confirmation.p.directDebit", paymentDueDate))))
+
+    val whatNextHeading = h2(Text(messages("returns.confirmation.h2.whatNext")))
+
+    val payNowBulletWithLink = Html(
+      messages("returns.confirmation.bullet.bta.prefix") + " " +
+      link(id = "bta-link", href = btaLink, text = messages("returns.confirmation.bullet.bta.linkText"))
     )
 
-  private def getContent(dutyDue: BigDecimal)(implicit messages: Messages) = {
+    val bulletList = list(Seq(
+      payNowBulletWithLink,
+      Html(messages("returns.confirmation.bullet.interest", paymentDueDate))
+    ), classes = "govuk-list govuk-list--bullet")
 
-    val monthMessage = ReturnsDateUtils.getMonthMessage(ReturnsDateUtils.month)
+    HtmlFormat.fill(Seq(warningSection, directDebitParagraph, whatNextHeading, bulletList))
+  }
 
-    if (dutyDue != 0) {
-      val warning = GovukWarningText()
+  private def getNegativeContent(dutyDue: BigDecimal)(implicit messages: Messages): Html = {
+    val govukInsetText = GovukInsetText()
+    val link = Link()
 
-      val warningSection = warning(WarningText(
-        iconFallbackText = Some(messages("site.warning")),
-        content = Text(messages("returns.confirmation.warning.youMust", totalDue(dutyDue), monthMessage, ReturnsDateUtils.getYear.toString))
-      ))
+    val prefix = messages("returns.confirmation.inset.negative.prefix", currencyFormat(dutyDue.abs))
+    val repaymentLink = link(
+      id = "repayment-link",
+      href = "#",
+      text = messages("returns.confirmation.inset.negative.linkText")
+    )
+    val suffix = messages("returns.confirmation.inset.negative.suffix")
 
-      HtmlFormat.fill(elems(warningSection))
-    } else {
-      val govukInsetText = GovukInsetText()
+    val content = HtmlFormat.fill(Seq(Html(prefix), repaymentLink, Html(suffix)))
 
-      val insetSection = govukInsetText(InsetText(content = Text(value = messages("returns.confirmation.inset.youHave"))))
+    val insetSection = govukInsetText(InsetText(
+      content = HtmlContent(content)
+    ))
 
-      HtmlFormat.fill(elems(insetSection))
-    }
+    insetSection
+  }
+
+  private def getZeroContent()(implicit messages: Messages): Html = {
+    val govukInsetText = GovukInsetText()
+
+    val insetSection = govukInsetText(InsetText(
+      content = Text(messages("returns.confirmation.inset.youHave"))
+    ))
+
+    insetSection
   }
 }
