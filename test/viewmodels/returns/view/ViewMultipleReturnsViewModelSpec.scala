@@ -119,8 +119,11 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2024)
 
       result.paginationViewModel mustBe defined
-      result.paginationViewModel.get.previousPageUrl mustBe None
-      result.paginationViewModel.get.nextPageUrl mustBe defined
+      result.paginationViewModel.get.paginationItems.length mustBe 2
+      result.paginationViewModel.get.paginationItems.head.number mustBe Some("2024")
+      result.paginationViewModel.get.paginationItems.head.current mustBe Some(true)
+      result.paginationViewModel.get.paginationItems(1).number mustBe Some("2023")
+      result.paginationViewModel.get.paginationItems(1).current mustBe Some(false)
     }
 
     "must not show pagination when only one year of completed returns exists" in {
@@ -131,7 +134,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
       result.paginationViewModel mustBe None
     }
 
-    "must show correct pagination URLs for middle year" in {
+    "must show correct pagination items for middle year" in {
       val completedObligation2022 = ObligationItem(
         ObligationDetails(
           openOrFulfilledStatus = fulfilledStatus,
@@ -148,8 +151,13 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2023)
 
       result.paginationViewModel mustBe defined
-      result.paginationViewModel.get.previousPageUrl mustBe defined
-      result.paginationViewModel.get.nextPageUrl mustBe defined
+      result.paginationViewModel.get.paginationItems.length mustBe 3
+      result.paginationViewModel.get.paginationItems(0).number mustBe Some("2024")
+      result.paginationViewModel.get.paginationItems(0).current mustBe Some(false)
+      result.paginationViewModel.get.paginationItems(1).number mustBe Some("2023")
+      result.paginationViewModel.get.paginationItems(1).current mustBe Some(true)
+      result.paginationViewModel.get.paginationItems(2).number mustBe Some("2022")
+      result.paginationViewModel.get.paginationItems(2).current mustBe Some(false)
     }
 
     "must show empty message for completed returns when year has no completed returns" in {

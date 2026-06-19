@@ -45,9 +45,10 @@ object ViewMultipleReturnsViewModel {
     currentYear: Int
   )(implicit messages: Messages): ViewMultipleReturnsViewModel = {
 
-    // Outstanding returns
+    // Outstanding returns - sorted by most recent first
     val outstandingItems = obligationsResponse.obligation
       .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_OPEN.toString)
+      .sortBy(_.obligationDetails.iCFromDate)(Ordering[LocalDate].reverse)
       .map(item => createOutstandingTaskListItem(item.obligationDetails))
 
     val outstandingSection = OutstandingReturnsSection(
@@ -64,30 +65,26 @@ object ViewMultipleReturnsViewModel {
 
     // Calculate pagination
     val allYears = completedByYear.keys.toSeq.sorted.reverse
-    val currentYearIndex = allYears.indexOf(currentYear)
 
     val paginationViewModel = if (allYears.length > 1) {
-      val hasPreviousPage = currentYearIndex > 0
-      val hasNextPage = currentYearIndex < allYears.length - 1
-
-      val previousPageUrl = if (hasPreviousPage) {
-        Some(controllers.returns.view.routes.ViewMultipleReturnsController
-          .onPageLoad(Some(allYears(currentYearIndex - 1))).url)
-      } else None
-
-      val nextPageUrl = if (hasNextPage) {
-        Some(controllers.returns.view.routes.ViewMultipleReturnsController
-          .onPageLoad(Some(allYears(currentYearIndex + 1))).url)
-      } else None
-
-      Some(PaginationViewModel(previousPageUrl, nextPageUrl))
+      val paginationItems = allYears.map { year =>
+        uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem(
+          number = Some(year.toString),
+          href = controllers.returns.view.routes.ViewMultipleReturnsController.onPageLoad(Some(year)).url,
+          current = Some(year == currentYear)
+        )
+      }
+      Some(PaginationViewModel(paginationItems))
     } else None
 
     // Create section for current year - always show section, even if empty
+    // Sort completed returns by most recent first
     val completedSections = Seq(
       CompletedReturnsSection(
-        year = currentYear,
-        items = completedByYear.get(currentYear).map(_.map(createCompletedTaskListItem)).getOrElse(Seq.empty),
+        year = currentYear.toString,
+        items = completedByYear.get(currentYear)
+          .map(_.sortBy(_.iCFromDate)(Ordering[LocalDate].reverse).map(createCompletedTaskListItem))
+          .getOrElse(Seq.empty),
         showEmptyMessage = completedByYear.get(currentYear).isEmpty
       )
     )

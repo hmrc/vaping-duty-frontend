@@ -16,7 +16,8 @@
 
 package viewmodels.returns.view
 
+import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
+
 final case class PaginationViewModel(
-  previousPageUrl: Option[String],
-  nextPageUrl: Option[String]
+  paginationItems: Seq[PaginationItem]
 )

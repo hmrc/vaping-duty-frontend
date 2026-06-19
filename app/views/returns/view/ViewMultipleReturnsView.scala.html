@@ -49,9 +49,6 @@
     }
 
     @vm.paginationViewModel.map { pagination =>
-        @govukPagination(Pagination(
-            previous = pagination.previousPageUrl.map(url => PaginationLink(href = url)),
-            next = pagination.nextPageUrl.map(url => PaginationLink(href = url))
-        ))
+        @govukPagination(Pagination(items = Some(pagination.paginationItems)))
     }
 }

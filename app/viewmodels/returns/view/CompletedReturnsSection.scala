@@ -19,7 +19,7 @@ package viewmodels.returns.view
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskListItem
 
 final case class CompletedReturnsSection(
-  year: Int,
+  year: String,
   items: Seq[TaskListItem],
   showEmptyMessage: Boolean
 )
