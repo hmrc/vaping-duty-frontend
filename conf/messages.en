@@ -333,6 +333,8 @@ returns.CheckYourAnswers.dutySummary.total.nil = £0
 returns.CheckYourAnswers.dutySummary.nothing = Nothing to declare
 
 returns.CheckYourAnswers.declareDutySuspense.question = Have you received or moved any finished vaping products in duty suspense?
+returns.CheckYourAnswers.dutySuspended.declared = Duty suspense
+returns.CheckYourAnswers.dutySuspended.declared.value = Declared
 returns.CheckYourAnswers.dutySuspended.received = Product received
 returns.CheckYourAnswers.dutySuspended.moved = Product moved
 returns.CheckYourAnswers.dutySuspended.total = Total volume
