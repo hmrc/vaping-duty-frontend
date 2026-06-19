@@ -32,10 +32,20 @@
 
 @(periodKey: PeriodKey, vm: CheckYourAnswersViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("returns.CheckYourAnswers.title", vm.dutyDue))) {
+@layout(pageTitle = titleNoForm(
+    if(vm.nilReturn)
+        messages("returns.CheckYourAnswers.nilReturn.heading")
+    else
+        messages("returns.CheckYourAnswers.title", vm.dutyDue)
+)) {
 
     @caption(messages("returns.CheckYourAnswers.caption", vm.returnPeriod, vm.year))
-    @h1(messages("returns.CheckYourAnswers.heading", vm.dutyDue))
+    @h1(
+        if(vm.nilReturn)
+            messages("returns.CheckYourAnswers.nilReturn.heading")
+        else
+            messages("returns.CheckYourAnswers.heading", vm.dutyDue)
+    )
 
     @vm.dutyRateParagraph
 
@@ -51,6 +61,8 @@
 
     @h2(messages("returns.CheckYourAnswers.h2.finalDuty"))
 
+    @vm.dutyCalculationParagraph
+
     @govukSummaryList(vm.finalDutySummaryList)
 
     @h2(messages("returns.CheckYourAnswers.h2.dutySuspended"))
@@ -62,8 +74,6 @@
     @p(Seq(messages("returns.CheckYourAnswers.p.bySubmitting")))
 
     @p(Seq(messages("returns.CheckYourAnswers.p.making")))
-
-    @p(Seq(messages("returns.CheckYourAnswers.p.checkYour")))
 
     @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
         @govukButton(ButtonViewModel(messages("site.saveAndContinue")))

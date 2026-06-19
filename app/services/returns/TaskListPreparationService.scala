@@ -36,6 +36,7 @@ class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService
 
     val currentObligation = obligations
       .find(_.obligationDetails.periodKey == periodKey.toString)
+      // scalafix:off DisableSyntax.throw
       .getOrElse(throw new IllegalStateException(s"No obligation found for period key: ${periodKey.toString}"))
 
     val month = currentObligation.obligationDetails.iCFromDate.getMonth.toString

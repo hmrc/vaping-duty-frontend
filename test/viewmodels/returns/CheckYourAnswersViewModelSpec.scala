@@ -17,7 +17,7 @@
 package viewmodels.returns
 
 import base.SpecBase
-import pages.returns.EnterDutyAmountPage
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage}
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 
 class CheckYourAnswersViewModelSpec extends SpecBase {
@@ -48,6 +48,50 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
       vm.finalDutySummaryList.rows must not be empty
       vm.dutySuspendedSummaryList.rows must not be empty
       vm.dutyDue mustBe "£1,575"
+    }
+
+    "must set nilReturn to true when all declaration pages are false" in {
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, false).success.value
+        .set(DeclareSpoiltProductsPage, false).success.value
+        .set(DeclareDutySuspensePage, false).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate, periodKey)
+
+      vm.nilReturn mustBe true
+    }
+
+    "must set nilReturn to false when DeclareDutyPage is true" in {
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, true).success.value
+        .set(DeclareSpoiltProductsPage, false).success.value
+        .set(DeclareDutySuspensePage, false).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate, periodKey)
+
+      vm.nilReturn mustBe false
+    }
+
+    "must set nilReturn to false when DeclareSpoiltProductsPage is true" in {
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, false).success.value
+        .set(DeclareSpoiltProductsPage, true).success.value
+        .set(DeclareDutySuspensePage, false).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate, periodKey)
+
+      vm.nilReturn mustBe false
+    }
+
+    "must set nilReturn to false when DeclareDutySuspensePage is true" in {
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, false).success.value
+        .set(DeclareSpoiltProductsPage, false).success.value
+        .set(DeclareDutySuspensePage, true).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate, periodKey)
+
+      vm.nilReturn mustBe false
     }
   }
 }

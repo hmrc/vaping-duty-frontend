@@ -41,7 +41,7 @@ class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with Wire
   private lazy val connector = application.injector.instanceOf[ReturnsUserAnswersConnector]
   
   private val instant                     = Instant.parse("2026-04-14T07:54:00.483Z")
-  private val answers                     = ReturnsUserAnswers(vpdId.value, periodKey.toString, JsObject.empty, instant, instant)
+  private val answers                     = ReturnsUserAnswers(vpdId.value, periodKey.toString, Some("JUNE"), Some("2027"), JsObject.empty, instant, instant)
   private val internalServerErrorResponse = UpstreamErrorResponse("There was a problem", INTERNAL_SERVER_ERROR)
 
   ".get" - {
