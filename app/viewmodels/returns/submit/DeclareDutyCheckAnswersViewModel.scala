@@ -82,7 +82,7 @@ object DeclareDutyCheckAnswersViewModel {
     )
   }
 
-  private def buildSummaryListWithDuty(declareDuty: Boolean, volumeInMl: Int,
+  private def buildSummaryListWithDuty(declareDuty: Boolean, volumeInMl: BigDecimal,
                                        dutyAmount: BigDecimal, periodKey: PeriodKey)
                                       (implicit messages: Messages): SummaryList = {
     val rows = Seq(
