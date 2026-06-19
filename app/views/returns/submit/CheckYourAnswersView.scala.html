@@ -34,7 +34,7 @@
 
 @layout(pageTitle = titleNoForm(messages("returns.CheckYourAnswers.title", vm.dutyDue))) {
 
-    @caption(messages("returns.CheckYourAnswers.caption"))
+    @caption(messages("returns.CheckYourAnswers.caption", vm.returnPeriod, vm.year))
     @h1(messages("returns.CheckYourAnswers.heading", vm.dutyDue))
 
     @vm.dutyRateParagraph

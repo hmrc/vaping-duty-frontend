@@ -29,6 +29,8 @@ import scala.util.{Failure, Success, Try}
 final case class ReturnsUserAnswers(
                                      vpdId: String,
                                      periodKey: String,
+                                     returnPeriod: Option[String] = None,
+                                     year: Option[String] = None,
                                      data: JsObject = Json.obj(),
                                      startedTime: Instant,
                                      lastUpdated: Instant
@@ -73,6 +75,8 @@ object ReturnsUserAnswers {
   implicit val format: OFormat[ReturnsUserAnswers] = (
       (__ \ "vpdId").format[String] and
       (__ \ "periodKey").format[String] and
+      (__ \ "returnPeriod").formatNullable[String] and
+      (__ \ "year").formatNullable[String] and
       (__ \ "data").formatWithDefault[JsObject](Json.obj()) and
       (__ \ "startedTime").format(MongoJavatimeFormats.instantFormat) and
       (__ \ "lastUpdated").format(MongoJavatimeFormats.instantFormat)

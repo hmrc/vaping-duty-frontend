@@ -308,7 +308,7 @@ returns.declareDutyCheckAnswers.dutyDue = Duty due
 returns.declareDutyCheckAnswers.volume.change.hidden = vaping products volume
 
 returns.CheckYourAnswers.title = The duty due is {0}
-returns.CheckYourAnswers.caption = Check your answers
+returns.CheckYourAnswers.caption = Return for {0} {1}
 returns.CheckYourAnswers.heading = The duty due is {0}
 returns.CheckYourAnswers.p.duty = Duty is calculated by multiplying the volume of vaping products released for sale by the Vaping Product Duty rate of {0} per 10ml.
 returns.CheckYourAnswers.h2.theAmount = The amount is based on the total duty due on:

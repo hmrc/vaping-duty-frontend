@@ -23,30 +23,47 @@ import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import utils.ReturnsDateUtils
 import viewmodels.checkAnswers.ReturnsSummary.currencyFormat
 import viewmodels.checkAnswers.{DutySuspenseSummary, ReturnsSummary}
 import views.html.components.Paragraph
+
+import java.time.Month
 
 case class CheckYourAnswersViewModel(
                                       finalDutySummaryList: SummaryList,
                                       dutySuspendedSummaryList: SummaryList,
                                       dutyDue: String,
                                       dutyRate: String,
-                                      dutyRateParagraph: HtmlFormat.Appendable
+                                      dutyRateParagraph: HtmlFormat.Appendable,
+                                      returnPeriod: String,
+                                      year: String
                                     )
 
 object CheckYourAnswersViewModel {
 
   private val ZERO = "0"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): CheckYourAnswersViewModel =
+  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): CheckYourAnswersViewModel = {
+    
+    val returnPeriod = userAnswers.returnPeriod
+      .map(monthStr => Month.valueOf(monthStr))
+      .map(month => ReturnsDateUtils.getReturnMonth(month))
+      .getOrElse(throw new IllegalStateException("Return period not found in user answers"))
+    
+    val year = userAnswers.year
+      .getOrElse(throw new IllegalStateException("Return year not found in user answers"))
+    
     CheckYourAnswersViewModel(
       finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRate, periodKey),
       dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers, periodKey),
       dutyDue = dutyDue(userAnswers, dutyRate),
       dutyRate = currencyFormat(dutyRate),
-      dutyRateParagraph = dutyRateParagraph(userAnswers, dutyRate)
+      dutyRateParagraph = dutyRateParagraph(userAnswers, dutyRate),
+      returnPeriod = returnPeriod,
+      year = year
     )
+  }
 
   private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal): String = {
     userAnswers.get(EnterDutyAmountPage) match {

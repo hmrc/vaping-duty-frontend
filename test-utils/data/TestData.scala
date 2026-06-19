@@ -150,6 +150,8 @@ trait TestData {
   val returnsUserAnswers: ReturnsUserAnswers = ReturnsUserAnswers(
     vpdId = vpdId.value,
     periodKey = periodKey.value,
+    returnPeriod = Some("JUNE"),
+    year = Some("2027"),
     data = JsObject.empty,
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)
