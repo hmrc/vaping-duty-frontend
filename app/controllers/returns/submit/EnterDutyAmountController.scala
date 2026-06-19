@@ -45,7 +45,7 @@ class EnterDutyAmountController @Inject()(
                                         view: EnterDutyAmountView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  val form: Form[Int] = formProvider()
+  val form: Form[BigDecimal] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>

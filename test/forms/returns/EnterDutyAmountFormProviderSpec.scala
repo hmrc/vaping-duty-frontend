@@ -16,10 +16,10 @@
 
 package forms.returns
 
-import forms.behaviours.IntFieldBehaviours
+import forms.behaviours.FieldBehaviours
 import play.api.data.FormError
 
-class EnterDutyAmountFormProviderSpec extends IntFieldBehaviours {
+class EnterDutyAmountFormProviderSpec extends FieldBehaviours {
 
   val form = new EnterDutyAmountFormProvider()()
 
@@ -27,31 +27,52 @@ class EnterDutyAmountFormProviderSpec extends IntFieldBehaviours {
 
     val fieldName = "value"
 
-    val minimum = 1
-    val maximum = Int.MaxValue
+    "must bind valid values >= 1000ml with up to 1 decimal place" in {
+      Seq("1000", "1000.1", "999999999999.9", "1000000").foreach { input =>
+        val result = form.bind(Map(fieldName -> input))
+        result.errors mustBe empty
+      }
+    }
 
-    val validDataGenerator = intsInRangeWithCommas(minimum, maximum)
+    "must bind valid values < 1000ml with exactly 2 decimal places" in {
+      Seq("1.00", "10.12", "999.99").foreach { input =>
+          val result = form.bind(Map(fieldName -> input))
+          result.errors mustBe empty
+      }
+    }
 
-    behave like fieldThatBindsValidData(
-      form,
-      fieldName,
-      validDataGenerator
-    )
+    "must not bind empty values" in {
+      val result = form.bind(Map(fieldName -> "")).apply(fieldName)
+      result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.required"))
+    }
 
-    behave like intField(
-      form,
-      fieldName,
-      nonNumericError  = FormError(fieldName, "returns.enterDutyAmount.error.nonNumeric"),
-      wholeNumberError = FormError(fieldName, "returns.enterDutyAmount.error.wholeNumber")
-    )
+    "must not bind non-numeric values" in {
+      Seq("abc", "1.2.3", "£10.12").foreach { input =>
+        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.nonNumeric"))
+      }
+    }
 
-    behave like intFieldWithRange(
-      form,
-      fieldName,
-      minimum       = minimum,
-      maximum       = maximum,
-      expectedError = FormError(fieldName, "returns.enterDutyAmount.error.outOfRange", Seq(minimum, maximum))
-    )
+    "must not bind values >= 1000ml with more than 1 decimal place" in {
+      Seq("1000.12", "1000.00", "999999999999.12").foreach { input =>
+        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces"))
+      }
+    }
+
+    "must not bind values < 1000ml without exactly 2 decimal places" in {
+      Seq("999", "999.9", "10", "10.1", "0").foreach { input =>
+        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces"))
+      }
+    }
+
+    "must not bind values below the minimum of 1ml" in {
+      Seq("0.12", "0.99").foreach { input =>
+        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.outOfRange", Seq(BigDecimal(1), BigDecimal("999999999999.9"))))
+      }
+    }
 
     behave like mandatoryField(
       form,

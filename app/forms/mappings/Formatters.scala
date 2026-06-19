@@ -141,4 +141,43 @@ trait Formatters {
       override def unbind(key: String, value: BigDecimal): Map[String, String] =
         baseFormatter.unbind(key, value.toString)
     }
+
+  private[mappings] def volumeFormatter(
+                                         requiredKey: String,
+                                         nonNumericKey: String,
+                                         invalidDecimalKey: String,
+                                         args: Seq[String] = Seq.empty
+                                       ): Formatter[BigDecimal] =
+    new Formatter[BigDecimal] {
+
+      val validFormat = """^\d{1,12}(\.\d{1,2})?$"""
+      val litre = 1000
+
+      private val baseFormatter = stringFormatter(requiredKey, args)
+
+      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
+        baseFormatter
+          .bind(key, data)
+          .map(_.replace(",", "").replace(" ", ""))
+          .flatMap {
+            case s if !s.matches(validFormat) =>
+              Left(Seq(FormError(key, nonNumericKey, args)))
+            case s =>
+              nonFatalCatch
+                .either(BigDecimal(s))
+                .left.map(_ => Seq(FormError(key, nonNumericKey, args)))
+                .flatMap { v =>
+                  val dpCount = if (s.contains(".")) s.length - s.indexOf('.') - 1 else 0
+                  if (v >= litre && dpCount > 1)
+                    Left(Seq(FormError(key, invalidDecimalKey, args)))
+                  else if (v < litre && dpCount != 2)
+                    Left(Seq(FormError(key, invalidDecimalKey, args)))
+                  else
+                    Right(v)
+                }
+          }
+
+      override def unbind(key: String, value: BigDecimal): Map[String, String] =
+        baseFormatter.unbind(key, value.toString)
+    }
 }

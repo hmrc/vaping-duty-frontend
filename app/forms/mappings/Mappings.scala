@@ -61,4 +61,10 @@ trait Mappings extends Formatters with Constraints {
                          nonNumericKey: String = "error.nonNumeric",
                          args: Seq[String] = Seq.empty): FieldMapping[BigDecimal] =
     of(currencyFormatter(requiredKey, invalidNumeric, nonNumericKey, args))
+
+  protected def volume(requiredKey: String = "error.required",
+                       nonNumericKey: String = "error.nonNumeric",
+                       invalidDecimalKey: String = "error.invalidDecimal",
+                       args: Seq[String] = Seq.empty): FieldMapping[BigDecimal] =
+    of(volumeFormatter(requiredKey, nonNumericKey, invalidDecimalKey, args))
 }

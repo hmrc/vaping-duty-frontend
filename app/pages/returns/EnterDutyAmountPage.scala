@@ -22,13 +22,13 @@ import play.api.libs.json.JsPath
 
 import scala.util.Try
 
-case object EnterDutyAmountPage extends QuestionPage[Int] {
+case object EnterDutyAmountPage extends QuestionPage[BigDecimal] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "enterDutyAmount"
 
-  override def cleanup(value: Option[Int], userAnswers: ReturnsUserAnswers): Try[ReturnsUserAnswers] = {
+  override def cleanup(value: Option[BigDecimal], userAnswers: ReturnsUserAnswers): Try[ReturnsUserAnswers] = {
     value match {
       case Some(value) => userAnswers.set(DeclareDutyPage, true)
       case _ => super.cleanup(value, userAnswers)
