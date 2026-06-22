@@ -39,7 +39,7 @@ class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService
       // scalafix:off DisableSyntax.throw
       .getOrElse(throw new IllegalStateException(s"No obligation found for period key: ${periodKey.toString}"))
 
-    val month = currentObligation.obligationDetails.iCFromDate.getMonth.toString
+    val month = currentObligation.obligationDetails.iCFromDate.getMonth
     val year = currentObligation.obligationDetails.iCFromDate.getYear.toString
 
     val updatedUa = TaskListPreparationService

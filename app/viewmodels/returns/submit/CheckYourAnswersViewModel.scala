@@ -28,8 +28,6 @@ import viewmodels.checkAnswers.ReturnsSummary.currencyFormat
 import viewmodels.checkAnswers.{DutySuspenseSummary, ReturnsSummary}
 import views.html.components.Paragraph
 
-import java.time.Month
-
 case class CheckYourAnswersViewModel(
                                       finalDutySummaryList: SummaryList,
                                       dutySuspendedSummaryList: SummaryList,
@@ -47,15 +45,12 @@ object CheckYourAnswersViewModel {
   private val ZERO = "0"
 
   def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): CheckYourAnswersViewModel = {
-    
+    // scalafix:off DisableSyntax.throw
     val returnPeriod = userAnswers.returnPeriod
-      .map(monthStr => Month.valueOf(monthStr))
       .map(month => ReturnsDateUtils.getReturnMonth(month))
-      // scalafix:off DisableSyntax.throw
       .getOrElse(throw new IllegalStateException("Return period not found in user answers"))
     
     val year = userAnswers.year
-      // scalafix:off DisableSyntax.throw
       .getOrElse(throw new IllegalStateException("Return year not found in user answers"))
     
     val nilReturn = isNilReturn(userAnswers)

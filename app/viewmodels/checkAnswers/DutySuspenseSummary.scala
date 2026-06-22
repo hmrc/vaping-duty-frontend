@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import models.CheckMode
 import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
-import pages.returns.{DeclareDutySuspensePage, EnterDutySuspensePage}
+import pages.returns.DeclareDutySuspensePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}

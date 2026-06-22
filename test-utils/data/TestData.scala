@@ -26,7 +26,7 @@ import models.returns.{DeclarationDetails, ReturnsUserAnswers, TotalDutyDue, Vap
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
 
-import java.time.{Clock, Instant, LocalDate, LocalDateTime, ZoneId, ZoneOffset}
+import java.time.{Clock, Instant, LocalDate, LocalDateTime, Month, ZoneId, ZoneOffset}
 
 trait TestData {
   val vpdId: VpdId = VpdId(id = "VPPAID01")
@@ -150,7 +150,7 @@ trait TestData {
   val returnsUserAnswers: ReturnsUserAnswers = ReturnsUserAnswers(
     vpdId = vpdId.value,
     periodKey = periodKey.value,
-    returnPeriod = Some("JUNE"),
+    returnPeriod = Some(Month.JUNE),
     year = Some("2027"),
     data = JsObject.empty,
     startedTime = Instant.now(clock),
