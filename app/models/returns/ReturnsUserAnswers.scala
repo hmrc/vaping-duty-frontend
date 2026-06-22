@@ -23,12 +23,14 @@ import play.api.libs.json.*
 import queries.{Gettable, Settable}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
-import java.time.Instant
+import java.time.{Instant, Month}
 import scala.util.{Failure, Success, Try}
 
 final case class ReturnsUserAnswers(
                                      vpdId: String,
                                      periodKey: String,
+                                     returnPeriod: Option[Month] = None,
+                                     year: Option[String] = None,
                                      data: JsObject = Json.obj(),
                                      startedTime: Instant,
                                      lastUpdated: Instant
@@ -69,10 +71,13 @@ final case class ReturnsUserAnswers(
 }
 
 object ReturnsUserAnswers {
+  private implicit val monthFormat: Format[Month] = implicitly[Format[String]].inmap(Month.valueOf, _.toString)
 
   implicit val format: OFormat[ReturnsUserAnswers] = (
       (__ \ "vpdId").format[String] and
       (__ \ "periodKey").format[String] and
+      (__ \ "returnPeriod").formatNullable[Month] and
+      (__ \ "year").formatNullable[String] and
       (__ \ "data").formatWithDefault[JsObject](Json.obj()) and
       (__ \ "startedTime").format(MongoJavatimeFormats.instantFormat) and
       (__ \ "lastUpdated").format(MongoJavatimeFormats.instantFormat)

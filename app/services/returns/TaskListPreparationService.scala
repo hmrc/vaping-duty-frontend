@@ -16,6 +16,8 @@
 
 package services.returns
 
+import models.identifiers.PeriodKey
+import models.obligations.ObligationItem
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import pages.returns.DeclareSpoiltProductsPage
 import uk.gov.hmrc.http.HeaderCarrier
@@ -27,10 +29,22 @@ class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService
 
   def prepareUserAnswers(
                           userAnswers: ReturnsUserAnswers,
-                          adjustmentsEligibility: AdjustmentsEligibility
+                          adjustmentsEligibility: AdjustmentsEligibility,
+                          obligations: Seq[ObligationItem],
+                          periodKey: PeriodKey
                         )(using HeaderCarrier): Future[ReturnsUserAnswers] = {
 
-    val updatedUa = TaskListPreparationService.updateUserAnswers(userAnswers, adjustmentsEligibility)
+    val currentObligation = obligations
+      .find(_.obligationDetails.periodKey == periodKey.toString)
+      // scalafix:off DisableSyntax.throw
+      .getOrElse(throw new IllegalStateException(s"No obligation found for period key: ${periodKey.toString}"))
+
+    val month = currentObligation.obligationDetails.iCFromDate.getMonth
+    val year = currentObligation.obligationDetails.iCFromDate.getYear.toString
+
+    val updatedUa = TaskListPreparationService
+      .updateUserAnswers(userAnswers, adjustmentsEligibility)
+      .copy(returnPeriod = Some(month), year = Some(year))
 
     storeUserAnswersIfChanged(userAnswers, updatedUa)
   }

@@ -25,7 +25,7 @@ import pages.returns.{AddSpoiltAdjustmentPage, DeclareDutyPage, DeclareDutySuspe
 import play.api.libs.json.Json
 import play.api.mvc.Call
 
-import java.time.Instant
+import java.time.{Instant, Month}
 
 class ReturnsNavigatorSpec extends SpecBase {
 
@@ -50,7 +50,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from DeclareDuty to JourneyRecovery when there is no value present" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -74,7 +74,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from DeclareDutySuspense to JourneyRecovery when there is no value present" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(DeclareDutySuspensePage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 

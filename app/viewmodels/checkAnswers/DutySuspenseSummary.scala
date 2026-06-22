@@ -19,123 +19,57 @@ package viewmodels.checkAnswers
 import models.CheckMode
 import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
-import pages.returns.{DeclareDutySuspensePage, EnterDutySuspensePage}
+import pages.returns.DeclareDutySuspensePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Key, SummaryList, SummaryListRow}
-import utils.CssConstants
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
 object DutySuspenseSummary {
 
-  private val VOLUME_UNIT = " ml"
-  private val ZERO_VOLUME = 0
-
   def summaryList(answers: ReturnsUserAnswers, periodKey: PeriodKey)(implicit messages: Messages): SummaryList = {
     val rows = Seq(
-      buildProductReceivedRow(answers, periodKey),
-      buildProductMovedRow(answers, periodKey),
-      buildTotalVolumeRow(answers)
+      buildDeclareDutySuspenseRow(answers, periodKey),
+      buildDutySuspenseDeclaredRow(answers, periodKey)
     ).flatten
 
     SummaryList(rows = rows)
   }
 
-  private def formatVolume(volume: Int)(implicit messages: Messages): String =
-    if (volume == ZERO_VOLUME) messages("returns.CheckYourAnswers.dutySummary.nothing")
-    else s"$volume$VOLUME_UNIT"
-
-  private def createChangeAction(url: String, messageKey: String, periodKey: PeriodKey)(implicit messages: Messages) =
-    Seq(
-      ActionItemViewModel("site.change", s"$url?period=${periodKey.value}")
-        .withVisuallyHiddenText(messages(messageKey))
-    )
-
-  private def buildRow(
-                        messageKey: String,
-                        value: String,
-                        actions: Seq[ActionItem],
-                        cssClass: Option[String] = None
-                      ): SummaryListRow = {
-    val valueViewModel = cssClass match {
-      case Some(css) => ValueViewModel(Text(value)).withCssClass(css)
-      case None => ValueViewModel(Text(value))
-    }
-
-    SummaryListRowViewModel(
-      key = Key(Text(messageKey), ""),
-      value = valueViewModel,
-      actions = actions
-    )
-  }
-
-  private def buildProductReceivedRow(answers: ReturnsUserAnswers, periodKey: PeriodKey)(implicit messages: Messages): Option[SummaryListRow] = {
-    val declareDutySuspense = answers.get(DeclareDutySuspensePage).getOrElse(false)
-
-    if (!declareDutySuspense) {
-      Some(buildRow(
-        messages("returns.CheckYourAnswers.dutySuspended.received"),
-        messages("returns.CheckYourAnswers.dutySummary.nothing"),
-        createChangeAction(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url, "", periodKey)
-      ))
-    } else {
-      answers.get(EnterDutySuspensePage).map { answer =>
-        buildRow(
-          messages("returns.CheckYourAnswers.dutySuspended.received"),
-          formatVolume(answer.volumeReceived),
-          createChangeAction(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url, "", periodKey)
+  private def buildDeclareDutySuspenseRow(
+    answers: ReturnsUserAnswers,
+    periodKey: PeriodKey
+  )(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(DeclareDutySuspensePage).map { answer =>
+      SummaryListRowViewModel(
+        key = "returns.CheckYourAnswers.declareDutySuspense.question",
+        value = ValueViewModel(Text(messages(if (answer) "site.yes" else "site.no"))),
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            s"${controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+          ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.declareDutySuspense.question"))
         )
-      }
+      )
     }
-  }
 
-  private def buildProductMovedRow(answers: ReturnsUserAnswers, periodKey: PeriodKey)(implicit messages: Messages): Option[SummaryListRow] = {
-    val declareDutySuspense = answers.get(DeclareDutySuspensePage).getOrElse(false)
-
-    if (!declareDutySuspense) {
-      Some(buildRow(
-        messages("returns.CheckYourAnswers.dutySuspended.moved"),
-        messages("returns.CheckYourAnswers.dutySummary.nothing"),
-        createChangeAction(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url, "", periodKey)
-      ))
-    } else {
-      answers.get(EnterDutySuspensePage).map { answer =>
-        buildRow(
-          messages("returns.CheckYourAnswers.dutySuspended.moved"),
-          formatVolume(answer.volumeMoved),
-          createChangeAction(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url, "", periodKey)
-        )
-      }
+  private def buildDutySuspenseDeclaredRow(
+    answers: ReturnsUserAnswers,
+    periodKey: PeriodKey
+  )(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(DeclareDutySuspensePage) match {
+      case Some(true) =>
+        Some(SummaryListRowViewModel(
+          key = "returns.CheckYourAnswers.dutySuspended.declared",
+          value = ValueViewModel(Text(messages("returns.CheckYourAnswers.dutySuspended.declared.value"))),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+            ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.dutySuspended.declared"))
+          )
+        ))
+      case _ => None
     }
-  }
-
-  private def buildTotalVolumeRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] = {
-    val declareDutySuspense = answers.get(DeclareDutySuspensePage).getOrElse(false)
-
-    if (!declareDutySuspense) {
-      Some(buildRow(
-        messages("returns.CheckYourAnswers.dutySuspended.total"),
-        messages("returns.CheckYourAnswers.dutySuspended.total.nil"),
-        Seq.empty,
-        Some(CssConstants.boldFontWeight)
-      ))
-    } else {
-      answers.get(EnterDutySuspensePage).map { answer =>
-        val totalVolume = answer.volumeReceived - answer.volumeMoved
-        val text = if (totalVolume == ZERO_VOLUME) {
-          messages("returns.CheckYourAnswers.dutySuspended.total.nil")
-        } else {
-          s"$totalVolume$VOLUME_UNIT"
-        }
-
-        buildRow(
-          messages("returns.CheckYourAnswers.dutySuspended.total"),
-          text,
-          Seq.empty,
-          Some(CssConstants.boldFontWeight)
-        )
-      }
-    }
-  }
 }

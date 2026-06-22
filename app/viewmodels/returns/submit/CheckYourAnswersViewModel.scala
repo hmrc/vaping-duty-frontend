@@ -18,11 +18,12 @@ package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
-import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import utils.ReturnsDateUtils
 import viewmodels.checkAnswers.ReturnsSummary.currencyFormat
 import viewmodels.checkAnswers.{DutySuspenseSummary, ReturnsSummary}
 import views.html.components.Paragraph
@@ -32,21 +33,47 @@ case class CheckYourAnswersViewModel(
                                       dutySuspendedSummaryList: SummaryList,
                                       dutyDue: String,
                                       dutyRate: String,
-                                      dutyRateParagraph: HtmlFormat.Appendable
+                                      dutyRateParagraph: HtmlFormat.Appendable,
+                                      dutyCalculationParagraph: HtmlFormat.Appendable,
+                                      nilReturn: Boolean,
+                                      returnPeriod: String,
+                                      year: String
                                     )
 
 object CheckYourAnswersViewModel {
 
   private val ZERO = "0"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): CheckYourAnswersViewModel =
+  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): CheckYourAnswersViewModel = {
+    // scalafix:off DisableSyntax.throw
+    val returnPeriod = userAnswers.returnPeriod
+      .map(month => ReturnsDateUtils.getReturnMonth(month))
+      .getOrElse(throw new IllegalStateException("Return period not found in user answers"))
+    
+    val year = userAnswers.year
+      .getOrElse(throw new IllegalStateException("Return year not found in user answers"))
+    
+    val nilReturn = isNilReturn(userAnswers)
+    
     CheckYourAnswersViewModel(
       finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRate, periodKey),
       dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers, periodKey),
       dutyDue = dutyDue(userAnswers, dutyRate),
       dutyRate = currencyFormat(dutyRate),
-      dutyRateParagraph = dutyRateParagraph(userAnswers, dutyRate)
+      dutyRateParagraph = dutyRateParagraph(nilReturn, dutyRate),
+      dutyCalculationParagraph = dutyCalculationParagraph(dutyRate),
+      nilReturn = nilReturn,
+      returnPeriod = returnPeriod,
+      year = year
     )
+  }
+
+  private def isNilReturn(userAnswers: ReturnsUserAnswers): Boolean = {
+    val declareDuty = userAnswers.get(DeclareDutyPage).getOrElse(false)
+    val declareSpoilt = userAnswers.get(DeclareSpoiltProductsPage).getOrElse(false)
+
+    !declareDuty && !declareSpoilt
+  }
 
   private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal): String = {
     userAnswers.get(EnterDutyAmountPage) match {
@@ -55,13 +82,18 @@ object CheckYourAnswersViewModel {
     }
   }
 
-  private def dutyRateParagraph(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal)(implicit messages: Messages) = {
+  private def dutyRateParagraph(nilReturn: Boolean, dutyRate: BigDecimal)(implicit messages: Messages): HtmlFormat.Appendable = {
     val p = new Paragraph()
 
-    userAnswers.get(DeclareDutyPage) match {
-      case Some(true)   => p(Seq(Text(messages("returns.CheckYourAnswers.p.duty", currencyFormat(dutyRate * 10)))))
-      case Some(false)  => p(Seq(Text(messages("NIL RETURN, CONTENT TBC"))))
-      case None         => p(Seq(Text("")))
+    if (nilReturn) {
+      p(Seq(Text(messages("returns.CheckYourAnswers.nilReturn.paragraph"))))
+    } else {
+      HtmlFormat.empty
     }
+  }
+
+  private def dutyCalculationParagraph(dutyRate: BigDecimal)(implicit messages: Messages): HtmlFormat.Appendable = {
+    val p = new Paragraph()
+    p(Seq(Text(messages("returns.CheckYourAnswers.dutyCalculation", currencyFormat(dutyRate * 10)))))
   }
 }
