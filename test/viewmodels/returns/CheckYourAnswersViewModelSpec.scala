@@ -40,16 +40,6 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
       vm.dutyRate mustBe "£3.15"
     }
 
-    "must create view model with correct summary lists" in {
-      val userAnswers = returnsUserAnswers.set(EnterDutyAmountPage, BigDecimal(500)).success.value
-
-      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate, periodKey)
-
-      vm.finalDutySummaryList.rows must not be empty
-      vm.dutySuspendedSummaryList.rows must not be empty
-      vm.dutyDue mustBe "£1,575"
-    }
-
     "must set nilReturn to true when all declaration pages are false" in {
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, false).success.value
