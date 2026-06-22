@@ -17,22 +17,22 @@
 package viewmodels.returns.view
 
 import base.SpecBase
-import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse}
-import play.api.i18n.Messages
+import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
 
-import java.time.LocalDate
+import java.time.{Clock, LocalDate}
 
 class ViewMultipleReturnsViewModelSpec extends SpecBase {
 
-  implicit val messages: Messages = messagesApi.preferred(fakeRequest)
+  given Clock = clock
 
   private val periodKey2024 = "24AA"
   private val periodKey2023 = "23AL"
-  private val openStatus = "O"
-  private val fulfilledStatus = "F"
-
+  private val openStatus = ObligationStatus.O.toString
+  private val fulfilledStatus = ObligationStatus.F.toString
+  
   private val outstandingObligation = ObligationItem(
-    ObligationDetails(
+    identification = None,
+    obligationDetails = ObligationDetails(
       openOrFulfilledStatus = openStatus,
       iCFromDate = LocalDate.of(2024, 1, 1),
       iCToDate = LocalDate.of(2024, 1, 31),
@@ -43,7 +43,8 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
   )
 
   private val completedObligation2024 = ObligationItem(
-    ObligationDetails(
+    identification = None,
+    obligationDetails = ObligationDetails(
       openOrFulfilledStatus = fulfilledStatus,
       iCFromDate = LocalDate.of(2024, 2, 1),
       iCToDate = LocalDate.of(2024, 2, 29),
@@ -54,7 +55,8 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
   )
 
   private val completedObligation2023 = ObligationItem(
-    ObligationDetails(
+    identification = None,
+    obligationDetails = ObligationDetails(
       openOrFulfilledStatus = fulfilledStatus,
       iCFromDate = LocalDate.of(2023, 12, 1),
       iCToDate = LocalDate.of(2023, 12, 31),
@@ -75,7 +77,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
       result.outstandingReturnsSection.showEmptyMessage mustBe false
       result.completedReturnsSections.length mustBe 1
       result.completedReturnsSections.head.items.length mustBe 1
-      result.completedReturnsSections.head.year mustBe 2024
+      result.completedReturnsSections.head.year mustBe 2024.toString
       result.paginationViewModel mustBe None
       result.shouldShowPagination mustBe false
     }
@@ -99,7 +101,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
       result.outstandingReturnsSection.items.length mustBe 0
       result.outstandingReturnsSection.showEmptyMessage mustBe true
       result.completedReturnsSections.length mustBe 1
-      result.completedReturnsSections.head.year mustBe 2023
+      result.completedReturnsSections.head.year mustBe 2023.toString
       result.completedReturnsSections.head.items.length mustBe 1
     }
 
@@ -137,7 +139,8 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
 
     "must show correct pagination items for middle year" in {
       val completedObligation2022 = ObligationItem(
-        ObligationDetails(
+        identification = None,
+        obligationDetails = ObligationDetails(
           openOrFulfilledStatus = fulfilledStatus,
           iCFromDate = LocalDate.of(2022, 12, 1),
           iCToDate = LocalDate.of(2022, 12, 31),
@@ -153,8 +156,8 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
 
       result.paginationViewModel mustBe defined
       result.paginationViewModel.get.paginationItems.length mustBe 3
-      result.paginationViewModel.get.paginationItems(0).number mustBe Some("2024")
-      result.paginationViewModel.get.paginationItems(0).current mustBe Some(false)
+      result.paginationViewModel.get.paginationItems.head.number mustBe Some("2024")
+      result.paginationViewModel.get.paginationItems.head.current mustBe Some(false)
       result.paginationViewModel.get.paginationItems(1).number mustBe Some("2023")
       result.paginationViewModel.get.paginationItems(1).current mustBe Some(true)
       result.paginationViewModel.get.paginationItems(2).number mustBe Some("2022")
