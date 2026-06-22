@@ -71,9 +71,8 @@ object CheckYourAnswersViewModel {
   private def isNilReturn(userAnswers: ReturnsUserAnswers): Boolean = {
     val declareDuty = userAnswers.get(DeclareDutyPage).getOrElse(false)
     val declareSpoilt = userAnswers.get(DeclareSpoiltProductsPage).getOrElse(false)
-    val declareSuspense = userAnswers.get(DeclareDutySuspensePage).getOrElse(false)
-    
-    !declareDuty && !declareSpoilt && !declareSuspense
+
+    !declareDuty && !declareSpoilt
   }
 
   private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal): String = {
