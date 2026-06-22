@@ -19,45 +19,56 @@ package controllers.returns.view
 import controllers.actions.*
 import controllers.actions.contactPreference.DataRetrievalAction
 import controllers.actions.returns.ReturnsEnabledAction
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import models.obligations.ObligationStatus
+import models.requests.contactPreference.OptionalDataRequest
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import services.returns.ObligationService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.view.ViewMultipleReturnsViewModel
 import views.html.returns.view.ViewMultipleReturnsView
 
+import java.time.{Clock, LocalDate}
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class ViewMultipleReturnsController @Inject()(
                                                override val messagesApi: MessagesApi,
+                                               clock: Clock,
                                                identify: ApprovedVapingManufacturerAuthAction,
                                                returnsEnabledAction: ReturnsEnabledAction,
                                                obligationService: ObligationService,
                                                val controllerComponents: MessagesControllerComponents,
                                                getData: DataRetrievalAction,
                                                view: ViewMultipleReturnsView
-                                             )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                             )(using ExecutionContext, Clock) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(year: Option[Int] = None): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
     implicit request =>
 
-      obligationService.getObligations(request.enrolmentVpdId).map { obligationResponse =>
-          // Get all years with completed returns
-          val completedYears = obligationResponse.obligation
-            .filter(_.obligationDetails.openOrFulfilledStatus == "F")
-            .map(_.obligationDetails.iCFromDate.getYear)
-            .distinct
-            .sorted
-            .reverse
-
-          // Default to most recent year if not specified
-          val currentYear = year.getOrElse(
-            completedYears.headOption.getOrElse(java.time.LocalDate.now().getYear)
-          )
-
-          Ok(view(ViewMultipleReturnsViewModel(obligationResponse, currentYear)))
-        }
+      renderView(request, year)
         .recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+  }
+
+  private def renderView(request: OptionalDataRequest[?], year: Option[Int])
+                        (using Messages, HeaderCarrier) = {
+    
+    given Request[?] = request.request
+    
+    obligationService.getObligations(request.enrolmentVpdId).map { obligationResponse =>
+      val completedYears = obligationResponse.obligation
+        .filter(_.obligationDetails.openOrFulfilledStatus == ObligationStatus.F.toString)
+        .map(_.obligationDetails.iCFromDate.getYear)
+        .distinct
+        .sorted
+        .reverse
+
+      val currentYear = year.getOrElse(
+        completedYears.headOption.getOrElse(LocalDate.now(clock).getYear)
+      )
+
+      Ok(view(ViewMultipleReturnsViewModel(obligationResponse, currentYear)))
+    }
   }
 }
