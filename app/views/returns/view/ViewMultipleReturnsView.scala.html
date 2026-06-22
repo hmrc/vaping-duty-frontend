@@ -33,7 +33,7 @@
 
     @h1(messages("returns.overview.heading"))
 
-    @if(!vm.outstandingReturnsSection.showEmptyMessage) {
+    @if(vm.outstandingReturnsSection.shouldShowSection) {
         @h2(messages("returns.overview.outstanding.heading"))
         @govukTaskList(TaskList(items = vm.outstandingReturnsSection.items))
     }
@@ -48,7 +48,7 @@
         }
     }
 
-    @vm.paginationViewModel.map { pagination =>
-        @govukPagination(Pagination(items = Some(pagination.paginationItems)))
+    @if(vm.shouldShowPagination) {
+        @govukPagination(Pagination(items = Some(vm.paginationViewModel.get.paginationItems)))
     }
 }

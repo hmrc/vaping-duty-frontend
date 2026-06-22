@@ -31,7 +31,8 @@ import java.util.Locale
 final case class ViewMultipleReturnsViewModel(
                                                outstandingReturnsSection: OutstandingReturnsSection,
                                                completedReturnsSections: Seq[CompletedReturnsSection],
-                                               paginationViewModel: Option[PaginationViewModel]
+                                               paginationViewModel: Option[PaginationViewModel],
+                                               shouldShowPagination: Boolean
                                              )
 
 object ViewMultipleReturnsViewModel {
@@ -51,7 +52,8 @@ object ViewMultipleReturnsViewModel {
 
     val outstandingSection = OutstandingReturnsSection(
       items = outstandingItems,
-      showEmptyMessage = outstandingItems.isEmpty
+      showEmptyMessage = outstandingItems.isEmpty,
+      shouldShowSection = outstandingItems.nonEmpty
     )
 
     val completedByYear: Map[Int, Seq[ObligationDetails]] =
@@ -79,14 +81,16 @@ object ViewMultipleReturnsViewModel {
         items = completedByYear.get(currentYear)
           .map(_.sortBy(_.iCFromDate)(Ordering[LocalDate].reverse).map(createCompletedTaskListItem))
           .getOrElse(Seq.empty),
-        showEmptyMessage = completedByYear.get(currentYear).isEmpty
+        showEmptyMessage = completedByYear.get(currentYear).isEmpty,
+        shouldShowItems = completedByYear.get(currentYear).nonEmpty
       )
     )
 
     ViewMultipleReturnsViewModel(
       outstandingReturnsSection = outstandingSection,
       completedReturnsSections  = completedSections,
-      paginationViewModel       = paginationViewModel
+      paginationViewModel       = paginationViewModel,
+      shouldShowPagination      = paginationViewModel.isDefined
     )
   }
 

@@ -77,6 +77,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
       result.completedReturnsSections.head.items.length mustBe 1
       result.completedReturnsSections.head.year mustBe 2024
       result.paginationViewModel mustBe None
+      result.shouldShowPagination mustBe false
     }
 
     "must create view model with only outstanding returns" in {

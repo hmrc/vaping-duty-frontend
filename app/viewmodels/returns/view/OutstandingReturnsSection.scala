@@ -20,5 +20,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskListItem
 
 final case class OutstandingReturnsSection(
   items: Seq[TaskListItem],
-  showEmptyMessage: Boolean
+  showEmptyMessage: Boolean,
+  shouldShowSection: Boolean
 )
