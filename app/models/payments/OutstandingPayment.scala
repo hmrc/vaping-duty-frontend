@@ -17,13 +17,14 @@
 package models.payments
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
 
 final case class OutstandingPayment(
   chargeReference: String,
   period: String,
   amountDue: BigDecimal,
   dueDate: String,
-  status: String
+  status: PaymentStatus
 )
 
 object OutstandingPayment {

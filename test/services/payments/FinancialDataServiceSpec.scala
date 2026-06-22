@@ -22,6 +22,7 @@ import models.payments.OutstandingPayment
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar.mock
+import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
 
 import scala.concurrent.Future
 
@@ -32,7 +33,7 @@ class FinancialDataServiceSpec extends SpecBase {
     period = "December 2026",
     amountDue = BigDecimal("330000.00"),
     dueDate = "2026-12-15",
-    status = "Due"
+    status = PaymentStatus.Due
   )
 
   "getOutstandingPayments" - {

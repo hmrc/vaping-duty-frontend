@@ -20,6 +20,8 @@ import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, Use
 import models.emailverification.*
 import models.identifiers.{CredentialId, GroupId, InternalId, PeriodKey, VpdId}
 import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
+import models.payments.OutstandingPayment
+import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
 import models.returns.{DeclarationDetails, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
@@ -248,6 +250,30 @@ trait TestData {
       obligation = createMockObligations()
     )
   }
+
+  val testPaymentDue = OutstandingPayment(
+    chargeReference = "VPD38270541977",
+    period = "December 2026",
+    amountDue = BigDecimal("330000.00"),
+    dueDate = "2026-12-15",
+    status = PaymentStatus.Due
+  )
+
+  val testPaymentOverdue = OutstandingPayment(
+    chargeReference = "VPD38270541978",
+    period = "November 2026",
+    amountDue = BigDecimal("167000.80"),
+    dueDate = "2026-11-15",
+    status = PaymentStatus.Overdue
+  )
+
+  val testPaymentNothingToPay = OutstandingPayment(
+    chargeReference = "VPD38270541979",
+    period = "October 2026",
+    amountDue = BigDecimal("0.00"),
+    dueDate = "2026-10-15",
+    status = PaymentStatus.NothingToPay
+  )
 
   def createMockObligations(): Seq[ObligationItem] = {
     obligations(

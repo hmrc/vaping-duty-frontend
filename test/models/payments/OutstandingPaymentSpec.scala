@@ -18,6 +18,7 @@ package models.payments
 
 import base.SpecBase
 import play.api.libs.json.{JsSuccess, Json}
+import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
 
 class OutstandingPaymentSpec extends SpecBase {
 
@@ -26,7 +27,7 @@ class OutstandingPaymentSpec extends SpecBase {
     period = "December 2026",
     amountDue = BigDecimal("330000.00"),
     dueDate = "2026-12-15",
-    status = "Due"
+    status = PaymentStatus.Due
   )
 
   val testPaymentJson = Json.obj(

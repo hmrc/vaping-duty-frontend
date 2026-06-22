@@ -428,3 +428,6 @@ payments.viewPayments.table.description.text = Payment for Vaping Products Duty 
 payments.viewPayments.table.chargeReference = Charge reference
 payments.viewPayments.table.payNow = Pay now
 payments.viewPayments.noPayments = You have no outstanding payments
+payments.viewPayments.status.due = Due
+payments.viewPayments.status.overdue = Overdue
+payments.viewPayments.status.nothingToPay = Nothing to pay

@@ -20,6 +20,7 @@ import models.payments.OutstandingPayment
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Tag, Text}
 import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag
+import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
 import utils.CurrencyFormatter
 
 import java.time.LocalDate
@@ -27,15 +28,11 @@ import java.time.format.DateTimeFormatter
 
 final case class ViewPaymentsViewModel(
   totalOwed: String,
-  payment: Option[PaymentDisplayData],
+  payment: Option[OutstandingPayment],
   paymentRows: Seq[Seq[TableRow]]
 )
 
 object ViewPaymentsViewModel {
-  private val PAYMENT_STATUS_DUE = "Due"
-  private val PAYMENT_STATUS_OVERDUE = "Overdue"
-  private val PAYMENT_STATUS_NOTHING_TO_PAY = "Nothing to pay"
-
   private val TAG_STYLE_LIGHT_BLUE = "govuk-tag--light-blue"
   private val TAG_STYLE_RED = "govuk-tag--red"
   private val TAG_STYLE_GREEN = "govuk-tag--green"
@@ -49,26 +46,15 @@ object ViewPaymentsViewModel {
       .map(p => CurrencyFormatter.currencyFormat(p.amountDue))
       .getOrElse("£0")
 
-    val paymentData = paymentOption.map { payment =>
-      PaymentDisplayData(
-        dueDate = formatDate(payment.dueDate),
-        chargeReference = payment.chargeReference,
-        period = payment.period,
-        amountDue = CurrencyFormatter.currencyFormat(payment.amountDue),
-        status = payment.status,
-        statusTagStyle = getStatusTagStyle(payment.status)
-      )
-    }
+    val paymentRows = paymentOption.map(buildTableRow).toSeq
 
-    val paymentRows = paymentData.map(buildTableRow).toSeq
-
-    ViewPaymentsViewModel(totalOwed, paymentData, paymentRows)
+    ViewPaymentsViewModel(totalOwed, paymentOption, paymentRows)
   }
 
-  private def buildTableRow(payment: PaymentDisplayData)(implicit messages: Messages): Seq[TableRow] =
+  private def buildTableRow(payment: OutstandingPayment)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(payment.dueDate),
+        content = Text(formatDate(payment.dueDate)),
         classes = "govuk-table__header",
         attributes = Map("scope" -> "row")
       ),
@@ -78,14 +64,14 @@ object ViewPaymentsViewModel {
         )
       ),
       TableRow(
-        content = Text(payment.amountDue),
+        content = Text(CurrencyFormatter.currencyFormat(payment.amountDue)),
         classes = "govuk-table__cell--numeric"
       ),
       TableRow(
         content = HtmlContent(
           govukTag(Tag(
-            content = Text(payment.status),
-            classes = payment.statusTagStyle
+            content = Text(messages(statusMessageKey(payment.status))),
+            classes = statusTagStyle(payment.status)
           ))
         )
       ),
@@ -105,19 +91,15 @@ object ViewPaymentsViewModel {
     }
   }
 
-  private def getStatusTagStyle(status: String): String = status match {
-    case PAYMENT_STATUS_DUE => TAG_STYLE_LIGHT_BLUE
-    case PAYMENT_STATUS_OVERDUE => TAG_STYLE_RED
-    case PAYMENT_STATUS_NOTHING_TO_PAY => TAG_STYLE_GREEN
-    case _ => ""
+  private def statusMessageKey(status: PaymentStatus): String = status match {
+    case PaymentStatus.Due => "payments.viewPayments.status.due"
+    case PaymentStatus.Overdue => "payments.viewPayments.status.overdue"
+    case PaymentStatus.NothingToPay => "payments.viewPayments.status.nothingToPay"
+  }
+
+  private def statusTagStyle(status: PaymentStatus): String = status match {
+    case PaymentStatus.Due => TAG_STYLE_LIGHT_BLUE
+    case PaymentStatus.Overdue => TAG_STYLE_RED
+    case PaymentStatus.NothingToPay => TAG_STYLE_GREEN
   }
 }
-
-final case class PaymentDisplayData(
-  dueDate: String,
-  chargeReference: String,
-  period: String,
-  amountDue: String,
-  status: String,
-  statusTagStyle: String
-)
