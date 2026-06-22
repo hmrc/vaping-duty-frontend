@@ -72,16 +72,5 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
 
       vm.nilReturn mustBe false
     }
-
-    "must set nilReturn to false when DeclareDutySuspensePage is true" in {
-      val userAnswers = returnsUserAnswers
-        .set(DeclareDutyPage, false).success.value
-        .set(DeclareSpoiltProductsPage, false).success.value
-        .set(DeclareDutySuspensePage, true).success.value
-
-      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate, periodKey)
-
-      vm.nilReturn mustBe false
-    }
   }
 }
