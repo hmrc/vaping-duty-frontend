@@ -40,7 +40,7 @@ class FinancialDataServiceSpec extends SpecBase {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
 
-      when(mockConnector.getOutstandingPayments(eqTo(vpdId))(any()))
+      when(mockConnector.getOutstandingPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(testPayment)))
 
       whenReady(service.getOutstandingPayments(vpdId)) { result =>
@@ -52,7 +52,7 @@ class FinancialDataServiceSpec extends SpecBase {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
 
-      when(mockConnector.getOutstandingPayments(eqTo(vpdId))(any()))
+      when(mockConnector.getOutstandingPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq.empty))
 
       whenReady(service.getOutstandingPayments(vpdId)) { result =>
@@ -64,7 +64,7 @@ class FinancialDataServiceSpec extends SpecBase {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
 
-      when(mockConnector.getOutstandingPayments(eqTo(vpdId))(any()))
+      when(mockConnector.getOutstandingPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.failed(new RuntimeException("Connector error")))
 
       whenReady(service.getOutstandingPayments(vpdId).failed) { exception =>

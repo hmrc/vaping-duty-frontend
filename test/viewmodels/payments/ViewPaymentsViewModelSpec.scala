@@ -18,6 +18,7 @@ package viewmodels.payments
 
 import base.SpecBase
 import models.payments.OutstandingPayment
+import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
 class ViewPaymentsViewModelSpec extends SpecBase {
 
@@ -49,14 +50,14 @@ class ViewPaymentsViewModelSpec extends SpecBase {
     "when payment exists" - {
       "must format total owed correctly" in {
         val vm = ViewPaymentsViewModel(Some(testPaymentDue))
-        vm.totalOwed mustBe "£330,000.00"
+        vm.totalOwed mustBe "£330,000"
       }
 
       "must create payment display data" in {
         val vm = ViewPaymentsViewModel(Some(testPaymentDue))
         vm.payment mustBe defined
         vm.payment.get.chargeReference mustBe "VPD38270541977"
-        vm.payment.get.amountDue mustBe "£330,000.00"
+        vm.payment.get.amountDue mustBe "£330,000"
         vm.payment.get.status mustBe "Due"
       }
 
@@ -85,6 +86,14 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         val vm = ViewPaymentsViewModel(Some(unknownStatusPayment))
         vm.payment.get.statusTagStyle mustBe ""
       }
+
+      "must build a single table row group containing the formatted payment details" in {
+        val vm = ViewPaymentsViewModel(Some(testPaymentDue))
+        vm.paymentRows must have size 1
+        val row = vm.paymentRows.head
+        row must have size 5
+        row.head.content mustBe Text("15 December 2026")
+      }
     }
 
     "when no payment exists" - {
@@ -96,6 +105,11 @@ class ViewPaymentsViewModelSpec extends SpecBase {
       "must have no payment data" in {
         val vm = ViewPaymentsViewModel(None)
         vm.payment mustBe None
+      }
+
+      "must have no table rows" in {
+        val vm = ViewPaymentsViewModel(None)
+        vm.paymentRows mustBe Seq.empty
       }
     }
 

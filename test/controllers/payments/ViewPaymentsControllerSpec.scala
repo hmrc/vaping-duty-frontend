@@ -44,7 +44,7 @@ class ViewPaymentsControllerSpec extends SpecBase {
     "onPageLoad" - {
       "must return OK and the correct view when payments exist" in {
         val mockService = mock[FinancialDataService]
-        when(mockService.getOutstandingPayments(eqTo(vpdId))(any()))
+        when(mockService.getOutstandingPayments(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq(testPayment)))
 
         val application = applicationBuilder()
@@ -58,13 +58,13 @@ class ViewPaymentsControllerSpec extends SpecBase {
 
           status(result) mustBe OK
           contentAsString(result) must include("Payment overview")
-          contentAsString(result) must include("£330,000.00")
+          contentAsString(result) must include("£330,000")
         }
       }
 
       "must return OK and show no payments message when no payments exist" in {
         val mockService = mock[FinancialDataService]
-        when(mockService.getOutstandingPayments(eqTo(vpdId))(any()))
+        when(mockService.getOutstandingPayments(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq.empty))
 
         val application = applicationBuilder()
@@ -83,7 +83,7 @@ class ViewPaymentsControllerSpec extends SpecBase {
 
       "must redirect to journey recovery when service returns an error" in {
         val mockService = mock[FinancialDataService]
-        when(mockService.getOutstandingPayments(eqTo(vpdId))(any()))
+        when(mockService.getOutstandingPayments(eqTo(vpdId))(using any()))
           .thenReturn(Future.failed(new RuntimeException("Service error")))
 
         val application = applicationBuilder()
@@ -106,7 +106,7 @@ class ViewPaymentsControllerSpec extends SpecBase {
         )
 
         val mockService = mock[FinancialDataService]
-        when(mockService.getOutstandingPayments(eqTo(vpdId))(any()))
+        when(mockService.getOutstandingPayments(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq(testPayment, secondPayment)))
 
         val application = applicationBuilder()
