@@ -103,3 +103,6 @@ GET        /complete-return/return-declaration                                  
 POST       /complete-return/return-declaration                                              controllers.returns.submit.DeclarationController.onSubmit()
 
 GET        /view-your-returns/:periodKey                                                    controllers.returns.view.ViewIndividualReturnController.onPageLoad(periodKey: PeriodKey)
+
+# Payments
+GET        /view-payments                                                                   controllers.payments.ViewPaymentsController.onPageLoad()
