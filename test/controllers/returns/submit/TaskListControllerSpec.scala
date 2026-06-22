@@ -57,13 +57,18 @@ class TaskListControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET with fulfilled obligations" in {
       val mockObligationService = mock[ObligationService]
+      val mockRepository = mock[ReturnsUserAnswersService]
       val fulfilledObligation = createObligation(ObligationStatus.F)
       
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(ObligationsResponse(Seq(fulfilledObligation))))
+
+      when(mockRepository.set(any())(using any()))
+        .thenReturn(Future.successful(Right(HttpResponse(OK))))
       
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(bind[ReturnsUserAnswersService].toInstance(mockRepository))
         .build()
       
       given Messages = messages(application)
