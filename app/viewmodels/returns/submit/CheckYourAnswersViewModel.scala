@@ -89,7 +89,7 @@ object CheckYourAnswersViewModel {
     if (nilReturn) {
       p(Seq(Text(messages("returns.CheckYourAnswers.nilReturn.paragraph"))))
     } else {
-      p(Seq(Text(messages("returns.CheckYourAnswers.p.duty", currencyFormat(dutyRate * 10)))))
+      HtmlFormat.empty
     }
   }
 
