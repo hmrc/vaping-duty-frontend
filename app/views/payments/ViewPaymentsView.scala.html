@@ -32,10 +32,8 @@
 
     @h1(messages("payments.viewPayments.heading"))
 
-    <h1 class="govuk-heading-xl">
-        <span class="govuk-caption-l">@messages("payments.viewPayments.youOwe")</span>
-        @vm.totalOwed
-    </h1>
+    @caption(messages("payments.viewPayments.youOwe"))
+    @h1(vm.totalOwed)
 
     @h2(messages("payments.viewPayments.outstanding.heading"))
     @p(Seq(messages("payments.viewPayments.outstanding.body")))
