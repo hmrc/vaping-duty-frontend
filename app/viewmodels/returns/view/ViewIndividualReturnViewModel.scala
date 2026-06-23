@@ -16,7 +16,7 @@
 
 package viewmodels.returns.view
 
-import models.returns.ConvertToMl
+import models.returns.{ConvertToMl, DeclarationDetails}
 import models.returns.view.*
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
@@ -37,8 +37,39 @@ case class ViewIndividualReturnViewModel(
                                           monthYear: String,
                                           submittedOn: String,
                                           dutyRate: String,
-                                          nilReturn: Boolean
+                                          nilReturn: Boolean,
+                                          declarationDetails: DeclarationDetails
                                         ) {
+
+  def personalDetailsSummaryList(implicit messages: Messages): SummaryList =
+    SummaryList(
+      rows = Seq(
+        SummaryListRow(
+          key = Key(
+            content = Text(messages("viewIndividualReturn.personalDetails.fullName"))
+          ),
+          value = Value(
+            content = Text(declarationDetails.fullName)
+          )
+        ),
+        SummaryListRow(
+          key = Key(
+            content = Text(messages("viewIndividualReturn.personalDetails.email"))
+          ),
+          value = Value(
+            content = Text(declarationDetails.signeesEmailAddress)
+          )
+        ),
+        SummaryListRow(
+          key = Key(
+            content = Text(messages("viewIndividualReturn.personalDetails.capacity"))
+          ),
+          value = Value(
+            content = Text(declarationDetails.capacityInWhichSigned)
+          )
+        )
+      )
+    )
 
   def vapingProductsDeclarationSummaryList(implicit messages: Messages): SummaryList =
     SummaryList(
@@ -168,7 +199,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       monthYear = monthYearString,
       submittedOn = submittedOnString,
       dutyRate = currencyFormat(dutyRate.getOrElse(zeroValue)),
-      nilReturn = isNilReturn
+      nilReturn = isNilReturn,
+      declarationDetails = success.declaration
     )
   }
 }
