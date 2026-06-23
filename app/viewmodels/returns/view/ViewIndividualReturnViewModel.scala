@@ -38,8 +38,21 @@ case class ViewIndividualReturnViewModel(
                                           submittedOn: String,
                                           dutyRate: String,
                                           nilReturn: Boolean,
-                                          declarationDetails: DeclarationDetails
-                                        ) {
+                                          declarationDetails: DeclarationDetails,
+                                          spoiltProduct: Option[SpoiltProduct]
+                                        ) extends CurrencyFormatter{
+
+  private def formatPeriodKey(periodKey: String)(implicit messages: Messages): String = {
+    // Period key format: YYPP where YY is year and PP is period (AA=Jan, AB=Feb, etc.)
+    val year = 2000 + periodKey.take(2).toInt
+    val periodCode = periodKey.drop(2)
+    
+    // Calculate month from period code (AA=1, AB=2, AC=3, etc.)
+    val monthNumber = (periodCode.charAt(1) - 'A') + 1
+    val month = java.time.Month.of(monthNumber)
+    
+    s"${getMonthMessage(month)} $year"
+  }
 
   def personalDetailsSummaryList(implicit messages: Messages): SummaryList =
     SummaryList(
@@ -121,27 +134,68 @@ case class ViewIndividualReturnViewModel(
       None
     }
 
-  def dutyTotalsSummaryList(implicit messages: Messages): SummaryList =
-    SummaryList(
-      rows = Seq(
-        SummaryListRow(
+  def dutyTotalsSummaryList(implicit messages: Messages): SummaryList = {
+    // Build spoilt products rows
+    val spoiltProductsRows = spoiltProduct match {
+      case Some(sp) =>
+        val questionRow = SummaryListRow(
           key = Key(
-            content = Text(messages("viewIndividualReturn.totalDutyDueVapingProducts"))
+            content = Text(messages("viewIndividualReturn.spoiltProducts.question"))
           ),
           value = Value(
-            content = Text(totalDutyDueVapingProducts)
+            content = Text(sp.spoiltProductFilled)
           )
+        )
+        
+        val detailRows = if (sp.spoiltProductFilled == "Yes") {
+          sp.spoiltProducts.getOrElse(Seq.empty).flatMap { item =>
+            Seq(
+              SummaryListRow(
+                key = Key(
+                  content = Text(messages("viewIndividualReturn.spoiltProducts.month"))
+                ),
+                value = Value(
+                  content = Text(formatPeriodKey(item.returnPeriodAffected))
+                )
+              ),
+              SummaryListRow(
+                key = Key(
+                  content = Text(messages("viewIndividualReturn.spoiltProducts.amount"))
+                ),
+                value = Value(
+                  content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(item.amountSpoilt)))
+                )
+              )
+            )
+          }
+        } else Seq.empty
+        
+        questionRow +: detailRows
+      case None => Seq.empty
+    }
+    
+    // Build total rows
+    val totalRows = Seq(
+      SummaryListRow(
+        key = Key(
+          content = Text(messages("viewIndividualReturn.totalDutyDueVapingProducts"))
         ),
-        SummaryListRow(
-          key = Key(
-            content = Text(messages("viewIndividualReturn.totalDutyDue"))
-          ),
-          value = Value(
-            content = Text(totalDutyDue)
-          )
+        value = Value(
+          content = Text(totalDutyDueVapingProducts)
+        )
+      ),
+      SummaryListRow(
+        key = Key(
+          content = Text(messages("viewIndividualReturn.totalDutyDue"))
+        ),
+        value = Value(
+          content = Text(totalDutyDue)
         )
       )
     )
+    
+    SummaryList(rows = spoiltProductsRows ++ totalRows)
+  }
 }
 
 object ViewIndividualReturnViewModel extends CurrencyFormatter {
@@ -200,7 +254,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       submittedOn = submittedOnString,
       dutyRate = currencyFormat(dutyRate.getOrElse(zeroValue)),
       nilReturn = isNilReturn,
-      declarationDetails = success.declaration
+      declarationDetails = success.declaration,
+      spoiltProduct = success.spoiltProduct
     )
   }
 }

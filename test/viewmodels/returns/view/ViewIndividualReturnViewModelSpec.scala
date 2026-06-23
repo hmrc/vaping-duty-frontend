@@ -196,9 +196,10 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       val viewModel = ViewIndividualReturnViewModel(returnResponse, Some(testDutyRate))
       val result = viewModel.dutyTotalsSummaryList
 
-      result.rows.size mustBe 2
-      result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDueVapingProducts"))
-      result.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDue"))
+      result.rows.size mustBe 3
+      result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.question"))
+      result.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDueVapingProducts"))
+      result.rows(2).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDue"))
     }
   }
 }
