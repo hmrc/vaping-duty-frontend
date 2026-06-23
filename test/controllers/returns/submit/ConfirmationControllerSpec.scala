@@ -85,7 +85,7 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val nilReturnResponse = createReturnDisplayResponse().copy(
           success = createReturnDisplayResponse().success.copy(
-            totalDutyDue = Some(createReturnDisplayResponse().success.totalDutyDue.get.copy(totalDutyDue = BigDecimal(0)))
+            totalDutyDue = Some(createReturnDisplayResponse().success.totalDutyDue.get.copy(totalDue = BigDecimal(0)))
           )
         )
         val obligation = createObligation()

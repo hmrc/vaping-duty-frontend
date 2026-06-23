@@ -94,7 +94,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
       val negativeAmount = BigDecimal(-150.50)
       val responseWithNegativeAmount = returnsResponse.copy(
         success = returnsResponse.success.copy(
-          totalDutyDue = Some(returnsResponse.success.totalDutyDue.get.copy(totalDutyDue = negativeAmount))
+          totalDutyDue = Some(returnsResponse.success.totalDutyDue.get.copy(totalDue = negativeAmount))
         )
       )
 
@@ -119,7 +119,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
       val zeroAmount = BigDecimal(0)
       val responseWithZeroAmount = returnsResponse.copy(
         success = returnsResponse.success.copy(
-          totalDutyDue = Some(returnsResponse.success.totalDutyDue.get.copy(totalDutyDue = zeroAmount))
+          totalDutyDue = Some(returnsResponse.success.totalDutyDue.get.copy(totalDue = zeroAmount))
         )
       )
 

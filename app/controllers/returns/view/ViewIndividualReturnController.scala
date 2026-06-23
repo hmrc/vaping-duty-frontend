@@ -55,6 +55,6 @@ class ViewIndividualReturnController @Inject()(
 
   private def extractDutyRate(returnData: ReturnDisplayResponse): Option[BigDecimal] =
     returnData.success.vapingProductsProduced
-      .flatMap(_.regularReturn.headOption)
+      .flatMap(_.returns.headOption)
       .map(_.dutyRate)
 }

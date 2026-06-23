@@ -68,7 +68,7 @@ class SubmitReturnService @Inject()(
 
     val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) / 100) * 10
     val vapingProductsProduced = if (dutyDeclared) {
-      VapingProductsProduced(nilReturn = Seq(), regularReturn = Seq(
+      VapingProductsProduced(vapingProdManufactured = "1", returns = Seq(
         RegularReturn(
           taxType = config.taxType,
           dutyRate = dutyRateInPoundsPer10Ml,
@@ -76,7 +76,7 @@ class SubmitReturnService @Inject()(
           dutyDue = dutyDue
         )))
     } else {
-      VapingProductsProduced(nilReturn = Seq(NilReturn(vapingProductsProduced = "0")), regularReturn = Seq())
+      VapingProductsProduced(vapingProdManufactured = "0", returns = Seq())
     }
 
     val totalDutyDueVapingProducts = if (dutyDeclared) dutyDue else zeroValue
@@ -93,7 +93,7 @@ class SubmitReturnService @Inject()(
       totalDutyUnderDeclaration = zeroValue,
       totalDutySpoiltProduct = zeroValue,
       adjustmentAmount = adjustments,
-      totalDutyDue = totalDutyDueVapingProducts + adjustments
+      totalDue = totalDutyDueVapingProducts + adjustments
     )
 
     val declaration = ua.get(DeclarationPage).getOrElse(

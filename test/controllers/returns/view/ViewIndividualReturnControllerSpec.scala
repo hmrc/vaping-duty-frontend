@@ -70,8 +70,8 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
       val returnDataWithoutRegularReturn = createReturnDisplayResponse().copy(
         success = createReturnDisplayResponse().success.copy(
           vapingProductsProduced = Some(VapingProductsProduced(
-            nilReturn = Seq.empty,
-            regularReturn = Seq.empty
+            vapingProdManufactured = "0",
+            returns = Seq.empty
           ))
         )
       )

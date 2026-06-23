@@ -24,7 +24,7 @@ case class TotalDutyDue(
   totalDutyUnderDeclaration: BigDecimal,
   totalDutySpoiltProduct: BigDecimal,
   adjustmentAmount: BigDecimal,
-  totalDutyDue: BigDecimal
+  totalDue: BigDecimal
 )
 
 object TotalDutyDue {
