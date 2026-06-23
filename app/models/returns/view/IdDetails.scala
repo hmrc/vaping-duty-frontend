@@ -19,7 +19,7 @@ package models.returns.view
 import play.api.libs.json.{Json, OFormat}
 
 final case class IdDetails(
-  vpdReference: String,
+  vpdReferenceNumber: String,
   submissionId: Option[String]
 )
 

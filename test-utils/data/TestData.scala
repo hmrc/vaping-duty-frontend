@@ -221,11 +221,10 @@ trait TestData {
   val testReturnSubmissionResponse = ReturnSubmittedResponse(
     processingDate = Instant.now(),
     vpdReferenceNumber = "vpdReferenceNumber",
-    submissionID = Option("submissionID"),
+    submissionId = Option("submissionID"),
     chargeReference = Option("chargeReference"),
     amount = BigDecimal(0),
-    paymentDueDate = Option(LocalDate.now()),
-    declaration = testDeclarationDetails
+    paymentDueDate = Option(LocalDate.now())
   )
 
   val totalInMl = returnsUserAnswers.get(EnterDutyAmountPage).getOrElse(BigDecimal(0))
@@ -236,7 +235,7 @@ trait TestData {
 
   val testSubmitReturnRequest = ReturnCreateRequest(
     periodKey.toString,
-    VapingProductsProduced(Seq.empty, Seq.empty),
+    VapingProductsProduced(vapingProdManufactured = "0", returns = Seq.empty),
     TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue),
     testDeclarationDetails
   )
@@ -343,7 +342,7 @@ trait TestData {
         processingDate = Instant.now(clock),
         idDetails = Some(
           IdDetails(
-            vpdReference = vpdRef.get,
+            vpdReferenceNumber = vpdRef.get,
             submissionId = Some("SUB123456789")
           )
         ),
@@ -358,8 +357,8 @@ trait TestData {
         ),
         vapingProductsProduced = Some(
           VapingProductsProduced(
-            nilReturn = Seq.empty,
-            regularReturn = Seq(sampleRegularReturn)
+            vapingProdManufactured = "1",
+            returns = Seq(sampleRegularReturn)
           )
         ),
         overDeclaration = Some(
@@ -382,7 +381,7 @@ trait TestData {
         underDeclaration = Some(
           UnderDeclaration(
             underDeclFilled = "true",
-            reasonForUnderDec = Some("Additional products found"),
+            reasonForUnderDecl = Some("Additional products found"),
             underDeclarationProducts = Some(
               Seq(
                 UnderDeclarationProduct(
@@ -419,7 +418,7 @@ trait TestData {
             totalDutyUnderDeclaration = BigDecimal("375.00"),
             totalDutySpoiltProduct = BigDecimal("100.00"),
             adjustmentAmount = BigDecimal("50.00"),
-            totalDutyDue = BigDecimal("1825.00")
+            totalDue = BigDecimal("1825.00")
           )
         ),
         totalDutyDueByTaxType = Some(
@@ -429,7 +428,7 @@ trait TestData {
             totalDutyUnderDeclaration = BigDecimal("375.00"),
             totalDutySpoiltProduct = BigDecimal("100.00"),
             adjustmentAmount = BigDecimal("50.00"),
-            totalDutyDue = BigDecimal("1825.00")
+            totalDue = BigDecimal("1825.00")
           )
         ),
         otherOptions = Some(

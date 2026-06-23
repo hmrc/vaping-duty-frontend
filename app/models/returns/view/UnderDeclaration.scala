@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 final case class UnderDeclaration(
   underDeclFilled: String,
-  reasonForUnderDec: Option[String],
+  reasonForUnderDecl: Option[String],
   underDeclarationProducts: Option[Seq[UnderDeclarationProduct]]
 )
 

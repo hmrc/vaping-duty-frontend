@@ -58,7 +58,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
   )(implicit messages: Messages): ConfirmationViewModel = {
 
     val totalDutyDue = returnsResponse.success.totalDutyDue
-      .map(_.totalDutyDue)
+      .map(_.totalDue)
       .getOrElse(
         // scalafix:off DisableSyntax.throw
         throw new RuntimeException("Total duty due not found")

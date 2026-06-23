@@ -125,11 +125,11 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val vapingProducts = success.vapingProductsProduced
 
     val hasDeclaration = vapingProducts
-      .exists(vp => vp.regularReturn.nonEmpty)
+      .exists(vp => vp.returns.nonEmpty)
 
     val (amountProduced, dutyDueAmount) = vapingProducts match {
-      case Some(vp) if vp.regularReturn.nonEmpty =>
-        val regularReturn = vp.regularReturn.head
+      case Some(vp) if vp.returns.nonEmpty =>
+        val regularReturn = vp.returns.head
         (Some(milliliterFormat(ConvertToMl(regularReturn.amountProducedLiquid).toMl)), Some(currencyFormat(regularReturn.dutyDue)))
       case _ =>
         (None, None)
@@ -139,7 +139,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       .fold(currencyFormat(zeroValue))(td => currencyFormat(td.totalDutyDueVapingProducts))
 
     val totalDuty = success.totalDutyDue
-      .fold(currencyFormat(zeroValue))(td => currencyFormat(td.totalDutyDue))
+      .fold(currencyFormat(zeroValue))(td => currencyFormat(td.totalDue))
     
     val year = success.chargeDetails.fold(LocalDate.now().getYear.toString)(_.periodFrom.getYear.toString)
     
