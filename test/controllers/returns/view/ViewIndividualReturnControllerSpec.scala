@@ -54,7 +54,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), testDutyRate)
+        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), Some(testDutyRate))
 
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 
@@ -63,10 +63,10 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to journey recovery when no regular return exists" in {
+    "must return OK and the correct view when no regular return exists" in {
 
       val mockConnector = mock[GetReturnsConnector]
-      
+
       val returnDataWithoutRegularReturn = createReturnDisplayResponse().copy(
         success = createReturnDisplayResponse().success.copy(
           vapingProductsProduced = Some(VapingProductsProduced(
@@ -91,8 +91,12 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        val vm = ViewIndividualReturnViewModel(returnDataWithoutRegularReturn, None)
+
+        val view = application.injector.instanceOf[ViewIndividualReturnView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
       }
     }
   }

@@ -47,8 +47,12 @@
     )
   ))
 
-
-  @p(Seq(Text(messages("viewIndividualReturn.dutyDetails", vm.dutyRate))))
+  @if(vm.nilReturn) {
+    @* TODO: Add final nil return content *@
+    @p(Seq(Text(messages("viewIndividualReturn.nilReturn.content"))))
+  } else {
+    @p(Seq(Text(messages("viewIndividualReturn.dutyDetails", vm.dutyRate))))
+  }
 
   @p(Seq(Text(messages("viewIndividualReturn.p.youCan"))))
 

@@ -36,7 +36,8 @@ case class ViewIndividualReturnViewModel(
                                           totalDutyDue: String,
                                           monthYear: String,
                                           submittedOn: String,
-                                          dutyRate: String
+                                          dutyRate: String,
+                                          nilReturn: Boolean
                                         ) {
 
   def vapingProductsDeclarationSummaryList(implicit messages: Messages): SummaryList =
@@ -114,9 +115,11 @@ case class ViewIndividualReturnViewModel(
 
 object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
-  def apply(returnsData: ReturnDisplayResponse, dutyRate: BigDecimal)(using messages: Messages): ViewIndividualReturnViewModel = {
+  def apply(returnsData: ReturnDisplayResponse, dutyRate: Option[BigDecimal])(using messages: Messages): ViewIndividualReturnViewModel = {
     val zeroValue = BigDecimal("0")
     val success = returnsData.success
+    
+    val isNilReturn = dutyRate.forall(_ == zeroValue)
 
     val chargeRef = success.chargeDetails
       .flatMap(_.chargeReference)
@@ -150,10 +153,10 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val submittedOnDay = submittedOn.getDayOfMonth
     val submittedOnMonth = PeriodKeys.toDisplayName(submittedOn.getMonth)
 
-    val receiptTime = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("hh:mma"))
+    //val receiptTime = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("hh:mma"))
 
     val monthYearString = s"${getMonthMessage(monthFromLocalDate)} $year"
-    val submittedOnString = s"$submittedOnDay $submittedOnMonth $year ${messages("viewIndividualReturn.chargeDetails.at")} $receiptTime"
+    val submittedOnString = s"$submittedOnDay $submittedOnMonth $year"
 
     ViewIndividualReturnViewModel(
       chargeReference = chargeRef,
@@ -164,7 +167,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       totalDutyDue = totalDuty,
       monthYear = monthYearString,
       submittedOn = submittedOnString,
-      dutyRate = currencyFormat(dutyRate)
+      dutyRate = currencyFormat(dutyRate.getOrElse(zeroValue)),
+      nilReturn = isNilReturn
     )
   }
 }

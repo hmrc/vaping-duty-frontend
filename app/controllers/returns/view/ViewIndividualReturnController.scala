@@ -43,13 +43,11 @@ class ViewIndividualReturnController @Inject()(
   def onPageLoad(periodKey: PeriodKey): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
       connector.getReturn(periodKey, request.enrolmentVpdId).map { returnData =>
-        extractDutyRate(returnData) match {
-          case Some(dutyRate) =>
-            Ok(view(ViewIndividualReturnViewModel(returnData, dutyRate)))
-          case None =>
-            logger.warn(s"No regular return found for period $periodKey")
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        val dutyRate = extractDutyRate(returnData)
+        if (dutyRate.isEmpty) {
+          logger.warn(s"No regular return found for period $periodKey")
         }
+        Ok(view(ViewIndividualReturnViewModel(returnData, dutyRate)))
       }
   }
 
