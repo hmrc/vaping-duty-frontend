@@ -45,10 +45,13 @@ object ViewMultipleReturnsViewModel {
   def apply(obligationsResponse: ObligationsResponse, currentYear: Int)
            (implicit messages: Messages, clock: Clock): ViewMultipleReturnsViewModel = {
 
-    val outstandingItems = obligationsResponse.obligation
-      .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_OPEN.toString)
-      .sortBy(_.obligationDetails.iCFromDate)(Ordering[LocalDate].reverse)
-      .map(item => createOutstandingTaskListItem(item.obligationDetails))
+    val (outstandingObligations, fulfilledObligations) =
+      obligationsResponse.obligation.partition(_.obligationDetails.openOrFulfilledStatus == STATUS_OPEN.toString)
+
+    val outstandingItems =
+      outstandingObligations
+        .sortBy(_.obligationDetails.iCFromDate)(Ordering[LocalDate].reverse)
+        .map(item => createOutstandingTaskListItem(item.obligationDetails))
 
     val outstandingSection = OutstandingReturnsSection(
       items = outstandingItems,
@@ -57,8 +60,7 @@ object ViewMultipleReturnsViewModel {
     )
 
     val completedByYear: Map[Int, Seq[ObligationDetails]] =
-      obligationsResponse.obligation
-        .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_FULFILLED.toString)
+      fulfilledObligations
         .map(_.obligationDetails)
         .groupBy(_.iCFromDate.getYear)
 
@@ -88,9 +90,9 @@ object ViewMultipleReturnsViewModel {
 
     ViewMultipleReturnsViewModel(
       outstandingReturnsSection = outstandingSection,
-      completedReturnsSections  = completedSections,
-      paginationViewModel       = paginationViewModel,
-      shouldShowPagination      = paginationViewModel.isDefined
+      completedReturnsSections = completedSections,
+      paginationViewModel = paginationViewModel,
+      shouldShowPagination = paginationViewModel.isDefined
     )
   }
 
