@@ -29,7 +29,7 @@ import java.time.{LocalDate, Month}
 
 final case class ViewMultipleReturnsViewModel(
                                                outstandingReturnsSection: OutstandingReturnsSection,
-                                               completedReturnsSections: Seq[CompletedReturnsSection],
+                                               completedReturnsSection: CompletedReturnsSection,
                                                paginationViewModel: Option[PaginationViewModel],
                                                shouldShowPagination: Boolean
                                              )
@@ -75,20 +75,18 @@ object ViewMultipleReturnsViewModel {
       Some(PaginationViewModel(paginationItems))
     } else None
 
-    val completedSections = Seq(
-      CompletedReturnsSection(
-        year = currentYear.toString,
-        items = completedByYear.get(currentYear)
-          .map(_.sortBy(_.iCFromDate)(Ordering[LocalDate].reverse).map(createCompletedTaskListItem))
-          .getOrElse(Seq.empty),
-        showEmptyMessage = completedByYear.get(currentYear).isEmpty,
-        shouldShowItems = completedByYear.get(currentYear).nonEmpty
-      )
+    val completedSection = CompletedReturnsSection(
+      year = currentYear.toString,
+      items = completedByYear.get(currentYear)
+        .map(_.sortBy(_.iCFromDate)(Ordering[LocalDate].reverse).map(createCompletedTaskListItem))
+        .getOrElse(Seq.empty),
+      showEmptyMessage = completedByYear.get(currentYear).isEmpty,
+      shouldShowItems = completedByYear.get(currentYear).nonEmpty
     )
 
     ViewMultipleReturnsViewModel(
       outstandingReturnsSection = outstandingSection,
-      completedReturnsSections = completedSections,
+      completedReturnsSection = completedSection,
       paginationViewModel = paginationViewModel,
       shouldShowPagination = paginationViewModel.isDefined
     )

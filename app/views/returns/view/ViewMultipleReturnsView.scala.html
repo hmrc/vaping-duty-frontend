@@ -38,14 +38,12 @@
         @govukTaskList(TaskList(items = vm.outstandingReturnsSection.items))
     }
 
-    @for(section <- vm.completedReturnsSections) {
-        @h2(messages("returns.overview.completed.heading", section.year))
+    @h2(messages("returns.overview.completed.heading", vm.completedReturnsSection.year))
 
-        @if(section.showEmptyMessage) {
-            @p(Seq(messages("returns.overview.completed.empty")))
-        } else {
-            @govukTaskList(TaskList(items = section.items))
-        }
+    @if(vm.completedReturnsSection.showEmptyMessage) {
+        @p(Seq(messages("returns.overview.completed.empty")))
+    } else {
+        @govukTaskList(TaskList(items = vm.completedReturnsSection.items))
     }
 
     @if(vm.shouldShowPagination) {

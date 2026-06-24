@@ -76,9 +76,8 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
 
       result.outstandingReturnsSection.items.length mustBe 1
       result.outstandingReturnsSection.showEmptyMessage mustBe false
-      result.completedReturnsSections.length mustBe 1
-      result.completedReturnsSections.head.items.length mustBe 1
-      result.completedReturnsSections.head.year mustBe 2024.toString
+      result.completedReturnsSection.items.length mustBe 1
+      result.completedReturnsSection.year mustBe 2024.toString
       result.paginationViewModel mustBe None
       result.shouldShowPagination mustBe false
     }
@@ -90,8 +89,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
 
       result.outstandingReturnsSection.items.length mustBe 1
       result.outstandingReturnsSection.showEmptyMessage mustBe false
-      result.completedReturnsSections.length mustBe 1
-      result.completedReturnsSections.head.showEmptyMessage mustBe true
+      result.completedReturnsSection.showEmptyMessage mustBe true
     }
 
     "must create view model with only completed returns for specified year" in {
@@ -101,9 +99,8 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
 
       result.outstandingReturnsSection.items.length mustBe 0
       result.outstandingReturnsSection.showEmptyMessage mustBe true
-      result.completedReturnsSections.length mustBe 1
-      result.completedReturnsSections.head.year mustBe 2023.toString
-      result.completedReturnsSections.head.items.length mustBe 1
+      result.completedReturnsSection.year mustBe 2023.toString
+      result.completedReturnsSection.items.length mustBe 1
     }
 
     "must create view model with no returns" in {
@@ -113,8 +110,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
 
       result.outstandingReturnsSection.items.length mustBe 0
       result.outstandingReturnsSection.showEmptyMessage mustBe true
-      result.completedReturnsSections.length mustBe 1
-      result.completedReturnsSections.head.showEmptyMessage mustBe true
+      result.completedReturnsSection.showEmptyMessage mustBe true
     }
 
     "must show pagination when multiple years of completed returns exist" in {
@@ -170,9 +166,8 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
 
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2024, now)
 
-      result.completedReturnsSections.length mustBe 1
-      result.completedReturnsSections.head.showEmptyMessage mustBe true
-      result.completedReturnsSections.head.items.length mustBe 0
+      result.completedReturnsSection.showEmptyMessage mustBe true
+      result.completedReturnsSection.items.length mustBe 0
     }
 
     "must format outstanding returns with month and year" in {
@@ -189,7 +184,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
 
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2024, now)
 
-      val taskListItem = result.completedReturnsSections.head.items.head
+      val taskListItem = result.completedReturnsSection.items.head
       taskListItem.title.content.asHtml.body must include("February")
       taskListItem.title.content.asHtml.body mustNot include("2024")
     }
