@@ -43,27 +43,10 @@ class ViewPaymentsControllerSpec extends SpecBase {
 
   "ViewPaymentsController" - {
     "onPageLoad" - {
-      "must return OK and the correct view when payments exist" in {
+      "must return OK and load the page when we get a successful response" in {
         val mockService = mock[FinancialDataService]
         when(mockService.getOutstandingPayments(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq(testPayment)))
-
-        val application = applicationBuilder()
-          .overrides(bind[FinancialDataService].toInstance(mockService))
-          .build()
-
-        running(application) {
-          val request = FakeRequest(GET, routes.ViewPaymentsController.onPageLoad().url)
-          val result = route(application, request).value
-
-          status(result) mustBe OK
-        }
-      }
-
-      "must return OK and show no payments message when no payments exist" in {
-        val mockService = mock[FinancialDataService]
-        when(mockService.getOutstandingPayments(eqTo(vpdId))(using any()))
-          .thenReturn(Future.successful(Seq.empty))
 
         val application = applicationBuilder()
           .overrides(bind[FinancialDataService].toInstance(mockService))

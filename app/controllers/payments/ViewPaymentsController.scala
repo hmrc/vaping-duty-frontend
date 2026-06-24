@@ -41,8 +41,7 @@ class ViewPaymentsController @Inject()(
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
     service.getOutstandingPayments(request.enrolmentVpdId)
       .map { payments =>
-        val paymentToDisplay = payments.headOption
-        val viewModel = ViewPaymentsViewModel(paymentToDisplay)
+        val viewModel = ViewPaymentsViewModel(payments)
         Ok(view(viewModel))
       }
       .recover { case e: Exception =>

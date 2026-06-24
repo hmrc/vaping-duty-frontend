@@ -45,10 +45,10 @@ class FinancialDataConnector @Inject()(
         logger.warn(s"Exception while getting outstanding payments: ${e.getMessage}")
         Future.failed(InternalServerException("Failed to get outstanding payments"))
       }
-      .flatMap(getResponse)
+      .flatMap(logHttpErrors)
       .flatMap(parseJson)
 
-  private def getResponse(response: Either[UpstreamErrorResponse, HttpResponse]): Future[HttpResponse] = {
+  private def logHttpErrors(response: Either[UpstreamErrorResponse, HttpResponse]): Future[HttpResponse] = {
     response match {
       case Right(response) => Future.successful(response)
       case Left(error) =>

@@ -24,25 +24,31 @@ class ViewPaymentsViewModelSpec extends SpecBase {
   "ViewPaymentsViewModel" - {
     "when payment exists" - {
       "must format total owed correctly" in {
-        val vm = ViewPaymentsViewModel(Some(testPaymentDue))
+        val vm = ViewPaymentsViewModel(Seq(testPaymentDue))
         vm.totalOwed mustBe "£330,000"
       }
 
       "must build a table row for each payment status" in {
-        ViewPaymentsViewModel(Some(testPaymentDue)).paymentRows must have size 1
-        ViewPaymentsViewModel(Some(testPaymentOverdue)).paymentRows must have size 1
-        ViewPaymentsViewModel(Some(testPaymentNothingToPay)).paymentRows must have size 1
+        ViewPaymentsViewModel(Seq(testPaymentDue)).paymentRows must have size 1
+        ViewPaymentsViewModel(Seq(testPaymentOverdue)).paymentRows must have size 1
+        ViewPaymentsViewModel(Seq(testPaymentNothingToPay)).paymentRows must have size 1
+      }
+
+      "must sum multiple payments correctly" in {
+        val vm = ViewPaymentsViewModel(Seq(testPaymentDue, testPaymentOverdue))
+        vm.totalOwed mustBe "£497,000.80"
+        vm.paymentRows must have size 2
       }
     }
 
     "when no payment exists" - {
       "must show £0 as total owed" in {
-        val vm = ViewPaymentsViewModel(None)
+        val vm = ViewPaymentsViewModel(Seq.empty)
         vm.totalOwed mustBe "£0"
       }
 
       "must have no table rows" in {
-        val vm = ViewPaymentsViewModel(None)
+        val vm = ViewPaymentsViewModel(Seq.empty)
         vm.paymentRows mustBe Seq.empty
       }
     }

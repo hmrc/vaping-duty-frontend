@@ -40,12 +40,10 @@ object ViewPaymentsViewModel {
 
   private val govukTag = GovukTag()
 
-  def apply(paymentOption: Option[OutstandingPayment])(implicit messages: Messages): ViewPaymentsViewModel = {
-    val totalOwed = paymentOption
-      .map(p => CurrencyFormatter.currencyFormat(p.amountDue))
-      .getOrElse("£0")
+  def apply(paymentOption: Seq[OutstandingPayment])(implicit messages: Messages): ViewPaymentsViewModel = {
+    val totalOwed = CurrencyFormatter.currencyFormat(paymentOption.map(_.amountDue).sum)
 
-    val paymentRows = paymentOption.map(buildTableRow).toSeq
+    val paymentRows = paymentOption.map(buildTableRow)
 
     ViewPaymentsViewModel(totalOwed, paymentRows)
   }
