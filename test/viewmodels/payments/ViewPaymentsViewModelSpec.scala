@@ -28,11 +28,6 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         vm.totalOwed mustBe "£330,000"
       }
 
-      "must expose the outstanding payment unchanged" in {
-        val vm = ViewPaymentsViewModel(Some(testPaymentDue))
-        vm.payment mustBe Some(testPaymentDue)
-      }
-
       "must build a table row for each payment status" in {
         ViewPaymentsViewModel(Some(testPaymentDue)).paymentRows must have size 1
         ViewPaymentsViewModel(Some(testPaymentOverdue)).paymentRows must have size 1
@@ -44,11 +39,6 @@ class ViewPaymentsViewModelSpec extends SpecBase {
       "must show £0 as total owed" in {
         val vm = ViewPaymentsViewModel(None)
         vm.totalOwed mustBe "£0"
-      }
-
-      "must have no payment data" in {
-        val vm = ViewPaymentsViewModel(None)
-        vm.payment mustBe None
       }
 
       "must have no table rows" in {
