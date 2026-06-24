@@ -28,7 +28,6 @@ import java.time.format.DateTimeFormatter
 
 final case class ViewPaymentsViewModel(
   totalOwed: String,
-  payment: Option[OutstandingPayment],
   paymentRows: Seq[Seq[TableRow]]
 )
 
@@ -48,7 +47,7 @@ object ViewPaymentsViewModel {
 
     val paymentRows = paymentOption.map(buildTableRow).toSeq
 
-    ViewPaymentsViewModel(totalOwed, paymentOption, paymentRows)
+    ViewPaymentsViewModel(totalOwed, paymentRows)
   }
 
   private def buildTableRow(payment: OutstandingPayment)(implicit messages: Messages): Seq[TableRow] =

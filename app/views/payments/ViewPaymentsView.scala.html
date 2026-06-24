@@ -50,7 +50,7 @@
         classes = "govuk-table"
     ))
 
-    @if(vm.payment.isEmpty) {
+    @if(vm.paymentRows.isEmpty) {
         @p(Seq(messages("payments.viewPayments.noPayments")))
     }
 }
