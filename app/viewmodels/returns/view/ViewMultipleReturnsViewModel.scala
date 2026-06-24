@@ -23,10 +23,9 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.PaginationItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.*
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
+import utils.ReturnsDateUtils
 
-import java.time.{Clock, LocalDate}
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import java.time.{Clock, LocalDate, Month}
 
 final case class ViewMultipleReturnsViewModel(
                                                outstandingReturnsSection: OutstandingReturnsSection,
@@ -99,7 +98,9 @@ object ViewMultipleReturnsViewModel {
   private def createOutstandingTaskListItem(details: ObligationDetails)
                                            (implicit messages: Messages, clock: Clock): TaskListItem = {
 
-    val monthDisplay = formatMonthYear(details.iCFromDate)
+    val month = Month.of(details.iCFromDate.getMonthValue)
+    val year = details.iCFromDate.getYear
+    val monthDisplay = s"${ReturnsDateUtils.getMonthMessage(month)} $year"
     val isOverdue = details.iCDueDate.isBefore(LocalDate.now(clock))
 
     val status = if (isOverdue) {
@@ -125,22 +126,15 @@ object ViewMultipleReturnsViewModel {
   private def createCompletedTaskListItem(details: ObligationDetails)
                                          (implicit messages: Messages): TaskListItem = {
 
+    val month = Month.of(details.iCFromDate.getMonthValue)
+    val monthDisplay = ReturnsDateUtils.getMonthMessage(month)
+
     TaskListItem(
-      title = TaskListItemTitle(content = Text(formatMonthOnly(details.iCFromDate))),
+      title = TaskListItemTitle(content = Text(monthDisplay)),
       href = Some(controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(PeriodKey(details.periodKey)).url),
       status = TaskListItemStatus(
         content = Text(messages("returns.overview.completed.status"))
       )
     )
-  }
-
-  private def formatMonthYear(date: LocalDate): String = {
-    val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH)
-    date.format(formatter)
-  }
-
-  private def formatMonthOnly(date: LocalDate): String = {
-    val formatter = DateTimeFormatter.ofPattern("MMMM", Locale.ENGLISH)
-    date.format(formatter)
   }
 }
