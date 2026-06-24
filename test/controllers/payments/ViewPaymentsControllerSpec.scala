@@ -55,7 +55,6 @@ class ViewPaymentsControllerSpec extends SpecBase {
         running(application) {
           val request = FakeRequest(GET, routes.ViewPaymentsController.onPageLoad().url)
           val result = route(application, request).value
-          val view = application.injector.instanceOf[ViewPaymentsView]
 
           status(result) mustBe OK
         }
