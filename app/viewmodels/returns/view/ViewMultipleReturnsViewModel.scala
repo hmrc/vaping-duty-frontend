@@ -25,7 +25,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
 import utils.ReturnsDateUtils
 
-import java.time.{Clock, LocalDate, Month}
+import java.time.{LocalDate, Month}
 
 final case class ViewMultipleReturnsViewModel(
                                                outstandingReturnsSection: OutstandingReturnsSection,
@@ -37,12 +37,11 @@ final case class ViewMultipleReturnsViewModel(
 object ViewMultipleReturnsViewModel {
 
   private val STATUS_OPEN = ObligationStatus.O
-  private val STATUS_FULFILLED = ObligationStatus.F
   private val TAG_CLASS_BLUE = "govuk-tag--blue"
   private val TAG_CLASS_RED = "govuk-tag--red"
 
-  def apply(obligationsResponse: ObligationsResponse, currentYear: Int)
-           (implicit messages: Messages, clock: Clock): ViewMultipleReturnsViewModel = {
+  def apply(obligationsResponse: ObligationsResponse, currentYear: Int, now: LocalDate)
+           (implicit messages: Messages): ViewMultipleReturnsViewModel = {
 
     val (outstandingObligations, fulfilledObligations) =
       obligationsResponse.obligation.partition(_.obligationDetails.openOrFulfilledStatus == STATUS_OPEN.toString)
@@ -50,7 +49,7 @@ object ViewMultipleReturnsViewModel {
     val outstandingItems =
       outstandingObligations
         .sortBy(_.obligationDetails.iCFromDate)(Ordering[LocalDate].reverse)
-        .map(item => createOutstandingTaskListItem(item.obligationDetails))
+        .map(item => createOutstandingTaskListItem(item.obligationDetails, now))
 
     val outstandingSection = OutstandingReturnsSection(
       items = outstandingItems,
@@ -95,13 +94,13 @@ object ViewMultipleReturnsViewModel {
     )
   }
 
-  private def createOutstandingTaskListItem(details: ObligationDetails)
-                                           (implicit messages: Messages, clock: Clock): TaskListItem = {
+  private def createOutstandingTaskListItem(details: ObligationDetails, now: LocalDate)
+                                           (implicit messages: Messages): TaskListItem = {
 
     val month = Month.of(details.iCFromDate.getMonthValue)
     val year = details.iCFromDate.getYear
     val monthDisplay = s"${ReturnsDateUtils.getMonthMessage(month)} $year"
-    val isOverdue = details.iCDueDate.isBefore(LocalDate.now(clock))
+    val isOverdue = details.iCDueDate.isBefore(now)
 
     val status = if (isOverdue) {
       messages("returns.overview.outstanding.status.overdue")

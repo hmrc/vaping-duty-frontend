@@ -28,6 +28,7 @@ import uk.gov.hmrc.http.InternalServerException
 import viewmodels.returns.view.ViewMultipleReturnsViewModel
 import views.html.returns.view.ViewMultipleReturnsView
 
+import java.time.LocalDate
 import java.time.temporal.TemporalField
 import scala.concurrent.Future
 
@@ -44,7 +45,8 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
 
       when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(createMockObligationsResponse()))
 
-      val vm = ViewMultipleReturnsViewModel(createMockObligationsResponse(), 2027)(messages(application), clock)
+      val now = LocalDate.now(clock)
+      val vm = ViewMultipleReturnsViewModel(createMockObligationsResponse(), 2027, now)(messages(application))
 
       running(application) {
         val request = FakeRequest(GET, controllers.returns.view.routes.ViewMultipleReturnsController.onPageLoad().url)
@@ -67,11 +69,12 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
 
       val emptyObligationResponse = createMockObligationsResponse().copy(obligation = Seq.empty)
 
-        when(mockService.getObligations(any())(using any())).thenReturn(
+      when(mockService.getObligations(any())(using any())).thenReturn(
         Future.successful(emptyObligationResponse)
       )
 
-      val vm = ViewMultipleReturnsViewModel(emptyObligationResponse, 2026)(messages(application), clock)
+      val now = LocalDate.now(clock)
+      val vm = ViewMultipleReturnsViewModel(emptyObligationResponse, 2026, now)(messages(application))
 
       running(application) {
         val request = FakeRequest(GET, controllers.returns.view.routes.ViewMultipleReturnsController.onPageLoad().url)

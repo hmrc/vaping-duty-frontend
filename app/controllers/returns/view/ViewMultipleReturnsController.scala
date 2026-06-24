@@ -42,7 +42,7 @@ class ViewMultipleReturnsController @Inject()(
                                                val controllerComponents: MessagesControllerComponents,
                                                getData: DataRetrievalAction,
                                                view: ViewMultipleReturnsView
-                                             )(using ExecutionContext, Clock) extends FrontendBaseController with I18nSupport {
+                                             )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(year: Option[Int] = None): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
     implicit request =>
@@ -56,6 +56,8 @@ class ViewMultipleReturnsController @Inject()(
     
     given Request[?] = request.request
     
+    val now = LocalDate.now(clock)
+    
     obligationService.getObligations(request.enrolmentVpdId).map { obligationResponse =>
       val completedYears = obligationResponse.obligation
         .filter(_.obligationDetails.openOrFulfilledStatus == ObligationStatus.F.toString)
@@ -65,10 +67,10 @@ class ViewMultipleReturnsController @Inject()(
         .reverse
 
       val currentYear = year.getOrElse(
-        completedYears.headOption.getOrElse(LocalDate.now(clock).getYear)
+        completedYears.headOption.getOrElse(now.getYear)
       )
 
-      Ok(view(ViewMultipleReturnsViewModel(obligationResponse, currentYear)))
+      Ok(view(ViewMultipleReturnsViewModel(obligationResponse, currentYear, now)))
     }
   }
 }
