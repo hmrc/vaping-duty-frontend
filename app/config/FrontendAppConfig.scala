@@ -118,4 +118,17 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     configuration.get[String]("microservice.services.email-verification-frontend.prefix")
 
   val returnsEnabled: Boolean = configuration.get[Boolean]("features.returnsEnabled")
+
+  // Test-only endpoints for obligations management
+  private lazy val stubsHost: String = servicesConfig.baseUrl("vaping-duty-stubs")
+  private val stubsBaseUrl = s"$stubsHost/test-support/obligations"
+
+  def setScenarioUrl(vpdId: VpdId, scenario: String): String =
+    s"$stubsBaseUrl/$vpdId/scenario/$scenario"
+  def clearVpdIdObligationsUrl(vpdId: VpdId): String =
+    s"$stubsBaseUrl/$vpdId"
+  def clearAllObligationsUrl: String =
+    s"$stubsBaseUrl"
+  def setCustomObligationsUrl(vpdId: VpdId): String =
+    s"$stubsBaseUrl/$vpdId/custom"
 }
