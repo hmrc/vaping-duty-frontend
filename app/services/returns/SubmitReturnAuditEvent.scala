@@ -11,11 +11,19 @@ object SubmitReturnAuditEvent {
   }
 
   def buildExplicitAuditEvent(submission: JsValue,
-                              result: JsValue): JsObject = {
+                              response: JsValue): JsObject = {
     new JsObject(Map(
-      "submission" -> submission,
-      "response" -> result
+      "submission" -> buildSubmission(submission),
+      "response" -> buildResponse(response)
     ))
+  }
+  
+  def buildSubmission(etmpSubmission: JsValue): JsValue = {
+    etmpSubmission
+  }
+
+  def buildResponse(etmpSubmission: JsValue): JsValue = {
+    etmpSubmission
   }
 
 }
