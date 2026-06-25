@@ -17,12 +17,17 @@
 package models.returns.submit
 
 import models.returns.{DeclarationDetails, TotalDutyDue, VapingProductsProduced}
+import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, UnderDeclaration}
 import play.api.libs.json.{Json, OFormat}
 
 final case class ReturnCreateRequest(
   periodKey: String,
   vapingProductsProduced: VapingProductsProduced,
+  underDeclaration: Option[UnderDeclaration],
+  overDeclaration: Option[OverDeclaration],
+  spoiltProduct: Option[SpoiltProduct],
   totalDutyDue: TotalDutyDue,
+  otherOptions: Option[OtherOptions],
   declaration: DeclarationDetails
 )
 

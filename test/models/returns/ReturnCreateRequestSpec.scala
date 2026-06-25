@@ -32,7 +32,11 @@ class ReturnCreateRequestSpec extends SpecBase {
     ReturnCreateRequest(
       periodKey = periodKey.toString,
       vapingProductsProduced = VapingProductsProduced(vapingProdManufactured = "0", returns = Seq()),
+      underDeclaration = None,
+      overDeclaration = None,
+      spoiltProduct = None,
       totalDutyDue = TotalDutyDue(1, 1, 1, 1, 1, 1),
+      otherOptions = None,
       declaration = testDeclaration
     )
 
