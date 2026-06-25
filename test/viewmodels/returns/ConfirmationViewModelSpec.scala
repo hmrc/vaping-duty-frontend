@@ -68,7 +68,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
     "must extract total duty amount correctly" in {
       val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink)
 
-      vm.totalDutyAmount mustBe returnsResponse.success.totalDutyDue.get.totalDutyDue
+      vm.totalDutyAmount mustBe returnsResponse.success.totalDutyDue.get.totalDue
     }
 
     "must extract and uppercase charge reference when present" in {
