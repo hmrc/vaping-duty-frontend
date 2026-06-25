@@ -18,7 +18,7 @@ package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
-import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage}
+import pages.returns.{DeclareDutyPage, DeclareSpoiltProductsPage, EnterDutyAmountPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
