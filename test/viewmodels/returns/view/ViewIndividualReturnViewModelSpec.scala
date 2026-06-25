@@ -203,5 +203,113 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       result.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDueVapingProducts"))
       result.rows(4).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDue"))
     }
-    
+  }
+
+  "dutySuspenseSummaryList" - {
+
+    "must return None when otherOptions is None" in {
+      val responseNoOtherOptions = returnResponse.copy(
+        success = returnResponse.success.copy(otherOptions = None)
+      )
+
+      val viewModel = ViewIndividualReturnViewModel(responseNoOtherOptions, Some(testDutyRate))
+      val result = viewModel.dutySuspenseSummaryList
+
+      result mustBe None
+    }
+
+    "must return summary list with single row when vapingProductUnderDutySuspense is 0" in {
+      val otherOptionsNo = OtherOptions(
+        vapingProductUnderDutySuspense = "0",
+        volumeMovedFromDutySuspense = None,
+        volumeMovedToDutySuspense = None
+      )
+      val responseWithNo = returnResponse.copy(
+        success = returnResponse.success.copy(otherOptions = Some(otherOptionsNo))
+      )
+
+      val viewModel = ViewIndividualReturnViewModel(responseWithNo, Some(testDutyRate))
+      val result = viewModel.dutySuspenseSummaryList
+
+      result mustBe defined
+      result.get.rows.size mustBe 1
+      result.get.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.dutySuspense.question"))
+      result.get.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.dutySuspense.no"))
+    }
+
+    "must return summary list with 3 rows when vapingProductUnderDutySuspense is 1 with volumes" in {
+      val otherOptionsYes = OtherOptions(
+        vapingProductUnderDutySuspense = "1",
+        volumeMovedFromDutySuspense = Some(BigDecimal("300")),
+        volumeMovedToDutySuspense = Some(BigDecimal("150"))
+      )
+      val responseWithYes = returnResponse.copy(
+        success = returnResponse.success.copy(otherOptions = Some(otherOptionsYes))
+      )
+
+      val viewModel = ViewIndividualReturnViewModel(responseWithYes, Some(testDutyRate))
+      val result = viewModel.dutySuspenseSummaryList
+
+      result mustBe defined
+      result.get.rows.size mustBe 3
+      result.get.rows(0).key.content.asHtml.toString must include(messages("viewIndividualReturn.dutySuspense.question"))
+      result.get.rows(0).value.content.asHtml.toString must include(messages("viewIndividualReturn.dutySuspense.yes"))
+      result.get.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.dutySuspense.productReceived"))
+      result.get.rows(1).value.content.asHtml.toString must include("300,000.00 ml")
+      result.get.rows(2).key.content.asHtml.toString must include(messages("viewIndividualReturn.dutySuspense.productMoved"))
+      result.get.rows(2).value.content.asHtml.toString must include("150,000.00 ml")
+    }
+
+    "must show 'Nothing to declare' when volumeMovedFromDutySuspense is 0" in {
+      val otherOptionsZeroReceived = OtherOptions(
+        vapingProductUnderDutySuspense = "1",
+        volumeMovedFromDutySuspense = Some(BigDecimal("0")),
+        volumeMovedToDutySuspense = Some(BigDecimal("150"))
+      )
+      val responseWithZero = returnResponse.copy(
+        success = returnResponse.success.copy(otherOptions = Some(otherOptionsZeroReceived))
+      )
+
+      val viewModel = ViewIndividualReturnViewModel(responseWithZero, Some(testDutyRate))
+      val result = viewModel.dutySuspenseSummaryList
+
+      result mustBe defined
+      result.get.rows(1).value.content.asHtml.toString must include(messages("viewIndividualReturn.dutySuspense.nothingToDeclare"))
+    }
+
+    "must show 'Nothing to declare' when volumeMovedToDutySuspense is None" in {
+      val otherOptionsNoneMoved = OtherOptions(
+        vapingProductUnderDutySuspense = "1",
+        volumeMovedFromDutySuspense = Some(BigDecimal("300")),
+        volumeMovedToDutySuspense = None
+      )
+      val responseWithNone = returnResponse.copy(
+        success = returnResponse.success.copy(otherOptions = Some(otherOptionsNoneMoved))
+      )
+
+      val viewModel = ViewIndividualReturnViewModel(responseWithNone, Some(testDutyRate))
+      val result = viewModel.dutySuspenseSummaryList
+
+      result mustBe defined
+      result.get.rows(2).value.content.asHtml.toString must include(messages("viewIndividualReturn.dutySuspense.nothingToDeclare"))
+    }
+
+    "must show 'Nothing to declare' for both volumes when both are 0" in {
+      val otherOptionsBothZero = OtherOptions(
+        vapingProductUnderDutySuspense = "1",
+        volumeMovedFromDutySuspense = Some(BigDecimal("0")),
+        volumeMovedToDutySuspense = Some(BigDecimal("0"))
+      )
+      val responseWithBothZero = returnResponse.copy(
+        success = returnResponse.success.copy(otherOptions = Some(otherOptionsBothZero))
+      )
+
+      val viewModel = ViewIndividualReturnViewModel(responseWithBothZero, Some(testDutyRate))
+      val result = viewModel.dutySuspenseSummaryList
+
+      result mustBe defined
+      result.get.rows(1).value.content.asHtml.toString must include(messages("viewIndividualReturn.dutySuspense.nothingToDeclare"))
+      result.get.rows(2).value.content.asHtml.toString must include(messages("viewIndividualReturn.dutySuspense.nothingToDeclare"))
+    }
+  }
 }

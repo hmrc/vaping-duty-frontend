@@ -59,11 +59,11 @@
     @govukSummaryList(vm.personalDetailsSummaryList)
 
     @if(!vm.nilReturn) {
-        @h2(messages("viewIndividualReturn.h2.amountdue"))
+        @h2(messages("viewIndividualReturn.h2.amountDue"))
         @list(
             Seq(
-                messages("viewIndividualReturn.li.amountdue"),
-                messages("viewIndividualReturn.li2.amountdue")
+                messages("viewIndividualReturn.li.amountDue"),
+                messages("viewIndividualReturn.li2.amountDue")
             ),
             classes = "govuk-list govuk-list--bullet"
         )
@@ -92,6 +92,11 @@
     }
 
     @govukSummaryList(vm.dutyTotalsSummaryList)
+
+    @vm.dutySuspenseSummaryList.map { summaryList =>
+        @h2(messages("viewIndividualReturn.h2.dutySuspended"))
+        @govukSummaryList(summaryList)
+    }
 
     @govukButton(ButtonViewModel(messages("site.backToBta")))
 

@@ -411,7 +411,6 @@ viewIndividualReturn.dutyDue = Duty due
 viewIndividualReturn.totalDutyDueVapingProducts = Total duty due for vaping products
 viewIndividualReturn.totalDutyDue = Total duty due
 viewIndividualReturn.millilitres = {0} ml
-viewIndividualReturn.nilReturn.content = TODO: Add nil return content here
 viewIndividualReturn.spoiltProducts.question = Do you have any spoilt vaping products to declare?
 viewIndividualReturn.spoiltProducts.yes = Yes
 viewIndividualReturn.spoiltProducts.no = No
@@ -421,9 +420,17 @@ viewIndividualReturn.h2.personalDetails = Personal details
 viewIndividualReturn.personalDetails.fullName = Your full name
 viewIndividualReturn.personalDetails.email = Your business email address
 viewIndividualReturn.personalDetails.capacity = Your role in the company, for example, proprietor, director
-viewIndividualReturn.h2.amountdue = The amount is based on the total duty on:
-viewIndividualReturn.li.amountdue = the vaping products you declared
-viewIndividualReturn.li2.amountdue = all applicable adjustments you declared
+viewIndividualReturn.h2.amountDue = The amount is based on the total duty on:
+viewIndividualReturn.li.amountDue = the vaping products you declared
+viewIndividualReturn.li2.amountDue = all applicable adjustments you declared
+
+viewIndividualReturn.h2.dutySuspended = Duty suspended summary
+viewIndividualReturn.dutySuspense.question = Have you received or moved any finished vaping products in duty suspense?
+viewIndividualReturn.dutySuspense.yes = Yes
+viewIndividualReturn.dutySuspense.no = No
+viewIndividualReturn.dutySuspense.productReceived = Product received
+viewIndividualReturn.dutySuspense.productMoved = Product moved
+viewIndividualReturn.dutySuspense.nothingToDeclare = Nothing to declare
 
 ### Payments ###
 

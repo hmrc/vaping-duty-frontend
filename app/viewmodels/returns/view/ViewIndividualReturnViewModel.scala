@@ -39,15 +39,14 @@ case class ViewIndividualReturnViewModel(
                                           dutyRate: String,
                                           nilReturn: Boolean,
                                           declarationDetails: DeclarationDetails,
-                                          spoiltProduct: Option[SpoiltProduct]
+                                          spoiltProduct: Option[SpoiltProduct],
+                                          dutySuspenseSummaryList: Option[SummaryList]
                                         ) extends CurrencyFormatter{
 
   private def formatPeriodKey(periodKey: String)(implicit messages: Messages): String = {
-    // Period key format: YYPP where YY is year and PP is period (AA=Jan, AB=Feb, etc.)
     val year = 2000 + periodKey.take(2).toInt
     val periodCode = periodKey.drop(2)
     
-    // Calculate month from period code (AA=1, AB=2, AC=3, etc.)
     val monthNumber = (periodCode.charAt(1) - 'A') + 1
     val month = java.time.Month.of(monthNumber)
     
@@ -135,10 +134,8 @@ case class ViewIndividualReturnViewModel(
     }
 
   def dutyTotalsSummaryList(implicit messages: Messages): SummaryList = {
-    // Build spoilt products rows
     val spoiltProductsRows = spoiltProduct match {
       case Some(sp) =>
-        // Translate "1" → "Yes", "0" → "No"
         val yesNoText = if (sp.spoiltProductFilled == "1") {
           messages("viewIndividualReturn.spoiltProducts.yes")
         } else {
@@ -154,7 +151,6 @@ case class ViewIndividualReturnViewModel(
           )
         )
         
-        // Only show detail rows if spoiltProductFilled == "1"
         val detailRows = if (sp.spoiltProductFilled == "1") {
           sp.spoiltProducts.getOrElse(Seq.empty).flatMap { item =>
             Seq(
@@ -182,7 +178,6 @@ case class ViewIndividualReturnViewModel(
       case None => Seq.empty
     }
     
-    // Build total rows
     val totalRows = Seq(
       SummaryListRow(
         key = Key(
@@ -204,6 +199,7 @@ case class ViewIndividualReturnViewModel(
     
     SummaryList(rows = spoiltProductsRows ++ totalRows)
   }
+
 }
 
 object ViewIndividualReturnViewModel extends CurrencyFormatter {
@@ -246,10 +242,59 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val submittedOnDay = submittedOn.getDayOfMonth
     val submittedOnMonth = PeriodKeys.toDisplayName(submittedOn.getMonth)
 
-    //val receiptTime = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("hh:mma"))
 
     val monthYearString = s"${getMonthMessage(monthFromLocalDate)} $year"
     val submittedOnString = s"$submittedOnDay $submittedOnMonth $year"
+
+    val dutySuspenseSummary = success.otherOptions.map { options =>
+      val yesNoText = if (options.vapingProductUnderDutySuspense == "1") {
+        messages("viewIndividualReturn.dutySuspense.yes")
+      } else {
+        messages("viewIndividualReturn.dutySuspense.no")
+      }
+
+      val questionRow = SummaryListRow(
+        key = Key(
+          content = Text(messages("viewIndividualReturn.dutySuspense.question"))
+        ),
+        value = Value(
+          content = Text(yesNoText)
+        )
+      )
+
+      val detailRows = if (options.vapingProductUnderDutySuspense == "1") {
+        val receivedValue = options.volumeMovedFromDutySuspense match {
+          case Some(volume) if volume > 0 => messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(volume).toMl))
+          case _ => messages("viewIndividualReturn.dutySuspense.nothingToDeclare")
+        }
+
+        val movedValue = options.volumeMovedToDutySuspense match {
+          case Some(volume) if volume > 0 => messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(volume).toMl))
+          case _ => messages("viewIndividualReturn.dutySuspense.nothingToDeclare")
+        }
+
+        Seq(
+          SummaryListRow(
+            key = Key(
+              content = Text(messages("viewIndividualReturn.dutySuspense.productReceived"))
+            ),
+            value = Value(
+              content = Text(receivedValue)
+            )
+          ),
+          SummaryListRow(
+            key = Key(
+              content = Text(messages("viewIndividualReturn.dutySuspense.productMoved"))
+            ),
+            value = Value(
+              content = Text(movedValue)
+            )
+          )
+        )
+      } else Seq.empty
+
+      SummaryList(rows = questionRow +: detailRows)
+    }
 
     ViewIndividualReturnViewModel(
       chargeReference = chargeRef,
@@ -263,7 +308,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       dutyRate = currencyFormat(dutyRate.getOrElse(zeroValue)),
       nilReturn = isNilReturn,
       declarationDetails = success.declaration,
-      spoiltProduct = success.spoiltProduct
+      spoiltProduct = success.spoiltProduct,
+      dutySuspenseSummaryList = dutySuspenseSummary
     )
   }
 }
