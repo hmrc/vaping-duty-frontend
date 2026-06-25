@@ -236,7 +236,11 @@ trait TestData {
   val testSubmitReturnRequest = ReturnCreateRequest(
     periodKey.toString,
     VapingProductsProduced(vapingProdManufactured = "0", returns = Seq.empty),
+    None,
+    None,
+    None,
     TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue),
+    None,
     testDeclarationDetails
   )
 
