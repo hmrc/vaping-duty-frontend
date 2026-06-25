@@ -433,13 +433,9 @@ trait TestData {
         ),
         otherOptions = Some(
           OtherOptions(
-            otherOptions = "true",
-            vapingProdManufactured = Some("true"),
-            otherVapingProduct = Some("false"),
-            destroyed = Some(BigDecimal("50.00")),
-            imported = Some(BigDecimal("100.00")),
-            exported = Some(BigDecimal("75.00")),
-            amtRecieved = Some(BigDecimal("25.00"))
+            vapingProductUnderDutySuspense = "1",
+            volumeMovedFromDutySuspense = Some(BigDecimal("300.00")),
+            volumeMovedToDutySuspense = Some(BigDecimal("150.00"))
           )
         ),
         declaration = testDeclarationDetails
