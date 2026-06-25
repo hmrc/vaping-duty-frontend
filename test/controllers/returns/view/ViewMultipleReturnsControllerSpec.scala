@@ -28,6 +28,8 @@ import uk.gov.hmrc.http.InternalServerException
 import viewmodels.returns.view.ViewMultipleReturnsViewModel
 import views.html.returns.view.ViewMultipleReturnsView
 
+import java.time.LocalDate
+import java.time.temporal.TemporalField
 import scala.concurrent.Future
 
 class ViewMultipleReturnsControllerSpec extends SpecBase {
@@ -43,7 +45,36 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
 
       when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(createMockObligationsResponse()))
 
-      val vm = ViewMultipleReturnsViewModel(createMockObligationsResponse())(messages(application))
+      val now = LocalDate.now(clock)
+      val vm = ViewMultipleReturnsViewModel(createMockObligationsResponse(), 2027, now)(messages(application))
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.view.routes.ViewMultipleReturnsController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[ViewMultipleReturnsView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET with an empty obligation response" in {
+      val mockService = mock[ObligationService]
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[ObligationService].to(mockService))
+        .build()
+
+      val emptyObligationResponse = createMockObligationsResponse().copy(obligation = Seq.empty)
+
+      when(mockService.getObligations(any())(using any())).thenReturn(
+        Future.successful(emptyObligationResponse)
+      )
+
+      val now = LocalDate.now(clock)
+      val vm = ViewMultipleReturnsViewModel(emptyObligationResponse, 2026, now)(messages(application))
 
       running(application) {
         val request = FakeRequest(GET, controllers.returns.view.routes.ViewMultipleReturnsController.onPageLoad().url)

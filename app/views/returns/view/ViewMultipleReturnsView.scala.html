@@ -20,9 +20,11 @@
 
 @this(
     layout: templates.ReturnsLayout,
-    govukTable: GovukTable,
-    govukTag: GovukTag,
-    h1: Heading
+    govukTaskList: GovukTaskList,
+    govukPagination: GovukPagination,
+    h1: Heading,
+    h2: Heading2,
+    p: Paragraph
 )
 
 @(vm: ViewMultipleReturnsViewModel)(implicit request: Request[_], messages: Messages)
@@ -31,37 +33,20 @@
 
     @h1(messages("returns.overview.heading"))
 
-    <h2 class="govuk-heading-m">@messages("returns.overview.outstanding.heading")</h2>
+    @if(vm.outstandingReturnsSection.shouldShowSection) {
+        @h2(messages("returns.overview.outstanding.heading"))
+        @govukTaskList(TaskList(items = vm.outstandingReturnsSection.items))
+    }
 
-    @govukTable(Table(
-        head = Some(Seq(
-            HeadCell(
-                content = Text(messages("returns.overview.outstanding.month"))
-            ),
-            HeadCell(
-                content = Text(messages("returns.overview.outstanding.status")),
-                classes = "govuk-!-width-one-quarter"
-            ),
-            HeadCell(
-                content = Text(messages("returns.overview.outstanding.action")),
-                classes = "govuk-!-width-one-quarter"
-            )
-        )),
-        rows = vm.outstandingReturns
-    ))
+    @h2(messages("returns.overview.completed.heading", vm.completedReturnsSection.year))
 
-    <h2 class="govuk-heading-m">@messages("returns.overview.completed.heading")</h2>
+    @if(vm.completedReturnsSection.showEmptyMessage) {
+        @p(Seq(messages("returns.overview.completed.empty")))
+    } else {
+        @govukTaskList(TaskList(items = vm.completedReturnsSection.items))
+    }
 
-    @govukTable(Table(
-        head = Some(Seq(
-            HeadCell(
-                content = Text(messages("returns.overview.completed.month"))
-            ),
-            HeadCell(
-                content = Text(messages("returns.overview.completed.action")),
-                classes = "govuk-!-width-one-quarter"
-            )
-        )),
-        rows = vm.completedReturns
-    ))
+    @if(vm.shouldShowPagination) {
+        @govukPagination(Pagination(items = Some(vm.paginationViewModel.get.paginationItems)))
+    }
 }
