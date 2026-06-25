@@ -349,11 +349,11 @@ trait TestData extends ObligationsBuilders {
         ),
         spoiltProduct = Some(
           SpoiltProduct(
-            spoiltProductFilled = "true",
+            spoiltProductFilled = "1",
             spoiltProducts = Some(
               Seq(
                 SpoiltProductItem(
-                  returnPeriodAffected = "26AE",
+                  returnPeriodAffected = "26AC",
                   taxType = "311",
                   dutyRate = BigDecimal("0.50"),
                   amountSpoilt = BigDecimal("200.00"),

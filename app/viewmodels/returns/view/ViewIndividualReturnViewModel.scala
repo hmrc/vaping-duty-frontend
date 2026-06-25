@@ -138,16 +138,24 @@ case class ViewIndividualReturnViewModel(
     // Build spoilt products rows
     val spoiltProductsRows = spoiltProduct match {
       case Some(sp) =>
+        // Translate "1" → "Yes", "0" → "No"
+        val yesNoText = if (sp.spoiltProductFilled == "1") {
+          messages("viewIndividualReturn.spoiltProducts.yes")
+        } else {
+          messages("viewIndividualReturn.spoiltProducts.no")
+        }
+        
         val questionRow = SummaryListRow(
           key = Key(
             content = Text(messages("viewIndividualReturn.spoiltProducts.question"))
           ),
           value = Value(
-            content = Text(sp.spoiltProductFilled)
+            content = Text(yesNoText)
           )
         )
         
-        val detailRows = if (sp.spoiltProductFilled == "Yes") {
+        // Only show detail rows if spoiltProductFilled == "1"
+        val detailRows = if (sp.spoiltProductFilled == "1") {
           sp.spoiltProducts.getOrElse(Seq.empty).flatMap { item =>
             Seq(
               SummaryListRow(
@@ -160,10 +168,10 @@ case class ViewIndividualReturnViewModel(
               ),
               SummaryListRow(
                 key = Key(
-                  content = Text(messages("viewIndividualReturn.spoiltProducts.amount"))
+                  content = Text(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))
                 ),
                 value = Value(
-                  content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(item.amountSpoilt)))
+                  content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountSpoilt).toMl)))
                 )
               )
             )

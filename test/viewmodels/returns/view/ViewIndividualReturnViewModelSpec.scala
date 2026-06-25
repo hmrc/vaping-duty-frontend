@@ -192,14 +192,16 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
 
   "dutyTotalsSummaryList" - {
 
-    "must return summary list with two rows" in {
+    "must return summary list with spoilt product detail rows and total rows" in {
       val viewModel = ViewIndividualReturnViewModel(returnResponse, Some(testDutyRate))
       val result = viewModel.dutyTotalsSummaryList
 
-      result.rows.size mustBe 3
+      result.rows.size mustBe 5
       result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.question"))
-      result.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDueVapingProducts"))
-      result.rows(2).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDue"))
+      result.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.month"))
+      result.rows(2).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))
+      result.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDueVapingProducts"))
+      result.rows(4).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDue"))
     }
-  }
+    
 }
