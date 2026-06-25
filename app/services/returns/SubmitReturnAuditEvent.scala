@@ -1,7 +1,7 @@
 package services.returns
 
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsArray, JsObject, JsValue, Json}
 
 object SubmitReturnAuditEvent {
 
@@ -19,11 +19,25 @@ object SubmitReturnAuditEvent {
   }
 
   def buildSubmission(etmpSubmission: JsValue): JsValue = {
-    etmpSubmission
+    jsRenameKeys(etmpSubmission, Map("periodKey" -> "returnPeriod"))
   }
 
   def buildResponse(etmpSubmission: JsValue): JsValue = {
     etmpSubmission
   }
+
+  def jsRenameKeys(jsValue: JsValue, nameChanges: Map[String, String]): JsValue =
+    jsValue match {
+      case jsObj: JsObject =>
+        JsObject(
+          jsObj.fields.map((key, value) =>
+            nameChanges.getOrElse(key, key) -> jsRenameKeys(value, nameChanges))
+        )
+
+      case array: JsArray =>
+        JsArray(array.value.map((jsv: JsValue) => jsRenameKeys(jsv, nameChanges)))
+
+      case x => x
+    }
 
 }

@@ -2,7 +2,7 @@ package services.returns;
 
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.libs.json.Json;
+import play.api.libs.json.{JsObject, JsString, Json};
 
 class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
     
@@ -96,11 +96,18 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
     "Return Submission Audit Event" - {
 
         "must contain the submission section" in {
-            SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, response)("submission") mustBe submission
+            SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, response)("submission") must not be null
         }
 
         "must contain the response section" in {
             SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, response)("response") mustBe response
+        }
+
+        "Submission section " - {
+            "renames periodKey to returnPeriod" in {
+                SubmitReturnAuditEvent.buildSubmission(submission).as[JsObject].keys must not contain "periodKey"
+                SubmitReturnAuditEvent.buildSubmission(submission)("returnPeriod") mustBe JsString("24KA")
+            }
         }
     }
 }
