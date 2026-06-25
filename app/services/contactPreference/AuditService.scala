@@ -17,10 +17,10 @@
 package services.contactPreference
 
 import com.google.inject.{Inject, Singleton}
-import models.audit.contactPreference.AuditType.ContactPreference
+import models.audit.contactPreference.AuditType.{ContactPreference, ReturnSubmitted}
 import models.audit.contactPreference.{AuditType, JourneyOutcome}
 import play.api.Logging
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{JsObject, Json, Writes}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
@@ -28,7 +28,13 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class AuditService @Inject()(auditConnector: AuditConnector)(implicit ec: ExecutionContext) extends Logging {
-  def audit[T <: JourneyOutcome](detail: T)(implicit hc: HeaderCarrier, writes: Writes[T]): Unit = {
+
+  def auditContactPreferenceChange[T <: JourneyOutcome](detail: T)(implicit hc: HeaderCarrier, writes: Writes[T]): Unit = {
     auditConnector.sendExplicitAudit(ContactPreference.toString, Json.toJson(detail))
   }
+
+  def auditReturnSubmitted(detail: JsObject)(implicit hc: HeaderCarrier): Unit = {
+    auditConnector.sendExplicitAudit(ReturnSubmitted.toString, detail)
+  }
+
 }

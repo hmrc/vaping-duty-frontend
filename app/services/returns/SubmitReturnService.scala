@@ -25,6 +25,7 @@ import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, SpoiltProductItem, UnderDeclaration}
 import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import play.api.libs.json.{JsObject, Json}
 import services.contactPreference.AuditService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -57,7 +58,11 @@ class SubmitReturnService @Inject()(
       }
       submission = buildSubmission(ua, obligation)
       result <- submitReturnConnector.submitReturn(submission, request.enrolmentVpdId)
-    } yield result
+    } yield {
+      val detail = Json.parse("{}").as[JsObject]
+      auditService.auditReturnSubmitted(detail)
+      result
+    }
   }
 
   private def buildSubmission(ua: ReturnsUserAnswers, obligation: ObligationDetails): ReturnCreateRequest = {

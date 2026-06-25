@@ -52,7 +52,7 @@ private def sendExplicitEvent(preferenceSubmission: PaperlessPreferenceSubmissio
 
   val address = request.userAnswers.subscriptionSummary.correspondenceAddress.replace("\n", ", ")
 
-  auditService.audit(
+  auditService.auditContactPreferenceChange(
     JourneyOutcome.buildEvent(
       preferenceSubmission,
       PaperlessPreference(request.userAnswers.subscriptionSummary.paperlessPreference),

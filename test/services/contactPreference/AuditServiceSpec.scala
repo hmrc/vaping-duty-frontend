@@ -50,7 +50,7 @@ class AuditServiceSpec extends SpecBase {
         ))
       )
 
-      auditService.audit(testDetail)
+      auditService.auditContactPreferenceChange(testDetail)
 
       verify(mockAuditConnector)
         .sendExplicitAudit(eqTo(AuditType.ContactPreference.toString), eqTo(Json.toJson(testDetail)))(any(), any(), any())

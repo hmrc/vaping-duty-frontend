@@ -18,3 +18,4 @@ package models.audit.contactPreference
 
 enum AuditType:
   case ContactPreference
+  case ReturnSubmitted
