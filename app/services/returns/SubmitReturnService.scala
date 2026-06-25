@@ -25,6 +25,7 @@ import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, SpoiltProductItem, UnderDeclaration}
 import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import services.contactPreference.AuditService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -36,6 +37,7 @@ class SubmitReturnService @Inject()(
   dutyRateService: DutyRateService,
   obligationService: ObligationService,
   totalDutyDueCalculationService: TotalDutyDueCalculationService,
+  auditService: AuditService,
   config: FrontendAppConfig
 )(using ExecutionContext) {
 

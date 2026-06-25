@@ -31,6 +31,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import services.contactPreference.AuditService
 
 import java.time.{Instant, LocalDate}
 import scala.concurrent.Future
@@ -41,6 +42,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
   private val mockDutyRateService = mock[DutyRateService]
   private val mockObligationService = mock[ObligationService]
   private val mockTotalDutyDueCalculationService = mock[TotalDutyDueCalculationService]
+  private val mockAuditService = mock[AuditService]
   private val mockConfig = mock[FrontendAppConfig]
 
   private val service = new SubmitReturnService(
@@ -48,6 +50,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     mockDutyRateService,
     mockObligationService,
     mockTotalDutyDueCalculationService,
+    mockAuditService,
     mockConfig
   )
 
