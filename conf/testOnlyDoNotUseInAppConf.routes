@@ -11,8 +11,8 @@
 
 # Test-only obligations management endpoints
 GET    /test-only/obligations/:vpdId/scenario/:scenario    controllers.returns.TestObligationsController.setScenario(vpdId: String, scenario: String)
-DELETE /test-only/obligations/:vpdId                       controllers.returns.TestObligationsController.clearVpdIdObligations(vpdId: String)
-DELETE /test-only/obligations                              controllers.returns.TestObligationsController.clearAllObligations()
+GET    /test-only/obligations/:vpdId/clear                 controllers.returns.TestObligationsController.clearVpdIdObligations(vpdId: String)
+GET    /test-only/obligations/clear-all                    controllers.returns.TestObligationsController.clearAllObligations()
 POST   /test-only/obligations/:vpdId/custom                controllers.returns.TestObligationsController.setCustomObligations(vpdId: String)
 
 # Add all the application routes to the prod.routes file
