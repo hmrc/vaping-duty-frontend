@@ -34,8 +34,9 @@ class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
                                       implicit val httpClient: HttpClientV2)
                                      (implicit ec: ExecutionContext) extends HttpReadsInstances with Logging {
 
-  def submitReturn(returnsSubmission: ReturnCreateRequest, vpdId: VpdId)
-                              (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] =
+  def submitReturn(returnsSubmission: ReturnCreateRequest,
+                   vpdId: VpdId)
+                  (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] =
     httpClient
       .post(url"${config.submitReturnUrl(vpdId, PeriodKey(returnsSubmission.periodKey))}")
       .withBody(Json.toJson(returnsSubmission))
