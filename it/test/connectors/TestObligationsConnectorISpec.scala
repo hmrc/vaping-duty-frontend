@@ -16,39 +16,31 @@
 
 package connectors
 
-import connectors.returns.TestObligationsConnector
+import base.ISpecBase
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import connectors.testonly.TestObligationsConnector
 import models.identifiers.VpdId
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import play.api.Application
 import play.api.http.Status.*
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import test.base.ConnectorISpec
-import uk.gov.hmrc.http.HeaderCarrier
+import util.WireMockHelper
 
-class TestObligationsConnectorISpec
-  extends AnyFreeSpec
-    with Matchers
-    with ScalaFutures
-    with IntegrationPatience
-    with ConnectorISpec {
+class TestObligationsConnectorISpec extends ISpecBase with WireMockHelper {
+
+  override def fakeApplication(): play.api.Application =
+    applicationBuilder()
+      .configure(
+        "microservice.services.vaping-duty-stubs.host" -> "localhost",
+        "microservice.services.vaping-duty-stubs.port" -> server.port()
+      )
+      .build()
 
   private val vpdId = VpdId("GBWK0000001WK")
   private val scenario = "only-open"
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-
-  override def fakeApplication(): Application =
-    GuiceApplicationBuilder()
-      .configure(getWireMockAppConfig(Seq("vaping-duty-stubs")))
-      .build()
-
   "TestObligationsConnector" - {
     "setScenario" - {
       "must return 200 OK when the stub accepts the scenario" in {
-        val url = s"/test-support/obligations/$vpdId/scenario/$scenario"
+        val url = s"/test-only/obligations/$vpdId/scenario/$scenario"
         val responseJson = Json.obj(
           "message" -> s"Successfully set scenario '$scenario' for VPD ID $vpdId",
           "vpdId" -> vpdId.value,
@@ -56,99 +48,138 @@ class TestObligationsConnectorISpec
           "obligationCount" -> 3
         )
 
-        stubPost(url, OK, responseJson.toString)
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(
+              aResponse()
+                .withStatus(OK)
+                .withBody(responseJson.toString)
+            )
+        )
 
         val connector = app.injector.instanceOf[TestObligationsConnector]
 
         whenReady(connector.setScenario(vpdId, scenario)) { response =>
           response.status mustBe OK
           response.json mustBe responseJson
-          verifyPost(url)
+          server.verify(postRequestedFor(urlEqualTo(url)))
         }
       }
 
       "must return error status when the stub returns an error" in {
-        val url = s"/test-support/obligations/$vpdId/scenario/$scenario"
+        val url = s"/test-only/obligations/$vpdId/scenario/$scenario"
 
-        stubPost(url, INTERNAL_SERVER_ERROR, "")
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(
+              aResponse()
+                .withStatus(INTERNAL_SERVER_ERROR)
+            )
+        )
 
         val connector = app.injector.instanceOf[TestObligationsConnector]
 
         whenReady(connector.setScenario(vpdId, scenario)) { response =>
           response.status mustBe INTERNAL_SERVER_ERROR
-          verifyPost(url)
+          server.verify(postRequestedFor(urlEqualTo(url)))
         }
       }
     }
 
     "clearVpdIdObligations" - {
       "must return 200 OK when the stub clears obligations" in {
-        val url = s"/test-support/obligations/$vpdId"
+        val url = s"/test-only/obligations/$vpdId"
         val responseJson = Json.obj(
           "message" -> s"Successfully cleared obligations for VPD ID $vpdId",
           "vpdId" -> vpdId.value
         )
 
-        stubDelete(url, OK, responseJson.toString)
+        server.stubFor(
+          delete(urlEqualTo(url))
+            .willReturn(
+              aResponse()
+                .withStatus(OK)
+                .withBody(responseJson.toString)
+            )
+        )
 
         val connector = app.injector.instanceOf[TestObligationsConnector]
 
         whenReady(connector.clearVpdIdObligations(vpdId)) { response =>
           response.status mustBe OK
           response.json mustBe responseJson
-          verifyDelete(url)
+          server.verify(deleteRequestedFor(urlEqualTo(url)))
         }
       }
 
       "must return error status when the stub returns an error" in {
-        val url = s"/test-support/obligations/$vpdId"
+        val url = s"/test-only/obligations/$vpdId"
 
-        stubDelete(url, NOT_FOUND, "")
+        server.stubFor(
+          delete(urlEqualTo(url))
+            .willReturn(
+              aResponse()
+                .withStatus(NOT_FOUND)
+            )
+        )
 
         val connector = app.injector.instanceOf[TestObligationsConnector]
 
         whenReady(connector.clearVpdIdObligations(vpdId)) { response =>
           response.status mustBe NOT_FOUND
-          verifyDelete(url)
+          server.verify(deleteRequestedFor(urlEqualTo(url)))
         }
       }
     }
 
     "clearAllObligations" - {
       "must return 200 OK when the stub clears all obligations" in {
-        val url = "/test-support/obligations"
+        val url = "/test-only/obligations"
         val responseJson = Json.obj(
           "message" -> "Successfully cleared all obligations data"
         )
 
-        stubDelete(url, OK, responseJson.toString)
+        server.stubFor(
+          delete(urlEqualTo(url))
+            .willReturn(
+              aResponse()
+                .withStatus(OK)
+                .withBody(responseJson.toString)
+            )
+        )
 
         val connector = app.injector.instanceOf[TestObligationsConnector]
 
         whenReady(connector.clearAllObligations()) { response =>
           response.status mustBe OK
           response.json mustBe responseJson
-          verifyDelete(url)
+          server.verify(deleteRequestedFor(urlEqualTo(url)))
         }
       }
 
       "must return error status when the stub returns an error" in {
-        val url = "/test-support/obligations"
+        val url = "/test-only/obligations"
 
-        stubDelete(url, INTERNAL_SERVER_ERROR, "")
+        server.stubFor(
+          delete(urlEqualTo(url))
+            .willReturn(
+              aResponse()
+                .withStatus(INTERNAL_SERVER_ERROR)
+            )
+        )
 
         val connector = app.injector.instanceOf[TestObligationsConnector]
 
         whenReady(connector.clearAllObligations()) { response =>
           response.status mustBe INTERNAL_SERVER_ERROR
-          verifyDelete(url)
+          server.verify(deleteRequestedFor(urlEqualTo(url)))
         }
       }
     }
 
     "setCustomObligations" - {
       "must return 200 OK when the stub accepts custom obligations" in {
-        val url = s"/test-support/obligations/$vpdId/custom"
+        val url = s"/test-only/obligations/$vpdId/custom"
         val customObligations = Json.obj(
           "vpdId" -> vpdId.value,
           "obligations" -> Json.arr(
@@ -171,28 +202,41 @@ class TestObligationsConnectorISpec
           "obligationCount" -> 1
         )
 
-        stubPost(url, OK, responseJson.toString)
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(
+              aResponse()
+                .withStatus(OK)
+                .withBody(responseJson.toString)
+            )
+        )
 
         val connector = app.injector.instanceOf[TestObligationsConnector]
 
         whenReady(connector.setCustomObligations(vpdId, customObligations)) { response =>
           response.status mustBe OK
           response.json mustBe responseJson
-          verifyPost(url)
+          server.verify(postRequestedFor(urlEqualTo(url)))
         }
       }
 
       "must return error status when the stub returns an error" in {
-        val url = s"/test-support/obligations/$vpdId/custom"
+        val url = s"/test-only/obligations/$vpdId/custom"
         val customObligations = Json.obj("vpdId" -> vpdId.value)
 
-        stubPost(url, BAD_REQUEST, "")
+        server.stubFor(
+          post(urlEqualTo(url))
+            .willReturn(
+              aResponse()
+                .withStatus(BAD_REQUEST)
+            )
+        )
 
         val connector = app.injector.instanceOf[TestObligationsConnector]
 
         whenReady(connector.setCustomObligations(vpdId, customObligations)) { response =>
           response.status mustBe BAD_REQUEST
-          verifyPost(url)
+          server.verify(postRequestedFor(urlEqualTo(url)))
         }
       }
     }
