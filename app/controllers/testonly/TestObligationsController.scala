@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package controllers.returns
+package controllers.testonly
 
-import connectors.returns.TestObligationsConnector
+import connectors.testonly.TestObligationsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import models.identifiers.VpdId
 import play.api.libs.json.JsValue

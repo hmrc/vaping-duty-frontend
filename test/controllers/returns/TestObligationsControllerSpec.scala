@@ -16,20 +16,19 @@
 
 package controllers.returns
 
-import connectors.returns.TestObligationsConnector
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, FakeApprovedVapingManufacturerAuthAction}
 import models.identifiers.VpdId
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import base.SpecBase
+import connectors.testonly.TestObligationsConnector
 import uk.gov.hmrc.http.HttpResponse
 
 import scala.concurrent.Future
@@ -47,6 +46,7 @@ class TestObligationsControllerSpec extends SpecBase with MockitoSugar with Befo
   }
 
   private def application = GuiceApplicationBuilder()
+    .configure("application.router" -> "testOnlyDoNotUseInAppConf.Routes")
     .overrides(
       bind[ApprovedVapingManufacturerAuthAction].to[FakeApprovedVapingManufacturerAuthAction],
       bind[TestObligationsConnector].toInstance(mockConnector)
@@ -66,7 +66,7 @@ class TestObligationsControllerSpec extends SpecBase with MockitoSugar with Befo
         when(mockConnector.setScenario(eqTo(vpdId), eqTo(scenario))(any()))
           .thenReturn(Future.successful(HttpResponse(OK, responseJson.toString)))
 
-        val request = FakeRequest(POST, routes.TestObligationsController.setScenario(vpdIdString, scenario).url)
+        val request = FakeRequest(GET, controllers.testonly.routes.TestObligationsController.setScenario(vpdIdString, scenario).url)
         val result = route(application, request).value
 
         status(result) mustBe OK
@@ -78,7 +78,7 @@ class TestObligationsControllerSpec extends SpecBase with MockitoSugar with Befo
         when(mockConnector.setScenario(eqTo(vpdId), eqTo(scenario))(any()))
           .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
 
-        val request = FakeRequest(POST, routes.TestObligationsController.setScenario(vpdIdString, scenario).url)
+        val request = FakeRequest(GET, controllers.testonly.routes.TestObligationsController.setScenario(vpdIdString, scenario).url)
         val result = route(application, request).value
 
         status(result) mustBe INTERNAL_SERVER_ERROR
@@ -96,7 +96,7 @@ class TestObligationsControllerSpec extends SpecBase with MockitoSugar with Befo
         when(mockConnector.clearVpdIdObligations(eqTo(vpdId))(any()))
           .thenReturn(Future.successful(HttpResponse(OK, responseJson.toString)))
 
-        val request = FakeRequest(DELETE, routes.TestObligationsController.clearVpdIdObligations(vpdIdString).url)
+        val request = FakeRequest(GET, controllers.testonly.routes.TestObligationsController.clearVpdIdObligations(vpdIdString).url)
         val result = route(application, request).value
 
         status(result) mustBe OK
@@ -108,7 +108,7 @@ class TestObligationsControllerSpec extends SpecBase with MockitoSugar with Befo
         when(mockConnector.clearVpdIdObligations(eqTo(vpdId))(any()))
           .thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
 
-        val request = FakeRequest(DELETE, routes.TestObligationsController.clearVpdIdObligations(vpdIdString).url)
+        val request = FakeRequest(GET, controllers.testonly.routes.TestObligationsController.clearVpdIdObligations(vpdIdString).url)
         val result = route(application, request).value
 
         status(result) mustBe NOT_FOUND
@@ -125,7 +125,7 @@ class TestObligationsControllerSpec extends SpecBase with MockitoSugar with Befo
         when(mockConnector.clearAllObligations()(any()))
           .thenReturn(Future.successful(HttpResponse(OK, responseJson.toString)))
 
-        val request = FakeRequest(DELETE, routes.TestObligationsController.clearAllObligations().url)
+        val request = FakeRequest(GET, controllers.testonly.routes.TestObligationsController.clearAllObligations().url)
         val result = route(application, request).value
 
         status(result) mustBe OK
@@ -137,7 +137,7 @@ class TestObligationsControllerSpec extends SpecBase with MockitoSugar with Befo
         when(mockConnector.clearAllObligations()(any()))
           .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
 
-        val request = FakeRequest(DELETE, routes.TestObligationsController.clearAllObligations().url)
+        val request = FakeRequest(GET, controllers.testonly.routes.TestObligationsController.clearAllObligations().url)
         val result = route(application, request).value
 
         status(result) mustBe INTERNAL_SERVER_ERROR
@@ -172,7 +172,7 @@ class TestObligationsControllerSpec extends SpecBase with MockitoSugar with Befo
         when(mockConnector.setCustomObligations(eqTo(vpdId), eqTo(customObligations))(any()))
           .thenReturn(Future.successful(HttpResponse(OK, responseJson.toString)))
 
-        val request = FakeRequest(POST, routes.TestObligationsController.setCustomObligations(vpdIdString).url)
+        val request = FakeRequest(POST, controllers.testonly.routes.TestObligationsController.setCustomObligations(vpdIdString).url)
           .withJsonBody(customObligations)
         val result = route(application, request).value
 
@@ -187,7 +187,7 @@ class TestObligationsControllerSpec extends SpecBase with MockitoSugar with Befo
         when(mockConnector.setCustomObligations(eqTo(vpdId), eqTo(customObligations))(any()))
           .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "")))
 
-        val request = FakeRequest(POST, routes.TestObligationsController.setCustomObligations(vpdIdString).url)
+        val request = FakeRequest(POST, controllers.testonly.routes.TestObligationsController.setCustomObligations(vpdIdString).url)
           .withJsonBody(customObligations)
         val result = route(application, request).value
 

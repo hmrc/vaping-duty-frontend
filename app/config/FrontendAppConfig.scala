@@ -121,7 +121,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   // Test-only endpoints for obligations management
   private lazy val stubsHost: String = servicesConfig.baseUrl("vaping-duty-stubs")
-  private val stubsBaseUrl = s"$stubsHost/test-support/obligations"
+  private val stubsBaseUrl = s"$stubsHost/test-only/obligations"
 
   def setScenarioUrl(vpdId: VpdId, scenario: String): String =
     s"$stubsBaseUrl/$vpdId/scenario/$scenario"

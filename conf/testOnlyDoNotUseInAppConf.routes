@@ -10,10 +10,10 @@
 # Failing to follow this rule may result in test routes deployed in production.
 
 # Test-only obligations management endpoints
-GET    /test-only/obligations/:vpdId/scenario/:scenario    controllers.returns.TestObligationsController.setScenario(vpdId: String, scenario: String)
-GET    /test-only/obligations/:vpdId/clear                 controllers.returns.TestObligationsController.clearVpdIdObligations(vpdId: String)
-GET    /test-only/obligations/clear-all                    controllers.returns.TestObligationsController.clearAllObligations()
-POST   /test-only/obligations/:vpdId/custom                controllers.returns.TestObligationsController.setCustomObligations(vpdId: String)
+GET    /vaping-duty/test-only/obligations/:vpdId/scenario/:scenario    controllers.testonly.TestObligationsController.setScenario(vpdId: String, scenario: String)
+GET    /vaping-duty/test-only/obligations/:vpdId/clear                 controllers.testonly.TestObligationsController.clearVpdIdObligations(vpdId: String)
+GET    /vaping-duty/test-only/obligations/clear-all                    controllers.testonly.TestObligationsController.clearAllObligations()
+POST   /vaping-duty/test-only/obligations/:vpdId/custom                controllers.testonly.TestObligationsController.setCustomObligations(vpdId: String)
 
 # Add all the application routes to the prod.routes file
 ->         /                         prod.Routes
