@@ -19,13 +19,9 @@ package models.returns.view
 import play.api.libs.json.{Json, OFormat}
 
 final case class OtherOptions(
-  otherOptions: String,
-  vapingProdManufactured: Option[String],
-  otherVapingProduct: Option[String],
-  destroyed: Option[BigDecimal],
-  imported: Option[BigDecimal],
-  exported: Option[BigDecimal],
-  amtRecieved: Option[BigDecimal]
+  vapingProductUnderDutySuspense: String,
+  volumeMovedFromDutySuspense: Option[BigDecimal],
+  volumeMovedToDutySuspense: Option[BigDecimal]
 )
 
 object OtherOptions {
