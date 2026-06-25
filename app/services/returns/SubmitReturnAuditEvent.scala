@@ -17,7 +17,7 @@ object SubmitReturnAuditEvent {
       "response" -> buildResponse(response)
     ))
   }
-  
+
   def buildSubmission(etmpSubmission: JsValue): JsValue = {
     etmpSubmission
   }
