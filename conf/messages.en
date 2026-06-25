@@ -411,3 +411,23 @@ viewIndividualReturn.dutyDue = Duty due
 viewIndividualReturn.totalDutyDueVapingProducts = Total duty due for vaping products
 viewIndividualReturn.totalDutyDue = Total duty due
 viewIndividualReturn.millilitres = {0} ml
+
+### Payments ###
+
+payments.viewPayments.title = Vaping Products Duty payments
+payments.viewPayments.heading = Vaping Products Duty payments
+payments.viewPayments.youOwe = You owe
+payments.viewPayments.outstanding.heading = Outstanding payments
+payments.viewPayments.outstanding.body = Payments take up to 7 working days to show, depending on how you pay. After you complete your return your tax calculation will take up to 2 days to show.
+payments.viewPayments.table.toBePaidBy = Period
+payments.viewPayments.table.description = Description
+payments.viewPayments.table.leftToPay = Left to pay
+payments.viewPayments.table.status = Status
+payments.viewPayments.table.action = Action
+payments.viewPayments.table.description.text = Payment for Vaping Products Duty return
+payments.viewPayments.table.chargeReference = Charge reference
+payments.viewPayments.table.payNow = Pay now
+payments.viewPayments.noPayments = You have no outstanding payments
+payments.viewPayments.status.due = Due
+payments.viewPayments.status.overdue = Overdue
+payments.viewPayments.status.nothingToPay = Nothing to pay

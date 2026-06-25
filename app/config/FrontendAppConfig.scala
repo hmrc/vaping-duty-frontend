@@ -34,6 +34,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   private val contactFormServiceIdentifier = "vaping-duty-frontend"
   private lazy val contactPreferencesHost: String = servicesConfig.baseUrl("vaping-duty-account")
   private lazy val returnsHost: String = servicesConfig.baseUrl("vaping-duty")
+  private lazy val financeHost: String = servicesConfig.baseUrl("vaping-duty-finance")
 
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?useServiceNavigation&service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
@@ -99,6 +100,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   def submitReturnUrl(vpdId: VpdId, periodKey: PeriodKey)                         = s"$returnsBaseUrl/vpd-return/$vpdId/$periodKey"
   def getReturnUrl(vpdReference: VpdId, periodKey: PeriodKey): String             = s"$returnsBaseUrl/vpd-return/$periodKey/$vpdReference"
+
+  private val financeBaseUrl                                      = s"$financeHost/vaping-duty-finance"
+  def getOutstandingPaymentsUrl(vpdId: VpdId): String            = s"$financeBaseUrl/financial-data/outstanding-payments"
 
   val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/confirm-email-address"
   val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"
