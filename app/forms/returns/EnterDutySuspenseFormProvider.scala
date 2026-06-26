@@ -27,22 +27,22 @@ class EnterDutySuspenseFormProvider @Inject() extends Mappings {
 
   private val VOLUME_RECEIVED_FIELD = "volumeReceived"
   private val VOLUME_MOVED_FIELD = "volumeMoved"
-  private val ZERO = 0
+  private val maxVolume = "999999999999.9"
 
   def apply(): Form[DutySuspenseVolumes] =
     Form(
       mapping(
-        VOLUME_RECEIVED_FIELD -> int(
+        VOLUME_RECEIVED_FIELD -> volume(
           "returns.enterDutySuspense.volumeReceived.error.required",
-          "returns.enterDutySuspense.volumeReceived.error.wholeNumber",
-          "returns.enterDutySuspense.volumeReceived.error.nonNumeric")
-            .verifying(inRange(ZERO, Int.MaxValue, "returns.enterDutySuspense.volumeReceived.error.outOfRange")),
+          "returns.enterDutySuspense.volumeReceived.error.nonNumeric",
+          "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces")
+            .verifying(inRange(BigDecimal(0), BigDecimal(maxVolume), "returns.enterDutySuspense.volumeReceived.error.outOfRange")),
 
-        VOLUME_MOVED_FIELD -> int(
+        VOLUME_MOVED_FIELD -> volume(
           "returns.enterDutySuspense.volumeMoved.error.required",
-          "returns.enterDutySuspense.volumeMoved.error.wholeNumber",
-          "returns.enterDutySuspense.volumeMoved.error.nonNumeric")
-            .verifying(inRange(ZERO, Int.MaxValue, "returns.enterDutySuspense.volumeMoved.error.outOfRange"))
+          "returns.enterDutySuspense.volumeMoved.error.nonNumeric",
+          "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces")
+            .verifying(inRange(BigDecimal(0), BigDecimal(maxVolume), "returns.enterDutySuspense.volumeMoved.error.outOfRange"))
       )((received, moved) => DutySuspenseVolumes(received, moved))(o => Some((o.volumeReceived, o.volumeMoved)))
     )
 }

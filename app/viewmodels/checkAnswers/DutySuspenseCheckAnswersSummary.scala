@@ -63,4 +63,4 @@ object DutySuspenseCheckAnswersSummary {
     )
   }
     
-  private def formatVolume(volume: Int): String = s"$volume$ML_SUFFIX" }
+  private def formatVolume(volume: BigDecimal): String = s"$volume$ML_SUFFIX" }

@@ -31,11 +31,26 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
       val fieldName = "volumeReceived"
       val requiredKey = "returns.enterDutySuspense.volumeReceived.error.required"
       val nonNumericKey = "returns.enterDutySuspense.volumeReceived.error.nonNumeric"
+      val invalidDecimalKey = "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces"
       val outOfRangeKey = "returns.enterDutySuspense.volumeReceived.error.outOfRange"
 
-      "must bind valid data" in {
-        val result = form.bind(Map(fieldName -> "1000", "volumeMoved" -> "2000"))
-        result.value.value mustEqual DutySuspenseVolumes(1000, 2000)
+      "must bind valid values >= 1000ml with up to 1 decimal place" in {
+        Seq("1000", "1000.1", "999999999999.9", "1000000").foreach { input =>
+          val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "1000"))
+          result.errors mustBe empty
+        }
+      }
+
+      "must bind valid values < 1000ml with exactly 2 decimal places" in {
+        Seq("0.00", "10.12", "999.99").foreach { input =>
+          val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "1000"))
+          result.errors mustBe empty
+        }
+      }
+
+      "must bind zero" in {
+        val result = form.bind(Map(fieldName -> "0.00", "volumeMoved" -> "1000"))
+        result.value.value mustEqual DutySuspenseVolumes(BigDecimal("0.00"), BigDecimal(1000))
       }
 
       "must fail to bind when value is omitted" in {
@@ -44,18 +59,41 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
       }
 
       "must fail to bind non-numeric values" in {
-        val result = form.bind(Map(fieldName -> "abc", "volumeMoved" -> "2000"))
-        result.errors must contain(FormError(fieldName, nonNumericKey))
+        Seq("abc", "1.2.3", "£10.12").foreach { input =>
+          val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "2000"))
+          result.errors must contain(FormError(fieldName, nonNumericKey))
+        }
+      }
+
+      "must fail to bind values >= 1000ml with more than 1 decimal place" in {
+        Seq("1000.12", "1000.00", "999999999999.12").foreach { input =>
+          val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "2000"))
+          result.errors must contain(FormError(fieldName, invalidDecimalKey))
+        }
+      }
+
+      "must bind valid whole number values < 1000ml" in {
+        Seq("1", "10", "999").foreach { input =>
+          val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "1000"))
+          result.errors mustBe empty
+        }
+      }
+
+      "must fail to bind values < 1000ml with exactly 1 decimal place" in {
+        Seq("999.9", "10.1").foreach { input =>
+          val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "2000"))
+          result.errors must contain(FormError(fieldName, invalidDecimalKey))
+        }
       }
 
       "must fail to bind negative values" in {
-        val result = form.bind(Map(fieldName -> "-1", "volumeMoved" -> "2000"))
-        result.errors must contain(FormError(fieldName, outOfRangeKey, Seq(0, Int.MaxValue)))
+        val result = form.bind(Map(fieldName -> "-1.00", "volumeMoved" -> "2000"))
+        result.errors must contain(FormError(fieldName, nonNumericKey))
       }
 
-      "must bind maximum integer value" in {
-        val result = form.bind(Map(fieldName -> Int.MaxValue.toString, "volumeMoved" -> "2000"))
-        result.value.value mustEqual DutySuspenseVolumes(Int.MaxValue, 2000)
+      "must bind maximum value" in {
+        val result = form.bind(Map(fieldName -> "999999999999.9", "volumeMoved" -> "2000"))
+        result.value.value mustEqual DutySuspenseVolumes(BigDecimal("999999999999.9"), BigDecimal(2000))
       }
     }
 
@@ -64,11 +102,26 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
       val fieldName = "volumeMoved"
       val requiredKey = "returns.enterDutySuspense.volumeMoved.error.required"
       val nonNumericKey = "returns.enterDutySuspense.volumeMoved.error.nonNumeric"
+      val invalidDecimalKey = "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces"
       val outOfRangeKey = "returns.enterDutySuspense.volumeMoved.error.outOfRange"
 
-      "must bind valid data" in {
-        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "2000"))
-        result.value.value mustEqual DutySuspenseVolumes(1000, 2000)
+      "must bind valid values >= 1000ml with up to 1 decimal place" in {
+        Seq("1000", "1000.1", "999999999999.9", "1000000").foreach { input =>
+          val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+          result.errors mustBe empty
+        }
+      }
+
+      "must bind valid values < 1000ml with exactly 2 decimal places" in {
+        Seq("0.00", "10.12", "999.99").foreach { input =>
+          val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+          result.errors mustBe empty
+        }
+      }
+
+      "must bind zero" in {
+        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "0.00"))
+        result.value.value mustEqual DutySuspenseVolumes(BigDecimal(1000), BigDecimal("0.00"))
       }
 
       "must fail to bind when value is omitted" in {
@@ -77,18 +130,41 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
       }
 
       "must fail to bind non-numeric values" in {
-        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "xyz"))
-        result.errors must contain(FormError(fieldName, nonNumericKey))
+        Seq("abc", "1.2.3", "£10.12").foreach { input =>
+          val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+          result.errors must contain(FormError(fieldName, nonNumericKey))
+        }
+      }
+
+      "must fail to bind values >= 1000ml with more than 1 decimal place" in {
+        Seq("1000.12", "1000.00", "999999999999.12").foreach { input =>
+          val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+          result.errors must contain(FormError(fieldName, invalidDecimalKey))
+        }
+      }
+
+      "must bind valid whole number values < 1000ml" in {
+        Seq("1", "10", "999").foreach { input =>
+          val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+          result.errors mustBe empty
+        }
+      }
+
+      "must fail to bind values < 1000ml with exactly 1 decimal place" in {
+        Seq("999.9", "10.1").foreach { input =>
+          val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+          result.errors must contain(FormError(fieldName, invalidDecimalKey))
+        }
       }
 
       "must fail to bind negative values" in {
-        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "-1"))
-        result.errors must contain(FormError(fieldName, outOfRangeKey, Seq(0, Int.MaxValue)))
+        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "-1.00"))
+        result.errors must contain(FormError(fieldName, nonNumericKey))
       }
 
-      "must bind maximum integer value" in {
-        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> Int.MaxValue.toString))
-        result.value.value mustEqual DutySuspenseVolumes(1000, Int.MaxValue)
+      "must bind maximum value" in {
+        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "999999999999.9"))
+        result.value.value mustEqual DutySuspenseVolumes(BigDecimal(1000), BigDecimal("999999999999.9"))
       }
     }
 
@@ -102,8 +178,8 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
       }
 
       "must bind when both fields have valid values" in {
-        val result = form.bind(Map("volumeReceived" -> "1500", "volumeMoved" -> "2500"))
-        result.value.value mustEqual DutySuspenseVolumes(1500, 2500)
+        val result = form.bind(Map("volumeReceived" -> "1500.5", "volumeMoved" -> "2500.5"))
+        result.value.value mustEqual DutySuspenseVolumes(BigDecimal("1500.5"), BigDecimal("2500.5"))
       }
     }
   }
