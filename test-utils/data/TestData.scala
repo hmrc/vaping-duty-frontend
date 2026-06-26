@@ -239,7 +239,7 @@ trait TestData {
     None,
     None,
     None,
-    TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, zeroValue, totalDue),
+    TotalDutyDue(totalInMl, zeroValue, zeroValue, zeroValue, totalDue),
     None,
     testDeclarationDetails
   )
@@ -421,7 +421,6 @@ trait TestData {
             totalDutyOverDeclaration = BigDecimal("500.00"),
             totalDutyUnderDeclaration = BigDecimal("375.00"),
             totalDutySpoiltProduct = BigDecimal("100.00"),
-            adjustmentAmount = BigDecimal("50.00"),
             totalDue = BigDecimal("1825.00")
           )
         ),
@@ -431,7 +430,6 @@ trait TestData {
             totalDutyOverDeclaration = BigDecimal("500.00"),
             totalDutyUnderDeclaration = BigDecimal("375.00"),
             totalDutySpoiltProduct = BigDecimal("100.00"),
-            adjustmentAmount = BigDecimal("50.00"),
             totalDue = BigDecimal("1825.00")
           )
         ),

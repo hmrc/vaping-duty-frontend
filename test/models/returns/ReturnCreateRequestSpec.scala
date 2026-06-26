@@ -35,13 +35,13 @@ class ReturnCreateRequestSpec extends SpecBase {
       underDeclaration = None,
       overDeclaration = None,
       spoiltProduct = None,
-      totalDutyDue = TotalDutyDue(1, 1, 1, 1, 1, 1),
+      totalDutyDue = TotalDutyDue(1, 1, 1, 1, 1),
       otherOptions = None,
       declaration = testDeclaration
     )
 
   "ReturnCreateRequest" - {
-    val json = """{"periodKey":"26AF","vapingProductsProduced":{"vapingProdManufactured":"0","returns":[]},"totalDutyDue":{"totalDutyDueVapingProducts":1,"totalDutyOverDeclaration":1,"totalDutyUnderDeclaration":1,"totalDutySpoiltProduct":1,"adjustmentAmount":1,"totalDue":1},"declaration":{"fullName":"Test User","capacityInWhichSigned":"Director","signeesEmailAddress":"test@example.com"}}"""
+    val json = """{"periodKey":"26AF","vapingProductsProduced":{"vapingProdManufactured":"0","returns":[]},"totalDutyDue":{"totalDutyDueVapingProducts":1,"totalDutyOverDeclaration":1,"totalDutyUnderDeclaration":1,"totalDutySpoiltProduct":1,"totalDue":1},"declaration":{"fullName":"Test User","capacityInWhichSigned":"Director","signeesEmailAddress":"test@example.com"}}"""
 
     "must serialise to json" in {
       Json.toJson(returnCreateRequest).toString() mustBe json

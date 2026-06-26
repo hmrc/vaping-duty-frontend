@@ -36,20 +36,13 @@ class TotalDutyDueCalculationService @Inject()() {
     val totalDutyOverDeclaration = calculateOverDeclarationTotal(overDeclaration)
     val totalDutySpoiltProduct = calculateSpoiltProductTotal(spoiltProduct)
 
-    val adjustmentAmount = calculateAdjustmentAmount(
-      totalDutyOverDeclaration,
-      totalDutyUnderDeclaration,
-      totalDutySpoiltProduct
-    )
-
-    val totalDue = totalDutyDueVapingProducts + adjustmentAmount
+    val totalDue = totalDutyDueVapingProducts + totalDutyUnderDeclaration - totalDutyOverDeclaration - totalDutySpoiltProduct
 
     TotalDutyDue(
       totalDutyDueVapingProducts = totalDutyDueVapingProducts,
       totalDutyOverDeclaration = totalDutyOverDeclaration,
       totalDutyUnderDeclaration = totalDutyUnderDeclaration,
       totalDutySpoiltProduct = totalDutySpoiltProduct,
-      adjustmentAmount = adjustmentAmount,
       totalDue = totalDue
     )
   }
@@ -71,12 +64,4 @@ class TotalDutyDueCalculationService @Inject()() {
       .flatMap(_.spoiltProducts)
       .map(_.map(_.dutyDue).sum)
       .getOrElse(ZERO_VALUE)
-
-  private def calculateAdjustmentAmount(
-    over: BigDecimal,
-    under: BigDecimal,
-    spoilt: BigDecimal
-  ): BigDecimal = {
-    under - over - spoilt
-  }
 }
