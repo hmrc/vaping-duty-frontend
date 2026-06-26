@@ -23,7 +23,6 @@ case class TotalDutyDue(
   totalDutyOverDeclaration: BigDecimal,
   totalDutyUnderDeclaration: BigDecimal,
   totalDutySpoiltProduct: BigDecimal,
-  adjustmentAmount: BigDecimal,
   totalDue: BigDecimal
 )
 

@@ -113,7 +113,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
             totalDutyOverDeclaration = BigDecimal("0"),
             totalDutyUnderDeclaration = BigDecimal("0"),
             totalDutySpoiltProduct = BigDecimal("0"),
-            adjustmentAmount = BigDecimal("0"),
             totalDue = BigDecimal("10.50")
           ))
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
@@ -147,7 +146,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
             totalDutyOverDeclaration = BigDecimal("0"),
             totalDutyUnderDeclaration = BigDecimal("0"),
             totalDutySpoiltProduct = BigDecimal("0"),
-            adjustmentAmount = BigDecimal("0"),
             totalDue = BigDecimal("0")
           ))
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
@@ -187,7 +185,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
             totalDutyOverDeclaration = BigDecimal("0"),
             totalDutyUnderDeclaration = BigDecimal("0"),
             totalDutySpoiltProduct = BigDecimal("8.40"),
-            adjustmentAmount = BigDecimal("-8.40"),
             totalDue = BigDecimal("2.10")
           ))
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
@@ -225,7 +222,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
             totalDutyOverDeclaration = BigDecimal("0"),
             totalDutyUnderDeclaration = BigDecimal("0"),
             totalDutySpoiltProduct = BigDecimal("0"),
-            adjustmentAmount = BigDecimal("0"),
             totalDue = BigDecimal("10.50")
           ))
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
@@ -280,7 +276,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
             totalDutyOverDeclaration = BigDecimal("0"),
             totalDutyUnderDeclaration = BigDecimal("0"),
             totalDutySpoiltProduct = BigDecimal("0"),
-            adjustmentAmount = BigDecimal("0"),
             totalDue = BigDecimal("10.50")
           ))
 

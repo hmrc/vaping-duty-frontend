@@ -43,7 +43,6 @@ class TotalDutyDueCalculationServiceSpec extends SpecBase {
         result.totalDutyOverDeclaration mustBe ZERO_VALUE
         result.totalDutyUnderDeclaration mustBe ZERO_VALUE
         result.totalDutySpoiltProduct mustBe ZERO_VALUE
-        result.adjustmentAmount mustBe ZERO_VALUE
         result.totalDue mustBe BigDecimal("100.00")
       }
 
@@ -68,7 +67,6 @@ class TotalDutyDueCalculationServiceSpec extends SpecBase {
         result.totalDutyOverDeclaration mustBe ZERO_VALUE
         result.totalDutyUnderDeclaration mustBe BigDecimal("105.00")
         result.totalDutySpoiltProduct mustBe ZERO_VALUE
-        result.adjustmentAmount mustBe BigDecimal("105.00")
         result.totalDue mustBe BigDecimal("205.00")
       }
 
@@ -93,7 +91,6 @@ class TotalDutyDueCalculationServiceSpec extends SpecBase {
         result.totalDutyOverDeclaration mustBe BigDecimal("52.50")
         result.totalDutyUnderDeclaration mustBe ZERO_VALUE
         result.totalDutySpoiltProduct mustBe ZERO_VALUE
-        result.adjustmentAmount mustBe BigDecimal("-52.50")
         result.totalDue mustBe BigDecimal("47.50")
       }
 
@@ -117,7 +114,6 @@ class TotalDutyDueCalculationServiceSpec extends SpecBase {
         result.totalDutyOverDeclaration mustBe ZERO_VALUE
         result.totalDutyUnderDeclaration mustBe ZERO_VALUE
         result.totalDutySpoiltProduct mustBe BigDecimal("31.50")
-        result.adjustmentAmount mustBe BigDecimal("-31.50")
         result.totalDue mustBe BigDecimal("68.50")
       }
 
@@ -156,7 +152,6 @@ class TotalDutyDueCalculationServiceSpec extends SpecBase {
         result.totalDutyOverDeclaration mustBe BigDecimal("31.50")
         result.totalDutyUnderDeclaration mustBe BigDecimal("157.50")
         result.totalDutySpoiltProduct mustBe BigDecimal("21.00")
-        result.adjustmentAmount mustBe BigDecimal("105.00")
         result.totalDue mustBe BigDecimal("1105.00")
       }
 
@@ -188,7 +183,6 @@ class TotalDutyDueCalculationServiceSpec extends SpecBase {
         result.totalDutyOverDeclaration mustBe ZERO_VALUE
         result.totalDutyUnderDeclaration mustBe ZERO_VALUE
         result.totalDutySpoiltProduct mustBe ZERO_VALUE
-        result.adjustmentAmount mustBe ZERO_VALUE
         result.totalDue mustBe BigDecimal("100.00")
       }
     }
