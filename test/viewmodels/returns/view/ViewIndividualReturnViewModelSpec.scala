@@ -54,7 +54,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       result.hasVapingProductsDeclaration mustBe true
       result.amountProducedLiquid mustBe Some("1,000,000.00")
       result.dutyDue mustBe Some("£3,150")
-      result.totalDutySpoiltProducts mustBe "£-100"
+      result.totalDutySpoiltProducts mustBe "-£100"
       result.totalDutyDue mustBe "£1,825"
       result.monthYear mustBe "June 2026"
       result.submittedOn must include("February 2026")
