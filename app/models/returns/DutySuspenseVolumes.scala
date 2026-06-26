@@ -19,8 +19,8 @@ package models.returns
 import play.api.libs.json.{Json, OFormat}
 
 final case class DutySuspenseVolumes(
-  volumeReceived: Int,
-  volumeMoved: Int
+  volumeReceived: BigDecimal,
+  volumeMoved: BigDecimal
 )
 
 object DutySuspenseVolumes {

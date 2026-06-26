@@ -1,0 +1,1123 @@
+---
+openapi: "3.0.1"
+info:
+  title: "VPD Returns"
+  description: "This API specification defines the request and response data models\
+    \ for managing Vaping Duty Returns.\n\nIt supports two core operations:\n  - Create\
+    \ a Vaping Duty Return\n  - Retrieve an existing Vaping Duty Return\n\n The Create\
+    \ Return API enables consumers to submit Vaping Duty Return data.\n Upon successful\
+    \ processing, the API returns confirmation details including:\n  - Vaping Duty\
+    \ reference number\n  - Total amount due\n  - Payment due date\n\nThe following\
+    \ fields are returned where available:\n  - Submission ID\n  - Charge reference\n\
+    \n The Display Return API enables consumers to retrieve previously submitted returns\
+    \ using the Vaping Duty reference number and period key.\nThe API returns the\
+    \ complete return details as stored in ETMP.\n\n  This API is implemented as a\
+    \ synchronous RESTful service.\n\nChange Log:\n\n| Version | Date       | Author\
+    \              | Description |\n|---------|------------|--------------------|-------------|\n\
+    | 0.1.0   | 15-04-2025 | Nitin Chinthireddy | Initial draft of ETMP Vaping Duty\
+    \ Return (EPID1714 v0.1 and EPID1715 v0.1) |\n| 0.1.1   | 12-05-2026 | Nitin Chinthireddy\
+    \ | Updated API specification based on review feedback: aligned schemas,updated\
+    \ endpoints, resolved inconsistencies, standardised naming and formats, resolved\
+    \ schema-example mismatches, restored enum documentation, removed non-VPD artefacts,\
+    \ and improved documentation clarity |\n| 0.1.2   | 28-05-2026 | Nitin Chinthireddy\
+    \ | Updated API specification based on review feedback and VPD Return Data Items\
+    \ v2.7: aligned request and response schemas using a single vapingProductsProduced\
+    \ structure; removed legacy nilReturn/regularReturn representations; standardised\
+    \ totalDutyDue model (replaced totalDutyDue with totalDue and ensured calculation\
+    \ consistency); corrected and validated all request and response examples including\
+    \ financial calculations and rounding; aligned otherOptions structure with duty\
+    \ suspense fields; removed unused and redundant schema definitions; cleaned up\
+    \ invalid and unsupported fields; improved example naming and readability; ensured\
+    \ full schema-to-example consistency across Create and Display APIs. |\n| 0.1.3\
+    \ | 04-06-2026 | Nitin Chinthireddy | Refined API based on Round 2 review: restructured\
+    \ vapingProductsProduced to a return-level object with vapingProdManufactured\
+    \ and returns array; standardised nil returns using empty arrays; aligned Create\
+    \ and Display schemas; added mandatory declaration details; corrected duty suspense\
+    \ handling (omit volumes when flag = '0'); updated all examples for schema consistency;\
+    \ enhanced validation with updated taxType (^[A-Z0-9]{3}$) and periodKey (YYK[A–\
+    L]); clarified schema descriptions and retained ETMP-aligned naming (reasonForUnderDecl).\
+    \ |\n|0.1.4 | 10-06-2026 | Nitin Chinthireddy | Updated API based on Final review:\
+    \ declarationType is updated with field lengths as per Data Items v2.9, chargeDetails\
+    \ is made optional in vpdReturnDisplay Response Schema and Nil return example\
+    \ for Display sample is updated|\n| 0.1.5 | 12-06-2026 | Nitin Chinthireddy |\
+    \ Updated API to support signed values: introduced amountTypeSigned11_2 and applied\
+    \ to adjustmentAmount and totalDue fields to allow both positive and negative\
+    \ values; updated related field descriptions to clarify sign usage; corrected\
+    \ calculation alignment in sample payloads |"
+  version: "0.1.5"
+  termsOfService: "http://INSERT_LINK_TO_SLA_HERE"
+  contact:
+    name: "SAP ETMP Integration Services"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0"
+  x-integration-catalogue:
+    reviewed-date: "2026-04-15T12:00:00Z"
+    platform: "HIP"
+    publisher-reference: "EPID1714&EPID1715"
+    short-description: "Consumer to ETMP Vaping Duty Return Create and Display "
+    status: "BETA"
+    backends:
+    - "ETMP"
+    domain: 2
+    sub-domain: 2.21
+servers:
+- url: "http://etmp-egress-gateway.egress.svc.cluster.local"
+  description: "Egress Gateway to ETMP TEST"
+tags:
+- name: "VPD"
+  description: "Vaping Duty Return APIs"
+paths:
+  /RESTAdapter/vpd/returns:
+    post:
+      deprecated: false
+      summary: "Create a Vaping Duty Return in ETMP"
+      description: "This operation enables a consumer (e.g. MDTP) to create a Vaping\
+        \ Duty Return in ETMP-SAFE via a synchronous interface.\n\n It allows vaping\
+        \ duty customers to submit returns digitally, removing the need for paper-based\
+        \ submissions to HMRC.\n\n Upon successful validation and processing in ETMP,\
+        \ the API returns:\n \nMandatory fields:\n  - processingDate\n  - vpdReferenceNumber\n\
+        \  - amount\n  - paymentDueDate\n\n  Optional fields (returned where available):\n\
+        \  - submissionId\n  - chargeReference\n"
+      operationId: "createVapingDutyReturn"
+      tags:
+      - "VPD"
+      parameters:
+      - $ref: "#/components/parameters/correlationid"
+      - name: "X-Message-Type"
+        in: "header"
+        description: "Fixed value identifying a VPD Return Create request."
+        required: true
+        deprecated: false
+        allowEmptyValue: false
+        style: "simple"
+        schema:
+          type: "string"
+          enum:
+          - "VPDReturnCreate"
+      - $ref: "#/components/parameters/X-Originating-System"
+      - $ref: "#/components/parameters/X-Receipt-Date"
+      - $ref: "#/components/parameters/X-Regime-Type"
+      - $ref: "#/components/parameters/X-Transmitting-System"
+      - $ref: "#/components/parameters/X-ZVPD"
+      requestBody:
+        description: "Request structure"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VPDReturnCreate_Request_Schema"
+            examples:
+              Regular return example:
+                $ref: "#/components/examples/VPDRegularReturn_CreateSample"
+              Nil return example:
+                $ref: "#/components/examples/VPDNilReturn_CreateSample"
+      responses:
+        "201":
+          description: "Created"
+          headers:
+            correlationid:
+              $ref: "#/components/headers/correlationIdResponseType"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VPDReturnCreate_Response_Schema"
+              examples:
+                Success Response example:
+                  value:
+                    success:
+                      processingDate: "2026-05-08T10:30:00Z"
+                      vpdReferenceNumber: "GBWK1234567WK"
+                      submissionId: "123456789012"
+                      chargeReference: "AB123456789012"
+                      amount: 16277.63
+                      paymentDueDate: "2026-06-07"
+        "400":
+          description: "Bad Request"
+          headers:
+            correlationid:
+              $ref: "#/components/headers/correlationIdResponseType"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VPDReturn_SystemErrorType_Schema"
+              examples:
+                badRequest:
+                  $ref: "#/components/examples/SystemErrorType_400Sample"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "415":
+          description: "Unsupported media-type"
+        "422":
+          description: "Unprocessable"
+          headers:
+            correlationid:
+              $ref: "#/components/headers/correlationIdResponseType"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VPDReturnCreate_ETMPErrorType_Schema"
+              examples:
+                unprocessable:
+                  value:
+                    error:
+                      processingDate: "2022-01-31T09:26:17Z"
+                      code: "001"
+                      text: "REGIME missing or invalid"
+        "500":
+          description: "Internal Server Error"
+          headers:
+            correlationid:
+              $ref: "#/components/headers/correlationIdResponseType"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VPDReturn_SystemErrorType_Schema"
+              examples:
+                internalServerError:
+                  $ref: "#/components/examples/SystemErrorType_500Sample"
+  /RESTAdapter/vpd/returns/{vpdreference}/{periodkey}:
+    parameters:
+    - name: "periodkey"
+      in: "path"
+      description: "Period Key : \nPattern: \"^[0-9]{2}(KA|KB|KC|KD|KE|KF|KG|KH|KI|KJ|KK|KL)$\"\
+        \nExample: 24KA\n"
+      required: true
+      deprecated: false
+      allowEmptyValue: false
+      style: "simple"
+      schema:
+        type: "string"
+        pattern: "^[0-9]{2}(KA|KB|KC|KD|KE|KF|KG|KH|KI|KJ|KK|KL)$"
+    - name: "vpdreference"
+      in: "path"
+      description: "Vaping Duty Reference Number.\n\n Pattern:\n - (GB|XI)WK followed\
+        \ by 7 digits and suffix WK\n\nExample:\n  - GBWK1234567WK\n"
+      required: true
+      deprecated: false
+      allowEmptyValue: false
+      style: "simple"
+      schema:
+        type: "string"
+        pattern: "^(?:GB|XI)WK[0-9]{7}WK$"
+    get:
+      deprecated: false
+      summary: "Consumer to ETMP Vaping Duty Return Display Operation"
+      description: "This operation enables a consumer (e.g. MDTP) to retrieve an existing\
+        \ Vaping Duty Return from ETMP-SAFE via a synchronous interface.\n\nThe request\
+        \ requires:\n  - Vaping Duty reference number\n  - Period key\n\n The API\
+        \ returns the complete return details as stored in ETMP.\n This is implemented\
+        \ as a synchronous RESTful operation.\n"
+      operationId: "getVapingDutyReturn"
+      tags:
+      - "VPD"
+      parameters:
+      - $ref: "#/components/parameters/correlationid"
+      - name: "X-Message-Type"
+        in: "header"
+        description: "Fixed value identifying a VPD Return Display request"
+        required: true
+        deprecated: false
+        allowEmptyValue: false
+        style: "simple"
+        schema:
+          type: "string"
+          enum:
+          - "VPDReturnDisplay"
+      - $ref: "#/components/parameters/X-Originating-System"
+      - $ref: "#/components/parameters/X-Receipt-Date"
+      - $ref: "#/components/parameters/X-Regime-Type"
+      - $ref: "#/components/parameters/X-Transmitting-System"
+      responses:
+        "200":
+          description: "Successful Get"
+          headers:
+            correlationid:
+              $ref: "#/components/headers/correlationIdResponseType"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VPDReturnDisplay_Response_Schema"
+              examples:
+                VPD Regular Return Success Sample:
+                  value:
+                    success:
+                      processingDate: "2026-05-28T10:30:00Z"
+                      idDetails:
+                        vpdReferenceNumber: "GBWK1234567WK"
+                        submissionId: "123456789012"
+                      chargeDetails:
+                        periodKey: "24KA"
+                        chargeReference: "AB123456789012"
+                        periodFrom: "2024-01-01"
+                        periodTo: "2024-01-31"
+                        receiptDate: "2026-05-28T10:00:00Z"
+                      vapingProductsProduced:
+                        vapingProdManufactured: "1"
+                        returns:
+                        - taxType: "641"
+                          dutyRate: 10.5
+                          amountProducedLiquid: 1500.25
+                          dutyDue: 15752.63
+                      underDeclaration:
+                        underDeclFilled: "1"
+                        reasonForUnderDecl: "Incorrect reporting in previous return"
+                        underDeclarationProducts:
+                        - returnPeriodAffected: "23KB"
+                          taxType: "641"
+                          dutyRate: 10.5
+                          amountUnderDeclared: 200.0
+                          dutyDue: 2100.0
+                      overDeclaration:
+                        overDeclFilled: "1"
+                        reasonForOverDecl: "Duplicate entry in prior submission"
+                        overDeclarationProducts:
+                        - returnPeriodAffected: "23KC"
+                          taxType: "641"
+                          dutyRate: 10.5
+                          amountOverDeclared: 100.0
+                          dutyDue: 1050.0
+                      spoiltProduct:
+                        spoiltProductFilled: "1"
+                        spoiltProducts:
+                        - returnPeriodAffected: "24KA"
+                          taxType: "641"
+                          dutyRate: 10.5
+                          amountSpoilt: 50.0
+                          dutyDue: 525.0
+                      totalDutyDue:
+                        totalDutyDueVapingProducts: 15752.63
+                        totalDutyOverDeclaration: 1050.0
+                        totalDutyUnderDeclaration: 2100.0
+                        totalDutySpoiltProduct: 525.0
+                        adjustmentAmount: 0.0
+                        totalDue: 16277.63
+                      otherOptions:
+                        vapingProductUnderDutySuspense: "1"
+                        volumeMovedFromDutySuspense: 300.0
+                        volumeMovedToDutySuspense: 150.0
+                      declaration:
+                        fullName: "John Smith"
+                        capacityInWhichSigned: "Director"
+                        signeesEmailAddress: "john.smith@example.com"
+                VPD Nil Return Success Sample:
+                  value:
+                    success:
+                      processingDate: "2026-06-10T10:30:00Z"
+                      idDetails:
+                        vpdReferenceNumber: "GBWK1234567WK"
+                        submissionId: "123456789012"
+                      vapingProductsProduced:
+                        vapingProdManufactured: "0"
+                        returns: []
+                      declaration:
+                        fullName: "John Doe"
+                        capacityInWhichSigned: "Finance Manager"
+                        signeesEmailAddress: "john.doe@example.com"
+        "400":
+          description: "Bad Request"
+          headers:
+            correlationid:
+              $ref: "#/components/headers/correlationIdResponseType"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VPDReturn_SystemErrorType_Schema"
+              examples:
+                badRequest:
+                  $ref: "#/components/examples/SystemErrorType_400Sample"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not Found"
+        "415":
+          description: "Unsupported media-type"
+        "422":
+          description: "Unprocessable"
+          headers:
+            correlationid:
+              $ref: "#/components/headers/correlationIdResponseType"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VPDReturnDisplay_ETMPErrorType_Schema"
+              examples:
+                unprocessable:
+                  value:
+                    error:
+                      processingDate: "2026-01-31T09:26:17Z"
+                      code: "002"
+                      text: "ID Number missing or invalid"
+        "500":
+          description: "Internal Server Error"
+          headers:
+            correlationid:
+              $ref: "#/components/headers/correlationIdResponseType"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VPDReturn_SystemErrorType_Schema"
+              examples:
+                internalServerError:
+                  $ref: "#/components/examples/SystemErrorType_500Sample"
+components:
+  headers:
+    correlationIdResponseType:
+      description: "Unique alphanumeric number used for correlation purposes. Generated\
+        \ by the originating system and included in the response. Conforms to 36-character\
+        \ UUID (formatted)"
+      style: "simple"
+      required: false
+      deprecated: false
+      schema:
+        type: "string"
+        pattern: "[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}"
+  parameters:
+    correlationid:
+      name: "correlationid"
+      in: "header"
+      description: "A unique alphanumeric acknowledgement reference used for correlation\
+        \ purposes.\nThis identifier must be generated by the originating system and\
+        \ must conform to the standard 36-character UUID format.\n"
+      required: true
+      deprecated: false
+      allowEmptyValue: false
+      style: "simple"
+      schema:
+        type: "string"
+        pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      example: "f0bd1f32-de51-45cc-9b18-0520d6e3ab1a"
+    X-Originating-System:
+      name: "X-Originating-System"
+      in: "header"
+      description: "\"System that originates the request.\""
+      required: true
+      deprecated: false
+      allowEmptyValue: false
+      style: "simple"
+      schema:
+        type: "string"
+        enum:
+        - "MDTP"
+    X-Receipt-Date:
+      name: "X-Receipt-Date"
+      in: "header"
+      description: "Timestamp when the request message was created by the originating\
+        \ system.\n Must be in UTC and follow ISO-8601 date-time format.\n"
+      required: true
+      deprecated: false
+      allowEmptyValue: false
+      style: "simple"
+      schema:
+        type: "string"
+        format: "date-time"
+    X-Regime-Type:
+      name: "X-Regime-Type"
+      in: "header"
+      description: "\"Tax regime identifier.\""
+      required: true
+      deprecated: false
+      allowEmptyValue: false
+      style: "simple"
+      schema:
+        type: "string"
+        enum:
+        - "VPD"
+    X-Transmitting-System:
+      name: "X-Transmitting-System"
+      in: "header"
+      description: "\"Intermediary system that transmits the message.\""
+      required: true
+      deprecated: false
+      allowEmptyValue: false
+      style: "simple"
+      schema:
+        type: "string"
+        enum:
+        - "HIP"
+    X-ZVPD:
+      name: "X-ZVPD"
+      in: "header"
+      description: "Vaping Duty Reference Number.\nPattern: (GB|XI)WK followed by\
+        \ 7 digits and suffix WK.\n"
+      required: true
+      deprecated: false
+      allowEmptyValue: false
+      style: "simple"
+      schema:
+        type: "string"
+        pattern: "^(GB|XI)WK[0-9]{7}WK$"
+  schemas:
+    amountType11_2:
+      description: "Currency - Total digit 11 with 2 decimal place"
+      type: "number"
+      minimum: 0
+      maximum: 9.9999999999E8
+      multipleOf: 0.01
+    amountType9_4:
+      type: "number"
+      minimum: 0
+      maximum: 99999.9999
+      multipleOf: 1.0E-4
+    amountTypeSigned11_2:
+      description: "Signed currency amount (11 digits, 2 decimal places). Can be positive\
+        \ or negative."
+      type: "number"
+      minimum: -9.9999999999E8
+      maximum: 9.9999999999E8
+      multipleOf: 0.01
+    chargeReferenceType:
+      type: "string"
+      pattern: "^[A-Z]{2}[0-9]{12}([0-9]{2})?$"
+    dateOnlyType:
+      type: "string"
+      format: "date"
+    dateTimeType:
+      type: "string"
+      format: "date-time"
+    declarationType:
+      type: "object"
+      properties:
+        fullName:
+          type: "string"
+          maxLength: 120
+        capacityInWhichSigned:
+          type: "string"
+          maxLength: 100
+        signeesEmailAddress:
+          type: "string"
+          maxLength: 132
+          format: "email"
+      required:
+      - "fullName"
+      - "capacityInWhichSigned"
+      - "signeesEmailAddress"
+      additionalProperties: false
+    dutyRateType:
+      type: "number"
+      minimum: 0
+      maximum: 9999999.99
+      multipleOf: 0.01
+    otherOptionsType:
+      description: "Details about duty suspense. If vapingProductUnderDutySuspense\
+        \ = '1', then both volumeMovedFromDutySuspense and volumeMovedToDutySuspense\
+        \ must be provided. If '0', these fields should not be provided."
+      type: "object"
+      properties:
+        vapingProductUnderDutySuspense:
+          $ref: "#/components/schemas/yesNoFlagType"
+        volumeMovedFromDutySuspense:
+          $ref: "#/components/schemas/amountType9_4"
+        volumeMovedToDutySuspense:
+          $ref: "#/components/schemas/amountType9_4"
+      required:
+      - "vapingProductUnderDutySuspense"
+      additionalProperties: false
+    overDecl:
+      description: "Indicates whether over declaration applies. If overDeclFilled\
+        \ = '1', then reasonForOverDecl must be provided and overDeclarationProducts\
+        \ must contain at least one item. If '0', these fields should not be provided."
+      type: "object"
+      properties:
+        overDeclFilled:
+          $ref: "#/components/schemas/yesNoFlagType"
+        reasonForOverDecl:
+          $ref: "#/components/schemas/reasonType"
+        overDeclarationProducts:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              returnPeriodAffected:
+                $ref: "#/components/schemas/periodType"
+              taxType:
+                $ref: "#/components/schemas/taxType"
+              dutyRate:
+                $ref: "#/components/schemas/dutyRateType"
+              amountOverDeclared:
+                $ref: "#/components/schemas/amountType9_4"
+              dutyDue:
+                $ref: "#/components/schemas/amountType11_2"
+            required:
+            - "returnPeriodAffected"
+            - "taxType"
+            - "dutyRate"
+            - "amountOverDeclared"
+            - "dutyDue"
+            additionalProperties: false
+      required:
+      - "overDeclFilled"
+      additionalProperties: false
+    periodType:
+      type: "string"
+      pattern: "^[0-9]{2}(KA|KB|KC|KD|KE|KF|KG|KH|KI|KJ|KK|KL)$"
+    reasonType:
+      type: "string"
+      minLength: 1
+      maxLength: 250
+    spoiltProd:
+      description: "If spoiltProductFilled = '1', then spoiltProducts must be present."
+      type: "object"
+      properties:
+        spoiltProductFilled:
+          $ref: "#/components/schemas/yesNoFlagType"
+        spoiltProducts:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              returnPeriodAffected:
+                $ref: "#/components/schemas/periodType"
+              taxType:
+                $ref: "#/components/schemas/taxType"
+              dutyRate:
+                $ref: "#/components/schemas/dutyRateType"
+              amountSpoilt:
+                $ref: "#/components/schemas/amountType9_4"
+              dutyDue:
+                $ref: "#/components/schemas/amountType11_2"
+            required:
+            - "returnPeriodAffected"
+            - "taxType"
+            - "dutyRate"
+            - "amountSpoilt"
+            - "dutyDue"
+            additionalProperties: false
+      required:
+      - "spoiltProductFilled"
+      additionalProperties: false
+    submissionIdType:
+      type: "string"
+      pattern: "^[0-9]{12}$"
+    successType:
+      description: "Response when HTTP status code is 201"
+      type: "object"
+      properties:
+        processingDate:
+          $ref: "#/components/schemas/dateTimeType"
+        vpdReferenceNumber:
+          $ref: "#/components/schemas/vpdReferenceNumberType"
+        submissionId:
+          $ref: "#/components/schemas/submissionIdType"
+        chargeReference:
+          $ref: "#/components/schemas/chargeReferenceType"
+        amount:
+          $ref: "#/components/schemas/amountType11_2"
+        paymentDueDate:
+          $ref: "#/components/schemas/dateOnlyType"
+      required:
+      - "processingDate"
+      - "vpdReferenceNumber"
+      - "amount"
+      - "paymentDueDate"
+      additionalProperties: false
+    taxType:
+      type: "string"
+      pattern: "^[A-Z0-9]{3}$"
+    totalDutyDue:
+      type: "object"
+      properties:
+        totalDutyDueVapingProducts:
+          $ref: "#/components/schemas/amountType11_2"
+        totalDutyOverDeclaration:
+          $ref: "#/components/schemas/amountType11_2"
+        totalDutyUnderDeclaration:
+          $ref: "#/components/schemas/amountType11_2"
+        totalDutySpoiltProduct:
+          $ref: "#/components/schemas/amountType11_2"
+        adjustmentAmount:
+          description: "Net adjustment applied to the return. Positive increases liability;\
+            \ negative reduces liability."
+          $ref: "#/components/schemas/amountTypeSigned11_2"
+        totalDue:
+          description: "Final net amount. Positive indicates payable amount; negative\
+            \ indicates repayment due."
+          $ref: "#/components/schemas/amountTypeSigned11_2"
+      required:
+      - "totalDutyDueVapingProducts"
+      - "totalDutyOverDeclaration"
+      - "totalDutyUnderDeclaration"
+      - "totalDutySpoiltProduct"
+      - "adjustmentAmount"
+      - "totalDue"
+      additionalProperties: false
+    underDecl:
+      description: "Indicates whether under declaration applies. If underDeclFilled\
+        \ = '1', then reasonForUnderDecl must be provided and underDeclarationProducts\
+        \ must contain at least one item. If '0', these fields should not be provided."
+      type: "object"
+      properties:
+        underDeclFilled:
+          $ref: "#/components/schemas/yesNoFlagType"
+        reasonForUnderDecl:
+          $ref: "#/components/schemas/reasonType"
+        underDeclarationProducts:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              returnPeriodAffected:
+                $ref: "#/components/schemas/periodType"
+              taxType:
+                $ref: "#/components/schemas/taxType"
+              dutyRate:
+                $ref: "#/components/schemas/dutyRateType"
+              amountUnderDeclared:
+                $ref: "#/components/schemas/amountType9_4"
+              dutyDue:
+                $ref: "#/components/schemas/amountType11_2"
+            required:
+            - "returnPeriodAffected"
+            - "taxType"
+            - "dutyRate"
+            - "amountUnderDeclared"
+            - "dutyDue"
+            additionalProperties: false
+      required:
+      - "underDeclFilled"
+      additionalProperties: false
+    vapingReturns:
+      description: "The vapingProdManufactured flag is defined at the parent level\
+        \ and indicates whether any vaping products were manufactured during the return\
+        \ period. If the flag is '1', the returns array contains one or more entries\
+        \ with production details per tax type and duty rate combination. If the flag\
+        \ is '0', the returns array must be empty"
+      type: "array"
+      minItems: 0
+      items:
+        type: "object"
+        properties:
+          taxType:
+            $ref: "#/components/schemas/taxType"
+          dutyRate:
+            $ref: "#/components/schemas/dutyRateType"
+          amountProducedLiquid:
+            $ref: "#/components/schemas/amountType9_4"
+          dutyDue:
+            $ref: "#/components/schemas/amountType11_2"
+        required:
+        - "taxType"
+        - "dutyRate"
+        - "amountProducedLiquid"
+        - "dutyDue"
+        additionalProperties: false
+    vpdReferenceNumberType:
+      type: "string"
+      pattern: "^(GB|XI)WK\\d{7}WK$"
+    VPDReturn_SystemErrorType_Schema:
+      type: "object"
+      properties:
+        error:
+          description: "SAP PI System Error Response"
+          type: "object"
+          properties:
+            code:
+              description: "Must match HTTP response status code"
+              type: "string"
+              enum:
+              - "400"
+              - "500"
+            message:
+              type: "string"
+              minLength: 1
+              maxLength: 5000
+            logId:
+              type: "string"
+              minLength: 32
+              maxLength: 32
+              pattern: "^[A-F0-9]{32}$"
+          required:
+          - "code"
+          - "message"
+          - "logId"
+          additionalProperties: false
+      required:
+      - "error"
+      additionalProperties: false
+    VPDReturnCreate_ETMPErrorType_Schema:
+      type: "object"
+      properties:
+        error:
+          description: "ETMP Business Validation Error Response"
+          type: "object"
+          properties:
+            processingDate:
+              type: "string"
+              pattern: "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+            code:
+              type: "string"
+              description: "Error code. Values must align with x-enum-descriptions\
+                \ by position."
+              enum:
+              - "001"
+              - "003"
+              - "004"
+              - "037"
+              - "089"
+              x-enum-descriptions:
+              - "001-Regime missing or invalid"
+              - "003-Request could not be processed"
+              - "004-Duplicate submission"
+              - "037-Mandatory parameters missing or invalid"
+              - "089-ID number missing or invalid"
+            text:
+              description: "Human-readable error message"
+              type: "string"
+              minLength: 1
+              maxLength: 100
+          required:
+          - "processingDate"
+          - "code"
+          - "text"
+          additionalProperties: false
+      required:
+      - "error"
+      additionalProperties: false
+    VPDReturnCreate_Request_Schema:
+      description: "EPID1714 - D2067- MDTP to ETMP - VPD Return Create API."
+      type: "object"
+      properties:
+        periodKey:
+          $ref: "#/components/schemas/periodType"
+        vapingProductsProduced:
+          description: "Indicates whether any vaping products were manufactured during\
+            \ the return period. If vapingProdManufactured = '1', the 'returns' array\
+            \ must contain at least one entry with production data. If '0', the 'returns'\
+            \ array must be empty"
+          type: "object"
+          properties:
+            vapingProdManufactured:
+              $ref: "#/components/schemas/yesNoFlagType"
+            returns:
+              $ref: "#/components/schemas/vapingReturns"
+          required:
+          - "vapingProdManufactured"
+          - "returns"
+          additionalProperties: false
+        overDeclaration:
+          $ref: "#/components/schemas/overDecl"
+        underDeclaration:
+          $ref: "#/components/schemas/underDecl"
+        spoiltProduct:
+          $ref: "#/components/schemas/spoiltProd"
+        totalDutyDue:
+          $ref: "#/components/schemas/totalDutyDue"
+        otherOptions:
+          $ref: "#/components/schemas/otherOptionsType"
+        declaration:
+          $ref: "#/components/schemas/declarationType"
+      required:
+      - "periodKey"
+      - "vapingProductsProduced"
+      - "declaration"
+      additionalProperties: false
+    VPDReturnCreate_Response_Schema:
+      description: "EPID1714 - D2067- MDTP to ETMP - VPD Return Create API - Response\
+        \ Schema when Response Status code 201"
+      type: "object"
+      properties:
+        success:
+          $ref: "#/components/schemas/successType"
+      required:
+      - "success"
+      additionalProperties: false
+    VPDReturnDisplay_ETMPErrorType_Schema:
+      type: "object"
+      properties:
+        error:
+          description: "ETMP Business Validation Error Response"
+          type: "object"
+          properties:
+            processingDate:
+              type: "string"
+              pattern: "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$"
+            code:
+              type: "string"
+              description: "Error code. Values must align with x-enum-descriptions\
+                \ by position."
+              enum:
+              - "002"
+              - "003"
+              - "005"
+              x-enum-descriptions:
+              - "002-ID Number Missing or Invalid"
+              - "003-Request could not be processed"
+              - "005-No Form Bundle found"
+            text:
+              description: "Human-readable error message"
+              type: "string"
+              minLength: 1
+              maxLength: 100
+          required:
+          - "processingDate"
+          - "code"
+          - "text"
+          additionalProperties: false
+      required:
+      - "error"
+      additionalProperties: false
+    VPDReturnDisplay_Response_Schema:
+      description: "EPID1715 - D2068 - Digital Gateway to ETMP - Vaping Duty Return\
+        \ Display API."
+      type: "object"
+      properties:
+        success:
+          type: "object"
+          properties:
+            processingDate:
+              $ref: "#/components/schemas/dateTimeType"
+            idDetails:
+              type: "object"
+              properties:
+                vpdReferenceNumber:
+                  $ref: "#/components/schemas/vpdReferenceNumberType"
+                submissionId:
+                  $ref: "#/components/schemas/submissionIdType"
+              required:
+              - "vpdReferenceNumber"
+              - "submissionId"
+              additionalProperties: false
+            chargeDetails:
+              type: "object"
+              properties:
+                periodKey:
+                  $ref: "#/components/schemas/periodType"
+                chargeReference:
+                  $ref: "#/components/schemas/chargeReferenceType"
+                periodFrom:
+                  $ref: "#/components/schemas/dateOnlyType"
+                periodTo:
+                  $ref: "#/components/schemas/dateOnlyType"
+                receiptDate:
+                  $ref: "#/components/schemas/dateTimeType"
+              required:
+              - "periodKey"
+              - "chargeReference"
+              - "periodFrom"
+              - "periodTo"
+              - "receiptDate"
+              additionalProperties: false
+            vapingProductsProduced:
+              description: "Indicates whether any vaping products were manufactured\
+                \ during the return period. If vapingProdManufactured = '1', the 'returns'\
+                \ array must contain at least one entry with production data. If '0',\
+                \ the 'returns' array must be empty"
+              type: "object"
+              properties:
+                vapingProdManufactured:
+                  $ref: "#/components/schemas/yesNoFlagType"
+                returns:
+                  $ref: "#/components/schemas/vapingReturns"
+              required:
+              - "vapingProdManufactured"
+              - "returns"
+              additionalProperties: false
+            overDeclaration:
+              $ref: "#/components/schemas/overDecl"
+            underDeclaration:
+              $ref: "#/components/schemas/underDecl"
+            spoiltProduct:
+              $ref: "#/components/schemas/spoiltProd"
+            totalDutyDue:
+              $ref: "#/components/schemas/totalDutyDue"
+            otherOptions:
+              $ref: "#/components/schemas/otherOptionsType"
+            declaration:
+              $ref: "#/components/schemas/declarationType"
+          required:
+          - "processingDate"
+          - "idDetails"
+          - "vapingProductsProduced"
+          - "declaration"
+          additionalProperties: false
+      required:
+      - "success"
+      additionalProperties: false
+    yesNoFlagType:
+      description: "Boolean indicator represented as string: '0' = No, '1' = Yes."
+      type: "string"
+      enum:
+      - "0"
+      - "1"
+  examples:
+    ETMPErrorType_VPDCreateSample:
+      value:
+        error:
+          processingDate: "2026-05-08T10:30:00Z"
+          code: "001"
+          text: "Regime missing or invalid."
+    ETMPErrorType_VPDDisplaySample:
+      value:
+        error:
+          processingDate: "2026-01-31T09:26:17Z"
+          code: "002"
+          text: "ID Number missing or invalid"
+    SystemErrorType_400Sample:
+      value:
+        error:
+          code: "400"
+          message: "Invalid request payload. Missing required field 'periodKey'."
+          logId: "A1B2C3D4E5F6071829ABCDEF01234567"
+    SystemErrorType_500Sample:
+      value:
+        error:
+          code: "500"
+          message: "SAP PI system is currently unavailable. Please try again later."
+          logId: "ABCDEF1234567890ABCDEF1234567890"
+    VPDNilReturn_CreateSample:
+      value:
+        periodKey: "24KA"
+        vapingProductsProduced:
+          vapingProdManufactured: "0"
+          returns: []
+        underDeclaration:
+          underDeclFilled: "0"
+        overDeclaration:
+          overDeclFilled: "0"
+        spoiltProduct:
+          spoiltProductFilled: "0"
+        totalDutyDue:
+          totalDutyDueVapingProducts: 0.0
+          totalDutyOverDeclaration: 0.0
+          totalDutyUnderDeclaration: 0.0
+          totalDutySpoiltProduct: 0.0
+          adjustmentAmount: 0.0
+          totalDue: 0.0
+        otherOptions:
+          vapingProductUnderDutySuspense: "0"
+        declaration:
+          fullName: "John Smith"
+          capacityInWhichSigned: "Director"
+          signeesEmailAddress: "john.smith@example.com"
+    VPDNilReturn_DisplaySample:
+      value:
+        success:
+          processingDate: "2026-06-10T10:30:00Z"
+          idDetails:
+            vpdReferenceNumber: "GBWK1234567WK"
+            submissionId: "123456789012"
+          vapingProductsProduced:
+            vapingProdManufactured: "0"
+            returns: []
+          declaration:
+            fullName: "John Doe"
+            capacityInWhichSigned: "Finance Manager"
+            signeesEmailAddress: "john.doe@example.com"
+    VPDRegularReturn_CreateSample:
+      value:
+        periodKey: "24KA"
+        vapingProductsProduced:
+          vapingProdManufactured: "1"
+          returns:
+          - taxType: "641"
+            dutyRate: 10.5
+            amountProducedLiquid: 1500.25
+            dutyDue: 15752.63
+        underDeclaration:
+          underDeclFilled: "1"
+          reasonForUnderDecl: "Incorrect reporting in previous return"
+          underDeclarationProducts:
+          - returnPeriodAffected: "23KB"
+            taxType: "641"
+            dutyRate: 10.5
+            amountUnderDeclared: 200.0
+            dutyDue: 2100.0
+        overDeclaration:
+          overDeclFilled: "1"
+          reasonForOverDecl: "Duplicate entry in prior submission"
+          overDeclarationProducts:
+          - returnPeriodAffected: "23KC"
+            taxType: "641"
+            dutyRate: 10.5
+            amountOverDeclared: 100.0
+            dutyDue: 1050.0
+        spoiltProduct:
+          spoiltProductFilled: "1"
+          spoiltProducts:
+          - returnPeriodAffected: "24KA"
+            taxType: "641"
+            dutyRate: 10.5
+            amountSpoilt: 50.0
+            dutyDue: 525.0
+        totalDutyDue:
+          totalDutyDueVapingProducts: 15752.63
+          totalDutyOverDeclaration: 1050.0
+          totalDutyUnderDeclaration: 2100.0
+          totalDutySpoiltProduct: 525.0
+          adjustmentAmount: 0.0
+          totalDue: 16277.63
+        otherOptions:
+          vapingProductUnderDutySuspense: "1"
+          volumeMovedFromDutySuspense: 300.0
+          volumeMovedToDutySuspense: 150.0
+        declaration:
+          fullName: "John Smith"
+          capacityInWhichSigned: "Director"
+          signeesEmailAddress: "john.smith@example.com"
+    VPDRegularReturn_DisplaySample:
+      value:
+        success:
+          processingDate: "2026-05-28T10:30:00Z"
+          idDetails:
+            vpdReferenceNumber: "GBWK1234567WK"
+            submissionId: "123456789012"
+          chargeDetails:
+            periodKey: "24KA"
+            chargeReference: "AB123456789012"
+            periodFrom: "2024-01-01"
+            periodTo: "2024-01-31"
+            receiptDate: "2026-05-28T10:00:00Z"
+          vapingProductsProduced:
+            vapingProdManufactured: "1"
+            returns:
+            - taxType: "641"
+              dutyRate: 10.5
+              amountProducedLiquid: 1500.25
+              dutyDue: 15752.63
+          underDeclaration:
+            underDeclFilled: "1"
+            reasonForUnderDecl: "Incorrect reporting in previous return"
+            underDeclarationProducts:
+            - returnPeriodAffected: "23KB"
+              taxType: "641"
+              dutyRate: 10.5
+              amountUnderDeclared: 200.0
+              dutyDue: 2100.0
+          overDeclaration:
+            overDeclFilled: "1"
+            reasonForOverDecl: "Duplicate entry in prior submission"
+            overDeclarationProducts:
+            - returnPeriodAffected: "23KC"
+              taxType: "641"
+              dutyRate: 10.5
+              amountOverDeclared: 100.0
+              dutyDue: 1050.0
+          spoiltProduct:
+            spoiltProductFilled: "1"
+            spoiltProducts:
+            - returnPeriodAffected: "24KA"
+              taxType: "641"
+              dutyRate: 10.5
+              amountSpoilt: 50.0
+              dutyDue: 525.0
+          totalDutyDue:
+            totalDutyDueVapingProducts: 15752.63
+            totalDutyOverDeclaration: 1050.0
+            totalDutyUnderDeclaration: 2100.0
+            totalDutySpoiltProduct: 525.0
+            adjustmentAmount: 0.0
+            totalDue: 16277.63
+          otherOptions:
+            vapingProductUnderDutySuspense: "1"
+            volumeMovedFromDutySuspense: 300.0
+            volumeMovedToDutySuspense: 150.0
+          declaration:
+            fullName: "John Smith"
+            capacityInWhichSigned: "Director"
+            signeesEmailAddress: "john.smith@example.com"

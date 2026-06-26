@@ -51,7 +51,7 @@ class SpoiltVolumeByPeriodController @Inject()(
                                                 view: SpoiltVolumeByPeriodView
                                               )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  val form: Form[Int] = formProvider()
+  val form: Form[BigDecimal] = formProvider()
 
   def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
