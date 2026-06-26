@@ -29,6 +29,18 @@
         text-wrap: nowrap;
     }
 
+.govuk-table__header {
+  margin-left: auto;
+  align-self: center;
+  text-wrap: nowrap;
+}
+
+.no-wrap-link {
+  margin-left: auto;
+  align-self: center;
+  text-wrap: nowrap;
+}
+
 @media screen and (max-width: 449px) {
     .app-task-list__item {
             flex-direction: column;
