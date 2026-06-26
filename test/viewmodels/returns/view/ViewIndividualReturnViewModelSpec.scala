@@ -203,6 +203,34 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       result.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutySpoiltProducts"))
       result.rows(4).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDue"))
     }
+
+    "must hide totalDutySpoiltProducts row but show totalDutyDue when spoilt products answer is No" in {
+      val noSpoiltResponse = returnResponse.copy(
+        success = returnResponse.success.copy(
+          spoiltProduct = Some(SpoiltProduct(spoiltProductFilled = "0", spoiltProducts = None))
+        )
+      )
+      val viewModel = ViewIndividualReturnViewModel(noSpoiltResponse, Some(testDutyRate))
+      val result = viewModel.dutyTotalsSummaryList
+
+      result.rows.size mustBe 2
+      result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.question"))
+      result.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDue"))
+      result.rows.forall(row =>
+        !row.key.content.asHtml.toString.contains(messages("viewIndividualReturn.totalDutySpoiltProducts"))
+      ) mustBe true
+    }
+
+    "must not include total rows when nilReturn is true" in {
+      val nilViewModel = ViewIndividualReturnViewModel(returnResponse, Some(BigDecimal("0")))
+      val result = nilViewModel.dutyTotalsSummaryList
+
+      result.rows.size mustBe 3
+      result.rows.forall(row =>
+        !row.key.content.asHtml.toString.contains(messages("viewIndividualReturn.totalDutySpoiltProducts")) &&
+        !row.key.content.asHtml.toString.contains(messages("viewIndividualReturn.totalDutyDue"))
+      ) mustBe true
+    }
   }
 
   "dutySuspenseSummaryList" - {

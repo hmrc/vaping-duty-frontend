@@ -178,16 +178,22 @@ case class ViewIndividualReturnViewModel(
       case None => Seq.empty
     }
     
-    val totalRows = Seq(
-      SummaryListRow(
-        key = Key(
-          content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))
-        ),
-        value = Value(
-          content = Text(totalDutySpoiltProducts)
+    val spoiltDeclared = spoiltProduct.exists(_.spoiltProductFilled == "1")
+
+    val totalRows = if (nilReturn) Seq.empty
+    else {
+      val spoiltTotalRow = if (spoiltDeclared) Seq(
+        SummaryListRow(
+          key = Key(
+            content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))
+          ),
+          value = Value(
+            content = Text(totalDutySpoiltProducts)
+          )
         )
-      ),
-      SummaryListRow(
+      ) else Seq.empty
+
+      spoiltTotalRow :+ SummaryListRow(
         key = Key(
           content = Text(messages("viewIndividualReturn.totalDutyDue"))
         ),
@@ -195,7 +201,7 @@ case class ViewIndividualReturnViewModel(
           content = Text(totalDutyDue)
         )
       )
-    )
+    }
     
     SummaryList(rows = spoiltProductsRows ++ totalRows)
   }
@@ -231,7 +237,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       .fold(currencyFormat(zeroValue)) { td =>
         val formatted = currencyFormat(td.totalDutySpoiltProduct)
         if (td.totalDutySpoiltProduct == zeroValue) formatted
-        else formatted.replace("£", "£-")
+        else formatted.replace("£", "-£")
       }
 
     val totalDuty = success.totalDutyDue
