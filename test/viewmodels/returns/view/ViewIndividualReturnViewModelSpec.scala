@@ -54,7 +54,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       result.hasVapingProductsDeclaration mustBe true
       result.amountProducedLiquid mustBe Some("1,000,000.00")
       result.dutyDue mustBe Some("£3,150")
-      result.totalDutyDueVapingProducts mustBe "£1,000"
+      result.totalDutySpoiltProducts mustBe "£-100"
       result.totalDutyDue mustBe "£1,825"
       result.monthYear mustBe "June 2026"
       result.submittedOn must include("February 2026")
@@ -84,7 +84,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
     "must default to £0.00 when totalDutyDue is missing" in {
       val result = ViewIndividualReturnViewModel(returnResponseNoTotalDuty, Some(testDutyRate))
 
-      result.totalDutyDueVapingProducts mustBe "£0"
+      result.totalDutySpoiltProducts mustBe "£0"
       result.totalDutyDue mustBe "£0"
     }
 
@@ -200,7 +200,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.question"))
       result.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.month"))
       result.rows(2).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))
-      result.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDueVapingProducts"))
+      result.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutySpoiltProducts"))
       result.rows(4).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDue"))
     }
   }

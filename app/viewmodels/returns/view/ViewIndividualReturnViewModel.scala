@@ -32,7 +32,7 @@ case class ViewIndividualReturnViewModel(
                                           hasVapingProductsDeclaration: Boolean,
                                           amountProducedLiquid: Option[String],
                                           dutyDue: Option[String],
-                                          totalDutyDueVapingProducts: String,
+                                          totalDutySpoiltProducts: String,
                                           totalDutyDue: String,
                                           monthYear: String,
                                           submittedOn: String,
@@ -181,10 +181,10 @@ case class ViewIndividualReturnViewModel(
     val totalRows = Seq(
       SummaryListRow(
         key = Key(
-          content = Text(messages("viewIndividualReturn.totalDutyDueVapingProducts"))
+          content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))
         ),
         value = Value(
-          content = Text(totalDutyDueVapingProducts)
+          content = Text(totalDutySpoiltProducts)
         )
       ),
       SummaryListRow(
@@ -227,8 +227,12 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
         (None, None)
     }
 
-    val totalDutyDueVaping = success.totalDutyDue
-      .fold(currencyFormat(zeroValue))(td => currencyFormat(td.totalDutyDueVapingProducts))
+    val totalDutySpoiltProducts = success.totalDutyDue
+      .fold(currencyFormat(zeroValue)) { td =>
+        val formatted = currencyFormat(td.totalDutySpoiltProduct)
+        if (td.totalDutySpoiltProduct == zeroValue) formatted
+        else formatted.replace("£", "£-")
+      }
 
     val totalDuty = success.totalDutyDue
       .fold(currencyFormat(zeroValue))(td => currencyFormat(td.totalDue))
@@ -301,7 +305,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       hasVapingProductsDeclaration = hasDeclaration,
       amountProducedLiquid = amountProduced,
       dutyDue = dutyDueAmount,
-      totalDutyDueVapingProducts = totalDutyDueVaping,
+      totalDutySpoiltProducts = totalDutySpoiltProducts,
       totalDutyDue = totalDuty,
       monthYear = monthYearString,
       submittedOn = submittedOnString,
