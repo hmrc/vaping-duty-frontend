@@ -2,7 +2,7 @@ package services.returns;
 
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.libs.json.{JsObject, JsString, Json};
+import play.api.libs.json.{JsArray, JsNumber, JsObject, JsString, Json};
 
 class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
     
@@ -107,6 +107,11 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
             "renames periodKey to returnPeriod" in {
                 SubmitReturnAuditEvent.buildSubmission(submission).as[JsObject].keys must not contain "periodKey"
                 SubmitReturnAuditEvent.buildSubmission(submission)("returnPeriod") mustBe JsString("24KA")
+            }
+
+            "renames volume fields to append Liters" in {
+                SubmitReturnAuditEvent.buildSubmission(submission).as[JsObject].keys must not contain "amountProducedLiquid"
+                SubmitReturnAuditEvent.buildSubmission(submission)("vapingProductsProduced")("returns").as[JsArray].head("amountProducedLiquidLitres") mustBe JsNumber(1500.25)
             }
         }
     }
