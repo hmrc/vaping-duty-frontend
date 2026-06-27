@@ -134,25 +134,39 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
                     returnJsObj("amountProducedLiquidLitres") mustBe JsNumber(1500.25)
                 }
 
-                "underDeclaration.underDeclarationProducts.amountUnderDeclaredLitres" in {
+                "underDeclaration.underDeclarationProducts.amountUnderDeclared" in {
                     val underDeclarationObj = SubmitReturnAuditEvent.buildSubmission(submission)("underDeclaration")("underDeclarationProducts").as[JsArray].head
 
                     underDeclarationObj.as[JsObject].keys must not contain "amountUnderDeclared"
                     underDeclarationObj("amountUnderDeclaredLitres") mustBe JsNumber(200)
                 }
 
-                "overDeclaration.overDeclarationProducts.amountOverDeclaredLitres" in {
+                "overDeclaration.overDeclarationProducts.amountOverDeclared" in {
                     val overDeclarationObj = SubmitReturnAuditEvent.buildSubmission(submission)("overDeclaration")("overDeclarationProducts").as[JsArray].head
 
                     overDeclarationObj.as[JsObject].keys must not contain "amountOverDeclared"
                     overDeclarationObj("amountOverDeclaredLitres") mustBe JsNumber(100)
                 }
 
-                "spoiltProduct.spoiltProducts.amountSpoiltLitres" in {
+                "spoiltProduct.spoiltProducts.amountSpoilt" in {
                     val spoiltProductObj = SubmitReturnAuditEvent.buildSubmission(submission)("spoiltProduct")("spoiltProducts").as[JsArray].head
 
                     spoiltProductObj.as[JsObject].keys must not contain "amountSpoilt"
                     spoiltProductObj("amountSpoiltLitres") mustBe JsNumber(50)
+                }
+
+                "otherOptions.volumeMovedFromDutySuspense" in {
+                    val otherOptionsObj = SubmitReturnAuditEvent.buildSubmission(submission)("otherOptions").as[JsObject]
+
+                    otherOptionsObj.keys must not contain "volumeMovedFromDutySuspense"
+                    otherOptionsObj("volumeMovedFromDutySuspenseLitres") mustBe JsNumber(300)
+                }
+
+                "otherOptions.volumeMovedToDutySuspense" in {
+                    val otherOptionsObj = SubmitReturnAuditEvent.buildSubmission(submission)("otherOptions").as[JsObject]
+
+                    otherOptionsObj.keys must not contain "volumeMovedToDutySuspense"
+                    otherOptionsObj("volumeMovedToDutySuspenseLitres") mustBe JsNumber(150)
                 }
             }
         }

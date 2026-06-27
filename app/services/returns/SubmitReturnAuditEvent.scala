@@ -40,7 +40,9 @@ object SubmitReturnAuditEvent {
       "amountProducedLiquid" -> "amountProducedLiquidLitres",
       "amountUnderDeclared" -> "amountUnderDeclaredLitres",
       "amountOverDeclared" -> "amountOverDeclaredLitres",
-      "amountSpoilt" -> "amountSpoiltLitres"
+      "amountSpoilt" -> "amountSpoiltLitres",
+      "volumeMovedFromDutySuspense" -> "volumeMovedFromDutySuspenseLitres",
+      "volumeMovedToDutySuspense" -> "volumeMovedToDutySuspenseLitres"
     ))
   }
 
