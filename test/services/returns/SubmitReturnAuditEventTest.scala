@@ -112,7 +112,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
     "Return Submission Audit Event" - {
 
         "must contain the submission section" in {
-            SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, response)("submission") must not be null
+            Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, response)("submission")) must not be None
         }
 
         "must contain the response section" in {
