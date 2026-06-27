@@ -20,12 +20,12 @@ import models.identifiers.*
 import models.returns.submit.ReturnSubmittedResponse
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.libs.json.{JsArray, JsNumber, JsObject, JsString, Json};
+import play.api.libs.json.{JsArray, JsNumber, JsObject, JsString, Json}
 
 class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
-    
-    private val etmpSubmission = Json.parse(
-        """
+
+  private val etmpSubmission = Json.parse(
+    """
           {
             "periodKey": "24KA",
             "vapingProductsProduced": {
@@ -97,19 +97,19 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
           }
       """)
 
-    private val etmpResponse = Json.parse(
-        """
-          |{
-          |  "success": {
-          |    "processingDate": "2026-05-08T10:30:00Z",
-          |    "vpdReferenceNumber": "GBWK1234567WK",
-          |    "submissionId": "123456789012",
-          |    "chargeReference": "AB123456789012",
-          |    "amount": 16277.63,
-          |    "paymentDueDate": "2026-06-07"
-          |  }
-          |}
-          |""".stripMargin)("success").as[ReturnSubmittedResponse]
+  private val etmpResponse = Json.parse(
+    """
+      |{
+      |  "success": {
+      |    "processingDate": "2026-05-08T10:30:00Z",
+      |    "vpdReferenceNumber": "GBWK1234567WK",
+      |    "submissionId": "123456789012",
+      |    "chargeReference": "AB123456789012",
+      |    "amount": 16277.63,
+      |    "paymentDueDate": "2026-06-07"
+      |  }
+      |}
+      |""".stripMargin)("success").as[ReturnSubmittedResponse]
 
   private val identifiers = Identifiers(
     VpdId("GBWK1234567WK"),
@@ -118,118 +118,117 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
     CredentialId("Int-53b2f41d-af8b-4372-afce-b9bb95b2dd86"))
 
   "Return Submission Audit Event" - {
-
-        "must contain the submission section" in {
-            Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers)("submission")) must not be None
-        }
-
-        "must contain the response section" in {
-            Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers)("response")) must not be None
-        }
-
-        "must contain the prePopulatedData section" in {
-            Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers)("prePopulatedData")) must not be None
-        }
-
-        "response section" - {
-          "includes submissionId if present in the etmp response" in {
-            SubmitReturnAuditEvent.buildResponse(etmpResponse)("submissionId") mustBe JsString("123456789012")
-          }
-          "Does not include the submissionId if not present in the etmp response" in {
-            SubmitReturnAuditEvent.buildResponse(etmpResponse.copy(submissionId = None)).as[JsObject].keys must not contain "submissionId"
-          }
-
-          "includes chargeReference if present in the etmp response" in {
-            SubmitReturnAuditEvent.buildResponse(etmpResponse)("chargeReference") mustBe JsString("AB123456789012")
-          }
-          "Does not include the chargeReference if not present in the etmp response" in {
-            SubmitReturnAuditEvent.buildResponse(etmpResponse.copy(chargeReference = None)).as[JsObject].keys must not contain "chargeReference"
-          }
-
-          "includes paymentDueDate if present in the etmp response" in {
-            SubmitReturnAuditEvent.buildResponse(etmpResponse)("paymentDueDate") mustBe JsString("2026-06-07")
-          }
-          "Does not include the paymentDueDate if not present in the etmp response" in {
-            SubmitReturnAuditEvent.buildResponse(etmpResponse.copy(paymentDueDate = None)).as[JsObject].keys must not contain "paymentDueDate"
-          }
-
-          "removes processingDate" in {
-            SubmitReturnAuditEvent.buildResponse(etmpResponse).as[JsObject].keys must not contain "processingDate"
-          }
-
-          "removes vpdReferenceNumber" in {
-            SubmitReturnAuditEvent.buildResponse(etmpResponse).as[JsObject].keys must not contain "vpdReferenceNumber"
-          }
-
-          "removes amount" in {
-            SubmitReturnAuditEvent.buildResponse(etmpResponse).as[JsObject].keys must not contain "amount"
-          }
-        }
-      
-        "prePopulatedData section" - {
-          "includes the approvalId" in {
-            SubmitReturnAuditEvent.buildPrePopulatedData(identifiers)("approvalId") mustBe JsString("GBWK1234567WK")
-          }
-
-          "includes the credentialId" in {
-            SubmitReturnAuditEvent.buildPrePopulatedData(identifiers)("credentialId") mustBe JsString("Int-53b2f41d-af8b-4372-afce-b9bb95b2dd86")
-          }
-
-          "includes the groupId" in {
-            SubmitReturnAuditEvent.buildPrePopulatedData(identifiers)("groupId") mustBe JsString("6031A986-C7F1-4D14-BA98-04A3AD8871B7")
-          }
-        }
-
-        "Submission section" - {
-            "renames periodKey to returnPeriod" in {
-                SubmitReturnAuditEvent.buildSubmission(etmpSubmission).as[JsObject].keys must not contain "periodKey"
-                SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("returnPeriod") mustBe JsString("24KA")
-            }
-
-            "renames volume fields to append Liters" - {
-
-                "vapingProductsProduced.returns.amountProducedLiquid" in {
-                    val returnJsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("vapingProductsProduced")("returns").as[JsArray].head
-
-                    returnJsObj.as[JsObject].keys must not contain "amountProducedLiquid"
-                    returnJsObj("amountProducedLiquidLitres") mustBe JsNumber(1500.25)
-                }
-
-                "underDeclaration.underDeclarationProducts.amountUnderDeclared" in {
-                    val underDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("underDeclaration")("underDeclarationProducts").as[JsArray].head
-
-                    underDeclarationObj.as[JsObject].keys must not contain "amountUnderDeclared"
-                    underDeclarationObj("amountUnderDeclaredLitres") mustBe JsNumber(200)
-                }
-
-                "overDeclaration.overDeclarationProducts.amountOverDeclared" in {
-                    val overDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("overDeclaration")("overDeclarationProducts").as[JsArray].head
-
-                    overDeclarationObj.as[JsObject].keys must not contain "amountOverDeclared"
-                    overDeclarationObj("amountOverDeclaredLitres") mustBe JsNumber(100)
-                }
-
-                "spoiltProduct.spoiltProducts.amountSpoilt" in {
-                    val spoiltProductObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("spoiltProduct")("spoiltProducts").as[JsArray].head
-
-                    spoiltProductObj.as[JsObject].keys must not contain "amountSpoilt"
-                    spoiltProductObj("amountSpoiltLitres") mustBe JsNumber(50)
-                }
-
-                "otherOptions.volumeMovedFromDutySuspense" in {
-                    val otherOptionsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("otherOptions").as[JsObject]
-
-                    otherOptionsObj.keys must not contain "volumeMovedFromDutySuspense"
-                    otherOptionsObj("volumeMovedFromDutySuspenseLitres") mustBe JsNumber(300)
-                }
-
-                "otherOptions.volumeMovedToDutySuspense" in {
-                    val otherOptionsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("otherOptions").as[JsObject]
-
-                    otherOptionsObj.keys must not contain "volumeMovedToDutySuspense"
-                    otherOptionsObj("volumeMovedToDutySuspenseLitres") mustBe JsNumber(150)
-                }
-            }
-        }
+    "must contain the submission section" in {
+      Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers)("submission")) must not be None
     }
+
+    "must contain the response section" in {
+      Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers)("response")) must not be None
+    }
+
+    "must contain the prePopulatedData section" in {
+      Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers)("prePopulatedData")) must not be None
+    }
+
+    "response section" - {
+      "includes submissionId if present in the etmp response" in {
+        SubmitReturnAuditEvent.buildResponse(etmpResponse)("submissionId") mustBe JsString("123456789012")
+      }
+      "Does not include the submissionId if not present in the etmp response" in {
+        SubmitReturnAuditEvent.buildResponse(etmpResponse.copy(submissionId = None)).as[JsObject].keys must not contain "submissionId"
+      }
+
+      "includes chargeReference if present in the etmp response" in {
+        SubmitReturnAuditEvent.buildResponse(etmpResponse)("chargeReference") mustBe JsString("AB123456789012")
+      }
+      "Does not include the chargeReference if not present in the etmp response" in {
+        SubmitReturnAuditEvent.buildResponse(etmpResponse.copy(chargeReference = None)).as[JsObject].keys must not contain "chargeReference"
+      }
+
+      "includes paymentDueDate if present in the etmp response" in {
+        SubmitReturnAuditEvent.buildResponse(etmpResponse)("paymentDueDate") mustBe JsString("2026-06-07")
+      }
+      "Does not include the paymentDueDate if not present in the etmp response" in {
+        SubmitReturnAuditEvent.buildResponse(etmpResponse.copy(paymentDueDate = None)).as[JsObject].keys must not contain "paymentDueDate"
+      }
+
+      "removes processingDate" in {
+        SubmitReturnAuditEvent.buildResponse(etmpResponse).as[JsObject].keys must not contain "processingDate"
+      }
+
+      "removes vpdReferenceNumber" in {
+        SubmitReturnAuditEvent.buildResponse(etmpResponse).as[JsObject].keys must not contain "vpdReferenceNumber"
+      }
+
+      "removes amount" in {
+        SubmitReturnAuditEvent.buildResponse(etmpResponse).as[JsObject].keys must not contain "amount"
+      }
+    }
+
+    "prePopulatedData section" - {
+      "includes the approvalId" in {
+        SubmitReturnAuditEvent.buildPrePopulatedData(identifiers)("approvalId") mustBe JsString("GBWK1234567WK")
+      }
+
+      "includes the credentialId" in {
+        SubmitReturnAuditEvent.buildPrePopulatedData(identifiers)("credentialId") mustBe JsString("Int-53b2f41d-af8b-4372-afce-b9bb95b2dd86")
+      }
+
+      "includes the groupId" in {
+        SubmitReturnAuditEvent.buildPrePopulatedData(identifiers)("groupId") mustBe JsString("6031A986-C7F1-4D14-BA98-04A3AD8871B7")
+      }
+    }
+
+    "Submission section" - {
+      "renames periodKey to returnPeriod" in {
+        SubmitReturnAuditEvent.buildSubmission(etmpSubmission).as[JsObject].keys must not contain "periodKey"
+        SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("returnPeriod") mustBe JsString("24KA")
+      }
+
+      "renames volume fields to append Litres" - {
+
+        "vapingProductsProduced.returns.amountProducedLiquid" in {
+          val returnJsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("vapingProductsProduced")("returns").as[JsArray].head
+
+          returnJsObj.as[JsObject].keys must not contain "amountProducedLiquid"
+          returnJsObj("amountProducedLiquidLitres") mustBe JsNumber(1500.25)
+        }
+
+        "underDeclaration.underDeclarationProducts.amountUnderDeclared" in {
+          val underDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("underDeclaration")("underDeclarationProducts").as[JsArray].head
+
+          underDeclarationObj.as[JsObject].keys must not contain "amountUnderDeclared"
+          underDeclarationObj("amountUnderDeclaredLitres") mustBe JsNumber(200)
+        }
+
+        "overDeclaration.overDeclarationProducts.amountOverDeclared" in {
+          val overDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("overDeclaration")("overDeclarationProducts").as[JsArray].head
+
+          overDeclarationObj.as[JsObject].keys must not contain "amountOverDeclared"
+          overDeclarationObj("amountOverDeclaredLitres") mustBe JsNumber(100)
+        }
+
+        "spoiltProduct.spoiltProducts.amountSpoilt" in {
+          val spoiltProductObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("spoiltProduct")("spoiltProducts").as[JsArray].head
+
+          spoiltProductObj.as[JsObject].keys must not contain "amountSpoilt"
+          spoiltProductObj("amountSpoiltLitres") mustBe JsNumber(50)
+        }
+
+        "otherOptions.volumeMovedFromDutySuspense" in {
+          val otherOptionsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("otherOptions").as[JsObject]
+
+          otherOptionsObj.keys must not contain "volumeMovedFromDutySuspense"
+          otherOptionsObj("volumeMovedFromDutySuspenseLitres") mustBe JsNumber(300)
+        }
+
+        "otherOptions.volumeMovedToDutySuspense" in {
+          val otherOptionsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("otherOptions").as[JsObject]
+
+          otherOptionsObj.keys must not contain "volumeMovedToDutySuspense"
+          otherOptionsObj("volumeMovedToDutySuspenseLitres") mustBe JsNumber(150)
+        }
+      }
+    }
+  }
 }
