@@ -125,12 +125,15 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
                 SubmitReturnAuditEvent.buildSubmission(submission)("returnPeriod") mustBe JsString("24KA")
             }
 
-            "renames volume fields to append Liters" in {
-                SubmitReturnAuditEvent.buildSubmission(submission)("vapingProductsProduced")("returns").as[JsArray].head.as[JsObject].keys must not contain "amountProducedLiquid"
-                SubmitReturnAuditEvent.buildSubmission(submission)("vapingProductsProduced")("returns").as[JsArray].head("amountProducedLiquidLitres") mustBe JsNumber(1500.25)
-
-                SubmitReturnAuditEvent.buildSubmission(submission)("underDeclaration")("underDeclarationProducts").as[JsArray].head.as[JsObject].keys must not contain "amountUnderDeclared"
-                SubmitReturnAuditEvent.buildSubmission(submission)("underDeclaration")("underDeclarationProducts").as[JsArray].head("amountUnderDeclaredLitres") mustBe JsNumber(200)
+            "renames volume fields to append Liters" - {
+                "vapingProductsProduced.returns.amountProducedLiquid" in {
+                    SubmitReturnAuditEvent.buildSubmission(submission)("vapingProductsProduced")("returns").as[JsArray].head.as[JsObject].keys must not contain "amountProducedLiquid"
+                    SubmitReturnAuditEvent.buildSubmission(submission)("vapingProductsProduced")("returns").as[JsArray].head("amountProducedLiquidLitres") mustBe JsNumber(1500.25)
+                }
+                "underDeclaration.underDeclarationProducts.amountUnderDeclaredLitres" in {
+                    SubmitReturnAuditEvent.buildSubmission(submission)("underDeclaration")("underDeclarationProducts").as[JsArray].head.as[JsObject].keys must not contain "amountUnderDeclared"
+                    SubmitReturnAuditEvent.buildSubmission(submission)("underDeclaration")("underDeclarationProducts").as[JsArray].head("amountUnderDeclaredLitres") mustBe JsNumber(200)
+                }
             }
         }
     }
