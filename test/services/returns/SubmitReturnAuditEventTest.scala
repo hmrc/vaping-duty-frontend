@@ -125,16 +125,18 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers, ObligationsBuild
     )
 
   "Return Submission Audit Event" - {
+    val txmEvent = SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers, obligations)
+
     "must contain the submission section" in {
-      Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers, obligations)("submission")) must not be None
+      Option(txmEvent("submission")) must not be None
     }
 
     "must contain the response section" in {
-      Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers, obligations)("response")) must not be None
+      Option(txmEvent("response")) must not be None
     }
 
     "must contain the prePopulatedData section" in {
-      Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers, obligations)("prePopulatedData")) must not be None
+      Option(txmEvent("prePopulatedData")) must not be None
     }
 
     "response section" - {
