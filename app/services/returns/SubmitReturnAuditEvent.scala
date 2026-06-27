@@ -46,7 +46,12 @@ object SubmitReturnAuditEvent {
       "amountOverDeclared" -> "amountOverDeclaredLitres",
       "amountSpoilt" -> "amountSpoiltLitres",
       "volumeMovedFromDutySuspense" -> "volumeMovedFromDutySuspenseLitres",
-      "volumeMovedToDutySuspense" -> "volumeMovedToDutySuspenseLitres"
+      "volumeMovedToDutySuspense" -> "volumeMovedToDutySuspenseLitres",
+      
+      "underDeclFilled"    -> "underDeclarationFilled",
+      "reasonForUnderDecl" -> "reasonForUnderDeclaration",
+      "overDeclFilled"     -> "overDeclarationFilled",
+      "reasonForOverDecl"  -> "reasonForOverDeclaration"
     ))
   }
 

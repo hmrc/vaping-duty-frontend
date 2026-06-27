@@ -185,6 +185,40 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
         SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("returnPeriod") mustBe JsString("24KA")
       }
 
+      "renames decl to declaration" - {
+        "under declaration" - {
+          "renames underDeclFilled to underDeclarationFilled" in {
+            val underDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("underDeclaration")
+
+            underDeclarationObj.as[JsObject].keys must not contain "underDeclFilled"
+            underDeclarationObj("underDeclarationFilled") mustBe JsString("1")
+          }
+
+          "renames reasonForUnderDecl to reasonForUnderDeclaration" in {
+            val underDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("underDeclaration")
+
+            underDeclarationObj.as[JsObject].keys must not contain "reasonForUnderDecl"
+            underDeclarationObj("reasonForUnderDeclaration") mustBe JsString("Incorrect reporting in previous return")
+          }
+        }
+
+        "over declaration" - {
+          "renames overDeclFilled to overDeclarationFilled" in {
+            val overDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("overDeclaration")
+
+            overDeclarationObj.as[JsObject].keys must not contain "overDeclFilled"
+            overDeclarationObj("overDeclarationFilled") mustBe JsString("1")
+          }
+
+          "renames reasonForOverDecl to reasonForOverDeclaration" in {
+            val overDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("overDeclaration")
+
+            overDeclarationObj.as[JsObject].keys must not contain "reasonForOverDecl"
+            overDeclarationObj("reasonForOverDeclaration") mustBe JsString("Duplicate entry in prior submission")
+          }
+        }
+      }
+
       "renames volume fields to append Litres" - {
 
         "vapingProductsProduced.returns.amountProducedLiquid" in {
