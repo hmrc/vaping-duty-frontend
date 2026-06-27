@@ -51,7 +51,9 @@ object SubmitReturnAuditEvent {
       "underDeclFilled"    -> "underDeclarationFilled",
       "reasonForUnderDecl" -> "reasonForUnderDeclaration",
       "overDeclFilled"     -> "overDeclarationFilled",
-      "reasonForOverDecl"  -> "reasonForOverDeclaration"
+      "reasonForOverDecl"  -> "reasonForOverDeclaration",
+      
+      "vapingProdManufactured" -> "vapingProductsManufactured"
     ))
   }
 

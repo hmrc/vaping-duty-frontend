@@ -219,6 +219,15 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
         }
       }
 
+      "renames Prod to Products" - {
+        "renames vapingProdManufactured to vapingProductsManufactured" in {
+          val returnJsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("vapingProductsProduced").as[JsObject]
+
+          returnJsObj.keys must not contain "vapingProdManufactured"
+          returnJsObj("vapingProductsManufactured") mustBe JsString("1")
+        }
+      }
+
       "renames volume fields to append Litres" - {
 
         "vapingProductsProduced.returns.amountProducedLiquid" in {
