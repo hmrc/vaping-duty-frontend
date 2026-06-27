@@ -16,18 +16,19 @@
 
 package services.returns
 
+import builders.ObligationsBuilders
 import models.identifiers.*
 import models.returns.submit.ReturnSubmittedResponse
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.{JsArray, JsNumber, JsObject, JsString, Json}
 
-class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
+class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers, ObligationsBuilders {
 
   private val etmpSubmission = Json.parse(
     """
           {
-            "periodKey": "24KA",
+            "periodKey": "26AL",
             "vapingProductsProduced": {
               "vapingProdManufactured": "1",
               "returns": [
@@ -44,7 +45,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
               "reasonForUnderDecl": "Incorrect reporting in previous return",
               "underDeclarationProducts": [
                 {
-                  "returnPeriodAffected": "23KB",
+                  "returnPeriodAffected": "26AJ",
                   "taxType": "641",
                   "dutyRate": 10.5,
                   "amountUnderDeclared": 200,
@@ -57,7 +58,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
               "reasonForOverDecl": "Duplicate entry in prior submission",
               "overDeclarationProducts": [
                 {
-                  "returnPeriodAffected": "23KC",
+                  "returnPeriodAffected": "26AK",
                   "taxType": "641",
                   "dutyRate": 10.5,
                   "amountOverDeclared": 100,
@@ -69,7 +70,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
               "spoiltProductFilled": "1",
               "spoiltProducts": [
                 {
-                  "returnPeriodAffected": "24KA",
+                  "returnPeriodAffected": "26AK",
                   "taxType": "641",
                   "dutyRate": 10.5,
                   "amountSpoilt": 50,
@@ -117,17 +118,23 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
     InternalId("not used"),
     CredentialId("Int-53b2f41d-af8b-4372-afce-b9bb95b2dd86"))
 
+  val obligations = Seq(
+      openObligation(december2026),
+      fulfilledObligation(november2026),
+      fulfilledObligation(october2026),
+    )
+
   "Return Submission Audit Event" - {
     "must contain the submission section" in {
-      Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers)("submission")) must not be None
+      Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers, obligations)("submission")) must not be None
     }
 
     "must contain the response section" in {
-      Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers)("response")) must not be None
+      Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers, obligations)("response")) must not be None
     }
 
     "must contain the prePopulatedData section" in {
-      Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers)("prePopulatedData")) must not be None
+      Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers, obligations)("prePopulatedData")) must not be None
     }
 
     "response section" - {
@@ -181,21 +188,22 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
 
     "Submission section" - {
       "renames periodKey to returnPeriod" in {
-        SubmitReturnAuditEvent.buildSubmission(etmpSubmission).as[JsObject].keys must not contain "periodKey"
-        SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("returnPeriod") mustBe JsString("24KA")
+        val submissionObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations).as[JsObject]
+        submissionObj.keys must not contain "periodKey"
+        submissionObj.keys must contain ("returnPeriod")
       }
 
       "renames decl to declaration" - {
         "under declaration" - {
           "renames underDeclFilled to underDeclarationFilled" in {
-            val underDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("underDeclaration")
+            val underDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations)("underDeclaration")
 
             underDeclarationObj.as[JsObject].keys must not contain "underDeclFilled"
             underDeclarationObj("underDeclarationFilled") mustBe JsString("1")
           }
 
           "renames reasonForUnderDecl to reasonForUnderDeclaration" in {
-            val underDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("underDeclaration")
+            val underDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations)("underDeclaration")
 
             underDeclarationObj.as[JsObject].keys must not contain "reasonForUnderDecl"
             underDeclarationObj("reasonForUnderDeclaration") mustBe JsString("Incorrect reporting in previous return")
@@ -204,14 +212,14 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
 
         "over declaration" - {
           "renames overDeclFilled to overDeclarationFilled" in {
-            val overDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("overDeclaration")
+            val overDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations)("overDeclaration")
 
             overDeclarationObj.as[JsObject].keys must not contain "overDeclFilled"
             overDeclarationObj("overDeclarationFilled") mustBe JsString("1")
           }
 
           "renames reasonForOverDecl to reasonForOverDeclaration" in {
-            val overDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("overDeclaration")
+            val overDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations)("overDeclaration")
 
             overDeclarationObj.as[JsObject].keys must not contain "reasonForOverDecl"
             overDeclarationObj("reasonForOverDeclaration") mustBe JsString("Duplicate entry in prior submission")
@@ -221,7 +229,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
 
       "renames Prod to Products" - {
         "renames vapingProdManufactured to vapingProductsManufactured" in {
-          val returnJsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("vapingProductsProduced").as[JsObject]
+          val returnJsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations)("vapingProductsProduced").as[JsObject]
 
           returnJsObj.keys must not contain "vapingProdManufactured"
           returnJsObj("vapingProductsManufactured") mustBe JsString("1")
@@ -231,47 +239,89 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
       "renames volume fields to append Litres" - {
 
         "vapingProductsProduced.returns.amountProducedLiquid" in {
-          val returnJsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("vapingProductsProduced")("returns").as[JsArray].head
+          val returnJsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations)("vapingProductsProduced")("returns").as[JsArray].head
 
           returnJsObj.as[JsObject].keys must not contain "amountProducedLiquid"
           returnJsObj("amountProducedLiquidLitres") mustBe JsNumber(1500.25)
         }
 
         "underDeclaration.underDeclarationProducts.amountUnderDeclared" in {
-          val underDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("underDeclaration")("underDeclarationProducts").as[JsArray].head
+          val underDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations)("underDeclaration")("underDeclarationProducts").as[JsArray].head
 
           underDeclarationObj.as[JsObject].keys must not contain "amountUnderDeclared"
           underDeclarationObj("amountUnderDeclaredLitres") mustBe JsNumber(200)
         }
 
         "overDeclaration.overDeclarationProducts.amountOverDeclared" in {
-          val overDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("overDeclaration")("overDeclarationProducts").as[JsArray].head
+          val overDeclarationObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations)("overDeclaration")("overDeclarationProducts").as[JsArray].head
 
           overDeclarationObj.as[JsObject].keys must not contain "amountOverDeclared"
           overDeclarationObj("amountOverDeclaredLitres") mustBe JsNumber(100)
         }
 
         "spoiltProduct.spoiltProducts.amountSpoilt" in {
-          val spoiltProductObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("spoiltProduct")("spoiltProducts").as[JsArray].head
+          val spoiltProductObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations)("spoiltProduct")("spoiltProducts").as[JsArray].head
 
           spoiltProductObj.as[JsObject].keys must not contain "amountSpoilt"
           spoiltProductObj("amountSpoiltLitres") mustBe JsNumber(50)
         }
 
         "otherOptions.volumeMovedFromDutySuspense" in {
-          val otherOptionsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("otherOptions").as[JsObject]
+          val otherOptionsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations)("otherOptions").as[JsObject]
 
           otherOptionsObj.keys must not contain "volumeMovedFromDutySuspense"
           otherOptionsObj("volumeMovedFromDutySuspenseLitres") mustBe JsNumber(300)
         }
 
         "otherOptions.volumeMovedToDutySuspense" in {
-          val otherOptionsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission)("otherOptions").as[JsObject]
+          val otherOptionsObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations)("otherOptions").as[JsObject]
 
           otherOptionsObj.keys must not contain "volumeMovedToDutySuspense"
           otherOptionsObj("volumeMovedToDutySuspenseLitres") mustBe JsNumber(150)
         }
       }
+      
+      "turns period keys into human-readable dates" - {
+        val submissionObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligations).as[JsObject]
+        
+        "for returnPeriod" in {
+          submissionObj("returnPeriod") mustBe JsString("2026-12-01 to 2026-12-31")
+        }        
+
+        "for adjustments" - {
+          "spoilt" in {
+            val spoiltProductObj = submissionObj("spoiltProduct")("spoiltProducts").as[JsArray].head.as[JsObject]
+
+            spoiltProductObj("returnPeriodAffected") mustBe JsString("2026-11-01 to 2026-11-30")
+          }
+
+          "under declared" in {
+            val underDeclaredProductObj = submissionObj("underDeclaration")("underDeclarationProducts").as[JsArray].head.as[JsObject]
+
+            underDeclaredProductObj("returnPeriodAffected") mustBe JsString("2026-10-01 to 2026-10-31")
+          }
+
+          "over declared" in {
+            val overDeclaredProductObj = submissionObj("overDeclaration")("overDeclarationProducts").as[JsArray].head.as[JsObject]
+
+            overDeclaredProductObj("returnPeriodAffected") mustBe JsString("2026-11-01 to 2026-11-30")
+          }
+        }  
+        
+        "retains the period key in the unlikely event that it doesn't match an obligation" - {
+          "over declared" in {
+            val obligationsWithoutNovember = Seq(
+              openObligation(december2026),
+              fulfilledObligation(october2026))
+
+            val submissionObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligationsWithoutNovember).as[JsObject]
+            val overDeclaredProductObj = submissionObj("overDeclaration")("overDeclarationProducts").as[JsArray].head.as[JsObject]
+
+            overDeclaredProductObj("returnPeriodAffected") mustBe JsString("26AK")
+          }
+        }
+      }
+
     }
   }
 }

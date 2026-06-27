@@ -17,6 +17,7 @@
 package services.returns
 
 import models.identifiers.Identifiers
+import models.obligations.ObligationDetails
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import play.api.libs.json.*
 
@@ -24,21 +25,33 @@ object SubmitReturnAuditEvent {
 
   def buildExplicitAuditEvent(submission: ReturnCreateRequest,
                               result: ReturnSubmittedResponse,
-                              identifiers: Identifiers): JsObject = {
-    buildExplicitAuditEvent(Json.toJson(submission), result, identifiers)
+                              identifiers: Identifiers,
+                              obligations: Seq[ObligationDetails]): JsObject = {
+    buildExplicitAuditEvent(Json.toJson(submission), result, identifiers, obligations)
   }
 
   def buildExplicitAuditEvent(submission: JsValue,
                               response: ReturnSubmittedResponse,
-                              identifiers: Identifiers): JsObject = {
+                              identifiers: Identifiers,
+                              obligations: Seq[ObligationDetails]): JsObject = {
     new JsObject(Map(
-      "submission"       -> buildSubmission(submission),
+      "submission"       -> buildSubmission(submission, obligations),
       "prePopulatedData" -> buildPrePopulatedData(identifiers),
       "response"         -> buildResponse(response)
     ))
   }
 
-  def buildSubmission(etmpSubmission: JsValue): JsValue = {
+  def buildSubmission(etmpSubmission: JsValue,
+                      obligations: Seq[ObligationDetails]): JsValue = {
+    val submissionWithRenamedKeys = renameKeys(etmpSubmission)
+
+    makePeriodKeysHumanReadable(
+      submissionWithRenamedKeys,
+      Set("returnPeriod", "returnPeriodAffected"),
+      buildObligationsToHumanReadableMap(obligations))
+  }
+
+  private def renameKeys(etmpSubmission: JsValue) = {
     jsRenameKeys(etmpSubmission, Map(
       "periodKey" -> "returnPeriod",
 
@@ -48,15 +61,18 @@ object SubmitReturnAuditEvent {
       "amountSpoilt"         -> "amountSpoiltLitres",
       "volumeMovedFromDutySuspense" -> "volumeMovedFromDutySuspenseLitres",
       "volumeMovedToDutySuspense"   -> "volumeMovedToDutySuspenseLitres",
-      
+
       "underDeclFilled"    -> "underDeclarationFilled",
       "reasonForUnderDecl" -> "reasonForUnderDeclaration",
       "overDeclFilled"     -> "overDeclarationFilled",
       "reasonForOverDecl"  -> "reasonForOverDeclaration",
-      
+
       "vapingProdManufactured" -> "vapingProductsManufactured"
     ))
   }
+
+  def buildObligationsToHumanReadableMap(obligations: Seq[ObligationDetails]): Map[String, String] =
+    obligations.map(ob => ob.periodKey -> s"${ob.iCFromDate} to ${ob.iCToDate}").toMap
 
   def buildPrePopulatedData(identifiers: Identifiers): JsValue = {
     JsObject(Map(
@@ -88,4 +104,34 @@ object SubmitReturnAuditEvent {
       case x => x
     }
 
+  def makePeriodKeysHumanReadable(jsValue: JsValue,
+                                  fieldsToChange: Set[String],
+                                  periodKeyToHumanReadable: Map[String, String]): JsValue = {
+    jsValue match {
+      case jsObj: JsObject =>
+        JsObject(
+          jsObj.fields.map((key, value) =>
+            key -> (
+              if (fieldsToChange.contains(key)) {
+                val periodKey = value.as[JsString].value
+                periodKeyToHumanReadable.get(periodKey)
+                  .map(JsString(_))
+                  .getOrElse(value)
+              }
+              else
+                makePeriodKeysHumanReadable(value, fieldsToChange, periodKeyToHumanReadable)
+              )
+          )
+        )
+
+      case array: JsArray =>
+        JsArray(array.value.map((jsv: JsValue) =>
+          makePeriodKeysHumanReadable(
+            jsv,
+            fieldsToChange,
+            periodKeyToHumanReadable)))
+
+      case x => x
+    }
+  }
 }

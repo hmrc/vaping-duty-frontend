@@ -25,7 +25,6 @@ import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, SpoiltProductItem, UnderDeclaration}
 import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
-import play.api.libs.json.{JsObject, Json}
 import services.contactPreference.AuditService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -51,7 +50,8 @@ class SubmitReturnService @Inject()(
     given HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
 
     for {
-      obligationOpt <- obligationService.getObligationByPeriodKey(request.enrolmentVpdId, request.periodKey)
+      obligations <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
+      obligationOpt = obligations.find(_.periodKey == request.periodKey.toString)
       obligation <- obligationOpt match {
         case Some(obl) => Future.successful(obl)
         case None => Future.failed(new IllegalStateException(s"No obligation found for period key: ${ua.periodKey}"))
@@ -59,7 +59,8 @@ class SubmitReturnService @Inject()(
       submission = buildSubmission(ua, obligation)
       result <- submitReturnConnector.submitReturn(submission, request.enrolmentVpdId)
     } yield {
-      val detail = SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, result, request.identifiers)
+      val detail = SubmitReturnAuditEvent.
+        buildExplicitAuditEvent(submission, result, request.identifiers, obligations)
       auditService.auditReturnSubmitted(detail)
       result
     }
