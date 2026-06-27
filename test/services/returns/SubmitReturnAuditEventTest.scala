@@ -121,16 +121,25 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
         }
 
         "response section" - {
-          "includes submissionId" in {
+          "includes submissionId if present in the etmp response" in {
             SubmitReturnAuditEvent.buildResponse(response)("submissionId") mustBe JsString("123456789012")
           }
-
-          "includes chargeReference" in {
-            SubmitReturnAuditEvent.buildResponse(response)("chargeReference") mustBe JsString("AB123456789012")
+          "Does not include the submissionId if not present in the etmp response" in {
+            SubmitReturnAuditEvent.buildResponse(response.copy(submissionId = None)).as[JsObject].keys must not contain "submissionId"
           }
 
-          "includes paymentDueDate" in {
+          "includes chargeReference if present in the etmp response" in {
+            SubmitReturnAuditEvent.buildResponse(response)("chargeReference") mustBe JsString("AB123456789012")
+          }
+          "Does not include the chargeReference if not present in the etmp response" in {
+            SubmitReturnAuditEvent.buildResponse(response.copy(chargeReference = None)).as[JsObject].keys must not contain "chargeReference"
+          }
+
+          "includes paymentDueDate if present in the etmp response" in {
             SubmitReturnAuditEvent.buildResponse(response)("paymentDueDate") mustBe JsString("2026-06-07")
+          }
+          "Does not include the paymentDueDate if not present in the etmp response" in {
+            SubmitReturnAuditEvent.buildResponse(response.copy(paymentDueDate = None)).as[JsObject].keys must not contain "paymentDueDate"
           }
 
           "removes processingDate" in {
