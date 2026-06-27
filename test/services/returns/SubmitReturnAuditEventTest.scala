@@ -126,8 +126,11 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
             }
 
             "renames volume fields to append Liters" in {
-                SubmitReturnAuditEvent.buildSubmission(submission).as[JsObject].keys must not contain "amountProducedLiquid"
+                SubmitReturnAuditEvent.buildSubmission(submission)("vapingProductsProduced")("returns").as[JsArray].head.as[JsObject].keys must not contain "amountProducedLiquid"
                 SubmitReturnAuditEvent.buildSubmission(submission)("vapingProductsProduced")("returns").as[JsArray].head("amountProducedLiquidLitres") mustBe JsNumber(1500.25)
+
+                SubmitReturnAuditEvent.buildSubmission(submission)("underDeclaration")("underDeclarationProducts").as[JsArray].head.as[JsObject].keys must not contain "amountUnderDeclared"
+                SubmitReturnAuditEvent.buildSubmission(submission)("underDeclaration")("underDeclarationProducts").as[JsArray].head("amountUnderDeclaredLitres") mustBe JsNumber(200)
             }
         }
     }

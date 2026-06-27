@@ -37,7 +37,8 @@ object SubmitReturnAuditEvent {
   def buildSubmission(etmpSubmission: JsValue): JsValue = {
     jsRenameKeys(etmpSubmission, Map(
       "periodKey" -> "returnPeriod",
-      "amountProducedLiquid" -> "amountProducedLiquidLitres"
+      "amountProducedLiquid" -> "amountProducedLiquidLitres",
+      "amountUnderDeclared" -> "amountUnderDeclaredLitres"
     ))
   }
 
