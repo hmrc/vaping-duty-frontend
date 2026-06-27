@@ -16,6 +16,7 @@
 
 package services.returns;
 
+import models.returns.submit.ReturnSubmittedResponse
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.{JsArray, JsNumber, JsObject, JsString, Json};
@@ -107,7 +108,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
           |    "paymentDueDate": "2026-06-07"
           |  }
           |}
-          |""".stripMargin)
+          |""".stripMargin)("success").as[ReturnSubmittedResponse]
 
     "Return Submission Audit Event" - {
 

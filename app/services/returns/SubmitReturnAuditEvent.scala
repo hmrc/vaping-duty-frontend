@@ -17,17 +17,17 @@
 package services.returns
 
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
-import play.api.libs.json.{JsArray, JsObject, JsValue, Json}
+import play.api.libs.json.{JsArray, JsObject, JsString, JsValue, Json}
 
 object SubmitReturnAuditEvent {
 
   def buildExplicitAuditEvent(submission: ReturnCreateRequest,
                               result: ReturnSubmittedResponse): JsObject = {
-    buildExplicitAuditEvent(Json.toJson(submission), Json.toJson(result))
+    buildExplicitAuditEvent(Json.toJson(submission), result)
   }
 
   def buildExplicitAuditEvent(submission: JsValue,
-                              response: JsValue): JsObject = {
+                              response: ReturnSubmittedResponse): JsObject = {
     new JsObject(Map(
       "submission" -> buildSubmission(submission),
       "response" -> buildResponse(response)
@@ -46,13 +46,12 @@ object SubmitReturnAuditEvent {
     ))
   }
 
-  def buildResponse(etmpSubmission: JsValue): JsValue = {
-    val successObj = etmpSubmission("success")
-    JsObject(Map(
-      "submissionId"    -> successObj("submissionId"),
-      "chargeReference" -> successObj("chargeReference"),
-      "paymentDueDate"  -> successObj("paymentDueDate")
-    ))
+  def buildResponse(etmpResponse: ReturnSubmittedResponse): JsValue = {
+    JsObject(Seq(
+      etmpResponse.submissionId   .map(submissionId    => "submissionId"    -> JsString(submissionId)),
+      etmpResponse.chargeReference.map(chargeReference => "chargeReference" -> JsString(chargeReference)),
+      etmpResponse.paymentDueDate .map(paymentDueDate  => "paymentDueDate"  -> JsString(paymentDueDate.toString))
+    ).flatten)
   }
 
   def jsRenameKeys(jsValue: JsValue, nameChanges: Map[String, String]): JsValue =
