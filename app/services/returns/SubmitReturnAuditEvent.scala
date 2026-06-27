@@ -16,7 +16,7 @@
 
 package services.returns
 
-import models.requests.returns.ReturnsDataRequest
+import models.identifiers.Identifiers
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import play.api.libs.json.*
 
@@ -24,15 +24,17 @@ object SubmitReturnAuditEvent {
 
   def buildExplicitAuditEvent(submission: ReturnCreateRequest,
                               result: ReturnSubmittedResponse,
-                              request: ReturnsDataRequest[?]): JsObject = {
-    buildExplicitAuditEvent(Json.toJson(submission), result)
+                              identifiers: Identifiers): JsObject = {
+    buildExplicitAuditEvent(Json.toJson(submission), result, identifiers)
   }
 
   def buildExplicitAuditEvent(submission: JsValue,
-                              response: ReturnSubmittedResponse): JsObject = {
+                              response: ReturnSubmittedResponse,
+                              identifiers: Identifiers): JsObject = {
     new JsObject(Map(
-      "submission" -> buildSubmission(submission),
-      "response" -> buildResponse(response)
+      "submission"       -> buildSubmission(submission),
+      "prePopulatedData" -> buildPrePopulatedData(identifiers),
+      "response"         -> buildResponse(response)
     ))
   }
 
@@ -45,6 +47,14 @@ object SubmitReturnAuditEvent {
       "amountSpoilt" -> "amountSpoiltLitres",
       "volumeMovedFromDutySuspense" -> "volumeMovedFromDutySuspenseLitres",
       "volumeMovedToDutySuspense" -> "volumeMovedToDutySuspenseLitres"
+    ))
+  }
+
+  def buildPrePopulatedData(identifiers: Identifiers): JsValue = {
+    JsObject(Map(
+      "approvalId"   -> JsString(identifiers.enrolmentVpdId.toString),
+      "credentialId" -> JsString(identifiers.credId.toString),
+      "groupId"      -> JsString(identifiers.groupId.toString)
     ))
   }
 

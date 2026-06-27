@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package services.returns;
+package services.returns
 
+import models.identifiers.*
 import models.returns.submit.ReturnSubmittedResponse
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -23,7 +24,7 @@ import play.api.libs.json.{JsArray, JsNumber, JsObject, JsString, Json};
 
 class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
     
-    val etmpSubmission = Json.parse(
+    private val etmpSubmission = Json.parse(
         """
           {
             "periodKey": "24KA",
@@ -96,7 +97,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
           }
       """)
 
-    val etmpResponse = Json.parse(
+    private val etmpResponse = Json.parse(
         """
           |{
           |  "success": {
@@ -110,14 +111,24 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
           |}
           |""".stripMargin)("success").as[ReturnSubmittedResponse]
 
-    "Return Submission Audit Event" - {
+  private val identifiers = Identifiers(
+    VpdId("GBWK1234567WK"),
+    GroupId("6031A986-C7F1-4D14-BA98-04A3AD8871B7"),
+    InternalId("not used"),
+    CredentialId("Int-53b2f41d-af8b-4372-afce-b9bb95b2dd86"))
+
+  "Return Submission Audit Event" - {
 
         "must contain the submission section" in {
-            Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse)("submission")) must not be None
+            Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers)("submission")) must not be None
         }
 
         "must contain the response section" in {
-            Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse)("response")) must not be None
+            Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers)("response")) must not be None
+        }
+
+        "must contain the prePopulatedData section" in {
+            Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(etmpSubmission, etmpResponse, identifiers)("prePopulatedData")) must not be None
         }
 
         "response section" - {
@@ -155,6 +166,20 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
           }
         }
       
+        "prePopulatedData section" - {
+          "includes the approvalId" in {
+            SubmitReturnAuditEvent.buildPrePopulatedData(identifiers)("approvalId") mustBe JsString("GBWK1234567WK")
+          }
+
+          "includes the credentialId" in {
+            SubmitReturnAuditEvent.buildPrePopulatedData(identifiers)("credentialId") mustBe JsString("Int-53b2f41d-af8b-4372-afce-b9bb95b2dd86")
+          }
+
+          "includes the groupId" in {
+            SubmitReturnAuditEvent.buildPrePopulatedData(identifiers)("groupId") mustBe JsString("6031A986-C7F1-4D14-BA98-04A3AD8871B7")
+          }
+        }
+
         "Submission section" - {
             "renames periodKey to returnPeriod" in {
                 SubmitReturnAuditEvent.buildSubmission(etmpSubmission).as[JsObject].keys must not contain "periodKey"
