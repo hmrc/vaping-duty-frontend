@@ -16,13 +16,15 @@
 
 package services.returns
 
+import models.requests.returns.ReturnsDataRequest
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
-import play.api.libs.json.{JsArray, JsObject, JsString, JsValue, Json}
+import play.api.libs.json.*
 
 object SubmitReturnAuditEvent {
 
   def buildExplicitAuditEvent(submission: ReturnCreateRequest,
-                              result: ReturnSubmittedResponse): JsObject = {
+                              result: ReturnSubmittedResponse,
+                              request: ReturnsDataRequest[?]): JsObject = {
     buildExplicitAuditEvent(Json.toJson(submission), result)
   }
 

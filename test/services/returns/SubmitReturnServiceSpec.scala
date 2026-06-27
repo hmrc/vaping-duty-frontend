@@ -102,6 +102,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
           FakeRequest(),
           vpdId,
+          groupId,
           internalId,
           credId,
           periodKey,
@@ -135,6 +136,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
           FakeRequest(),
           vpdId,
+          groupId,
           internalId,
           credId,
           periodKey,
@@ -174,6 +176,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
           FakeRequest(),
           vpdId,
+          groupId,
           internalId,
           credId,
           periodKey,
@@ -211,6 +214,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
           FakeRequest(),
           vpdId,
+          groupId,
           internalId,
           credId,
           periodKey,
@@ -242,6 +246,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
           FakeRequest(),
           vpdId,
+          groupId,
           internalId,
           credId,
           periodKey,
@@ -265,6 +270,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
           FakeRequest(),
           vpdId,
+          groupId,
           internalId,
           credId,
           periodKey,
