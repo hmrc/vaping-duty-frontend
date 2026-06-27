@@ -198,87 +198,77 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers, ObligationsBuild
 
       "renames decl to declaration" - {
         "under declaration" - {
-          "renames underDeclFilled to underDeclarationFilled" in {
-            val txmUnderDeclaration = txmSubmission("underDeclaration")
+          val txmUnderDeclaration = txmSubmission("underDeclaration").as[JsObject]
 
-            txmUnderDeclaration.as[JsObject].keys must not contain "underDeclFilled"
+          "renames underDeclFilled to underDeclarationFilled" in {
+            txmUnderDeclaration.keys must not contain "underDeclFilled"
             txmUnderDeclaration("underDeclarationFilled") mustBe JsString("1")
           }
 
           "renames reasonForUnderDecl to reasonForUnderDeclaration" in {
-            val underDeclarationObj = txmSubmission("underDeclaration")
-
-            underDeclarationObj.as[JsObject].keys must not contain "reasonForUnderDecl"
-            underDeclarationObj("reasonForUnderDeclaration") mustBe JsString("Incorrect reporting in previous return")
+            txmUnderDeclaration.keys must not contain "reasonForUnderDecl"
+            txmUnderDeclaration("reasonForUnderDeclaration") mustBe JsString("Incorrect reporting in previous return")
           }
         }
 
         "over declaration" - {
+          val txmOverDeclaration = txmSubmission("overDeclaration").as[JsObject]
+          
           "renames overDeclFilled to overDeclarationFilled" in {
-            val overDeclarationObj = txmSubmission("overDeclaration")
-
-            overDeclarationObj.as[JsObject].keys must not contain "overDeclFilled"
-            overDeclarationObj("overDeclarationFilled") mustBe JsString("1")
+            txmOverDeclaration.keys must not contain "overDeclFilled"
+            txmOverDeclaration("overDeclarationFilled") mustBe JsString("1")
           }
 
           "renames reasonForOverDecl to reasonForOverDeclaration" in {
-            val overDeclarationObj = txmSubmission("overDeclaration")
-
-            overDeclarationObj.as[JsObject].keys must not contain "reasonForOverDecl"
-            overDeclarationObj("reasonForOverDeclaration") mustBe JsString("Duplicate entry in prior submission")
+            txmOverDeclaration.keys must not contain "reasonForOverDecl"
+            txmOverDeclaration("reasonForOverDeclaration") mustBe JsString("Duplicate entry in prior submission")
           }
         }
       }
 
       "renames Prod to Products" - {
-        "renames vapingProdManufactured to vapingProductsManufactured" in {
-          val returnJsObj = txmSubmission("vapingProductsProduced").as[JsObject]
+        val txmVapingProductsProduced = txmSubmission("vapingProductsProduced").as[JsObject]
 
-          returnJsObj.keys must not contain "vapingProdManufactured"
-          returnJsObj("vapingProductsManufactured") mustBe JsString("1")
+        "renames vapingProdManufactured to vapingProductsManufactured" in {
+          txmVapingProductsProduced.keys must not contain "vapingProdManufactured"
+          txmVapingProductsProduced("vapingProductsManufactured") mustBe JsString("1")
         }
       }
 
       "renames volume fields to append Litres" - {
 
-        "vapingProductsProduced.returns.amountProducedLiquid" in {
-          val returnJsObj = txmSubmission("vapingProductsProduced")("returns").as[JsArray].head
+        val returnJsObj         = txmSubmission("vapingProductsProduced")("returns").as[JsArray].head
+        val underDeclarationObj = txmSubmission("underDeclaration")("underDeclarationProducts").as[JsArray].head
+        val overDeclarationObj  = txmSubmission("overDeclaration")("overDeclarationProducts").as[JsArray].head
+        val spoiltProductObj    = txmSubmission("spoiltProduct")("spoiltProducts").as[JsArray].head
+        val otherOptionsObj     = txmSubmission("otherOptions").as[JsObject]
 
+        "vapingProductsProduced.returns.amountProducedLiquid" in {
           returnJsObj.as[JsObject].keys must not contain "amountProducedLiquid"
           returnJsObj("amountProducedLiquidLitres") mustBe JsNumber(1500.25)
         }
 
         "underDeclaration.underDeclarationProducts.amountUnderDeclared" in {
-          val underDeclarationObj = txmSubmission("underDeclaration")("underDeclarationProducts").as[JsArray].head
-
           underDeclarationObj.as[JsObject].keys must not contain "amountUnderDeclared"
           underDeclarationObj("amountUnderDeclaredLitres") mustBe JsNumber(200)
         }
 
         "overDeclaration.overDeclarationProducts.amountOverDeclared" in {
-          val overDeclarationObj = txmSubmission("overDeclaration")("overDeclarationProducts").as[JsArray].head
-
           overDeclarationObj.as[JsObject].keys must not contain "amountOverDeclared"
           overDeclarationObj("amountOverDeclaredLitres") mustBe JsNumber(100)
         }
 
         "spoiltProduct.spoiltProducts.amountSpoilt" in {
-          val spoiltProductObj = txmSubmission("spoiltProduct")("spoiltProducts").as[JsArray].head
-
           spoiltProductObj.as[JsObject].keys must not contain "amountSpoilt"
           spoiltProductObj("amountSpoiltLitres") mustBe JsNumber(50)
         }
 
         "otherOptions.volumeMovedFromDutySuspense" in {
-          val otherOptionsObj = txmSubmission("otherOptions").as[JsObject]
-
           otherOptionsObj.keys must not contain "volumeMovedFromDutySuspense"
           otherOptionsObj("volumeMovedFromDutySuspenseLitres") mustBe JsNumber(300)
         }
 
         "otherOptions.volumeMovedToDutySuspense" in {
-          val otherOptionsObj = txmSubmission("otherOptions").as[JsObject]
-
           otherOptionsObj.keys must not contain "volumeMovedToDutySuspense"
           otherOptionsObj("volumeMovedToDutySuspenseLitres") mustBe JsNumber(150)
         }
@@ -290,21 +280,19 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers, ObligationsBuild
         }        
 
         "for adjustments" - {
+          val spoiltProductObj        = txmSubmission("spoiltProduct")("spoiltProducts").as[JsArray].head.as[JsObject]
+          val underDeclaredProductObj = txmSubmission("underDeclaration")("underDeclarationProducts").as[JsArray].head.as[JsObject]
+          val overDeclaredProductObj  = txmSubmission("overDeclaration")("overDeclarationProducts").as[JsArray].head.as[JsObject]
+          
           "spoilt" in {
-            val spoiltProductObj = txmSubmission("spoiltProduct")("spoiltProducts").as[JsArray].head.as[JsObject]
-
             spoiltProductObj("returnPeriodAffected") mustBe JsString("2026-11-01 to 2026-11-30")
           }
 
           "under declared" in {
-            val underDeclaredProductObj = txmSubmission("underDeclaration")("underDeclarationProducts").as[JsArray].head.as[JsObject]
-
             underDeclaredProductObj("returnPeriodAffected") mustBe JsString("2026-10-01 to 2026-10-31")
           }
 
           "over declared" in {
-            val overDeclaredProductObj = txmSubmission("overDeclaration")("overDeclarationProducts").as[JsArray].head.as[JsObject]
-
             overDeclaredProductObj("returnPeriodAffected") mustBe JsString("2026-11-01 to 2026-11-30")
           }
         }  
