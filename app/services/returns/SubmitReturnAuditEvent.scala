@@ -47,7 +47,12 @@ object SubmitReturnAuditEvent {
   }
 
   def buildResponse(etmpSubmission: JsValue): JsValue = {
-    etmpSubmission
+    val successObj = etmpSubmission("success")
+    JsObject(Map(
+      "submissionId"    -> successObj("submissionId"),
+      "chargeReference" -> successObj("chargeReference"),
+      "paymentDueDate"  -> successObj("paymentDueDate")
+    ))
   }
 
   def jsRenameKeys(jsValue: JsValue, nameChanges: Map[String, String]): JsValue =

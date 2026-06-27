@@ -116,10 +116,36 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
         }
 
         "must contain the response section" in {
-            SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, response)("response") mustBe response
+            Option(SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, response)("response")) must not be None
         }
 
-        "Submission section " - {
+        "response section" - {
+          "includes submissionId" in {
+            SubmitReturnAuditEvent.buildResponse(response)("submissionId") mustBe JsString("123456789012")
+          }
+
+          "includes chargeReference" in {
+            SubmitReturnAuditEvent.buildResponse(response)("chargeReference") mustBe JsString("AB123456789012")
+          }
+
+          "includes paymentDueDate" in {
+            SubmitReturnAuditEvent.buildResponse(response)("paymentDueDate") mustBe JsString("2026-06-07")
+          }
+
+          "removes processingDate" in {
+            SubmitReturnAuditEvent.buildResponse(response).as[JsObject].keys must not contain "processingDate"
+          }
+
+          "removes vpdReferenceNumber" in {
+            SubmitReturnAuditEvent.buildResponse(response).as[JsObject].keys must not contain "vpdReferenceNumber"
+          }
+
+          "removes amount" in {
+            SubmitReturnAuditEvent.buildResponse(response).as[JsObject].keys must not contain "amount"
+          }
+        }
+      
+        "Submission section" - {
             "renames periodKey to returnPeriod" in {
                 SubmitReturnAuditEvent.buildSubmission(submission).as[JsObject].keys must not contain "periodKey"
                 SubmitReturnAuditEvent.buildSubmission(submission)("returnPeriod") mustBe JsString("24KA")
