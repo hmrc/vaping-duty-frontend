@@ -39,7 +39,8 @@ object SubmitReturnAuditEvent {
       "periodKey" -> "returnPeriod",
       "amountProducedLiquid" -> "amountProducedLiquidLitres",
       "amountUnderDeclared" -> "amountUnderDeclaredLitres",
-      "amountOverDeclared" -> "amountOverDeclaredLitres"
+      "amountOverDeclared" -> "amountOverDeclaredLitres",
+      "amountSpoilt" -> "amountSpoiltLitres"
     ))
   }
 
