@@ -38,7 +38,8 @@ object SubmitReturnAuditEvent {
     jsRenameKeys(etmpSubmission, Map(
       "periodKey" -> "returnPeriod",
       "amountProducedLiquid" -> "amountProducedLiquidLitres",
-      "amountUnderDeclared" -> "amountUnderDeclaredLitres"
+      "amountUnderDeclared" -> "amountUnderDeclaredLitres",
+      "amountOverDeclared" -> "amountOverDeclaredLitres"
     ))
   }
 

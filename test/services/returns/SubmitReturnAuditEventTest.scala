@@ -133,11 +133,19 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers {
                     returnJsObj.as[JsObject].keys must not contain "amountProducedLiquid"
                     returnJsObj("amountProducedLiquidLitres") mustBe JsNumber(1500.25)
                 }
+
                 "underDeclaration.underDeclarationProducts.amountUnderDeclaredLitres" in {
                     val underDeclarationObj = SubmitReturnAuditEvent.buildSubmission(submission)("underDeclaration")("underDeclarationProducts").as[JsArray].head
 
                     underDeclarationObj.as[JsObject].keys must not contain "amountUnderDeclared"
                     underDeclarationObj("amountUnderDeclaredLitres") mustBe JsNumber(200)
+                }
+
+                "overDeclaration.overDeclarationProducts.amountOverDeclaredLitres" in {
+                    val overDeclarationObj = SubmitReturnAuditEvent.buildSubmission(submission)("overDeclaration")("overDeclarationProducts").as[JsArray].head
+
+                    overDeclarationObj.as[JsObject].keys must not contain "amountOverDeclared"
+                    overDeclarationObj("amountOverDeclaredLitres") mustBe JsNumber(100)
                 }
             }
         }
