@@ -109,8 +109,8 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           userAnswers
         )
 
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
-          .thenReturn(Future.successful(Some(obligation)))
+        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+          .thenReturn(Future.successful(Seq(obligation)))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
           .thenReturn(models.returns.TotalDutyDue(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
@@ -143,8 +143,8 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           userAnswers
         )
 
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
-          .thenReturn(Future.successful(Some(obligation)))
+        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+         .thenReturn(Future.successful(Seq(obligation)))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
           .thenReturn(models.returns.TotalDutyDue(
             totalDutyDueVapingProducts = BigDecimal("0"),
@@ -183,8 +183,8 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           userAnswers
         )
 
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
-          .thenReturn(Future.successful(Some(obligation)))
+        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+          .thenReturn(Future.successful(Seq(obligation)))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
           .thenReturn(models.returns.TotalDutyDue(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
@@ -221,8 +221,8 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           userAnswers
         )
 
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
-          .thenReturn(Future.successful(Some(obligation)))
+        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+          .thenReturn(Future.successful(Seq(obligation)))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
           .thenReturn(models.returns.TotalDutyDue(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
@@ -253,8 +253,8 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           userAnswers
         )
 
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
-          .thenReturn(Future.successful(None))
+        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+          .thenReturn(Future.successful(Seq()))
 
         val exception = service.submit(userAnswers).failed.futureValue
 
@@ -277,8 +277,8 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           userAnswers
         )
 
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
-          .thenReturn(Future.successful(Some(obligation)))
+        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+          .thenReturn(Future.successful(Seq(obligation)))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
           .thenReturn(models.returns.TotalDutyDue(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
