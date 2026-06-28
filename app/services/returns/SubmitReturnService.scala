@@ -59,9 +59,9 @@ class SubmitReturnService @Inject()(
       submission = buildSubmission(ua, obligation)
       result <- submitReturnConnector.submitReturn(submission, request.enrolmentVpdId)
     } yield {
-      val detail = SubmitReturnAuditEvent.
-        buildExplicitAuditEvent(submission, result, request.identifiers, obligations)
-      auditService.auditReturnSubmitted(detail)
+      auditService.auditReturnSubmitted(
+        SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, result, request.identifiers, obligations))
+ 
       result
     }
   }

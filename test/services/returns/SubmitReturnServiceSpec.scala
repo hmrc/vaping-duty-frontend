@@ -25,10 +25,11 @@ import models.requests.returns.ReturnsDataRequest
 import models.returns.{DeclarationDetails, DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{never, verify, when, reset}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import play.api.libs.json.JsObject
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import services.contactPreference.AuditService
@@ -95,6 +96,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     super.beforeEach()
     when(mockConfig.taxType).thenReturn(taxType)
     when(mockDutyRateService.getRateForDate(any())).thenReturn(dutyRateInPence)
+    reset(mockAuditService)
   }
 
   "SubmitReturnService" - {
@@ -123,6 +125,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         result mustBe submittedResponse
         verify(mockSubmitReturnConnector).submitReturn(any[ReturnCreateRequest], eqTo(vpdId))(any())
+        verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
       }
 
       "successfully submit a nil return" in {
@@ -142,6 +145,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         val result = service.submit(userAnswers).futureValue
 
         result mustBe submittedResponse
+        verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
       }
 
       "successfully submit a return with spoilt products" in {
@@ -172,6 +176,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         val result = service.submit(userAnswers).futureValue
 
         result mustBe submittedResponse
+        verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
       }
 
       "successfully submit a return with duty suspense" in {
@@ -199,6 +204,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         val result = service.submit(userAnswers).futureValue
 
         result mustBe submittedResponse
+        verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
       }
 
       "fail when no obligation found" in {
@@ -214,6 +220,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         exception mustBe an[IllegalStateException]
         exception.getMessage must include("No obligation found")
+        verify(mockAuditService, never()).auditReturnSubmitted(any[JsObject])(any())
       }
 
       "fail when declaration details are missing" in {
@@ -235,6 +242,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         exception mustBe an[IllegalStateException]
         exception.getMessage must include("Declaration details are required")
+        verify(mockAuditService, never()).auditReturnSubmitted(any[JsObject])(any())
       }
     }
   }
