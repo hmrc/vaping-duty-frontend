@@ -22,7 +22,7 @@ import play.api.mvc.{Request, WrappedRequest}
 
 case class ReturnsOptionalDataRequest[A](request: Request[A],
                                          enrolmentVpdId: VpdId,
-                                         groupdId: GroupId,
+                                         groupId: GroupId,
                                          internalId: InternalId,
                                          credId: CredentialId,
                                          periodKey: PeriodKey,
