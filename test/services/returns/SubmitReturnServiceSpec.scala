@@ -83,6 +83,14 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     paymentDueDate = Some(LocalDate.parse("2026-06-07"))
   )
 
+  val nilReturnTotals = models.returns.TotalDutyDue(
+    totalDutyDueVapingProducts = BigDecimal("0"),
+    totalDutyOverDeclaration   = BigDecimal("0"),
+    totalDutyUnderDeclaration  = BigDecimal("0"),
+    totalDutySpoiltProduct     = BigDecimal("0"),
+    totalDue                   = BigDecimal("0")
+  )
+
   override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockConfig.taxType).thenReturn(taxType)
@@ -99,24 +107,13 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
           .set(DeclarationPage, declaration).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
-          FakeRequest(),
-          vpdId,
-          groupId,
-          internalId,
-          credId,
-          periodKey,
-          userAnswers
-        )
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq(obligation)))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
-          .thenReturn(models.returns.TotalDutyDue(
+          .thenReturn(nilReturnTotals.copy(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
-            totalDutyOverDeclaration = BigDecimal("0"),
-            totalDutyUnderDeclaration = BigDecimal("0"),
-            totalDutySpoiltProduct = BigDecimal("0"),
             totalDue = BigDecimal("10.50")
           ))
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
@@ -133,26 +130,12 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(DeclareDutyPage, false).success.value
           .set(DeclarationPage, declaration).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
-          FakeRequest(),
-          vpdId,
-          groupId,
-          internalId,
-          credId,
-          periodKey,
-          userAnswers
-        )
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
          .thenReturn(Future.successful(Seq(obligation)))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
-          .thenReturn(models.returns.TotalDutyDue(
-            totalDutyDueVapingProducts = BigDecimal("0"),
-            totalDutyOverDeclaration = BigDecimal("0"),
-            totalDutyUnderDeclaration = BigDecimal("0"),
-            totalDutySpoiltProduct = BigDecimal("0"),
-            totalDue = BigDecimal("0")
-          ))
+          .thenReturn(nilReturnTotals)
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
           .thenReturn(Future.successful(submittedResponse))
 
@@ -173,23 +156,13 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
           .set(DeclarationPage, declaration).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
-          FakeRequest(),
-          vpdId,
-          groupId,
-          internalId,
-          credId,
-          periodKey,
-          userAnswers
-        )
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq(obligation)))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
-          .thenReturn(models.returns.TotalDutyDue(
+          .thenReturn(nilReturnTotals.copy(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
-            totalDutyOverDeclaration = BigDecimal("0"),
-            totalDutyUnderDeclaration = BigDecimal("0"),
             totalDutySpoiltProduct = BigDecimal("8.40"),
             totalDue = BigDecimal("2.10")
           ))
@@ -211,24 +184,13 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
           .set(DeclarationPage, declaration).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
-          FakeRequest(),
-          vpdId,
-          groupId,
-          internalId,
-          credId,
-          periodKey,
-          userAnswers
-        )
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq(obligation)))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
-          .thenReturn(models.returns.TotalDutyDue(
+          .thenReturn(nilReturnTotals.copy(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
-            totalDutyOverDeclaration = BigDecimal("0"),
-            totalDutyUnderDeclaration = BigDecimal("0"),
-            totalDutySpoiltProduct = BigDecimal("0"),
             totalDue = BigDecimal("10.50")
           ))
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
@@ -243,15 +205,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
           .set(DeclarationPage, declaration).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
-          FakeRequest(),
-          vpdId,
-          groupId,
-          internalId,
-          credId,
-          periodKey,
-          userAnswers
-        )
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq()))
@@ -267,24 +221,13 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
-          FakeRequest(),
-          vpdId,
-          groupId,
-          internalId,
-          credId,
-          periodKey,
-          userAnswers
-        )
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq(obligation)))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
-          .thenReturn(models.returns.TotalDutyDue(
+          .thenReturn(nilReturnTotals.copy(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
-            totalDutyOverDeclaration = BigDecimal("0"),
-            totalDutyUnderDeclaration = BigDecimal("0"),
-            totalDutySpoiltProduct = BigDecimal("0"),
             totalDue = BigDecimal("10.50")
           ))
 
@@ -294,5 +237,9 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         exception.getMessage must include("Declaration details are required")
       }
     }
+  }
+
+  private def buildReturnsDataRequest(answers: ReturnsUserAnswers) = {
+    ReturnsDataRequest(FakeRequest(), vpdId, groupId, internalId, credId, periodKey, answers)
   }
 }
