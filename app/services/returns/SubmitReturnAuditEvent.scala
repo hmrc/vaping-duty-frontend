@@ -35,9 +35,9 @@ object SubmitReturnAuditEvent {
                               identifiers: Identifiers,
                               obligations: Seq[ObligationDetails]): JsObject = {
     new JsObject(Map(
-      "submission"       -> buildSubmission(submission, obligations),
+      "response"         -> buildResponse(response),
       "prePopulatedData" -> buildPrePopulatedData(identifiers),
-      "response"         -> buildResponse(response)
+      "submission"       -> buildSubmission(submission, obligations),
     ))
   }
 

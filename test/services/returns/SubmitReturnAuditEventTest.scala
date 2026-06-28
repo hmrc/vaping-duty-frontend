@@ -107,7 +107,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers, ObligationsBuild
       |    "submissionId": "123456789012",
       |    "chargeReference": "AB123456789012",
       |    "amount": 16277.63,
-      |    "paymentDueDate": "2026-06-07"
+      |    "paymentDueDate": "2027-01-15"
       |  }
       |}
       |""".stripMargin)("success").as[ReturnSubmittedResponse]
@@ -138,6 +138,93 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers, ObligationsBuild
     "must contain the prePopulatedData section" in {
       Option(txmEvent("prePopulatedData")) must not be None
     }
+    
+    "must transform all input to a valid event" in {
+      Json.stringify(txmEvent) mustBe Json.stringify(Json.parse(
+        """
+          |{
+          |    "response": {
+          |      "submissionId": "123456789012",
+          |      "chargeReference": "AB123456789012",
+          |      "paymentDueDate": "2027-01-15"
+          |    },
+          |    "prePopulatedData": {
+          |      "approvalId": "GBWK1234567WK",
+          |      "credentialId": "Int-53b2f41d-af8b-4372-afce-b9bb95b2dd86",
+          |      "groupId": "6031A986-C7F1-4D14-BA98-04A3AD8871B7"
+          |    },
+          |    "submission": {
+          |      "returnPeriod": "2026-12-01 to 2026-12-31",
+          |      "vapingProductsProduced": {
+          |        "vapingProductsManufactured": "1",
+          |        "returns": [
+          |          {
+          |            "taxType": "641",
+          |            "dutyRate": 10.5,
+          |            "amountProducedLiquidLitres": 1500.25,
+          |            "dutyDue": 15752.63
+          |          }
+          |        ]
+          |      },
+          |      "underDeclaration": {
+          |        "underDeclarationFilled": "1",
+          |        "reasonForUnderDeclaration": "Incorrect reporting in previous return",
+          |        "underDeclarationProducts": [
+          |          {
+          |            "returnPeriodAffected": "2026-10-01 to 2026-10-31",
+          |            "taxType": "641",
+          |            "dutyRate": 10.5,
+          |            "amountUnderDeclaredLitres": 200,
+          |            "dutyDue": 2100
+          |          }
+          |        ]
+          |      },
+          |      "overDeclaration": {
+          |        "overDeclarationFilled": "1",
+          |        "reasonForOverDeclaration": "Duplicate entry in prior submission",
+          |        "overDeclarationProducts": [
+          |          {
+          |            "returnPeriodAffected": "2026-11-01 to 2026-11-30",
+          |            "taxType": "641",
+          |            "dutyRate": 10.5,
+          |            "amountOverDeclaredLitres": 100,
+          |            "dutyDue": 1050
+          |          }
+          |        ]
+          |      },
+          |      "spoiltProduct": {
+          |        "spoiltProductFilled": "1",
+          |        "spoiltProducts": [
+          |          {
+          |            "returnPeriodAffected": "2026-11-01 to 2026-11-30",
+          |            "taxType": "641",
+          |            "dutyRate": 10.5,
+          |            "amountSpoiltLitres": 50,
+          |            "dutyDue": 525
+          |          }
+          |        ]
+          |      },
+          |      "totalDutyDue": {
+          |        "totalDutyDueVapingProducts": 15752.63,
+          |        "totalDutyOverDeclaration": 1050,
+          |        "totalDutyUnderDeclaration": 2100,
+          |        "totalDutySpoiltProduct": 525,
+          |        "totalDue": 16277.63
+          |      },
+          |      "otherOptions": {
+          |        "vapingProductUnderDutySuspense": "1",
+          |        "volumeMovedFromDutySuspenseLitres": 300,
+          |        "volumeMovedToDutySuspenseLitres": 150
+          |      },
+          |      "declaration": {
+          |        "fullName": "John Smith",
+          |        "capacityInWhichSigned": "Director",
+          |        "signeesEmailAddress": "john.smith@example.com"
+          |      }
+          |    }
+          |  }
+          |""".stripMargin))
+    }
 
     "response section" - {
       "includes submissionId if present in the etmp response" in {
@@ -155,7 +242,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers, ObligationsBuild
       }
 
       "includes paymentDueDate if present in the etmp response" in {
-        SubmitReturnAuditEvent.buildResponse(etmpResponse)("paymentDueDate") mustBe JsString("2026-06-07")
+        SubmitReturnAuditEvent.buildResponse(etmpResponse)("paymentDueDate") mustBe JsString("2027-01-15")
       }
       "Does not include the paymentDueDate if not present in the etmp response" in {
         SubmitReturnAuditEvent.buildResponse(etmpResponse.copy(paymentDueDate = None)).as[JsObject].keys must not contain "paymentDueDate"
