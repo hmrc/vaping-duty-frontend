@@ -53,8 +53,10 @@ object SubmitReturnAuditEvent {
 
   private def renameKeys(etmpSubmission: JsValue) = {
     jsRenameKeys(etmpSubmission, Map(
+      // Replace periodKey jargon with clearer returnPeriod
       "periodKey" -> "returnPeriod",
 
+      // Be clear that volumes are recorded in Litres
       "amountProducedLiquid" -> "amountProducedLiquidLitres",
       "amountUnderDeclared"  -> "amountUnderDeclaredLitres",
       "amountOverDeclared"   -> "amountOverDeclaredLitres",
@@ -62,11 +64,11 @@ object SubmitReturnAuditEvent {
       "volumeMovedFromDutySuspense" -> "volumeMovedFromDutySuspenseLitres",
       "volumeMovedToDutySuspense"   -> "volumeMovedToDutySuspenseLitres",
 
+      // Expand abbreviations
       "underDeclFilled"    -> "underDeclarationFilled",
       "reasonForUnderDecl" -> "reasonForUnderDeclaration",
       "overDeclFilled"     -> "overDeclarationFilled",
       "reasonForOverDecl"  -> "reasonForOverDeclaration",
-
       "vapingProdManufactured" -> "vapingProductsManufactured"
     ))
   }
