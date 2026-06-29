@@ -23,7 +23,8 @@ import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
-import pages.returns.{DeclarationPage, DeclareDutyPage, EnterDutyAmountPage}
+import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, SpoiltProductItem, UnderDeclaration}
+import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -34,8 +35,13 @@ class SubmitReturnService @Inject()(
   submitReturnConnector: SubmitReturnConnector,
   dutyRateService: DutyRateService,
   obligationService: ObligationService,
+  totalDutyDueCalculationService: TotalDutyDueCalculationService,
   config: FrontendAppConfig
 )(using ExecutionContext) {
+
+  private val ZERO_VALUE = BigDecimal("0")
+  private val FLAG_NOT_FILLED = "0"
+  private val FLAG_FILLED = "1"
 
   def submit(ua: ReturnsUserAnswers)(implicit request: ReturnsDataRequest[?]): Future[ReturnSubmittedResponse] = {
 
@@ -54,9 +60,8 @@ class SubmitReturnService @Inject()(
 
   private def buildSubmission(ua: ReturnsUserAnswers, obligation: ObligationDetails): ReturnCreateRequest = {
 
-    val zeroValue = BigDecimal("0")
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
-    val liquidInMl = ua.get(EnterDutyAmountPage).getOrElse(zeroValue)
+    val liquidInMl = ua.get(EnterDutyAmountPage).getOrElse(ZERO_VALUE)
 
     val periodKey = PeriodKey(ua.periodKey)
 
@@ -67,8 +72,9 @@ class SubmitReturnService @Inject()(
     val dutyDue = (liquidInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
 
     val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) / 100) * 10
+    
     val vapingProductsProduced = if (dutyDeclared) {
-      VapingProductsProduced(nilReturn = Seq(), regularReturn = Seq(
+      VapingProductsProduced(vapingProdManufactured = FLAG_FILLED, returns = Seq(
         RegularReturn(
           taxType = config.taxType,
           dutyRate = dutyRateInPoundsPer10Ml,
@@ -76,24 +82,21 @@ class SubmitReturnService @Inject()(
           dutyDue = dutyDue
         )))
     } else {
-      VapingProductsProduced(nilReturn = Seq(NilReturn(vapingProductsProduced = "0")), regularReturn = Seq())
+      VapingProductsProduced(vapingProdManufactured = FLAG_NOT_FILLED, returns = Seq())
     }
 
-    val totalDutyDueVapingProducts = if (dutyDeclared) dutyDue else zeroValue
+    val totalDutyDueVapingProducts = if (dutyDeclared) dutyDue else ZERO_VALUE
 
-    def calculateAdjustmentValue(over: BigDecimal, under: BigDecimal, spoilt: BigDecimal) = {
-      over + under + spoilt
-    }
+    val underDeclaration = buildUnderDeclaration()
+    val overDeclaration = buildOverDeclaration()
+    val spoiltProduct = buildSpoiltProduct(ua, dutyRateInPencePerMl)
+    val otherOptions = buildOtherOptions(ua)
 
-    val adjustments = calculateAdjustmentValue(zeroValue, zeroValue, zeroValue)
-
-    val totalDutyDue = TotalDutyDue(
-      totalDutyDueVapingProducts = totalDutyDueVapingProducts,
-      totalDutyOverDeclaration = zeroValue,
-      totalDutyUnderDeclaration = zeroValue,
-      totalDutySpoiltProduct = zeroValue,
-      adjustmentAmount = adjustments,
-      totalDutyDue = totalDutyDueVapingProducts + adjustments
+    val totalDutyDue = totalDutyDueCalculationService.calculate(
+      totalDutyDueVapingProducts,
+      underDeclaration,
+      overDeclaration,
+      spoiltProduct
     )
 
     val declaration = ua.get(DeclarationPage).getOrElse(
@@ -101,6 +104,85 @@ class SubmitReturnService @Inject()(
       throw new IllegalStateException("Declaration details are required for submission")
     )
 
-    ReturnCreateRequest(periodKey.toString, vapingProductsProduced, totalDutyDue, declaration)
+    ReturnCreateRequest(
+      periodKey = periodKey.toString,
+      vapingProductsProduced = vapingProductsProduced,
+      underDeclaration = underDeclaration,
+      overDeclaration = overDeclaration,
+      spoiltProduct = spoiltProduct,
+      totalDutyDue = totalDutyDue,
+      otherOptions = otherOptions,
+      declaration = declaration
+    )
+  }
+
+  private def buildUnderDeclaration(): Option[UnderDeclaration] =
+    Some(UnderDeclaration(
+      underDeclFilled = FLAG_NOT_FILLED,
+      reasonForUnderDecl = None,
+      underDeclarationProducts = None
+    ))
+
+  private def buildOverDeclaration(): Option[OverDeclaration] =
+    Some(OverDeclaration(
+      overDeclFilled = FLAG_NOT_FILLED,
+      reasonForOverDecl = None,
+      overDeclarationProducts = None
+    ))
+
+  private def buildSpoiltProduct(ua: ReturnsUserAnswers, dutyRateInPencePerMl: Int): Option[SpoiltProduct] = {
+    val spoiltVolumes = ua.get(SpoiltVolumeByPeriodPage)
+    
+    spoiltVolumes match {
+      case Some(volumes) if volumes.nonEmpty =>
+        val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) / 100) * 10
+        
+        val spoiltProducts = volumes.map { spoiltVolume =>
+          val volumeInMl = BigDecimal(spoiltVolume.volume)
+          val volumeInLitres = ConvertToLitres(volumeInMl).toLitres
+          val dutyDue = (volumeInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
+          
+          SpoiltProductItem(
+            returnPeriodAffected = spoiltVolume.periodKey.toString,
+            taxType = config.taxType,
+            dutyRate = dutyRateInPoundsPer10Ml,
+            amountSpoilt = volumeInLitres,
+            dutyDue = dutyDue
+          )
+        }
+        
+        Some(SpoiltProduct(
+          spoiltProductFilled = FLAG_FILLED,
+          spoiltProducts = Some(spoiltProducts)
+        ))
+      case _ =>
+        Some(SpoiltProduct(
+          spoiltProductFilled = FLAG_NOT_FILLED,
+          spoiltProducts = None
+        ))
+    }
+  }
+
+  private def buildOtherOptions(ua: ReturnsUserAnswers): Option[OtherOptions] = {
+    val dutySuspenseDeclared = ua.get(DeclareDutySuspensePage).getOrElse(false)
+    val dutySuspenseVolumes = ua.get(EnterDutySuspensePage)
+    
+    (dutySuspenseDeclared, dutySuspenseVolumes) match {
+      case (true, Some(volumes)) =>
+        val volumeReceivedInMl = BigDecimal(volumes.volumeReceived)
+        val volumeMovedInMl = BigDecimal(volumes.volumeMoved)
+        
+        Some(OtherOptions(
+          vapingProductUnderDutySuspense = FLAG_FILLED,
+          volumeMovedFromDutySuspense = Some(ConvertToLitres(volumeReceivedInMl).toLitres),
+          volumeMovedToDutySuspense = Some(ConvertToLitres(volumeMovedInMl).toLitres)
+        ))
+      case _ =>
+        Some(OtherOptions(
+          vapingProductUnderDutySuspense = FLAG_NOT_FILLED,
+          volumeMovedFromDutySuspense = None,
+          volumeMovedToDutySuspense = None
+        ))
+    }
   }
 }

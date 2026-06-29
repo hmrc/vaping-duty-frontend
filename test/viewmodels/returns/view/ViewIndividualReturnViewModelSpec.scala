@@ -31,7 +31,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
 
   private val returnResponseNoDeclaration = returnResponse.copy(
     success = returnResponse.success.copy(
-      vapingProductsProduced = Some(VapingProductsProduced(Seq.empty, Seq.empty))
+      vapingProductsProduced = Some(VapingProductsProduced(vapingProdManufactured = "0", returns = Seq.empty))
     )
   )
 
@@ -87,8 +87,8 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         success = returnResponse.success.copy(
           vapingProductsProduced = Some(
             VapingProductsProduced(
-              nilReturn = Seq.empty,
-              regularReturn = Seq(
+              vapingProdManufactured = "1",
+              returns = Seq(
                 RegularReturn(
                   taxType = "311",
                   dutyRate = BigDecimal("0.50"),
@@ -116,8 +116,8 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         success = returnResponse.success.copy(
           vapingProductsProduced = Some(
             VapingProductsProduced(
-              nilReturn = Seq.empty,
-              regularReturn = Seq(
+              vapingProdManufactured = "1",
+              returns = Seq(
                 RegularReturn(
                   taxType = "311",
                   dutyRate = BigDecimal("0.50"),
@@ -155,8 +155,8 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         success = returnResponse.success.copy(
           vapingProductsProduced = Some(
             VapingProductsProduced(
-              nilReturn = Seq.empty,
-              regularReturn = Seq(
+              vapingProdManufactured = "1",
+              returns = Seq(
                 RegularReturn(
                   taxType = "311",
                   dutyRate = BigDecimal("0.50"),

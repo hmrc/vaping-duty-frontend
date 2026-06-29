@@ -19,154 +19,270 @@ package services.returns
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
+import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
+import models.returns.{DeclarationDetails, DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
+import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.{verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.returns.DeclarationPage
+import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.InternalServerException
 
-import java.time.LocalDate
+import java.time.{Instant, LocalDate}
 import scala.concurrent.Future
 
 class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
-  private val mockConnector = mock[SubmitReturnConnector]
+  private val mockSubmitReturnConnector = mock[SubmitReturnConnector]
   private val mockDutyRateService = mock[DutyRateService]
   private val mockObligationService = mock[ObligationService]
-  private val mockAppConfig = mock[FrontendAppConfig]
+  private val mockTotalDutyDueCalculationService = mock[TotalDutyDueCalculationService]
+  private val mockConfig = mock[FrontendAppConfig]
+
+  private val service = new SubmitReturnService(
+    mockSubmitReturnConnector,
+    mockDutyRateService,
+    mockObligationService,
+    mockTotalDutyDueCalculationService,
+    mockConfig
+  )
+
+  private val vpdId = VpdId("GBWK1234567WK")
+  private val periodKey = PeriodKey("24KA")
+  private val dutyRateInPence = 1050
+  private val taxType = "641"
+
+  private val obligation = ObligationDetails(
+    openOrFulfilledStatus = "O",
+    iCFromDate = LocalDate.of(2024, 1, 1),
+    iCToDate = LocalDate.of(2024, 1, 31),
+    iCDateReceived = None,
+    iCDueDate = LocalDate.of(2024, 2, 28),
+    periodKey = periodKey.value
+  )
+
+  private val declaration = DeclarationDetails(
+    fullName = "John Smith",
+    capacityInWhichSigned = "Director",
+    signeesEmailAddress = "john.smith@example.com"
+  )
+
+  private val submittedResponse = ReturnSubmittedResponse(
+    processingDate = Instant.parse("2026-05-08T10:30:00Z"),
+    vpdReferenceNumber = vpdId.value,
+    submissionId = Some("123456789012"),
+    chargeReference = Some("AB123456789012"),
+    amount = BigDecimal("100.00"),
+    paymentDueDate = Some(LocalDate.parse("2026-06-07"))
+  )
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockConnector, mockDutyRateService, mockObligationService, mockAppConfig)
+    when(mockConfig.taxType).thenReturn(taxType)
+    when(mockDutyRateService.getRateForDate(any())).thenReturn(dutyRateInPence)
   }
-
-  private val testObligation = ObligationDetails(
-    openOrFulfilledStatus = "O",
-    iCFromDate = LocalDate.of(2026, 1, 1),
-    iCToDate = LocalDate.of(2026, 1, 31),
-    iCDateReceived = None,
-    iCDueDate = LocalDate.of(2026, 2, 28),
-    periodKey = periodKey.toString
-  )
-
-  private val userAnswersWithDeclaration = returnsUserAnswers
-    .set(DeclarationPage, testDeclarationDetails)
-    .success
-    .value
-
-  given ReturnsDataRequest[?] = ReturnsDataRequest(
-    FakeRequest(),
-    vpdId,
-    internalId,
-    credId,
-    periodKey,
-    userAnswersWithDeclaration
-  )
 
   "SubmitReturnService" - {
 
-    "submit" - {
+    "submit must" - {
 
-      "must return success when a return is submitted successfully" in {
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
-          .thenReturn(Future.successful(Some(testObligation)))
+      "successfully submit a return with duty declared" in {
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+          .set(DeclareDutyPage, true).success.value
+          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
+          .set(DeclarationPage, declaration).success.value
 
-        when(mockDutyRateService.getRateForDate(eqTo(testObligation.iCFromDate)))
-          .thenReturn(22)
-
-        when(mockAppConfig.taxType).thenReturn("VPD")
-
-        when(mockConnector.submitReturn(any(), eqTo(vpdId))(any()))
-          .thenReturn(Future.successful(testReturnSubmissionResponse))
-
-        val service = new SubmitReturnService(
-          mockConnector,
-          mockDutyRateService,
-          mockObligationService,
-          mockAppConfig
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
+          FakeRequest(),
+          vpdId,
+          internalId,
+          credId,
+          periodKey,
+          userAnswers
         )
 
-        val result = service.submit(userAnswersWithDeclaration)
+        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
+          .thenReturn(Future.successful(Some(obligation)))
+        when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
+          .thenReturn(models.returns.TotalDutyDue(
+            totalDutyDueVapingProducts = BigDecimal("10.50"),
+            totalDutyOverDeclaration = BigDecimal("0"),
+            totalDutyUnderDeclaration = BigDecimal("0"),
+            totalDutySpoiltProduct = BigDecimal("0"),
+            totalDue = BigDecimal("10.50")
+          ))
+        when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
+          .thenReturn(Future.successful(submittedResponse))
 
-        whenReady(result) { response =>
-          response mustBe testReturnSubmissionResponse
-        }
+        val result = service.submit(userAnswers).futureValue
+
+        result mustBe submittedResponse
+        verify(mockSubmitReturnConnector).submitReturn(any[ReturnCreateRequest], eqTo(vpdId))(any())
       }
 
-      "must use the correct duty rate from the obligation's start date" in {
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
-          .thenReturn(Future.successful(Some(testObligation)))
+      "successfully submit a nil return" in {
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+          .set(DeclareDutyPage, false).success.value
+          .set(DeclarationPage, declaration).success.value
 
-        when(mockDutyRateService.getRateForDate(eqTo(testObligation.iCFromDate)))
-          .thenReturn(30)
-
-        when(mockAppConfig.taxType).thenReturn("VPD")
-
-        when(mockConnector.submitReturn(any(), eqTo(vpdId))(any()))
-          .thenReturn(Future.successful(testReturnSubmissionResponse))
-
-        val service = new SubmitReturnService(
-          mockConnector,
-          mockDutyRateService,
-          mockObligationService,
-          mockAppConfig
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
+          FakeRequest(),
+          vpdId,
+          internalId,
+          credId,
+          periodKey,
+          userAnswers
         )
 
-        val result = service.submit(userAnswersWithDeclaration)
+        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
+          .thenReturn(Future.successful(Some(obligation)))
+        when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
+          .thenReturn(models.returns.TotalDutyDue(
+            totalDutyDueVapingProducts = BigDecimal("0"),
+            totalDutyOverDeclaration = BigDecimal("0"),
+            totalDutyUnderDeclaration = BigDecimal("0"),
+            totalDutySpoiltProduct = BigDecimal("0"),
+            totalDue = BigDecimal("0")
+          ))
+        when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
+          .thenReturn(Future.successful(submittedResponse))
 
-        whenReady(result) { _ =>
-          // Verify that the duty rate service was called with the correct date
-          org.mockito.Mockito.verify(mockDutyRateService)
-            .getRateForDate(eqTo(testObligation.iCFromDate))
-        }
+        val result = service.submit(userAnswers).futureValue
+
+        result mustBe submittedResponse
       }
 
-      "must return failure when there was an error submitting a return" in {
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
-          .thenReturn(Future.successful(Some(testObligation)))
-
-        when(mockDutyRateService.getRateForDate(eqTo(testObligation.iCFromDate)))
-          .thenReturn(22)
-
-        when(mockAppConfig.taxType).thenReturn("VPD")
-
-        when(mockConnector.submitReturn(any(), eqTo(vpdId))(any()))
-          .thenReturn(Future.failed(InternalServerException("error")))
-
-        val service = new SubmitReturnService(
-          mockConnector,
-          mockDutyRateService,
-          mockObligationService,
-          mockAppConfig
+      "successfully submit a return with spoilt products" in {
+        val spoiltVolumes = List(
+          SpoiltVolumeByPeriod(volume = 500, periodKey = PeriodKey("23KB")),
+          SpoiltVolumeByPeriod(volume = 300, periodKey = PeriodKey("23KC"))
         )
 
-        val result = service.submit(userAnswersWithDeclaration)
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+          .set(DeclareDutyPage, true).success.value
+          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
+          .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
+          .set(DeclarationPage, declaration).success.value
 
-        whenReady(result.failed) { exception =>
-          exception mustBe an[InternalServerException]
-        }
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
+          FakeRequest(),
+          vpdId,
+          internalId,
+          credId,
+          periodKey,
+          userAnswers
+        )
+
+        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
+          .thenReturn(Future.successful(Some(obligation)))
+        when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
+          .thenReturn(models.returns.TotalDutyDue(
+            totalDutyDueVapingProducts = BigDecimal("10.50"),
+            totalDutyOverDeclaration = BigDecimal("0"),
+            totalDutyUnderDeclaration = BigDecimal("0"),
+            totalDutySpoiltProduct = BigDecimal("8.40"),
+            totalDue = BigDecimal("2.10")
+          ))
+        when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
+          .thenReturn(Future.successful(submittedResponse))
+
+        val result = service.submit(userAnswers).futureValue
+
+        result mustBe submittedResponse
       }
 
-      "must return failure when obligation is not found" in {
+      "successfully submit a return with duty suspense" in {
+        val dutySuspenseVolumes = DutySuspenseVolumes(volumeReceived = 1000, volumeMoved = 500)
+
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+          .set(DeclareDutyPage, true).success.value
+          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
+          .set(DeclareDutySuspensePage, true).success.value
+          .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
+          .set(DeclarationPage, declaration).success.value
+
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
+          FakeRequest(),
+          vpdId,
+          internalId,
+          credId,
+          periodKey,
+          userAnswers
+        )
+
+        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
+          .thenReturn(Future.successful(Some(obligation)))
+        when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
+          .thenReturn(models.returns.TotalDutyDue(
+            totalDutyDueVapingProducts = BigDecimal("10.50"),
+            totalDutyOverDeclaration = BigDecimal("0"),
+            totalDutyUnderDeclaration = BigDecimal("0"),
+            totalDutySpoiltProduct = BigDecimal("0"),
+            totalDue = BigDecimal("10.50")
+          ))
+        when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
+          .thenReturn(Future.successful(submittedResponse))
+
+        val result = service.submit(userAnswers).futureValue
+
+        result mustBe submittedResponse
+      }
+
+      "fail when no obligation found" in {
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+          .set(DeclarationPage, declaration).success.value
+
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
+          FakeRequest(),
+          vpdId,
+          internalId,
+          credId,
+          periodKey,
+          userAnswers
+        )
+
         when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
           .thenReturn(Future.successful(None))
 
-        val service = new SubmitReturnService(
-          mockConnector,
-          mockDutyRateService,
-          mockObligationService,
-          mockAppConfig
+        val exception = service.submit(userAnswers).failed.futureValue
+
+        exception mustBe an[IllegalStateException]
+        exception.getMessage must include("No obligation found")
+      }
+
+      "fail when declaration details are missing" in {
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+          .set(DeclareDutyPage, true).success.value
+          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
+
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = ReturnsDataRequest(
+          FakeRequest(),
+          vpdId,
+          internalId,
+          credId,
+          periodKey,
+          userAnswers
         )
 
-        val result = service.submit(userAnswersWithDeclaration)
+        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
+          .thenReturn(Future.successful(Some(obligation)))
+        when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
+          .thenReturn(models.returns.TotalDutyDue(
+            totalDutyDueVapingProducts = BigDecimal("10.50"),
+            totalDutyOverDeclaration = BigDecimal("0"),
+            totalDutyUnderDeclaration = BigDecimal("0"),
+            totalDutySpoiltProduct = BigDecimal("0"),
+            totalDue = BigDecimal("10.50")
+          ))
 
-        whenReady(result.failed) { exception =>
-          exception mustBe a[IllegalStateException]
-        }
+        val exception = service.submit(userAnswers).failed.futureValue
+
+        exception mustBe an[IllegalStateException]
+        exception.getMessage must include("Declaration details are required")
       }
     }
   }

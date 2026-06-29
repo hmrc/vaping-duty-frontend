@@ -16,7 +16,6 @@
 
 package models.returns.submit
 
-import models.returns.DeclarationDetails
 import play.api.libs.json.{Json, OFormat}
 
 import java.time.{Instant, LocalDate}
@@ -24,11 +23,10 @@ import java.time.{Instant, LocalDate}
 case class ReturnSubmittedResponse(
   processingDate: Instant,
   vpdReferenceNumber: String,
-  submissionID: Option[String],
+  submissionId: Option[String],
   chargeReference: Option[String],
   amount: BigDecimal,
-  paymentDueDate: Option[LocalDate],
-  declaration: DeclarationDetails
+  paymentDueDate: Option[LocalDate]
 )
 
 object ReturnSubmittedResponse {

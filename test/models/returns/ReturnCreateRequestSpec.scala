@@ -31,13 +31,17 @@ class ReturnCreateRequestSpec extends SpecBase {
   val returnCreateRequest: ReturnCreateRequest =
     ReturnCreateRequest(
       periodKey = periodKey.toString,
-      vapingProductsProduced = VapingProductsProduced(Seq(), Seq()),
-      totalDutyDue = TotalDutyDue(1, 1, 1, 1, 1, 1),
+      vapingProductsProduced = VapingProductsProduced(vapingProdManufactured = "0", returns = Seq()),
+      underDeclaration = None,
+      overDeclaration = None,
+      spoiltProduct = None,
+      totalDutyDue = TotalDutyDue(1, 1, 1, 1, 1),
+      otherOptions = None,
       declaration = testDeclaration
     )
 
   "ReturnCreateRequest" - {
-    val json = """{"periodKey":"26AF","vapingProductsProduced":{"nilReturn":[],"regularReturn":[]},"totalDutyDue":{"totalDutyDueVapingProducts":1,"totalDutyOverDeclaration":1,"totalDutyUnderDeclaration":1,"totalDutySpoiltProduct":1,"adjustmentAmount":1,"totalDutyDue":1},"declaration":{"fullName":"Test User","capacityInWhichSigned":"Director","signeesEmailAddress":"test@example.com"}}"""
+    val json = """{"periodKey":"26AF","vapingProductsProduced":{"vapingProdManufactured":"0","returns":[]},"totalDutyDue":{"totalDutyDueVapingProducts":1,"totalDutyOverDeclaration":1,"totalDutyUnderDeclaration":1,"totalDutySpoiltProduct":1,"totalDue":1},"declaration":{"fullName":"Test User","capacityInWhichSigned":"Director","signeesEmailAddress":"test@example.com"}}"""
 
     "must serialise to json" in {
       Json.toJson(returnCreateRequest).toString() mustBe json
