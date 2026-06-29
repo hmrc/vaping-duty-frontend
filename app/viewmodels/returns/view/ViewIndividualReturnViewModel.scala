@@ -180,8 +180,9 @@ case class ViewIndividualReturnViewModel(
 
     val spoiltDeclared = spoiltProduct.exists(_.spoiltProductFilled == "1")
 
-    val totalRows = if (nilReturn) Seq.empty
-    else {
+    val totalRows = if (nilReturn) {
+      Seq.empty
+    } else {
       val spoiltTotalRow = if (spoiltDeclared) Seq(
         SummaryListRow(
           key = Key(
@@ -192,20 +193,21 @@ case class ViewIndividualReturnViewModel(
           )
         )
       ) else Seq.empty
-
-      spoiltTotalRow :+ SummaryListRow(
-        key = Key(
-          content = Text(messages("viewIndividualReturn.totalDutyDue"))
-        ),
-        value = Value(
-          content = Text(totalDutyDue)
-        )
-      )
     }
 
-    SummaryList(rows = spoiltProductsRows ++ totalRows)
+    SummaryList(rows = spoiltProductsRows)
   }
 
+  def totalDutySummaryList(implicit messages: Messages): SummaryList = {
+    SummaryList(Seq(SummaryListRow(
+      key = Key(
+        content = Text(messages("viewIndividualReturn.totalDutyDue"))
+      ),
+      value = Value(
+        content = Text(totalDutyDue)
+      )
+    )))
+  }
 }
 
 object ViewIndividualReturnViewModel extends CurrencyFormatter {
@@ -247,83 +249,83 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
         else currencyFormat(td.totalDue)
       }
 
-        val year = success.chargeDetails.fold(LocalDate.now().getYear.toString)(_.periodFrom.getYear.toString)
+    val year = success.chargeDetails.fold(LocalDate.now().getYear.toString)(_.periodFrom.getYear.toString)
 
-        val monthFromLocalDate = success.chargeDetails.fold(LocalDate.now().getMonth)(_.periodFrom.getMonth)
+    val monthFromLocalDate = success.chargeDetails.fold(LocalDate.now().getMonth)(_.periodFrom.getMonth)
 
-        val receiptDate = success.chargeDetails.fold(Instant.now())(_.receiptDate)
-        val submittedOn = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault())
-        val submittedOnDay = submittedOn.getDayOfMonth
-        val submittedOnMonth = PeriodKeys.toDisplayName(submittedOn.getMonth)
+    val receiptDate = success.chargeDetails.fold(Instant.now())(_.receiptDate)
+    val submittedOn = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault())
+    val submittedOnDay = submittedOn.getDayOfMonth
+    val submittedOnMonth = PeriodKeys.toDisplayName(submittedOn.getMonth)
 
 
-        val monthYearString = s"${getMonthMessage(monthFromLocalDate)} $year"
-        val submittedOnString = s"$submittedOnDay $submittedOnMonth $year"
+    val monthYearString = s"${getMonthMessage(monthFromLocalDate)} $year"
+    val submittedOnString = s"$submittedOnDay $submittedOnMonth $year"
 
-        val dutySuspenseSummary = success.otherOptions.map { options =>
-          val yesNoText = if (options.vapingProductUnderDutySuspense == "1") {
-            messages("viewIndividualReturn.dutySuspense.yes")
-          } else {
-            messages("viewIndividualReturn.dutySuspense.no")
-          }
+    val dutySuspenseSummary = success.otherOptions.map { options =>
+      val yesNoText = if (options.vapingProductUnderDutySuspense == "1") {
+        messages("viewIndividualReturn.dutySuspense.yes")
+      } else {
+        messages("viewIndividualReturn.dutySuspense.no")
+      }
 
-          val questionRow = SummaryListRow(
-            key = Key(
-              content = Text(messages("viewIndividualReturn.dutySuspense.question"))
-            ),
-            value = Value(
-              content = Text(yesNoText)
-            )
-          )
+      val questionRow = SummaryListRow(
+        key = Key(
+          content = Text(messages("viewIndividualReturn.dutySuspense.question"))
+        ),
+        value = Value(
+          content = Text(yesNoText)
+        )
+      )
 
-          val detailRows = if (options.vapingProductUnderDutySuspense == "1") {
-            val receivedValue = options.volumeMovedFromDutySuspense match {
-              case Some(volume) if volume > 0 => messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(volume).toMl))
-              case _ => messages("viewIndividualReturn.dutySuspense.nothingToDeclare")
-            }
-
-            val movedValue = options.volumeMovedToDutySuspense match {
-              case Some(volume) if volume > 0 => messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(volume).toMl))
-              case _ => messages("viewIndividualReturn.dutySuspense.nothingToDeclare")
-            }
-
-            Seq(
-              SummaryListRow(
-                key = Key(
-                  content = Text(messages("viewIndividualReturn.dutySuspense.productReceived"))
-                ),
-                value = Value(
-                  content = Text(receivedValue)
-                )
-              ),
-              SummaryListRow(
-                key = Key(
-                  content = Text(messages("viewIndividualReturn.dutySuspense.productMoved"))
-                ),
-                value = Value(
-                  content = Text(movedValue)
-                )
-              )
-            )
-          } else Seq.empty
-
-          SummaryList(rows = questionRow +: detailRows)
+      val detailRows = if (options.vapingProductUnderDutySuspense == "1") {
+        val receivedValue = options.volumeMovedFromDutySuspense match {
+          case Some(volume) if volume > 0 => messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(volume).toMl))
+          case _ => messages("viewIndividualReturn.dutySuspense.nothingToDeclare")
         }
 
-        ViewIndividualReturnViewModel(
-          chargeReference = chargeRef,
-          hasVapingProductsDeclaration = hasDeclaration,
-          amountProducedLiquid = amountProduced,
-          dutyDue = dutyDueAmount,
-          totalDutySpoiltProducts = totalDutySpoiltProducts,
-          totalDutyDue = totalDuty,
-          monthYear = monthYearString,
-          submittedOn = submittedOnString,
-          dutyRate = currencyFormat(dutyRate.getOrElse(zeroValue)),
-          nilReturn = isNilReturn,
-          declarationDetails = success.declaration,
-          spoiltProduct = success.spoiltProduct,
-          dutySuspenseSummaryList = dutySuspenseSummary
+        val movedValue = options.volumeMovedToDutySuspense match {
+          case Some(volume) if volume > 0 => messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(volume).toMl))
+          case _ => messages("viewIndividualReturn.dutySuspense.nothingToDeclare")
+        }
+
+        Seq(
+          SummaryListRow(
+            key = Key(
+              content = Text(messages("viewIndividualReturn.dutySuspense.productReceived"))
+            ),
+            value = Value(
+              content = Text(receivedValue)
+            )
+          ),
+          SummaryListRow(
+            key = Key(
+              content = Text(messages("viewIndividualReturn.dutySuspense.productMoved"))
+            ),
+            value = Value(
+              content = Text(movedValue)
+            )
+          )
         )
-      }
+      } else Seq.empty
+
+      SummaryList(rows = questionRow +: detailRows)
+    }
+
+    ViewIndividualReturnViewModel(
+      chargeReference = chargeRef,
+      hasVapingProductsDeclaration = hasDeclaration,
+      amountProducedLiquid = amountProduced,
+      dutyDue = dutyDueAmount,
+      totalDutySpoiltProducts = totalDutySpoiltProducts,
+      totalDutyDue = totalDuty,
+      monthYear = monthYearString,
+      submittedOn = submittedOnString,
+      dutyRate = currencyFormat(dutyRate.getOrElse(zeroValue)),
+      nilReturn = isNilReturn,
+      declarationDetails = success.declaration,
+      spoiltProduct = success.spoiltProduct,
+      dutySuspenseSummaryList = dutySuspenseSummary
+    )
   }
+}
