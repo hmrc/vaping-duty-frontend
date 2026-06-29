@@ -26,6 +26,7 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.returns.ObligationService
 import viewmodels.returns.view.ViewIndividualReturnViewModel
 import views.html.returns.view.ViewIndividualReturnView
 
@@ -38,14 +39,20 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
     "must return OK and the correct view for a GET" in {
 
       val mockConnector = mock[GetReturnsConnector]
+      val mockObligationService = mock[ObligationService]
 
       when(mockConnector.getReturn(any(), any())(using any())).thenReturn(Future.successful(
         createReturnDisplayResponse()
       ))
 
+      when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(
+        createMockObligationsResponse()
+      ))
+
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(
-          inject.bind[GetReturnsConnector].to(mockConnector)
+          inject.bind[GetReturnsConnector].to(mockConnector),
+          inject.bind[ObligationService].to(mockObligationService)
         )
         .build()
 
@@ -54,7 +61,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), Some(testDutyRate))
+        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), Some(testDutyRate), createMockObligationsResponse())
 
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 
@@ -66,6 +73,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
     "must return OK and the correct view when no regular return exists" in {
 
       val mockConnector = mock[GetReturnsConnector]
+      val mockObligationService = mock[ObligationService]
 
       val returnDataWithoutRegularReturn = createReturnDisplayResponse().copy(
         success = createReturnDisplayResponse().success.copy(
@@ -80,9 +88,14 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         returnDataWithoutRegularReturn
       ))
 
+      when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(
+        createMockObligationsResponse()
+      ))
+
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(
-          inject.bind[GetReturnsConnector].to(mockConnector)
+          inject.bind[GetReturnsConnector].to(mockConnector),
+          inject.bind[ObligationService].to(mockObligationService)
         )
         .build()
 
@@ -91,7 +104,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val vm = ViewIndividualReturnViewModel(returnDataWithoutRegularReturn, None)
+        val vm = ViewIndividualReturnViewModel(returnDataWithoutRegularReturn, None, createMockObligationsResponse())
 
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 

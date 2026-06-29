@@ -24,6 +24,7 @@ import models.returns.view.ReturnDisplayResponse
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.view.ViewIndividualReturnViewModel
 import views.html.returns.view.ViewIndividualReturnView
@@ -35,6 +36,7 @@ class ViewIndividualReturnController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        connector: GetReturnsConnector,
+                                       obligationService: ObligationService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ViewIndividualReturnView,
                                        returnsEnabled: ReturnsEnabledAction
@@ -42,9 +44,12 @@ class ViewIndividualReturnController @Inject()(
 
   def onPageLoad(periodKey: PeriodKey): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
-      connector.getReturn(periodKey, request.enrolmentVpdId).map { returnData =>
+      for {
+        returnData <- connector.getReturn(periodKey, request.enrolmentVpdId)
+        obligations <- obligationService.getObligations(request.enrolmentVpdId)
+      } yield {
         val dutyRate = extractDutyRate(returnData)
-        Ok(view(ViewIndividualReturnViewModel(returnData, dutyRate)))
+        Ok(view(ViewIndividualReturnViewModel(returnData, dutyRate, obligations)))
       }
   }
 

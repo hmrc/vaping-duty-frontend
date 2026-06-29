@@ -16,15 +16,15 @@
 
 package viewmodels.returns.view
 
-import models.returns.{ConvertToMl, DeclarationDetails}
+import models.obligations.ObligationsResponse
 import models.returns.view.*
+import models.returns.{ConvertToMl, DeclarationDetails}
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import utils.{CurrencyFormatter, PeriodKeys}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 import utils.ReturnsDateUtils.*
+import utils.{CurrencyFormatter, PeriodKeys}
 
-import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 
 case class ViewIndividualReturnViewModel(
@@ -40,17 +40,23 @@ case class ViewIndividualReturnViewModel(
                                           nilReturn: Boolean,
                                           declarationDetails: DeclarationDetails,
                                           spoiltProduct: Option[SpoiltProduct],
-                                          dutySuspenseSummaryList: Option[SummaryList]
+                                          dutySuspenseSummaryList: Option[SummaryList],
+                                          obligations: ObligationsResponse
                                         ) extends CurrencyFormatter {
 
-  private def formatPeriodKey(periodKey: String)(implicit messages: Messages): String = {
-    val year = 2000 + periodKey.take(2).toInt
-    val periodCode = periodKey.drop(2)
-
-    val monthNumber = (periodCode.charAt(1) - 'A') + 1
-    val month = java.time.Month.of(monthNumber)
-
-    s"${getMonthMessage(month)} $year"
+  private def lookupPeriodKey(periodKey: String)(implicit messages: Messages): String = {
+    obligations.obligation
+      .map(_.obligationDetails)
+      .find(_.periodKey == periodKey)
+      .map { obligation =>
+        val month = obligation.iCFromDate.getMonth
+        val year = obligation.iCFromDate.getYear
+        s"${getMonthMessage(month)} $year"
+      }
+      .getOrElse {
+        // scalafix:off DisableSyntax.throw
+        throw new IllegalStateException(s"Period key $periodKey not found in obligations. This indicates a data integrity issue.")
+      }
   }
 
   def personalDetailsSummaryList(implicit messages: Messages): SummaryList =
@@ -130,7 +136,7 @@ case class ViewIndividualReturnViewModel(
             Seq(
               SummaryListRow(
                 key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.month"))),
-                value = Value(content = Text(formatPeriodKey(item.returnPeriodAffected)))
+                value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected)))
               ),
               SummaryListRow(
                 key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))),
@@ -170,7 +176,12 @@ case class ViewIndividualReturnViewModel(
 
 object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
-  def apply(returnsData: ReturnDisplayResponse, dutyRate: Option[BigDecimal])(using messages: Messages): ViewIndividualReturnViewModel = {
+  def apply(
+             returnsData: ReturnDisplayResponse,
+             dutyRate: Option[BigDecimal],
+             obligations: ObligationsResponse
+           )(using messages: Messages): ViewIndividualReturnViewModel = {
+
     val zeroValue = BigDecimal("0")
     val success = returnsData.success
 
@@ -275,7 +286,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       nilReturn = isNilReturn,
       declarationDetails = success.declaration,
       spoiltProduct = success.spoiltProduct,
-      dutySuspenseSummaryList = dutySuspenseSummary
+      dutySuspenseSummaryList = dutySuspenseSummary,
+      obligations = obligations
     )
   }
 }

@@ -17,16 +17,19 @@
 package viewmodels.returns.view
 
 import base.SpecBase
-import models.returns.{RegularReturn, VapingProductsProduced}
+import models.identifiers.PeriodKey
+import models.obligations.{ObligationDetails, ObligationsResponse}
 import models.returns.view.*
+import models.returns.{RegularReturn, VapingProductsProduced}
 import play.api.i18n.Messages
 
-import java.time.{Instant, LocalDate}
+import java.time.LocalDate
 
 class ViewIndividualReturnViewModelSpec extends SpecBase {
 
   implicit val messages: Messages = messages(applicationBuilder(None).build())
 
+  private val obligations: ObligationsResponse = createMockObligationsResponse()
   private val returnResponse = createReturnDisplayResponse()
 
   private val returnResponseNoDeclaration = returnResponse.copy(
@@ -48,7 +51,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
   "ViewIndividualReturnViewModel" - {
 
     "must create view model with all fields from ReturnDisplayResponse" in {
-      val result = ViewIndividualReturnViewModel(returnResponse, Some(testDutyRate))
+      val result = ViewIndividualReturnViewModel(returnResponse, Some(testDutyRate), obligations)
 
       result.chargeReference mustBe "XVC123456789012"
       result.hasVapingProductsDeclaration mustBe true
@@ -62,19 +65,19 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
     }
 
     "must default duty rate to £0 when none is supplied" in {
-      val result = ViewIndividualReturnViewModel(returnResponse, None)
+      val result = ViewIndividualReturnViewModel(returnResponse, None, obligations)
 
       result.dutyRate mustBe "£0"
     }
 
     "must handle missing charge reference" in {
-      val result = ViewIndividualReturnViewModel(returnResponseNoChargeRef, Some(testDutyRate))
+      val result = ViewIndividualReturnViewModel(returnResponseNoChargeRef, Some(testDutyRate), obligations)
 
       result.chargeReference mustBe ""
     }
 
     "must handle missing vaping products declaration" in {
-      val result = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Some(testDutyRate))
+      val result = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Some(testDutyRate), obligations)
 
       result.hasVapingProductsDeclaration mustBe false
       result.amountProducedLiquid mustBe None
@@ -82,7 +85,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
     }
 
     "must default to £0.00 when totalDutyDue is missing" in {
-      val result = ViewIndividualReturnViewModel(returnResponseNoTotalDuty, Some(testDutyRate))
+      val result = ViewIndividualReturnViewModel(returnResponseNoTotalDuty, Some(testDutyRate), obligations)
 
       result.totalDutySpoiltProducts mustBe "£0"
       result.totalDutyDue mustBe "£0"
@@ -107,7 +110,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         )
       )
 
-      val result = ViewIndividualReturnViewModel(responseWithDeclaration, Some(testDutyRate))
+      val result = ViewIndividualReturnViewModel(responseWithDeclaration, Some(testDutyRate), obligations)
 
       result.hasVapingProductsDeclaration mustBe true
       result.amountProducedLiquid mustBe Some("2,000,000.00")
@@ -136,7 +139,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         )
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration, Some(testDutyRate))
+      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration, Some(testDutyRate), obligations)
       val result = viewModel.vapingProductsDeclarationSummaryList
 
       result.rows.size mustBe 1
@@ -145,7 +148,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
     }
 
     "must show correct answer when no declaration" in {
-      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Some(testDutyRate))
+      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Some(testDutyRate), obligations)
       val result = viewModel.vapingProductsDeclarationSummaryList
 
       result.rows.size mustBe 1
@@ -175,7 +178,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         )
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration, Some(testDutyRate))
+      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration, Some(testDutyRate), obligations)
       val result = viewModel.productDetailsSummaryList
 
       result mustBe defined
@@ -183,7 +186,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
     }
 
     "must return None when no declaration exists" in {
-      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Some(testDutyRate))
+      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Some(testDutyRate), obligations)
       val result = viewModel.productDetailsSummaryList
 
       result mustBe None
@@ -192,16 +195,15 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
 
   "dutyTotalsSummaryList" - {
 
-    "must return summary list with spoilt product detail rows and total rows" in {
-      val viewModel = ViewIndividualReturnViewModel(returnResponse, Some(testDutyRate))
+    "must return summary list with spoilt product detail rows" in {
+      val viewModel = ViewIndividualReturnViewModel(returnResponse, Some(testDutyRate), obligations)
       val result = viewModel.dutyTotalsSummaryList
 
-      result.rows.size mustBe 5
+      result.rows.size mustBe 4
       result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.question"))
       result.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.month"))
       result.rows(2).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))
       result.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutySpoiltProducts"))
-      result.rows(4).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDue"))
     }
 
     "must hide totalDutySpoiltProducts row but show totalDutyDue when spoilt products answer is No" in {
@@ -210,19 +212,18 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
           spoiltProduct = Some(SpoiltProduct(spoiltProductFilled = "0", spoiltProducts = None))
         )
       )
-      val viewModel = ViewIndividualReturnViewModel(noSpoiltResponse, Some(testDutyRate))
+      val viewModel = ViewIndividualReturnViewModel(noSpoiltResponse, Some(testDutyRate), obligations)
       val result = viewModel.dutyTotalsSummaryList
 
-      result.rows.size mustBe 2
+      result.rows.size mustBe 1
       result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.question"))
-      result.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutyDue"))
       result.rows.forall(row =>
         !row.key.content.asHtml.toString.contains(messages("viewIndividualReturn.totalDutySpoiltProducts"))
       ) mustBe true
     }
 
     "must not include total rows when nilReturn is true" in {
-      val nilViewModel = ViewIndividualReturnViewModel(returnResponse, Some(BigDecimal("0")))
+      val nilViewModel = ViewIndividualReturnViewModel(returnResponse, Some(BigDecimal("0")), obligations)
       val result = nilViewModel.dutyTotalsSummaryList
 
       result.rows.size mustBe 3
@@ -233,6 +234,40 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
     }
   }
 
+  "lookupPeriodKey" - {
+
+    "must throw IllegalStateException when period key not found in obligations" in {
+      val obligationsWithMissingPeriod = ObligationsResponse(
+        obligation = obligations(Seq(fulfilledObligation(PeriodKey("26AF"))))
+      )
+
+      val responseWithSpoiltProduct = returnResponse.copy(
+        success = returnResponse.success.copy(
+          spoiltProduct = Some(SpoiltProduct(
+            spoiltProductFilled = "1",
+            spoiltProducts = Some(Seq(
+              SpoiltProductItem(
+                returnPeriodAffected = "24AC",
+                taxType = "311",
+                dutyRate = BigDecimal("0.50"),
+                amountSpoilt = BigDecimal("200.00"),
+                dutyDue = BigDecimal("100.00")
+              )
+            ))
+          ))
+        )
+      )
+
+      val viewModel = ViewIndividualReturnViewModel(responseWithSpoiltProduct, Some(testDutyRate), obligationsWithMissingPeriod)
+
+      val exception = intercept[IllegalStateException] {
+        viewModel.dutyTotalsSummaryList
+      }
+
+      exception.getMessage must include("Period key 24AC not found in obligations")
+    }
+  }
+
   "dutySuspenseSummaryList" - {
 
     "must return None when otherOptions is None" in {
@@ -240,7 +275,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         success = returnResponse.success.copy(otherOptions = None)
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseNoOtherOptions, Some(testDutyRate))
+      val viewModel = ViewIndividualReturnViewModel(responseNoOtherOptions, Some(testDutyRate), obligations)
       val result = viewModel.dutySuspenseSummaryList
 
       result mustBe None
@@ -256,7 +291,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         success = returnResponse.success.copy(otherOptions = Some(otherOptionsNo))
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithNo, Some(testDutyRate))
+      val viewModel = ViewIndividualReturnViewModel(responseWithNo, Some(testDutyRate), obligations)
       val result = viewModel.dutySuspenseSummaryList
 
       result mustBe defined
@@ -275,7 +310,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         success = returnResponse.success.copy(otherOptions = Some(otherOptionsYes))
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithYes, Some(testDutyRate))
+      val viewModel = ViewIndividualReturnViewModel(responseWithYes, Some(testDutyRate), obligations)
       val result = viewModel.dutySuspenseSummaryList
 
       result mustBe defined
@@ -298,7 +333,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         success = returnResponse.success.copy(otherOptions = Some(otherOptionsZeroReceived))
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithZero, Some(testDutyRate))
+      val viewModel = ViewIndividualReturnViewModel(responseWithZero, Some(testDutyRate), obligations)
       val result = viewModel.dutySuspenseSummaryList
 
       result mustBe defined
@@ -315,7 +350,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         success = returnResponse.success.copy(otherOptions = Some(otherOptionsNoneMoved))
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithNone, Some(testDutyRate))
+      val viewModel = ViewIndividualReturnViewModel(responseWithNone, Some(testDutyRate), obligations)
       val result = viewModel.dutySuspenseSummaryList
 
       result mustBe defined
@@ -332,7 +367,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         success = returnResponse.success.copy(otherOptions = Some(otherOptionsBothZero))
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithBothZero, Some(testDutyRate))
+      val viewModel = ViewIndividualReturnViewModel(responseWithBothZero, Some(testDutyRate), obligations)
       val result = viewModel.dutySuspenseSummaryList
 
       result mustBe defined
