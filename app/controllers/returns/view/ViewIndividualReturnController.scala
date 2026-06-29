@@ -44,9 +44,6 @@ class ViewIndividualReturnController @Inject()(
     implicit request =>
       connector.getReturn(periodKey, request.enrolmentVpdId).map { returnData =>
         val dutyRate = extractDutyRate(returnData)
-        if (dutyRate.isEmpty) {
-          logger.warn(s"No regular return found for period $periodKey")
-        }
         Ok(view(ViewIndividualReturnViewModel(returnData, dutyRate)))
       }
   }
