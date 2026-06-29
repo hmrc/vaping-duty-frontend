@@ -17,7 +17,6 @@
 package controllers.payments
 
 import base.SpecBase
-import controllers.JourneyRecoveryController
 import models.payments.OutstandingPayment
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
@@ -27,7 +26,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.payments.FinancialDataService
 import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
-import views.html.payments.ViewPaymentsView
 
 import scala.concurrent.Future
 
