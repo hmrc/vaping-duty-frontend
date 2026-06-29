@@ -85,8 +85,6 @@
 
     @h2(messages("viewIndividualReturn.h2.dutySummary"))
 
-    @govukSummaryList(vm.vapingProductsDeclarationSummaryList)
-
     @vm.productDetailsSummaryList.map { summaryList =>
         @govukSummaryList(summaryList)
     }

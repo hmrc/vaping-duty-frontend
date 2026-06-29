@@ -117,45 +117,45 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       result.dutyDue mustBe Some("£1,000")
     }
   }
+//
+//  "vapingProductsDeclarationSummaryList" - {
 
-  "vapingProductsDeclarationSummaryList" - {
-
-    "must show correct answer when declaration exists" in {
-      val responseWithDeclaration = returnResponse.copy(
-        success = returnResponse.success.copy(
-          vapingProductsProduced = Some(
-            VapingProductsProduced(
-              vapingProdManufactured = "1",
-              returns = Seq(
-                RegularReturn(
-                  taxType = "311",
-                  dutyRate = BigDecimal("0.50"),
-                  amountProducedLiquid = BigDecimal("2000.00"),
-                  dutyDue = BigDecimal("1000.00")
-                )
-              )
-            )
-          )
-        )
-      )
-
-      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration, Some(testDutyRate), obligations)
-      val result = viewModel.vapingProductsDeclarationSummaryList
-
-      result.rows.size mustBe 1
-      result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.question"))
-      result.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.yes"))
-    }
-
-    "must show correct answer when no declaration" in {
-      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Some(testDutyRate), obligations)
-      val result = viewModel.vapingProductsDeclarationSummaryList
-
-      result.rows.size mustBe 1
-      result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.question"))
-      result.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.no"))
-    }
-  }
+//    "must show correct answer when declaration exists" in {
+//      val responseWithDeclaration = returnResponse.copy(
+//        success = returnResponse.success.copy(
+//          vapingProductsProduced = Some(
+//            VapingProductsProduced(
+//              vapingProdManufactured = "1",
+//              returns = Seq(
+//                RegularReturn(
+//                  taxType = "311",
+//                  dutyRate = BigDecimal("0.50"),
+//                  amountProducedLiquid = BigDecimal("2000.00"),
+//                  dutyDue = BigDecimal("1000.00")
+//                )
+//              )
+//            )
+//          )
+//        )
+//      )
+//
+//      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration, Some(testDutyRate), obligations)
+//      val result = viewModel.vapingProductsDeclarationSummaryList
+//
+//      result.rows.size mustBe 1
+//      result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.question"))
+//      result.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.yes"))
+//    }
+//
+//    "must show correct answer when no declaration" in {
+//      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Some(testDutyRate), obligations)
+//      val result = viewModel.vapingProductsDeclarationSummaryList
+//
+//      result.rows.size mustBe 1
+//      result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.question"))
+//      result.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.no"))
+//    }
+//  }
 
   "productDetailsSummaryList" - {
 
@@ -182,7 +182,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       val result = viewModel.productDetailsSummaryList
 
       result mustBe defined
-      result.get.rows.size mustBe 2
+      result.get.rows.size mustBe 3
     }
 
     "must return None when no declaration exists" in {

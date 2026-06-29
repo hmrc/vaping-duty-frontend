@@ -77,8 +77,8 @@ case class ViewIndividualReturnViewModel(
       )
     )
 
-  def vapingProductsDeclarationSummaryList(implicit messages: Messages): SummaryList =
-    SummaryList(
+  def productDetailsSummaryList(implicit messages: Messages): Option[SummaryList] =
+    Some(SummaryList(
       rows = Seq(
         SummaryListRow(
           key = Key(content = Text(messages("viewIndividualReturn.vapingProductsDeclaration.question"))),
@@ -91,31 +91,27 @@ case class ViewIndividualReturnViewModel(
               }
             )
           )
-        )
-      )
+        )) ++ otherRows
+
+    )
     )
 
-  def productDetailsSummaryList(implicit messages: Messages): Option[SummaryList] =
-    if (hasVapingProductsDeclaration) {
-      Some(SummaryList(
-        rows = Seq(
-          amountProducedLiquid.map { amount =>
-            SummaryListRow(
-              key = Key(content = Text(messages("viewIndividualReturn.amountProducedLiquid"))),
-              value = Value(content = Text(messages("viewIndividualReturn.millilitres", amount)))
-            )
-          },
-          dutyDue.map { duty =>
-            SummaryListRow(
-              key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
-              value = Value(content = Text(duty))
-            )
-          }
-        ).flatten
-      ))
-    } else {
-      None
-    }
+  def otherRows(implicit messages: Messages) = if (hasVapingProductsDeclaration) {
+    Seq(
+      amountProducedLiquid.map { amount =>
+        SummaryListRow(
+          key = Key(content = Text(messages("viewIndividualReturn.amountProducedLiquid"))),
+          value = Value(content = Text(messages("viewIndividualReturn.millilitres", amount)))
+        )
+      },
+      dutyDue.map { duty =>
+        SummaryListRow(
+          key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
+          value = Value(content = Text(duty))
+        )
+      }
+    ).flatten
+  } else Seq.empty
 
   def dutyTotalsSummaryList(implicit messages: Messages): SummaryList = {
     val spoiltProductsRows = spoiltProduct match {
