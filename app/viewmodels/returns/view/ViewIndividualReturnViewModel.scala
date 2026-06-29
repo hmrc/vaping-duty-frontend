@@ -57,28 +57,16 @@ case class ViewIndividualReturnViewModel(
     SummaryList(
       rows = Seq(
         SummaryListRow(
-          key = Key(
-            content = Text(messages("viewIndividualReturn.personalDetails.fullName"))
-          ),
-          value = Value(
-            content = Text(declarationDetails.fullName)
-          )
+          key = Key(content = Text(messages("viewIndividualReturn.personalDetails.fullName"))),
+          value = Value(content = Text(declarationDetails.fullName))
         ),
         SummaryListRow(
-          key = Key(
-            content = Text(messages("viewIndividualReturn.personalDetails.email"))
-          ),
-          value = Value(
-            content = Text(declarationDetails.signeesEmailAddress)
-          )
+          key = Key(content = Text(messages("viewIndividualReturn.personalDetails.email"))),
+          value = Value(content = Text(declarationDetails.signeesEmailAddress))
         ),
         SummaryListRow(
-          key = Key(
-            content = Text(messages("viewIndividualReturn.personalDetails.capacity"))
-          ),
-          value = Value(
-            content = Text(declarationDetails.capacityInWhichSigned)
-          )
+          key = Key(content = Text(messages("viewIndividualReturn.personalDetails.capacity"))),
+          value = Value(content = Text(declarationDetails.capacityInWhichSigned))
         )
       )
     )
@@ -87,9 +75,7 @@ case class ViewIndividualReturnViewModel(
     SummaryList(
       rows = Seq(
         SummaryListRow(
-          key = Key(
-            content = Text(messages("viewIndividualReturn.vapingProductsDeclaration.question"))
-          ),
+          key = Key(content = Text(messages("viewIndividualReturn.vapingProductsDeclaration.question"))),
           value = Value(
             content = Text(
               if (hasVapingProductsDeclaration) {
@@ -109,22 +95,14 @@ case class ViewIndividualReturnViewModel(
         rows = Seq(
           amountProducedLiquid.map { amount =>
             SummaryListRow(
-              key = Key(
-                content = Text(messages("viewIndividualReturn.amountProducedLiquid"))
-              ),
-              value = Value(
-                content = Text(messages("viewIndividualReturn.millilitres", amount))
-              )
+              key = Key(content = Text(messages("viewIndividualReturn.amountProducedLiquid"))),
+              value = Value(content = Text(messages("viewIndividualReturn.millilitres", amount)))
             )
           },
           dutyDue.map { duty =>
             SummaryListRow(
-              key = Key(
-                content = Text(messages("viewIndividualReturn.dutyDue"))
-              ),
-              value = Value(
-                content = Text(duty)
-              )
+              key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
+              value = Value(content = Text(duty))
             )
           }
         ).flatten
@@ -143,32 +121,20 @@ case class ViewIndividualReturnViewModel(
         }
 
         val questionRow = SummaryListRow(
-          key = Key(
-            content = Text(messages("viewIndividualReturn.spoiltProducts.question"))
-          ),
-          value = Value(
-            content = Text(yesNoText)
-          )
+          key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.question"))),
+          value = Value(content = Text(yesNoText))
         )
 
         val detailRows = if (sp.spoiltProductFilled == "1") {
           sp.spoiltProducts.getOrElse(Seq.empty).flatMap { item =>
             Seq(
               SummaryListRow(
-                key = Key(
-                  content = Text(messages("viewIndividualReturn.spoiltProducts.month"))
-                ),
-                value = Value(
-                  content = Text(formatPeriodKey(item.returnPeriodAffected))
-                )
+                key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.month"))),
+                value = Value(content = Text(formatPeriodKey(item.returnPeriodAffected)))
               ),
               SummaryListRow(
-                key = Key(
-                  content = Text(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))
-                ),
-                value = Value(
-                  content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountSpoilt).toMl)))
-                )
+                key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))),
+                value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountSpoilt).toMl))))
               )
             )
           }
@@ -183,29 +149,21 @@ case class ViewIndividualReturnViewModel(
     val totalRows = if (nilReturn) {
       Seq.empty
     } else {
-      val spoiltTotalRow = if (spoiltDeclared) Seq(
+      if (spoiltDeclared) Seq(
         SummaryListRow(
-          key = Key(
-            content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))
-          ),
-          value = Value(
-            content = Text(totalDutySpoiltProducts)
-          )
+          key = Key(content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))),
+          value = Value(content = Text(totalDutySpoiltProducts))
         )
       ) else Seq.empty
     }
 
-    SummaryList(rows = spoiltProductsRows)
+    SummaryList(rows = spoiltProductsRows ++ totalRows)
   }
 
   def totalDutySummaryList(implicit messages: Messages): SummaryList = {
     SummaryList(Seq(SummaryListRow(
-      key = Key(
-        content = Text(messages("viewIndividualReturn.totalDutyDue"))
-      ),
-      value = Value(
-        content = Text(totalDutyDue)
-      )
+      key = Key(content = Text(messages("viewIndividualReturn.totalDutyDue"))),
+      value = Value(content = Text(totalDutyDue))
     )))
   }
 }
@@ -291,20 +249,12 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
         Seq(
           SummaryListRow(
-            key = Key(
-              content = Text(messages("viewIndividualReturn.dutySuspense.productReceived"))
-            ),
-            value = Value(
-              content = Text(receivedValue)
-            )
+            key = Key(content = Text(messages("viewIndividualReturn.dutySuspense.productReceived"))),
+            value = Value(content = Text(receivedValue))
           ),
           SummaryListRow(
-            key = Key(
-              content = Text(messages("viewIndividualReturn.dutySuspense.productMoved"))
-            ),
-            value = Value(
-              content = Text(movedValue)
-            )
+            key = Key(content = Text(messages("viewIndividualReturn.dutySuspense.productMoved"))),
+            value = Value(content = Text(movedValue))
           )
         )
       } else Seq.empty
