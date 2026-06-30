@@ -164,6 +164,10 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq(obligation)))
+        when(mockDutyRateService.getDutyRate(eqTo(vpdId), eqTo(PeriodKey("23KB")))(using any(), any()))
+          .thenReturn(Future.successful(BigDecimal("10.50")))
+        when(mockDutyRateService.getDutyRate(eqTo(vpdId), eqTo(PeriodKey("23KC")))(using any(), any()))
+          .thenReturn(Future.successful(BigDecimal("10.50")))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
           .thenReturn(nilReturnTotals.copy(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
