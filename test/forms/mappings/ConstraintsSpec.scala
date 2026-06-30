@@ -257,5 +257,10 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
       val result = email("error.format").apply("test@com")
       result mustEqual Invalid("error.format", emailRegex)
     }
+
+    "must return Invalid for an email without a domain under the top level domain" in {
+      val result = email("error.format").apply("test@.com")
+      result mustEqual Invalid("error.format", emailRegex)
+    }
   }
 }
