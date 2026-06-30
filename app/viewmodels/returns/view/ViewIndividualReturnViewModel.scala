@@ -174,12 +174,15 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
   def apply(
              returnsData: ReturnDisplayResponse,
-             dutyRate: Option[BigDecimal],
              obligations: ObligationsResponse
            )(using messages: Messages): ViewIndividualReturnViewModel = {
 
     val zeroValue = BigDecimal("0")
     val success = returnsData.success
+
+    val dutyRate = returnsData.success.vapingProductsProduced
+      .flatMap(_.returns.headOption)
+      .map(_.dutyRate)
 
     val isNilReturn = dutyRate.forall(_ == zeroValue)
 

@@ -40,7 +40,7 @@ class ViewIndividualReturnController @Inject()(
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ViewIndividualReturnView,
                                        returnsEnabled: ReturnsEnabledAction
-                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging{
+                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(periodKey: PeriodKey): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
@@ -48,13 +48,7 @@ class ViewIndividualReturnController @Inject()(
         returnData <- connector.getReturn(periodKey, request.enrolmentVpdId)
         obligations <- obligationService.getObligations(request.enrolmentVpdId)
       } yield {
-        val dutyRate = extractDutyRate(returnData)
-        Ok(view(ViewIndividualReturnViewModel(returnData, dutyRate, obligations)))
+        Ok(view(ViewIndividualReturnViewModel(returnData, obligations)))
       }
   }
-
-  private def extractDutyRate(returnData: ReturnDisplayResponse): Option[BigDecimal] =
-    returnData.success.vapingProductsProduced
-      .flatMap(_.returns.headOption)
-      .map(_.dutyRate)
 }

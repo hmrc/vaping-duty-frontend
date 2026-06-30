@@ -61,7 +61,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), Some(testDutyRate), createMockObligationsResponse())
+        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), createMockObligationsResponse())
 
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 
@@ -104,7 +104,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val vm = ViewIndividualReturnViewModel(returnDataWithoutRegularReturn, None, createMockObligationsResponse())
+        val vm = ViewIndividualReturnViewModel(returnDataWithoutRegularReturn, createMockObligationsResponse())
 
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 
