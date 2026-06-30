@@ -16,12 +16,13 @@
 
 package models.requests.returns
 
-import models.identifiers.{CredentialId, InternalId, PeriodKey, VpdId}
+import models.identifiers.{CredentialId, GroupId, Identifiers, InternalId, PeriodKey, VpdId}
 import models.returns.ReturnsUserAnswers
 import play.api.mvc.{Request, WrappedRequest}
 
 case class ReturnsOptionalDataRequest[A](request: Request[A],
                                          enrolmentVpdId: VpdId,
+                                         groupId: GroupId,
                                          internalId: InternalId,
                                          credId: CredentialId,
                                          periodKey: PeriodKey,
@@ -29,7 +30,16 @@ case class ReturnsOptionalDataRequest[A](request: Request[A],
 
 case class ReturnsDataRequest[A](request: Request[A],
                                  enrolmentVpdId: VpdId,
+                                 groupId: GroupId,
                                  internalId: InternalId,
                                  credId: CredentialId,
                                  periodKey: PeriodKey,
-                                 userAnswers: ReturnsUserAnswers) extends WrappedRequest[A](request)
+                                 userAnswers: ReturnsUserAnswers) extends WrappedRequest[A](request) {
+
+  def identifiers: Identifiers = Identifiers(
+    enrolmentVpdId,
+    groupId,
+    internalId,
+    credId
+  )
+}

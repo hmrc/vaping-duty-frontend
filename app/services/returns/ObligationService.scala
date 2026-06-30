@@ -27,7 +27,13 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ObligationService @Inject()(obligationsConnector: ObligationsConnector)
                                  (using ExecutionContext) {
-  
+
+  def getObligationsDirectly(vpdId: VpdId)(using HeaderCarrier): Future[Seq[ObligationDetails]] =
+    obligationsConnector.getObligations(vpdId).map { response =>
+      response.obligation
+        .map(_.obligationDetails)
+    }
+
   def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[ObligationsResponse] =
     obligationsConnector.getObligations(vpdId)
   

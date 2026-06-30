@@ -36,6 +36,7 @@ class ReturnsDataRequiredActionImpl @Inject()(implicit val executionContext: Exe
         Future.successful(Right(ReturnsDataRequest(
           request.request,
           request.enrolmentVpdId,
+          request.groupId,
           request.internalId,
           request.credId,
           PeriodKey(data.periodKey),
