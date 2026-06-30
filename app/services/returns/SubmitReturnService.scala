@@ -18,7 +18,7 @@ package services.returns
 
 import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
-import models.identifiers.PeriodKey
+import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
@@ -66,7 +66,9 @@ class SubmitReturnService @Inject()(
     }
   }
 
-  private def buildSubmission(ua: ReturnsUserAnswers, obligation: ObligationDetails, vpdId: models.identifiers.VpdId)(using HeaderCarrier): Future[ReturnCreateRequest] = {
+  private def buildSubmission(ua: ReturnsUserAnswers,
+                              obligation: ObligationDetails,
+                              vpdId: VpdId)(using HeaderCarrier): Future[ReturnCreateRequest] = {
 
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
     val liquidInMl = ua.get(EnterDutyAmountPage).getOrElse(ZERO_VALUE)
@@ -139,7 +141,7 @@ class SubmitReturnService @Inject()(
       overDeclarationProducts = None
     ))
 
-  private def buildSpoiltProduct(ua: ReturnsUserAnswers, vpdId: models.identifiers.VpdId)(using HeaderCarrier): Future[Option[SpoiltProduct]] = {
+  private def buildSpoiltProduct(ua: ReturnsUserAnswers, vpdId: VpdId)(using HeaderCarrier): Future[Option[SpoiltProduct]] = {
     val spoiltVolumes = ua.get(SpoiltVolumeByPeriodPage)
     
     spoiltVolumes match {
