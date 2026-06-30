@@ -70,10 +70,10 @@ class SubmitReturnService @Inject()(
                               obligation: ObligationDetails,
                               vpdId: VpdId)(using HeaderCarrier): Future[ReturnCreateRequest] = {
 
+    val periodKey = PeriodKey(ua.periodKey)
+
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
     val liquidInMl = ua.get(EnterDutyAmountPage).getOrElse(ZERO_VALUE)
-
-    val periodKey = PeriodKey(ua.periodKey)
 
     val dutyRateInPencePerMl: Int = dutyRateService.getRateForDate(obligation.iCFromDate)
 
@@ -95,7 +95,7 @@ class SubmitReturnService @Inject()(
       VapingProductsProduced(vapingProdManufactured = FLAG_NOT_FILLED, returns = Seq())
     }
 
-    val totalDutyDueVapingProducts = if (dutyDeclared) dutyDue else ZERO_VALUE
+    val totalDutyDueVapingProducts = (vapingProductsProduced.returns.headOption.map(_.dutyDue)).getOrElse(ZERO_VALUE)
 
     val underDeclaration = buildUnderDeclaration()
     val overDeclaration = buildOverDeclaration()
