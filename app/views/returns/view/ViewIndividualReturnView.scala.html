@@ -28,46 +28,76 @@
         h1: Heading,
         h2: Heading2,
         p: Paragraph,
-        printLink: PrintLink
+        printLink: PrintLink,
+        list: List
 )
 
 @(vm: ViewIndividualReturnViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(vm.monthYear)) {
 
-  @caption(content = messages("viewIndividualReturn.caption"))
+    @caption(content = messages("viewIndividualReturn.caption"))
 
-  @h1(vm.monthYear)
+    @h1(vm.monthYear)
 
-  @govukInsetText(InsetText(content =
-    HtmlContent(
-      s"${messages("viewIndividualReturn.chargeDetails.chargeReference")}  <span class=$boldFontWeight>${vm.chargeReference}</span>" +
-      "<br>" +
-      s"${messages("viewIndividualReturn.chargeDetails.submittedOn", vm.submittedOn)}"
-    )
-  ))
+    @govukInsetText(InsetText(content =
+        if(vm.nilReturn) {
+            HtmlContent(
+                s"${messages("viewIndividualReturn.chargeDetails.submittedOn", vm.submittedOn)}"
+            )
+        } else {
+            HtmlContent(
+                s"${messages("viewIndividualReturn.chargeDetails.chargeReference")}  <span class=$boldFontWeight>${vm.chargeReference}</span>" +
+                        "<br>" +
+                        s"${messages("viewIndividualReturn.chargeDetails.submittedOn", vm.submittedOn)}"
+            )
+        }
+    ))
 
+    @h2(messages("viewIndividualReturn.h2.personalDetails"))
 
-  @p(Seq(Text(messages("viewIndividualReturn.dutyDetails", vm.dutyRate))))
+    @govukSummaryList(vm.personalDetailsSummaryList)
 
-  @p(Seq(Text(messages("viewIndividualReturn.p.youCan"))))
+    @if(!vm.nilReturn) {
+        @h2(messages("viewIndividualReturn.h2.amountDue"))
+        @list(
+            Seq(
+                messages("viewIndividualReturn.li.amountDue"),
+                messages("viewIndividualReturn.li2.amountDue")
+            ),
+            classes = "govuk-list govuk-list--bullet"
+        )
 
-  @p(Seq(Text(messages("viewIndividualReturn.p.ifYou"))))
+    }
 
-  @p(Seq(HtmlContent(
-    printLink(id = "print", text = messages("site.print"))
-  )))
+    @if(!vm.nilReturn) {
+        @h2(messages("viewIndividualReturn.h2.dutyDetails"))
+        @p(Seq(Text(messages("viewIndividualReturn.dutyDetails", vm.dutyRate))))
+    } else {
+        @p(Seq(Text(messages("viewIndividualReturn.nil.dutyDetails"))))
+    }
 
-  @h2(messages("viewIndividualReturn.h2.dutySummary"))
+    @p(Seq(Text(messages("viewIndividualReturn.p.youCan"))))
 
-  @govukSummaryList(vm.vapingProductsDeclarationSummaryList)
+    @p(Seq(HtmlContent(
+        printLink(id = "print", text = messages("site.print"))
+    )))
 
-  @vm.productDetailsSummaryList.map { summaryList =>
-    @govukSummaryList(summaryList)
-  }
+    @h2(messages("viewIndividualReturn.h2.dutySummary"))
 
-  @govukSummaryList(vm.dutyTotalsSummaryList)
+    @vm.dutyDeclarationSummaryList.map { summaryList =>
+        @govukSummaryList(summaryList)
+    }
 
-  @govukButton(ButtonViewModel(messages("site.backToBta")))
+    @govukSummaryList(vm.spoiltSummaryList)
+
+    @govukSummaryList(vm.totalDutySummaryList)
+
+    @vm.dutySuspenseSummaryList.map { summaryList =>
+        @h2(messages("viewIndividualReturn.h2.dutySuspended"))
+        @govukSummaryList(summaryList)
+    }
+
+    @govukButton(ButtonViewModel(messages("site.backToBta")))
 
 }

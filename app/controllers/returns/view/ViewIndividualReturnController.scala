@@ -20,10 +20,10 @@ import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import models.identifiers.PeriodKey
-import models.returns.view.ReturnDisplayResponse
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.view.ViewIndividualReturnViewModel
 import views.html.returns.view.ViewIndividualReturnView
@@ -35,26 +35,19 @@ class ViewIndividualReturnController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        connector: GetReturnsConnector,
+                                       obligationService: ObligationService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ViewIndividualReturnView,
                                        returnsEnabled: ReturnsEnabledAction
-                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging{
+                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(periodKey: PeriodKey): Action[AnyContent] = (identify andThen returnsEnabled).async {
     implicit request =>
-      connector.getReturn(periodKey, request.enrolmentVpdId).map { returnData =>
-        extractDutyRate(returnData) match {
-          case Some(dutyRate) =>
-            Ok(view(ViewIndividualReturnViewModel(returnData, dutyRate)))
-          case None =>
-            logger.warn(s"No regular return found for period $periodKey")
-            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-        }
+      for {
+        returnData <- connector.getReturn(periodKey, request.enrolmentVpdId)
+        obligations <- obligationService.getObligations(request.enrolmentVpdId)
+      } yield {
+        Ok(view(ViewIndividualReturnViewModel(returnData, obligations)))
       }
   }
-
-  private def extractDutyRate(returnData: ReturnDisplayResponse): Option[BigDecimal] =
-    returnData.success.vapingProductsProduced
-      .flatMap(_.returns.headOption)
-      .map(_.dutyRate)
 }

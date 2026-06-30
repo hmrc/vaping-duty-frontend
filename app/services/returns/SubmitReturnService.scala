@@ -56,7 +56,7 @@ class SubmitReturnService @Inject()(
         case Some(obl) => Future.successful(obl)
         case None => Future.failed(new IllegalStateException(s"No obligation found for period key: ${ua.periodKey}"))
       }
-      submission = buildSubmission(ua, obligation)
+      submission <- buildSubmission(ua, obligation, request.enrolmentVpdId)
       result <- submitReturnConnector.submitReturn(submission, request.enrolmentVpdId)
     } yield {
       auditService.auditReturnSubmitted(
@@ -66,7 +66,7 @@ class SubmitReturnService @Inject()(
     }
   }
 
-  private def buildSubmission(ua: ReturnsUserAnswers, obligation: ObligationDetails): ReturnCreateRequest = {
+  private def buildSubmission(ua: ReturnsUserAnswers, obligation: ObligationDetails, vpdId: models.identifiers.VpdId)(using HeaderCarrier): Future[ReturnCreateRequest] = {
 
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
     val liquidInMl = ua.get(EnterDutyAmountPage).getOrElse(ZERO_VALUE)
@@ -97,31 +97,32 @@ class SubmitReturnService @Inject()(
 
     val underDeclaration = buildUnderDeclaration()
     val overDeclaration = buildOverDeclaration()
-    val spoiltProduct = buildSpoiltProduct(ua, dutyRateInPencePerMl)
     val otherOptions = buildOtherOptions(ua)
 
-    val totalDutyDue = totalDutyDueCalculationService.calculate(
-      totalDutyDueVapingProducts,
-      underDeclaration,
-      overDeclaration,
-      spoiltProduct
-    )
+    buildSpoiltProduct(ua, vpdId).map { spoiltProduct =>
+      val totalDutyDue = totalDutyDueCalculationService.calculate(
+        totalDutyDueVapingProducts,
+        underDeclaration,
+        overDeclaration,
+        spoiltProduct
+      )
 
-    val declaration = ua.get(DeclarationPage).getOrElse(
-      // scalafix:off DisableSyntax.throw
-      throw new IllegalStateException("Declaration details are required for submission")
-    )
+      val declaration = ua.get(DeclarationPage).getOrElse(
+        // scalafix:off DisableSyntax.throw
+        throw new IllegalStateException("Declaration details are required for submission")
+      )
 
-    ReturnCreateRequest(
-      periodKey = periodKey.toString,
-      vapingProductsProduced = vapingProductsProduced,
-      underDeclaration = underDeclaration,
-      overDeclaration = overDeclaration,
-      spoiltProduct = spoiltProduct,
-      totalDutyDue = totalDutyDue,
-      otherOptions = otherOptions,
-      declaration = declaration
-    )
+      ReturnCreateRequest(
+        periodKey = periodKey.toString,
+        vapingProductsProduced = vapingProductsProduced,
+        underDeclaration = underDeclaration,
+        overDeclaration = overDeclaration,
+        spoiltProduct = spoiltProduct,
+        totalDutyDue = totalDutyDue,
+        otherOptions = otherOptions,
+        declaration = declaration
+      )
+    }
   }
 
   private def buildUnderDeclaration(): Option[UnderDeclaration] =
@@ -138,36 +139,40 @@ class SubmitReturnService @Inject()(
       overDeclarationProducts = None
     ))
 
-  private def buildSpoiltProduct(ua: ReturnsUserAnswers, dutyRateInPencePerMl: Int): Option[SpoiltProduct] = {
+  private def buildSpoiltProduct(ua: ReturnsUserAnswers, vpdId: models.identifiers.VpdId)(using HeaderCarrier): Future[Option[SpoiltProduct]] = {
     val spoiltVolumes = ua.get(SpoiltVolumeByPeriodPage)
     
     spoiltVolumes match {
       case Some(volumes) if volumes.nonEmpty =>
-        val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) / 100) * 10
-        
-        val spoiltProducts = volumes.map { spoiltVolume =>
-          val volumeInMl = BigDecimal(spoiltVolume.volume)
-          val volumeInLitres = ConvertToLitres(volumeInMl).toLitres
-          val dutyDue = (volumeInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
-          
-          SpoiltProductItem(
-            returnPeriodAffected = spoiltVolume.periodKey.toString,
-            taxType = config.taxType,
-            dutyRate = dutyRateInPoundsPer10Ml,
-            amountSpoilt = volumeInLitres,
-            dutyDue = dutyDue
-          )
+        val spoiltProductsFuture = Future.traverse(volumes) { spoiltVolume =>
+          dutyRateService.getDutyRate(vpdId, spoiltVolume.periodKey).map { dutyRateForPeriod =>
+            val dutyRateInPencePerMl = (dutyRateForPeriod * 100).toInt
+            val dutyRateInPoundsPer10Ml = dutyRateForPeriod * 10
+            val volumeInMl = BigDecimal(spoiltVolume.volume)
+            val volumeInLitres = ConvertToLitres(volumeInMl).toLitres
+            val dutyDue = (volumeInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
+            
+            SpoiltProductItem(
+              returnPeriodAffected = spoiltVolume.periodKey.toString,
+              taxType = config.taxType,
+              dutyRate = dutyRateInPoundsPer10Ml,
+              amountSpoilt = volumeInLitres,
+              dutyDue = dutyDue
+            )
+          }
         }
         
-        Some(SpoiltProduct(
-          spoiltProductFilled = FLAG_FILLED,
-          spoiltProducts = Some(spoiltProducts)
-        ))
+        spoiltProductsFuture.map { spoiltProducts =>
+          Some(SpoiltProduct(
+            spoiltProductFilled = FLAG_FILLED,
+            spoiltProducts = Some(spoiltProducts)
+          ))
+        }
       case _ =>
-        Some(SpoiltProduct(
+        Future.successful(Some(SpoiltProduct(
           spoiltProductFilled = FLAG_NOT_FILLED,
           spoiltProducts = None
-        ))
+        )))
     }
   }
 

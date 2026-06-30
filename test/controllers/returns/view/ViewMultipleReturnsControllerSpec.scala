@@ -29,7 +29,6 @@ import viewmodels.returns.view.ViewMultipleReturnsViewModel
 import views.html.returns.view.ViewMultipleReturnsView
 
 import java.time.LocalDate
-import java.time.temporal.TemporalField
 import scala.concurrent.Future
 
 class ViewMultipleReturnsControllerSpec extends SpecBase {

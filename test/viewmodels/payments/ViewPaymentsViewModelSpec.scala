@@ -17,7 +17,6 @@
 package viewmodels.payments
 
 import base.SpecBase
-import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
 class ViewPaymentsViewModelSpec extends SpecBase {
 

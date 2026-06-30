@@ -398,19 +398,39 @@ returns.overview.outstanding.empty = You have no outstanding returns.
 viewIndividualReturn.caption = Vaping Products Duty return
 viewIndividualReturn.chargeDetails.chargeReference = Charge reference:
 viewIndividualReturn.chargeDetails.submittedOn = Submitted on {0}
-viewIndividualReturn.chargeDetails.at = at
+viewIndividualReturn.h2.dutyDetails = Final duty summary
 viewIndividualReturn.dutyDetails = Duty is calculated by multiplying the volume of vaping products released for consumption by the Vaping Product Duty rate of {0} per 10ml.
+viewIndividualReturn.nil.dutyDetails = You declared no vaping products had been released for consumption in the UK for this period, so no duty is due.
 viewIndividualReturn.p.youCan = You can change information on this return by using the adjustment options on your next Vaping Products Duty return.
-viewIndividualReturn.p.ifYou = If you have made an overpayment, check page TBC, as you might be able to get a repayment.
 viewIndividualReturn.h2.dutySummary = Duty Summary
 viewIndividualReturn.vapingProductsDeclaration.question = Do you need to declare vaping products for duty?
 viewIndividualReturn.vapingProductsDeclaration.yes = Yes
 viewIndividualReturn.vapingProductsDeclaration.no = No
 viewIndividualReturn.amountProducedLiquid = Amount of vaping liquid produced
 viewIndividualReturn.dutyDue = Duty due
-viewIndividualReturn.totalDutyDueVapingProducts = Total duty due for vaping products
+viewIndividualReturn.totalDutySpoiltProducts = Total duty due for spoilt products
 viewIndividualReturn.totalDutyDue = Total duty due
 viewIndividualReturn.millilitres = {0} ml
+viewIndividualReturn.spoiltProducts.question = Do you have any spoilt vaping products to declare?
+viewIndividualReturn.spoiltProducts.yes = Yes
+viewIndividualReturn.spoiltProducts.no = No
+viewIndividualReturn.spoiltProducts.month = Month
+viewIndividualReturn.spoiltProducts.spoiltProducts = Spoilt products
+viewIndividualReturn.h2.personalDetails = Return submitted by
+viewIndividualReturn.personalDetails.fullName = Full name
+viewIndividualReturn.personalDetails.email = Business email address
+viewIndividualReturn.personalDetails.capacity = Role in the company, for example, proprietor, director
+viewIndividualReturn.h2.amountDue = The amount is based on the total duty on:
+viewIndividualReturn.li.amountDue = the vaping products you declared
+viewIndividualReturn.li2.amountDue = all applicable adjustments you declared
+
+viewIndividualReturn.h2.dutySuspended = Duty suspended summary
+viewIndividualReturn.dutySuspense.question = Have you received or moved any finished vaping products in duty suspense?
+viewIndividualReturn.dutySuspense.yes = Yes
+viewIndividualReturn.dutySuspense.no = No
+viewIndividualReturn.dutySuspense.productReceived = Product received
+viewIndividualReturn.dutySuspense.productMoved = Product moved
+viewIndividualReturn.dutySuspense.nothingToDeclare = Nothing to declare
 
 ### Payments ###
 

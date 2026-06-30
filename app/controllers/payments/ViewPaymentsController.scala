@@ -16,8 +16,8 @@
 
 package controllers.payments
 
-import controllers.{JourneyRecoveryController, routes}
 import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.routes
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Redirect
