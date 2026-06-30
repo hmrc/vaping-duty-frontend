@@ -22,6 +22,7 @@ import models.obligations.{ObligationDetails, ObligationsResponse}
 import models.returns.view.*
 import models.returns.{RegularReturn, VapingProductsProduced}
 import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
 import java.time.LocalDate
 
@@ -179,17 +180,17 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       )
 
       val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration, obligations)
-      val result = viewModel.productDetailsSummaryList
+      val result = viewModel.dutyDeclarationSummaryList
 
       result mustBe defined
       result.get.rows.size mustBe 3
     }
 
-    "must return None when no declaration exists" in {
+    "must include a row with the No entered in the journey" in {
       val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, obligations)
-      val result = viewModel.productDetailsSummaryList
+      val result = viewModel.dutyDeclarationSummaryList.get.rows.head.value.content
 
-      result mustBe None
+      result mustBe Text("No")
     }
   }
 
@@ -197,7 +198,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
 
     "must return summary list with spoilt product detail rows" in {
       val viewModel = ViewIndividualReturnViewModel(returnResponse, obligations)
-      val result = viewModel.dutyTotalsSummaryList
+      val result = viewModel.spoiltSummaryList
 
       result.rows.size mustBe 4
       result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.question"))
@@ -213,7 +214,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         )
       )
       val viewModel = ViewIndividualReturnViewModel(noSpoiltResponse, obligations)
-      val result = viewModel.dutyTotalsSummaryList
+      val result = viewModel.spoiltSummaryList
 
       result.rows.size mustBe 1
       result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.question"))
@@ -222,12 +223,12 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       ) mustBe true
     }
 
-    "must not include total rows when nilReturn is true" in {
+    "must only include 'No' rows when nilReturn is true" in {
       val nilReturnResponse = returnResponseNoDeclaration
       val nilViewModel = ViewIndividualReturnViewModel(nilReturnResponse, obligations)
-      val result = nilViewModel.dutyTotalsSummaryList
+      val result = nilViewModel.spoiltSummaryList
 
-      result.rows.size mustBe 0
+      result.rows.size mustBe 3
     }
   }
 
@@ -258,7 +259,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       val viewModel = ViewIndividualReturnViewModel(responseWithSpoiltProduct, obligationsWithMissingPeriod)
 
       val exception = intercept[IllegalStateException] {
-        viewModel.dutyTotalsSummaryList
+        viewModel.spoiltSummaryList
       }
 
       exception.getMessage must include("Period key 24AC not found in obligations")

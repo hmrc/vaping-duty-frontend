@@ -85,11 +85,11 @@
 
     @h2(messages("viewIndividualReturn.h2.dutySummary"))
 
-    @vm.productDetailsSummaryList.map { summaryList =>
+    @vm.dutyDeclarationSummaryList.map { summaryList =>
         @govukSummaryList(summaryList)
     }
 
-    @govukSummaryList(vm.dutyTotalsSummaryList)
+    @govukSummaryList(vm.spoiltSummaryList)
 
     @govukSummaryList(vm.totalDutySummaryList)
 

@@ -20,7 +20,6 @@ import connectors.returns.GetReturnsConnector
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import models.identifiers.PeriodKey
-import models.returns.view.ReturnDisplayResponse
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

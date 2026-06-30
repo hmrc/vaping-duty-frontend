@@ -77,7 +77,7 @@ case class ViewIndividualReturnViewModel(
       )
     )
 
-  def productDetailsSummaryList(implicit messages: Messages): Option[SummaryList] =
+  def dutyDeclarationSummaryList(implicit messages: Messages): Option[SummaryList] =
     Some(SummaryList(
       rows = Seq(
         SummaryListRow(
@@ -91,29 +91,28 @@ case class ViewIndividualReturnViewModel(
               }
             )
           )
-        )) ++ otherRows
+        )) ++ dutyDeclarationDetailsRows
+    ))
 
-    )
-    )
+  private def dutyDeclarationDetailsRows(implicit messages: Messages) =
+    if (hasVapingProductsDeclaration) {
+      Seq(
+        amountProducedLiquid.map { amount =>
+          SummaryListRow(
+            key = Key(content = Text(messages("viewIndividualReturn.amountProducedLiquid"))),
+            value = Value(content = Text(messages("viewIndividualReturn.millilitres", amount)))
+          )
+        },
+        dutyDue.map { duty =>
+          SummaryListRow(
+            key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
+            value = Value(content = Text(duty))
+          )
+        }
+      ).flatten
+    } else Seq.empty
 
-  def otherRows(implicit messages: Messages) = if (hasVapingProductsDeclaration) {
-    Seq(
-      amountProducedLiquid.map { amount =>
-        SummaryListRow(
-          key = Key(content = Text(messages("viewIndividualReturn.amountProducedLiquid"))),
-          value = Value(content = Text(messages("viewIndividualReturn.millilitres", amount)))
-        )
-      },
-      dutyDue.map { duty =>
-        SummaryListRow(
-          key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
-          value = Value(content = Text(duty))
-        )
-      }
-    ).flatten
-  } else Seq.empty
-
-  def dutyTotalsSummaryList(implicit messages: Messages): SummaryList = {
+  def spoiltSummaryList(implicit messages: Messages): SummaryList = {
     val spoiltProductsRows = spoiltProduct match {
       case Some(sp) =>
         val yesNoText = if (sp.spoiltProductFilled == "1") {
@@ -238,12 +237,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       }
 
       val questionRow = SummaryListRow(
-        key = Key(
-          content = Text(messages("viewIndividualReturn.dutySuspense.question"))
-        ),
-        value = Value(
-          content = Text(yesNoText)
-        )
+        key = Key(content = Text(messages("viewIndividualReturn.dutySuspense.question"))),
+        value = Value(content = Text(yesNoText))
       )
 
       val detailRows = if (options.vapingProductUnderDutySuspense == "1") {
