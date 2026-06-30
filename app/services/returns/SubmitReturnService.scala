@@ -72,29 +72,7 @@ class SubmitReturnService @Inject()(
 
     val periodKey = PeriodKey(ua.periodKey)
 
-    val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
-    val liquidInMl = ua.get(EnterDutyAmountPage).getOrElse(ZERO_VALUE)
-
-    val dutyRateInPencePerMl: Int = dutyRateService.getRateForDate(obligation.iCFromDate)
-
-    val liquidInLitres = ConvertToLitres(liquidInMl).toLitres
-
-    val dutyDue = (liquidInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
-
-    val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) / 100) * 10
-    
-    val vapingProductsProduced = if (dutyDeclared) {
-      VapingProductsProduced(vapingProdManufactured = FLAG_FILLED, returns = Seq(
-        RegularReturn(
-          taxType = config.taxType,
-          dutyRate = dutyRateInPoundsPer10Ml,
-          amountProducedLiquid = liquidInLitres,
-          dutyDue = dutyDue
-        )))
-    } else {
-      VapingProductsProduced(vapingProdManufactured = FLAG_NOT_FILLED, returns = Seq())
-    }
-
+    val vapingProductsProduced = buildVapingProductsProduced(ua, obligation)
     val totalDutyDueVapingProducts = (vapingProductsProduced.returns.headOption.map(_.dutyDue)).getOrElse(ZERO_VALUE)
 
     val underDeclaration = buildUnderDeclaration()
@@ -125,6 +103,32 @@ class SubmitReturnService @Inject()(
         declaration = declaration
       )
     }
+  }
+
+  private def buildVapingProductsProduced(ua: ReturnsUserAnswers, obligation: ObligationDetails) = {
+    val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
+    val liquidInMl = ua.get(EnterDutyAmountPage).getOrElse(ZERO_VALUE)
+
+    val dutyRateInPencePerMl: Int = dutyRateService.getRateForDate(obligation.iCFromDate)
+
+    val liquidInLitres = ConvertToLitres(liquidInMl).toLitres
+
+    val dutyDue = (liquidInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
+
+    val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) / 100) * 10
+
+    val vapingProductsProduced = if (dutyDeclared) {
+      VapingProductsProduced(vapingProdManufactured = FLAG_FILLED, returns = Seq(
+        RegularReturn(
+          taxType = config.taxType,
+          dutyRate = dutyRateInPoundsPer10Ml,
+          amountProducedLiquid = liquidInLitres,
+          dutyDue = dutyDue
+        )))
+    } else {
+      VapingProductsProduced(vapingProdManufactured = FLAG_NOT_FILLED, returns = Seq())
+    }
+    vapingProductsProduced
   }
 
   private def buildUnderDeclaration(): Option[UnderDeclaration] =
