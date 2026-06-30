@@ -233,8 +233,33 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
       result mustEqual Valid
     }
 
+    "must return Valid with a valid email with a hyphen" in {
+      val result = email("error.format").apply("super-man@email.com")
+      result mustEqual Valid
+    }
+
     "must return Invalid an invalid email" in {
       val result = email("error.format").apply("testemailcom")
+      result mustEqual Invalid("error.format", emailRegex)
+    }
+
+    "must return Invalid for an email without a user" in {
+      val result = email("error.format").apply("@foo.com")
+      result mustEqual Invalid("error.format", emailRegex)
+    }
+
+    "must return Invalid for an email with a domain with invalid characters" in {
+      val result = email("error.format").apply("test@fo%o.com")
+      result mustEqual Invalid("error.format", emailRegex)
+    }
+
+    "must return Invalid for an email at a top level domain" in {
+      val result = email("error.format").apply("test@com")
+      result mustEqual Invalid("error.format", emailRegex)
+    }
+
+    "must return Invalid for an email without a domain under the top level domain" in {
+      val result = email("error.format").apply("test@.com")
       result mustEqual Invalid("error.format", emailRegex)
     }
   }

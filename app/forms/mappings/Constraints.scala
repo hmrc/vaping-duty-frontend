@@ -131,7 +131,7 @@ trait Constraints {
         }
     }
 
-  val emailRegex = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$"
+  val emailRegex = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)+$"
 
   protected def email(errorKey: String): Constraint[String] = regexp(emailRegex, errorKey)
 }
