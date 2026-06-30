@@ -59,10 +59,13 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       result.amountProducedLiquid mustBe Some("1,000,000.00")
       result.dutyDue mustBe Some("£3,150")
       result.totalDutySpoiltProducts mustBe "-£100"
-      result.totalDutyDue mustBe "£1,825"
       result.monthYear mustBe "June 2026"
       result.submittedOn must include("February 2026")
       result.dutyRate mustBe "£3.15"
+      result.personalDetailsSummaryList.rows.size mustBe 3
+      result.dutyDeclarationSummaryList mustBe defined
+      result.spoiltSummaryList.rows.nonEmpty mustBe true
+      result.totalDutySummaryList.rows.nonEmpty mustBe true
     }
 
     "must default duty rate to £0 when none is supplied" in {
@@ -89,7 +92,6 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       val result = ViewIndividualReturnViewModel(returnResponseNoTotalDuty, obligations)
 
       result.totalDutySpoiltProducts mustBe "£0"
-      result.totalDutyDue mustBe "£0"
     }
 
     "must correctly identify when vaping products declaration exists" in {
@@ -118,49 +120,10 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       result.dutyDue mustBe Some("£1,000")
     }
   }
-//
-//  "vapingProductsDeclarationSummaryList" - {
 
-//    "must show correct answer when declaration exists" in {
-//      val responseWithDeclaration = returnResponse.copy(
-//        success = returnResponse.success.copy(
-//          vapingProductsProduced = Some(
-//            VapingProductsProduced(
-//              vapingProdManufactured = "1",
-//              returns = Seq(
-//                RegularReturn(
-//                  taxType = "311",
-//                  dutyRate = BigDecimal("0.50"),
-//                  amountProducedLiquid = BigDecimal("2000.00"),
-//                  dutyDue = BigDecimal("1000.00")
-//                )
-//              )
-//            )
-//          )
-//        )
-//      )
-//
-//      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration, Some(testDutyRate), obligations)
-//      val result = viewModel.vapingProductsDeclarationSummaryList
-//
-//      result.rows.size mustBe 1
-//      result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.question"))
-//      result.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.yes"))
-//    }
-//
-//    "must show correct answer when no declaration" in {
-//      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Some(testDutyRate), obligations)
-//      val result = viewModel.vapingProductsDeclarationSummaryList
-//
-//      result.rows.size mustBe 1
-//      result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.question"))
-//      result.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.vapingProductsDeclaration.no"))
-//    }
-//  }
+  "dutyDeclarationSummaryList" - {
 
-  "productDetailsSummaryList" - {
-
-    "must return Some with rows when declaration exists" in {
+    "must be pre-computed with rows when declaration exists" in {
       val responseWithDeclaration = returnResponse.copy(
         success = returnResponse.success.copy(
           vapingProductsProduced = Some(
@@ -186,7 +149,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       result.get.rows.size mustBe 3
     }
 
-    "must include a row with the No entered in the journey" in {
+    "must include a row with No when no declaration" in {
       val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, obligations)
       val result = viewModel.dutyDeclarationSummaryList.get.rows.head.value.content
 
@@ -194,9 +157,9 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
     }
   }
 
-  "dutyTotalsSummaryList" - {
+  "spoiltSummaryList" - {
 
-    "must return summary list with spoilt product detail rows" in {
+    "must be pre-computed with spoilt product detail rows" in {
       val viewModel = ViewIndividualReturnViewModel(returnResponse, obligations)
       val result = viewModel.spoiltSummaryList
 
@@ -207,7 +170,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       result.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutySpoiltProducts"))
     }
 
-    "must hide totalDutySpoiltProducts row but show totalDutyDue when spoilt products answer is No" in {
+    "must hide totalDutySpoiltProducts row when spoilt products answer is No" in {
       val noSpoiltResponse = returnResponse.copy(
         success = returnResponse.success.copy(
           spoiltProduct = Some(SpoiltProduct(spoiltProductFilled = "0", spoiltProducts = None))
@@ -223,7 +186,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
       ) mustBe true
     }
 
-    "must only include 'No' rows when nilReturn is true" in {
+    "must only include question row when nilReturn is true" in {
       val nilReturnResponse = returnResponseNoDeclaration
       val nilViewModel = ViewIndividualReturnViewModel(nilReturnResponse, obligations)
       val result = nilViewModel.spoiltSummaryList
@@ -232,9 +195,9 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
     }
   }
 
-  "lookupPeriodKey" - {
+  "period key lookup" - {
 
-    "must throw IllegalStateException when period key not found in obligations" in {
+    "must throw IllegalStateException when period key not found in obligations during view model creation" in {
       val obligationsWithMissingPeriod = ObligationsResponse(
         obligation = obligations(Seq(fulfilledObligation(PeriodKey("26AF"))))
       )
@@ -256,10 +219,8 @@ class ViewIndividualReturnViewModelSpec extends SpecBase {
         )
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithSpoiltProduct, obligationsWithMissingPeriod)
-
       val exception = intercept[IllegalStateException] {
-        viewModel.spoiltSummaryList
+        ViewIndividualReturnViewModel(responseWithSpoiltProduct, obligationsWithMissingPeriod)
       }
 
       exception.getMessage must include("Period key 24AC not found in obligations")
