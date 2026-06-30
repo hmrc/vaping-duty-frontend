@@ -17,6 +17,7 @@
 package services.returns
 
 import base.SpecBase
+import builders.ObligationsBuilders
 import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
 import models.identifiers.{PeriodKey, VpdId}
@@ -25,7 +26,7 @@ import models.requests.returns.ReturnsDataRequest
 import models.returns.{DeclarationDetails, DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, verify, when, reset}
+import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
@@ -37,7 +38,7 @@ import services.contactPreference.AuditService
 import java.time.{Instant, LocalDate}
 import scala.concurrent.Future
 
-class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
+class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach with ObligationsBuilders {
 
   private val mockSubmitReturnConnector = mock[SubmitReturnConnector]
   private val mockDutyRateService = mock[DutyRateService]
@@ -168,6 +169,8 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .thenReturn(Future.successful(BigDecimal("10.50")))
         when(mockDutyRateService.getDutyRate(eqTo(vpdId), eqTo(PeriodKey("23KC")))(using any(), any()))
           .thenReturn(Future.successful(BigDecimal("10.50")))
+        when(mockDutyRateService.getDutyRatesInPencePerMlForPeriodKeys(Seq(obligation)))
+          .thenReturn(Map(PeriodKey("23KA") -> 1050, PeriodKey("23KB") -> 1050, PeriodKey("23KC") -> 1050))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
           .thenReturn(nilReturnTotals.copy(
             totalDutyDueVapingProducts = BigDecimal("10.50"),

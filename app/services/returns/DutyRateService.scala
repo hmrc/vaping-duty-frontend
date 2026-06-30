@@ -19,6 +19,7 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import config.DutyRateConfig
 import models.identifiers.{PeriodKey, VpdId}
+import models.obligations.ObligationDetails
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
@@ -52,4 +53,8 @@ class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationServic
         dutyRateInPoundsPerMl
       }
     }
+    
+  def getDutyRatesInPencePerMlForPeriodKeys(obligations: Seq[ObligationDetails]): Map[PeriodKey, Int] = {
+    obligations.map(o => PeriodKey(o.periodKey) -> getRateForDate(o.iCFromDate)).toMap
+  }
 }
