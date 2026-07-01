@@ -153,21 +153,7 @@ class SubmitReturnService @Inject()(
 
     (declareSpoiltProducts, spoiltVolumes) match {
       case (Some(spoiltProductsDeclared), Some(volumes)) if spoiltProductsDeclared && volumes.nonEmpty =>
-        val spoiltProducts = volumes.map { spoiltVolume =>
-          val dutyRateInPencePerMl = periodKeyToDutyRateInPencePerMl(spoiltVolume.periodKey)
-          val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) * 10) / 100
-          val volumeInMl = BigDecimal(spoiltVolume.volume)
-          val volumeInLitres = ConvertToLitres(volumeInMl).toLitres
-          val dutyDue = (volumeInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
-
-          SpoiltProductItem(
-            returnPeriodAffected = spoiltVolume.periodKey.toString,
-            taxType = config.taxType,
-            dutyRate = dutyRateInPoundsPer10Ml,
-            amountSpoilt = volumeInLitres,
-            dutyDue = dutyDue
-          )
-        }
+        val spoiltProducts = volumes.map(buildSpoiltProductItem(_, periodKeyToDutyRateInPencePerMl))
 
         Some(SpoiltProduct(
           spoiltProductFilled = FLAG_FILLED,
@@ -183,6 +169,22 @@ class SubmitReturnService @Inject()(
       case _ =>
         None
     }
+  }
+
+  private def buildSpoiltProductItem(spoiltVolume: SpoiltVolumeByPeriod, periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int]) = {
+    val dutyRateInPencePerMl = periodKeyToDutyRateInPencePerMl(spoiltVolume.periodKey)
+    val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) * 10) / 100
+    val volumeInMl = BigDecimal(spoiltVolume.volume)
+    val volumeInLitres = ConvertToLitres(volumeInMl).toLitres
+    val dutyDue = (volumeInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
+
+    SpoiltProductItem(
+      returnPeriodAffected = spoiltVolume.periodKey.toString,
+      taxType = config.taxType,
+      dutyRate = dutyRateInPoundsPer10Ml,
+      amountSpoilt = volumeInLitres,
+      dutyDue = dutyDue
+    )
   }
 
   private def buildOtherOptions(ua: ReturnsUserAnswers): Option[OtherOptions] = {
