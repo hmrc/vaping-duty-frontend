@@ -74,7 +74,7 @@ class SubmitReturnService @Inject()(
 
     val periodKey = PeriodKey(ua.periodKey)
 
-    val vapingProductsProduced = buildVapingProductsProduced(ua, obligation)
+    val vapingProductsProduced = buildVapingProductsProduced(ua, obligation, periodKeyToDutyRateInPencePerMl)
     val totalDutyDueVapingProducts = vapingProductsProduced.returns.headOption.map(_.dutyDue).getOrElse(ZERO_VALUE)
 
     val underDeclaration = buildUnderDeclaration()
@@ -107,11 +107,13 @@ class SubmitReturnService @Inject()(
     )
   }
 
-  private def buildVapingProductsProduced(ua: ReturnsUserAnswers, obligation: ObligationDetails): VapingProductsProduced = {
+  private def buildVapingProductsProduced(ua: ReturnsUserAnswers,
+                                          obligation: ObligationDetails,
+                                          periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int]): VapingProductsProduced = {
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
     val liquidInMl = ua.get(EnterDutyAmountPage).getOrElse(ZERO_VALUE)
 
-    val dutyRateInPencePerMl: Int = dutyRateService.getRateForDate(obligation.iCFromDate)
+    val dutyRateInPencePerMl: Int = periodKeyToDutyRateInPencePerMl(PeriodKey(obligation.periodKey))
 
     val liquidInLitres = ConvertToLitres(liquidInMl).toLitres
 

@@ -96,7 +96,8 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
   override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockConfig.taxType).thenReturn(taxType)
-    when(mockDutyRateService.getRateForDate(any())).thenReturn(dutyRateInPence)
+    when(mockDutyRateService.getDutyRatesInPencePerMlForPeriodKeys(Seq(obligation)))
+      .thenReturn(Map(PeriodKey(obligation.periodKey) -> dutyRateInPence))
     reset(mockAuditService)
   }
 
@@ -132,7 +133,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
           .set(DeclarationPage, declaration).success.value
 
-        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map.empty)
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> 1050))
         
         returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe yes
         returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
@@ -179,7 +180,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(DeclarationPage, declaration).success.value
 
 
-        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map.empty)
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> 1050))
 
         returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe no
         returnCreateRequest.vapingProductsProduced.returns.size mustBe 0
@@ -296,7 +297,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
           .set(DeclarationPage, declaration).success.value
 
-        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map.empty)
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> 1050))
 
         returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe yes
         returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
@@ -360,7 +361,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
 
         val exception = intercept[IllegalStateException] {
-          service.buildSubmission(userAnswers, obligation, vpdId, Map.empty)
+          service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> 1050))
         }
 
         exception.getMessage must include("Declaration details are required")
