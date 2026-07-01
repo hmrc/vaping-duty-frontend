@@ -23,7 +23,7 @@ import connectors.returns.SubmitReturnConnector
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
-import models.returns.{DeclarationDetails, DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
+import models.returns.{DeclarationDetails, DutySuspenseVolumes, RegularReturn, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
@@ -100,6 +100,9 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     reset(mockAuditService)
   }
 
+  private val yes = "1"
+  private val no = "0"
+
   "SubmitReturnService" - {
 
     "submit must" - {
@@ -123,6 +126,36 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
       }
 
+      "successfully build a return submission with duty declared" in {
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+          .set(DeclareDutyPage, true).success.value
+          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
+          .set(DeclarationPage, declaration).success.value
+
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map.empty)
+        
+        returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe yes
+        returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
+        returnCreateRequest.vapingProductsProduced.returns.head mustBe RegularReturn("641", 105.0, 1, 10500)
+
+//        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe no
+        returnCreateRequest.underDeclaration.get.underDeclFilled mustBe no
+        returnCreateRequest.overDeclaration.get.overDeclFilled mustBe no
+        
+        returnCreateRequest.otherOptions.get.vapingProductUnderDutySuspense mustBe no
+
+        returnCreateRequest.periodKey mustBe periodKey.value
+        returnCreateRequest.declaration.fullName mustBe "John Smith"
+        returnCreateRequest.declaration.capacityInWhichSigned mustBe "Director"
+        returnCreateRequest.declaration.signeesEmailAddress mustBe "john.smith@example.com"
+
+        returnCreateRequest.totalDutyDue.totalDutyDueVapingProducts mustBe 10500
+        returnCreateRequest.totalDutyDue.totalDutySpoiltProduct mustBe 0
+        returnCreateRequest.totalDutyDue.totalDutyUnderDeclaration mustBe 0
+        returnCreateRequest.totalDutyDue.totalDutyOverDeclaration mustBe 0
+        returnCreateRequest.totalDutyDue.totalDue mustBe 10500
+      }
+
       "successfully submit a nil return" in {
         val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
           .set(DeclareDutyPage, false).success.value
@@ -138,6 +171,35 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         result mustBe submittedResponse
         verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
+      }
+
+      "successfully build a return submission for a nil return" in {
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+          .set(DeclareDutyPage, false).success.value
+          .set(DeclarationPage, declaration).success.value
+
+
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map.empty)
+
+        returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe no
+        returnCreateRequest.vapingProductsProduced.returns.size mustBe 0
+
+        //        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe no
+        returnCreateRequest.underDeclaration.get.underDeclFilled mustBe no
+        returnCreateRequest.overDeclaration.get.overDeclFilled mustBe no
+
+        returnCreateRequest.otherOptions.get.vapingProductUnderDutySuspense mustBe no
+
+        returnCreateRequest.periodKey mustBe periodKey.value
+        returnCreateRequest.declaration.fullName mustBe "John Smith"
+        returnCreateRequest.declaration.capacityInWhichSigned mustBe "Director"
+        returnCreateRequest.declaration.signeesEmailAddress mustBe "john.smith@example.com"
+
+        returnCreateRequest.totalDutyDue.totalDutyDueVapingProducts mustBe 0
+        returnCreateRequest.totalDutyDue.totalDutySpoiltProduct mustBe 0
+        returnCreateRequest.totalDutyDue.totalDutyUnderDeclaration mustBe 0
+        returnCreateRequest.totalDutyDue.totalDutyOverDeclaration mustBe 0
+        returnCreateRequest.totalDutyDue.totalDue mustBe 0
       }
 
       "successfully submit a return with spoilt products" in {
@@ -166,6 +228,42 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
       }
 
+      "successfully build a return submission with spoilt products" in {
+        val spoiltVolumes = List(
+          SpoiltVolumeByPeriod(volume = 500, periodKey = november2026),
+          SpoiltVolumeByPeriod(volume = 300, periodKey = october2026)
+        )
+
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, december2026)
+          .set(DeclareDutyPage, true).success.value
+          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
+          .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
+          .set(DeclarationPage, declaration).success.value
+
+        val returnCreateRequest = service.buildSubmission(userAnswers, openObligation(december2026), vpdId, Map(october2026 -> 1050, november2026 -> 1050, december2026 -> 1050))
+
+        returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe yes
+        returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
+        returnCreateRequest.vapingProductsProduced.returns.head mustBe RegularReturn("641", 105.0, 1, 10500)
+
+        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe yes
+        returnCreateRequest.underDeclaration.get.underDeclFilled mustBe no
+        returnCreateRequest.overDeclaration.get.overDeclFilled mustBe no
+
+        returnCreateRequest.otherOptions.get.vapingProductUnderDutySuspense mustBe no
+
+        returnCreateRequest.periodKey mustBe december2026.value
+        returnCreateRequest.declaration.fullName mustBe "John Smith"
+        returnCreateRequest.declaration.capacityInWhichSigned mustBe "Director"
+        returnCreateRequest.declaration.signeesEmailAddress mustBe "john.smith@example.com"
+
+        returnCreateRequest.totalDutyDue.totalDutyDueVapingProducts mustBe 10500
+        returnCreateRequest.totalDutyDue.totalDutySpoiltProduct mustBe 8400
+        returnCreateRequest.totalDutyDue.totalDutyUnderDeclaration mustBe 0
+        returnCreateRequest.totalDutyDue.totalDutyOverDeclaration mustBe 0
+        returnCreateRequest.totalDutyDue.totalDue mustBe 2100
+      }
+
       "successfully submit a return with duty suspense" in {
         val dutySuspenseVolumes = DutySuspenseVolumes(volumeReceived = 1000, volumeMoved = 500)
 
@@ -186,6 +284,42 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         result mustBe submittedResponse
         verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
+      }
+
+      "successfully build a return submission with duty suspense movements" in {
+        val dutySuspenseVolumes = DutySuspenseVolumes(volumeReceived = 1000, volumeMoved = 500)
+
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+          .set(DeclareDutyPage, true).success.value
+          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
+          .set(DeclareDutySuspensePage, true).success.value
+          .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
+          .set(DeclarationPage, declaration).success.value
+
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map.empty)
+
+        returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe yes
+        returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
+        returnCreateRequest.vapingProductsProduced.returns.head mustBe RegularReturn("641", 105.0, 1, 10500)
+
+        //        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe no
+        returnCreateRequest.underDeclaration.get.underDeclFilled mustBe no
+        returnCreateRequest.overDeclaration.get.overDeclFilled mustBe no
+
+        returnCreateRequest.otherOptions.get.vapingProductUnderDutySuspense mustBe yes
+        returnCreateRequest.otherOptions.get.volumeMovedToDutySuspense mustBe Some(0.5)
+        returnCreateRequest.otherOptions.get.volumeMovedFromDutySuspense mustBe Some(1.0)
+
+        returnCreateRequest.periodKey mustBe periodKey.value
+        returnCreateRequest.declaration.fullName mustBe "John Smith"
+        returnCreateRequest.declaration.capacityInWhichSigned mustBe "Director"
+        returnCreateRequest.declaration.signeesEmailAddress mustBe "john.smith@example.com"
+
+        returnCreateRequest.totalDutyDue.totalDutyDueVapingProducts mustBe 10500
+        returnCreateRequest.totalDutyDue.totalDutySpoiltProduct mustBe 0
+        returnCreateRequest.totalDutyDue.totalDutyUnderDeclaration mustBe 0
+        returnCreateRequest.totalDutyDue.totalDutyOverDeclaration mustBe 0
+        returnCreateRequest.totalDutyDue.totalDue mustBe 10500
       }
 
       "fail when no obligation found" in {
@@ -216,6 +350,19 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         val exception = service.submit(userAnswers).failed.futureValue
 
         exception mustBe an[IllegalStateException]
+        exception.getMessage must include("Declaration details are required")
+        verify(mockAuditService, never()).auditReturnSubmitted(any[JsObject])(any())
+      }
+
+      "fail to build a return submission when declaration details are missing" in {
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+          .set(DeclareDutyPage, true).success.value
+          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
+
+        val exception = intercept[IllegalStateException] {
+          service.buildSubmission(userAnswers, obligation, vpdId, Map.empty)
+        }
+
         exception.getMessage must include("Declaration details are required")
         verify(mockAuditService, never()).auditReturnSubmitted(any[JsObject])(any())
       }

@@ -67,10 +67,10 @@ class SubmitReturnService @Inject()(
     }
   }
 
-  private def buildSubmission(ua: ReturnsUserAnswers,
-                              obligation: ObligationDetails,
-                              vpdId: VpdId,
-                              periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int])(using HeaderCarrier): ReturnCreateRequest = {
+  def buildSubmission(ua: ReturnsUserAnswers,
+                      obligation: ObligationDetails,
+                      vpdId: VpdId,
+                      periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int])(using HeaderCarrier): ReturnCreateRequest = {
 
     val periodKey = PeriodKey(ua.periodKey)
 
@@ -107,7 +107,7 @@ class SubmitReturnService @Inject()(
     )
   }
 
-  private def buildVapingProductsProduced(ua: ReturnsUserAnswers, obligation: ObligationDetails) = {
+  private def buildVapingProductsProduced(ua: ReturnsUserAnswers, obligation: ObligationDetails): VapingProductsProduced = {
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
     val liquidInMl = ua.get(EnterDutyAmountPage).getOrElse(ZERO_VALUE)
 
