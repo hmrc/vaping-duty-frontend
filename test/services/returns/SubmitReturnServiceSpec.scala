@@ -18,18 +18,18 @@ package services.returns
 
 import base.SpecBase
 import builders.ObligationsBuilders
-import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
-import models.returns.{DeclarationDetails, DutySuspenseVolumes, RegularReturn, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
+import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, UnderDeclaration}
+import models.returns.*
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import pages.returns.*
 import play.api.libs.json.JsObject
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -43,17 +43,15 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
   private val mockSubmitReturnConnector = mock[SubmitReturnConnector]
   private val mockDutyRateService = mock[DutyRateService]
   private val mockObligationService = mock[ObligationService]
-  private val mockTotalDutyDueCalculationService = TotalDutyDueCalculationService()
+  private val mockBuildReturnSubmissionService: BuildReturnSubmissionService = mock[BuildReturnSubmissionService]
   private val mockAuditService = mock[AuditService]
-  private val mockConfig = mock[FrontendAppConfig]
 
   private val service = new SubmitReturnService(
     mockSubmitReturnConnector,
     mockDutyRateService,
     mockObligationService,
-    mockTotalDutyDueCalculationService,
-    mockAuditService,
-    mockConfig
+    mockBuildReturnSubmissionService,
+    mockAuditService
   )
 
   private val vpdId = VpdId("GBWK1234567WK")
@@ -95,7 +93,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockConfig.taxType).thenReturn(taxType)
     when(mockDutyRateService.getDutyRatesInPencePerMlForPeriodKeys(Seq(obligation)))
       .thenReturn(Map(PeriodKey(obligation.periodKey) -> dutyRateInPence))
     reset(mockAuditService)
@@ -104,11 +101,29 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
   private val yes = "1"
   private val no = "0"
 
+  private val nilTotalDutyDue = TotalDutyDue(0.0, 0.0, 0.0, 0.0, 0.0)
+
+  private val nilReturnCreatedRequest = ReturnCreateRequest(
+    periodKey.value,
+    VapingProductsProduced("0", Seq()),
+    Some(UnderDeclaration("0", None, Some(Seq()))),
+    Some(OverDeclaration("0", None, Some(Seq()))),
+    Some(SpoiltProduct("0", Some(Seq()))),
+    nilTotalDutyDue,
+    Some(OtherOptions("0", None, None)),
+    declaration
+  )
+
+  private val nonNilReturnCreatedRequest = nilReturnCreatedRequest.copy(
+    vapingProductsProduced = VapingProductsProduced(yes, Seq(RegularReturn(taxType, dutyRate = 2.20, amountProducedLiquid = 1, dutyDue = 220.00))),
+    totalDutyDue = nilTotalDutyDue.copy(totalDutyDueVapingProducts = 220.00, totalDue = 220.00)
+  )
+
   "SubmitReturnService" - {
 
     "submit must" - {
 
-      "successfully submit a return with duty declared" in {
+      "successfully submit a return and send an audit event" in {
         val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
@@ -117,210 +132,16 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
         stubManufacturersObligations(vpdId, Seq(obligation))
+        when(mockBuildReturnSubmissionService.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> dutyRateInPence)))
+          .thenReturn(nonNilReturnCreatedRequest)
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
           .thenReturn(Future.successful(submittedResponse))
 
         val result = service.submit(userAnswers).futureValue
 
         result mustBe submittedResponse
-        verify(mockSubmitReturnConnector).submitReturn(any[ReturnCreateRequest], eqTo(vpdId))(any())
+        verify(mockSubmitReturnConnector).submitReturn(eqTo(nonNilReturnCreatedRequest), eqTo(vpdId))(any())
         verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
-      }
-
-      "successfully build a return submission with duty declared" in {
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, true).success.value
-          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-          .set(DeclarationPage, declaration).success.value
-
-        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> 1050))
-        
-        returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe yes
-        returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
-        returnCreateRequest.vapingProductsProduced.returns.head mustBe RegularReturn("641", 105.0, 1, 10500)
-
-//        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe no
-        returnCreateRequest.underDeclaration.get.underDeclFilled mustBe no
-        returnCreateRequest.overDeclaration.get.overDeclFilled mustBe no
-        
-        returnCreateRequest.otherOptions.get.vapingProductUnderDutySuspense mustBe no
-
-        returnCreateRequest.periodKey mustBe periodKey.value
-        returnCreateRequest.declaration.fullName mustBe "John Smith"
-        returnCreateRequest.declaration.capacityInWhichSigned mustBe "Director"
-        returnCreateRequest.declaration.signeesEmailAddress mustBe "john.smith@example.com"
-
-        returnCreateRequest.totalDutyDue.totalDutyDueVapingProducts mustBe 10500
-        returnCreateRequest.totalDutyDue.totalDutySpoiltProduct mustBe 0
-        returnCreateRequest.totalDutyDue.totalDutyUnderDeclaration mustBe 0
-        returnCreateRequest.totalDutyDue.totalDutyOverDeclaration mustBe 0
-        returnCreateRequest.totalDutyDue.totalDue mustBe 10500
-      }
-
-      "successfully submit a nil return" in {
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, false).success.value
-          .set(DeclarationPage, declaration).success.value
-
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
-
-        stubManufacturersObligations(vpdId, Seq(obligation))
-        when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
-          .thenReturn(Future.successful(submittedResponse))
-
-        val result = service.submit(userAnswers).futureValue
-
-        result mustBe submittedResponse
-        verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
-      }
-
-      "successfully build a return submission for a nil return" in {
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, false).success.value
-          .set(DeclarationPage, declaration).success.value
-
-
-        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> 1050))
-
-        returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe no
-        returnCreateRequest.vapingProductsProduced.returns.size mustBe 0
-
-        //        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe no
-        returnCreateRequest.underDeclaration.get.underDeclFilled mustBe no
-        returnCreateRequest.overDeclaration.get.overDeclFilled mustBe no
-
-        returnCreateRequest.otherOptions.get.vapingProductUnderDutySuspense mustBe no
-
-        returnCreateRequest.periodKey mustBe periodKey.value
-        returnCreateRequest.declaration.fullName mustBe "John Smith"
-        returnCreateRequest.declaration.capacityInWhichSigned mustBe "Director"
-        returnCreateRequest.declaration.signeesEmailAddress mustBe "john.smith@example.com"
-
-        returnCreateRequest.totalDutyDue.totalDutyDueVapingProducts mustBe 0
-        returnCreateRequest.totalDutyDue.totalDutySpoiltProduct mustBe 0
-        returnCreateRequest.totalDutyDue.totalDutyUnderDeclaration mustBe 0
-        returnCreateRequest.totalDutyDue.totalDutyOverDeclaration mustBe 0
-        returnCreateRequest.totalDutyDue.totalDue mustBe 0
-      }
-
-      "successfully submit a return with spoilt products" in {
-        val spoiltVolumes = List(
-          SpoiltVolumeByPeriod(volume = 500, periodKey = november2026),
-          SpoiltVolumeByPeriod(volume = 300, periodKey = october2026)
-        )
-
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, december2026)
-          .set(DeclareDutyPage, true).success.value
-          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-          .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
-          .set(DeclarationPage, declaration).success.value
-
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, december2026)
-
-        stubManufacturersObligations(vpdId, Seq(fulfilledObligation(october2026), fulfilledObligation(november2026), openObligation(december2026)))
-        when(mockDutyRateService.getDutyRatesInPencePerMlForPeriodKeys(Seq(fulfilledObligation(october2026), fulfilledObligation(november2026), openObligation(december2026))))
-          .thenReturn(Map(october2026 -> 1050, november2026 -> 1050, december2026 -> 1050))
-        when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
-          .thenReturn(Future.successful(submittedResponse))
-
-        val result = service.submit(userAnswers).futureValue
-
-        result mustBe submittedResponse
-        verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
-      }
-
-      "successfully build a return submission with spoilt products" in {
-        val spoiltVolumes = List(
-          SpoiltVolumeByPeriod(volume = 500, periodKey = november2026),
-          SpoiltVolumeByPeriod(volume = 300, periodKey = october2026)
-        )
-
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, december2026)
-          .set(DeclareDutyPage, true).success.value
-          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-          .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
-          .set(DeclarationPage, declaration).success.value
-
-        val returnCreateRequest = service.buildSubmission(userAnswers, openObligation(december2026), vpdId, Map(october2026 -> 1050, november2026 -> 1050, december2026 -> 1050))
-
-        returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe yes
-        returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
-        returnCreateRequest.vapingProductsProduced.returns.head mustBe RegularReturn("641", 105.0, 1, 10500)
-
-        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe yes
-        returnCreateRequest.underDeclaration.get.underDeclFilled mustBe no
-        returnCreateRequest.overDeclaration.get.overDeclFilled mustBe no
-
-        returnCreateRequest.otherOptions.get.vapingProductUnderDutySuspense mustBe no
-
-        returnCreateRequest.periodKey mustBe december2026.value
-        returnCreateRequest.declaration.fullName mustBe "John Smith"
-        returnCreateRequest.declaration.capacityInWhichSigned mustBe "Director"
-        returnCreateRequest.declaration.signeesEmailAddress mustBe "john.smith@example.com"
-
-        returnCreateRequest.totalDutyDue.totalDutyDueVapingProducts mustBe 10500
-        returnCreateRequest.totalDutyDue.totalDutySpoiltProduct mustBe 8400
-        returnCreateRequest.totalDutyDue.totalDutyUnderDeclaration mustBe 0
-        returnCreateRequest.totalDutyDue.totalDutyOverDeclaration mustBe 0
-        returnCreateRequest.totalDutyDue.totalDue mustBe 2100
-      }
-
-      "successfully submit a return with duty suspense" in {
-        val dutySuspenseVolumes = DutySuspenseVolumes(volumeReceived = 1000, volumeMoved = 500)
-
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, true).success.value
-          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-          .set(DeclareDutySuspensePage, true).success.value
-          .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
-          .set(DeclarationPage, declaration).success.value
-
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
-
-        stubManufacturersObligations(vpdId, Seq(obligation))
-        when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
-          .thenReturn(Future.successful(submittedResponse))
-
-        val result = service.submit(userAnswers).futureValue
-
-        result mustBe submittedResponse
-        verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
-      }
-
-      "successfully build a return submission with duty suspense movements" in {
-        val dutySuspenseVolumes = DutySuspenseVolumes(volumeReceived = 1000, volumeMoved = 500)
-
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, true).success.value
-          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-          .set(DeclareDutySuspensePage, true).success.value
-          .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
-          .set(DeclarationPage, declaration).success.value
-
-        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> 1050))
-
-        returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe yes
-        returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
-        returnCreateRequest.vapingProductsProduced.returns.head mustBe RegularReturn("641", 105.0, 1, 10500)
-
-        //        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe no
-        returnCreateRequest.underDeclaration.get.underDeclFilled mustBe no
-        returnCreateRequest.overDeclaration.get.overDeclFilled mustBe no
-
-        returnCreateRequest.otherOptions.get.vapingProductUnderDutySuspense mustBe yes
-        returnCreateRequest.otherOptions.get.volumeMovedToDutySuspense mustBe Some(0.5)
-        returnCreateRequest.otherOptions.get.volumeMovedFromDutySuspense mustBe Some(1.0)
-
-        returnCreateRequest.periodKey mustBe periodKey.value
-        returnCreateRequest.declaration.fullName mustBe "John Smith"
-        returnCreateRequest.declaration.capacityInWhichSigned mustBe "Director"
-        returnCreateRequest.declaration.signeesEmailAddress mustBe "john.smith@example.com"
-
-        returnCreateRequest.totalDutyDue.totalDutyDueVapingProducts mustBe 10500
-        returnCreateRequest.totalDutyDue.totalDutySpoiltProduct mustBe 0
-        returnCreateRequest.totalDutyDue.totalDutyUnderDeclaration mustBe 0
-        returnCreateRequest.totalDutyDue.totalDutyOverDeclaration mustBe 0
-        returnCreateRequest.totalDutyDue.totalDue mustBe 10500
       }
 
       "fail when no obligation found" in {
@@ -339,34 +160,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         verify(mockAuditService, never()).auditReturnSubmitted(any[JsObject])(any())
       }
 
-      "fail when declaration details are missing" in {
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, true).success.value
-          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
-
-        stubManufacturersObligations(vpdId, Seq(obligation))
-
-        val exception = service.submit(userAnswers).failed.futureValue
-
-        exception mustBe an[IllegalStateException]
-        exception.getMessage must include("Declaration details are required")
-        verify(mockAuditService, never()).auditReturnSubmitted(any[JsObject])(any())
-      }
-
-      "fail to build a return submission when declaration details are missing" in {
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, true).success.value
-          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-
-        val exception = intercept[IllegalStateException] {
-          service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> 1050))
-        }
-
-        exception.getMessage must include("Declaration details are required")
-        verify(mockAuditService, never()).auditReturnSubmitted(any[JsObject])(any())
-      }
     }
   }
 
