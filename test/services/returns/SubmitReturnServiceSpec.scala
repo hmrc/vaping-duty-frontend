@@ -110,7 +110,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
           .set(DeclarationPage, declaration).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq(obligation)))
@@ -134,7 +134,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(DeclareDutyPage, false).success.value
           .set(DeclarationPage, declaration).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
          .thenReturn(Future.successful(Seq(obligation)))
@@ -151,22 +151,22 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
       "successfully submit a return with spoilt products" in {
         val spoiltVolumes = List(
-          SpoiltVolumeByPeriod(volume = 500, periodKey = PeriodKey("23KB")),
-          SpoiltVolumeByPeriod(volume = 300, periodKey = PeriodKey("23KC"))
+          SpoiltVolumeByPeriod(volume = 500, periodKey = november2026),
+          SpoiltVolumeByPeriod(volume = 300, periodKey = october2026)
         )
 
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, december2026)
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
           .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
           .set(DeclarationPage, declaration).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, december2026)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-          .thenReturn(Future.successful(Seq(obligation)))
-        when(mockDutyRateService.getDutyRatesInPencePerMlForPeriodKeys(Seq(obligation)))
-          .thenReturn(Map(PeriodKey("23KA") -> 1050, PeriodKey("23KB") -> 1050, PeriodKey("23KC") -> 1050))
+          .thenReturn(Future.successful(Seq(fulfilledObligation(october2026), fulfilledObligation(november2026), openObligation(december2026))))
+        when(mockDutyRateService.getDutyRatesInPencePerMlForPeriodKeys(Seq(fulfilledObligation(october2026), fulfilledObligation(november2026), openObligation(december2026))))
+          .thenReturn(Map(october2026 -> 1050, november2026 -> 1050, december2026 -> 1050))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
           .thenReturn(nilReturnTotals.copy(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
@@ -192,7 +192,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
           .set(DeclarationPage, declaration).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq(obligation)))
@@ -214,7 +214,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
           .set(DeclarationPage, declaration).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq()))
@@ -231,7 +231,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq(obligation)))
@@ -250,7 +250,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     }
   }
 
-  private def buildReturnsDataRequest(answers: ReturnsUserAnswers) = {
+  private def buildReturnsDataRequest(answers: ReturnsUserAnswers, periodKey: PeriodKey) = {
     ReturnsDataRequest(FakeRequest(), vpdId, groupId, internalId, credId, periodKey, answers)
   }
 }
