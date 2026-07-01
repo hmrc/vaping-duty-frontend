@@ -112,8 +112,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
-        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-          .thenReturn(Future.successful(Seq(obligation)))
+        stubManufacturersObligations(vpdId, Seq(obligation))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
           .thenReturn(nilReturnTotals.copy(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
@@ -136,8 +135,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
-        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-         .thenReturn(Future.successful(Seq(obligation)))
+        stubManufacturersObligations(vpdId, Seq(obligation))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
           .thenReturn(nilReturnTotals)
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
@@ -163,8 +161,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, december2026)
 
-        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-          .thenReturn(Future.successful(Seq(fulfilledObligation(october2026), fulfilledObligation(november2026), openObligation(december2026))))
+        stubManufacturersObligations(vpdId, Seq(fulfilledObligation(october2026), fulfilledObligation(november2026), openObligation(december2026)))
         when(mockDutyRateService.getDutyRatesInPencePerMlForPeriodKeys(Seq(fulfilledObligation(october2026), fulfilledObligation(november2026), openObligation(december2026))))
           .thenReturn(Map(october2026 -> 1050, november2026 -> 1050, december2026 -> 1050))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
@@ -194,8 +191,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
-        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-          .thenReturn(Future.successful(Seq(obligation)))
+        stubManufacturersObligations(vpdId, Seq(obligation))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
           .thenReturn(nilReturnTotals.copy(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
@@ -233,8 +229,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
-        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-          .thenReturn(Future.successful(Seq(obligation)))
+        stubManufacturersObligations(vpdId, Seq(obligation))
         when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
           .thenReturn(nilReturnTotals.copy(
             totalDutyDueVapingProducts = BigDecimal("10.50"),
@@ -248,6 +243,11 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         verify(mockAuditService, never()).auditReturnSubmitted(any[JsObject])(any())
       }
     }
+  }
+
+  private def stubManufacturersObligations(vpdId: VpdId, obligations: Seq[ObligationDetails]) = {
+    when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      .thenReturn(Future.successful(obligations))
   }
 
   private def buildReturnsDataRequest(answers: ReturnsUserAnswers, periodKey: PeriodKey) = {
