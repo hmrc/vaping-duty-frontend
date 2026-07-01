@@ -24,7 +24,7 @@ import models.requests.returns.ReturnsDataRequest
 import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, SpoiltProductItem, UnderDeclaration}
-import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
 import services.contactPreference.AuditService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -148,10 +148,11 @@ class SubmitReturnService @Inject()(
     ))
 
   private def buildSpoiltProduct(ua: ReturnsUserAnswers, vpdId: VpdId, periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int])(using HeaderCarrier): Option[SpoiltProduct] = {
+    val declareSpoiltProducts = ua.get(DeclareSpoiltProductsPage)
     val spoiltVolumes = ua.get(SpoiltVolumeByPeriodPage)
 
-    spoiltVolumes match {
-      case Some(volumes) if volumes.nonEmpty =>
+    (declareSpoiltProducts, spoiltVolumes) match {
+      case (Some(spoiltProductsDeclared), Some(volumes)) if spoiltProductsDeclared && volumes.nonEmpty =>
         val spoiltProducts = volumes.map { spoiltVolume =>
           val dutyRateInPencePerMl = periodKeyToDutyRateInPencePerMl(spoiltVolume.periodKey)
           val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) * 10) / 100
@@ -172,11 +173,15 @@ class SubmitReturnService @Inject()(
           spoiltProductFilled = FLAG_FILLED,
           spoiltProducts = Some(spoiltProducts)
         ))
-      case _ =>
+
+      case (Some(spoiltProductsDeclared), Some(spoiltVolumesByPeriods)) if !spoiltProductsDeclared && spoiltVolumesByPeriods.isEmpty =>
         Some(SpoiltProduct(
           spoiltProductFilled = FLAG_NOT_FILLED,
           spoiltProducts = None
         ))
+
+      case _ =>
+        None
     }
   }
 
