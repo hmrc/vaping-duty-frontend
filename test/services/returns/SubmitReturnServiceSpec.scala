@@ -17,18 +17,19 @@
 package services.returns
 
 import base.SpecBase
-import config.FrontendAppConfig
+import builders.ObligationsBuilders
 import connectors.returns.SubmitReturnConnector
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
-import models.returns.{DeclarationDetails, DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
+import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, UnderDeclaration}
+import models.returns.*
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, verify, when, reset}
+import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import pages.returns.*
 import play.api.libs.json.JsObject
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -37,22 +38,20 @@ import services.contactPreference.AuditService
 import java.time.{Instant, LocalDate}
 import scala.concurrent.Future
 
-class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
+class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach with ObligationsBuilders {
 
   private val mockSubmitReturnConnector = mock[SubmitReturnConnector]
   private val mockDutyRateService = mock[DutyRateService]
   private val mockObligationService = mock[ObligationService]
-  private val mockTotalDutyDueCalculationService = mock[TotalDutyDueCalculationService]
+  private val mockBuildReturnSubmissionService: BuildReturnSubmissionService = mock[BuildReturnSubmissionService]
   private val mockAuditService = mock[AuditService]
-  private val mockConfig = mock[FrontendAppConfig]
 
   private val service = new SubmitReturnService(
     mockSubmitReturnConnector,
     mockDutyRateService,
     mockObligationService,
-    mockTotalDutyDueCalculationService,
-    mockAuditService,
-    mockConfig
+    mockBuildReturnSubmissionService,
+    mockAuditService
   )
 
   private val vpdId = VpdId("GBWK1234567WK")
@@ -94,120 +93,54 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockConfig.taxType).thenReturn(taxType)
-    when(mockDutyRateService.getRateForDate(any())).thenReturn(dutyRateInPence)
+    when(mockDutyRateService.getDutyRatesInPencePerMlForPeriodKeys(Seq(obligation)))
+      .thenReturn(Map(PeriodKey(obligation.periodKey) -> dutyRateInPence))
     reset(mockAuditService)
   }
+
+  private val yes = "1"
+  private val no = "0"
+
+  private val nilTotalDutyDue = TotalDutyDue(0.0, 0.0, 0.0, 0.0, 0.0)
+
+  private val nilReturnCreatedRequest = ReturnCreateRequest(
+    periodKey.value,
+    VapingProductsProduced("0", Seq()),
+    Some(UnderDeclaration("0", None, Some(Seq()))),
+    Some(OverDeclaration("0", None, Some(Seq()))),
+    Some(SpoiltProduct("0", Some(Seq()))),
+    nilTotalDutyDue,
+    Some(OtherOptions("0", None, None)),
+    declaration
+  )
+
+  private val nonNilReturnCreatedRequest = nilReturnCreatedRequest.copy(
+    vapingProductsProduced = VapingProductsProduced(yes, Seq(RegularReturn(taxType, dutyRate = 2.20, amountProducedLiquid = 1, dutyDue = 220.00))),
+    totalDutyDue = nilTotalDutyDue.copy(totalDutyDueVapingProducts = 220.00, totalDue = 220.00)
+  )
 
   "SubmitReturnService" - {
 
     "submit must" - {
 
-      "successfully submit a return with duty declared" in {
+      "successfully submit a return and send an audit event" in {
         val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
           .set(DeclarationPage, declaration).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
-        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-          .thenReturn(Future.successful(Seq(obligation)))
-        when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
-          .thenReturn(nilReturnTotals.copy(
-            totalDutyDueVapingProducts = BigDecimal("10.50"),
-            totalDue = BigDecimal("10.50")
-          ))
+        stubManufacturersObligations(vpdId, Seq(obligation))
+        when(mockBuildReturnSubmissionService.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> dutyRateInPence)))
+          .thenReturn(nonNilReturnCreatedRequest)
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
           .thenReturn(Future.successful(submittedResponse))
 
         val result = service.submit(userAnswers).futureValue
 
         result mustBe submittedResponse
-        verify(mockSubmitReturnConnector).submitReturn(any[ReturnCreateRequest], eqTo(vpdId))(any())
-        verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
-      }
-
-      "successfully submit a nil return" in {
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, false).success.value
-          .set(DeclarationPage, declaration).success.value
-
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
-
-        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-         .thenReturn(Future.successful(Seq(obligation)))
-        when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
-          .thenReturn(nilReturnTotals)
-        when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
-          .thenReturn(Future.successful(submittedResponse))
-
-        val result = service.submit(userAnswers).futureValue
-
-        result mustBe submittedResponse
-        verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
-      }
-
-      "successfully submit a return with spoilt products" in {
-        val spoiltVolumes = List(
-          SpoiltVolumeByPeriod(volume = 500, periodKey = PeriodKey("23KB")),
-          SpoiltVolumeByPeriod(volume = 300, periodKey = PeriodKey("23KC"))
-        )
-
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, true).success.value
-          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-          .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
-          .set(DeclarationPage, declaration).success.value
-
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
-
-        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-          .thenReturn(Future.successful(Seq(obligation)))
-        when(mockDutyRateService.getDutyRate(eqTo(vpdId), eqTo(PeriodKey("23KB")))(using any(), any()))
-          .thenReturn(Future.successful(BigDecimal("10.50")))
-        when(mockDutyRateService.getDutyRate(eqTo(vpdId), eqTo(PeriodKey("23KC")))(using any(), any()))
-          .thenReturn(Future.successful(BigDecimal("10.50")))
-        when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
-          .thenReturn(nilReturnTotals.copy(
-            totalDutyDueVapingProducts = BigDecimal("10.50"),
-            totalDutySpoiltProduct = BigDecimal("8.40"),
-            totalDue = BigDecimal("2.10")
-          ))
-        when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
-          .thenReturn(Future.successful(submittedResponse))
-
-        val result = service.submit(userAnswers).futureValue
-
-        result mustBe submittedResponse
-        verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
-      }
-
-      "successfully submit a return with duty suspense" in {
-        val dutySuspenseVolumes = DutySuspenseVolumes(volumeReceived = 1000, volumeMoved = 500)
-
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, true).success.value
-          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-          .set(DeclareDutySuspensePage, true).success.value
-          .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
-          .set(DeclarationPage, declaration).success.value
-
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
-
-        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-          .thenReturn(Future.successful(Seq(obligation)))
-        when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
-          .thenReturn(nilReturnTotals.copy(
-            totalDutyDueVapingProducts = BigDecimal("10.50"),
-            totalDue = BigDecimal("10.50")
-          ))
-        when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
-          .thenReturn(Future.successful(submittedResponse))
-
-        val result = service.submit(userAnswers).futureValue
-
-        result mustBe submittedResponse
+        verify(mockSubmitReturnConnector).submitReturn(eqTo(nonNilReturnCreatedRequest), eqTo(vpdId))(any())
         verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
       }
 
@@ -215,7 +148,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
           .set(DeclarationPage, declaration).success.value
 
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
         when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq()))
@@ -227,31 +160,15 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         verify(mockAuditService, never()).auditReturnSubmitted(any[JsObject])(any())
       }
 
-      "fail when declaration details are missing" in {
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, true).success.value
-          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-
-        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers)
-
-        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-          .thenReturn(Future.successful(Seq(obligation)))
-        when(mockTotalDutyDueCalculationService.calculate(any(), any(), any(), any()))
-          .thenReturn(nilReturnTotals.copy(
-            totalDutyDueVapingProducts = BigDecimal("10.50"),
-            totalDue = BigDecimal("10.50")
-          ))
-
-        val exception = service.submit(userAnswers).failed.futureValue
-
-        exception mustBe an[IllegalStateException]
-        exception.getMessage must include("Declaration details are required")
-        verify(mockAuditService, never()).auditReturnSubmitted(any[JsObject])(any())
-      }
     }
   }
 
-  private def buildReturnsDataRequest(answers: ReturnsUserAnswers) = {
+  private def stubManufacturersObligations(vpdId: VpdId, obligations: Seq[ObligationDetails]) = {
+    when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      .thenReturn(Future.successful(obligations))
+  }
+
+  private def buildReturnsDataRequest(answers: ReturnsUserAnswers, periodKey: PeriodKey) = {
     ReturnsDataRequest(FakeRequest(), vpdId, groupId, internalId, credId, periodKey, answers)
   }
 }
