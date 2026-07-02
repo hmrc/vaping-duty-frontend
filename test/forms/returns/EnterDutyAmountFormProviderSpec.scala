@@ -27,17 +27,17 @@ class EnterDutyAmountFormProviderSpec extends FieldBehaviours {
 
     val fieldName = "value"
 
-    "must bind valid values >= 1000ml with up to 1 decimal place" in {
-      Seq("1000", "1000.1", "999999999999.9", "1000000").foreach { input =>
+    "must bind valid values >= 1000ml with no decimal places" in {
+      Seq("1000", "1000000", "999999999999").foreach { input =>
         val result = form.bind(Map(fieldName -> input))
         result.errors mustBe empty
       }
     }
 
-    "must bind valid values < 1000ml with exactly 2 decimal places" in {
-      Seq("1.00", "10.12", "999.99").foreach { input =>
-          val result = form.bind(Map(fieldName -> input))
-          result.errors mustBe empty
+    "must bind valid values < 1000ml with 0 or 1 decimal place" in {
+      Seq("1", "10.1", "999.9", "500").foreach { input =>
+        val result = form.bind(Map(fieldName -> input))
+        result.errors mustBe empty
       }
     }
 
@@ -53,29 +53,15 @@ class EnterDutyAmountFormProviderSpec extends FieldBehaviours {
       }
     }
 
-    "must not bind values >= 1000ml with more than 1 decimal place" in {
-      Seq("1000.12", "1000.00", "999999999999.12").foreach { input =>
-        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
-        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces"))
-      }
-    }
-
-    "must bind valid whole number values < 1000ml" in {
-      Seq("1", "10", "999").foreach { input =>
-        val result = form.bind(Map(fieldName -> input))
-        result.errors mustBe empty
-      }
-    }
-
-    "must not bind values < 1000ml with exactly 1 decimal place" in {
-      Seq("999.9", "10.1").foreach { input =>
+    "must not bind values >= 1000ml with any decimal places" in {
+      Seq("1000.1", "1000.12", "1000.0", "999999999999.9").foreach { input =>
         val result = form.bind(Map(fieldName -> input)).apply(fieldName)
         result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces"))
       }
     }
 
     "must not bind values below the minimum of 1ml" in {
-      Seq("0.12", "0.99").foreach { input =>
+      Seq("0", "0.1").foreach { input =>
         val result = form.bind(Map(fieldName -> input)).apply(fieldName)
         result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.outOfRange", Seq(BigDecimal(1), BigDecimal("999999999999.9"))))
       }

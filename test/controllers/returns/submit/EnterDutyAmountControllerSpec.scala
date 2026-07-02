@@ -43,7 +43,7 @@ class EnterDutyAmountControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val validAnswer = BigDecimal("1000.1")
+  val validAnswer = BigDecimal("1000")
 
   lazy val enterDutyAmountRoute: String = controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(NormalMode).url
 
