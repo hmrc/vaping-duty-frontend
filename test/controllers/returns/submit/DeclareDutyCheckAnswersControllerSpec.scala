@@ -20,11 +20,11 @@ import base.SpecBase
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
-import pages.returns.EnterDutyAmountPage
+import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.{DutyRateService, ObligationService}
+import services.returns.{DutyRateService, ObligationService, UserAnswersValidationService}
 import viewmodels.returns.submit.DeclareDutyCheckAnswersViewModel
 import views.html.returns.submit.DeclareDutyCheckAnswersView
 
@@ -34,9 +34,11 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
 
   "DeclareDutyCheckAnswers Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET when validation passes" in {
 
-      val ua = returnsUserAnswers.set(EnterDutyAmountPage, BigDecimal(100)).success.value
+      val ua = returnsUserAnswers
+        .set(DeclareDutyPage, true).success.value
+        .set(EnterDutyAmountPage, BigDecimal(100)).success.value
 
       val mockDutyRateService = mock[DutyRateService]
 
@@ -44,7 +46,10 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
         .thenReturn(Future.successful(testDutyRate))
 
       val application = applicationBuilder(returnsUserAnswers = Some(ua))
-        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
+        .overrides(
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[UserAnswersValidationService].toInstance(new UserAnswersValidationService())
+        )
         .build()
 
       running(application) {
@@ -60,15 +65,39 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to journey recovery when EnterDutyAmountPage is not answered" in {
+    "must redirect to journey recovery when validation fails (missing amount)" in {
+
+      val ua = returnsUserAnswers.set(DeclareDutyPage, true).success.value
+      // Missing EnterDutyAmountPage - validation should fail
 
       val mockDutyRateService = mock[DutyRateService]
 
-      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
-        .thenReturn(Future.successful(testDutyRate))
+      val application = applicationBuilder(returnsUserAnswers = Some(ua))
+        .overrides(
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[UserAnswersValidationService].toInstance(new UserAnswersValidationService())
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to journey recovery when validation fails (missing DeclareDutyPage)" in {
+
+      val mockDutyRateService = mock[DutyRateService]
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
+        .overrides(
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[UserAnswersValidationService].toInstance(new UserAnswersValidationService())
+        )
         .build()
 
       running(application) {
