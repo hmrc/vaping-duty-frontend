@@ -202,7 +202,7 @@ returns.enterDutyAmount.error.nonNumeric = Enter a volume with up to 12 digits a
 returns.enterDutyAmount.error.required = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.enterDutyAmount.error.wholeNumber = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.enterDutyAmount.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
-returns.enterDutyAmount.error.invalidDecimalPlaces = Enter 1 decimal place for amounts of 1 litre or more, for example 1.5 and 2 decimal places for amounts less than 1 litre, for example 0.75
+returns.enterDutyAmount.error.invalidDecimalPlaces = Enter no decimal places for amounts of 1 litre or more, for example 1000, and up to 1 decimal place for amounts less than 1 litre, for example 999.9
 returns.enterDutyAmount.change.hidden = EnterDutyAmount
 
 returns.declareSpoiltProducts.title = Declare spoilt products from an earlier return
@@ -240,7 +240,7 @@ returns.spoiltVolumeByPeriod.label = How many millilitres do you need to declare
 returns.spoiltVolumeByPeriod.hint = Total millilitres of spoilt vaping products
 returns.spoiltVolumeByPeriod.error.required = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.spoiltVolumeByPeriod.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
-returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces = Enter 1 decimal place for amounts of 1 litre or more, for example 1.5 and 2 decimal places for amounts less than 1 litre, for example 0.75
+returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces = Enter no decimal places for amounts of 1 litre or more, for example 1000, and up to 1 decimal place for amounts less than 1 litre, for example 999.9
 returns.spoiltVolumeByPeriod.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 
 returns.addSpoiltAdjustment.title = Do you want to make an adjustment for another month?
@@ -269,13 +269,13 @@ returns.enterDutySuspense.caption.text = Report duty suspended vaping products
 returns.enterDutySuspense.volumeReceived.label = Amount received
 returns.enterDutySuspense.volumeReceived.error.required = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.enterDutySuspense.volumeReceived.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
-returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces = Enter 1 decimal place for amounts of 1 litre or more, for example 1000.5 and 2 decimal places for amounts less than 1 litre, for example 10.75
+returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces = Enter no decimal places for amounts of 1 litre or more, for example 1000, and up to 1 decimal place for amounts less than 1 litre, for example 999.9
 returns.enterDutySuspense.volumeReceived.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 
 returns.enterDutySuspense.volumeMoved.label = Amount moved
 returns.enterDutySuspense.volumeMoved.error.required = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.enterDutySuspense.volumeMoved.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
-returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces = Enter 1 decimal place for amounts of 1 litre or more, for example 1000.5 and 2 decimal places for amounts less than 1 litre, for example 10.75
+returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces = Enter no decimal places for amounts of 1 litre or more, for example 1000, and up to 1 decimal place for amounts less than 1 litre, for example 999.9
 returns.enterDutySuspense.volumeMoved.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 
 returns.enterDutySuspense.ml = ml
