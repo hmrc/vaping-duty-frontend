@@ -29,6 +29,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.{ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.returns.submit.AdjustmentVolumeWithTypeViewModel
 import views.html.returns.submit.AdjustmentVolumeWithTypeView
 
 import javax.inject.Inject
@@ -72,7 +73,8 @@ class AdjustmentVolumeWithTypeController @Inject()(
               case None => form
             }
 
-            Ok(view(request.periodKey, adjustmentPeriodKey, preparedForm, mode, obligations))
+            val vm = AdjustmentVolumeWithTypeViewModel(obligations, adjustmentPeriodKey)
+            Ok(view(request.periodKey, adjustmentPeriodKey, preparedForm, mode, vm))
           }
         case None =>
           Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
@@ -87,8 +89,10 @@ class AdjustmentVolumeWithTypeController @Inject()(
         case Some(adjustmentPeriodKey) =>
           obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
             form.bindFromRequest().fold(
-              formWithErrors =>
-                Future.successful(BadRequest(view(request.periodKey, adjustmentPeriodKey, formWithErrors, mode, obligations))),
+              formWithErrors => {
+                val vm = AdjustmentVolumeWithTypeViewModel(obligations, adjustmentPeriodKey)
+                Future.successful(BadRequest(view(request.periodKey, adjustmentPeriodKey, formWithErrors, mode, vm)))
+              },
 
               formData => {
                 val volume = formData.getVolume
@@ -100,7 +104,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
 
                 // Get existing list or create new one
                 val existingList = request.userAnswers.get(AdjustmentListPage).getOrElse(AdjustmentList.empty)
-                
+
                 // Remove any existing entry for this period and add the new one
                 val updatedAdjustments = existingList.adjustments.filterNot(_.period == adjustmentPeriodKey) :+ newEntry
                 val updatedList = AdjustmentList(updatedAdjustments)
