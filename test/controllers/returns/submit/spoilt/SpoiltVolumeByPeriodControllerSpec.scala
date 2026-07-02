@@ -40,10 +40,10 @@ import scala.concurrent.Future
 class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new SpoiltVolumeByPeriodFormProvider()
-  val form: Form[Int] = formProvider()
+  val form: Form[BigDecimal] = formProvider()
 
   val spoiltPeriodKey = PeriodKey("24AA")
-  val testVolume = 1000
+  val testVolume = BigDecimal(1000)
 
   val mockObligation: ObligationDetails = ObligationDetails(
     openOrFulfilledStatus = ObligationStatus.F.toString,

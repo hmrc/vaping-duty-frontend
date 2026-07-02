@@ -168,9 +168,9 @@ trait Formatters {
                 .left.map(_ => Seq(FormError(key, nonNumericKey, args)))
                 .flatMap { v =>
                   val dpCount = if (s.contains(".")) s.length - s.indexOf('.') - 1 else 0
-                  if (v >= litre && dpCount > 1)
+                  if (v >= litre && dpCount > 0)
                     Left(Seq(FormError(key, invalidDecimalKey, args)))
-                  else if (v < litre && dpCount != 2)
+                  else if (v < litre && dpCount > 1)
                     Left(Seq(FormError(key, invalidDecimalKey, args)))
                   else
                     Right(v)

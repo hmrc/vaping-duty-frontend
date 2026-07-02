@@ -63,7 +63,7 @@ object DutySuspenseCheckAnswersViewModel {
     }
   }
 
-  private def formatVolume(volume: Int): String = 
+  private def formatVolume(volume: BigDecimal): String = 
     s"${volume.toString}$ML_SUFFIX"
 
   private def buildDeclareDutySuspenseRow(declareDutySuspense: Boolean, periodKey: PeriodKey)

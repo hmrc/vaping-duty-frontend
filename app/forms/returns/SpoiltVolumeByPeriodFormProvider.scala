@@ -23,12 +23,14 @@ import javax.inject.Inject
 
 class SpoiltVolumeByPeriodFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[Int] =
+  private val maxVolume = "999999999999.9"
+
+  def apply(): Form[BigDecimal] =
     Form(
-      "value" -> int(
+      "value" -> volume(
         "returns.spoiltVolumeByPeriod.error.required",
-        "returns.spoiltVolumeByPeriod.error.wholeNumber",
-        "returns.spoiltVolumeByPeriod.error.nonNumeric")
-          .verifying(inRange(1, Int.MaxValue, "returns.spoiltVolumeByPeriod.error.outOfRange"))
+        "returns.spoiltVolumeByPeriod.error.nonNumeric",
+        "returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces")
+          .verifying(inRange(BigDecimal(1), BigDecimal(maxVolume), "returns.spoiltVolumeByPeriod.error.outOfRange"))
     )
 }

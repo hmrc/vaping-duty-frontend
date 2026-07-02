@@ -16,10 +16,10 @@
 
 package forms.returns
 
-import forms.behaviours.IntFieldBehaviours
+import forms.behaviours.FieldBehaviours
 import play.api.data.FormError
 
-class SpoiltVolumeByPeriodFormProviderSpec extends IntFieldBehaviours {
+class SpoiltVolumeByPeriodFormProviderSpec extends FieldBehaviours {
 
   val form = new SpoiltVolumeByPeriodFormProvider()()
 
@@ -27,31 +27,52 @@ class SpoiltVolumeByPeriodFormProviderSpec extends IntFieldBehaviours {
 
     val fieldName = "value"
 
-    val minimum = 1
-    val maximum = Int.MaxValue
+    "must bind valid values >= 1000ml with no decimal places" in {
+      Seq("1000", "1000000", "999999999999").foreach { input =>
+        val result = form.bind(Map(fieldName -> input))
+        result.errors mustBe empty
+      }
+    }
 
-    val validDataGenerator = intsInRangeWithCommas(minimum, maximum)
+    "must bind valid values < 1000ml with 0 or 1 decimal place" in {
+      Seq("1", "10.1", "999.9", "500").foreach { input =>
+        val result = form.bind(Map(fieldName -> input))
+        result.errors mustBe empty
+      }
+    }
 
-    behave like fieldThatBindsValidData(
-      form,
-      fieldName,
-      validDataGenerator
-    )
+    "must not bind empty values" in {
+      val result = form.bind(Map(fieldName -> "")).apply(fieldName)
+      result.errors mustEqual Seq(FormError(fieldName, "returns.spoiltVolumeByPeriod.error.required"))
+    }
 
-    behave like intField(
-      form,
-      fieldName,
-      nonNumericError  = FormError(fieldName, "returns.spoiltVolumeByPeriod.error.nonNumeric"),
-      wholeNumberError = FormError(fieldName, "returns.spoiltVolumeByPeriod.error.wholeNumber")
-    )
+    "must not bind non-numeric values" in {
+      Seq("abc", "1.2.3", "£10.12").foreach { input =>
+        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+        result.errors mustEqual Seq(FormError(fieldName, "returns.spoiltVolumeByPeriod.error.nonNumeric"))
+      }
+    }
 
-    behave like intFieldWithRange(
-      form,
-      fieldName,
-      minimum       = minimum,
-      maximum       = maximum,
-      expectedError = FormError(fieldName, "returns.spoiltVolumeByPeriod.error.outOfRange", Seq(minimum, maximum))
-    )
+    "must not bind values >= 1000ml with any decimal places" in {
+      Seq("1000.1", "1000.12", "1000.0", "999999999999.9").foreach { input =>
+        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+        result.errors mustEqual Seq(FormError(fieldName, "returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces"))
+      }
+    }
+
+    "must not bind values < 1000ml with more than 1 decimal place" in {
+      Seq("999.99", "10.12", "1.00").foreach { input =>
+        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+        result.errors mustEqual Seq(FormError(fieldName, "returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces"))
+      }
+    }
+
+    "must not bind values below the minimum of 1ml" in {
+      Seq("0", "0.1").foreach { input =>
+        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+        result.errors mustEqual Seq(FormError(fieldName, "returns.spoiltVolumeByPeriod.error.outOfRange", Seq(BigDecimal(1), BigDecimal("999999999999.9"))))
+      }
+    }
 
     behave like mandatoryField(
       form,
