@@ -434,6 +434,57 @@ viewIndividualReturn.dutySuspense.productReceived = Product received
 viewIndividualReturn.dutySuspense.productMoved = Product moved
 viewIndividualReturn.dutySuspense.nothingToDeclare = Nothing to declare
 
+returns.declareAdjustmentQuestion.title = Declare adjustments from earlier returns
+returns.declareAdjustmentQuestion.heading = Declare adjustments from earlier returns
+returns.declareAdjustmentQuestion.caption = Adjust a previous return
+returns.declareAdjustmentQuestion.p1 = Tell us about any vaping products that were over or under-declared in previous returns.
+returns.declareAdjustmentQuestion.p2 = You may be required to explain why these were over or under-declared.
+returns.declareAdjustmentQuestion.details.summary = What 'over-declared' and 'under-declared' mean
+returns.declareAdjustmentQuestion.details.content.p1 = Over-declared means the quantity you declared is greater than the amount that was released.
+returns.declareAdjustmentQuestion.details.content.p2 = For example, you included a despatch twice or declared in the wrong period.
+returns.declareAdjustmentQuestion.details.content.p3 = Under-declared means you have declared less leaving the premises than has been released. For example, you missed a despatch from the accounting record.
+returns.declareAdjustmentQuestion.question = Do you have any vaping products you need to over or under declare?
+
+returns.selectAdjustmentPeriod.title = When do you need to make this adjustment for?
+returns.selectAdjustmentPeriod.heading = When do you need to make this adjustment for?
+returns.selectAdjustmentPeriod.caption = Adjust over or under-declared vaping products
+returns.selectAdjustmentPeriod.p1 = Select the month you need to make an adjustment for.
+
+returns.adjustmentVolumeWithType.title = Over or under declarations
+returns.adjustmentVolumeWithType.heading = Over or under declarations
+returns.adjustmentVolumeWithType.caption = Adjustment — {0}
+returns.adjustmentVolumeWithType.p = Tell us the total millilitres of products you need to over or under-declare for the selected month.
+returns.adjustmentVolumeWithType.legend = How much do you need to adjust?
+returns.adjustmentVolumeWithType.hint = You can only select one option
+returns.adjustmentVolumeWithType.underDeclared = Under declared
+returns.adjustmentVolumeWithType.overDeclared = Over declared
+returns.adjustmentVolumeWithType.underDeclared.label = Total millilitres of under-declared products
+returns.adjustmentVolumeWithType.overDeclared.label = Total millilitres of over-declared products
+returns.adjustmentVolumeWithType.ml = ml
+returns.adjustmentVolumeWithType.error.required = You must select an option and enter a value
+returns.adjustmentVolumeWithType.error.bothProvided = You can only enter a value for one option — either over declared or under declared
+returns.adjustmentVolumeWithType.underDeclared.error.required = Enter the total millilitres of under-declared products
+returns.adjustmentVolumeWithType.underDeclared.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place
+returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces = Enter a volume with up to 12 digits and 1 decimal place
+returns.adjustmentVolumeWithType.overDeclared.error.required = Enter the total millilitres of over-declared products
+returns.adjustmentVolumeWithType.overDeclared.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place
+returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces = Enter a volume with up to 12 digits and 1 decimal place
+
+returns.adjustmentCheckYourAnswers.title = Check your answers
+returns.adjustmentCheckYourAnswers.heading = Your adjustments
+returns.adjustmentCheckYourAnswers.caption = Under and over adjustments
+returns.adjustmentCheckYourAnswers.noAdjustments.heading = You have no adjustments to declare
+returns.adjustmentCheckYourAnswers.addAnother = Do you need to add another adjustment?
+returns.adjustmentCheckYourAnswers.type = Type
+returns.adjustmentCheckYourAnswers.type.underDeclared = Under declared
+returns.adjustmentCheckYourAnswers.type.overDeclared = Over declared
+returns.adjustmentCheckYourAnswers.volume = Volume
+returns.adjustmentCheckYourAnswers.duty = Duty
+returns.adjustmentCheckYourAnswers.change.hidden = adjustment for {0}
+returns.adjustmentCheckYourAnswers.remove.hidden = adjustment for {0}
+returns.adjustmentCheckYourAnswers.type.change.hidden = adjustment type
+returns.adjustmentCheckYourAnswers.volume.change.hidden = adjustment volume
+
 ### Payments ###
 
 payments.viewPayments.title = Vaping Products Duty payments

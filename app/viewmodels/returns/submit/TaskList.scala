@@ -67,8 +67,8 @@ object TaskList {
         TaskRows(
           id = "declareAdjustments-task-2",
           linkText = messages("returns.taskList.declareAdjustments.task2"),
-          link = controllers.routes.JourneyRecoveryController.onPageLoad(),
-          status = TaskStatus.NotStarted,
+          link = controllers.returns.submit.routes.DeclareAdjustmentQuestionController.onPageLoad(NormalMode),
+          status = TaskStatusService.declareAdjustmentsTaskStatus(userAnswers),
           periodKey = Some(periodKey)
         ).toTaskListItem
       )

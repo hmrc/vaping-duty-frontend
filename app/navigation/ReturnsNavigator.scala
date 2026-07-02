@@ -44,6 +44,9 @@ class ReturnsNavigator @Inject()(
     case DeclareSpoiltProductsPage      => ua  => declareSpoiltProductsPageRoutes(ua, periodKey)
     case AddSpoiltAdjustmentPage        => ua  => addSpoiltAdjustmentPageRoutes(ua, periodKey)
     case SpoiltVolumeByPeriodPage       => _   => withPeriod(controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode), periodKey)
+    case DeclareAdjustmentQuestionPage  => ua  => declareAdjustmentQuestionPageRoutes(ua, periodKey)
+    case AdjustmentVolumePage           => _   => withPeriod(controllers.returns.submit.routes.AdjustmentCheckYourAnswersController.onPageLoad(), periodKey)
+    case AddAnotherAdjustmentPage       => ua  => addAnotherAdjustmentPageRoutes(ua, periodKey)
     case DeclarationPage                => _   => withPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad(), periodKey)
     case _                              => _   => Call(GET, BtaLink(config))
   }
@@ -95,6 +98,20 @@ class ReturnsNavigator @Inject()(
   private def addSpoiltAdjustmentPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(AddSpoiltAdjustmentPage) match
       case Some(true)  => withPeriod(controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None), periodKey)
+      case Some(false) => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
+      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+  }
+
+  private def declareAdjustmentQuestionPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
+    ua.get(DeclareAdjustmentQuestionPage) match
+      case Some(true)  => withPeriod(controllers.returns.submit.routes.SelectAdjustmentPeriodController.onPageLoad(None), periodKey)
+      case Some(false) => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
+      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+  }
+
+  private def addAnotherAdjustmentPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
+    ua.get(AddAnotherAdjustmentPage) match
+      case Some(true)  => withPeriod(controllers.returns.submit.routes.SelectAdjustmentPeriodController.onPageLoad(None), periodKey)
       case Some(false) => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
