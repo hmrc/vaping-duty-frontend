@@ -15,10 +15,9 @@
  *@
 
 @import models.identifiers.PeriodKey
-@import models.obligations.ObligationsResponse
-@import models.returns.AdjustmentType
 @import viewmodels.InputWidth.*
 @import viewmodels.LegendSize
+@import viewmodels.returns.submit.AdjustmentVolumeWithTypeViewModel
 @import components.{Caption, Heading, Paragraph}
 
 @this(
@@ -33,33 +32,7 @@
     p: Paragraph
 )
 
-@(periodKey: PeriodKey, adjustmentPeriodKey: PeriodKey, form: Form[_], mode: Mode, obligations: ObligationsResponse)(implicit request: Request[_], messages: Messages)
-
-@periodDisplay = @{
-    obligations.obligation
-        .map(_.obligationDetails)
-        .find(_.periodKey == adjustmentPeriodKey.toString)
-        .map { obligation =>
-            val month = obligation.iCFromDate.getMonthValue
-            val year = obligation.iCFromDate.getYear
-            val monthKey = month match {
-                case 1 => "month.jan"
-                case 2 => "month.feb"
-                case 3 => "month.mar"
-                case 4 => "month.apr"
-                case 5 => "month.may"
-                case 6 => "month.jun"
-                case 7 => "month.jul"
-                case 8 => "month.aug"
-                case 9 => "month.sep"
-                case 10 => "month.oct"
-                case 11 => "month.nov"
-                case 12 => "month.dec"
-            }
-            s"${messages(monthKey)} $year"
-        }
-        .getOrElse(adjustmentPeriodKey.toString)
-}
+@(periodKey: PeriodKey, adjustmentPeriodKey: PeriodKey, form: Form[_], mode: Mode, vm: AdjustmentVolumeWithTypeViewModel)(implicit request: Request[_], messages: Messages)
 
 @underDeclaredInput = {
     @govukInput(
@@ -93,7 +66,7 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        @caption(messages("returns.adjustmentVolumeWithType.caption", periodDisplay))
+        @caption(messages("returns.adjustmentVolumeWithType.caption", vm.periodDisplay))
         @h1(messages("returns.adjustmentVolumeWithType.heading"))
 
         @p(Seq(messages("returns.adjustmentVolumeWithType.p")))
