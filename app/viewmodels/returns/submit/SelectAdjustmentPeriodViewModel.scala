@@ -90,7 +90,7 @@ object SelectAdjustmentPeriodViewModel {
       PaginationItem(
         number = Some(year.toString),
         current = Some(year == currentYear),
-        href = s"${controllers.returns.submit.routes.SelectAdjustmentPeriodController.onPageLoad(Some(year)).url}?period=${currentReturnPeriod.value}"
+        href = s"${controllers.returns.submit.routes.SelectAdjustmentPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
       )
     }
 
