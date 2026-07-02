@@ -123,7 +123,7 @@ class BuildReturnSubmissionService @Inject()(
     val spoiltVolumes = ua.get(SpoiltVolumeByPeriodPage)
 
     (declareSpoiltProducts, spoiltVolumes) match {
-      case (Some(spoiltProductsDeclared), Some(volumes)) if spoiltProductsDeclared && volumes.nonEmpty =>
+      case (Some(true), Some(volumes)) if volumes.nonEmpty =>
         val spoiltProducts = volumes.map(buildSpoiltProductItem(_, periodKeyToDutyRateInPencePerMl))
 
         Some(SpoiltProduct(
@@ -131,7 +131,7 @@ class BuildReturnSubmissionService @Inject()(
           spoiltProducts = Some(spoiltProducts)
         ))
 
-      case (Some(spoiltProductsDeclared), Some(spoiltVolumesByPeriods)) if !spoiltProductsDeclared && spoiltVolumesByPeriods.isEmpty =>
+      case (Some(false), None) =>
         Some(SpoiltProduct(
           spoiltProductFilled = FLAG_NOT_FILLED,
           spoiltProducts = None

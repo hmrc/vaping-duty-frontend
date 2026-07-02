@@ -79,7 +79,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
     "submit must" - {
 
       "successfully build a return submission with duty declared" in {
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+        val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
           .set(DeclarationPage, declaration).success.value
@@ -90,7 +90,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
         returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
         returnCreateRequest.vapingProductsProduced.returns.head mustBe RegularReturn("641", 105.0, 1, 10500)
 
-//        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe no
+        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe no
         returnCreateRequest.underDeclaration.get.underDeclFilled mustBe no
         returnCreateRequest.overDeclaration.get.overDeclFilled mustBe no
         
@@ -109,7 +109,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
       }
 
       "successfully build a return submission for a nil return" in {
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+        val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
           .set(DeclareDutyPage, false).success.value
           .set(DeclarationPage, declaration).success.value
 
@@ -119,7 +119,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
         returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe no
         returnCreateRequest.vapingProductsProduced.returns.size mustBe 0
 
-        //        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe no
+        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe no
         returnCreateRequest.underDeclaration.get.underDeclFilled mustBe no
         returnCreateRequest.overDeclaration.get.overDeclFilled mustBe no
 
@@ -143,7 +143,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
           SpoiltVolumeByPeriod(volume = 300, periodKey = october2026)
         )
 
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, december2026)
+        val userAnswers = nilReturnUserAnswers(vpdId, december2026)
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
           .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
@@ -176,7 +176,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
       "successfully build a return submission with duty suspense movements" in {
         val dutySuspenseVolumes = DutySuspenseVolumes(volumeReceived = 1000, volumeMoved = 500)
 
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+        val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
           .set(DeclareDutySuspensePage, true).success.value
@@ -189,7 +189,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
         returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
         returnCreateRequest.vapingProductsProduced.returns.head mustBe RegularReturn("641", 105.0, 1, 10500)
 
-        //        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe no
+        returnCreateRequest.spoiltProduct.get.spoiltProductFilled mustBe no
         returnCreateRequest.underDeclaration.get.underDeclFilled mustBe no
         returnCreateRequest.overDeclaration.get.overDeclFilled mustBe no
 
@@ -210,7 +210,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
       }
 
       "fail to build a return submission when declaration details are missing" in {
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+        val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
 
@@ -221,5 +221,12 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
         exception.getMessage must include("Declaration details are required")
       }
     }
+  }
+
+  private def nilReturnUserAnswers(vpdId: VpdId, periodKey: PeriodKey) = {
+    ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+      .set(DeclareDutyPage          , false).success.value
+      .set(DeclareSpoiltProductsPage, false).success.value
+      .set(DeclareDutySuspensePage  , false).success.value
   }
 }
