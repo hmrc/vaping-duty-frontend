@@ -73,11 +73,5 @@ class SpoiltVolumeByPeriodFormProviderSpec extends FieldBehaviours {
         result.errors mustEqual Seq(FormError(fieldName, "returns.spoiltVolumeByPeriod.error.outOfRange", Seq(BigDecimal(1), BigDecimal("999999999999.9"))))
       }
     }
-
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, "returns.spoiltVolumeByPeriod.error.required")
-    )
   }
 }

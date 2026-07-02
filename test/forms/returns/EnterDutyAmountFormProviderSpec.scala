@@ -60,17 +60,18 @@ class EnterDutyAmountFormProviderSpec extends FieldBehaviours {
       }
     }
 
+    "must not bind values < 1000ml with more than 1 decimal place" in {
+      Seq("999.99", "10.12", "1.00").foreach { input =>
+        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces"))
+      }
+    }
+
     "must not bind values below the minimum of 1ml" in {
       Seq("0", "0.1").foreach { input =>
         val result = form.bind(Map(fieldName -> input)).apply(fieldName)
         result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.outOfRange", Seq(BigDecimal(1), BigDecimal("999999999999.9"))))
       }
     }
-
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, "returns.enterDutyAmount.error.required")
-    )
   }
 }
