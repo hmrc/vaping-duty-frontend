@@ -31,7 +31,12 @@
 
 @(periodKey: PeriodKey, viewModel: AdjustmentCheckYourAnswersViewModel, form: Form[_])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("returns.adjustmentCheckYourAnswers.title"))) {
+@layout(pageTitle = title(form, 
+    if(viewModel.hasAdjustments) 
+        messages("returns.adjustmentCheckYourAnswers.title", utils.CurrencyFormatter.currencyFormat(viewModel.totalAdjustment))
+    else 
+        messages("returns.adjustmentCheckYourAnswers.title", "")
+)) {
 
     @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.AdjustmentCheckYourAnswersController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
 
@@ -42,7 +47,7 @@
         @caption(messages("returns.adjustmentCheckYourAnswers.caption"))
         
         @if(viewModel.hasAdjustments) {
-            @h1(messages("returns.adjustmentCheckYourAnswers.heading"))
+            @h1(messages("returns.adjustmentCheckYourAnswers.heading", utils.CurrencyFormatter.currencyFormat(viewModel.totalAdjustment)))
         } else {
             @h1(messages("returns.adjustmentCheckYourAnswers.noAdjustments.heading"))
         }
