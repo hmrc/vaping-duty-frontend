@@ -264,7 +264,7 @@ returns.declareDutySuspense.change.hidden = declare duty suspense
 
 returns.enterDutySuspense.title = Volume of vaping liquid received or moved under duty suspension
 returns.enterDutySuspense.heading = Volume of vaping liquid received or moved under duty suspension
-returns.enterDutySuspense.caption.text = Report duty suspended products
+returns.enterDutySuspense.caption.text = Report duty suspended vaping products
 
 returns.enterDutySuspense.volumeReceived.label = How many millilitres of liquid did you receive?
 returns.enterDutySuspense.volumeReceived.error.required = Enter the amount of duty suspension received
