@@ -32,7 +32,8 @@ case class AdjustmentSummaryCard(
 
 case class AdjustmentCheckYourAnswersViewModel(
   summaryCards: Seq[AdjustmentSummaryCard],
-  hasAdjustments: Boolean
+  hasAdjustments: Boolean,
+  totalAdjustment: BigDecimal
 )
 
 object AdjustmentCheckYourAnswersViewModel {
@@ -50,9 +51,18 @@ object AdjustmentCheckYourAnswersViewModel {
       buildSummaryCard(adjustment, obligations, periodKey, dutyRates)
     }
 
+    val totalAdjustment = adjustments.map { adjustment =>
+      val dutyAmount = calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0)))
+      adjustment.adjustmentType match {
+        case AdjustmentType.OverDeclared => -dutyAmount
+        case AdjustmentType.UnderDeclared => dutyAmount
+      }
+    }.sum
+
     AdjustmentCheckYourAnswersViewModel(
       summaryCards = summaryCards,
-      hasAdjustments = adjustments.nonEmpty
+      hasAdjustments = adjustments.nonEmpty,
+      totalAdjustment = totalAdjustment
     )
   }
 
@@ -67,16 +77,48 @@ object AdjustmentCheckYourAnswersViewModel {
     val dutyAmount = calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0)))
 
     val rows = Seq(
+      buildAdjustmentQuestionRow(adjustment.period, currentPeriodKey),
       buildTypeRow(adjustment.adjustmentType, adjustment.period, currentPeriodKey),
       buildVolumeRow(adjustment.volumeInMl, adjustment.period, currentPeriodKey),
-      buildDutyRow(dutyAmount)
+      buildDutyRow(dutyAmount, adjustment.adjustmentType)
+    )
+
+    val cardActions = Seq(
+      ActionItem(
+        href = s"${controllers.returns.submit.routes.SelectAdjustmentPeriodController.onPageLoad(None).url}?period=${currentPeriodKey.value}",
+        content = Text(messages("site.change")),
+        visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.card.change.hidden", periodDisplay))
+      ),
+      ActionItem(
+        href = "#",
+        content = Text(messages("site.remove")),
+        visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.card.remove.hidden", periodDisplay))
+      )
     )
 
     AdjustmentSummaryCard(
       rows = rows,
       card = Card(
-        title = Some(CardTitle(content = Text(periodDisplay)))
+        title = Some(CardTitle(content = Text(periodDisplay))),
+        actions = Some(Actions(items = cardActions))
       )
+    )
+  }
+
+  private def buildAdjustmentQuestionRow(
+    adjustmentPeriod: PeriodKey,
+    currentPeriodKey: PeriodKey
+  )(implicit messages: Messages): SummaryListRow = {
+    SummaryListRow(
+      key = Key(content = Text(messages("returns.adjustmentCheckYourAnswers.question"))),
+      value = Value(content = Text(messages("site.yes"))),
+      actions = Some(Actions(items = Seq(
+        ActionItem(
+          href = s"${controllers.returns.submit.routes.DeclareAdjustmentQuestionController.onPageLoad(NormalMode).url}?period=${currentPeriodKey.value}",
+          content = Text(messages("site.change")),
+          visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.question.change.hidden"))
+        )
+      )))
     )
   }
 
@@ -121,10 +163,15 @@ object AdjustmentCheckYourAnswersViewModel {
     )
   }
 
-  private def buildDutyRow(dutyAmount: BigDecimal)(implicit messages: Messages): SummaryListRow = {
+  private def buildDutyRow(dutyAmount: BigDecimal, adjustmentType: AdjustmentType)(implicit messages: Messages): SummaryListRow = {
+    val signedAmount = adjustmentType match {
+      case AdjustmentType.OverDeclared => -dutyAmount
+      case AdjustmentType.UnderDeclared => dutyAmount
+    }
+    
     SummaryListRow(
       key = Key(content = Text(messages("returns.adjustmentCheckYourAnswers.duty"))),
-      value = Value(content = Text(CurrencyFormatter.currencyFormat(dutyAmount))),
+      value = Value(content = Text(CurrencyFormatter.currencyFormat(signedAmount))),
       actions = None
     )
   }
