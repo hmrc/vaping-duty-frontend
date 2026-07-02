@@ -148,7 +148,7 @@ class SubmitReturnService @Inject()(
           dutyRateService.getDutyRate(vpdId, spoiltVolume.periodKey).map { dutyRateForPeriod =>
             val dutyRateInPencePerMl = (dutyRateForPeriod * 100).toInt
             val dutyRateInPoundsPer10Ml = dutyRateForPeriod * 10
-            val volumeInMl = BigDecimal(spoiltVolume.volume)
+            val volumeInMl = spoiltVolume.volume
             val volumeInLitres = ConvertToLitres(volumeInMl).toLitres
             val dutyDue = (volumeInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
             
@@ -182,8 +182,8 @@ class SubmitReturnService @Inject()(
     
     (dutySuspenseDeclared, dutySuspenseVolumes) match {
       case (true, Some(volumes)) =>
-        val volumeReceivedInMl = BigDecimal(volumes.volumeReceived)
-        val volumeMovedInMl = BigDecimal(volumes.volumeMoved)
+        val volumeReceivedInMl = volumes.volumeReceived
+        val volumeMovedInMl = volumes.volumeMoved
         
         Some(OtherOptions(
           vapingProductUnderDutySuspense = FLAG_FILLED,
