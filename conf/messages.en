@@ -270,13 +270,13 @@ returns.enterDutySuspense.p = Enter the total millilitres for this period.
 returns.enterDutySuspense.volumeReceived.label = Amount received
 returns.enterDutySuspense.volumeReceived.error.required = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.enterDutySuspense.volumeReceived.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
-returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces = Enter 1 decimal place for amounts of 1 litre or more, for example 1.5 and 2 decimal places for amounts less than 1 litre, for example 0.75
+returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces = Enter 1 decimal place for amounts of 1 litre or more, for example 1000.5 and 2 decimal places for amounts less than 1 litre, for example 10.75
 returns.enterDutySuspense.volumeReceived.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 
 returns.enterDutySuspense.volumeMoved.label = Amount moved
 returns.enterDutySuspense.volumeMoved.error.required = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.enterDutySuspense.volumeMoved.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
-returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces = Enter 1 decimal place for amounts of 1 litre or more, for example 1.5 and 2 decimal places for amounts less than 1 litre, for example 0.75
+returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces = Enter 1 decimal place for amounts of 1 litre or more, for example 1000.5 and 2 decimal places for amounts less than 1 litre, for example 10.75
 returns.enterDutySuspense.volumeMoved.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 
 returns.enterDutySuspense.ml = ml
