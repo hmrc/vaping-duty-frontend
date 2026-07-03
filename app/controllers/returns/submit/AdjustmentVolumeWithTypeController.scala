@@ -23,7 +23,7 @@ import models.identifiers.PeriodKey
 import models.returns.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import models.{Mode, NormalMode}
 import navigation.ReturnsNavigator
-import pages.returns.{AdjustmentListPage, AdjustmentVolumePage}
+import pages.returns.AdjustmentListPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -112,7 +112,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
                 for {
                   updatedAnswers <- Future.fromTry(request.userAnswers.set(AdjustmentListPage, updatedList))
                   _              <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(AdjustmentVolumePage, mode, updatedAnswers))
+                } yield Redirect(navigator.nextPage(AdjustmentListPage, mode, updatedAnswers))
               }
             )
           }

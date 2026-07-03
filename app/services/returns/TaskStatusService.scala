@@ -18,7 +18,7 @@ package services.returns
 
 import models.TaskStatus
 import models.returns.ReturnsUserAnswers
-import pages.returns.{AdjustmentListPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, DeclareAdjustmentQuestionPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import pages.returns.{AdjustmentListPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, DeclareAdjustmentPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
 
 object TaskStatusService {
 
@@ -50,7 +50,7 @@ object TaskStatusService {
   }
 
   def declareAdjustmentsTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
-    (answers.get(DeclareAdjustmentQuestionPage), answers.get(AdjustmentListPage)) match {
+    (answers.get(DeclareAdjustmentPage), answers.get(AdjustmentListPage)) match {
       case (None, _) => TaskStatus.NotStarted
       case (Some(false), _) => TaskStatus.Completed
       case (Some(true), None) => TaskStatus.InProgress
