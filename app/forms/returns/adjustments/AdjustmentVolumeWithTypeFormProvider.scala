@@ -25,6 +25,8 @@ import javax.inject.Inject
 
 class AdjustmentVolumeWithTypeFormProvider @Inject() extends Mappings {
 
+  private val maxVolume = "999999999999.9"
+
   def apply(): Form[AdjustmentVolumeWithTypeFormData] =
     Form(
       mapping(
@@ -58,6 +60,22 @@ class AdjustmentVolumeWithTypeFormProvider @Inject() extends Mappings {
         .verifying("returns.adjustmentVolumeWithType.error.bothProvided", data => {
           !(data.underDeclaredVolume.isDefined && data.overDeclaredVolume.isDefined)
         })
+        .transform[AdjustmentVolumeWithTypeFormData](
+          data => {
+            val volume = data.adjustmentType match {
+              case AdjustmentType.UnderDeclared => data.underDeclaredVolume
+              case AdjustmentType.OverDeclared => data.overDeclaredVolume
+            }
+            volume.foreach { v =>
+              if (v < BigDecimal(1) || v > BigDecimal(maxVolume)) {
+                // scalafix:off DisableSyntax.throw
+                throw new IllegalArgumentException("returns.adjustmentVolumeWithType.error.outOfRange")
+              }
+            }
+            data
+          },
+          identity
+        )
     )
 }
 

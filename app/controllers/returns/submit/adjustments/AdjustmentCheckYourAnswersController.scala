@@ -30,6 +30,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.returns.{AdjustmentCheckYourAnswersService, ReturnsUserAnswersService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel
 import views.html.returns.submit.adjustments.AdjustmentCheckYourAnswersView
 
 import javax.inject.Inject
