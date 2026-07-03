@@ -18,7 +18,6 @@ package controllers.returns.submit.adjustments
 
 import base.SpecBase
 import forms.returns.DeclareDutyFormProvider
-import models.NormalMode
 import models.obligations.ObligationsResponse
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
