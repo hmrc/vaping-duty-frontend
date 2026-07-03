@@ -17,7 +17,7 @@
 @import models.identifiers.PeriodKey
 @import viewmodels.InputWidth.*
 @import viewmodels.LegendSize
-@import viewmodels.returns.submit.AdjustmentVolumeWithTypeViewModel
+@import viewmodels.returns.submit.adjustments.AdjustmentVolumeWithTypeViewModel
 @import components.{Caption, Heading, Paragraph}
 
 @this(
@@ -60,7 +60,7 @@
 
 @layout(pageTitle = title(form, messages("returns.adjustmentVolumeWithType.title"))) {
 
-    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.AdjustmentVolumeWithTypeController.onSubmit(mode).url}?period=${periodKey.value}&adjustmentPeriod=${adjustmentPeriodKey.value}"), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onSubmit(mode).url}?period=${periodKey.value}&adjustmentPeriod=${adjustmentPeriodKey.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

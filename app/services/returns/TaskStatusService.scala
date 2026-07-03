@@ -18,7 +18,8 @@ package services.returns
 
 import models.TaskStatus
 import models.returns.ReturnsUserAnswers
-import pages.returns.{AdjustmentListPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, DeclareAdjustmentPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
 
 object TaskStatusService {
 

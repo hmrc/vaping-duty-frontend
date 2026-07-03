@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package viewmodels.returns.submit
+package viewmodels.returns.submit.adjustments
 
 import models.identifiers.PeriodKey
 import models.obligations.ObligationsResponse
@@ -39,6 +39,7 @@ object AdjustmentVolumeWithTypeViewModel {
         } else {
           obligations.obligation.map(_.obligationDetails).map(_.periodKey).mkString(", ")
         }
+        // scalafix:off DisableSyntax.throw
         throw new IllegalStateException(
           s"Period key '${adjustmentPeriodKey.value}' not found in obligations. " +
           s"Available period keys: $availableKeys"

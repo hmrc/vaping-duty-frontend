@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package forms.returns
+package forms.returns.adjustments
 
 import forms.mappings.Mappings
-import models.returns.AdjustmentType
+import models.returns.adjustments.AdjustmentType
 import play.api.data.Form
 import play.api.data.Forms.{mapping, optional}
 

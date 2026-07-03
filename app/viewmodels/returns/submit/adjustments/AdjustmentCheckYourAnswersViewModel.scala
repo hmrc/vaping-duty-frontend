@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package viewmodels.returns.submit
+package viewmodels.returns.submit.adjustments
 
 import models.NormalMode
 import models.identifiers.PeriodKey
 import models.obligations.ObligationsResponse
-import models.returns.{AdjustmentEntry, AdjustmentList, AdjustmentType}
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
@@ -72,7 +72,6 @@ object AdjustmentCheckYourAnswersViewModel {
     val dutyAmount = calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0)))
 
     val rows = Seq(
-      buildAdjustmentQuestionRow(currentPeriodKey),
       buildTypeRow(adjustment.adjustmentType, adjustment.period, currentPeriodKey),
       buildVolumeRow(adjustment.volumeInMl, adjustment.period, currentPeriodKey),
       buildDutyRow(dutyAmount, adjustment.adjustmentType)
@@ -80,7 +79,7 @@ object AdjustmentCheckYourAnswersViewModel {
 
     val cardActions = Seq(
       ActionItem(
-        href = s"${controllers.returns.submit.routes.SelectAdjustmentPeriodController.onPageLoad(None).url}?period=${currentPeriodKey.value}",
+        href = s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None).url}?period=${currentPeriodKey.value}",
         content = Text(messages("site.change")),
         visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.card.change.hidden", periodDisplay))
       ),
@@ -100,21 +99,6 @@ object AdjustmentCheckYourAnswersViewModel {
     )
   }
 
-  private def buildAdjustmentQuestionRow(currentPeriodKey: PeriodKey)
-                                        (implicit messages: Messages): SummaryListRow = {
-    SummaryListRow(
-      key = Key(content = Text(messages("returns.adjustmentCheckYourAnswers.question"))),
-      value = Value(content = Text(messages("site.yes"))),
-      actions = Some(Actions(items = Seq(
-        ActionItem(
-          href = s"${controllers.returns.submit.routes.DeclareAdjustmentQuestionController.onPageLoad(NormalMode).url}?period=${currentPeriodKey.value}",
-          content = Text(messages("site.change")),
-          visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.question.change.hidden"))
-        )
-      )))
-    )
-  }
-
   private def buildTypeRow(
                             adjustmentType: AdjustmentType,
                             adjustmentPeriod: PeriodKey,
@@ -130,7 +114,7 @@ object AdjustmentCheckYourAnswersViewModel {
       value = Value(content = Text(typeText)),
       actions = Some(Actions(items = Seq(
         ActionItem(
-          href = s"${controllers.returns.submit.routes.AdjustmentVolumeWithTypeController.onPageLoad(NormalMode).url}?period=${currentPeriodKey.value}&adjustmentPeriod=${adjustmentPeriod.value}",
+          href = s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(NormalMode).url}?period=${currentPeriodKey.value}&adjustmentPeriod=${adjustmentPeriod.value}",
           content = Text(messages("site.change")),
           visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.type.change.hidden"))
         )
@@ -148,7 +132,7 @@ object AdjustmentCheckYourAnswersViewModel {
       value = Value(content = HtmlContent(s"${volume.toString} ml")),
       actions = Some(Actions(items = Seq(
         ActionItem(
-          href = s"${controllers.returns.submit.routes.AdjustmentVolumeWithTypeController.onPageLoad(NormalMode).url}?period=${currentPeriodKey.value}&adjustmentPeriod=${adjustmentPeriod.value}",
+          href = s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(NormalMode).url}?period=${currentPeriodKey.value}&adjustmentPeriod=${adjustmentPeriod.value}",
           content = Text(messages("site.change")),
           visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.volume.change.hidden"))
         )
@@ -180,6 +164,7 @@ object AdjustmentCheckYourAnswersViewModel {
         s"${messages(monthKey)} $year"
       }
       .getOrElse(
+        // scalafix:off DisableSyntax.throw
         throw new IllegalStateException(
           s"Period key '${periodKey.value}' not found in obligations. " +
           s"Available period keys: ${obligations.obligation.map(_.obligationDetails.periodKey).mkString(", ")}"

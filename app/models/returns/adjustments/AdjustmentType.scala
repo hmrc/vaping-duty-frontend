@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package models.returns
+package models.returns.adjustments
 
 import models.{Enumerable, WithName}
 import play.api.libs.json.{Format, Json, Reads, Writes}

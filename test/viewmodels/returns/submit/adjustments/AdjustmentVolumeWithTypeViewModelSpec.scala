@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package viewmodels.returns.submit
+package viewmodels.returns.submit.adjustments
 
 import base.SpecBase
 import models.identifiers.PeriodKey
 import models.obligations.ObligationsResponse
+import viewmodels.returns.submit.adjustments.AdjustmentVolumeWithTypeViewModel
 
 class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
 

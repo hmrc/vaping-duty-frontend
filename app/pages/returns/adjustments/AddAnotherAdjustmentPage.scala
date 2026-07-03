@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package viewmodels.returns.submit
+package pages.returns.adjustments
 
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Card, SummaryListRow}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-case class AdjustmentSummaryCard(rows: Seq[SummaryListRow], card: Card)
+case object AddAnotherAdjustmentPage extends QuestionPage[Boolean] {
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "addAnotherAdjustment"
+}

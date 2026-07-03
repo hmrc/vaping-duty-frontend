@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package models.returns
+package models.returns.adjustments
 
-import models.identifiers.PeriodKey
 import play.api.libs.json.{Json, OFormat}
 
-final case class AdjustmentEntry(
-  period: PeriodKey,
-  adjustmentType: AdjustmentType,
-  volumeInMl: BigDecimal
-)
+final case class AdjustmentList(adjustments: Seq[AdjustmentEntry])
 
-object AdjustmentEntry {
-  implicit val format: OFormat[AdjustmentEntry] = Json.format[AdjustmentEntry]
+object AdjustmentList {
+  implicit val format: OFormat[AdjustmentList] = Json.format[AdjustmentList]
+  
+  val empty: AdjustmentList = AdjustmentList(Seq.empty)
 }

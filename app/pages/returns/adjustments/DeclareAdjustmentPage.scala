@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package models.returns
+package pages.returns.adjustments
 
-import play.api.libs.json.{Json, OFormat}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-final case class AdjustmentList(adjustments: Seq[AdjustmentEntry])
+case object DeclareAdjustmentPage extends QuestionPage[Boolean] {
+  override def path: JsPath = JsPath \ toString
 
-object AdjustmentList {
-  implicit val format: OFormat[AdjustmentList] = Json.format[AdjustmentList]
-  
-  val empty: AdjustmentList = AdjustmentList(Seq.empty)
+  override def toString: String = "declareAdjustment"
 }

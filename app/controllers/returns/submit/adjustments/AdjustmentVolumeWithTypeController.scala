@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package controllers.returns.submit
+package controllers.returns.submit.adjustments
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
-import forms.returns.{AdjustmentVolumeWithTypeFormData, AdjustmentVolumeWithTypeFormProvider}
+import forms.returns.adjustments.{AdjustmentVolumeWithTypeFormData, AdjustmentVolumeWithTypeFormProvider}
 import models.identifiers.PeriodKey
-import models.returns.{AdjustmentEntry, AdjustmentList, AdjustmentType}
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import models.{Mode, NormalMode}
 import navigation.ReturnsNavigator
-import pages.returns.AdjustmentListPage
+import pages.returns.adjustments.AdjustmentListPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.{ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.returns.submit.AdjustmentVolumeWithTypeViewModel
-import views.html.returns.submit.AdjustmentVolumeWithTypeView
+import viewmodels.returns.submit.adjustments.AdjustmentVolumeWithTypeViewModel
+import views.html.returns.submit.adjustments.AdjustmentVolumeWithTypeView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package viewmodels.returns.submit
+package viewmodels.returns.submit.adjustments
 
 import models.identifiers.PeriodKey
 import models.obligations.ObligationsResponse
-import models.returns.AdjustmentList
+import models.returns.adjustments.AdjustmentList
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
@@ -81,7 +81,7 @@ object SelectAdjustmentPeriodViewModel {
 
       TaskListItem(
         title = TaskListItemTitle(content = Text(messages(monthKey))),
-        href = Some(s"${controllers.returns.submit.routes.AdjustmentVolumeWithTypeController.onPageLoad(models.NormalMode).url}?period=${currentReturnPeriod.value}&adjustmentPeriod=$periodKey")
+        href = Some(s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(models.NormalMode).url}?period=${currentReturnPeriod.value}&adjustmentPeriod=$periodKey")
       )
     }
 
@@ -91,7 +91,7 @@ object SelectAdjustmentPeriodViewModel {
       PaginationItem(
         number = Some(year.toString),
         current = Some(year == currentYear),
-        href = s"${controllers.returns.submit.routes.SelectAdjustmentPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
+        href = s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
       )
     }
 

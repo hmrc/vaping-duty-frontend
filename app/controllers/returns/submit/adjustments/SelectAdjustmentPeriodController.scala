@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package controllers.returns.submit
+package controllers.returns.submit.adjustments
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
-import pages.returns.AdjustmentListPage
+import pages.returns.adjustments.AdjustmentListPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.returns.submit.SelectAdjustmentPeriodViewModel
-import views.html.returns.submit.SelectAdjustmentPeriodView
+import viewmodels.returns.submit.adjustments.SelectAdjustmentPeriodViewModel
+import views.html.returns.submit.adjustments.SelectAdjustmentPeriodView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext

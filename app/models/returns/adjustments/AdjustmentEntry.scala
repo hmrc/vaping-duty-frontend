@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package pages.returns
+package models.returns.adjustments
 
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import models.identifiers.PeriodKey
+import play.api.libs.json.{Json, OFormat}
 
-case object DeclareAdjustmentPage extends QuestionPage[Boolean] {
-  override def path: JsPath = JsPath \ toString
+final case class AdjustmentEntry(
+  period: PeriodKey,
+  adjustmentType: AdjustmentType,
+  volumeInMl: BigDecimal
+)
 
-  override def toString: String = "declareAdjustment"
+object AdjustmentEntry {
+  implicit val format: OFormat[AdjustmentEntry] = Json.format[AdjustmentEntry]
 }

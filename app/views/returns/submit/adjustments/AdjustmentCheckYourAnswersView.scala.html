@@ -15,7 +15,7 @@
  *@
 
 @import models.identifiers.PeriodKey
-@import viewmodels.returns.submit.AdjustmentCheckYourAnswersViewModel
+@import viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel
 @import components.{Caption, Heading}
 
 @this(
@@ -38,7 +38,7 @@
         messages("returns.adjustmentCheckYourAnswers.title", "")
 )) {
 
-    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.AdjustmentCheckYourAnswersController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

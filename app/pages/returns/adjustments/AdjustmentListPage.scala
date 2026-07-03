@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package pages.returns
+package pages.returns.adjustments
 
-import models.returns.AdjustmentList
+import models.returns.adjustments.AdjustmentList
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 

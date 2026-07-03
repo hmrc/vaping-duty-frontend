@@ -18,8 +18,10 @@ package services.returns
 
 import base.SpecBase
 import models.TaskStatus
-import models.returns.{AdjustmentEntry, AdjustmentList, AdjustmentType, DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
+import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import pages.returns.*
+import pages.returns.adjustments.*
 
 class TaskStatusServiceSpec extends SpecBase {
 
