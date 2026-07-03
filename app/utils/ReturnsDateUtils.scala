@@ -23,20 +23,20 @@ import java.time.{LocalDate, Month, Year}
 object ReturnsDateUtils {
 
   val month: Month = LocalDate.now().getMonth
-  
+
   def getYear: Int =
     LocalDate.now().getYear
 
   def getMonthLength(month: Month): Int =
     val isLeapYear = Year.of(getYear).isLeap
     month.length(isLeapYear)
-    
+
   def getReturnMonth(month: Month)(implicit messages: Messages): String = {
-      getMonthMessage(month)
-    }
+    getMonthMessage(month)
+  }
 
   def getDueDate(month: Month)(implicit messages: Messages): String = {
-      getMonthMessage(month)
+    getMonthMessage(month)
   }
 
   def getCurrentDay(implicit messages: Messages): String = {
@@ -60,18 +60,20 @@ object ReturnsDateUtils {
     }
 
   def getMonthMessageKey(month: Int): String = month match {
-    case 1  => "month.jan"
-    case 2  => "month.feb"
-    case 3  => "month.mar"
-    case 4  => "month.apr"
-    case 5  => "month.may"
-    case 6  => "month.jun"
-    case 7  => "month.jul"
-    case 8  => "month.aug"
-    case 9  => "month.sep"
+    case 1 => "month.jan"
+    case 2 => "month.feb"
+    case 3 => "month.mar"
+    case 4 => "month.apr"
+    case 5 => "month.may"
+    case 6 => "month.jun"
+    case 7 => "month.jul"
+    case 8 => "month.aug"
+    case 9 => "month.sep"
     case 10 => "month.oct"
     case 11 => "month.nov"
     case 12 => "month.dec"
-    case _  => throw new IllegalArgumentException(s"Invalid month number: $month. Must be between 1 and 12.")
+    case _ =>
+      // scalafix:off DisableSyntax.throw
+      throw new IllegalArgumentException(s"Invalid month number: $month. Must be between 1 and 12.")
   }
 }
