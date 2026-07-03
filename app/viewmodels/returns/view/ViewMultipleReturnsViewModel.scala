@@ -36,7 +36,6 @@ final case class ViewMultipleReturnsViewModel(
 
 object ViewMultipleReturnsViewModel {
 
-  private val STATUS_OPEN = ObligationStatus.O
   private val TAG_CLASS_BLUE = "govuk-tag--blue"
   private val TAG_CLASS_RED = "govuk-tag--red"
 
@@ -44,7 +43,7 @@ object ViewMultipleReturnsViewModel {
            (implicit messages: Messages): ViewMultipleReturnsViewModel = {
 
     val (outstandingObligations, fulfilledObligations) =
-      obligationsResponse.obligation.partition(_.obligationDetails.openOrFulfilledStatus == STATUS_OPEN.toString)
+      obligationsResponse.obligation.partition(_.obligationDetails.openOrFulfilledStatus == ObligationStatus.O.toString)
 
     val outstandingItems =
       outstandingObligations

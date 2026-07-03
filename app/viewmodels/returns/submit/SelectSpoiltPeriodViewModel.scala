@@ -17,7 +17,8 @@
 package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
-import models.obligations.ObligationsResponse
+import models.obligations.{ObligationStatus, ObligationsResponse}
+import models.returns.ReturnsConstants
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
@@ -34,9 +35,6 @@ case class SelectSpoiltPeriodViewModel(
 
 object SelectSpoiltPeriodViewModel {
 
-  private val STATUS_FULFILLED = "F"
-  private val YEARS_TO_SHOW = 3
-
   def apply(
     obligationsResponse: ObligationsResponse,
     selectedYear: Option[Int],
@@ -44,10 +42,10 @@ object SelectSpoiltPeriodViewModel {
   )(implicit messages: Messages): SelectSpoiltPeriodViewModel = {
 
     val currentDate = LocalDate.now()
-    val threeYearsAgo = currentDate.minusYears(YEARS_TO_SHOW)
+    val threeYearsAgo = currentDate.minusYears(ReturnsConstants.YEARS_TO_SHOW)
 
     val fulfilledObligations = obligationsResponse.obligation
-      .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_FULFILLED)
+      .filter(_.obligationDetails.openOrFulfilledStatus == ObligationStatus.F.toString)
       .filter(_.obligationDetails.iCFromDate.isAfter(threeYearsAgo))
 
     val availableYears = fulfilledObligations
@@ -74,7 +72,7 @@ object SelectSpoiltPeriodViewModel {
       )
     }
 
-    val paginationYears = availableYears.take(YEARS_TO_SHOW)
+    val paginationYears = availableYears.take(ReturnsConstants.YEARS_TO_SHOW)
 
     val paginationItems = paginationYears.map { year =>
       PaginationItem(
