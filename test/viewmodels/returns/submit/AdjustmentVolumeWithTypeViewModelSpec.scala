@@ -25,23 +25,23 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
   "AdjustmentVolumeWithTypeViewModel" - {
 
     "must return the formatted month and year when a matching obligation is found" in {
-      val obligations = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
-      val vm = AdjustmentVolumeWithTypeViewModel(obligations, october2027)
+      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
+      val vm = AdjustmentVolumeWithTypeViewModel(obligationsResponse, october2027)
 
       vm.periodDisplay mustBe "October 2027"
     }
 
     "must fall back to the period key string when no matching obligation is found" in {
       val unknownPeriodKey = PeriodKey("99ZZ")
-      val obligations = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
-      val vm = AdjustmentVolumeWithTypeViewModel(obligations, unknownPeriodKey)
+      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
+      val vm = AdjustmentVolumeWithTypeViewModel(obligationsResponse, unknownPeriodKey)
 
       vm.periodDisplay mustBe "99ZZ"
     }
 
     "must fall back to the period key string when obligations list is empty" in {
-      val obligations = ObligationsResponse(obligation = Seq.empty)
-      val vm = AdjustmentVolumeWithTypeViewModel(obligations, october2027)
+      val obligationsResponse = ObligationsResponse(obligation = Seq.empty)
+      val vm = AdjustmentVolumeWithTypeViewModel(obligationsResponse, october2027)
 
       vm.periodDisplay mustBe october2027.toString
     }
@@ -63,8 +63,8 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
       )
 
       allMonthPeriodKeys.foreach { case (key, expectedDisplay) =>
-        val obs = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(key))))
-        val vm = AdjustmentVolumeWithTypeViewModel(obs, key)
+        val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(key))))
+        val vm = AdjustmentVolumeWithTypeViewModel(obligationsResponse, key)
         vm.periodDisplay mustBe expectedDisplay
       }
     }
