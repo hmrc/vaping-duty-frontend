@@ -114,8 +114,8 @@ GET        /complete-return/return-submitted                                    
 GET        /complete-return/check-your-answers                                              controllers.returns.submit.CheckYourAnswersController.onPageLoad()
 POST       /complete-return/check-your-answers                                              controllers.returns.submit.CheckYourAnswersController.onSubmit()
 
-GET        /complete-return/declaration                                                     controllers.returns.submit.DeclarationController.onPageLoad()
-POST       /complete-return/declaration                                                     controllers.returns.submit.DeclarationController.onSubmit()
+GET        /complete-return/return-declaration                                              controllers.returns.submit.DeclarationController.onPageLoad()
+POST       /complete-return/return-declaration                                              controllers.returns.submit.DeclarationController.onSubmit()
 
 GET        /view-your-returns/:periodKey                                                    controllers.returns.view.ViewIndividualReturnController.onPageLoad(periodKey: PeriodKey)
 
