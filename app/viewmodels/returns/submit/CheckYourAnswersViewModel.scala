@@ -60,7 +60,7 @@ object CheckYourAnswersViewModel {
       dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers, periodKey),
       dutyDue = dutyDue(userAnswers, dutyRate),
       dutyRate = currencyFormat(dutyRate),
-      dutyRateParagraph = dutyRateParagraph(nilReturn, dutyRate),
+      dutyRateParagraph = dutyRateParagraph(nilReturn),
       dutyCalculationParagraph = dutyCalculationParagraph(dutyRate),
       nilReturn = nilReturn,
       returnPeriod = returnPeriod,
@@ -82,7 +82,7 @@ object CheckYourAnswersViewModel {
     }
   }
 
-  private def dutyRateParagraph(nilReturn: Boolean, dutyRate: BigDecimal)(implicit messages: Messages): HtmlFormat.Appendable = {
+  private def dutyRateParagraph(nilReturn: Boolean)(implicit messages: Messages): HtmlFormat.Appendable = {
     val p = new Paragraph()
 
     if (nilReturn) {
