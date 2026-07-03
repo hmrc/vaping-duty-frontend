@@ -64,17 +64,24 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
         }
       }
 
-      "must fail to bind values >= 1000ml with any decimal places" in {
-        Seq("1000.1", "1000.12", "1000.0", "999999999999.9").foreach { input =>
+      "must bind values >= 1000ml with trailing zeros" in {
+        Seq("1000.0", "2000.0").foreach { input =>
+          val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "1000"))
+          result.errors.filter(_.key == fieldName) mustBe empty
+        }
+      }
+
+      "must fail to bind values >= 1000ml with non-zero decimal places" in {
+        Seq("1000.1", "1000.12", "999999999999.9").foreach { input =>
           val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "2000"))
-          result.errors must contain(FormError(fieldName, invalidDecimalKey))
+          result.errors must contain(FormError(fieldName, "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.wholeOnly"))
         }
       }
 
       "must fail to bind values < 1000ml with more than 1 decimal place" in {
-        Seq("999.99", "10.12", "1.00").foreach { input =>
+        Seq("999.99", "10.12", "1.123").foreach { input =>
           val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "2000"))
-          result.errors must contain(FormError(fieldName, invalidDecimalKey))
+          result.errors must contain(FormError(fieldName, "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.maxOne"))
         }
       }
 
@@ -128,17 +135,24 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
         }
       }
 
-      "must fail to bind values >= 1000ml with any decimal places" in {
-        Seq("1000.1", "1000.12", "1000.0", "999999999999.9").foreach { input =>
+      "must bind values >= 1000ml with trailing zeros" in {
+        Seq("1000.0", "2000.0").foreach { input =>
           val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
-          result.errors must contain(FormError(fieldName, invalidDecimalKey))
+          result.errors.filter(_.key == fieldName) mustBe empty
+        }
+      }
+
+      "must fail to bind values >= 1000ml with non-zero decimal places" in {
+        Seq("1000.1", "1000.12", "999999999999.9").foreach { input =>
+          val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+          result.errors must contain(FormError(fieldName, "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly"))
         }
       }
 
       "must fail to bind values < 1000ml with more than 1 decimal place" in {
-        Seq("999.99", "10.12", "1.00").foreach { input =>
+        Seq("999.99", "10.12", "1.123").foreach { input =>
           val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
-          result.errors must contain(FormError(fieldName, invalidDecimalKey))
+          result.errors must contain(FormError(fieldName, "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne"))
         }
       }
 

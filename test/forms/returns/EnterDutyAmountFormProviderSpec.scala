@@ -53,17 +53,24 @@ class EnterDutyAmountFormProviderSpec extends FieldBehaviours {
       }
     }
 
-    "must not bind values >= 1000ml with any decimal places" in {
-      Seq("1000.1", "1000.12", "1000.0", "999999999999.9").foreach { input =>
+    "must bind values >= 1000ml with trailing zeros" in {
+      Seq("1000.0", "2000.0").foreach { input =>
+        val result = form.bind(Map(fieldName -> input))
+        result.errors mustBe empty
+      }
+    }
+
+    "must not bind values >= 1000ml with non-zero decimal places" in {
+      Seq("1000.1", "1000.12", "999999999999.9").foreach { input =>
         val result = form.bind(Map(fieldName -> input)).apply(fieldName)
-        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces"))
+        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces.wholeOnly"))
       }
     }
 
     "must not bind values < 1000ml with more than 1 decimal place" in {
-      Seq("999.99", "10.12", "1.00").foreach { input =>
+      Seq("999.99", "10.12", "1.123").foreach { input =>
         val result = form.bind(Map(fieldName -> input)).apply(fieldName)
-        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces"))
+        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces.maxOne"))
       }
     }
 

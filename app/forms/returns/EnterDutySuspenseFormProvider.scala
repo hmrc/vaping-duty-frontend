@@ -35,13 +35,15 @@ class EnterDutySuspenseFormProvider @Inject() extends Mappings {
         VOLUME_RECEIVED_FIELD -> volume(
           "returns.enterDutySuspense.volumeReceived.error.required",
           "returns.enterDutySuspense.volumeReceived.error.nonNumeric",
-          "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces")
+          "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.wholeOnly",
+          "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.maxOne")
             .verifying(inRange(BigDecimal(0), BigDecimal(maxVolume), "returns.enterDutySuspense.volumeReceived.error.outOfRange")),
 
         VOLUME_MOVED_FIELD -> volume(
           "returns.enterDutySuspense.volumeMoved.error.required",
           "returns.enterDutySuspense.volumeMoved.error.nonNumeric",
-          "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces")
+          "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly",
+          "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne")
             .verifying(inRange(BigDecimal(0), BigDecimal(maxVolume), "returns.enterDutySuspense.volumeMoved.error.outOfRange"))
       )((received, moved) => DutySuspenseVolumes(received, moved))(o => Some((o.volumeReceived, o.volumeMoved)))
     )

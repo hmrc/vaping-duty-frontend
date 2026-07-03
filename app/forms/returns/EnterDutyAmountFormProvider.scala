@@ -30,7 +30,8 @@ class EnterDutyAmountFormProvider @Inject() extends Mappings {
       "value" -> volume(
         "returns.enterDutyAmount.error.required",
         "returns.enterDutyAmount.error.nonNumeric",
-        "returns.enterDutyAmount.error.invalidDecimalPlaces")
+        "returns.enterDutyAmount.error.invalidDecimalPlaces.wholeOnly",
+        "returns.enterDutyAmount.error.invalidDecimalPlaces.maxOne")
           .verifying(inRange(BigDecimal(1), BigDecimal(maxVolume), "returns.enterDutyAmount.error.outOfRange"))
     )
 }

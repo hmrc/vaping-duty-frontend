@@ -30,7 +30,8 @@ class SpoiltVolumeByPeriodFormProvider @Inject() extends Mappings {
       "value" -> volume(
         "returns.spoiltVolumeByPeriod.error.required",
         "returns.spoiltVolumeByPeriod.error.nonNumeric",
-        "returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces")
+        "returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.wholeOnly",
+        "returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.maxOne")
           .verifying(inRange(BigDecimal(1), BigDecimal(maxVolume), "returns.spoiltVolumeByPeriod.error.outOfRange"))
     )
 }
