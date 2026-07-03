@@ -72,7 +72,7 @@ object AdjustmentCheckYourAnswersViewModel {
     val dutyAmount = calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0)))
 
     val rows = Seq(
-      buildAdjustmentQuestionRow(adjustment.period, currentPeriodKey),
+      buildAdjustmentQuestionRow(currentPeriodKey),
       buildTypeRow(adjustment.adjustmentType, adjustment.period, currentPeriodKey),
       buildVolumeRow(adjustment.volumeInMl, adjustment.period, currentPeriodKey),
       buildDutyRow(dutyAmount, adjustment.adjustmentType)
@@ -100,10 +100,8 @@ object AdjustmentCheckYourAnswersViewModel {
     )
   }
 
-  private def buildAdjustmentQuestionRow(
-                                          adjustmentPeriod: PeriodKey,
-                                          currentPeriodKey: PeriodKey
-                                        )(implicit messages: Messages): SummaryListRow = {
+  private def buildAdjustmentQuestionRow(currentPeriodKey: PeriodKey)
+                                        (implicit messages: Messages): SummaryListRow = {
     SummaryListRow(
       key = Key(content = Text(messages("returns.adjustmentCheckYourAnswers.question"))),
       value = Value(content = Text(messages("site.yes"))),
