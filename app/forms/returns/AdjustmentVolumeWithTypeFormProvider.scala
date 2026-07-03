@@ -66,6 +66,7 @@ class AdjustmentVolumeWithTypeFormProvider @Inject() extends Mappings {
             }
             volume.foreach { v =>
               if (v < BigDecimal(1) || v > BigDecimal(maxVolume)) {
+                // scalafix:off DisableSyntax.throw
                 throw new IllegalArgumentException("returns.adjustmentVolumeWithType.error.outOfRange")
               }
             }
