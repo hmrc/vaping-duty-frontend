@@ -81,27 +81,26 @@ class AdjustmentCheckYourAnswersController @Inject()(
 
       val adjustmentList = request.userAnswers.get(AdjustmentListPage)
 
-      obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-        getDutyRatesForAdjustments(adjustmentList).flatMap { dutyRatesMap =>
-          val viewModel = AdjustmentCheckYourAnswersViewModel(
-            adjustmentList,
-            obligations,
-            request.periodKey,
-            dutyRatesMap
-          )
+      form.bindFromRequest().fold(
+        formWithErrors =>
+          obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
+            getDutyRatesForAdjustments(adjustmentList).map { dutyRatesMap =>
+              val viewModel = AdjustmentCheckYourAnswersViewModel(
+                adjustmentList,
+                obligations,
+                request.periodKey,
+                dutyRatesMap
+              )
+              BadRequest(view(request.periodKey, viewModel, formWithErrors))
+            }
+          },
 
-          form.bindFromRequest().fold(
-            formWithErrors =>
-              Future.successful(BadRequest(view(request.periodKey, viewModel, formWithErrors))),
-
-            value =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
-          )
-        }
-      }
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
+            _              <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
+      )
   }
 
   private def getDutyRatesForAdjustments(adjustmentList: Option[AdjustmentList])
