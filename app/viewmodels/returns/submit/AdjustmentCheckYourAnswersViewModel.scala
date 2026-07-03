@@ -23,7 +23,7 @@ import models.returns.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
-import utils.CurrencyFormatter
+import utils.{CurrencyFormatter, ReturnsDateUtils}
 
 case class AdjustmentCheckYourAnswersViewModel(
                                                 summaryCards: Seq[AdjustmentSummaryCard],
@@ -178,7 +178,7 @@ object AdjustmentCheckYourAnswersViewModel {
       .map { obligation =>
         val month = obligation.iCFromDate.getMonthValue
         val year = obligation.iCFromDate.getYear
-        val monthKey = getMonthMessageKey(month)
+        val monthKey = ReturnsDateUtils.getMonthMessageKey(month)
         s"${messages(monthKey)} $year"
       }
       .getOrElse(periodKey.toString)
@@ -188,20 +188,5 @@ object AdjustmentCheckYourAnswersViewModel {
     val volumeInLitres = volumeInMl / 1000
     val volumeIn10ml = volumeInLitres * 100
     volumeIn10ml * dutyRate
-  }
-
-  private def getMonthMessageKey(month: Int): String = month match {
-    case 1 => "month.jan"
-    case 2 => "month.feb"
-    case 3 => "month.mar"
-    case 4 => "month.apr"
-    case 5 => "month.may"
-    case 6 => "month.jun"
-    case 7 => "month.jul"
-    case 8 => "month.aug"
-    case 9 => "month.sep"
-    case 10 => "month.oct"
-    case 11 => "month.nov"
-    case 12 => "month.dec"
   }
 }

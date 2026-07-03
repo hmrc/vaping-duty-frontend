@@ -19,6 +19,7 @@ package viewmodels.returns.submit
 import models.identifiers.PeriodKey
 import models.obligations.ObligationsResponse
 import play.api.i18n.Messages
+import utils.ReturnsDateUtils
 
 case class AdjustmentVolumeWithTypeViewModel(periodDisplay: String)
 
@@ -29,26 +30,11 @@ object AdjustmentVolumeWithTypeViewModel {
       .map(_.obligationDetails)
       .find(_.periodKey == adjustmentPeriodKey.toString)
       .map { obligation =>
-        val monthKey = getMonthMessageKey(obligation.iCFromDate.getMonthValue)
+        val monthKey = ReturnsDateUtils.getMonthMessageKey(obligation.iCFromDate.getMonthValue)
         s"${messages(monthKey)} ${obligation.iCFromDate.getYear}"
       }
       .getOrElse(adjustmentPeriodKey.toString)
 
     AdjustmentVolumeWithTypeViewModel(periodDisplay)
-  }
-
-  private def getMonthMessageKey(month: Int): String = month match {
-    case 1  => "month.jan"
-    case 2  => "month.feb"
-    case 3  => "month.mar"
-    case 4  => "month.apr"
-    case 5  => "month.may"
-    case 6  => "month.jun"
-    case 7  => "month.jul"
-    case 8  => "month.aug"
-    case 9  => "month.sep"
-    case 10 => "month.oct"
-    case 11 => "month.nov"
-    case 12 => "month.dec"
   }
 }
