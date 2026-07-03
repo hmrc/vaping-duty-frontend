@@ -26,26 +26,7 @@ case class AdjustmentVolumeWithTypeViewModel(periodDisplay: String)
 object AdjustmentVolumeWithTypeViewModel {
 
   def apply(obligations: ObligationsResponse, adjustmentPeriodKey: PeriodKey)(implicit messages: Messages): AdjustmentVolumeWithTypeViewModel = {
-    val periodDisplay = obligations.obligation
-      .map(_.obligationDetails)
-      .find(_.periodKey == adjustmentPeriodKey.toString)
-      .map { obligation =>
-        val monthKey = ReturnsDateUtils.getMonthMessageKey(obligation.iCFromDate.getMonthValue)
-        s"${messages(monthKey)} ${obligation.iCFromDate.getYear}"
-      }
-      .getOrElse {
-        val availableKeys = if (obligations.obligation.isEmpty) {
-          "none"
-        } else {
-          obligations.obligation.map(_.obligationDetails).map(_.periodKey).mkString(", ")
-        }
-        // scalafix:off DisableSyntax.throw
-        throw new IllegalStateException(
-          s"Period key '${adjustmentPeriodKey.value}' not found in obligations. " +
-          s"Available period keys: $availableKeys"
-        )
-      }
-
+    val periodDisplay = ReturnsDateUtils.formatPeriodDisplay(adjustmentPeriodKey, obligations)
     AdjustmentVolumeWithTypeViewModel(periodDisplay)
   }
 }

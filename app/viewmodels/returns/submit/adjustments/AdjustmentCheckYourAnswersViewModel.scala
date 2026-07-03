@@ -61,6 +61,13 @@ object AdjustmentCheckYourAnswersViewModel {
     )
   }
 
+  private def buildAdjustmentUrl(baseUrl: String, currentPeriod: PeriodKey, adjustmentPeriod: Option[PeriodKey] = None): String = {
+    adjustmentPeriod match {
+      case Some(adjPeriod) => s"$baseUrl?period=${currentPeriod.value}&adjustmentPeriod=${adjPeriod.value}"
+      case None => s"$baseUrl?period=${currentPeriod.value}"
+    }
+  }
+
   private def buildSummaryCard(
                                 adjustment: AdjustmentEntry,
                                 obligations: ObligationsResponse,
@@ -79,7 +86,10 @@ object AdjustmentCheckYourAnswersViewModel {
 
     val cardActions = Seq(
       ActionItem(
-        href = s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None).url}?period=${currentPeriodKey.value}",
+        href = buildAdjustmentUrl(
+          controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None).url,
+          currentPeriodKey
+        ),
         content = Text(messages("site.change")),
         visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.card.change.hidden", periodDisplay))
       ),
@@ -114,7 +124,11 @@ object AdjustmentCheckYourAnswersViewModel {
       value = Value(content = Text(typeText)),
       actions = Some(Actions(items = Seq(
         ActionItem(
-          href = s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(NormalMode).url}?period=${currentPeriodKey.value}&adjustmentPeriod=${adjustmentPeriod.value}",
+          href = buildAdjustmentUrl(
+            controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(NormalMode).url,
+            currentPeriodKey,
+            Some(adjustmentPeriod)
+          ),
           content = Text(messages("site.change")),
           visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.type.change.hidden"))
         )
@@ -132,7 +146,11 @@ object AdjustmentCheckYourAnswersViewModel {
       value = Value(content = HtmlContent(s"${volume.toString} ml")),
       actions = Some(Actions(items = Seq(
         ActionItem(
-          href = s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(NormalMode).url}?period=${currentPeriodKey.value}&adjustmentPeriod=${adjustmentPeriod.value}",
+          href = buildAdjustmentUrl(
+            controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(NormalMode).url,
+            currentPeriodKey,
+            Some(adjustmentPeriod)
+          ),
           content = Text(messages("site.change")),
           visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.volume.change.hidden"))
         )
@@ -154,22 +172,7 @@ object AdjustmentCheckYourAnswersViewModel {
   }
 
   private def formatPeriod(periodKey: PeriodKey, obligations: ObligationsResponse)(implicit messages: Messages): String = {
-    obligations.obligation
-      .map(_.obligationDetails)
-      .find(_.periodKey == periodKey.toString)
-      .map { obligation =>
-        val month = obligation.iCFromDate.getMonthValue
-        val year = obligation.iCFromDate.getYear
-        val monthKey = ReturnsDateUtils.getMonthMessageKey(month)
-        s"${messages(monthKey)} $year"
-      }
-      .getOrElse(
-        // scalafix:off DisableSyntax.throw
-        throw new IllegalStateException(
-          s"Period key '${periodKey.value}' not found in obligations. " +
-          s"Available period keys: ${obligations.obligation.map(_.obligationDetails.periodKey).mkString(", ")}"
-        )
-      )
+    ReturnsDateUtils.formatPeriodDisplay(periodKey, obligations)
   }
 
   private def calculateDuty(volumeInMl: BigDecimal, dutyRate: BigDecimal): BigDecimal = {

@@ -16,6 +16,8 @@
 
 package utils
 
+import models.identifiers.PeriodKey
+import models.obligations.ObligationsResponse
 import play.api.i18n.Messages
 
 import java.time.{LocalDate, Month, Year}
@@ -75,5 +77,32 @@ object ReturnsDateUtils {
     case _ =>
       // scalafix:off DisableSyntax.throw
       throw new IllegalArgumentException(s"Invalid month number: $month. Must be between 1 and 12.")
+  }
+
+  def formatPeriodDisplay(
+                           periodKey: PeriodKey,
+                           obligations: ObligationsResponse
+                         )(implicit messages: Messages): String = {
+    obligations.obligation
+      .map(_.obligationDetails)
+      .find(_.periodKey == periodKey.toString)
+      .map { obligation =>
+        val month = obligation.iCFromDate.getMonthValue
+        val year = obligation.iCFromDate.getYear
+        val monthKey = getMonthMessageKey(month)
+        s"${messages(monthKey)} $year"
+      }
+      .getOrElse {
+        val availableKeys = if (obligations.obligation.isEmpty) {
+          "none"
+        } else {
+          obligations.obligation.map(_.obligationDetails.periodKey).mkString(", ")
+        }
+        // scalafix:off DisableSyntax.throw
+        throw new IllegalStateException(
+          s"Period key '${periodKey.value}' not found in obligations. " +
+            s"Available period keys: $availableKeys"
+        )
+      }
   }
 }

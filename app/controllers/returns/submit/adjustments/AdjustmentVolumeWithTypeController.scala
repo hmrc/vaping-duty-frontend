@@ -26,7 +26,7 @@ import navigation.ReturnsNavigator
 import pages.returns.adjustments.AdjustmentListPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request, Result}
 import services.returns.{ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.adjustments.AdjustmentVolumeWithTypeViewModel
@@ -36,27 +36,26 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class AdjustmentVolumeWithTypeController @Inject()(
-  override val messagesApi: MessagesApi,
-  sessionRepository: ReturnsUserAnswersService,
-  navigator: ReturnsNavigator,
-  identify: ApprovedVapingManufacturerAuthAction,
-  getData: ReturnsDataRetrievalAction,
-  requireData: ReturnsDataRequiredAction,
-  formProvider: AdjustmentVolumeWithTypeFormProvider,
-  returnsEnabledAction: ReturnsEnabledAction,
-  obligationService: ObligationService,
-  val controllerComponents: MessagesControllerComponents,
-  view: AdjustmentVolumeWithTypeView
-)(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                    override val messagesApi: MessagesApi,
+                                                    sessionRepository: ReturnsUserAnswersService,
+                                                    navigator: ReturnsNavigator,
+                                                    identify: ApprovedVapingManufacturerAuthAction,
+                                                    getData: ReturnsDataRetrievalAction,
+                                                    requireData: ReturnsDataRequiredAction,
+                                                    formProvider: AdjustmentVolumeWithTypeFormProvider,
+                                                    returnsEnabledAction: ReturnsEnabledAction,
+                                                    obligationService: ObligationService,
+                                                    val controllerComponents: MessagesControllerComponents,
+                                                    view: AdjustmentVolumeWithTypeView
+                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[AdjustmentVolumeWithTypeFormData] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
-      request.getQueryString("adjustmentPeriod")
-        .map(PeriodKey(_)) match {
-        case Some(adjustmentPeriodKey) =>
+      extractAdjustmentPeriodKey match {
+        case Right(adjustmentPeriodKey) =>
           obligationService.getObligations(request.enrolmentVpdId).map { obligations =>
             // Check if editing existing adjustment
             val existingAdjustment = request.userAnswers.get(AdjustmentListPage)
@@ -76,17 +75,16 @@ class AdjustmentVolumeWithTypeController @Inject()(
             val vm = AdjustmentVolumeWithTypeViewModel(obligations, adjustmentPeriodKey)
             Ok(view(request.periodKey, adjustmentPeriodKey, preparedForm, mode, vm))
           }
-        case None =>
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        case Left(result) =>
+          Future.successful(result)
       }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
-      request.getQueryString("adjustmentPeriod")
-        .map(PeriodKey(_)) match {
-        case Some(adjustmentPeriodKey) =>
+      extractAdjustmentPeriodKey match {
+        case Right(adjustmentPeriodKey) =>
           obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
             form.bindFromRequest().fold(
               formWithErrors => {
@@ -102,10 +100,8 @@ class AdjustmentVolumeWithTypeController @Inject()(
                   volumeInMl = volume
                 )
 
-                // Get existing list or create new one
                 val existingList = request.userAnswers.get(AdjustmentListPage).getOrElse(AdjustmentList.empty)
 
-                // Remove any existing entry for this period and add the new one
                 val updatedAdjustments = existingList.adjustments.filterNot(_.period == adjustmentPeriodKey) :+ newEntry
                 val updatedList = AdjustmentList(updatedAdjustments)
 
@@ -116,8 +112,15 @@ class AdjustmentVolumeWithTypeController @Inject()(
               }
             )
           }
-        case None =>
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        case Left(result) =>
+          Future.successful(result)
       }
   }
+
+  private def extractAdjustmentPeriodKey(implicit request: Request[_]): Either[Result, PeriodKey] = {
+    request.getQueryString("adjustmentPeriod")
+      .map(PeriodKey(_))
+      .toRight(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+  }
+
 }
