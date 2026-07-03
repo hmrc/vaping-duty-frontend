@@ -99,6 +99,11 @@ POST       /complete-return/adjustment/change-enter-over-or-under-declaration-am
 GET        /complete-return/adjustment/check-your-answers                                   controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onPageLoad()
 POST       /complete-return/adjustment/check-your-answers                                   controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onSubmit()
 
+GET        /complete-return/adjustment/reason-for-adjustment                                controllers.returns.submit.AdjustmentReasonController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/adjustment/reason-for-adjustment                                controllers.returns.submit.AdjustmentReasonController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/adjustment/change-reason-for-adjustment                         controllers.returns.submit.AdjustmentReasonController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/adjustment/change-reason-for-adjustment                         controllers.returns.submit.AdjustmentReasonController.onSubmit(mode: Mode = CheckMode)
+
 GET        /complete-return/duty-suspended/suspended-products                               controllers.returns.submit.DeclareDutySuspenseController.onPageLoad(mode: Mode = NormalMode)
 POST       /complete-return/duty-suspended/suspended-products                               controllers.returns.submit.DeclareDutySuspenseController.onSubmit(mode: Mode = NormalMode)
 GET        /complete-return/duty-suspended/change-suspended-products                        controllers.returns.submit.DeclareDutySuspenseController.onPageLoad(mode: Mode = CheckMode)
