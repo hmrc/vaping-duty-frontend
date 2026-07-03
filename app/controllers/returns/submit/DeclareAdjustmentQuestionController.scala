@@ -21,7 +21,7 @@ import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrie
 import forms.returns.DeclareDutyFormProvider
 import models.Mode
 import navigation.ReturnsNavigator
-import pages.returns.DeclareAdjustmentQuestionPage
+import pages.returns.DeclareAdjustmentPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -50,7 +50,7 @@ class DeclareAdjustmentQuestionController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(DeclareAdjustmentQuestionPage) match {
+      val preparedForm = request.userAnswers.get(DeclareAdjustmentPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
@@ -67,9 +67,9 @@ class DeclareAdjustmentQuestionController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclareAdjustmentQuestionPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(DeclareAdjustmentPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(DeclareAdjustmentQuestionPage, mode, updatedAnswers))
+          } yield Redirect(navigator.nextPage(DeclareAdjustmentPage, mode, updatedAnswers))
       )
   }
 }
