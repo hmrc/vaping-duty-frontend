@@ -22,6 +22,7 @@ import models.*
 import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import pages.*
 import pages.returns.{AddSpoiltAdjustmentPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.libs.json.Json
 import play.api.mvc.Call
 
@@ -96,6 +97,11 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
       }
 
+      "must go from DeclareSpoiltProductsPage to JourneyRecovery when there is no value present" in {
+        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from SpoiltVolumeByPeriodPage to AddSpoiltAdjustmentPage when entering spoilt products" in {
         val ua = returnsUserAnswers.set(SpoiltVolumeByPeriodPage, List(SpoiltVolumeByPeriod(1, periodKey))).success.value
 
@@ -114,6 +120,50 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(AddSpoiltAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
       }
 
+      "must go from AddSpoiltAdjustmentPage to JourneyRecovery when there is no value present" in {
+        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        navigator.nextPage(AddSpoiltAdjustmentPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from DeclareAdjustmentPage to SelectAdjustmentPeriod when there are adjustments to declare" in {
+        val ua = returnsUserAnswers.set(DeclareAdjustmentPage, true).success.value
+
+        navigator.nextPage(DeclareAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None).url}?period=$periodKey"
+      }
+
+      "must go from DeclareAdjustmentPage to TaskList when there are NO adjustments to declare" in {
+        val ua = returnsUserAnswers.set(DeclareAdjustmentPage, false).success.value
+
+        navigator.nextPage(DeclareAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from DeclareAdjustmentPage to JourneyRecovery when there is no value present" in {
+        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        navigator.nextPage(DeclareAdjustmentPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from AdjustmentListPage to AdjustmentCheckYourAnswers (mini CYA)" in {
+        val ua = returnsUserAnswers.set(AdjustmentListPage, adjustmentList).success.value
+
+        navigator.nextPage(AdjustmentListPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to SelectAdjustmentPeriod when user has more adjustments to make" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, true).success.value
+
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None).url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to TaskList when no more adjustments to make" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
+
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to JourneyRecovery when there is no value present" in {
+        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
 
       "must go from a page that doesn't exist in the route map to Index" in {
         case object UnknownPage extends Page
@@ -144,6 +194,11 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareDutyPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(CheckMode).url}?period=$periodKey"
       }
 
+      "must go from DeclareDutyPage to JourneyRecovery when there is no value present" in {
+        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        navigator.nextPage(DeclareDutyPage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from EnterDutySuspensePage to CheckYourAnswers" in {
 
         navigator.nextPage(EnterDutySuspensePage, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
@@ -157,6 +212,15 @@ class ReturnsNavigatorSpec extends SpecBase {
       "must go from DeclareDutySuspensePage to EnterDutySuspensePage when selecting 'Yes" in {
         val ua = returnsUserAnswers.set(DeclareDutySuspensePage, true).success.value
         navigator.nextPage(DeclareDutySuspensePage, CheckMode, ua).url mustBe s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url}?period=$periodKey"
+      }
+
+      "must go from DeclareDutySuspensePage to JourneyRecovery when there is no value present" in {
+        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        navigator.nextPage(DeclareDutySuspensePage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from DeclareSpoiltProductsPage to TaskList" in {
+        navigator.nextPage(DeclareSpoiltProductsPage, CheckMode, returnsUserAnswers) mustBe controllers.returns.submit.routes.TaskListController.onPageLoad()
       }
     }
   }

@@ -44,13 +44,6 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
   lazy val adjustmentCheckYourAnswersRoute: String =
     controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url
 
-  val adjustmentEntry = AdjustmentEntry(
-    period = october2027,
-    adjustmentType = AdjustmentType.UnderDeclared,
-    volumeInMl = BigDecimal("100.5")
-  )
-  val adjustmentList = AdjustmentList(Seq(adjustmentEntry))
-
   "AdjustmentCheckYourAnswers Controller" - {
 
     "must return OK and the correct view for a GET" in {

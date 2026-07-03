@@ -25,6 +25,7 @@ import models.payments.OutstandingPayment
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
 import models.returns.{DeclarationDetails, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
@@ -76,6 +77,16 @@ trait TestData extends ObligationsBuilders {
     fullName = "Test User",
     capacityInWhichSigned = "Director",
     signeesEmailAddress = "test@example.com"
+  )
+
+  val adjustmentEntry: AdjustmentEntry = AdjustmentEntry(
+    period = PeriodKey("26AE"),
+    adjustmentType = AdjustmentType.UnderDeclared,
+    volumeInMl = BigDecimal("1000")
+  )
+
+  val adjustmentList: AdjustmentList = AdjustmentList(
+    adjustments = Seq(adjustmentEntry)
   )
 
   val subscriptionSummaryPostWithEmail: SubscriptionSummary = subscriptionSummaryEmail.copy(paperlessPreference = false)
