@@ -179,7 +179,12 @@ object AdjustmentCheckYourAnswersViewModel {
         val monthKey = ReturnsDateUtils.getMonthMessageKey(month)
         s"${messages(monthKey)} $year"
       }
-      .getOrElse(periodKey.toString)
+      .getOrElse(
+        throw new IllegalStateException(
+          s"Period key '${periodKey.value}' not found in obligations. " +
+          s"Available period keys: ${obligations.obligation.map(_.obligationDetails.periodKey).mkString(", ")}"
+        )
+      )
   }
 
   private def calculateDuty(volumeInMl: BigDecimal, dutyRate: BigDecimal): BigDecimal = {

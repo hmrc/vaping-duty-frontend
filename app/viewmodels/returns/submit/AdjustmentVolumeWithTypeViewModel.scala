@@ -33,7 +33,17 @@ object AdjustmentVolumeWithTypeViewModel {
         val monthKey = ReturnsDateUtils.getMonthMessageKey(obligation.iCFromDate.getMonthValue)
         s"${messages(monthKey)} ${obligation.iCFromDate.getYear}"
       }
-      .getOrElse(adjustmentPeriodKey.toString)
+      .getOrElse {
+        val availableKeys = if (obligations.obligation.isEmpty) {
+          "none"
+        } else {
+          obligations.obligation.map(_.obligationDetails).map(_.periodKey).mkString(", ")
+        }
+        throw new IllegalStateException(
+          s"Period key '${adjustmentPeriodKey.value}' not found in obligations. " +
+          s"Available period keys: $availableKeys"
+        )
+      }
 
     AdjustmentVolumeWithTypeViewModel(periodDisplay)
   }

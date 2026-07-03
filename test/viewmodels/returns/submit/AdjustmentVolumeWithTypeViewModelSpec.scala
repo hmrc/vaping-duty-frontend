@@ -31,19 +31,27 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
       vm.periodDisplay mustBe "October 2027"
     }
 
-    "must fall back to the period key string when no matching obligation is found" in {
+    "must throw IllegalStateException when no matching obligation is found" in {
       val unknownPeriodKey = PeriodKey("99ZZ")
       val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
-      val vm = AdjustmentVolumeWithTypeViewModel(obligationsResponse, unknownPeriodKey)
 
-      vm.periodDisplay mustBe "99ZZ"
+      val exception = intercept[IllegalStateException] {
+        AdjustmentVolumeWithTypeViewModel(obligationsResponse, unknownPeriodKey)
+      }
+
+      exception.getMessage must include("Period key '99ZZ' not found in obligations")
+      exception.getMessage must include("Available period keys:")
     }
 
-    "must fall back to the period key string when obligations list is empty" in {
+    "must throw IllegalStateException when obligations list is empty" in {
       val obligationsResponse = ObligationsResponse(obligation = Seq.empty)
-      val vm = AdjustmentVolumeWithTypeViewModel(obligationsResponse, october2027)
 
-      vm.periodDisplay mustBe october2027.toString
+      val exception = intercept[IllegalStateException] {
+        AdjustmentVolumeWithTypeViewModel(obligationsResponse, october2027)
+      }
+
+      exception.getMessage must include(s"Period key '${october2027.value}' not found in obligations")
+      exception.getMessage must include("Available period keys: none")
     }
 
     "must return the correct display for all twelve months" in {
