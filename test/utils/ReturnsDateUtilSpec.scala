@@ -49,4 +49,39 @@ class ReturnsDateUtilSpec extends SpecBase with Matchers {
       )
     }
   }
+
+  "ReturnsDateUtil.getMonthMessageKey" - {
+
+    "must return correct message key for all valid months" in {
+      ReturnsDateUtils.getMonthMessageKey(1) mustBe "month.jan"
+      ReturnsDateUtils.getMonthMessageKey(2) mustBe "month.feb"
+      ReturnsDateUtils.getMonthMessageKey(3) mustBe "month.mar"
+      ReturnsDateUtils.getMonthMessageKey(4) mustBe "month.apr"
+      ReturnsDateUtils.getMonthMessageKey(5) mustBe "month.may"
+      ReturnsDateUtils.getMonthMessageKey(6) mustBe "month.jun"
+      ReturnsDateUtils.getMonthMessageKey(7) mustBe "month.jul"
+      ReturnsDateUtils.getMonthMessageKey(8) mustBe "month.aug"
+      ReturnsDateUtils.getMonthMessageKey(9) mustBe "month.sep"
+      ReturnsDateUtils.getMonthMessageKey(10) mustBe "month.oct"
+      ReturnsDateUtils.getMonthMessageKey(11) mustBe "month.nov"
+      ReturnsDateUtils.getMonthMessageKey(12) mustBe "month.dec"
+    }
+
+    "must throw IllegalArgumentException for invalid month numbers" in {
+      val exception0 = intercept[IllegalArgumentException] {
+        ReturnsDateUtils.getMonthMessageKey(0)
+      }
+      exception0.getMessage must include("Invalid month number: 0")
+
+      val exception13 = intercept[IllegalArgumentException] {
+        ReturnsDateUtils.getMonthMessageKey(13)
+      }
+      exception13.getMessage must include("Invalid month number: 13")
+
+      val exceptionNegative = intercept[IllegalArgumentException] {
+        ReturnsDateUtils.getMonthMessageKey(-1)
+      }
+      exceptionNegative.getMessage must include("Invalid month number: -1")
+    }
+  }
 }

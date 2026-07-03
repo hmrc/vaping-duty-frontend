@@ -22,6 +22,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.{TaskListItem, TaskListItemTitle}
+import utils.ReturnsDateUtils
 
 import java.time.LocalDate
 
@@ -64,7 +65,7 @@ object SelectSpoiltPeriodViewModel {
 
     val taskListItems = obligationsForYear.map { obligation =>
       val month = obligation.obligationDetails.iCFromDate.getMonthValue
-      val monthKey = getMonthMessageKey(month)
+      val monthKey = ReturnsDateUtils.getMonthMessageKey(month)
       val periodKey = obligation.obligationDetails.periodKey
 
       TaskListItem(
@@ -88,20 +89,5 @@ object SelectSpoiltPeriodViewModel {
       paginationItems = paginationItems,
       currentYear = currentYear
     )
-  }
-
-  private def getMonthMessageKey(month: Int): String = month match {
-    case 1  => "month.jan"
-    case 2  => "month.feb"
-    case 3  => "month.mar"
-    case 4  => "month.apr"
-    case 5  => "month.may"
-    case 6  => "month.jun"
-    case 7  => "month.jul"
-    case 8  => "month.aug"
-    case 9  => "month.sep"
-    case 10 => "month.oct"
-    case 11 => "month.nov"
-    case 12 => "month.dec"
   }
 }

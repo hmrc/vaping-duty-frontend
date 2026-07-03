@@ -58,4 +58,20 @@ object ReturnsDateUtils {
       case Month.NOVEMBER => messages("month.nov")
       case Month.DECEMBER => messages("month.dec")
     }
+
+  def getMonthMessageKey(month: Int): String = month match {
+    case 1  => "month.jan"
+    case 2  => "month.feb"
+    case 3  => "month.mar"
+    case 4  => "month.apr"
+    case 5  => "month.may"
+    case 6  => "month.jun"
+    case 7  => "month.jul"
+    case 8  => "month.aug"
+    case 9  => "month.sep"
+    case 10 => "month.oct"
+    case 11 => "month.nov"
+    case 12 => "month.dec"
+    case _  => throw new IllegalArgumentException(s"Invalid month number: $month. Must be between 1 and 12.")
+  }
 }
