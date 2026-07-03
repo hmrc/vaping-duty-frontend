@@ -16,34 +16,29 @@
 
 package viewmodels.returns.submit
 
+import models.NormalMode
 import models.identifiers.PeriodKey
 import models.obligations.ObligationsResponse
 import models.returns.{AdjustmentEntry, AdjustmentList, AdjustmentType}
-import models.{Mode, NormalMode}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 import utils.CurrencyFormatter
 
-case class AdjustmentSummaryCard(
-  rows: Seq[SummaryListRow],
-  card: Card
-)
-
 case class AdjustmentCheckYourAnswersViewModel(
-  summaryCards: Seq[AdjustmentSummaryCard],
-  hasAdjustments: Boolean,
-  totalAdjustment: BigDecimal
-)
+                                                summaryCards: Seq[AdjustmentSummaryCard],
+                                                hasAdjustments: Boolean,
+                                                totalAdjustment: BigDecimal
+                                              )
 
 object AdjustmentCheckYourAnswersViewModel {
 
   def apply(
-    adjustmentList: Option[AdjustmentList],
-    obligations: ObligationsResponse,
-    periodKey: PeriodKey,
-    dutyRates: Map[String, BigDecimal]
-  )(implicit messages: Messages): AdjustmentCheckYourAnswersViewModel = {
+             adjustmentList: Option[AdjustmentList],
+             obligations: ObligationsResponse,
+             periodKey: PeriodKey,
+             dutyRates: Map[String, BigDecimal]
+           )(implicit messages: Messages): AdjustmentCheckYourAnswersViewModel = {
 
     val adjustments = adjustmentList.map(_.adjustments).getOrElse(Seq.empty)
 
@@ -67,11 +62,11 @@ object AdjustmentCheckYourAnswersViewModel {
   }
 
   private def buildSummaryCard(
-    adjustment: AdjustmentEntry,
-    obligations: ObligationsResponse,
-    currentPeriodKey: PeriodKey,
-    dutyRates: Map[String, BigDecimal]
-  )(implicit messages: Messages): AdjustmentSummaryCard = {
+                                adjustment: AdjustmentEntry,
+                                obligations: ObligationsResponse,
+                                currentPeriodKey: PeriodKey,
+                                dutyRates: Map[String, BigDecimal]
+                              )(implicit messages: Messages): AdjustmentSummaryCard = {
 
     val periodDisplay = formatPeriod(adjustment.period, obligations)
     val dutyAmount = calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0)))
@@ -106,9 +101,9 @@ object AdjustmentCheckYourAnswersViewModel {
   }
 
   private def buildAdjustmentQuestionRow(
-    adjustmentPeriod: PeriodKey,
-    currentPeriodKey: PeriodKey
-  )(implicit messages: Messages): SummaryListRow = {
+                                          adjustmentPeriod: PeriodKey,
+                                          currentPeriodKey: PeriodKey
+                                        )(implicit messages: Messages): SummaryListRow = {
     SummaryListRow(
       key = Key(content = Text(messages("returns.adjustmentCheckYourAnswers.question"))),
       value = Value(content = Text(messages("site.yes"))),
@@ -123,10 +118,10 @@ object AdjustmentCheckYourAnswersViewModel {
   }
 
   private def buildTypeRow(
-    adjustmentType: AdjustmentType,
-    adjustmentPeriod: PeriodKey,
-    currentPeriodKey: PeriodKey
-  )(implicit messages: Messages): SummaryListRow = {
+                            adjustmentType: AdjustmentType,
+                            adjustmentPeriod: PeriodKey,
+                            currentPeriodKey: PeriodKey
+                          )(implicit messages: Messages): SummaryListRow = {
     val typeText = adjustmentType match {
       case AdjustmentType.UnderDeclared => messages("returns.adjustmentCheckYourAnswers.type.underDeclared")
       case AdjustmentType.OverDeclared => messages("returns.adjustmentCheckYourAnswers.type.overDeclared")
@@ -146,10 +141,10 @@ object AdjustmentCheckYourAnswersViewModel {
   }
 
   private def buildVolumeRow(
-    volume: BigDecimal,
-    adjustmentPeriod: PeriodKey,
-    currentPeriodKey: PeriodKey
-  )(implicit messages: Messages): SummaryListRow = {
+                              volume: BigDecimal,
+                              adjustmentPeriod: PeriodKey,
+                              currentPeriodKey: PeriodKey
+                            )(implicit messages: Messages): SummaryListRow = {
     SummaryListRow(
       key = Key(content = Text(messages("returns.adjustmentCheckYourAnswers.volume"))),
       value = Value(content = HtmlContent(s"${volume.toString} ml")),
@@ -168,7 +163,7 @@ object AdjustmentCheckYourAnswersViewModel {
       case AdjustmentType.OverDeclared => -dutyAmount
       case AdjustmentType.UnderDeclared => dutyAmount
     }
-    
+
     SummaryListRow(
       key = Key(content = Text(messages("returns.adjustmentCheckYourAnswers.duty"))),
       value = Value(content = Text(CurrencyFormatter.currencyFormat(signedAmount))),
@@ -196,15 +191,15 @@ object AdjustmentCheckYourAnswersViewModel {
   }
 
   private def getMonthMessageKey(month: Int): String = month match {
-    case 1  => "month.jan"
-    case 2  => "month.feb"
-    case 3  => "month.mar"
-    case 4  => "month.apr"
-    case 5  => "month.may"
-    case 6  => "month.jun"
-    case 7  => "month.jul"
-    case 8  => "month.aug"
-    case 9  => "month.sep"
+    case 1 => "month.jan"
+    case 2 => "month.feb"
+    case 3 => "month.mar"
+    case 4 => "month.apr"
+    case 5 => "month.may"
+    case 6 => "month.jun"
+    case 7 => "month.jul"
+    case 8 => "month.aug"
+    case 9 => "month.sep"
     case 10 => "month.oct"
     case 11 => "month.nov"
     case 12 => "month.dec"
