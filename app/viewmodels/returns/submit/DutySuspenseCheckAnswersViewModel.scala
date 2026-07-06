@@ -25,6 +25,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, SummaryList, SummaryListRow}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import viewmodels.returns.VolumeFormatter
 
 case class DutySuspenseCheckAnswersViewModel(
   heading: String,
@@ -33,8 +34,6 @@ case class DutySuspenseCheckAnswersViewModel(
 )
 
 object DutySuspenseCheckAnswersViewModel {
-
-  private val ML_SUFFIX = " ml"
 
   def apply(userAnswers: ReturnsUserAnswers, periodKey: PeriodKey)
            (implicit messages: Messages): Option[DutySuspenseCheckAnswersViewModel] = {
@@ -63,9 +62,6 @@ object DutySuspenseCheckAnswersViewModel {
     }
   }
 
-  private def formatVolume(volume: BigDecimal): String = 
-    s"${volume.toString}$ML_SUFFIX"
-
   private def buildDeclareDutySuspenseRow(declareDutySuspense: Boolean, periodKey: PeriodKey)
                                          (implicit messages: Messages): SummaryListRow = {
     val value = if (declareDutySuspense) "site.yes" else "site.no"
@@ -86,7 +82,7 @@ object DutySuspenseCheckAnswersViewModel {
                                      (implicit messages: Messages): SummaryListRow = {
     SummaryListRowViewModel(
       key = "returns.dutySuspenseCheckAnswers.productReceived",
-      value = ValueViewModel(Text(formatVolume(volumes.volumeReceived))),
+      value = ValueViewModel(Text(VolumeFormatter.formatVolume(volumes.volumeReceived))),
       actions = Seq.empty
     )
   }
@@ -95,7 +91,7 @@ object DutySuspenseCheckAnswersViewModel {
                                   (implicit messages: Messages): SummaryListRow = {
     SummaryListRowViewModel(
       key = "returns.dutySuspenseCheckAnswers.productMoved",
-      value = ValueViewModel(Text(formatVolume(volumes.volumeMoved))),
+      value = ValueViewModel(Text(VolumeFormatter.formatVolume(volumes.volumeMoved))),
       actions = Seq.empty
     )
   }

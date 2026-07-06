@@ -26,10 +26,9 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
+import viewmodels.returns.VolumeFormatter
 
 object DutySuspenseCheckAnswersSummary {
-
-  private val ML_SUFFIX = " ml"
 
   def summaryList(answers: ReturnsUserAnswers, periodKey: PeriodKey)
                  (implicit messages: Messages): Option[SummaryList] = {
@@ -47,8 +46,8 @@ object DutySuspenseCheckAnswersSummary {
          |${messages("returns.dutySuspenseCheckAnswers.productMoved")}""".stripMargin)
     
     val valueHtml = Html(
-      s"""${formatVolume(volumes.volumeReceived)}<br>
-         |${formatVolume(volumes.volumeMoved)}""".stripMargin
+      s"""${VolumeFormatter.formatVolume(volumes.volumeReceived)}<br>
+         |${VolumeFormatter.formatVolume(volumes.volumeMoved)}""".stripMargin
     )
 
     SummaryListRowViewModel(
@@ -63,4 +62,4 @@ object DutySuspenseCheckAnswersSummary {
     )
   }
     
-  private def formatVolume(volume: BigDecimal): String = s"$volume$ML_SUFFIX" }
+}

@@ -31,7 +31,6 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
       val fieldName = "volumeReceived"
       val requiredKey = "returns.enterDutySuspense.volumeReceived.error.required"
       val nonNumericKey = "returns.enterDutySuspense.volumeReceived.error.nonNumeric"
-      val invalidDecimalKey = "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces"
 
       "must bind valid values >= 1000ml with no decimal places" in {
         Seq("1000", "1000000", "999999999999").foreach { input =>
@@ -101,8 +100,6 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
       val fieldName = "volumeMoved"
       val requiredKey = "returns.enterDutySuspense.volumeMoved.error.required"
       val nonNumericKey = "returns.enterDutySuspense.volumeMoved.error.nonNumeric"
-      val invalidDecimalKey = "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces"
-      val outOfRangeKey = "returns.enterDutySuspense.volumeMoved.error.outOfRange"
 
       "must bind valid values >= 1000ml with no decimal places" in {
         Seq("1000", "1000000", "999999999999").foreach { input =>
