@@ -58,18 +58,16 @@ trait Constraints {
         }
     }
 
+  private def withinRange[A](input: A, minimum: A, maximum: A)(implicit ev: Ordering[A]): Boolean = {
+    import ev._
+    input >= minimum && input <= maximum
+  }
+
   protected def inRange[A](minimum: A, maximum: A, errorKey: String)(implicit ev: Ordering[A]): Constraint[A] =
-    Constraint {
-      input =>
+    Constraint(input => if (withinRange(input, minimum, maximum)) Valid else Invalid(errorKey, minimum, maximum))
 
-        import ev._
-
-        if (input >= minimum && input <= maximum) {
-          Valid
-        } else {
-          Invalid(errorKey, minimum, maximum)
-        }
-    }
+  protected def inRange[A](minimum: A, maximum: A, errorKey: String, formattedMax: String)(implicit ev: Ordering[A]): Constraint[A] =
+    Constraint(input => if (withinRange(input, minimum, maximum)) Valid else Invalid(errorKey, formattedMax))
 
   protected def regexp(regex: String, errorKey: String): Constraint[String] =
     Constraint {

@@ -87,6 +87,62 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
     }
   }
 
+  "inRange" - {
+
+    "must return Valid for a number within the range" in {
+      val result = inRange(BigDecimal(1), BigDecimal(10), "error.range").apply(BigDecimal(5))
+      result mustEqual Valid
+    }
+
+    "must return Valid for a number equal to the minimum" in {
+      val result = inRange(BigDecimal(1), BigDecimal(10), "error.range").apply(BigDecimal(1))
+      result mustEqual Valid
+    }
+
+    "must return Valid for a number equal to the maximum" in {
+      val result = inRange(BigDecimal(1), BigDecimal(10), "error.range").apply(BigDecimal(10))
+      result mustEqual Valid
+    }
+
+    "must return Invalid for a number below the minimum" in {
+      val result = inRange(BigDecimal(1), BigDecimal(10), "error.range").apply(BigDecimal(0))
+      result mustEqual Invalid("error.range", BigDecimal(1), BigDecimal(10))
+    }
+
+    "must return Invalid for a number above the maximum" in {
+      val result = inRange(BigDecimal(1), BigDecimal(10), "error.range").apply(BigDecimal(11))
+      result mustEqual Invalid("error.range", BigDecimal(1), BigDecimal(10))
+    }
+  }
+
+  "inRange with formattedMax" - {
+
+    "must return Valid for a number within the range" in {
+      val result = inRange(BigDecimal(1), BigDecimal(10), "error.range", "10 ml").apply(BigDecimal(5))
+      result mustEqual Valid
+    }
+
+    "must return Valid for a number equal to the minimum" in {
+      val result = inRange(BigDecimal(1), BigDecimal(10), "error.range", "10 ml").apply(BigDecimal(1))
+      result mustEqual Valid
+    }
+
+    "must return Valid for a number equal to the maximum" in {
+      val result = inRange(BigDecimal(1), BigDecimal(10), "error.range", "10 ml").apply(BigDecimal(10))
+      result mustEqual Valid
+    }
+
+    "must return Invalid for a number below the minimum" in {
+      val result = inRange(BigDecimal(1), BigDecimal(10), "error.range", "10 ml").apply(BigDecimal(0))
+      result mustEqual Invalid("error.range", "10 ml")
+    }
+
+    "must return Invalid for a number above the maximum" in {
+      val result = inRange(BigDecimal(1), BigDecimal(10), "error.range", "10 ml").apply(BigDecimal(11))
+      result mustEqual Invalid("error.range", "10 ml")
+    }
+  }
+
   "regexp" - {
 
     "must return Valid for an input that matches the expression" in {
