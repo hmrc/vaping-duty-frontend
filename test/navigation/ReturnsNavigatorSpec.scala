@@ -131,10 +131,10 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None).url}?period=$periodKey"
       }
 
-      "must go from DeclareAdjustmentPage to TaskList when there are NO adjustments to declare" in {
+      "must go from DeclareAdjustmentPage to AdjustmentCheckYourAnswers when there are NO adjustments to declare" in {
         val ua = returnsUserAnswers.set(DeclareAdjustmentPage, false).success.value
 
-        navigator.nextPage(DeclareAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(DeclareAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from DeclareAdjustmentPage to JourneyRecovery when there is no value present" in {

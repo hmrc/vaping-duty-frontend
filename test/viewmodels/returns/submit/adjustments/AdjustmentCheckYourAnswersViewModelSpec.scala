@@ -37,6 +37,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
       val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
 
       val vm = AdjustmentCheckYourAnswersViewModel(
+        Some(true),
         Some(adjustmentList),
         obligationsResponse,
         periodKey,
@@ -45,7 +46,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
 
       vm.hasAdjustments mustBe true
       vm.summaryCards.size mustBe 1
-      vm.summaryCards.head.rows.size mustBe 3
+      vm.summaryCards.head.rows.size mustBe 4
     }
 
     "must calculate correct total adjustment for under declared" in {
@@ -58,6 +59,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
       val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
 
       val vm = AdjustmentCheckYourAnswersViewModel(
+        Some(true),
         Some(adjustmentList),
         obligationsResponse,
         periodKey,
@@ -77,6 +79,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
       val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
 
       val vm = AdjustmentCheckYourAnswersViewModel(
+        Some(true),
         Some(adjustmentList),
         obligationsResponse,
         periodKey,
@@ -90,6 +93,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
       val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
 
       val vm = AdjustmentCheckYourAnswersViewModel(
+        Some(false),
         None,
         obligationsResponse,
         periodKey,
@@ -97,7 +101,8 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
       )
 
       vm.hasAdjustments mustBe false
-      vm.summaryCards mustBe empty
+      vm.summaryCards.size mustBe 1
+      vm.summaryCards.head.rows.size mustBe 1
       vm.totalAdjustment mustBe BigDecimal("0")
     }
   }

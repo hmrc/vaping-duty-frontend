@@ -23,7 +23,7 @@ import models.NormalMode
 import models.requests.returns.ReturnsDataRequest
 import models.returns.adjustments.AdjustmentList
 import navigation.ReturnsNavigator
-import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage}
+import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -55,11 +55,13 @@ class AdjustmentCheckYourAnswersController @Inject()(
   def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
+      val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
       val adjustmentList = request.userAnswers.get(AdjustmentListPage)
 
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
         getDutyRatesForAdjustments(adjustmentList).map { dutyRatesMap =>
           val vm = AdjustmentCheckYourAnswersViewModel(
+            declareAdjustment,
             adjustmentList,
             obligations,
             request.periodKey,
@@ -79,28 +81,41 @@ class AdjustmentCheckYourAnswersController @Inject()(
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
+      val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
       val adjustmentList = request.userAnswers.get(AdjustmentListPage)
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-            getDutyRatesForAdjustments(adjustmentList).map { dutyRatesMap =>
-              val vm = AdjustmentCheckYourAnswersViewModel(
-                adjustmentList,
-                obligations,
-                request.periodKey,
-                dutyRatesMap
-              )
-              BadRequest(view(request.periodKey, vm, formWithErrors))
-            }
-          },
-
-        value =>
+      // If user declared "No" to adjustments, skip form validation and auto-set to false
+      declareAdjustment match {
+        case Some(false) =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, false))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
-      )
+
+        case _ =>
+          // Normal flow with form validation for "Yes" case
+          form.bindFromRequest().fold(
+            formWithErrors =>
+              obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
+                getDutyRatesForAdjustments(adjustmentList).map { dutyRatesMap =>
+                  val vm = AdjustmentCheckYourAnswersViewModel(
+                    declareAdjustment,
+                    adjustmentList,
+                    obligations,
+                    request.periodKey,
+                    dutyRatesMap
+                  )
+                  BadRequest(view(request.periodKey, vm, formWithErrors))
+                }
+              },
+
+            value =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
+          )
+      }
   }
 
   private def getDutyRatesForAdjustments(adjustmentList: Option[AdjustmentList])

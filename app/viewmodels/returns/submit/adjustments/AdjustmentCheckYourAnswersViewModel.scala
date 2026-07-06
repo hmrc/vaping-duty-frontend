@@ -34,6 +34,7 @@ case class AdjustmentCheckYourAnswersViewModel(
 object AdjustmentCheckYourAnswersViewModel {
 
   def apply(
+             declareAdjustment: Option[Boolean],
              adjustmentList: Option[AdjustmentList],
              obligations: ObligationsResponse,
              periodKey: PeriodKey,
@@ -42,8 +43,13 @@ object AdjustmentCheckYourAnswersViewModel {
 
     val adjustments = adjustmentList.map(_.adjustments).getOrElse(Seq.empty)
 
-    val summaryCards = adjustments.map { adjustment =>
-      buildSummaryCard(adjustment, obligations, periodKey, dutyRates)
+    val summaryCards = declareAdjustment match {
+      case Some(false) =>
+        Seq(buildNoAdjustmentCard(periodKey))
+      case _ =>
+        adjustments.map { adjustment =>
+          buildSummaryCard(adjustment, obligations, periodKey, dutyRates)
+        }
     }
 
     val totalAdjustment = adjustments.map { adjustment =>
@@ -79,6 +85,7 @@ object AdjustmentCheckYourAnswersViewModel {
     val dutyAmount = calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0)))
 
     val rows = Seq(
+      buildDeclareAdjustmentRow(currentPeriodKey, declaredAdjustment = true),
       buildTypeRow(adjustment.adjustmentType, adjustment.period, currentPeriodKey),
       buildVolumeRow(adjustment.volumeInMl, adjustment.period, currentPeriodKey),
       buildDutyRow(dutyAmount, adjustment.adjustmentType)
@@ -106,6 +113,34 @@ object AdjustmentCheckYourAnswersViewModel {
         title = Some(CardTitle(content = Text(periodDisplay))),
         actions = Some(Actions(items = cardActions))
       )
+    )
+  }
+
+  private def buildNoAdjustmentCard(currentPeriodKey: PeriodKey)(implicit messages: Messages): AdjustmentSummaryCard = {
+    val row = buildDeclareAdjustmentRow(currentPeriodKey, declaredAdjustment = false)
+
+    AdjustmentSummaryCard(
+      rows = Seq(row),
+      card = Card(
+        title = Some(CardTitle(content = Text("Summary")))
+      )
+    )
+  }
+
+  private def buildDeclareAdjustmentRow(currentPeriodKey: PeriodKey, declaredAdjustment: Boolean)(implicit messages: Messages): SummaryListRow = {
+    SummaryListRow(
+      key = Key(content = Text(messages("returns.declareAdjustmentQuestion.checkYourAnswersLabel"))),
+      value = Value(content = Text(messages(if (declaredAdjustment) "site.yes" else "site.no"))),
+      actions = Some(Actions(items = Seq(
+        ActionItem(
+          href = buildAdjustmentUrl(
+            controllers.returns.submit.adjustments.routes.DeclareAdjustmentQuestionController.onPageLoad(NormalMode).url,
+            currentPeriodKey
+          ),
+          content = Text(messages("site.change")),
+          visuallyHiddenText = Some(messages("returns.declareAdjustmentQuestion.change.hidden"))
+        )
+      )))
     )
   }
 

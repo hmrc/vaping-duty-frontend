@@ -106,7 +106,7 @@ class ReturnsNavigator @Inject()(
   private def declareAdjustmentQuestionPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(DeclareAdjustmentPage) match
       case Some(true)  => withPeriod(controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None), periodKey)
-      case Some(false) => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
+      case Some(false) => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(), periodKey)
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
