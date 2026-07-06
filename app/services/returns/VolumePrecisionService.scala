@@ -25,12 +25,12 @@ import java.util.Locale
 @Singleton
 class VolumePrecisionService @Inject() {
 
-  private val API_MAX_DUTY_DUE = BigDecimal("999999999.99")
+  private val API_MAX_DUTY_DUE = BigDecimal("99999999999.99")
 
   def calculateMaxVolume(dutyRateInPencePerMl: Int): MaxVolumeResult = {
     val rateInPounds = BigDecimal(dutyRateInPencePerMl) / 100
     val maxVolume = (API_MAX_DUTY_DUE / rateInPounds)
-      .setScale(1, BigDecimal.RoundingMode.DOWN)
+      .setScale(0, BigDecimal.RoundingMode.DOWN)
 
     MaxVolumeResult(
       maxVolumeInMl = maxVolume,

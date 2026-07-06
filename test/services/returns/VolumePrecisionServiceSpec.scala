@@ -33,21 +33,21 @@ class VolumePrecisionServiceSpec extends SpecBase {
         // Max duty = £999,999,999.99
         // Rate = 337 pence per ml = £3.37 per ml
         // Max volume = 999,999,999.99 / 3.37 = 296,735,905.0 ml (rounded down to 1 decimal place)
-        result.maxVolumeInMl mustBe BigDecimal("296735905.0")
+        result.maxVolumeInMl mustBe BigDecimal("29673590504")
       }
 
       "must format the max volume with commas" in {
         val dutyRateInPencePerMl = 337
         val result = service.calculateMaxVolume(dutyRateInPencePerMl)
 
-        result.formattedForDisplay mustBe "296,735,905 ml"
+        result.formattedForDisplay mustBe "29,673,590,504 ml"
       }
 
       "must handle different duty rates correctly" in {
         val testCases = Seq(
-          (100, BigDecimal("999999999.9"), "999,999,999.9 ml"),  // £1.00 per ml
-          (200, BigDecimal("499999999.9"), "499,999,999.9 ml"),  // £2.00 per ml
-          (50, BigDecimal("1999999999.9"), "1,999,999,999.9 ml")  // £0.50 per ml
+          (100, BigDecimal("99999999999"), "99,999,999,999 ml"),  // £1.00 per ml
+          (200, BigDecimal("49999999999"), "49,999,999,999 ml"),  // £2.00 per ml
+          (50, BigDecimal("199999999999"), "199,999,999,999 ml")  // £0.50 per ml
         )
 
         testCases.foreach { case (rate, expectedMax, expectedFormatted) =>
@@ -62,8 +62,8 @@ class VolumePrecisionServiceSpec extends SpecBase {
         val result = service.calculateMaxVolume(dutyRateInPencePerMl)
 
         // Verify it's rounded down and has at most 1 decimal place
-        result.maxVolumeInMl.scale mustBe 1
-        result.maxVolumeInMl mustBe BigDecimal("300300300.2")
+        result.maxVolumeInMl.scale mustBe 0
+        result.maxVolumeInMl mustBe BigDecimal("30030030030")
       }
 
       "must format values without unnecessary decimal places" in {

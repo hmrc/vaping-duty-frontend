@@ -200,8 +200,6 @@ returns.enterDutyAmount.q.ml = ml
 
 returns.enterDutyAmount.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999 ml
 returns.enterDutyAmount.error.required = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999 ml
-returns.enterDutyAmount.error.wholeNumber = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999 ml
-returns.enterDutyAmount.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999 ml
 returns.enterDutyAmount.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
 returns.enterDutyAmount.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
 returns.enterDutyAmount.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
@@ -244,7 +242,6 @@ returns.spoiltVolumeByPeriod.error.required = Enter a volume with up to 12 digit
 returns.spoiltVolumeByPeriod.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
 returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
-returns.spoiltVolumeByPeriod.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.spoiltVolumeByPeriod.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
 
 returns.addSpoiltAdjustment.title = Do you want to make an adjustment for another month?
@@ -275,14 +272,12 @@ returns.enterDutySuspense.volumeReceived.error.required = Enter a volume with up
 returns.enterDutySuspense.volumeReceived.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
 returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
-returns.enterDutySuspense.volumeReceived.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 
 returns.enterDutySuspense.volumeMoved.label = Amount moved
 returns.enterDutySuspense.volumeMoved.error.required = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.enterDutySuspense.volumeMoved.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
 returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
-returns.enterDutySuspense.volumeMoved.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
 
 returns.enterDutySuspense.ml = ml
 returns.enterDutySuspense.checkYourAnswersLabel = Enter duty suspense
