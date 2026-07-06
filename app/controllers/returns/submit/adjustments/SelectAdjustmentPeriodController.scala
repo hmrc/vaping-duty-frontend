@@ -30,28 +30,28 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class SelectAdjustmentPeriodController @Inject()(
-  override val messagesApi: MessagesApi,
-  identify: ApprovedVapingManufacturerAuthAction,
-  returnsEnabledAction: ReturnsEnabledAction,
-  getData: ReturnsDataRetrievalAction,
-  requireData: ReturnsDataRequiredAction,
-  obligationService: ObligationService,
-  val controllerComponents: MessagesControllerComponents,
-  view: SelectAdjustmentPeriodView
-)(using ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                  override val messagesApi: MessagesApi,
+                                                  identify: ApprovedVapingManufacturerAuthAction,
+                                                  returnsEnabledAction: ReturnsEnabledAction,
+                                                  getData: ReturnsDataRetrievalAction,
+                                                  requireData: ReturnsDataRequiredAction,
+                                                  obligationService: ObligationService,
+                                                  val controllerComponents: MessagesControllerComponents,
+                                                  view: SelectAdjustmentPeriodView
+                                                )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(year: Option[Int]): Action[AnyContent] =
     (identify andThen returnsEnabledAction andThen getData andThen requireData).async { implicit request =>
 
       obligationService.getObligations(request.enrolmentVpdId).map { obligationsResponse =>
         val adjustmentList = request.userAnswers.get(AdjustmentListPage)
-        val viewModel = SelectAdjustmentPeriodViewModel(
-          obligationsResponse, 
-          year, 
+        val vm = SelectAdjustmentPeriodViewModel(
+          obligationsResponse,
+          year,
           request.periodKey,
           adjustmentList
         )
-        Ok(view(viewModel, request.periodKey))
+        Ok(view(vm, request.periodKey))
       }.recover {
         case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }

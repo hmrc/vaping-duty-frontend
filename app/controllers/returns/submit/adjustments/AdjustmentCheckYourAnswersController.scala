@@ -59,7 +59,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
 
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
         getDutyRatesForAdjustments(adjustmentList).map { dutyRatesMap =>
-          val viewModel = AdjustmentCheckYourAnswersViewModel(
+          val vm = AdjustmentCheckYourAnswersViewModel(
             adjustmentList,
             obligations,
             request.periodKey,
@@ -71,7 +71,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
             case Some(value) => form.fill(value)
           }
 
-          Ok(view(request.periodKey, viewModel, preparedForm))
+          Ok(view(request.periodKey, vm, preparedForm))
         }
       }
   }
@@ -85,13 +85,13 @@ class AdjustmentCheckYourAnswersController @Inject()(
         formWithErrors =>
           obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
             getDutyRatesForAdjustments(adjustmentList).map { dutyRatesMap =>
-              val viewModel = AdjustmentCheckYourAnswersViewModel(
+              val vm = AdjustmentCheckYourAnswersViewModel(
                 adjustmentList,
                 obligations,
                 request.periodKey,
                 dutyRatesMap
               )
-              BadRequest(view(request.periodKey, viewModel, formWithErrors))
+              BadRequest(view(request.periodKey, vm, formWithErrors))
             }
           },
 

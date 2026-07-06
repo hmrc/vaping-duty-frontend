@@ -29,19 +29,19 @@ import utils.ReturnsDateUtils
 import java.time.LocalDate
 
 case class SelectAdjustmentPeriodViewModel(
-  periods: Seq[TaskListItem],
-  paginationItems: Seq[PaginationItem],
-  currentYear: Int
-)
+                                            periods: Seq[TaskListItem],
+                                            paginationItems: Seq[PaginationItem],
+                                            currentYear: Int
+                                          )
 
 object SelectAdjustmentPeriodViewModel {
 
   def apply(
-    obligationsResponse: ObligationsResponse,
-    selectedYear: Option[Int],
-    currentReturnPeriod: PeriodKey,
-    adjustmentList: Option[AdjustmentList]
-  )(implicit messages: Messages): SelectAdjustmentPeriodViewModel = {
+             obligationsResponse: ObligationsResponse,
+             selectedYear: Option[Int],
+             currentReturnPeriod: PeriodKey,
+             adjustmentList: Option[AdjustmentList]
+           )(implicit messages: Messages): SelectAdjustmentPeriodViewModel = {
 
     val currentDate = LocalDate.now()
     val threeYearsAgo = currentDate.minusYears(ReturnsConstants.YEARS_TO_SHOW)
@@ -51,7 +51,6 @@ object SelectAdjustmentPeriodViewModel {
       .filter(_.obligationDetails.iCFromDate.isAfter(threeYearsAgo))
       .filter(_.obligationDetails.periodKey != currentReturnPeriod.toString)
 
-    // Filter out periods already in adjustment list
     val existingAdjustmentPeriods = adjustmentList
       .map(_.adjustments.map(_.period.toString).toSet)
       .getOrElse(Set.empty)

@@ -33,17 +33,17 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeclareAdjustmentQuestionController @Inject()(
-  override val messagesApi: MessagesApi,
-  sessionRepository: ReturnsUserAnswersService,
-  navigator: ReturnsNavigator,
-  identify: ApprovedVapingManufacturerAuthAction,
-  getData: ReturnsDataRetrievalAction,
-  requireData: ReturnsDataRequiredAction,
-  formProvider: DeclareDutyFormProvider,
-  returnsEnabledAction: ReturnsEnabledAction,
-  val controllerComponents: MessagesControllerComponents,
-  view: DeclareAdjustmentQuestionView
-)(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                     override val messagesApi: MessagesApi,
+                                                     sessionRepository: ReturnsUserAnswersService,
+                                                     navigator: ReturnsNavigator,
+                                                     identify: ApprovedVapingManufacturerAuthAction,
+                                                     getData: ReturnsDataRetrievalAction,
+                                                     requireData: ReturnsDataRequiredAction,
+                                                     formProvider: DeclareDutyFormProvider,
+                                                     returnsEnabledAction: ReturnsEnabledAction,
+                                                     val controllerComponents: MessagesControllerComponents,
+                                                     view: DeclareAdjustmentQuestionView
+                                                   )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 

@@ -57,7 +57,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
       extractAdjustmentPeriodKey match {
         case Right(adjustmentPeriodKey) =>
           obligationService.getObligations(request.enrolmentVpdId).map { obligations =>
-            // Check if editing existing adjustment
+
             val existingAdjustment = request.userAnswers.get(AdjustmentListPage)
               .flatMap(_.adjustments.find(_.period == adjustmentPeriodKey))
 
@@ -122,5 +122,4 @@ class AdjustmentVolumeWithTypeController @Inject()(
       .map(PeriodKey(_))
       .toRight(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
   }
-
 }
