@@ -38,8 +38,10 @@ import scala.concurrent.Future
 
 class EnterDutyAmountControllerSpec extends SpecBase with MockitoSugar {
 
-  val formProvider = new EnterDutyAmountFormProvider()
-  val form: Form[BigDecimal] = formProvider()
+  private val mockFormProvider = mock[EnterDutyAmountFormProvider]
+  private val testForm: Form[BigDecimal] = Form(
+    "value" -> play.api.data.Forms.bigDecimal
+  )
 
   def onwardRoute = Call("GET", "/foo")
 
@@ -50,8 +52,12 @@ class EnterDutyAmountControllerSpec extends SpecBase with MockitoSugar {
   "EnterDutyAmount Controller" - {
 
     "must return OK and the correct view for a GET" in {
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[EnterDutyAmountFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, enterDutyAmountRoute)
@@ -61,15 +67,19 @@ class EnterDutyAmountControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[EnterDutyAmountView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, testForm, NormalMode)(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
       val userAnswers = returnsUserAnswers.set(EnterDutyAmountPage, validAnswer).success.value
 
-      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
+        .overrides(bind[EnterDutyAmountFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, enterDutyAmountRoute)
@@ -79,11 +89,13 @@ class EnterDutyAmountControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, form.fill(validAnswer), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, testForm.fill(validAnswer), NormalMode)(request, messages(application)).toString
       }
     }
 
     "must redirect to the next page when valid data is submitted" in {
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
 
@@ -93,7 +105,8 @@ class EnterDutyAmountControllerSpec extends SpecBase with MockitoSugar {
         applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[EnterDutyAmountFormProvider].toInstance(mockFormProvider)
           )
           .build()
 
@@ -110,15 +123,19 @@ class EnterDutyAmountControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[EnterDutyAmountFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request =
           FakeRequest(POST, enterDutyAmountRoute)
             .withFormUrlEncodedBody(("value", "invalid value"))
 
-        val boundForm = form.bind(Map("value" -> "invalid value"))
+        val boundForm = testForm.bind(Map("value" -> "invalid value"))
 
         val view = application.injector.instanceOf[EnterDutyAmountView]
 

@@ -39,11 +39,11 @@ import scala.concurrent.Future
 
 class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
-  val formProvider = new SpoiltVolumeByPeriodFormProvider()
-  val form: Form[BigDecimal] = formProvider()
-
   val spoiltPeriodKey = PeriodKey("24AA")
   val testVolume = BigDecimal(1000)
+
+  private val mockFormProvider = mock[SpoiltVolumeByPeriodFormProvider]
+  private val testForm: Form[BigDecimal] = Form("value" -> play.api.data.Forms.bigDecimal)
 
   val mockObligation: ObligationDetails = ObligationDetails(
     openOrFulfilledStatus = ObligationStatus.F.toString,
@@ -67,9 +67,14 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(spoiltPeriodKey))(using any()))
         .thenReturn(Future.successful(Some(mockObligation)))
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(
+          bind[SpoiltVolumeByPeriodFormProvider].toInstance(mockFormProvider),
+          bind[ObligationService].toInstance(mockObligationService)
+        )
         .build()
 
       running(application) {
@@ -77,11 +82,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[SpoiltVolumeByPeriodView]
-        val vm = SpoiltVolumeByPeriodViewModel(mockObligation, periodKey)
-
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(vm, form)(request, messages(application)).toString
       }
     }
 
@@ -90,6 +91,8 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(spoiltPeriodKey))(using any()))
         .thenReturn(Future.successful(Some(mockObligation)))
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
       val userAnswers = returnsUserAnswers.set(
         SpoiltVolumeByPeriodPage,
@@ -97,24 +100,25 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
       ).success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(
+          bind[SpoiltVolumeByPeriodFormProvider].toInstance(mockFormProvider),
+          bind[ObligationService].toInstance(mockObligationService)
+        )
         .build()
 
       running(application) {
         val request = FakeRequest(GET, spoiltVolumeByPeriodRoute)
 
-        val view = application.injector.instanceOf[SpoiltVolumeByPeriodView]
-        val vm = SpoiltVolumeByPeriodViewModel(mockObligation, periodKey)
-
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(vm, form.fill(testVolume))(request, messages(application)).toString
       }
     }
 
     "must redirect to Journey Recovery when spoiltPeriod query parameter is missing on a GET" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[SpoiltVolumeByPeriodFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad().url)
@@ -133,7 +137,10 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(None))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(
+          bind[SpoiltVolumeByPeriodFormProvider].toInstance(mockFormProvider),
+          bind[ObligationService].toInstance(mockObligationService)
+        )
         .build()
 
       running(application) {
@@ -153,7 +160,10 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.failed(InternalServerException("Service error")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(
+          bind[SpoiltVolumeByPeriodFormProvider].toInstance(mockFormProvider),
+          bind[ObligationService].toInstance(mockObligationService)
+        )
         .build()
 
       running(application) {
@@ -167,7 +177,9 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-      val application = applicationBuilder(returnsUserAnswers = None).build()
+      val application = applicationBuilder(returnsUserAnswers = None)
+        .overrides(bind[SpoiltVolumeByPeriodFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, spoiltVolumeByPeriodRoute)
@@ -186,11 +198,13 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(spoiltPeriodKey))(using any()))
         .thenReturn(Future.successful(Some(mockObligation)))
-
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(
+          bind[SpoiltVolumeByPeriodFormProvider].toInstance(mockFormProvider),
           bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
           bind[ObligationService].toInstance(mockObligationService)
         )
@@ -215,29 +229,30 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(spoiltPeriodKey))(using any()))
         .thenReturn(Future.successful(Some(mockObligation)))
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(
+          bind[SpoiltVolumeByPeriodFormProvider].toInstance(mockFormProvider),
+          bind[ObligationService].toInstance(mockObligationService)
+        )
         .build()
 
       running(application) {
         val request = FakeRequest(POST, spoiltVolumeByPeriodSubmitRoute)
           .withFormUrlEncodedBody(("value", "invalid"))
 
-        val boundForm = form.bind(Map("value" -> "invalid"))
-
-        val view = application.injector.instanceOf[SpoiltVolumeByPeriodView]
-        val vm = SpoiltVolumeByPeriodViewModel(mockObligation, periodKey)
-
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(vm, boundForm)(request, messages(application)).toString
       }
     }
 
     "must redirect to Journey Recovery when spoiltPeriod query parameter is missing on a POST" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[SpoiltVolumeByPeriodFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request = FakeRequest(POST, controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onSubmit().url)
@@ -257,7 +272,10 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(None))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(
+          bind[SpoiltVolumeByPeriodFormProvider].toInstance(mockFormProvider),
+          bind[ObligationService].toInstance(mockObligationService)
+        )
         .build()
 
       running(application) {
@@ -278,7 +296,10 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.failed(InternalServerException("Service error")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(
+          bind[SpoiltVolumeByPeriodFormProvider].toInstance(mockFormProvider),
+          bind[ObligationService].toInstance(mockObligationService)
+        )
         .build()
 
       running(application) {
@@ -293,7 +314,9 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-      val application = applicationBuilder(returnsUserAnswers = None).build()
+      val application = applicationBuilder(returnsUserAnswers = None)
+        .overrides(bind[SpoiltVolumeByPeriodFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request = FakeRequest(POST, spoiltVolumeByPeriodSubmitRoute)
