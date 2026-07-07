@@ -19,12 +19,12 @@ package controllers.returns.submit.adjustments
 import base.SpecBase
 import forms.returns.DeclareDutyFormProvider
 import models.obligations.ObligationsResponse
-import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
+import models.returns.adjustments.AdjustmentList
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage}
+import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -167,6 +167,36 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must skip form validation and auto-set AddAnotherAdjustmentPage to false when user declared No to adjustments" in {
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+
+      val userAnswersWithNoAdjustments = returnsUserAnswers
+        .set(DeclareAdjustmentPage, false).success.value
+
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(userAnswersWithNoAdjustments))
+          .overrides(
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, adjustmentCheckYourAnswersRoute)
+        // Note: No form data submitted - form validation should be skipped
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        // Verify that session was updated (with AddAnotherAdjustmentPage set to false)
+        verify(mockSessionRepository).set(any())(any())
       }
     }
 

@@ -80,7 +80,6 @@ class AdjustmentCheckYourAnswersController @Inject()(
       val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
       val adjustmentList = request.userAnswers.get(AdjustmentListPage)
 
-      // If user declared "No" to adjustments, skip form validation and auto-set to false
       declareAdjustment match {
         case Some(false) =>
           for {
@@ -89,7 +88,6 @@ class AdjustmentCheckYourAnswersController @Inject()(
           } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
 
         case _ =>
-          // Normal flow with form validation for "Yes" case
           form.bindFromRequest().fold(
             formWithErrors =>
               withObligations { obligations =>
