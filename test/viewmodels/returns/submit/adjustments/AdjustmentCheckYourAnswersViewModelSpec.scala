@@ -67,6 +67,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
       )
 
       vm.totalAdjustment mustBe BigDecimal("3000.00")
+      vm.formattedTotalAdjustment mustBe "£3,000"
     }
 
     "must calculate correct total adjustment for over declared (negative)" in {
@@ -87,6 +88,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
       )
 
       vm.totalAdjustment mustBe BigDecimal("-3000.00")
+      vm.formattedTotalAdjustment mustBe "-£3,000"
     }
 
     "must handle empty adjustment list" in {

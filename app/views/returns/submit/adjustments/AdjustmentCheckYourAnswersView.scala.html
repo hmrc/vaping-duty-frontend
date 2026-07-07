@@ -33,7 +33,7 @@
 
 @layout(pageTitle = title(form, 
     if(viewModel.hasAdjustments) 
-        messages("returns.adjustmentCheckYourAnswers.title", utils.CurrencyFormatter.currencyFormatWithLeadingSign(viewModel.totalAdjustment))
+        messages("returns.adjustmentCheckYourAnswers.title", viewModel.formattedTotalAdjustment)
     else 
         messages("returns.adjustmentCheckYourAnswers.title", "")
 )) {
@@ -47,7 +47,7 @@
         @caption(messages("returns.adjustmentCheckYourAnswers.caption"))
         
         @if(viewModel.hasAdjustments) {
-            @h1(messages("returns.adjustmentCheckYourAnswers.heading", utils.CurrencyFormatter.currencyFormatWithLeadingSign(viewModel.totalAdjustment)))
+            @h1(messages("returns.adjustmentCheckYourAnswers.heading", viewModel.formattedTotalAdjustment))
         } else {
             @h1(messages("returns.adjustmentCheckYourAnswers.noAdjustments.heading"))
         }

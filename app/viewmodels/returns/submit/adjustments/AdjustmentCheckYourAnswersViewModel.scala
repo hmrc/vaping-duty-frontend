@@ -28,7 +28,8 @@ import utils.{CurrencyFormatter, ReturnsDateUtils}
 case class AdjustmentCheckYourAnswersViewModel(
                                                 summaryCards: Seq[AdjustmentSummaryCard],
                                                 hasAdjustments: Boolean,
-                                                totalAdjustment: BigDecimal
+                                                totalAdjustment: BigDecimal,
+                                                formattedTotalAdjustment: String
                                               )
 
 object AdjustmentCheckYourAnswersViewModel {
@@ -63,7 +64,8 @@ object AdjustmentCheckYourAnswersViewModel {
     AdjustmentCheckYourAnswersViewModel(
       summaryCards = summaryCards,
       hasAdjustments = adjustments.nonEmpty,
-      totalAdjustment = totalAdjustment
+      totalAdjustment = totalAdjustment,
+      formattedTotalAdjustment = CurrencyFormatter.currencyFormatWithLeadingSign(totalAdjustment)
     )
   }
 
