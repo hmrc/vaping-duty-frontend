@@ -22,6 +22,14 @@ import scala.math.BigDecimal.RoundingMode
 trait CurrencyFormatter {
   def currencyFormat(amt: BigDecimal): String = f"£$amt%,1.2f".replace(".00","")
   
+  def currencyFormatWithLeadingSign(amt: BigDecimal): String = {
+    val isNegative = amt < 0
+    val absoluteAmount = amt.abs
+    val formatted = f"£$absoluteAmount%,1.2f".replace(".00", "")
+    
+    if (isNegative) s"-$formatted" else formatted
+  }
+  
   def milliliterFormat(amt: BigDecimal): String = {
     val truncated = amt.setScale(2, RoundingMode.DOWN)
     f"$truncated%,.2f"

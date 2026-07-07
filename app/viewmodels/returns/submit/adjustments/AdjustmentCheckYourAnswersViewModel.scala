@@ -201,7 +201,7 @@ object AdjustmentCheckYourAnswersViewModel {
 
     SummaryListRow(
       key = Key(content = Text(messages("returns.adjustmentCheckYourAnswers.duty"))),
-      value = Value(content = Text(CurrencyFormatter.currencyFormat(signedAmount))),
+      value = Value(content = Text(CurrencyFormatter.currencyFormatWithLeadingSign(signedAmount))),
       actions = None
     )
   }
