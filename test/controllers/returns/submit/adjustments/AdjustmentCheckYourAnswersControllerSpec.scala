@@ -106,6 +106,33 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       }
     }
 
+    "must redirect to Journey Recovery when obligation service fails on GET" in {
+      val mockObligationService = mock[ObligationService]
+      val mockDutyRateService = mock[DutyRateService]
+
+      when(mockObligationService.getObligations(any())(using any()))
+        .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
+
+      val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
+      val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
+
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
+        .overrides(
+          bind[ObligationService].toInstance(mockObligationService),
+          bind[DutyRateService].toInstance(mockDutyRateService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, adjustmentCheckYourAnswersRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
     "must redirect to the next page when valid data is submitted" in {
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
@@ -171,6 +198,35 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
+      }
+    }
+
+    "must redirect to Journey Recovery when obligation service fails on form error" in {
+      val mockObligationService = mock[ObligationService]
+      val mockDutyRateService = mock[DutyRateService]
+
+      when(mockObligationService.getObligations(any())(using any()))
+        .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
+
+      val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
+      val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
+
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
+        .overrides(
+          bind[ObligationService].toInstance(mockObligationService),
+          bind[DutyRateService].toInstance(mockDutyRateService)
+        )
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, adjustmentCheckYourAnswersRoute)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

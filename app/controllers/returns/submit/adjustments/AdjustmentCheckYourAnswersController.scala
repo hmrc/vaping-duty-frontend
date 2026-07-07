@@ -28,7 +28,7 @@ import navigation.ReturnsNavigator
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel
@@ -60,7 +60,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
       val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
       val adjustmentList = request.userAnswers.get(AdjustmentListPage)
 
-      obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
+      withObligations { obligations =>
         getDutyRatesForAdjustments(adjustmentList).map { dutyRatesMap =>
           val vm = buildViewModel(declareAdjustment, adjustmentList, obligations, request.periodKey, dutyRatesMap)
 
@@ -92,7 +92,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
           // Normal flow with form validation for "Yes" case
           form.bindFromRequest().fold(
             formWithErrors =>
-              obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
+              withObligations { obligations =>
                 getDutyRatesForAdjustments(adjustmentList).map { dutyRatesMap =>
                   val vm = buildViewModel(declareAdjustment, adjustmentList, obligations, request.periodKey, dutyRatesMap)
                   BadRequest(view(request.periodKey, vm, formWithErrors))
@@ -122,6 +122,15 @@ class AdjustmentCheckYourAnswersController @Inject()(
       periodKey,
       dutyRatesMap
     )
+  }
+
+  private def withObligations(
+    block: ObligationsResponse => Future[Result]
+  )(implicit request: ReturnsDataRequest[AnyContent]): Future[Result] = {
+    obligationService.getObligations(request.enrolmentVpdId).flatMap(block)
+      .recover {
+        case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      }
   }
 
   private def getDutyRatesForAdjustments(adjustmentList: Option[AdjustmentList])
