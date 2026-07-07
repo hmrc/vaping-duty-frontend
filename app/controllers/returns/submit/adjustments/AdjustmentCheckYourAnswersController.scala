@@ -20,12 +20,14 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import forms.returns.DeclareDutyFormProvider
 import models.NormalMode
+import models.identifiers.PeriodKey
+import models.obligations.ObligationsResponse
 import models.requests.returns.ReturnsDataRequest
 import models.returns.adjustments.AdjustmentList
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -60,13 +62,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
 
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
         getDutyRatesForAdjustments(adjustmentList).map { dutyRatesMap =>
-          val vm = AdjustmentCheckYourAnswersViewModel(
-            declareAdjustment,
-            adjustmentList,
-            obligations,
-            request.periodKey,
-            dutyRatesMap
-          )
+          val vm = buildViewModel(declareAdjustment, adjustmentList, obligations, request.periodKey, dutyRatesMap)
 
           val preparedForm = request.userAnswers.get(AddAnotherAdjustmentPage) match {
             case None => form
@@ -98,13 +94,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
             formWithErrors =>
               obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
                 getDutyRatesForAdjustments(adjustmentList).map { dutyRatesMap =>
-                  val vm = AdjustmentCheckYourAnswersViewModel(
-                    declareAdjustment,
-                    adjustmentList,
-                    obligations,
-                    request.periodKey,
-                    dutyRatesMap
-                  )
+                  val vm = buildViewModel(declareAdjustment, adjustmentList, obligations, request.periodKey, dutyRatesMap)
                   BadRequest(view(request.periodKey, vm, formWithErrors))
                 }
               },
@@ -116,6 +106,22 @@ class AdjustmentCheckYourAnswersController @Inject()(
               } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
           )
       }
+  }
+
+  private def buildViewModel(
+    declareAdjustment: Option[Boolean],
+    adjustmentList: Option[AdjustmentList],
+    obligations: ObligationsResponse,
+    periodKey: PeriodKey,
+    dutyRatesMap: Map[String, BigDecimal]
+  )(implicit messages: Messages): AdjustmentCheckYourAnswersViewModel = {
+    AdjustmentCheckYourAnswersViewModel(
+      declareAdjustment,
+      adjustmentList,
+      obligations,
+      periodKey,
+      dutyRatesMap
+    )
   }
 
   private def getDutyRatesForAdjustments(adjustmentList: Option[AdjustmentList])
