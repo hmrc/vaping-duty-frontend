@@ -18,6 +18,7 @@ package controllers.returns.submit.spoilt
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import controllers.returns.PeriodKeyExtraction
 import forms.returns.SpoiltVolumeByPeriodFormProvider
 import models.NormalMode
 import models.identifiers.PeriodKey
@@ -49,11 +50,11 @@ class SpoiltVolumeByPeriodController @Inject()(
                                                 navigator: ReturnsNavigator,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 view: SpoiltVolumeByPeriodView
-                                              )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                              )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-      withSpoiltPeriod { spoiltPeriod =>
+      withPeriodKey("spoiltPeriod") { spoiltPeriod =>
         withObligation(spoiltPeriod) { spoiltObligation =>
           formProvider(spoiltPeriod, request.enrolmentVpdId).flatMap { form =>
             val vm = createViewModel(spoiltObligation)
@@ -75,7 +76,7 @@ class SpoiltVolumeByPeriodController @Inject()(
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-      withSpoiltPeriod { spoiltPeriod =>
+      withPeriodKey("spoiltPeriod") { spoiltPeriod =>
         withObligation(spoiltPeriod) { spoiltObligation =>
           formProvider(spoiltPeriod, request.enrolmentVpdId).flatMap { form =>
             val vm = createViewModel(spoiltObligation)
@@ -96,17 +97,6 @@ class SpoiltVolumeByPeriodController @Inject()(
           }
         }
       }
-  }
-
-  private def withSpoiltPeriod[A](block: PeriodKey => Future[Result])
-                                 (implicit request: Request[A]): Future[Result] = {
-
-    request.getQueryString("spoiltPeriod") match {
-      case None =>
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-      case Some(spoiltPeriodStr) =>
-        block(PeriodKey(spoiltPeriodStr))
-    }
   }
 
   private def withObligation(spoiltPeriod: PeriodKey)(block: ObligationDetails => Future[Result])
