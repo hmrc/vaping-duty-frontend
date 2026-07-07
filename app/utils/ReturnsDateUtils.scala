@@ -23,7 +23,7 @@ import play.api.i18n.Messages
 import java.time.{LocalDate, Month, Year}
 
 object ReturnsDateUtils {
-
+  // scalafix:off DisableSyntax.throw
   val month: Month = LocalDate.now().getMonth
 
   def getYear: Int =
@@ -75,7 +75,6 @@ object ReturnsDateUtils {
     case 11 => "month.nov"
     case 12 => "month.dec"
     case _ =>
-      // scalafix:off DisableSyntax.throw
       throw new IllegalArgumentException(s"Invalid month number: $month. Must be between 1 and 12.")
   }
 
@@ -98,7 +97,6 @@ object ReturnsDateUtils {
         } else {
           obligations.obligation.map(_.obligationDetails.periodKey).mkString(", ")
         }
-        // scalafix:off DisableSyntax.throw
         throw new IllegalStateException(
           s"Period key '${periodKey.value}' not found in obligations. " +
             s"Available period keys: $availableKeys"
