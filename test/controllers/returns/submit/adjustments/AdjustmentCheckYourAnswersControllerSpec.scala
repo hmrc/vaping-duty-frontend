@@ -56,12 +56,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.successful(BigDecimal("3.00")))
 
-      val testAdjustmentEntry = AdjustmentEntry(
-        period = october2027,
-        adjustmentType = AdjustmentType.UnderDeclared,
-        volumeInMl = BigDecimal("1000")
-      )
-      val testAdjustmentList = AdjustmentList(adjustments = Seq(testAdjustmentEntry))
+      val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -90,12 +85,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.successful(BigDecimal("3.00")))
 
-      val testAdjustmentEntry = AdjustmentEntry(
-        period = october2027,
-        adjustmentType = AdjustmentType.UnderDeclared,
-        volumeInMl = BigDecimal("1000")
-      )
-      val testAdjustmentList = AdjustmentList(adjustments = Seq(testAdjustmentEntry))
+      val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers
         .set(AdjustmentListPage, testAdjustmentList).success.value
         .set(AddAnotherAdjustmentPage, true).success.value
@@ -128,12 +118,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         .thenReturn(Future.successful(BigDecimal("3.00")))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
-      val testAdjustmentEntry = AdjustmentEntry(
-        period = october2027,
-        adjustmentType = AdjustmentType.UnderDeclared,
-        volumeInMl = BigDecimal("1000")
-      )
-      val testAdjustmentList = AdjustmentList(adjustments = Seq(testAdjustmentEntry))
+      val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
 
       val application =
@@ -168,12 +153,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.successful(BigDecimal("3.00")))
 
-      val testAdjustmentEntry = AdjustmentEntry(
-        period = october2027,
-        adjustmentType = AdjustmentType.UnderDeclared,
-        volumeInMl = BigDecimal("1000")
-      )
-      val testAdjustmentList = AdjustmentList(adjustments = Seq(testAdjustmentEntry))
+      val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))

@@ -81,6 +81,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationsResponse))
 
+      // Test-specific adjustment with different period (october2027) and volume (100.5) than TestData
       val existingAdjustment = AdjustmentEntry(
         period = adjustmentPeriodKey,
         adjustmentType = AdjustmentType.UnderDeclared,
