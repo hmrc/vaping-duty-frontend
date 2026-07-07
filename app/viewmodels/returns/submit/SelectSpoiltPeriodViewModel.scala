@@ -17,15 +17,10 @@
 package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationStatus, ObligationsResponse}
-import models.returns.ReturnsConstants
+import models.obligations.ObligationsResponse
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
-import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.{TaskListItem, TaskListItemTitle}
-import utils.ReturnsDateUtils
-
-import java.time.LocalDate
+import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskListItem
 
 case class SelectSpoiltPeriodViewModel(
   periods: Seq[TaskListItem],
@@ -41,46 +36,23 @@ object SelectSpoiltPeriodViewModel {
     currentReturnPeriod: PeriodKey
   )(implicit messages: Messages): SelectSpoiltPeriodViewModel = {
 
-    val currentDate = LocalDate.now()
-    val threeYearsAgo = currentDate.minusYears(ReturnsConstants.YEARS_TO_SHOW)
+    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationsResponse)
 
-    val fulfilledObligations = obligationsResponse.obligation
-      .filter(_.obligationDetails.openOrFulfilledStatus == ObligationStatus.F.toString)
-      .filter(_.obligationDetails.iCFromDate.isAfter(threeYearsAgo))
+    val availableYears = PeriodSelectionHelper.extractAvailableYears(fulfilledObligations)
 
-    val availableYears = fulfilledObligations
-      .map(_.obligationDetails.iCFromDate.getYear)
-      .distinct
-      .sorted(Ordering[Int].reverse)
+    val currentYear = PeriodSelectionHelper.selectCurrentYear(availableYears, selectedYear)
 
-    val currentYear = selectedYear.getOrElse(
-      availableYears.headOption.getOrElse(currentDate.getYear)
-    )
+    val obligationsForYear = PeriodSelectionHelper.filterObligationsByYear(fulfilledObligations, currentYear)
 
-    val obligationsForYear = fulfilledObligations
-      .filter(_.obligationDetails.iCFromDate.getYear == currentYear)
-      .sortBy(_.obligationDetails.iCFromDate.getMonthValue)(Ordering[Int].reverse)
+    val taskListItemHrefBuilder = (periodKey: String) =>
+      s"${controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad().url}?period=${currentReturnPeriod.value}&spoiltPeriod=$periodKey"
 
-    val taskListItems = obligationsForYear.map { obligation =>
-      val month = obligation.obligationDetails.iCFromDate.getMonthValue
-      val monthKey = ReturnsDateUtils.getMonthMessageKey(month)
-      val periodKey = obligation.obligationDetails.periodKey
+    val taskListItems = PeriodSelectionHelper.buildTaskListItems(obligationsForYear, taskListItemHrefBuilder)
 
-      TaskListItem(
-        title = TaskListItemTitle(content = Text(messages(monthKey))),
-        href = Some(s"${controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad().url}?period=${currentReturnPeriod.value}&spoiltPeriod=$periodKey")
-      )
-    }
+    val paginationItemHrefBuilder = (year: Int) =>
+      s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
 
-    val paginationYears = availableYears.take(ReturnsConstants.YEARS_TO_SHOW)
-
-    val paginationItems = paginationYears.map { year =>
-      PaginationItem(
-        number = Some(year.toString),
-        current = Some(year == currentYear),
-        href = s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
-      )
-    }
+    val paginationItems = PeriodSelectionHelper.buildPaginationItems(availableYears, currentYear, paginationItemHrefBuilder)
 
     SelectSpoiltPeriodViewModel(
       periods = taskListItems,

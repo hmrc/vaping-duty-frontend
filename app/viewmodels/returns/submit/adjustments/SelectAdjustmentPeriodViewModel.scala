@@ -17,16 +17,12 @@
 package viewmodels.returns.submit.adjustments
 
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationStatus, ObligationsResponse}
+import models.obligations.ObligationsResponse
 import models.returns.adjustments.AdjustmentList
-import models.returns.ReturnsConstants
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
-import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.{TaskListItem, TaskListItemTitle}
-import utils.ReturnsDateUtils
-
-import java.time.LocalDate
+import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskListItem
+import viewmodels.returns.submit.PeriodSelectionHelper
 
 case class SelectAdjustmentPeriodViewModel(
                                             periods: Seq[TaskListItem],
@@ -43,12 +39,7 @@ object SelectAdjustmentPeriodViewModel {
              adjustmentList: Option[AdjustmentList]
            )(implicit messages: Messages): SelectAdjustmentPeriodViewModel = {
 
-    val currentDate = LocalDate.now()
-    val threeYearsAgo = currentDate.minusYears(ReturnsConstants.YEARS_TO_SHOW)
-
-    val fulfilledObligations = obligationsResponse.obligation
-      .filter(_.obligationDetails.openOrFulfilledStatus == ObligationStatus.F.toString)
-      .filter(_.obligationDetails.iCFromDate.isAfter(threeYearsAgo))
+    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationsResponse)
       .filter(_.obligationDetails.periodKey != currentReturnPeriod.toString)
 
     val existingAdjustmentPeriods = adjustmentList
@@ -58,39 +49,21 @@ object SelectAdjustmentPeriodViewModel {
     val availableObligations = fulfilledObligations
       .filterNot(ob => existingAdjustmentPeriods.contains(ob.obligationDetails.periodKey))
 
-    val availableYears = availableObligations
-      .map(_.obligationDetails.iCFromDate.getYear)
-      .distinct
-      .sorted(Ordering[Int].reverse)
+    val availableYears = PeriodSelectionHelper.extractAvailableYears(availableObligations)
 
-    val currentYear = selectedYear.getOrElse(
-      availableYears.headOption.getOrElse(currentDate.getYear)
-    )
+    val currentYear = PeriodSelectionHelper.selectCurrentYear(availableYears, selectedYear)
 
-    val obligationsForYear = availableObligations
-      .filter(_.obligationDetails.iCFromDate.getYear == currentYear)
-      .sortBy(_.obligationDetails.iCFromDate.getMonthValue)(Ordering[Int].reverse)
+    val obligationsForYear = PeriodSelectionHelper.filterObligationsByYear(availableObligations, currentYear)
 
-    val taskListItems = obligationsForYear.map { obligation =>
-      val month = obligation.obligationDetails.iCFromDate.getMonthValue
-      val monthKey = ReturnsDateUtils.getMonthMessageKey(month)
-      val periodKey = obligation.obligationDetails.periodKey
+    val taskListItemHrefBuilder = (periodKey: String) =>
+      s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(models.NormalMode).url}?period=${currentReturnPeriod.value}&adjustmentPeriod=$periodKey"
 
-      TaskListItem(
-        title = TaskListItemTitle(content = Text(messages(monthKey))),
-        href = Some(s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(models.NormalMode).url}?period=${currentReturnPeriod.value}&adjustmentPeriod=$periodKey")
-      )
-    }
+    val taskListItems = PeriodSelectionHelper.buildTaskListItems(obligationsForYear, taskListItemHrefBuilder)
 
-    val paginationYears = availableYears.take(ReturnsConstants.YEARS_TO_SHOW)
+    val paginationItemHrefBuilder = (year: Int) =>
+      s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
 
-    val paginationItems = paginationYears.map { year =>
-      PaginationItem(
-        number = Some(year.toString),
-        current = Some(year == currentYear),
-        href = s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
-      )
-    }
+    val paginationItems = PeriodSelectionHelper.buildPaginationItems(availableYears, currentYear, paginationItemHrefBuilder)
 
     SelectAdjustmentPeriodViewModel(
       periods = taskListItems,
