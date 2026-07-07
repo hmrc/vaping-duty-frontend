@@ -50,7 +50,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
                                                       dutyRateService: DutyRateService,
                                                       val controllerComponents: MessagesControllerComponents,
                                                       view: AdjustmentCheckYourAnswersView
-                                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                    )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 

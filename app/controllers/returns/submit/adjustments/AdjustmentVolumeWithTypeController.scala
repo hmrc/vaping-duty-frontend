@@ -47,7 +47,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
                                                     obligationService: ObligationService,
                                                     val controllerComponents: MessagesControllerComponents,
                                                     view: AdjustmentVolumeWithTypeView
-                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
+                                                  )(using ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
 
   val form: Form[AdjustmentVolumeWithTypeFormData] = formProvider()
 

@@ -43,7 +43,7 @@ class DeclareAdjustmentQuestionController @Inject()(
                                                      returnsEnabledAction: ReturnsEnabledAction,
                                                      val controllerComponents: MessagesControllerComponents,
                                                      view: DeclareAdjustmentQuestionView
-                                                   )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                   )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
