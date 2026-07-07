@@ -211,8 +211,6 @@ object AdjustmentCheckYourAnswersViewModel {
   }
 
   private def calculateDuty(volumeInMl: BigDecimal, dutyRate: BigDecimal): BigDecimal = {
-    val volumeInLitres = volumeInMl / 1000
-    val volumeIn10ml = volumeInLitres * 100
-    (volumeIn10ml * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
+    (volumeInMl * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
   }
 }

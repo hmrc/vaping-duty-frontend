@@ -66,7 +66,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         dutyRatesMap
       )
 
-      vm.totalAdjustment mustBe BigDecimal("300.00")
+      vm.totalAdjustment mustBe BigDecimal("3000.00")
     }
 
     "must calculate correct total adjustment for over declared (negative)" in {
@@ -86,7 +86,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         dutyRatesMap
       )
 
-      vm.totalAdjustment mustBe BigDecimal("-300.00")
+      vm.totalAdjustment mustBe BigDecimal("-3000.00")
     }
 
     "must handle empty adjustment list" in {
