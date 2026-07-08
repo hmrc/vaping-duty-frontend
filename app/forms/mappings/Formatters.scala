@@ -151,7 +151,7 @@ trait Formatters {
                                        ): Formatter[BigDecimal] =
     new Formatter[BigDecimal] {
 
-      val validFormat = """^\d+(\.\d+)?$"""
+      val validFormat = """^\d+(\.\d*)?$"""
       val litre = 1000
 
       private val baseFormatter = stringFormatter(requiredKey, args)
