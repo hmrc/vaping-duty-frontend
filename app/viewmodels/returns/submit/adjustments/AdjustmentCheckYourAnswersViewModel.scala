@@ -18,7 +18,7 @@ package viewmodels.returns.submit.adjustments
 
 import models.NormalMode
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationsResponse}
+import models.obligations.ObligationDetails
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}

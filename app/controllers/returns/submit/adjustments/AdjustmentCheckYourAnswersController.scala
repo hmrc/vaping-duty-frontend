@@ -21,7 +21,7 @@ import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrie
 import forms.returns.DeclareDutyFormProvider
 import models.NormalMode
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationsResponse}
+import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.adjustments.AdjustmentList
 import navigation.ReturnsNavigator
@@ -124,9 +124,6 @@ class AdjustmentCheckYourAnswersController @Inject()(
     block: Seq[ObligationDetails] => Future[Result]
   )(implicit request: ReturnsDataRequest[AnyContent]): Future[Result] = {
     obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap(block)
-      .recover {
-        case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      }
   }
 
   private def getDutyRatesForAdjustments(

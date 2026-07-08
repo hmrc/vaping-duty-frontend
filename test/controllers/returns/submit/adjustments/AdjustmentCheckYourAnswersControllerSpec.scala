@@ -106,7 +106,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       }
     }
 
-    "must redirect to Journey Recovery when obligation service fails on GET" in {
+    "must propagate exception when obligation service fails on GET" in {
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
 
@@ -128,8 +128,10 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[RuntimeException]
+          exception.getMessage mustBe "Service unavailable"
+        }
       }
     }
 
@@ -231,7 +233,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       }
     }
 
-    "must redirect to Journey Recovery when obligation service fails on form error" in {
+    "must propagate exception when obligation service fails on form error" in {
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
 
@@ -255,8 +257,10 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[RuntimeException]
+          exception.getMessage mustBe "Service unavailable"
+        }
       }
     }
   }
