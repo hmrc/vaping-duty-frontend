@@ -16,68 +16,156 @@
 
 package forms.returns
 
-import forms.behaviours.FieldBehaviours
+import base.SpecBase
+import models.identifiers.{PeriodKey, VpdId}
+import models.returns.MaxVolumeResult
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.FormError
+import services.returns.{DutyRateService, VolumePrecisionService}
 
-class EnterDutyAmountFormProviderSpec extends FieldBehaviours {
+import scala.concurrent.Future
 
-  val form = new EnterDutyAmountFormProvider()()
+class EnterDutyAmountFormProviderSpec extends SpecBase with MockitoSugar {
+
+  private val mockDutyRateService = mock[DutyRateService]
+  private val mockVolumePrecisionService = mock[VolumePrecisionService]
+  private val formProvider = new EnterDutyAmountFormProvider(mockDutyRateService, mockVolumePrecisionService)
+
+  private val testPeriodKey = PeriodKey("24KA")
+  private val testVpdId = VpdId("VPDID123")
+  private val testDutyRate = BigDecimal("3.37")
+  private val testMaxVolume = BigDecimal("29000000000")
+  private val testFormattedMax = "29,000,000,000 ml"
 
   ".value" - {
 
     val fieldName = "value"
 
-    "must bind valid values >= 1000ml with up to 1 decimal place" in {
-      Seq("1000", "1000.1", "999999999999.9", "1000000").foreach { input =>
-        val result = form.bind(Map(fieldName -> input))
-        result.errors mustBe empty
+    "must bind valid values >= 1000ml with no decimal places" in {
+      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+      when(mockVolumePrecisionService.calculateMaxVolume(any()))
+        .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("1000", "1000000", "100000000").foreach { input =>
+          val result = form.bind(Map(fieldName -> input))
+          result.errors mustBe empty
+        }
       }
     }
 
-    "must bind valid values < 1000ml with exactly 2 decimal places" in {
-      Seq("1.00", "10.12", "999.99").foreach { input =>
+    "must bind valid values < 1000ml with 0 or 1 decimal place" in {
+      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+      when(mockVolumePrecisionService.calculateMaxVolume(any()))
+        .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("1", "10.1", "999.9", "500").foreach { input =>
           val result = form.bind(Map(fieldName -> input))
           result.errors mustBe empty
+        }
       }
     }
 
     "must not bind empty values" in {
-      val result = form.bind(Map(fieldName -> "")).apply(fieldName)
-      result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.required"))
+      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+      when(mockVolumePrecisionService.calculateMaxVolume(any()))
+        .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(fieldName -> "")).apply(fieldName)
+        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.required"))
+      }
     }
 
     "must not bind non-numeric values" in {
-      Seq("abc", "1.2.3", "£10.12").foreach { input =>
-        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
-        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.nonNumeric"))
+      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+      when(mockVolumePrecisionService.calculateMaxVolume(any()))
+        .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("abc", "1.2.3", "£10.12").foreach { input =>
+          val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+          result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.nonNumeric"))
+        }
       }
     }
 
-    "must not bind values >= 1000ml with more than 1 decimal place" in {
-      Seq("1000.12", "1000.00", "999999999999.12").foreach { input =>
-        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
-        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces"))
+    "must bind values >= 1000ml with trailing zeros" in {
+      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+      when(mockVolumePrecisionService.calculateMaxVolume(any()))
+        .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("1000.0", "2000.0").foreach { input =>
+          val result = form.bind(Map(fieldName -> input))
+          result.errors mustBe empty
+        }
       }
     }
 
-    "must not bind values < 1000ml without exactly 2 decimal places" in {
-      Seq("999", "999.9", "10", "10.1", "0").foreach { input =>
-        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
-        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces"))
+    "must not bind values >= 1000ml with non-zero decimal places" in {
+      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+      when(mockVolumePrecisionService.calculateMaxVolume(any()))
+        .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("1000.1", "1000.12").foreach { input =>
+          val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+          result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces.wholeOnly"))
+        }
+      }
+    }
+
+    "must not bind values < 1000ml with more than 1 decimal place" in {
+      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+      when(mockVolumePrecisionService.calculateMaxVolume(any()))
+        .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("999.99", "10.12", "1.123").foreach { input =>
+          val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+          result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.invalidDecimalPlaces.maxOne"))
+        }
       }
     }
 
     "must not bind values below the minimum of 1ml" in {
-      Seq("0.12", "0.99").foreach { input =>
-        val result = form.bind(Map(fieldName -> input)).apply(fieldName)
-        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.outOfRange", Seq(BigDecimal(1), BigDecimal("999999999999.9"))))
+      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+      when(mockVolumePrecisionService.calculateMaxVolume(any()))
+        .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("0", "0.1").foreach { input =>
+          val result = form.bind(Map(fieldName -> input)).apply(fieldName)
+          result.errors.head.key mustEqual fieldName
+          result.errors.head.message mustEqual "returns.enterDutyAmount.error.exceedsMaxDuty"
+        }
       }
     }
 
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, "returns.enterDutyAmount.error.required")
-    )
+    "must not bind values that exceed the calculated maximum" in {
+      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+      when(mockVolumePrecisionService.calculateMaxVolume(337))
+        .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(fieldName -> "999999999999")).apply(fieldName)
+        result.errors.head.key mustEqual fieldName
+        result.errors.head.message mustEqual "returns.enterDutyAmount.error.exceedsMaxDuty"
+        result.errors.head.args mustEqual Seq(testFormattedMax)
+      }
+    }
   }
 }

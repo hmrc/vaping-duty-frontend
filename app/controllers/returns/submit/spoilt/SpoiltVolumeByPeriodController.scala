@@ -51,24 +51,24 @@ class SpoiltVolumeByPeriodController @Inject()(
                                                 view: SpoiltVolumeByPeriodView
                                               )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  val form: Form[Int] = formProvider()
-
   def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withSpoiltPeriod { spoiltPeriod =>
         withObligation(spoiltPeriod) { spoiltObligation =>
-          val vm = createViewModel(spoiltObligation)
+          formProvider(spoiltPeriod, request.enrolmentVpdId).flatMap { form =>
+            val vm = createViewModel(spoiltObligation)
 
-          val preparedForm = request.userAnswers.get(SpoiltVolumeByPeriodPage) match {
-            case Some(list) =>
-              list.find(_.periodKey == spoiltPeriod) match {
-                case Some(spoiltVolume) => form.fill(spoiltVolume.volume)
-                case None => form
-              }
-            case None => form
+            val preparedForm = request.userAnswers.get(SpoiltVolumeByPeriodPage) match {
+              case Some(list) =>
+                list.find(_.periodKey == spoiltPeriod) match {
+                  case Some(spoiltVolume) => form.fill(spoiltVolume.volume)
+                  case None => form
+                }
+              case None => form
+            }
+
+            Future.successful(Ok(view(vm, preparedForm)))
           }
-
-          Future.successful(Ok(view(vm, preparedForm)))
         }
       }
   }
@@ -77,21 +77,23 @@ class SpoiltVolumeByPeriodController @Inject()(
     implicit request =>
       withSpoiltPeriod { spoiltPeriod =>
         withObligation(spoiltPeriod) { spoiltObligation =>
-          val vm = createViewModel(spoiltObligation)
+          formProvider(spoiltPeriod, request.enrolmentVpdId).flatMap { form =>
+            val vm = createViewModel(spoiltObligation)
 
-          form.bindFromRequest().fold(
-            formWithErrors =>
-              Future.successful(BadRequest(view(vm, formWithErrors))),
+            form.bindFromRequest().fold(
+              formWithErrors =>
+                Future.successful(BadRequest(view(vm, formWithErrors))),
 
-            volume =>
-              val existingList = request.userAnswers.get(SpoiltVolumeByPeriodPage).getOrElse(List.empty)
-              val updatedList = existingList.filterNot(_.periodKey == spoiltPeriod) :+ SpoiltVolumeByPeriod(volume, spoiltPeriod)
+              volume =>
+                val existingList = request.userAnswers.get(SpoiltVolumeByPeriodPage).getOrElse(List.empty)
+                val updatedList = existingList.filterNot(_.periodKey == spoiltPeriod) :+ SpoiltVolumeByPeriod(volume, spoiltPeriod)
 
-              for {
-                updatedAnswers  <- Future.fromTry(request.userAnswers.set(SpoiltVolumeByPeriodPage, updatedList))
-                _               <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(SpoiltVolumeByPeriodPage, NormalMode, updatedAnswers))
-          )
+                for {
+                  updatedAnswers  <- Future.fromTry(request.userAnswers.set(SpoiltVolumeByPeriodPage, updatedList))
+                  _               <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(SpoiltVolumeByPeriodPage, NormalMode, updatedAnswers))
+            )
+          }
         }
       }
   }

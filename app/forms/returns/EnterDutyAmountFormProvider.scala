@@ -17,20 +17,39 @@
 package forms.returns
 
 import forms.mappings.Mappings
+import models.identifiers.{PeriodKey, VpdId}
 import play.api.data.Form
+import services.returns.{DutyRateService, VolumePrecisionService}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
-class EnterDutyAmountFormProvider @Inject() extends Mappings {
+class EnterDutyAmountFormProvider @Inject()(
+  dutyRateService: DutyRateService,
+  volumePrecisionService: VolumePrecisionService
+) extends Mappings {
 
-  private val maxVolume = "999999999999.9"
-  
-  def apply(): Form[BigDecimal] =
-    Form(
-      "value" -> volume(
-        "returns.enterDutyAmount.error.required",
-        "returns.enterDutyAmount.error.nonNumeric",
-        "returns.enterDutyAmount.error.invalidDecimalPlaces")
-          .verifying(inRange(BigDecimal(1), BigDecimal(maxVolume), "returns.enterDutyAmount.error.outOfRange"))
-    )
+  def apply(periodKey: PeriodKey, vpdId: VpdId)
+           (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Form[BigDecimal]] = {
+
+    dutyRateService.getDutyRate(vpdId, periodKey).map { dutyRate =>
+      val dutyRateInPencePerMl = (dutyRate * 100).toInt
+      val maxVolumeResult = volumePrecisionService.calculateMaxVolume(dutyRateInPencePerMl)
+
+      Form(
+        "value" -> volume(
+          "returns.enterDutyAmount.error.required",
+          "returns.enterDutyAmount.error.nonNumeric",
+          "returns.enterDutyAmount.error.invalidDecimalPlaces.wholeOnly",
+          "returns.enterDutyAmount.error.invalidDecimalPlaces.maxOne")
+            .verifying(inRange(
+              BigDecimal(1),
+              maxVolumeResult.maxVolumeInMl,
+              "returns.enterDutyAmount.error.exceedsMaxDuty",
+              maxVolumeResult.formattedForDisplay
+            ))
+      )
+    }
+  }
 }

@@ -16,13 +16,7 @@
 
 package models.returns
 
-import play.api.libs.json.{Json, OFormat}
-
-final case class DutySuspenseVolumes(
-  volumeReceived: BigDecimal,
-  volumeMoved: BigDecimal
+final case class MaxVolumeResult(
+  maxVolumeInMl: BigDecimal,
+  formattedForDisplay: String
 )
-
-object DutySuspenseVolumes {
-  implicit val format: OFormat[DutySuspenseVolumes] = Json.format[DutySuspenseVolumes]
-}

@@ -45,31 +45,33 @@ class EnterDutyAmountController @Inject()(
                                         view: EnterDutyAmountView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  val form: Form[BigDecimal] = formProvider()
-
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(EnterDutyAmountPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+      formProvider(request.periodKey, request.enrolmentVpdId).map { form =>
+        val preparedForm = request.userAnswers.get(EnterDutyAmountPage) match {
+          case None => form
+          case Some(value) => form.fill(value)
+        }
 
-      Ok(view(request.periodKey, preparedForm, mode))
+        Ok(view(request.periodKey, preparedForm, mode))
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
+      formProvider(request.periodKey, request.enrolmentVpdId).flatMap { form =>
+        form.bindFromRequest().fold(
+          formWithErrors =>
+            Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
 
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(EnterDutyAmountPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(EnterDutyAmountPage, mode, updatedAnswers))
-      )
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(EnterDutyAmountPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(EnterDutyAmountPage, mode, updatedAnswers))
+        )
+      }
   }
 }

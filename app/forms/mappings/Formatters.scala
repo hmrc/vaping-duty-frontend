@@ -145,12 +145,13 @@ trait Formatters {
   private[mappings] def volumeFormatter(
                                          requiredKey: String,
                                          nonNumericKey: String,
-                                         invalidDecimalKey: String,
+                                         invalidDecimalKeyWholeOnly: String,
+                                         invalidDecimalKeyMaxOne: String,
                                          args: Seq[String] = Seq.empty
                                        ): Formatter[BigDecimal] =
     new Formatter[BigDecimal] {
 
-      val validFormat = """^\d{1,12}(\.\d{1,2})?$"""
+      val validFormat = """^\d+(\.\d*)?$"""
       val litre = 1000
 
       private val baseFormatter = stringFormatter(requiredKey, args)
@@ -168,10 +169,12 @@ trait Formatters {
                 .left.map(_ => Seq(FormError(key, nonNumericKey, args)))
                 .flatMap { v =>
                   val dpCount = if (s.contains(".")) s.length - s.indexOf('.') - 1 else 0
-                  if (v >= litre && dpCount > 1)
-                    Left(Seq(FormError(key, invalidDecimalKey, args)))
-                  else if (v < litre && dpCount != 2)
-                    Left(Seq(FormError(key, invalidDecimalKey, args)))
+                  val hasNonZeroDecimals = v.scale > 0 && v.remainder(1) != 0
+                  
+                  if (v >= litre && hasNonZeroDecimals)
+                    Left(Seq(FormError(key, invalidDecimalKeyWholeOnly, args)))
+                  else if (v < litre && dpCount > 1)
+                    Left(Seq(FormError(key, invalidDecimalKeyMaxOne, args)))
                   else
                     Right(v)
                 }

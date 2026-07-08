@@ -14,15 +14,8 @@
  * limitations under the License.
  */
 
-package models.returns
+package viewmodels.returns
 
-import play.api.libs.json.{Json, OFormat}
-
-final case class DutySuspenseVolumes(
-  volumeReceived: BigDecimal,
-  volumeMoved: BigDecimal
-)
-
-object DutySuspenseVolumes {
-  implicit val format: OFormat[DutySuspenseVolumes] = Json.format[DutySuspenseVolumes]
+object VolumeFormatter {
+  def formatVolume(volume: BigDecimal): String = s"$volume ml"
 }

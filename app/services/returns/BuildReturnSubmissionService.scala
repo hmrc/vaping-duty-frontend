@@ -145,7 +145,7 @@ class BuildReturnSubmissionService @Inject()(
   private def buildSpoiltProductItem(spoiltVolume: SpoiltVolumeByPeriod, periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int]) = {
     val dutyRateInPencePerMl = periodKeyToDutyRateInPencePerMl(spoiltVolume.periodKey)
     val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) * 10) / 100
-    val volumeInMl = BigDecimal(spoiltVolume.volume)
+    val volumeInMl = spoiltVolume.volume
     val volumeInLitres = ConvertToLitres(volumeInMl).toLitres
     val dutyDue = (volumeInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
 
@@ -164,8 +164,8 @@ class BuildReturnSubmissionService @Inject()(
     
     (dutySuspenseDeclared, dutySuspenseVolumes) match {
       case (true, Some(volumes)) =>
-        val volumeReceivedInMl = BigDecimal(volumes.volumeReceived)
-        val volumeMovedInMl = BigDecimal(volumes.volumeMoved)
+        val volumeReceivedInMl = volumes.volumeReceived
+        val volumeMovedInMl = volumes.volumeMoved
         
         Some(OtherOptions(
           vapingProductUnderDutySuspense = FLAG_FILLED,

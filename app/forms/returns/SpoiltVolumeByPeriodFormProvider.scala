@@ -17,18 +17,39 @@
 package forms.returns
 
 import forms.mappings.Mappings
+import models.identifiers.{PeriodKey, VpdId}
 import play.api.data.Form
+import services.returns.{DutyRateService, VolumePrecisionService}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
-class SpoiltVolumeByPeriodFormProvider @Inject() extends Mappings {
+class SpoiltVolumeByPeriodFormProvider @Inject()(
+  dutyRateService: DutyRateService,
+  volumePrecisionService: VolumePrecisionService
+) extends Mappings {
 
-  def apply(): Form[Int] =
-    Form(
-      "value" -> int(
-        "returns.spoiltVolumeByPeriod.error.required",
-        "returns.spoiltVolumeByPeriod.error.wholeNumber",
-        "returns.spoiltVolumeByPeriod.error.nonNumeric")
-          .verifying(inRange(1, Int.MaxValue, "returns.spoiltVolumeByPeriod.error.outOfRange"))
-    )
+  def apply(periodKey: PeriodKey, vpdId: VpdId)
+           (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Form[BigDecimal]] = {
+
+    dutyRateService.getDutyRate(vpdId, periodKey).map { dutyRate =>
+      val dutyRateInPencePerMl = (dutyRate * 100).toInt
+      val maxVolumeResult = volumePrecisionService.calculateMaxVolume(dutyRateInPencePerMl)
+
+      Form(
+        "value" -> volume(
+          "returns.spoiltVolumeByPeriod.error.required",
+          "returns.spoiltVolumeByPeriod.error.nonNumeric",
+          "returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.wholeOnly",
+          "returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.maxOne")
+            .verifying(inRange(
+              BigDecimal(1),
+              maxVolumeResult.maxVolumeInMl,
+              "returns.spoiltVolumeByPeriod.error.exceedsMaxDuty",
+              maxVolumeResult.formattedForDisplay
+            ))
+      )
+    }
+  }
 }

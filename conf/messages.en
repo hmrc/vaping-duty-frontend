@@ -198,11 +198,11 @@ returns.enterDutyAmount.details.value.p2 = Product released for consumption mean
 returns.enterDutyAmount.q.hintText = Total millilitres of vaping liquid
 returns.enterDutyAmount.q.ml = ml
 
-returns.enterDutyAmount.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
-returns.enterDutyAmount.error.required = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
-returns.enterDutyAmount.error.wholeNumber = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
-returns.enterDutyAmount.error.outOfRange = Enter a volume with up to 12 digits and 1 decimal place, for example 999,999,999,999.9 ml
-returns.enterDutyAmount.error.invalidDecimalPlaces = Enter 1 decimal place for amounts of 1 litre or more, for example 1.5 and 2 decimal places for amounts less than 1 litre, for example 0.75
+returns.enterDutyAmount.error.nonNumeric = You must enter a number greater than zero
+returns.enterDutyAmount.error.required = You must enter a number greater than zero
+returns.enterDutyAmount.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
+returns.enterDutyAmount.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
+returns.enterDutyAmount.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
 returns.enterDutyAmount.change.hidden = EnterDutyAmount
 
 returns.declareSpoiltProducts.title = Declare spoilt products from an earlier return
@@ -239,9 +239,10 @@ returns.spoiltVolumeByPeriod.caption = Spoilt vaping products — {0} {1}
 returns.spoiltVolumeByPeriod.label = How many millilitres do you need to declare as spoilt?
 returns.spoiltVolumeByPeriod.hint = Total millilitres of spoilt vaping products
 returns.spoiltVolumeByPeriod.error.required = You must enter a number greater than zero
-returns.spoiltVolumeByPeriod.error.wholeNumber = You must enter a number greater than zero
 returns.spoiltVolumeByPeriod.error.nonNumeric = You must enter a number greater than zero
-returns.spoiltVolumeByPeriod.error.outOfRange = You must enter a number greater than zero
+returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
+returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
+returns.spoiltVolumeByPeriod.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
 
 returns.addSpoiltAdjustment.title = Do you want to make an adjustment for another month?
 returns.addSpoiltAdjustment.heading = Do you want to make an adjustment for another month?
@@ -266,17 +267,19 @@ returns.enterDutySuspense.title = Volume of vaping liquid received or moved unde
 returns.enterDutySuspense.heading = Volume of vaping liquid received or moved under duty suspension
 returns.enterDutySuspense.caption.text = Report duty suspended vaping products
 
-returns.enterDutySuspense.volumeReceived.label = How many millilitres of liquid did you receive?
-returns.enterDutySuspense.volumeReceived.error.required = Enter the amount of duty suspension received
-returns.enterDutySuspense.volumeReceived.error.wholeNumber = Enter the amount of duty suspension received
-returns.enterDutySuspense.volumeReceived.error.nonNumeric = Enter the amount of duty suspension received
-returns.enterDutySuspense.volumeReceived.error.outOfRange = Enter the amount of duty suspension received
+returns.enterDutySuspense.volumeReceived.label = Amount received
+returns.enterDutySuspense.volumeReceived.error.required = You must enter a number greater than zero
+returns.enterDutySuspense.volumeReceived.error.nonNumeric = You must enter a number greater than zero
+returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
+returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
+returns.enterDutySuspense.volumeReceived.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
 
-returns.enterDutySuspense.volumeMoved.label = How many millilitres of liquid did you move?
-returns.enterDutySuspense.volumeMoved.error.required = Enter the amount of duty suspension moved
-returns.enterDutySuspense.volumeMoved.error.wholeNumber = Enter the amount of duty suspension moved
-returns.enterDutySuspense.volumeMoved.error.nonNumeric = Enter the amount of duty suspension moved
-returns.enterDutySuspense.volumeMoved.error.outOfRange = Enter the amount of duty suspension moved
+returns.enterDutySuspense.volumeMoved.label = Amount moved
+returns.enterDutySuspense.volumeMoved.error.required = You must enter a number greater than zero
+returns.enterDutySuspense.volumeMoved.error.nonNumeric = You must enter a number greater than zero
+returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
+returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
+returns.enterDutySuspense.volumeMoved.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
 
 returns.enterDutySuspense.ml = ml
 returns.enterDutySuspense.checkYourAnswersLabel = Enter duty suspense

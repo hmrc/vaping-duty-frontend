@@ -17,32 +17,58 @@
 package forms.returns
 
 import forms.mappings.Mappings
+import models.identifiers.{PeriodKey, VpdId}
 import models.returns.DutySuspenseVolumes
 import play.api.data.Form
 import play.api.data.Forms.mapping
+import services.returns.{DutyRateService, VolumePrecisionService}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
-class EnterDutySuspenseFormProvider @Inject() extends Mappings {
+class EnterDutySuspenseFormProvider @Inject()(
+  dutyRateService: DutyRateService,
+  volumePrecisionService: VolumePrecisionService
+) extends Mappings {
 
   private val VOLUME_RECEIVED_FIELD = "volumeReceived"
   private val VOLUME_MOVED_FIELD = "volumeMoved"
-  private val ZERO = 0
 
-  def apply(): Form[DutySuspenseVolumes] =
-    Form(
-      mapping(
-        VOLUME_RECEIVED_FIELD -> int(
-          "returns.enterDutySuspense.volumeReceived.error.required",
-          "returns.enterDutySuspense.volumeReceived.error.wholeNumber",
-          "returns.enterDutySuspense.volumeReceived.error.nonNumeric")
-            .verifying(inRange(ZERO, Int.MaxValue, "returns.enterDutySuspense.volumeReceived.error.outOfRange")),
+  def apply(periodKey: PeriodKey, vpdId: VpdId)
+           (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Form[DutySuspenseVolumes]] = {
 
-        VOLUME_MOVED_FIELD -> int(
-          "returns.enterDutySuspense.volumeMoved.error.required",
-          "returns.enterDutySuspense.volumeMoved.error.wholeNumber",
-          "returns.enterDutySuspense.volumeMoved.error.nonNumeric")
-            .verifying(inRange(ZERO, Int.MaxValue, "returns.enterDutySuspense.volumeMoved.error.outOfRange"))
-      )((received, moved) => DutySuspenseVolumes(received, moved))(o => Some((o.volumeReceived, o.volumeMoved)))
-    )
+    dutyRateService.getDutyRate(vpdId, periodKey).map { dutyRate =>
+      val dutyRateInPencePerMl = (dutyRate * 100).toInt
+      val maxVolumeResult = volumePrecisionService.calculateMaxVolume(dutyRateInPencePerMl)
+
+      Form(
+        mapping(
+          VOLUME_RECEIVED_FIELD -> volume(
+            "returns.enterDutySuspense.volumeReceived.error.required",
+            "returns.enterDutySuspense.volumeReceived.error.nonNumeric",
+            "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.wholeOnly",
+            "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.maxOne")
+              .verifying(inRange(
+                BigDecimal(0),
+                maxVolumeResult.maxVolumeInMl,
+                "returns.enterDutySuspense.volumeReceived.error.exceedsMaxDuty",
+                maxVolumeResult.formattedForDisplay
+              )),
+
+          VOLUME_MOVED_FIELD -> volume(
+            "returns.enterDutySuspense.volumeMoved.error.required",
+            "returns.enterDutySuspense.volumeMoved.error.nonNumeric",
+            "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly",
+            "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne")
+              .verifying(inRange(
+                BigDecimal(0),
+                maxVolumeResult.maxVolumeInMl,
+                "returns.enterDutySuspense.volumeMoved.error.exceedsMaxDuty",
+                maxVolumeResult.formattedForDisplay
+              ))
+        )((received, moved) => DutySuspenseVolumes(received, moved))(o => Some((o.volumeReceived, o.volumeMoved)))
+      )
+    }
+  }
 }

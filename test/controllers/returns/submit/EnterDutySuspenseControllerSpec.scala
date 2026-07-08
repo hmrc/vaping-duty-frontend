@@ -17,15 +17,17 @@
 package controllers.returns.submit
 
 import base.SpecBase
+import controllers.routes
 import forms.returns.EnterDutySuspenseFormProvider
 import models.NormalMode
-import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers}
+import models.returns.DutySuspenseVolumes
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.EnterDutySuspensePage
 import play.api.data.Form
+import play.api.data.Forms.{bigDecimal, mapping}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -37,20 +39,29 @@ import scala.concurrent.Future
 
 class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
 
+  private val mockFormProvider = mock[EnterDutySuspenseFormProvider]
+  private val testForm: Form[DutySuspenseVolumes] = Form(
+    mapping(
+      "volumeReceived" -> bigDecimal,
+      "volumeMoved"    -> bigDecimal
+    )(DutySuspenseVolumes.apply)(o => Some((o.volumeReceived, o.volumeMoved)))
+  )
+
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new EnterDutySuspenseFormProvider()
-  val form: Form[DutySuspenseVolumes] = formProvider()
+  val validAnswer = DutySuspenseVolumes(volumeReceived = 1000, volumeMoved = 2000)
 
   lazy val enterDutySuspenseRoute: String = controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(NormalMode).url
-
-  val validAnswer = DutySuspenseVolumes(volumeReceived = 1000, volumeMoved = 2000)
 
   "EnterDutySuspense Controller" - {
 
     "must return OK and the correct view for a GET" in {
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, enterDutySuspenseRoute)
@@ -60,15 +71,19 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[EnterDutySuspenseView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, testForm, NormalMode)(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
       val userAnswers = returnsUserAnswers.set(EnterDutySuspensePage, validAnswer).success.value
 
-      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
+        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, enterDutySuspenseRoute)
@@ -78,11 +93,13 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, form.fill(validAnswer), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, testForm.fill(validAnswer), NormalMode)(request, messages(application)).toString
       }
     }
 
     "must redirect to the next page when valid data is submitted" in {
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
 
@@ -92,7 +109,8 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
         applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider)
           )
           .build()
 
@@ -109,15 +127,19 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted (empty volumeReceived)" in {
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request =
           FakeRequest(POST, enterDutySuspenseRoute)
             .withFormUrlEncodedBody(("volumeReceived", ""), ("volumeMoved", "2000"))
 
-        val boundForm = form.bind(Map("volumeReceived" -> "", "volumeMoved" -> "2000"))
+        val boundForm = testForm.bind(Map("volumeReceived" -> "", "volumeMoved" -> "2000"))
 
         val view = application.injector.instanceOf[EnterDutySuspenseView]
 
@@ -129,15 +151,19 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted (empty volumeMoved)" in {
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request =
           FakeRequest(POST, enterDutySuspenseRoute)
             .withFormUrlEncodedBody(("volumeReceived", "1000"), ("volumeMoved", ""))
 
-        val boundForm = form.bind(Map("volumeReceived" -> "1000", "volumeMoved" -> ""))
+        val boundForm = testForm.bind(Map("volumeReceived" -> "1000", "volumeMoved" -> ""))
 
         val view = application.injector.instanceOf[EnterDutySuspenseView]
 
@@ -149,15 +175,19 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted (both empty)" in {
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request =
           FakeRequest(POST, enterDutySuspenseRoute)
             .withFormUrlEncodedBody(("volumeReceived", ""), ("volumeMoved", ""))
 
-        val boundForm = form.bind(Map("volumeReceived" -> "", "volumeMoved" -> ""))
+        val boundForm = testForm.bind(Map("volumeReceived" -> "", "volumeMoved" -> ""))
 
         val view = application.injector.instanceOf[EnterDutySuspenseView]
 
@@ -169,15 +199,19 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when non-numeric data is submitted" in {
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(testForm))
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
+        .build()
 
       running(application) {
         val request =
           FakeRequest(POST, enterDutySuspenseRoute)
             .withFormUrlEncodedBody(("volumeReceived", "abc"), ("volumeMoved", "xyz"))
 
-        val boundForm = form.bind(Map("volumeReceived" -> "abc", "volumeMoved" -> "xyz"))
+        val boundForm = testForm.bind(Map("volumeReceived" -> "abc", "volumeMoved" -> "xyz"))
 
         val view = application.injector.instanceOf[EnterDutySuspenseView]
 
@@ -188,23 +222,31 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return a Bad Request and errors when values less than zero are submitted" in {
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+      val application = applicationBuilder(returnsUserAnswers = None).build()
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      running(application) {
+        val request = FakeRequest(GET, enterDutySuspenseRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a POST if no existing data is found" in {
+      val application = applicationBuilder(returnsUserAnswers = None).build()
 
       running(application) {
         val request =
           FakeRequest(POST, enterDutySuspenseRoute)
-            .withFormUrlEncodedBody(("volumeReceived", "-1"), ("volumeMoved", "-1"))
-
-        val boundForm = form.bind(Map("volumeReceived" -> "-1", "volumeMoved" -> "-1"))
-
-        val view = application.injector.instanceOf[EnterDutySuspenseView]
+            .withFormUrlEncodedBody(("volumeReceived", "1000"), ("volumeMoved", "2000"))
 
         val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(periodKey, boundForm, NormalMode)(request, messages(application)).toString
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

@@ -20,10 +20,8 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import forms.returns.EnterDutySuspenseFormProvider
 import models.Mode
-import models.returns.DutySuspenseVolumes
 import navigation.ReturnsNavigator
 import pages.returns.EnterDutySuspensePage
-import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ReturnsUserAnswersService
@@ -44,33 +42,32 @@ class EnterDutySuspenseController @Inject()(
                                         returnsEnabledAction: ReturnsEnabledAction,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: EnterDutySuspenseView
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  val form: Form[DutySuspenseVolumes] = formProvider()
-
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-
-      val preparedForm = request.userAnswers.get(EnterDutySuspensePage) match {
-        case None => form
-        case Some(value) => form.fill(value)
+      formProvider(request.periodKey, request.enrolmentVpdId).map { form =>
+        val preparedForm = request.userAnswers.get(EnterDutySuspensePage) match {
+          case None        => form
+          case Some(value) => form.fill(value)
+        }
+        Ok(view(request.periodKey, preparedForm, mode))
       }
-
-      Ok(view(request.periodKey, preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
+      formProvider(request.periodKey, request.enrolmentVpdId).flatMap { form =>
+        form.bindFromRequest().fold(
+          formWithErrors =>
+            Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
-
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(EnterDutySuspensePage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(EnterDutySuspensePage, mode, updatedAnswers))
-      )
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(EnterDutySuspensePage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(navigator.nextPage(EnterDutySuspensePage, mode, updatedAnswers))
+        )
+      }
   }
 }

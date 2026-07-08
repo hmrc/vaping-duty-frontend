@@ -16,13 +16,35 @@
 
 package forms.returns
 
-import forms.FormSpec
-import models.returns.DutySuspenseVolumes
+import base.SpecBase
+import models.identifiers.{PeriodKey, VpdId}
+import models.returns.{DutySuspenseVolumes, MaxVolumeResult}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.FormError
+import services.returns.{DutyRateService, VolumePrecisionService}
 
-class EnterDutySuspenseFormProviderSpec extends FormSpec {
+import scala.concurrent.Future
 
-  val form = new EnterDutySuspenseFormProvider()()
+class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
+
+  private val mockDutyRateService = mock[DutyRateService]
+  private val mockVolumePrecisionService = mock[VolumePrecisionService]
+  private val formProvider = new EnterDutySuspenseFormProvider(mockDutyRateService, mockVolumePrecisionService)
+
+  private val testPeriodKey = PeriodKey("24KA")
+  private val testVpdId = VpdId("VPDID123")
+  private val testDutyRate = BigDecimal("3.37")
+  private val testMaxVolume = BigDecimal("29000000000")
+  private val testFormattedMax = "29,000,000,000 ml"
+
+  private def setupMocks(): Unit = {
+    when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+      .thenReturn(Future.successful(testDutyRate))
+    when(mockVolumePrecisionService.calculateMaxVolume(any()))
+      .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+  }
 
   "EnterDutySuspenseFormProvider" - {
 
@@ -31,31 +53,103 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
       val fieldName = "volumeReceived"
       val requiredKey = "returns.enterDutySuspense.volumeReceived.error.required"
       val nonNumericKey = "returns.enterDutySuspense.volumeReceived.error.nonNumeric"
-      val outOfRangeKey = "returns.enterDutySuspense.volumeReceived.error.outOfRange"
 
-      "must bind valid data" in {
-        val result = form.bind(Map(fieldName -> "1000", "volumeMoved" -> "2000"))
-        result.value.value mustEqual DutySuspenseVolumes(1000, 2000)
+      "must bind valid values >= 1000ml with no decimal places" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          Seq("1000", "1000000", "100000000").foreach { input =>
+            val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "1000"))
+            result.errors mustBe empty
+          }
+        }
+      }
+
+      "must bind valid values < 1000ml with 0 or 1 decimal place" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          Seq("0", "10.1", "999.9", "500").foreach { input =>
+            val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "1000"))
+            result.errors mustBe empty
+          }
+        }
+      }
+
+      "must bind zero" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map(fieldName -> "0", "volumeMoved" -> "1000"))
+          result.value.value mustEqual DutySuspenseVolumes(BigDecimal("0"), BigDecimal(1000))
+        }
       }
 
       "must fail to bind when value is omitted" in {
-        val result = form.bind(Map(fieldName -> "", "volumeMoved" -> "2000"))
-        result.errors must contain(FormError(fieldName, requiredKey))
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map(fieldName -> "", "volumeMoved" -> "2000"))
+          result.errors must contain(FormError(fieldName, requiredKey))
+        }
       }
 
       "must fail to bind non-numeric values" in {
-        val result = form.bind(Map(fieldName -> "abc", "volumeMoved" -> "2000"))
-        result.errors must contain(FormError(fieldName, nonNumericKey))
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          Seq("abc", "1.2.3", "£10.12").foreach { input =>
+            val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "2000"))
+            result.errors must contain(FormError(fieldName, nonNumericKey))
+          }
+        }
+      }
+
+      "must bind values >= 1000ml with trailing zeros" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          Seq("1000.0", "2000.0").foreach { input =>
+            val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "1000"))
+            result.errors.filter(_.key == fieldName) mustBe empty
+          }
+        }
+      }
+
+      "must fail to bind values >= 1000ml with non-zero decimal places" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          Seq("1000.1", "1000.12", "999999999999.9").foreach { input =>
+            val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "2000"))
+            result.errors must contain(FormError(fieldName, "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.wholeOnly"))
+          }
+        }
+      }
+
+      "must fail to bind values < 1000ml with more than 1 decimal place" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          Seq("999.99", "10.12", "1.123").foreach { input =>
+            val result = form.bind(Map(fieldName -> input, "volumeMoved" -> "2000"))
+            result.errors must contain(FormError(fieldName, "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.maxOne"))
+          }
+        }
       }
 
       "must fail to bind negative values" in {
-        val result = form.bind(Map(fieldName -> "-1", "volumeMoved" -> "2000"))
-        result.errors must contain(FormError(fieldName, outOfRangeKey, Seq(0, Int.MaxValue)))
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map(fieldName -> "-1.00", "volumeMoved" -> "2000"))
+          result.errors must contain(FormError(fieldName, nonNumericKey))
+        }
       }
 
-      "must bind maximum integer value" in {
-        val result = form.bind(Map(fieldName -> Int.MaxValue.toString, "volumeMoved" -> "2000"))
-        result.value.value mustEqual DutySuspenseVolumes(Int.MaxValue, 2000)
+      "must fail to bind values that exceed the calculated maximum" in {
+        when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+          .thenReturn(Future.successful(testDutyRate))
+        when(mockVolumePrecisionService.calculateMaxVolume(337))
+          .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map(fieldName -> "999999999999999", "volumeMoved" -> "2000")).apply(fieldName)
+          result.errors.head.key mustEqual fieldName
+          result.errors.head.message mustEqual "returns.enterDutySuspense.volumeReceived.error.exceedsMaxDuty"
+          result.errors.head.args mustEqual Seq(testFormattedMax)
+        }
       }
     }
 
@@ -64,46 +158,124 @@ class EnterDutySuspenseFormProviderSpec extends FormSpec {
       val fieldName = "volumeMoved"
       val requiredKey = "returns.enterDutySuspense.volumeMoved.error.required"
       val nonNumericKey = "returns.enterDutySuspense.volumeMoved.error.nonNumeric"
-      val outOfRangeKey = "returns.enterDutySuspense.volumeMoved.error.outOfRange"
 
-      "must bind valid data" in {
-        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "2000"))
-        result.value.value mustEqual DutySuspenseVolumes(1000, 2000)
+      "must bind valid values >= 1000ml with no decimal places" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          Seq("1000", "1000000", "100000000").foreach { input =>
+            val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+            result.errors mustBe empty
+          }
+        }
+      }
+
+      "must bind valid values < 1000ml with 0 or 1 decimal place" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          Seq("0", "10.1", "999.9", "500").foreach { input =>
+            val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+            result.errors mustBe empty
+          }
+        }
+      }
+
+      "must bind zero" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "0"))
+          result.value.value mustEqual DutySuspenseVolumes(BigDecimal(1000), BigDecimal("0"))
+        }
       }
 
       "must fail to bind when value is omitted" in {
-        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> ""))
-        result.errors must contain(FormError(fieldName, requiredKey))
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> ""))
+          result.errors must contain(FormError(fieldName, requiredKey))
+        }
       }
 
       "must fail to bind non-numeric values" in {
-        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "xyz"))
-        result.errors must contain(FormError(fieldName, nonNumericKey))
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          Seq("abc", "1.2.3", "£10.12").foreach { input =>
+            val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+            result.errors must contain(FormError(fieldName, nonNumericKey))
+          }
+        }
+      }
+
+      "must bind values >= 1000ml with trailing zeros" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          Seq("1000.0", "2000.0").foreach { input =>
+            val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+            result.errors.filter(_.key == fieldName) mustBe empty
+          }
+        }
+      }
+
+      "must fail to bind values >= 1000ml with non-zero decimal places" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          Seq("1000.1", "1000.12", "999999999999.9").foreach { input =>
+            val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+            result.errors must contain(FormError(fieldName, "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly"))
+          }
+        }
+      }
+
+      "must fail to bind values < 1000ml with more than 1 decimal place" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          Seq("999.99", "10.12", "1.123").foreach { input =>
+            val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> input))
+            result.errors must contain(FormError(fieldName, "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne"))
+          }
+        }
       }
 
       "must fail to bind negative values" in {
-        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "-1"))
-        result.errors must contain(FormError(fieldName, outOfRangeKey, Seq(0, Int.MaxValue)))
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "-1.00"))
+          result.errors must contain(FormError(fieldName, nonNumericKey))
+        }
       }
 
-      "must bind maximum integer value" in {
-        val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> Int.MaxValue.toString))
-        result.value.value mustEqual DutySuspenseVolumes(1000, Int.MaxValue)
+      "must fail to bind values that exceed the calculated maximum" in {
+        when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+          .thenReturn(Future.successful(testDutyRate))
+        when(mockVolumePrecisionService.calculateMaxVolume(337))
+          .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map("volumeReceived" -> "1000", fieldName -> "999999999999999")).apply(fieldName)
+          result.errors.head.key mustEqual fieldName
+          result.errors.head.message mustEqual "returns.enterDutySuspense.volumeMoved.error.exceedsMaxDuty"
+          result.errors.head.args mustEqual Seq(testFormattedMax)
+        }
       }
     }
 
     "both fields" - {
 
       "must fail when both fields are empty" in {
-        val result = form.bind(Map("volumeReceived" -> "", "volumeMoved" -> ""))
-        result.errors.size mustBe 2
-        result.errors must contain(FormError("volumeReceived", "returns.enterDutySuspense.volumeReceived.error.required"))
-        result.errors must contain(FormError("volumeMoved", "returns.enterDutySuspense.volumeMoved.error.required"))
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map("volumeReceived" -> "", "volumeMoved" -> ""))
+          result.errors.size mustBe 2
+          result.errors must contain(FormError("volumeReceived", "returns.enterDutySuspense.volumeReceived.error.required"))
+          result.errors must contain(FormError("volumeMoved", "returns.enterDutySuspense.volumeMoved.error.required"))
+        }
       }
 
       "must bind when both fields have valid values" in {
-        val result = form.bind(Map("volumeReceived" -> "1500", "volumeMoved" -> "2500"))
-        result.value.value mustEqual DutySuspenseVolumes(1500, 2500)
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map("volumeReceived" -> "1500", "volumeMoved" -> "2500"))
+          result.value.value mustEqual DutySuspenseVolumes(BigDecimal("1500"), BigDecimal("2500"))
+        }
       }
     }
   }

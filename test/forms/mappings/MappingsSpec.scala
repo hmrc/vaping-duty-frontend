@@ -231,4 +231,27 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
       result.apply("value").value.value mustEqual "1"
     }
   }
+
+  "volume" - {
+
+    val testForm: Form[BigDecimal] =
+      Form(
+        "value" -> volume()
+      )
+
+    "must bind when . is trailing the value" in {
+      val result = testForm.bind(Map("value" -> "11111."))
+      result.get mustEqual 11111
+    }
+
+    "must not bind when key is not present" in {
+      val result = testForm.bind(Map.empty[String, String])
+      result.errors must contain(FormError("value", "error.required"))
+    }
+
+    "must not bind blank values" in {
+      val result = testForm.bind(Map("value" -> ""))
+      result.errors must contain(FormError("value", "error.required"))
+    }
+  }
 }
