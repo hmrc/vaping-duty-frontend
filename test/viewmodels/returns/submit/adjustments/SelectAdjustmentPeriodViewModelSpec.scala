@@ -17,7 +17,6 @@
 package viewmodels.returns.submit.adjustments
 
 import base.SpecBase
-import models.obligations.ObligationsResponse
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import utils.ReturnsDateUtils
 
@@ -28,13 +27,13 @@ class SelectAdjustmentPeriodViewModelSpec extends SpecBase {
   "SelectAdjustmentPeriodViewModel" - {
 
     "must create view model with available periods" in {
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(
+      val obligationDetails = obligations(Seq(
         fulfilledObligation(october2027),
         fulfilledObligation(december2027)
-      )))
+      )).map(_.obligationDetails)
 
       val vm = SelectAdjustmentPeriodViewModel(
-        obligationsResponse,
+        obligationDetails,
         None,
         periodKey,
         None,
@@ -46,13 +45,13 @@ class SelectAdjustmentPeriodViewModelSpec extends SpecBase {
     }
 
     "must filter out current return period" in {
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(
+      val obligationDetails = obligations(Seq(
         fulfilledObligation(periodKey),
         fulfilledObligation(october2027)
-      )))
+      )).map(_.obligationDetails)
 
       val vm = SelectAdjustmentPeriodViewModel(
-        obligationsResponse,
+        obligationDetails,
         None,
         periodKey,
         None,
@@ -71,13 +70,13 @@ class SelectAdjustmentPeriodViewModelSpec extends SpecBase {
       )
       val adjustmentList = AdjustmentList(Seq(adjustment))
       
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(
+      val obligationDetails = obligations(Seq(
         fulfilledObligation(october2027),
         fulfilledObligation(december2027)
-      )))
+      )).map(_.obligationDetails)
 
       val vm = SelectAdjustmentPeriodViewModel(
-        obligationsResponse,
+        obligationDetails,
         None,
         periodKey,
         Some(adjustmentList),
@@ -89,10 +88,10 @@ class SelectAdjustmentPeriodViewModelSpec extends SpecBase {
     }
 
     "must handle empty obligations" in {
-      val obligationsResponse = ObligationsResponse(obligation = Seq.empty)
+      val obligationDetails = Seq.empty
 
       val vm = SelectAdjustmentPeriodViewModel(
-        obligationsResponse,
+        obligationDetails,
         None,
         periodKey,
         None,

@@ -19,7 +19,6 @@ package controllers.returns.submit.adjustments
 import base.SpecBase
 import forms.returns.adjustments.{AdjustmentVolumeWithTypeFormData, AdjustmentVolumeWithTypeFormProvider}
 import models.NormalMode
-import models.obligations.ObligationsResponse
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
@@ -56,10 +55,10 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
     "must return OK and the correct view for a GET" in {
       val mockObligationService = mock[ObligationService]
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
-      when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(obligationsResponse))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].toInstance(mockObligationService))
@@ -76,10 +75,10 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
     "must populate the view correctly on a GET when editing an existing adjustment" in {
       val mockObligationService = mock[ObligationService]
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
-      when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(obligationsResponse))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
 
       // Test-specific adjustment with different period (october2027) and volume (100.5) than TestData
       val existingAdjustment = AdjustmentEntry(
@@ -106,10 +105,10 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
     "must redirect to the next page when valid data is submitted" in {
       val mockObligationService = mock[ObligationService]
       val mockSessionRepository = mock[ReturnsUserAnswersService]
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
-      when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(obligationsResponse))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
@@ -138,10 +137,10 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
     "must return a Bad Request and errors when invalid data is submitted" in {
       val mockObligationService = mock[ObligationService]
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
-      when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(obligationsResponse))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].toInstance(mockObligationService))

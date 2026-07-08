@@ -57,7 +57,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
     implicit request =>
 
       withPeriodKey("adjustmentPeriod") { adjustmentPeriodKey =>
-        obligationService.getObligations(request.enrolmentVpdId).map { obligations =>
+        obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligationDetails =>
 
           val existingAdjustment = request.userAnswers.get(AdjustmentListPage)
             .flatMap(_.adjustments.find(_.period == adjustmentPeriodKey))
@@ -73,7 +73,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
             case None => form
           }
 
-          val vm = AdjustmentVolumeWithTypeViewModel(obligations, adjustmentPeriodKey, returnsDateUtils)
+          val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, adjustmentPeriodKey, returnsDateUtils)
           Ok(view(request.periodKey, adjustmentPeriodKey, preparedForm, mode, vm))
         }
       }
@@ -83,10 +83,10 @@ class AdjustmentVolumeWithTypeController @Inject()(
     implicit request =>
 
       withPeriodKey("adjustmentPeriod") { adjustmentPeriodKey =>
-        obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
+        obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap { obligationDetails =>
           form.bindFromRequest().fold(
             formWithErrors => {
-              val vm = AdjustmentVolumeWithTypeViewModel(obligations, adjustmentPeriodKey, returnsDateUtils)
+              val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, adjustmentPeriodKey, returnsDateUtils)
               Future.successful(BadRequest(view(request.periodKey, adjustmentPeriodKey, formWithErrors, mode, vm)))
             },
 

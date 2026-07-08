@@ -17,7 +17,7 @@
 package viewmodels.returns.submit.adjustments
 
 import models.identifiers.PeriodKey
-import models.obligations.ObligationsResponse
+import models.obligations.ObligationDetails
 import play.api.i18n.Messages
 import utils.ReturnsDateUtils
 
@@ -25,8 +25,8 @@ case class AdjustmentVolumeWithTypeViewModel(periodDisplay: String)
 
 object AdjustmentVolumeWithTypeViewModel {
 
-  def apply(obligations: ObligationsResponse, adjustmentPeriodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): AdjustmentVolumeWithTypeViewModel = {
-    val periodDisplay = returnsDateUtils.formatPeriodDisplay(adjustmentPeriodKey, obligations)
+  def apply(obligationDetails: Seq[ObligationDetails], adjustmentPeriodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): AdjustmentVolumeWithTypeViewModel = {
+    val periodDisplay = returnsDateUtils.formatPeriodDisplay(adjustmentPeriodKey, obligationDetails)
     AdjustmentVolumeWithTypeViewModel(periodDisplay)
   }
 }

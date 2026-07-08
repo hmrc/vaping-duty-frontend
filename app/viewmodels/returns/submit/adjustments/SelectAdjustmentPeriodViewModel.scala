@@ -17,11 +17,12 @@
 package viewmodels.returns.submit.adjustments
 
 import models.identifiers.PeriodKey
-import models.obligations.ObligationsResponse
+import models.obligations.ObligationDetails
 import models.returns.adjustments.AdjustmentList
 import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
-import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskListItem
+import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.{TaskListItem, TaskListItemTitle}
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.PeriodSelectionHelper
 
@@ -34,33 +35,40 @@ case class SelectAdjustmentPeriodViewModel(
 object SelectAdjustmentPeriodViewModel {
 
   def apply(
-             obligationsResponse: ObligationsResponse,
+             obligationDetails: Seq[ObligationDetails],
              selectedYear: Option[Int],
              currentReturnPeriod: PeriodKey,
              adjustmentList: Option[AdjustmentList],
              returnsDateUtils: ReturnsDateUtils
            )(implicit messages: Messages): SelectAdjustmentPeriodViewModel = {
 
-    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationsResponse)
-      .filter(_.obligationDetails.periodKey != currentReturnPeriod.toString)
+    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
+      .filter(_.periodKey != currentReturnPeriod.toString)
 
     val existingAdjustmentPeriods = adjustmentList
       .map(_.adjustments.map(_.period.toString).toSet)
       .getOrElse(Set.empty)
 
     val availableObligations = fulfilledObligations
-      .filterNot(ob => existingAdjustmentPeriods.contains(ob.obligationDetails.periodKey))
+      .filterNot(ob => existingAdjustmentPeriods.contains(ob.periodKey))
 
-    val availableYears = PeriodSelectionHelper.extractAvailableYears(availableObligations)
+    val availableYears = PeriodSelectionHelper.extractAvailableYearsFromDetails(availableObligations)
 
     val currentYear = PeriodSelectionHelper.selectCurrentYear(availableYears, selectedYear)
 
-    val obligationsForYear = PeriodSelectionHelper.filterObligationsByYear(availableObligations, currentYear)
+    val obligationsForYear = PeriodSelectionHelper.filterObligationsByYearFromDetails(availableObligations, currentYear)
 
-    val taskListItemHrefBuilder = (periodKey: String) =>
-      s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(models.NormalMode).url}?period=${currentReturnPeriod.value}&adjustmentPeriod=$periodKey"
+    val taskListItems = obligationsForYear.map { obligation =>
+      val month = obligation.iCFromDate.getMonthValue
+      val monthKey = returnsDateUtils.getMonthMessageKey(month)
+      val periodKey = obligation.periodKey
+      val href = s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(models.NormalMode).url}?period=${currentReturnPeriod.value}&adjustmentPeriod=$periodKey"
 
-    val taskListItems = PeriodSelectionHelper.buildTaskListItems(obligationsForYear, taskListItemHrefBuilder, returnsDateUtils)
+      TaskListItem(
+        title = TaskListItemTitle(content = Text(messages(monthKey))),
+        href = Some(href)
+      )
+    }
 
     val paginationItemHrefBuilder = (year: Int) =>
       s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"

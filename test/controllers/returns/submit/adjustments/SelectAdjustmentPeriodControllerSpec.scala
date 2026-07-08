@@ -17,7 +17,6 @@
 package controllers.returns.submit.adjustments
 
 import base.SpecBase
-import models.obligations.ObligationsResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -37,13 +36,13 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
       val mockObligationService = mock[ObligationService]
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(
+      val obligationDetails = obligations(Seq(
         fulfilledObligation(october2027),
         fulfilledObligation(december2027)
-      )))
+      )).map(_.obligationDetails)
 
-      when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(obligationsResponse))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].toInstance(mockObligationService))
@@ -60,13 +59,13 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET with year filter" in {
       val mockObligationService = mock[ObligationService]
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(
+      val obligationDetails = obligations(Seq(
         fulfilledObligation(october2027),
         fulfilledObligation(december2027)
-      )))
+      )).map(_.obligationDetails)
 
-      when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(obligationsResponse))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].toInstance(mockObligationService))
@@ -84,7 +83,7 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Journey Recovery when obligation service fails" in {
       val mockObligationService = mock[ObligationService]
 
-      when(mockObligationService.getObligations(any())(using any()))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
          .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))

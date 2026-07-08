@@ -16,7 +16,7 @@
 
 package viewmodels.returns.submit
 
-import models.obligations.{ObligationItem, ObligationStatus, ObligationsResponse}
+import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
 import models.returns.ReturnsConstants
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -39,11 +39,31 @@ object PeriodSelectionHelper {
       .filter(_.obligationDetails.iCFromDate.isAfter(threeYearsAgo))
   }
 
+  def filterFulfilledWithinThreeYears(
+    obligationDetails: Seq[ObligationDetails]
+  ): Seq[ObligationDetails] = {
+    val currentDate = LocalDate.now()
+    val threeYearsAgo = currentDate.minusYears(ReturnsConstants.YEARS_TO_SHOW)
+
+    obligationDetails
+      .filter(_.openOrFulfilledStatus == ObligationStatus.F.toString)
+      .filter(_.iCFromDate.isAfter(threeYearsAgo))
+  }
+
   def extractAvailableYears(
     obligations: Seq[ObligationItem]
   ): Seq[Int] = {
     obligations
       .map(_.obligationDetails.iCFromDate.getYear)
+      .distinct
+      .sorted(Ordering[Int].reverse)
+  }
+
+  def extractAvailableYearsFromDetails(
+    obligations: Seq[ObligationDetails]
+  ): Seq[Int] = {
+    obligations
+      .map(_.iCFromDate.getYear)
       .distinct
       .sorted(Ordering[Int].reverse)
   }
@@ -55,6 +75,15 @@ object PeriodSelectionHelper {
     selectedYear.getOrElse(
       availableYears.headOption.getOrElse(LocalDate.now().getYear)
     )
+  }
+
+  def filterObligationsByYearFromDetails(
+    obligations: Seq[ObligationDetails],
+    year: Int
+  ): Seq[ObligationDetails] = {
+    obligations
+      .filter(_.iCFromDate.getYear == year)
+      .sortBy(_.iCFromDate.getMonthValue)(Ordering[Int].reverse)
   }
 
   def filterObligationsByYear(

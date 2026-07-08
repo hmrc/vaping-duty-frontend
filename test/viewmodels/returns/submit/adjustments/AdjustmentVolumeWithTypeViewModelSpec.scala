@@ -18,7 +18,6 @@ package viewmodels.returns.submit.adjustments
 
 import base.SpecBase
 import models.identifiers.PeriodKey
-import models.obligations.ObligationsResponse
 import utils.ReturnsDateUtils
 
 class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
@@ -29,18 +28,18 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
   "AdjustmentVolumeWithTypeViewModel" - {
 
     "must return the formatted month and year when a matching obligation is found" in {
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
-      val vm = AdjustmentVolumeWithTypeViewModel(obligationsResponse, october2027, dateUtils)
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+      val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, october2027, dateUtils)
 
       vm.periodDisplay mustBe "October 2027"
     }
 
     "must throw IllegalStateException when no matching obligation is found" in {
       val unknownPeriodKey = PeriodKey("99ZZ")
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
 
       val exception = intercept[IllegalStateException] {
-        AdjustmentVolumeWithTypeViewModel(obligationsResponse, unknownPeriodKey, dateUtils)
+        AdjustmentVolumeWithTypeViewModel(obligationDetails, unknownPeriodKey, dateUtils)
       }
 
       exception.getMessage must include("Period key '99ZZ' not found in obligations")
@@ -48,10 +47,10 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
     }
 
     "must throw IllegalStateException when obligations list is empty" in {
-      val obligationsResponse = ObligationsResponse(obligation = Seq.empty)
+      val obligationDetails = Seq.empty
 
       val exception = intercept[IllegalStateException] {
-        AdjustmentVolumeWithTypeViewModel(obligationsResponse, october2027, dateUtils)
+        AdjustmentVolumeWithTypeViewModel(obligationDetails, october2027, dateUtils)
       }
 
       exception.getMessage must include(s"Period key '${october2027.value}' not found in obligations")
@@ -75,8 +74,8 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
       )
 
       allMonthPeriodKeys.foreach { case (key, expectedDisplay) =>
-        val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(key))))
-        val vm = AdjustmentVolumeWithTypeViewModel(obligationsResponse, key, dateUtils)
+        val obligationDetails = obligations(Seq(fulfilledObligation(key))).map(_.obligationDetails)
+        val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, key, dateUtils)
         vm.periodDisplay mustBe expectedDisplay
       }
     }
