@@ -26,6 +26,7 @@ import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.api.test.Helpers.*
+import utils.ReturnsDateUtils
 
 import scala.concurrent.Future
 
@@ -33,10 +34,12 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
 
   private val mockObligationService: ObligationService = mock[ObligationService]
   private val mockDutyRateService: DutyRateService = mock[DutyRateService]
+  private val mockReturnsDateUtils: ReturnsDateUtils = mock[ReturnsDateUtils]
 
   private val service = new AdjustmentCheckYourAnswersService(
     mockObligationService,
-    mockDutyRateService
+    mockDutyRateService,
+    mockReturnsDateUtils
   )
 
   private val vpdId = VpdId("XMVPD0000000123")

@@ -18,7 +18,6 @@ package controllers.returns.submit.adjustments
 
 import base.SpecBase
 import forms.returns.DeclareDutyFormProvider
-import models.obligations.ObligationsResponse
 import models.returns.adjustments.AdjustmentList
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any

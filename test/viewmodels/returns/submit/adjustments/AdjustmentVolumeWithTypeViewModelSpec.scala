@@ -19,14 +19,18 @@ package viewmodels.returns.submit.adjustments
 import base.SpecBase
 import models.identifiers.PeriodKey
 import models.obligations.ObligationsResponse
+import utils.ReturnsDateUtils
 
 class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
+
+  private lazy val app = applicationBuilder().build()
+  private lazy val dateUtils = app.injector.instanceOf[ReturnsDateUtils]
 
   "AdjustmentVolumeWithTypeViewModel" - {
 
     "must return the formatted month and year when a matching obligation is found" in {
       val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
-      val vm = AdjustmentVolumeWithTypeViewModel(obligationsResponse, october2027)
+      val vm = AdjustmentVolumeWithTypeViewModel(obligationsResponse, october2027, dateUtils)
 
       vm.periodDisplay mustBe "October 2027"
     }
@@ -36,7 +40,7 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
       val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
 
       val exception = intercept[IllegalStateException] {
-        AdjustmentVolumeWithTypeViewModel(obligationsResponse, unknownPeriodKey)
+        AdjustmentVolumeWithTypeViewModel(obligationsResponse, unknownPeriodKey, dateUtils)
       }
 
       exception.getMessage must include("Period key '99ZZ' not found in obligations")
@@ -47,7 +51,7 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
       val obligationsResponse = ObligationsResponse(obligation = Seq.empty)
 
       val exception = intercept[IllegalStateException] {
-        AdjustmentVolumeWithTypeViewModel(obligationsResponse, october2027)
+        AdjustmentVolumeWithTypeViewModel(obligationsResponse, october2027, dateUtils)
       }
 
       exception.getMessage must include(s"Period key '${october2027.value}' not found in obligations")
@@ -72,7 +76,7 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
 
       allMonthPeriodKeys.foreach { case (key, expectedDisplay) =>
         val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(key))))
-        val vm = AdjustmentVolumeWithTypeViewModel(obligationsResponse, key)
+        val vm = AdjustmentVolumeWithTypeViewModel(obligationsResponse, key, dateUtils)
         vm.periodDisplay mustBe expectedDisplay
       }
     }

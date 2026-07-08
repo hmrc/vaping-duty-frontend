@@ -17,7 +17,9 @@
 package base
 
 import config.FrontendAppConfig
-import connectors.contactPreference.EmailVerificationConnector
+import connectors.contactPreference.{EmailVerificationConnector, SubmitPreferencesConnector}
+import connectors.returns.GetReturnsConnector
+import connectors.SubscriptionConnector
 import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeDataRetrievalAction}
 import controllers.actions.returns.{FakeReturnsDataRetrievalAction, ReturnsDataRetrievalAction}
@@ -36,7 +38,9 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
+import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.ReturnsDateUtils
 
 import scala.concurrent.ExecutionContext
 
@@ -76,6 +80,18 @@ trait SpecBase
 
   private lazy val app: Application = applicationBuilder().build()
   
+  // Common mocks for config and connectors
   val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
   val mockEmailVerificationConnector: EmailVerificationConnector = mock[EmailVerificationConnector]
+  val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
+  val mockSubmitPreferencesConnector: SubmitPreferencesConnector = mock[SubmitPreferencesConnector]
+  
+  // Common mocks for returns domain
+  val mockObligationService: ObligationService = mock[ObligationService]
+  val mockReturnsUserAnswersService: ReturnsUserAnswersService = mock[ReturnsUserAnswersService]
+  val mockDutyRateService: DutyRateService = mock[DutyRateService]
+  val mockGetReturnsConnector: GetReturnsConnector = mock[GetReturnsConnector]
+  
+  // Common utilities (uses clock from TestData trait)
+  val returnsDateUtils: ReturnsDateUtils = new ReturnsDateUtils(clock)
 }

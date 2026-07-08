@@ -24,6 +24,8 @@ import java.time.Month
 
 class ReturnsDateUtilSpec extends SpecBase with Matchers {
 
+  private val returnsDateUtils = new ReturnsDateUtils(clock)
+
   private val months = Map(
     Month.JANUARY -> "January",
     Month.FEBRUARY -> "February",
@@ -45,7 +47,7 @@ class ReturnsDateUtilSpec extends SpecBase with Matchers {
       lazy val app = applicationBuilder().build()
 
       months.foreach(el =>
-        ReturnsDateUtils.getMonthMessage(el._1)(messages(app)) mustBe el._2
+        returnsDateUtils.getMonthMessage(el._1)(messages(app)) mustBe el._2
       )
     }
   }
@@ -53,35 +55,89 @@ class ReturnsDateUtilSpec extends SpecBase with Matchers {
   "ReturnsDateUtil.getMonthMessageKey" - {
 
     "must return correct message key for all valid months" in {
-      ReturnsDateUtils.getMonthMessageKey(1) mustBe "month.jan"
-      ReturnsDateUtils.getMonthMessageKey(2) mustBe "month.feb"
-      ReturnsDateUtils.getMonthMessageKey(3) mustBe "month.mar"
-      ReturnsDateUtils.getMonthMessageKey(4) mustBe "month.apr"
-      ReturnsDateUtils.getMonthMessageKey(5) mustBe "month.may"
-      ReturnsDateUtils.getMonthMessageKey(6) mustBe "month.jun"
-      ReturnsDateUtils.getMonthMessageKey(7) mustBe "month.jul"
-      ReturnsDateUtils.getMonthMessageKey(8) mustBe "month.aug"
-      ReturnsDateUtils.getMonthMessageKey(9) mustBe "month.sep"
-      ReturnsDateUtils.getMonthMessageKey(10) mustBe "month.oct"
-      ReturnsDateUtils.getMonthMessageKey(11) mustBe "month.nov"
-      ReturnsDateUtils.getMonthMessageKey(12) mustBe "month.dec"
+      returnsDateUtils.getMonthMessageKey(1) mustBe "month.jan"
+      returnsDateUtils.getMonthMessageKey(2) mustBe "month.feb"
+      returnsDateUtils.getMonthMessageKey(3) mustBe "month.mar"
+      returnsDateUtils.getMonthMessageKey(4) mustBe "month.apr"
+      returnsDateUtils.getMonthMessageKey(5) mustBe "month.may"
+      returnsDateUtils.getMonthMessageKey(6) mustBe "month.jun"
+      returnsDateUtils.getMonthMessageKey(7) mustBe "month.jul"
+      returnsDateUtils.getMonthMessageKey(8) mustBe "month.aug"
+      returnsDateUtils.getMonthMessageKey(9) mustBe "month.sep"
+      returnsDateUtils.getMonthMessageKey(10) mustBe "month.oct"
+      returnsDateUtils.getMonthMessageKey(11) mustBe "month.nov"
+      returnsDateUtils.getMonthMessageKey(12) mustBe "month.dec"
     }
 
     "must throw IllegalArgumentException for invalid month numbers" in {
       val exception0 = intercept[IllegalArgumentException] {
-        ReturnsDateUtils.getMonthMessageKey(0)
+        returnsDateUtils.getMonthMessageKey(0)
       }
       exception0.getMessage must include("Invalid month number: 0")
 
       val exception13 = intercept[IllegalArgumentException] {
-        ReturnsDateUtils.getMonthMessageKey(13)
+        returnsDateUtils.getMonthMessageKey(13)
       }
       exception13.getMessage must include("Invalid month number: 13")
 
       val exceptionNegative = intercept[IllegalArgumentException] {
-        ReturnsDateUtils.getMonthMessageKey(-1)
+        returnsDateUtils.getMonthMessageKey(-1)
       }
       exceptionNegative.getMessage must include("Invalid month number: -1")
+    }
+  }
+
+  "ReturnsDateUtil.formatPeriodDisplay with ObligationsResponse" - {
+
+    "must format period display correctly when period key is found" in {
+      lazy val app = applicationBuilder().build()
+      val obligationsResponse = models.obligations.ObligationsResponse(
+        obligation = obligations(Seq(fulfilledObligation(october2027)))
+      )
+
+      val result = returnsDateUtils.formatPeriodDisplay(october2027, obligationsResponse)(messages(app))
+
+      result mustBe "October 2027"
+    }
+
+    "must throw IllegalStateException when period key is not found" in {
+      lazy val app = applicationBuilder().build()
+      val obligationsResponse = models.obligations.ObligationsResponse(
+        obligation = obligations(Seq(fulfilledObligation(october2027)))
+      )
+      val unknownPeriodKey = periodKey
+
+      val exception = intercept[IllegalStateException] {
+        returnsDateUtils.formatPeriodDisplay(unknownPeriodKey, obligationsResponse)(messages(app))
+      }
+
+      exception.getMessage must include(s"Period key '${unknownPeriodKey.value}' not found in obligations")
+      exception.getMessage must include("Available period keys:")
+    }
+  }
+
+  "ReturnsDateUtil.formatPeriodDisplay with ObligationDetails sequence" - {
+
+    "must format period display correctly when period key is found" in {
+      lazy val app = applicationBuilder().build()
+      val obligationDetails = Seq(fulfilledObligation(october2027))
+
+      val result = returnsDateUtils.formatPeriodDisplay(october2027, obligationDetails)(messages(app))
+
+      result mustBe "October 2027"
+    }
+
+    "must throw IllegalStateException when period key is not found" in {
+      lazy val app = applicationBuilder().build()
+      val obligationDetails = Seq(fulfilledObligation(october2027))
+      val unknownPeriodKey = periodKey
+
+      val exception = intercept[IllegalStateException] {
+        returnsDateUtils.formatPeriodDisplay(unknownPeriodKey, obligationDetails)(messages(app))
+      }
+
+      exception.getMessage must include(s"Period key '${unknownPeriodKey.value}' not found in obligations")
+      exception.getMessage must include("Available period keys:")
     }
   }
 }

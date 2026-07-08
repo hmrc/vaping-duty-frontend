@@ -33,9 +33,7 @@ import views.html.contactPreference.{EmailConfirmationView, PostalConfirmationVi
 import scala.concurrent.Future
 
 class ConfirmationControllerSpec extends SpecBase with BeforeAndAfterEach {
-
-  val mockSubscriptionConnector: SubscriptionConnector = mock[SubscriptionConnector]
-
+  
   override def beforeEach(): Unit = {
     reset(mockSubscriptionConnector)
   }

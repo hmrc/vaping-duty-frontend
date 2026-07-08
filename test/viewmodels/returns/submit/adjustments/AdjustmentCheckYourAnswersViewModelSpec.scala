@@ -17,13 +17,12 @@
 package viewmodels.returns.submit.adjustments
 
 import base.SpecBase
-import models.obligations.ObligationsResponse
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 
 class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
 
-  val dutyRate = BigDecimal("3.00")
-  val dutyRatesMap = Map(october2027.toString -> dutyRate)
+  val dutyRate: BigDecimal = BigDecimal("3.00")
+  val dutyRatesMap: Map[String, BigDecimal] = Map(october2027.toString -> dutyRate)
 
   "AdjustmentCheckYourAnswersViewModel" - {
 
@@ -41,7 +40,8 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         Some(adjustmentList),
         obligationDetails,
         periodKey,
-        dutyRatesMap
+        dutyRatesMap,
+        returnsDateUtils
       )
 
       vm.hasAdjustments mustBe true
@@ -63,7 +63,8 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         Some(adjustmentList),
         obligationDetails,
         periodKey,
-        dutyRatesMap
+        dutyRatesMap,
+        returnsDateUtils
       )
 
       vm.totalAdjustment mustBe BigDecimal("3000.00")
@@ -84,7 +85,8 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         Some(adjustmentList),
         obligationDetails,
         periodKey,
-        dutyRatesMap
+        dutyRatesMap,
+        returnsDateUtils
       )
 
       vm.totalAdjustment mustBe BigDecimal("-3000.00")
@@ -99,7 +101,8 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         None,
         obligationDetails,
         periodKey,
-        dutyRatesMap
+        dutyRatesMap,
+        returnsDateUtils
       )
 
       vm.hasAdjustments mustBe false

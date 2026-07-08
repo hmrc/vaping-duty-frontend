@@ -23,11 +23,12 @@ import models.returns.ReturnsConstants
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskListItemTitle
+import utils.ReturnsDateUtils
 
 class PeriodSelectionHelperSpec extends SpecBase {
 
   implicit val messages: Messages = messages(applicationBuilder(None).build())
-  
+
   "filterFulfilledWithinThreeYears" - {
 
     "must filter to only fulfilled obligations" in {
@@ -198,7 +199,7 @@ class PeriodSelectionHelperSpec extends SpecBase {
       val filtered = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationsResponse)
       val hrefBuilder = (periodKey: String) => s"/test-url?period=$periodKey"
 
-      val result = PeriodSelectionHelper.buildTaskListItems(filtered, hrefBuilder)
+      val result = PeriodSelectionHelper.buildTaskListItems(filtered, hrefBuilder, returnsDateUtils)
 
       result.size mustBe 2
       result.head.title mustBe TaskListItemTitle(content = Text(messages("month.mar")))
@@ -210,7 +211,7 @@ class PeriodSelectionHelperSpec extends SpecBase {
     "must return empty sequence for empty obligations" in {
       val hrefBuilder = (periodKey: String) => s"/test-url?period=$periodKey"
 
-      val result = PeriodSelectionHelper.buildTaskListItems(Seq.empty, hrefBuilder)
+      val result = PeriodSelectionHelper.buildTaskListItems(Seq.empty, hrefBuilder, returnsDateUtils)
 
       result mustBe empty
     }

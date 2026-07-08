@@ -27,6 +27,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.{ObligationService, ReturnsUserAnswersService}
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.BeforeYouStartViewModel
 import views.html.returns.submit.BeforeYouStartView
 
@@ -53,7 +54,8 @@ class BeforeYouStartControllerSpec extends SpecBase {
         )
         .build()
 
-      val vm = BeforeYouStartViewModel(testObligations, validPeriodKey)(messages(application)).get
+      val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
+      val vm = BeforeYouStartViewModel(testObligations, validPeriodKey, returnsDateUtils)(messages(application)).get
 
       when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
       when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(testObligationsResponse))
@@ -83,7 +85,8 @@ class BeforeYouStartControllerSpec extends SpecBase {
         )
         .build()
 
-      val vm = BeforeYouStartViewModel(testObligations, validPeriodKey)(messages(application)).get
+      val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
+      val vm = BeforeYouStartViewModel(testObligations, validPeriodKey, returnsDateUtils)(messages(application)).get
 
       when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
       when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(testObligationsResponse))

@@ -19,8 +19,11 @@ package viewmodels.returns.submit.adjustments
 import base.SpecBase
 import models.obligations.ObligationsResponse
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
+import utils.ReturnsDateUtils
 
 class SelectAdjustmentPeriodViewModelSpec extends SpecBase {
+
+  private val returnsDateUtils = new ReturnsDateUtils(clock)
 
   "SelectAdjustmentPeriodViewModel" - {
 
@@ -34,7 +37,8 @@ class SelectAdjustmentPeriodViewModelSpec extends SpecBase {
         obligationsResponse,
         None,
         periodKey,
-        None
+        None,
+        returnsDateUtils
       )
 
       vm.periods.size mustBe 2
@@ -51,7 +55,8 @@ class SelectAdjustmentPeriodViewModelSpec extends SpecBase {
         obligationsResponse,
         None,
         periodKey,
-        None
+        None,
+        returnsDateUtils
       )
 
       vm.periods.size mustBe 1
@@ -75,7 +80,8 @@ class SelectAdjustmentPeriodViewModelSpec extends SpecBase {
         obligationsResponse,
         None,
         periodKey,
-        Some(adjustmentList)
+        Some(adjustmentList),
+        returnsDateUtils
       )
 
       vm.periods.size mustBe 1
@@ -89,7 +95,8 @@ class SelectAdjustmentPeriodViewModelSpec extends SpecBase {
         obligationsResponse,
         None,
         periodKey,
-        None
+        None,
+        returnsDateUtils
       )
 
       vm.periods mustBe empty

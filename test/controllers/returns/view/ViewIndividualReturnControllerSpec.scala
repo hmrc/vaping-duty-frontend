@@ -27,6 +27,7 @@ import play.api.inject
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.ObligationService
+import utils.ReturnsDateUtils
 import viewmodels.returns.view.ViewIndividualReturnViewModel
 import views.html.returns.view.ViewIndividualReturnView
 
@@ -61,7 +62,8 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), createMockObligationsResponse())
+        val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
+        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), createMockObligationsResponse(), returnsDateUtils)(using messages(application))
 
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 
@@ -104,7 +106,8 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val vm = ViewIndividualReturnViewModel(returnDataWithoutRegularReturn, createMockObligationsResponse())
+        val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
+        val vm = ViewIndividualReturnViewModel(returnDataWithoutRegularReturn, createMockObligationsResponse(), returnsDateUtils)(using messages(application))
 
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 

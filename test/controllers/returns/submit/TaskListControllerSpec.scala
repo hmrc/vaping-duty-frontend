@@ -27,6 +27,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.{ObligationService, ReturnsUserAnswersService}
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.TaskListPageViewModel
 import views.html.returns.submit.TaskListView
 
@@ -77,10 +78,11 @@ class TaskListControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, controllers.returns.submit.routes.TaskListController.onPageLoad().url)
         val result = route(application, request).value
         val view = application.injector.instanceOf[TaskListView]
+        val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          TaskListPageViewModel(returnsUserAnswers, Seq(fulfilledObligation), periodKey)
+          TaskListPageViewModel(returnsUserAnswers, Seq(fulfilledObligation), periodKey, returnsDateUtils)
         )(request).toString
       }
     }
@@ -107,10 +109,11 @@ class TaskListControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, controllers.returns.submit.routes.TaskListController.onPageLoad().url)
         val result = route(application, request).value
         val view = application.injector.instanceOf[TaskListView]
+        val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          TaskListPageViewModel(returnsUserAnswers, Seq(openObligation), periodKey)
+          TaskListPageViewModel(returnsUserAnswers, Seq(openObligation), periodKey, returnsDateUtils)
         )(request).toString
       }
     }
