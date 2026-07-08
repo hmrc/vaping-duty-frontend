@@ -49,10 +49,10 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
     "must return OK and the correct view for a GET" in {
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
 
-      when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(obligationsResponse))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
       when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.successful(BigDecimal("3.00")))
 
@@ -78,10 +78,10 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
     "must populate the view correctly on a GET when the question has previously been answered" in {
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
 
-      when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(obligationsResponse))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
       when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.successful(BigDecimal("3.00")))
 
@@ -110,7 +110,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
 
-      when(mockObligationService.getObligations(any())(using any()))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
         .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
 
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
@@ -137,10 +137,10 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
       val mockSessionRepository = mock[ReturnsUserAnswersService]
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
 
-      when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(obligationsResponse))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
       when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.successful(BigDecimal("3.00")))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
@@ -203,10 +203,10 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
     "must return a Bad Request and errors when invalid data is submitted" in {
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
 
-      when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(obligationsResponse))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
       when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.successful(BigDecimal("3.00")))
 
@@ -235,7 +235,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
 
-      when(mockObligationService.getObligations(any())(using any()))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
         .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
 
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))

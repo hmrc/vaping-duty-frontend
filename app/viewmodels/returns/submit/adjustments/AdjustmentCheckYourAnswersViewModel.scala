@@ -18,7 +18,7 @@ package viewmodels.returns.submit.adjustments
 
 import models.NormalMode
 import models.identifiers.PeriodKey
-import models.obligations.ObligationsResponse
+import models.obligations.{ObligationDetails, ObligationsResponse}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
@@ -37,7 +37,7 @@ object AdjustmentCheckYourAnswersViewModel {
   def apply(
              declareAdjustment: Option[Boolean],
              adjustmentList: Option[AdjustmentList],
-             obligations: ObligationsResponse,
+             obligationDetails: Seq[ObligationDetails],
              periodKey: PeriodKey,
              dutyRates: Map[String, BigDecimal]
            )(implicit messages: Messages): AdjustmentCheckYourAnswersViewModel = {
@@ -49,7 +49,7 @@ object AdjustmentCheckYourAnswersViewModel {
         Seq(buildNoAdjustmentCard(periodKey))
       case _ =>
         adjustments.map { adjustment =>
-          buildSummaryCard(adjustment, obligations, periodKey, dutyRates)
+          buildSummaryCard(adjustment, obligationDetails, periodKey, dutyRates)
         }
     }
 
@@ -78,12 +78,12 @@ object AdjustmentCheckYourAnswersViewModel {
 
   private def buildSummaryCard(
                                 adjustment: AdjustmentEntry,
-                                obligations: ObligationsResponse,
+                                obligationDetails: Seq[ObligationDetails],
                                 currentPeriodKey: PeriodKey,
                                 dutyRates: Map[String, BigDecimal]
                               )(implicit messages: Messages): AdjustmentSummaryCard = {
 
-    val periodDisplay = formatPeriod(adjustment.period, obligations)
+    val periodDisplay = formatPeriod(adjustment.period, obligationDetails)
     val dutyAmount = calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0)))
 
     val rows = Seq(
@@ -208,8 +208,8 @@ object AdjustmentCheckYourAnswersViewModel {
     )
   }
 
-  private def formatPeriod(periodKey: PeriodKey, obligations: ObligationsResponse)(implicit messages: Messages): String = {
-    ReturnsDateUtils.formatPeriodDisplay(periodKey, obligations)
+  private def formatPeriod(periodKey: PeriodKey, obligationDetails: Seq[ObligationDetails])(implicit messages: Messages): String = {
+    ReturnsDateUtils.formatPeriodDisplay(periodKey, obligationDetails)
   }
 
   private def calculateDuty(volumeInMl: BigDecimal, dutyRate: BigDecimal): BigDecimal = {

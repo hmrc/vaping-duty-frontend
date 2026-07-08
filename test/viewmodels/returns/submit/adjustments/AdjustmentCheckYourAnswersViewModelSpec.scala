@@ -34,12 +34,12 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         volumeInMl = BigDecimal("100.0")
       )
       val adjustmentList = AdjustmentList(Seq(adjustment))
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
 
       val vm = AdjustmentCheckYourAnswersViewModel(
         Some(true),
         Some(adjustmentList),
-        obligationsResponse,
+        obligationDetails,
         periodKey,
         dutyRatesMap
       )
@@ -56,12 +56,12 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         volumeInMl = BigDecimal("1000.0")
       )
       val adjustmentList = AdjustmentList(Seq(adjustment))
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
 
       val vm = AdjustmentCheckYourAnswersViewModel(
         Some(true),
         Some(adjustmentList),
-        obligationsResponse,
+        obligationDetails,
         periodKey,
         dutyRatesMap
       )
@@ -77,12 +77,12 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         volumeInMl = BigDecimal("1000.0")
       )
       val adjustmentList = AdjustmentList(Seq(adjustment))
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
 
       val vm = AdjustmentCheckYourAnswersViewModel(
         Some(true),
         Some(adjustmentList),
-        obligationsResponse,
+        obligationDetails,
         periodKey,
         dutyRatesMap
       )
@@ -92,12 +92,12 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
     }
 
     "must handle empty adjustment list" in {
-      val obligationsResponse = ObligationsResponse(obligation = obligations(Seq(fulfilledObligation(october2027))))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
 
       val vm = AdjustmentCheckYourAnswersViewModel(
         Some(false),
         None,
-        obligationsResponse,
+        obligationDetails,
         periodKey,
         dutyRatesMap
       )

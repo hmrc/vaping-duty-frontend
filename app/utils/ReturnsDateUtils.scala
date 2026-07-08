@@ -82,8 +82,15 @@ object ReturnsDateUtils {
                            periodKey: PeriodKey,
                            obligations: ObligationsResponse
                          )(implicit messages: Messages): String = {
-    obligations.obligation
-      .map(_.obligationDetails)
+    val obligationDetails = obligations.obligation.map(_.obligationDetails)
+    formatPeriodDisplay(periodKey, obligationDetails)
+  }
+
+  def formatPeriodDisplay(
+                           periodKey: PeriodKey,
+                           obligationDetails: Seq[models.obligations.ObligationDetails]
+                         )(implicit messages: Messages): String = {
+    obligationDetails
       .find(_.periodKey == periodKey.toString)
       .map { obligation =>
         val month = obligation.iCFromDate.getMonthValue
@@ -92,10 +99,10 @@ object ReturnsDateUtils {
         s"${messages(monthKey)} $year"
       }
       .getOrElse {
-        val availableKeys = if (obligations.obligation.isEmpty) {
+        val availableKeys = if (obligationDetails.isEmpty) {
           "none"
         } else {
-          obligations.obligation.map(_.obligationDetails.periodKey).mkString(", ")
+          obligationDetails.map(_.periodKey).mkString(", ")
         }
         throw new IllegalStateException(
           s"Period key '${periodKey.value}' not found in obligations. " +

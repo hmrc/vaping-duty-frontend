@@ -21,7 +21,7 @@ import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrie
 import forms.returns.DeclareDutyFormProvider
 import models.NormalMode
 import models.identifiers.PeriodKey
-import models.obligations.ObligationsResponse
+import models.obligations.{ObligationDetails, ObligationsResponse}
 import models.requests.returns.ReturnsDataRequest
 import models.returns.adjustments.AdjustmentList
 import navigation.ReturnsNavigator
@@ -60,17 +60,16 @@ class AdjustmentCheckYourAnswersController @Inject()(
       val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
       val adjustmentList = request.userAnswers.get(AdjustmentListPage)
 
-      withObligations { obligations =>
-        getDutyRatesForAdjustments(adjustmentList).map { dutyRatesMap =>
-          val vm = buildViewModel(declareAdjustment, adjustmentList, obligations, request.periodKey, dutyRatesMap)
+      withObligations { obligationDetails =>
+        val dutyRatesMap = getDutyRatesForAdjustments(adjustmentList, obligationDetails)
+        val vm = buildViewModel(declareAdjustment, adjustmentList, obligationDetails, request.periodKey, dutyRatesMap)
 
-          val preparedForm = request.userAnswers.get(AddAnotherAdjustmentPage) match {
-            case None => form
-            case Some(value) => form.fill(value)
-          }
-
-          Ok(view(request.periodKey, vm, preparedForm))
+        val preparedForm = request.userAnswers.get(AddAnotherAdjustmentPage) match {
+          case None => form
+          case Some(value) => form.fill(value)
         }
+
+        Future.successful(Ok(view(request.periodKey, vm, preparedForm)))
       }
   }
 
@@ -90,11 +89,10 @@ class AdjustmentCheckYourAnswersController @Inject()(
         case _ =>
           form.bindFromRequest().fold(
             formWithErrors =>
-              withObligations { obligations =>
-                getDutyRatesForAdjustments(adjustmentList).map { dutyRatesMap =>
-                  val vm = buildViewModel(declareAdjustment, adjustmentList, obligations, request.periodKey, dutyRatesMap)
-                  BadRequest(view(request.periodKey, vm, formWithErrors))
-                }
+              withObligations { obligationDetails =>
+                val dutyRatesMap = getDutyRatesForAdjustments(adjustmentList, obligationDetails)
+                val vm = buildViewModel(declareAdjustment, adjustmentList, obligationDetails, request.periodKey, dutyRatesMap)
+                Future.successful(BadRequest(view(request.periodKey, vm, formWithErrors)))
               },
 
             value =>
@@ -109,36 +107,48 @@ class AdjustmentCheckYourAnswersController @Inject()(
   private def buildViewModel(
     declareAdjustment: Option[Boolean],
     adjustmentList: Option[AdjustmentList],
-    obligations: ObligationsResponse,
+    obligationDetails: Seq[ObligationDetails],
     periodKey: PeriodKey,
     dutyRatesMap: Map[String, BigDecimal]
   )(implicit messages: Messages): AdjustmentCheckYourAnswersViewModel = {
     AdjustmentCheckYourAnswersViewModel(
       declareAdjustment,
       adjustmentList,
-      obligations,
+      obligationDetails,
       periodKey,
       dutyRatesMap
     )
   }
 
   private def withObligations(
-    block: ObligationsResponse => Future[Result]
+    block: Seq[ObligationDetails] => Future[Result]
   )(implicit request: ReturnsDataRequest[AnyContent]): Future[Result] = {
-    obligationService.getObligations(request.enrolmentVpdId).flatMap(block)
+    obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap(block)
       .recover {
         case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
   }
 
-  private def getDutyRatesForAdjustments(adjustmentList: Option[AdjustmentList])
-                                        (implicit request: ReturnsDataRequest[_]): Future[Map[String, BigDecimal]] = {
+  private def getDutyRatesForAdjustments(
+    adjustmentList: Option[AdjustmentList],
+    obligationDetails: Seq[ObligationDetails]
+  ): Map[String, BigDecimal] = {
 
-    val adjustmentPeriods = adjustmentList.map(_.adjustments.map(_.period)).getOrElse(Seq.empty)
+    val uniquePeriods = adjustmentList
+      .map(_.adjustments.map(_.period).distinct)
+      .getOrElse(Seq.empty)
 
-    Future.sequence(adjustmentPeriods.map { period =>
-      dutyRateService.getDutyRate(request.enrolmentVpdId, period).map(rate => period.toString -> rate)
-    }).map(_.toMap)
+    uniquePeriods.map { period =>
+      val obligation = obligationDetails.find(_.periodKey == period.toString)
+      val dutyRate = obligation.map { obl =>
+        val rateInPencePerMl = dutyRateService.getRateForDate(obl.iCFromDate)
+        BigDecimal(rateInPencePerMl) / 100
+      }.getOrElse(
+        // scalafix:off DisableSyntax.throw
+        throw new RuntimeException(s"No obligation found for period ${period.toString}")
+      )
+      period.toString -> dutyRate
+    }.toMap
   }
 
 }
