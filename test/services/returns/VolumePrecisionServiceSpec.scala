@@ -22,57 +22,74 @@ class VolumePrecisionServiceSpec extends SpecBase {
 
   private val service = new VolumePrecisionService()
 
-  "VolumePrecisionService" - {
+  "normalizeMaxVolume" - {
 
-    "calculateMaxVolume" - {
+    "must normalize large numbers by taking first two digits and replacing rest with zeros" in {
+      service.normalizeMaxVolume(BigDecimal("454545454545")) mustBe BigDecimal("450000000000")
+      service.normalizeMaxVolume(BigDecimal("296735905")) mustBe BigDecimal("290000000")
+      service.normalizeMaxVolume(BigDecimal("12345678")) mustBe BigDecimal("12000000")
+      service.normalizeMaxVolume(BigDecimal("12345")) mustBe BigDecimal("12000")
+    }
 
-      "must calculate correct max volume for a given duty rate" in {
-        val dutyRateInPencePerMl = 337 // £3.37 per 10ml = 0.337 pence per ml
-        val result = service.calculateMaxVolume(dutyRateInPencePerMl)
+    "must normalize three-digit numbers" in {
+      service.normalizeMaxVolume(BigDecimal("987")) mustBe BigDecimal("980")
+      service.normalizeMaxVolume(BigDecimal("123")) mustBe BigDecimal("120")
+      service.normalizeMaxVolume(BigDecimal("100")) mustBe BigDecimal("100")
+    }
 
-        // Max duty = £999,999,999.99
-        // Rate = 337 pence per ml = £3.37 per ml
-        // Max volume = 999,999,999.99 / 3.37 = 296,735,905.0 ml (rounded down to 1 decimal place)
-        result.maxVolumeInMl mustBe BigDecimal("29673590504")
-      }
+    "must keep two-digit numbers unchanged" in {
+      service.normalizeMaxVolume(BigDecimal("87")) mustBe BigDecimal("87")
+      service.normalizeMaxVolume(BigDecimal("45")) mustBe BigDecimal("45")
+      service.normalizeMaxVolume(BigDecimal("10")) mustBe BigDecimal("10")
+    }
 
-      "must format the max volume with commas" in {
-        val dutyRateInPencePerMl = 337
-        val result = service.calculateMaxVolume(dutyRateInPencePerMl)
+    "must keep single-digit numbers unchanged" in {
+      service.normalizeMaxVolume(BigDecimal("7")) mustBe BigDecimal("7")
+      service.normalizeMaxVolume(BigDecimal("1")) mustBe BigDecimal("1")
+    }
 
-        result.formattedForDisplay mustBe "29,673,590,504 ml"
-      }
+    "must handle zero" in {
+      service.normalizeMaxVolume(BigDecimal("0")) mustBe BigDecimal("0")
+    }
 
-      "must handle different duty rates correctly" in {
-        val testCases = Seq(
-          (100, BigDecimal("99999999999"), "99,999,999,999 ml"),  // £1.00 per ml
-          (200, BigDecimal("49999999999"), "49,999,999,999 ml"),  // £2.00 per ml
-          (50, BigDecimal("199999999999"), "199,999,999,999 ml")  // £0.50 per ml
-        )
+    "must handle negative numbers" in {
+      service.normalizeMaxVolume(BigDecimal("-100")) mustBe BigDecimal("-100")
+    }
+  }
 
-        testCases.foreach { case (rate, expectedMax, expectedFormatted) =>
-          val result = service.calculateMaxVolume(rate)
-          result.maxVolumeInMl mustBe expectedMax
-          result.formattedForDisplay mustBe expectedFormatted
-        }
-      }
+  "calculateMaxVolume" - {
 
-      "must round down to 1 decimal place" in {
-        val dutyRateInPencePerMl = 333 // Results in a value with more than 1 decimal place
-        val result = service.calculateMaxVolume(dutyRateInPencePerMl)
+    "must calculate and normalize max volume for a given duty rate" in {
+      // Duty rate: £3.37 per ml (337 pence per ml)
+      // Max duty: £99,999,999,999.99
+      // Actual max volume: 99,999,999,999.99 / 3.37 = 29,673,590,504.45... → 29,673,590,504 (rounded down)
+      // Normalized: 29,000,000,000
+      val result = service.calculateMaxVolume(337)
+      
+      result.maxVolumeInMl mustBe BigDecimal("29000000000")
+      result.formattedForDisplay mustBe "29,000,000,000 ml"
+    }
 
-        // Verify it's rounded down and has at most 1 decimal place
-        result.maxVolumeInMl.scale mustBe 0
-        result.maxVolumeInMl mustBe BigDecimal("30030030030")
-      }
+    "must calculate and normalize max volume for a different duty rate" in {
+      // Duty rate: £0.22 per ml (22 pence per ml)
+      // Max duty: £99,999,999,999.99
+      // Actual max volume: 99,999,999,999.99 / 0.22 = 454,545,454,545.40... → 454,545,454,545 (rounded down)
+      // Normalized: 450,000,000,000
+      val result = service.calculateMaxVolume(22)
+      
+      result.maxVolumeInMl mustBe BigDecimal("450000000000")
+      result.formattedForDisplay mustBe "450,000,000,000 ml"
+    }
 
-      "must format values without unnecessary decimal places" in {
-        val dutyRateInPencePerMl = 337 // Results in a whole number after rounding
-        val result = service.calculateMaxVolume(dutyRateInPencePerMl)
-
-        // Should not show .0 for results where fractional part is zero
-        result.formattedForDisplay must not include "."
-      }
+    "must calculate and normalize max volume for a high duty rate" in {
+      // Duty rate: £100 per ml (10000 pence per ml)
+      // Max duty: £99,999,999,999.99
+      // Actual max volume: 99,999,999,999.99 / 100 = 999,999,999.99... → 999,999,999 (rounded down)
+      // Normalized: 990,000,000
+      val result = service.calculateMaxVolume(10000)
+      
+      result.maxVolumeInMl mustBe BigDecimal("990000000")
+      result.formattedForDisplay mustBe "990,000,000 ml"
     }
   }
 }

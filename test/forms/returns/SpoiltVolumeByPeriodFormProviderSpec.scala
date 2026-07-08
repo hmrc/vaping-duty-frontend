@@ -36,8 +36,8 @@ class SpoiltVolumeByPeriodFormProviderSpec extends SpecBase with MockitoSugar {
   private val testPeriodKey = PeriodKey("24KA")
   private val testVpdId = VpdId("VPDID123")
   private val testDutyRate = BigDecimal("3.37")
-  private val testMaxVolume = BigDecimal("296735905.0")
-  private val testFormattedMax = "296,735,905 ml"
+  private val testMaxVolume = BigDecimal("29000000000")
+  private val testFormattedMax = "29,000,000,000 ml"
 
   ".value" - {
 
