@@ -44,8 +44,8 @@ class SelectSpoiltPeriodController @Inject()(
   def onPageLoad(year: Option[Int]): Action[AnyContent] =
     (identify andThen returnsEnabledAction andThen getData andThen requireData).async { implicit request =>
 
-      obligationService.getObligations(request.enrolmentVpdId).map { obligationsResponse =>
-        val viewModel = SelectSpoiltPeriodViewModel(obligationsResponse, year, request.periodKey, returnsDateUtils)
+      obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligationDetails =>
+        val viewModel = SelectSpoiltPeriodViewModel(obligationDetails, year, request.periodKey, returnsDateUtils)
         Ok(view(viewModel))
       }.recover {
         case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

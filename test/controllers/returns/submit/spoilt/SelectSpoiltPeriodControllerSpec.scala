@@ -81,8 +81,9 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
     "must return OK and the correct view when no year parameter is provided" in {
       val mockService = mock[ObligationService]
       val obligationsResponse = createMultiYearObligationsResponse()
+      val obligationDetails = obligationsResponse.obligation.map(_.obligationDetails)
 
-      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationsResponse))
+      when(mockService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(obligationDetails))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].to(mockService))
@@ -94,7 +95,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val returnsDateUtils = application.injector.instanceOf[utils.ReturnsDateUtils]
-        val vm = SelectSpoiltPeriodViewModel(obligationsResponse, None, periodKey, returnsDateUtils)(messages(application))
+        val vm = SelectSpoiltPeriodViewModel(obligationDetails, None, periodKey, returnsDateUtils)(messages(application))
         val view = application.injector.instanceOf[SelectSpoiltPeriodView]
 
         status(result) mustEqual OK
@@ -105,9 +106,10 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
     "must return OK and the correct view when a specific year is provided" in {
       val mockService = mock[ObligationService]
       val obligationsResponse = createMultiYearObligationsResponse()
+      val obligationDetails = obligationsResponse.obligation.map(_.obligationDetails)
       val specificYear = 2026
 
-      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationsResponse))
+      when(mockService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(obligationDetails))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].to(mockService))
@@ -119,7 +121,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val returnsDateUtils = application.injector.instanceOf[utils.ReturnsDateUtils]
-        val vm = SelectSpoiltPeriodViewModel(obligationsResponse, Some(specificYear), periodKey, returnsDateUtils)(messages(application))
+        val vm = SelectSpoiltPeriodViewModel(obligationDetails, Some(specificYear), periodKey, returnsDateUtils)(messages(application))
         val view = application.injector.instanceOf[SelectSpoiltPeriodView]
 
         status(result) mustEqual OK
@@ -130,7 +132,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
     "must redirect to JourneyRecovery when the service fails" in {
       val mockService = mock[ObligationService]
 
-      when(mockService.getObligations(any())(using any())).thenReturn(Future.failed(InternalServerException("")))
+      when(mockService.getObligationsDirectly(any())(using any())).thenReturn(Future.failed(InternalServerException("")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].to(mockService))
