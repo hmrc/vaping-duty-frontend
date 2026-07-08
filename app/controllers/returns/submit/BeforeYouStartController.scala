@@ -24,6 +24,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.{ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.BeforeYouStartViewModel
 import views.html.returns.submit.BeforeYouStartView
 
@@ -36,6 +37,7 @@ class BeforeYouStartController @Inject()(
                                           sessionRepository: ReturnsUserAnswersService,
                                           returnsEnabledAction: ReturnsEnabledAction,
                                           obligationService: ObligationService,
+                                          returnsDateUtils: ReturnsDateUtils,
                                           val controllerComponents: MessagesControllerComponents,
                                           view: BeforeYouStartView,
                                           getData: ReturnsDataRetrievalAction
@@ -53,7 +55,7 @@ class BeforeYouStartController @Inject()(
       }
 
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-        BeforeYouStartViewModel(obligations.obligation, periodKey) match {
+        BeforeYouStartViewModel(obligations.obligation, periodKey, returnsDateUtils) match {
           case Some(vm) =>
             sessionRepository.set(ua).map(_ => Ok(view(periodKey, vm)))
           case None =>

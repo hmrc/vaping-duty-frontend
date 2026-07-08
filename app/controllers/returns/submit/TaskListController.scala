@@ -23,6 +23,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.{ObligationService, TaskListPreparationService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.TaskListPageViewModel
 import views.html.returns.submit.TaskListView
 
@@ -37,6 +38,7 @@ class TaskListController @Inject()(
                                     returnsEnabledAction: ReturnsEnabledAction,
                                     obligationService: ObligationService,
                                     preparationService: TaskListPreparationService,
+                                    returnsDateUtils: ReturnsDateUtils,
                                     val controllerComponents: MessagesControllerComponents,
                                     view: TaskListView
                                   )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
@@ -52,7 +54,7 @@ class TaskListController @Inject()(
           obligations.obligation,
           request.periodKey
         ).map { updatedAnswers =>
-          Ok(view(TaskListPageViewModel(updatedAnswers, obligations.obligation, request.periodKey)))
+          Ok(view(TaskListPageViewModel(updatedAnswers, obligations.obligation, request.periodKey, returnsDateUtils)))
         }
       }
   }

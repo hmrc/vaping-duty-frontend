@@ -68,11 +68,12 @@ object PeriodSelectionHelper {
 
   def buildTaskListItems(
     obligations: Seq[ObligationItem],
-    hrefBuilder: String => String
+    hrefBuilder: String => String,
+    returnsDateUtils: ReturnsDateUtils
   )(implicit messages: Messages): Seq[TaskListItem] = {
     obligations.map { obligation =>
       val month = obligation.obligationDetails.iCFromDate.getMonthValue
-      val monthKey = ReturnsDateUtils.getMonthMessageKey(month)
+      val monthKey = returnsDateUtils.getMonthMessageKey(month)
       val periodKey = obligation.obligationDetails.periodKey
 
       TaskListItem(

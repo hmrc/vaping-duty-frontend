@@ -39,7 +39,8 @@ object AdjustmentCheckYourAnswersViewModel {
              adjustmentList: Option[AdjustmentList],
              obligationDetails: Seq[ObligationDetails],
              periodKey: PeriodKey,
-             dutyRates: Map[String, BigDecimal]
+             dutyRates: Map[String, BigDecimal],
+             returnsDateUtils: ReturnsDateUtils
            )(implicit messages: Messages): AdjustmentCheckYourAnswersViewModel = {
 
     val adjustments = adjustmentList.map(_.adjustments).getOrElse(Seq.empty)
@@ -49,7 +50,7 @@ object AdjustmentCheckYourAnswersViewModel {
         Seq(buildNoAdjustmentCard(periodKey))
       case _ =>
         adjustments.map { adjustment =>
-          buildSummaryCard(adjustment, obligationDetails, periodKey, dutyRates)
+          buildSummaryCard(adjustment, obligationDetails, periodKey, dutyRates, returnsDateUtils)
         }
     }
 
@@ -80,10 +81,11 @@ object AdjustmentCheckYourAnswersViewModel {
                                 adjustment: AdjustmentEntry,
                                 obligationDetails: Seq[ObligationDetails],
                                 currentPeriodKey: PeriodKey,
-                                dutyRates: Map[String, BigDecimal]
+                                dutyRates: Map[String, BigDecimal],
+                                returnsDateUtils: ReturnsDateUtils
                               )(implicit messages: Messages): AdjustmentSummaryCard = {
 
-    val periodDisplay = formatPeriod(adjustment.period, obligationDetails)
+    val periodDisplay = formatPeriod(adjustment.period, obligationDetails, returnsDateUtils)
     val dutyAmount = calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0)))
 
     val rows = Seq(
@@ -208,8 +210,8 @@ object AdjustmentCheckYourAnswersViewModel {
     )
   }
 
-  private def formatPeriod(periodKey: PeriodKey, obligationDetails: Seq[ObligationDetails])(implicit messages: Messages): String = {
-    ReturnsDateUtils.formatPeriodDisplay(periodKey, obligationDetails)
+  private def formatPeriod(periodKey: PeriodKey, obligationDetails: Seq[ObligationDetails], returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String = {
+    returnsDateUtils.formatPeriodDisplay(periodKey, obligationDetails)
   }
 
   private def calculateDuty(volumeInMl: BigDecimal, dutyRate: BigDecimal): BigDecimal = {

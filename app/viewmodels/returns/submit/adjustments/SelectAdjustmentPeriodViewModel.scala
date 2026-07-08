@@ -22,6 +22,7 @@ import models.returns.adjustments.AdjustmentList
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskListItem
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.PeriodSelectionHelper
 
 case class SelectAdjustmentPeriodViewModel(
@@ -36,7 +37,8 @@ object SelectAdjustmentPeriodViewModel {
              obligationsResponse: ObligationsResponse,
              selectedYear: Option[Int],
              currentReturnPeriod: PeriodKey,
-             adjustmentList: Option[AdjustmentList]
+             adjustmentList: Option[AdjustmentList],
+             returnsDateUtils: ReturnsDateUtils
            )(implicit messages: Messages): SelectAdjustmentPeriodViewModel = {
 
     val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationsResponse)
@@ -58,7 +60,7 @@ object SelectAdjustmentPeriodViewModel {
     val taskListItemHrefBuilder = (periodKey: String) =>
       s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(models.NormalMode).url}?period=${currentReturnPeriod.value}&adjustmentPeriod=$periodKey"
 
-    val taskListItems = PeriodSelectionHelper.buildTaskListItems(obligationsForYear, taskListItemHrefBuilder)
+    val taskListItems = PeriodSelectionHelper.buildTaskListItems(obligationsForYear, taskListItemHrefBuilder, returnsDateUtils)
 
     val paginationItemHrefBuilder = (year: Int) =>
       s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"

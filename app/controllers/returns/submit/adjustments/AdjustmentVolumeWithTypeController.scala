@@ -29,6 +29,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.{ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.adjustments.AdjustmentVolumeWithTypeViewModel
 import views.html.returns.submit.adjustments.AdjustmentVolumeWithTypeView
 
@@ -45,6 +46,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
                                                     formProvider: AdjustmentVolumeWithTypeFormProvider,
                                                     returnsEnabledAction: ReturnsEnabledAction,
                                                     obligationService: ObligationService,
+                                                    returnsDateUtils: ReturnsDateUtils,
                                                     val controllerComponents: MessagesControllerComponents,
                                                     view: AdjustmentVolumeWithTypeView
                                                   )(using ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
@@ -71,7 +73,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
             case None => form
           }
 
-          val vm = AdjustmentVolumeWithTypeViewModel(obligations, adjustmentPeriodKey)
+          val vm = AdjustmentVolumeWithTypeViewModel(obligations, adjustmentPeriodKey, returnsDateUtils)
           Ok(view(request.periodKey, adjustmentPeriodKey, preparedForm, mode, vm))
         }
       }
@@ -84,7 +86,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
         obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
           form.bindFromRequest().fold(
             formWithErrors => {
-              val vm = AdjustmentVolumeWithTypeViewModel(obligations, adjustmentPeriodKey)
+              val vm = AdjustmentVolumeWithTypeViewModel(obligations, adjustmentPeriodKey, returnsDateUtils)
               Future.successful(BadRequest(view(request.periodKey, adjustmentPeriodKey, formWithErrors, mode, vm)))
             },
 

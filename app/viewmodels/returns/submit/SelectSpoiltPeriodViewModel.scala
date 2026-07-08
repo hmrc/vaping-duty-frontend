@@ -21,6 +21,7 @@ import models.obligations.ObligationsResponse
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskListItem
+import utils.ReturnsDateUtils
 
 case class SelectSpoiltPeriodViewModel(
   periods: Seq[TaskListItem],
@@ -33,7 +34,8 @@ object SelectSpoiltPeriodViewModel {
   def apply(
     obligationsResponse: ObligationsResponse,
     selectedYear: Option[Int],
-    currentReturnPeriod: PeriodKey
+    currentReturnPeriod: PeriodKey,
+    returnsDateUtils: ReturnsDateUtils
   )(implicit messages: Messages): SelectSpoiltPeriodViewModel = {
 
     val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationsResponse)
@@ -47,7 +49,7 @@ object SelectSpoiltPeriodViewModel {
     val taskListItemHrefBuilder = (periodKey: String) =>
       s"${controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad().url}?period=${currentReturnPeriod.value}&spoiltPeriod=$periodKey"
 
-    val taskListItems = PeriodSelectionHelper.buildTaskListItems(obligationsForYear, taskListItemHrefBuilder)
+    val taskListItems = PeriodSelectionHelper.buildTaskListItems(obligationsForYear, taskListItemHrefBuilder, returnsDateUtils)
 
     val paginationItemHrefBuilder = (year: Int) =>
       s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"

@@ -22,22 +22,24 @@ import models.obligations.ObligationDetails
 import models.returns.adjustments.AdjustmentList
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AdjustmentCheckYourAnswersService @Inject()(
-  obligationService: ObligationService,
-  dutyRateService: DutyRateService
-)(using ExecutionContext) {
+                                                   obligationService: ObligationService,
+                                                   dutyRateService: DutyRateService,
+                                                   returnsDateUtils: ReturnsDateUtils
+                                                 )(using ExecutionContext) {
 
   def buildViewModel(
-    declareAdjustment: Option[Boolean],
-    adjustmentList: Option[AdjustmentList],
-    periodKey: PeriodKey,
-    vpdId: VpdId
-  )(using HeaderCarrier, Messages): Future[AdjustmentCheckYourAnswersViewModel] = {
+                      declareAdjustment: Option[Boolean],
+                      adjustmentList: Option[AdjustmentList],
+                      periodKey: PeriodKey,
+                      vpdId: VpdId
+                    )(using HeaderCarrier, Messages): Future[AdjustmentCheckYourAnswersViewModel] = {
     obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
       val dutyRatesMap = getDutyRatesForAdjustments(adjustmentList, obligationDetails)
       AdjustmentCheckYourAnswersViewModel(
@@ -45,15 +47,16 @@ class AdjustmentCheckYourAnswersService @Inject()(
         adjustmentList,
         obligationDetails,
         periodKey,
-        dutyRatesMap
+        dutyRatesMap,
+        returnsDateUtils
       )
     }
   }
 
   private def getDutyRatesForAdjustments(
-    adjustmentList: Option[AdjustmentList],
-    obligationDetails: Seq[ObligationDetails]
-  ): Map[String, BigDecimal] = {
+                                          adjustmentList: Option[AdjustmentList],
+                                          obligationDetails: Seq[ObligationDetails]
+                                        ): Map[String, BigDecimal] = {
 
     val uniquePeriods = adjustmentList
       .map(_.adjustments.map(_.period).distinct)

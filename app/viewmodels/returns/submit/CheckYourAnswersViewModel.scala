@@ -44,10 +44,10 @@ object CheckYourAnswersViewModel {
 
   private val ZERO = "0"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): CheckYourAnswersViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
     // scalafix:off DisableSyntax.throw
     val returnPeriod = userAnswers.returnPeriod
-      .map(month => ReturnsDateUtils.getReturnMonth(month))
+      .map(month => returnsDateUtils.getReturnMonth(month))
       .getOrElse(throw new IllegalStateException("Return period not found in user answers"))
     
     val year = userAnswers.year

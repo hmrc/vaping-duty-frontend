@@ -20,18 +20,21 @@ import models.identifiers.PeriodKey
 import models.obligations.ObligationsResponse
 import play.api.i18n.Messages
 
-import java.time.{LocalDate, Month, Year}
+import java.time.{Clock, LocalDate, Month, Year}
+import javax.inject.{Inject, Singleton}
 
-object ReturnsDateUtils {
+@Singleton
+class ReturnsDateUtils @Inject()(clock: Clock) {
   // scalafix:off DisableSyntax.throw
-  val month: Month = LocalDate.now().getMonth
+  def month: Month = LocalDate.now(clock).getMonth
 
   def getYear: Int =
-    LocalDate.now().getYear
+    LocalDate.now(clock).getYear
 
-  def getMonthLength(month: Month): Int =
+  def getMonthLength(month: Month): Int = {
     val isLeapYear = Year.of(getYear).isLeap
     month.length(isLeapYear)
+  }
 
   def getReturnMonth(month: Month)(implicit messages: Messages): String = {
     getMonthMessage(month)
@@ -42,7 +45,7 @@ object ReturnsDateUtils {
   }
 
   def getCurrentDay(implicit messages: Messages): String = {
-    LocalDate.now().getDayOfMonth.toString
+    LocalDate.now(clock).getDayOfMonth.toString
   }
 
   def getMonthMessage(month: Month)(implicit messages: Messages): String =

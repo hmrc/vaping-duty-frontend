@@ -20,7 +20,7 @@ import models.identifiers.PeriodKey
 import models.obligations.ObligationItem
 import models.returns.AdjustmentsEligibility
 import play.api.i18n.Messages
-import utils.ReturnsDateUtils.*
+import utils.ReturnsDateUtils
 
 import java.time.Month
 
@@ -34,7 +34,7 @@ case class BeforeYouStartViewModel(
 
 object BeforeYouStartViewModel {
 
-  def apply(obligations: Seq[ObligationItem], periodKey: PeriodKey)(implicit messages: Messages): Option[BeforeYouStartViewModel] = {
+  def apply(obligations: Seq[ObligationItem], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Option[BeforeYouStartViewModel] = {
     val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations)
 
     obligations
@@ -48,7 +48,7 @@ object BeforeYouStartViewModel {
         val returnMonth: Month = details.iCFromDate.getMonth
         val returnYear: Int = details.iCFromDate.getYear
 
-        beforeYouStartViewModel(adjustmentsEligibility, dayDue, monthDue, returnMonth, returnYear, yearDue)
+        beforeYouStartViewModel(adjustmentsEligibility, dayDue, monthDue, returnMonth, returnYear, yearDue, returnsDateUtils)
       }
   }
 
@@ -58,13 +58,14 @@ object BeforeYouStartViewModel {
                                        monthDue: Month,
                                        returnMonth: Month,
                                        returnYear: Int,
-                                       dueYear: Int)
+                                       dueYear: Int,
+                                       returnsDateUtils: ReturnsDateUtils)
                                      (implicit messages: Messages) = {
 
-    val dueMonthWithDay = s"${dayDue.toString} ${getDueDate(monthDue)}"
+    val dueMonthWithDay = s"${dayDue.toString} ${returnsDateUtils.getDueDate(monthDue)}"
 
     new BeforeYouStartViewModel(
-      getMonthMessage(returnMonth),
+      returnsDateUtils.getMonthMessage(returnMonth),
       returnYear,
       dueMonthWithDay,
       dueYear,

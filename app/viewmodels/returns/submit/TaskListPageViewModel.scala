@@ -20,7 +20,7 @@ import models.identifiers.PeriodKey
 import models.obligations.ObligationItem
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import play.api.i18n.Messages
-import utils.ReturnsDateUtils.*
+import utils.ReturnsDateUtils
 
 case class TaskListPageViewModel(
                                   sections: Seq[TaskListSection],
@@ -33,7 +33,7 @@ case class TaskListPageViewModel(
 
 object TaskListPageViewModel {
 
-  def apply(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationItem], periodKey: PeriodKey)(implicit messages: Messages): TaskListPageViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationItem], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): TaskListPageViewModel = {
     
     val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations)
 
@@ -50,10 +50,10 @@ object TaskListPageViewModel {
 
     TaskListPageViewModel(
       sections     = TaskList.sections(userAnswers, adjustmentsEligibility),
-      returnPeriod = getReturnMonth(monthOfObligation),
+      returnPeriod = returnsDateUtils.getReturnMonth(monthOfObligation),
       year         = yearOfObligation,
       dueYear      = yearDue,
-      dueDate      = getDueDate(monthDue),
+      dueDate      = returnsDateUtils.getDueDate(monthDue),
       dayDue       = dayDue
     )
   }

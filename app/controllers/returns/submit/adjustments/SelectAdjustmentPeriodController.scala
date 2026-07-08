@@ -23,6 +23,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.adjustments.SelectAdjustmentPeriodViewModel
 import views.html.returns.submit.adjustments.SelectAdjustmentPeriodView
 
@@ -36,6 +37,7 @@ class SelectAdjustmentPeriodController @Inject()(
                                                   getData: ReturnsDataRetrievalAction,
                                                   requireData: ReturnsDataRequiredAction,
                                                   obligationService: ObligationService,
+                                                  returnsDateUtils: ReturnsDateUtils,
                                                   val controllerComponents: MessagesControllerComponents,
                                                   view: SelectAdjustmentPeriodView
                                                 )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
@@ -49,7 +51,8 @@ class SelectAdjustmentPeriodController @Inject()(
           obligationsResponse,
           year,
           request.periodKey,
-          adjustmentList
+          adjustmentList,
+          returnsDateUtils
         )
         Ok(view(vm, request.periodKey))
       }.recover {

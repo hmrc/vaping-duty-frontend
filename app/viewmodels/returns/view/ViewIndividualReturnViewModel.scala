@@ -22,8 +22,7 @@ import models.returns.{ConvertToMl, DeclarationDetails, TotalDutyDue}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
-import utils.ReturnsDateUtils.*
-import utils.{CurrencyFormatter, PeriodKeys}
+import utils.{CurrencyFormatter, PeriodKeys, ReturnsDateUtils}
 
 import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 
@@ -48,7 +47,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
   def apply(
              returnsData: ReturnDisplayResponse,
-             obligations: ObligationsResponse
+             obligations: ObligationsResponse,
+             returnsDateUtils: ReturnsDateUtils
            )(using messages: Messages): ViewIndividualReturnViewModel = {
 
     val zeroValue = BigDecimal("0")
@@ -93,12 +93,12 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val submittedOnDay = submittedOn.getDayOfMonth
     val submittedOnMonth = PeriodKeys.toDisplayName(submittedOn.getMonth)
 
-    val monthYearString = s"${getMonthMessage(monthFromLocalDate)} $year"
+    val monthYearString = s"${returnsDateUtils.getMonthMessage(monthFromLocalDate)} $year"
     val submittedOnString = s"$submittedOnDay $submittedOnMonth $year"
 
     val personalDetails = buildPersonalDetailsSummaryList(success.declaration)
     val dutyDeclaration = buildDutyDeclarationSummaryList(hasDeclaration, amountProduced, dutyDueAmount)
-    val spoilt = buildSpoiltSummaryList(success.spoiltProduct, isNilReturn, totalDutySpoiltProducts, obligations)
+    val spoilt = buildSpoiltSummaryList(success.spoiltProduct, isNilReturn, totalDutySpoiltProducts, obligations, returnsDateUtils)
     val totalDutySummary = buildTotalDutySummaryList(success.totalDutyDue)
     val dutySuspenseSummary = buildDutySuspenseSummaryList(success.otherOptions)
 
@@ -181,7 +181,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
                                       spoiltProduct: Option[SpoiltProduct],
                                       nilReturn: Boolean,
                                       totalDutySpoiltProducts: String,
-                                      obligations: ObligationsResponse
+                                      obligations: ObligationsResponse,
+                                      returnsDateUtils: ReturnsDateUtils
                                     )(using messages: Messages): SummaryList = {
     val spoiltProductsRows = spoiltProduct match {
       case Some(sp) =>
@@ -201,7 +202,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
             Seq(
               SummaryListRow(
                 key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.month"))),
-                value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected, obligations)))
+                value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected, obligations, returnsDateUtils)))
               ),
               SummaryListRow(
                 key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))),
@@ -293,14 +294,14 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     }
   }
 
-  private def lookupPeriodKey(periodKey: String, obligations: ObligationsResponse)(using messages: Messages): String = {
+  private def lookupPeriodKey(periodKey: String, obligations: ObligationsResponse, returnsDateUtils: ReturnsDateUtils)(using messages: Messages): String = {
     obligations.obligation
       .map(_.obligationDetails)
       .find(_.periodKey == periodKey)
       .map { obligation =>
         val month = obligation.iCFromDate.getMonth
         val year = obligation.iCFromDate.getYear
-        s"${getMonthMessage(month)} $year"
+        s"${returnsDateUtils.getMonthMessage(month)} $year"
       }
       .getOrElse {
         // scalafix:off DisableSyntax.throw

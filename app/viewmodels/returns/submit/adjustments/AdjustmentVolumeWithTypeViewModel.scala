@@ -25,8 +25,8 @@ case class AdjustmentVolumeWithTypeViewModel(periodDisplay: String)
 
 object AdjustmentVolumeWithTypeViewModel {
 
-  def apply(obligations: ObligationsResponse, adjustmentPeriodKey: PeriodKey)(implicit messages: Messages): AdjustmentVolumeWithTypeViewModel = {
-    val periodDisplay = ReturnsDateUtils.formatPeriodDisplay(adjustmentPeriodKey, obligations)
+  def apply(obligations: ObligationsResponse, adjustmentPeriodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): AdjustmentVolumeWithTypeViewModel = {
+    val periodDisplay = returnsDateUtils.formatPeriodDisplay(adjustmentPeriodKey, obligations)
     AdjustmentVolumeWithTypeViewModel(periodDisplay)
   }
 }

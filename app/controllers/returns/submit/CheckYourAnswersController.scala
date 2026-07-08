@@ -22,6 +22,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.DutyRateService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
 
@@ -36,14 +37,15 @@ class CheckYourAnswersController @Inject()(
                                             returnsEnabled: ReturnsEnabledAction,
                                             dutyRateService: DutyRateService,
                                             val controllerComponents: MessagesControllerComponents,
-                                            view: CheckYourAnswersView
+                                            view: CheckYourAnswersView,
+                                            returnsDateUtils: ReturnsDateUtils
                                           )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     val pk = request.periodKey
     
     dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
-      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRate, pk)))
+      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRate, pk, returnsDateUtils)))
     }
   }
 
