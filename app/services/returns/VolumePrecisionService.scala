@@ -41,22 +41,16 @@ class VolumePrecisionService @Inject() {
   }
 
   def normalizeMaxVolume(calculatedMax: BigDecimal): BigDecimal = {
-    if (calculatedMax <= 0) return calculatedMax
-
     val numString = calculatedMax.toBigInt.toString
     val digitCount = numString.length
 
-    // For single or double digit numbers, return as-is
-    if (digitCount <= 2) return calculatedMax
-
-    // Get first two digits
-    val firstTwoDigits = numString.take(2).toInt
-
-    // Calculate multiplier (10^(digitCount - 2))
-    val zerosCount = digitCount - 2
-    val multiplier = BigDecimal(10).pow(zerosCount)
-
-    BigDecimal(firstTwoDigits) * multiplier
+    if (calculatedMax <= 0 || digitCount <= 2) {
+      calculatedMax
+    } else {
+      val firstTwoDigits = numString.take(2).toInt
+      val multiplier = BigDecimal(10).pow(digitCount - 2)
+      BigDecimal(firstTwoDigits) * multiplier
+    }
   }
 
   private def formatWithCommas(value: BigDecimal): String = {
