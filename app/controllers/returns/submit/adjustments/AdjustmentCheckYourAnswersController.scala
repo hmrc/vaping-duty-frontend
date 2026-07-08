@@ -20,18 +20,14 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import forms.returns.DeclareDutyFormProvider
 import models.NormalMode
-import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
-import models.requests.returns.ReturnsDataRequest
 import models.returns.adjustments.AdjustmentList
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService}
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.{AdjustmentCheckYourAnswersService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel
 import views.html.returns.submit.adjustments.AdjustmentCheckYourAnswersView
 
 import javax.inject.Inject
@@ -46,8 +42,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
                                                       requireData: ReturnsDataRequiredAction,
                                                       formProvider: DeclareDutyFormProvider,
                                                       returnsEnabledAction: ReturnsEnabledAction,
-                                                      obligationService: ObligationService,
-                                                      dutyRateService: DutyRateService,
+                                                      adjustmentCheckYourAnswersService: AdjustmentCheckYourAnswersService,
                                                       val controllerComponents: MessagesControllerComponents,
                                                       view: AdjustmentCheckYourAnswersView
                                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
@@ -60,17 +55,16 @@ class AdjustmentCheckYourAnswersController @Inject()(
       val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
       val adjustmentList = request.userAnswers.get(AdjustmentListPage)
 
-      withObligations { obligationDetails =>
-        val dutyRatesMap = getDutyRatesForAdjustments(adjustmentList, obligationDetails)
-        val vm = buildViewModel(declareAdjustment, adjustmentList, obligationDetails, request.periodKey, dutyRatesMap)
+      adjustmentCheckYourAnswersService
+        .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId)
+        .map { vm =>
+          val preparedForm = request.userAnswers.get(AddAnotherAdjustmentPage) match {
+            case None => form
+            case Some(value) => form.fill(value)
+          }
 
-        val preparedForm = request.userAnswers.get(AddAnotherAdjustmentPage) match {
-          case None => form
-          case Some(value) => form.fill(value)
+          Ok(view(request.periodKey, vm, preparedForm))
         }
-
-        Future.successful(Ok(view(request.periodKey, vm, preparedForm)))
-      }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
@@ -89,11 +83,11 @@ class AdjustmentCheckYourAnswersController @Inject()(
         case _ =>
           form.bindFromRequest().fold(
             formWithErrors =>
-              withObligations { obligationDetails =>
-                val dutyRatesMap = getDutyRatesForAdjustments(adjustmentList, obligationDetails)
-                val vm = buildViewModel(declareAdjustment, adjustmentList, obligationDetails, request.periodKey, dutyRatesMap)
-                Future.successful(BadRequest(view(request.periodKey, vm, formWithErrors)))
-              },
+              adjustmentCheckYourAnswersService
+                .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId)
+                .map { vm =>
+                  BadRequest(view(request.periodKey, vm, formWithErrors))
+                },
 
             value =>
               for {
@@ -102,50 +96,6 @@ class AdjustmentCheckYourAnswersController @Inject()(
               } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
           )
       }
-  }
-
-  private def buildViewModel(
-    declareAdjustment: Option[Boolean],
-    adjustmentList: Option[AdjustmentList],
-    obligationDetails: Seq[ObligationDetails],
-    periodKey: PeriodKey,
-    dutyRatesMap: Map[String, BigDecimal]
-  )(implicit messages: Messages): AdjustmentCheckYourAnswersViewModel = {
-    AdjustmentCheckYourAnswersViewModel(
-      declareAdjustment,
-      adjustmentList,
-      obligationDetails,
-      periodKey,
-      dutyRatesMap
-    )
-  }
-
-  private def withObligations(
-    block: Seq[ObligationDetails] => Future[Result]
-  )(implicit request: ReturnsDataRequest[AnyContent]): Future[Result] = {
-    obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap(block)
-  }
-
-  private def getDutyRatesForAdjustments(
-    adjustmentList: Option[AdjustmentList],
-    obligationDetails: Seq[ObligationDetails]
-  ): Map[String, BigDecimal] = {
-
-    val uniquePeriods = adjustmentList
-      .map(_.adjustments.map(_.period).distinct)
-      .getOrElse(Seq.empty)
-
-    uniquePeriods.map { period =>
-      val obligation = obligationDetails.find(_.periodKey == period.toString)
-      val dutyRate = obligation.map { obl =>
-        val rateInPencePerMl = dutyRateService.getRateForDate(obl.iCFromDate)
-        BigDecimal(rateInPencePerMl) / 100
-      }.getOrElse(
-        // scalafix:off DisableSyntax.throw
-        throw new RuntimeException(s"No obligation found for period ${period.toString}")
-      )
-      period.toString -> dutyRate
-    }.toMap
   }
 
 }

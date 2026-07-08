@@ -30,7 +30,8 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService}
+import services.returns.{AdjustmentCheckYourAnswersService, ReturnsUserAnswersService}
+import viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel
 
 import scala.concurrent.Future
 
@@ -47,22 +48,23 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
   "AdjustmentCheckYourAnswers Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val mockObligationService = mock[ObligationService]
-      val mockDutyRateService = mock[DutyRateService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
-
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
-        .thenReturn(Future.successful(obligationDetails))
-      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
-        .thenReturn(Future.successful(BigDecimal("3.00")))
-
+      val mockService = mock[AdjustmentCheckYourAnswersService]
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
 
+      val mockViewModel = AdjustmentCheckYourAnswersViewModel(
+        summaryCards = Seq.empty,
+        hasAdjustments = true,
+        totalAdjustment = BigDecimal(1000),
+        formattedTotalAdjustment = "£1,000.00"
+      )
+
+      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+        .thenReturn(Future.successful(mockViewModel))
+
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
         .overrides(
-          bind[ObligationService].toInstance(mockObligationService),
-          bind[DutyRateService].toInstance(mockDutyRateService)
+          bind[AdjustmentCheckYourAnswersService].toInstance(mockService)
         )
         .build()
 
@@ -76,24 +78,25 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-      val mockObligationService = mock[ObligationService]
-      val mockDutyRateService = mock[DutyRateService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
-
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
-        .thenReturn(Future.successful(obligationDetails))
-      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
-        .thenReturn(Future.successful(BigDecimal("3.00")))
-
+      val mockService = mock[AdjustmentCheckYourAnswersService]
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers
         .set(AdjustmentListPage, testAdjustmentList).success.value
         .set(AddAnotherAdjustmentPage, true).success.value
 
+      val mockViewModel = AdjustmentCheckYourAnswersViewModel(
+        summaryCards = Seq.empty,
+        hasAdjustments = true,
+        totalAdjustment = BigDecimal(1000),
+        formattedTotalAdjustment = "£1,000.00"
+      )
+
+      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+        .thenReturn(Future.successful(mockViewModel))
+
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
         .overrides(
-          bind[ObligationService].toInstance(mockObligationService),
-          bind[DutyRateService].toInstance(mockDutyRateService)
+          bind[AdjustmentCheckYourAnswersService].toInstance(mockService)
         )
         .build()
 
@@ -106,20 +109,17 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       }
     }
 
-    "must propagate exception when obligation service fails on GET" in {
-      val mockObligationService = mock[ObligationService]
-      val mockDutyRateService = mock[DutyRateService]
-
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
-        .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
-
+    "must propagate exception when service fails on GET" in {
+      val mockService = mock[AdjustmentCheckYourAnswersService]
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
 
+      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
+
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
         .overrides(
-          bind[ObligationService].toInstance(mockObligationService),
-          bind[DutyRateService].toInstance(mockDutyRateService)
+          bind[AdjustmentCheckYourAnswersService].toInstance(mockService)
         )
         .build()
 
@@ -136,27 +136,17 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
     }
 
     "must redirect to the next page when valid data is submitted" in {
-      val mockObligationService = mock[ObligationService]
-      val mockDutyRateService = mock[DutyRateService]
       val mockSessionRepository = mock[ReturnsUserAnswersService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
-
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
-        .thenReturn(Future.successful(obligationDetails))
-      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
-        .thenReturn(Future.successful(BigDecimal("3.00")))
-      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
-
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
+
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
         applicationBuilder(returnsUserAnswers = Some(userAnswers))
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-            bind[ObligationService].toInstance(mockObligationService),
-            bind[DutyRateService].toInstance(mockDutyRateService)
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
           )
           .build()
 
@@ -203,22 +193,23 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val mockObligationService = mock[ObligationService]
-      val mockDutyRateService = mock[DutyRateService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
-
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
-        .thenReturn(Future.successful(obligationDetails))
-      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
-        .thenReturn(Future.successful(BigDecimal("3.00")))
-
+      val mockService = mock[AdjustmentCheckYourAnswersService]
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
 
+      val mockViewModel = AdjustmentCheckYourAnswersViewModel(
+        summaryCards = Seq.empty,
+        hasAdjustments = true,
+        totalAdjustment = BigDecimal(1000),
+        formattedTotalAdjustment = "£1,000.00"
+      )
+
+      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+        .thenReturn(Future.successful(mockViewModel))
+
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
         .overrides(
-          bind[ObligationService].toInstance(mockObligationService),
-          bind[DutyRateService].toInstance(mockDutyRateService)
+          bind[AdjustmentCheckYourAnswersService].toInstance(mockService)
         )
         .build()
 
@@ -233,20 +224,17 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       }
     }
 
-    "must propagate exception when obligation service fails on form error" in {
-      val mockObligationService = mock[ObligationService]
-      val mockDutyRateService = mock[DutyRateService]
-
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
-        .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
-
+    "must propagate exception when service fails on form error" in {
+      val mockService = mock[AdjustmentCheckYourAnswersService]
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
 
+      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
+
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
         .overrides(
-          bind[ObligationService].toInstance(mockObligationService),
-          bind[DutyRateService].toInstance(mockDutyRateService)
+          bind[AdjustmentCheckYourAnswersService].toInstance(mockService)
         )
         .build()
 
