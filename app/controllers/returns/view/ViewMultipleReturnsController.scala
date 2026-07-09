@@ -26,6 +26,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Request}
 import services.returns.ObligationService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import viewmodels.returns.view.ViewMultipleReturnsViewModel
 import views.html.returns.view.ViewMultipleReturnsView
 
@@ -41,7 +42,8 @@ class ViewMultipleReturnsController @Inject()(
                                                obligationService: ObligationService,
                                                val controllerComponents: MessagesControllerComponents,
                                                getData: DataRetrievalAction,
-                                               view: ViewMultipleReturnsView
+                                               view: ViewMultipleReturnsView,
+                                               returnsDateUtils: ReturnsDateUtils
                                              )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(year: Option[Int] = None): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
@@ -70,7 +72,7 @@ class ViewMultipleReturnsController @Inject()(
         completedYears.headOption.getOrElse(now.getYear)
       )
 
-      Ok(view(ViewMultipleReturnsViewModel(obligationResponse, currentYear, now)))
+      Ok(view(ViewMultipleReturnsViewModel(obligationResponse, currentYear, now, returnsDateUtils)))
     }
   }
 }

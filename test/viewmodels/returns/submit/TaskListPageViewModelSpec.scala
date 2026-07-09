@@ -19,10 +19,14 @@ package viewmodels.returns.submit
 import base.SpecBase
 import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
+import utils.ReturnsDateUtils
 
 import java.time.LocalDate
 
 class TaskListPageViewModelSpec extends SpecBase {
+
+  private val app = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+  private implicit val returnsDateUtils: ReturnsDateUtils = app.injector.instanceOf[ReturnsDateUtils]
 
   private val testPeriodKey = PeriodKey("26AF")
   private val differentPeriodKey = PeriodKey("26AG")
@@ -49,7 +53,7 @@ class TaskListPageViewModelSpec extends SpecBase {
       val obligation = createObligation(testPeriodKey.value)
       val obligations = Seq(obligation)
 
-      val result = TaskListPageViewModel(returnsUserAnswers, obligations, testPeriodKey)
+      val result = TaskListPageViewModel(returnsUserAnswers, obligations, testPeriodKey, returnsDateUtils)
 
       result.returnPeriod must not be empty
       result.year must not be empty
@@ -61,7 +65,7 @@ class TaskListPageViewModelSpec extends SpecBase {
       val otherObligation = createObligation(differentPeriodKey.value)
       val obligations = Seq(otherObligation, matchingObligation)
 
-      val result = TaskListPageViewModel(returnsUserAnswers, obligations, testPeriodKey)
+      val result = TaskListPageViewModel(returnsUserAnswers, obligations, testPeriodKey, returnsDateUtils)
 
       result.returnPeriod must not be empty
       result.year must not be empty
@@ -73,7 +77,7 @@ class TaskListPageViewModelSpec extends SpecBase {
       val obligations = Seq(obligation)
 
       val exception = intercept[IllegalStateException] {
-        TaskListPageViewModel(returnsUserAnswers, obligations, testPeriodKey)
+        TaskListPageViewModel(returnsUserAnswers, obligations, testPeriodKey, returnsDateUtils)
       }
 
       exception.getMessage must include(s"No obligation found for period key: ${testPeriodKey.value}")
@@ -83,7 +87,7 @@ class TaskListPageViewModelSpec extends SpecBase {
       val obligations = Seq.empty[ObligationItem]
 
       val exception = intercept[IllegalStateException] {
-        TaskListPageViewModel(returnsUserAnswers, obligations, testPeriodKey)
+        TaskListPageViewModel(returnsUserAnswers, obligations, testPeriodKey, returnsDateUtils)
       }
 
       exception.getMessage must include(s"No obligation found for period key: ${testPeriodKey.value}")

@@ -22,6 +22,7 @@ import models.*
 import models.returns.ReturnsUserAnswers
 import pages.*
 import pages.returns.*
+import pages.returns.adjustments.*
 import play.api.Logging
 import play.api.http.HttpVerbs.GET
 import play.api.mvc.Call
@@ -39,21 +40,24 @@ class ReturnsNavigator @Inject()(
   private def normalRoutes(periodKey: String): Page => ReturnsUserAnswers => Call = {
     case DeclareDutyPage                => ua  => declareDutyPageRoutes(ua, periodKey)
     case EnterDutyAmountPage            => _   => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(), periodKey)
-    case DeclareDutySuspensePage        => ua  => declareDutySuspensePageRoutes(ua, periodKey)
-    case EnterDutySuspensePage          => _   => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(), periodKey)
     case DeclareSpoiltProductsPage      => ua  => declareSpoiltProductsPageRoutes(ua, periodKey)
     case AddSpoiltAdjustmentPage        => ua  => addSpoiltAdjustmentPageRoutes(ua, periodKey)
     case SpoiltVolumeByPeriodPage       => _   => withPeriod(controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode), periodKey)
+    case DeclareAdjustmentPage          => ua  => declareAdjustmentQuestionPageRoutes(ua, periodKey)
+    case AdjustmentListPage             => _   => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(), periodKey)
+    case AddAnotherAdjustmentPage       => ua  => addAnotherAdjustmentPageRoutes(ua, periodKey)
+    case DeclareDutySuspensePage        => ua  => declareDutySuspensePageRoutes(ua, periodKey)
+    case EnterDutySuspensePage          => _   => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(), periodKey)
     case DeclarationPage                => _   => withPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad(), periodKey)
     case _                              => _   => Call(GET, BtaLink(config))
   }
 
   private def checkRouteMap(periodKey: String): Page => ReturnsUserAnswers => Call = {
-    case EnterDutyAmountPage        => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
-    case EnterDutySuspensePage      => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareDutyPage            => ua => checkDeclareDutyPageRoutes(ua, periodKey)
-    case DeclareDutySuspensePage    => ua => checkDeclareDutySuspensePageRoutes(ua, periodKey)
+    case EnterDutyAmountPage        => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareSpoiltProductsPage  => _  => controllers.returns.submit.routes.TaskListController.onPageLoad()
+    case DeclareDutySuspensePage    => ua => checkDeclareDutySuspensePageRoutes(ua, periodKey)
+    case EnterDutySuspensePage      => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
     case _                          => _  => routes.JourneyRecoveryController.onPageLoad()
   }
 
@@ -95,6 +99,20 @@ class ReturnsNavigator @Inject()(
   private def addSpoiltAdjustmentPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(AddSpoiltAdjustmentPage) match
       case Some(true)  => withPeriod(controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None), periodKey)
+      case Some(false) => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
+      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+  }
+
+  private def declareAdjustmentQuestionPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
+    ua.get(DeclareAdjustmentPage) match
+      case Some(true)  => withPeriod(controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None), periodKey)
+      case Some(false) => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(), periodKey)
+      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+  }
+
+  private def addAnotherAdjustmentPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
+    ua.get(AddAnotherAdjustmentPage) match
+      case Some(true)  => withPeriod(controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None), periodKey)
       case Some(false) => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }

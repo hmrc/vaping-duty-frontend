@@ -24,7 +24,7 @@ import viewmodels.returns.submit.BeforeYouStartViewModel
 
 
 class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
-  
+
   "BeforeYouStartViewModel" - {
 
     "when user has fulfilled returns" - {
@@ -35,7 +35,7 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
           fulfilledObligation(october2027)
         )
       )
-      val vm = BeforeYouStartViewModel(obligationsWithFulfilled, november2027).get
+      val vm = BeforeYouStartViewModel(obligationsWithFulfilled, november2027, returnsDateUtils).get
 
       "return the correct year of the return" in {
         vm.yearOfReturn mustBe 2027
@@ -62,7 +62,7 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
       val obligationsWithoutFulfilled = obligations(
         Seq(openObligation(december2027))
       )
-      val vm = BeforeYouStartViewModel(obligationsWithoutFulfilled, december2027).get
+      val vm = BeforeYouStartViewModel(obligationsWithoutFulfilled, december2027, returnsDateUtils).get
 
       "return the correct month due" in {
         vm.dueDate mustBe "7 January"
@@ -84,7 +84,7 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
         val anyOldObligations = obligations(
           Seq(openObligation(december2027))
         )
-        val result = BeforeYouStartViewModel(anyOldObligations, nonExistentPeriodKey)
+        val result = BeforeYouStartViewModel(anyOldObligations, nonExistentPeriodKey, returnsDateUtils)
         
         result mustBe None
       }

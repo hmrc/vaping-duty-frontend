@@ -36,20 +36,19 @@ final case class ViewMultipleReturnsViewModel(
 
 object ViewMultipleReturnsViewModel {
 
-  private val STATUS_OPEN = ObligationStatus.O
   private val TAG_CLASS_BLUE = "govuk-tag--blue"
   private val TAG_CLASS_RED = "govuk-tag--red"
 
-  def apply(obligationsResponse: ObligationsResponse, currentYear: Int, now: LocalDate)
+  def apply(obligationsResponse: ObligationsResponse, currentYear: Int, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
            (implicit messages: Messages): ViewMultipleReturnsViewModel = {
 
     val (outstandingObligations, fulfilledObligations) =
-      obligationsResponse.obligation.partition(_.obligationDetails.openOrFulfilledStatus == STATUS_OPEN.toString)
+      obligationsResponse.obligation.partition(_.obligationDetails.openOrFulfilledStatus == ObligationStatus.O.toString)
 
     val outstandingItems =
       outstandingObligations
         .sortBy(_.obligationDetails.iCFromDate)(Ordering[LocalDate].reverse)
-        .map(item => createOutstandingTaskListItem(item.obligationDetails, now))
+        .map(item => createOutstandingTaskListItem(item.obligationDetails, now, returnsDateUtils))
 
     val outstandingSection = OutstandingReturnsSection(
       items = outstandingItems,
@@ -78,7 +77,7 @@ object ViewMultipleReturnsViewModel {
     val completedSection = CompletedReturnsSection(
       year = currentYear.toString,
       items = completedByYear.get(currentYear)
-        .map(_.sortBy(_.iCFromDate)(Ordering[LocalDate].reverse).map(createCompletedTaskListItem))
+        .map(_.sortBy(_.iCFromDate)(Ordering[LocalDate].reverse).map(createCompletedTaskListItem(_, returnsDateUtils)))
         .getOrElse(Seq.empty),
       showEmptyMessage = completedByYear.get(currentYear).isEmpty,
       shouldShowItems = completedByYear.get(currentYear).nonEmpty
@@ -92,12 +91,12 @@ object ViewMultipleReturnsViewModel {
     )
   }
 
-  private def createOutstandingTaskListItem(details: ObligationDetails, now: LocalDate)
+  private def createOutstandingTaskListItem(details: ObligationDetails, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
                                            (implicit messages: Messages): TaskListItem = {
 
     val month = Month.of(details.iCFromDate.getMonthValue)
     val year = details.iCFromDate.getYear
-    val monthDisplay = s"${ReturnsDateUtils.getMonthMessage(month)} $year"
+    val monthDisplay = s"${returnsDateUtils.getMonthMessage(month)} $year"
     val isOverdue = details.iCDueDate.isBefore(now)
 
     val status = if (isOverdue) {
@@ -120,11 +119,11 @@ object ViewMultipleReturnsViewModel {
     )
   }
 
-  private def createCompletedTaskListItem(details: ObligationDetails)
+  private def createCompletedTaskListItem(details: ObligationDetails, returnsDateUtils: ReturnsDateUtils)
                                          (implicit messages: Messages): TaskListItem = {
 
     val month = Month.of(details.iCFromDate.getMonthValue)
-    val monthDisplay = ReturnsDateUtils.getMonthMessage(month)
+    val monthDisplay = returnsDateUtils.getMonthMessage(month)
 
     TaskListItem(
       title = TaskListItemTitle(content = Text(monthDisplay)),

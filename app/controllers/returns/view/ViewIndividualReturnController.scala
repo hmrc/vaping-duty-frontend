@@ -25,6 +25,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import viewmodels.returns.view.ViewIndividualReturnViewModel
 import views.html.returns.view.ViewIndividualReturnView
 
@@ -38,7 +39,8 @@ class ViewIndividualReturnController @Inject()(
                                        obligationService: ObligationService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ViewIndividualReturnView,
-                                       returnsEnabled: ReturnsEnabledAction
+                                       returnsEnabled: ReturnsEnabledAction,
+                                       returnsDateUtils: ReturnsDateUtils
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(periodKey: PeriodKey): Action[AnyContent] = (identify andThen returnsEnabled).async {
@@ -47,7 +49,7 @@ class ViewIndividualReturnController @Inject()(
         returnData <- connector.getReturn(periodKey, request.enrolmentVpdId)
         obligations <- obligationService.getObligations(request.enrolmentVpdId)
       } yield {
-        Ok(view(ViewIndividualReturnViewModel(returnData, obligations)))
+        Ok(view(ViewIndividualReturnViewModel(returnData, obligations, returnsDateUtils)))
       }
   }
 }

@@ -84,6 +84,21 @@ POST       /complete-return/adjustment/add-another-spoilt-adjustment            
 GET        /complete-return/adjustment/change-add-another-spoilt-adjustment                 controllers.returns.submit.spoilt.AddSpoiltAdjustmentController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/adjustment/change-add-another-spoilt-adjustment                 controllers.returns.submit.spoilt.AddSpoiltAdjustmentController.onSubmit(mode: Mode = CheckMode)
 
+GET        /complete-return/adjustment/declare-adjustments                                  controllers.returns.submit.adjustments.DeclareAdjustmentQuestionController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/adjustment/declare-adjustments                                  controllers.returns.submit.adjustments.DeclareAdjustmentQuestionController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/adjustment/change-declare-adjustments                           controllers.returns.submit.adjustments.DeclareAdjustmentQuestionController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/adjustment/change-declare-adjustments                           controllers.returns.submit.adjustments.DeclareAdjustmentQuestionController.onSubmit(mode: Mode = CheckMode)
+
+GET        /complete-return/adjustment/select-period                                        controllers.returns.submit.adjustments.SelectAdjustmentPeriodController.onPageLoad(year: Option[Int] ?= None)
+
+GET        /complete-return/adjustment/enter-over-or-under-declaration-amount               controllers.returns.submit.adjustments.AdjustmentVolumeWithTypeController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/adjustment/enter-over-or-under-declaration-amount               controllers.returns.submit.adjustments.AdjustmentVolumeWithTypeController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/adjustment/change-enter-over-or-under-declaration-amount        controllers.returns.submit.adjustments.AdjustmentVolumeWithTypeController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/adjustment/change-enter-over-or-under-declaration-amount        controllers.returns.submit.adjustments.AdjustmentVolumeWithTypeController.onSubmit(mode: Mode = CheckMode)
+
+GET        /complete-return/adjustment/check-your-answers                                   controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onPageLoad()
+POST       /complete-return/adjustment/check-your-answers                                   controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onSubmit()
+
 GET        /complete-return/duty-suspended/suspended-products                               controllers.returns.submit.DeclareDutySuspenseController.onPageLoad(mode: Mode = NormalMode)
 POST       /complete-return/duty-suspended/suspended-products                               controllers.returns.submit.DeclareDutySuspenseController.onSubmit(mode: Mode = NormalMode)
 GET        /complete-return/duty-suspended/change-suspended-products                        controllers.returns.submit.DeclareDutySuspenseController.onPageLoad(mode: Mode = CheckMode)
@@ -105,4 +120,4 @@ POST       /complete-return/return-declaration                                  
 GET        /view-your-returns/:periodKey                                                    controllers.returns.view.ViewIndividualReturnController.onPageLoad(periodKey: PeriodKey)
 
 # Payments
-GET        /view-payments                                                                   controllers.payments.ViewPaymentsController.onPageLoad()
+GET        /view-payments                                                            controllers.payments.ViewPaymentsController.onPageLoad()

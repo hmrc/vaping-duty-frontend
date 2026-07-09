@@ -16,31 +16,36 @@
 
 package utils
 
+import models.identifiers.PeriodKey
+import models.obligations.ObligationsResponse
 import play.api.i18n.Messages
 
-import java.time.{LocalDate, Month, Year}
+import java.time.{Clock, LocalDate, Month, Year}
+import javax.inject.{Inject, Singleton}
 
-object ReturnsDateUtils {
+@Singleton
+class ReturnsDateUtils @Inject()(clock: Clock) {
+  // scalafix:off DisableSyntax.throw
+  def month: Month = LocalDate.now(clock).getMonth
 
-  val month: Month = LocalDate.now().getMonth
-  
   def getYear: Int =
-    LocalDate.now().getYear
+    LocalDate.now(clock).getYear
 
-  def getMonthLength(month: Month): Int =
+  def getMonthLength(month: Month): Int = {
     val isLeapYear = Year.of(getYear).isLeap
     month.length(isLeapYear)
-    
+  }
+
   def getReturnMonth(month: Month)(implicit messages: Messages): String = {
-      getMonthMessage(month)
-    }
+    getMonthMessage(month)
+  }
 
   def getDueDate(month: Month)(implicit messages: Messages): String = {
-      getMonthMessage(month)
+    getMonthMessage(month)
   }
 
   def getCurrentDay(implicit messages: Messages): String = {
-    LocalDate.now().getDayOfMonth.toString
+    LocalDate.now(clock).getDayOfMonth.toString
   }
 
   def getMonthMessage(month: Month)(implicit messages: Messages): String =
@@ -58,4 +63,54 @@ object ReturnsDateUtils {
       case Month.NOVEMBER => messages("month.nov")
       case Month.DECEMBER => messages("month.dec")
     }
+
+  def getMonthMessageKey(month: Int): String = month match {
+    case 1 => "month.jan"
+    case 2 => "month.feb"
+    case 3 => "month.mar"
+    case 4 => "month.apr"
+    case 5 => "month.may"
+    case 6 => "month.jun"
+    case 7 => "month.jul"
+    case 8 => "month.aug"
+    case 9 => "month.sep"
+    case 10 => "month.oct"
+    case 11 => "month.nov"
+    case 12 => "month.dec"
+    case _ =>
+      throw new IllegalArgumentException(s"Invalid month number: $month. Must be between 1 and 12.")
+  }
+
+  def formatPeriodDisplay(
+                           periodKey: PeriodKey,
+                           obligations: ObligationsResponse
+                         )(implicit messages: Messages): String = {
+    val obligationDetails = obligations.obligation.map(_.obligationDetails)
+    formatPeriodDisplay(periodKey, obligationDetails)
+  }
+
+  def formatPeriodDisplay(
+                           periodKey: PeriodKey,
+                           obligationDetails: Seq[models.obligations.ObligationDetails]
+                         )(implicit messages: Messages): String = {
+    obligationDetails
+      .find(_.periodKey == periodKey.toString)
+      .map { obligation =>
+        val month = obligation.iCFromDate.getMonthValue
+        val year = obligation.iCFromDate.getYear
+        val monthKey = getMonthMessageKey(month)
+        s"${messages(monthKey)} $year"
+      }
+      .getOrElse {
+        val availableKeys = if (obligationDetails.isEmpty) {
+          "none"
+        } else {
+          obligationDetails.map(_.periodKey).mkString(", ")
+        }
+        throw new IllegalStateException(
+          s"Period key '${periodKey.value}' not found in obligations. " +
+            s"Available period keys: $availableKeys"
+        )
+      }
+  }
 }

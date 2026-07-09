@@ -22,6 +22,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.SelectSpoiltPeriodViewModel
 import views.html.returns.submit.spoilt.SelectSpoiltPeriodView
 
@@ -35,6 +36,7 @@ class SelectSpoiltPeriodController @Inject()(
   getData: ReturnsDataRetrievalAction,
   requireData: ReturnsDataRequiredAction,
   obligationService: ObligationService,
+  returnsDateUtils: ReturnsDateUtils,
   val controllerComponents: MessagesControllerComponents,
   view: SelectSpoiltPeriodView
 )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
@@ -42,8 +44,8 @@ class SelectSpoiltPeriodController @Inject()(
   def onPageLoad(year: Option[Int]): Action[AnyContent] =
     (identify andThen returnsEnabledAction andThen getData andThen requireData).async { implicit request =>
 
-      obligationService.getObligations(request.enrolmentVpdId).map { obligationsResponse =>
-        val viewModel = SelectSpoiltPeriodViewModel(obligationsResponse, year, request.periodKey)
+      obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligationDetails =>
+        val viewModel = SelectSpoiltPeriodViewModel(obligationDetails, year, request.periodKey, returnsDateUtils)
         Ok(view(viewModel))
       }.recover {
         case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

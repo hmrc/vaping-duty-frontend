@@ -19,17 +19,18 @@ package data
 import builders.ObligationsBuilders
 import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, UserDetails}
 import models.emailverification.*
-import models.identifiers.{CredentialId, GroupId, InternalId, PeriodKey, VpdId}
-import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
+import models.identifiers.*
+import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse}
 import models.payments.OutstandingPayment
-import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
 import models.returns.{DeclarationDetails, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
+import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
 
-import java.time.{Clock, Instant, LocalDate, LocalDateTime, Month, ZoneId, ZoneOffset}
+import java.time.*
 
 trait TestData extends ObligationsBuilders {
   val vpdId: VpdId = VpdId(id = "VPPAID01")
@@ -76,6 +77,16 @@ trait TestData extends ObligationsBuilders {
     fullName = "Test User",
     capacityInWhichSigned = "Director",
     signeesEmailAddress = "test@example.com"
+  )
+
+  val adjustmentEntry: AdjustmentEntry = AdjustmentEntry(
+    period = PeriodKey("26AE"),
+    adjustmentType = AdjustmentType.UnderDeclared,
+    volumeInMl = BigDecimal("1000")
+  )
+
+  val adjustmentList: AdjustmentList = AdjustmentList(
+    adjustments = Seq(adjustmentEntry)
   )
 
   val subscriptionSummaryPostWithEmail: SubscriptionSummary = subscriptionSummaryEmail.copy(paperlessPreference = false)

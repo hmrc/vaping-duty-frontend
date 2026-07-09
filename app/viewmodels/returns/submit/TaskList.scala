@@ -18,7 +18,9 @@ package viewmodels.returns.submit
 
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import models.{NormalMode, TaskStatus}
+import pages.returns.adjustments.AdjustmentListPage
 import play.api.i18n.Messages
+import play.api.mvc.Call
 import services.returns.TaskStatusService
 
 object TaskList {
@@ -67,12 +69,21 @@ object TaskList {
         TaskRows(
           id = "declareAdjustments-task-2",
           linkText = messages("returns.taskList.declareAdjustments.task2"),
-          link = controllers.routes.JourneyRecoveryController.onPageLoad(),
-          status = TaskStatus.NotStarted,
+          link = determineAdjustmentLink(userAnswers),
+          status = TaskStatusService.declareAdjustmentsTaskStatus(userAnswers),
           periodKey = Some(periodKey)
         ).toTaskListItem
       )
     )
+  }
+
+  private def determineAdjustmentLink(userAnswers: ReturnsUserAnswers): Call = {
+    userAnswers.get(AdjustmentListPage) match {
+      case Some(list) if list.adjustments.nonEmpty =>
+        controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad()
+      case _ =>
+        controllers.returns.submit.adjustments.routes.DeclareAdjustmentQuestionController.onPageLoad(NormalMode)
+    }
   }
 
 

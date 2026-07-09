@@ -44,10 +44,10 @@ object CheckYourAnswersViewModel {
 
   private val ZERO = "0"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): CheckYourAnswersViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
     // scalafix:off DisableSyntax.throw
     val returnPeriod = userAnswers.returnPeriod
-      .map(month => ReturnsDateUtils.getReturnMonth(month))
+      .map(month => returnsDateUtils.getReturnMonth(month))
       .getOrElse(throw new IllegalStateException("Return period not found in user answers"))
     
     val year = userAnswers.year
@@ -60,7 +60,7 @@ object CheckYourAnswersViewModel {
       dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers, periodKey),
       dutyDue = dutyDue(userAnswers, dutyRate),
       dutyRate = currencyFormat(dutyRate),
-      dutyRateParagraph = dutyRateParagraph(nilReturn, dutyRate),
+      dutyRateParagraph = dutyRateParagraph(nilReturn),
       dutyCalculationParagraph = dutyCalculationParagraph(dutyRate),
       nilReturn = nilReturn,
       returnPeriod = returnPeriod,
@@ -82,7 +82,7 @@ object CheckYourAnswersViewModel {
     }
   }
 
-  private def dutyRateParagraph(nilReturn: Boolean, dutyRate: BigDecimal)(implicit messages: Messages): HtmlFormat.Appendable = {
+  private def dutyRateParagraph(nilReturn: Boolean)(implicit messages: Messages): HtmlFormat.Appendable = {
     val p = new Paragraph()
 
     if (nilReturn) {

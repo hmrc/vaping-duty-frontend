@@ -17,13 +17,12 @@
 package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
-import models.obligations.ObligationsResponse
+import models.obligations.ObligationDetails
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.{TaskListItem, TaskListItemTitle}
-
-import java.time.LocalDate
+import utils.ReturnsDateUtils
 
 case class SelectSpoiltPeriodViewModel(
   periods: Seq[TaskListItem],
@@ -33,75 +32,42 @@ case class SelectSpoiltPeriodViewModel(
 
 object SelectSpoiltPeriodViewModel {
 
-  private val STATUS_FULFILLED = "F"
-  private val YEARS_TO_SHOW = 3
-
   def apply(
-    obligationsResponse: ObligationsResponse,
+    obligationDetails: Seq[ObligationDetails],
     selectedYear: Option[Int],
-    currentReturnPeriod: PeriodKey
+    currentReturnPeriod: PeriodKey,
+    returnsDateUtils: ReturnsDateUtils
   )(implicit messages: Messages): SelectSpoiltPeriodViewModel = {
 
-    val currentDate = LocalDate.now()
-    val threeYearsAgo = currentDate.minusYears(YEARS_TO_SHOW)
+    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
 
-    val fulfilledObligations = obligationsResponse.obligation
-      .filter(_.obligationDetails.openOrFulfilledStatus == STATUS_FULFILLED)
-      .filter(_.obligationDetails.iCFromDate.isAfter(threeYearsAgo))
+    val availableYears = PeriodSelectionHelper.extractAvailableYearsFromDetails(fulfilledObligations)
 
-    val availableYears = fulfilledObligations
-      .map(_.obligationDetails.iCFromDate.getYear)
-      .distinct
-      .sorted(Ordering[Int].reverse)
+    val currentYear = PeriodSelectionHelper.selectCurrentYear(availableYears, selectedYear)
 
-    val currentYear = selectedYear.getOrElse(
-      availableYears.headOption.getOrElse(currentDate.getYear)
-    )
-
-    val obligationsForYear = fulfilledObligations
-      .filter(_.obligationDetails.iCFromDate.getYear == currentYear)
-      .sortBy(_.obligationDetails.iCFromDate.getMonthValue)(Ordering[Int].reverse)
+    val obligationsForYear = PeriodSelectionHelper.filterObligationsByYearFromDetails(fulfilledObligations, currentYear)
 
     val taskListItems = obligationsForYear.map { obligation =>
-      val month = obligation.obligationDetails.iCFromDate.getMonthValue
-      val monthKey = getMonthMessageKey(month)
-      val periodKey = obligation.obligationDetails.periodKey
+      val month = obligation.iCFromDate.getMonthValue
+      val monthKey = returnsDateUtils.getMonthMessageKey(month)
+      val periodKey = obligation.periodKey
+      val href = s"${controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad().url}?period=${currentReturnPeriod.value}&spoiltPeriod=$periodKey"
 
       TaskListItem(
         title = TaskListItemTitle(content = Text(messages(monthKey))),
-        href = Some(s"${controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad().url}?period=${currentReturnPeriod.value}&spoiltPeriod=$periodKey")
+        href = Some(href)
       )
     }
 
-    val paginationYears = availableYears.take(YEARS_TO_SHOW)
+    val paginationItemHrefBuilder = (year: Int) =>
+      s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
 
-    val paginationItems = paginationYears.map { year =>
-      PaginationItem(
-        number = Some(year.toString),
-        current = Some(year == currentYear),
-        href = s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
-      )
-    }
+    val paginationItems = PeriodSelectionHelper.buildPaginationItems(availableYears, currentYear, paginationItemHrefBuilder)
 
     SelectSpoiltPeriodViewModel(
       periods = taskListItems,
       paginationItems = paginationItems,
       currentYear = currentYear
     )
-  }
-
-  private def getMonthMessageKey(month: Int): String = month match {
-    case 1  => "month.jan"
-    case 2  => "month.feb"
-    case 3  => "month.mar"
-    case 4  => "month.apr"
-    case 5  => "month.may"
-    case 6  => "month.jun"
-    case 7  => "month.jul"
-    case 8  => "month.aug"
-    case 9  => "month.sep"
-    case 10 => "month.oct"
-    case 11 => "month.nov"
-    case 12 => "month.dec"
   }
 }

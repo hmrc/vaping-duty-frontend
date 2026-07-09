@@ -24,6 +24,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.DutyRateService
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
 
@@ -50,7 +51,8 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[CheckYourAnswersView]
-        val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate, periodKey)(messages(application))
+        val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
+        val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate, periodKey, returnsDateUtils)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString

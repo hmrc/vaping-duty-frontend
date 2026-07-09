@@ -19,23 +19,16 @@ package services.returns
 import base.SpecBase
 import builders.ObligationsBuilders
 import config.FrontendAppConfig
-import connectors.returns.SubmitReturnConnector
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
-import models.requests.returns.ReturnsDataRequest
 import models.returns.*
-import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, reset, verify, when}
+import models.returns.submit.ReturnCreateRequest
+import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.*
-import play.api.libs.json.JsObject
-import play.api.test.FakeRequest
-import services.contactPreference.AuditService
 
-import java.time.{Instant, LocalDate}
-import scala.concurrent.Future
+import java.time.LocalDate
 
 class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach with ObligationsBuilders {
 

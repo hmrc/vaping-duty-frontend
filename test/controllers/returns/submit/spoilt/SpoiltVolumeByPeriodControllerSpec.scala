@@ -31,8 +31,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.{ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.http.InternalServerException
-import viewmodels.returns.submit.SpoiltVolumeByPeriodViewModel
-import views.html.returns.submit.spoilt.SpoiltVolumeByPeriodView
 
 import java.time.LocalDate
 import scala.concurrent.Future

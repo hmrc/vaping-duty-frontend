@@ -19,7 +19,9 @@ package services.returns
 import base.SpecBase
 import models.TaskStatus
 import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import pages.returns.*
+import pages.returns.adjustments.*
 
 class TaskStatusServiceSpec extends SpecBase {
 
@@ -120,6 +122,57 @@ class TaskStatusServiceSpec extends SpecBase {
     }
   }
 
+  "declareAdjustmentsTaskStatus" - {
+
+    "must return NotStarted when adjustment question not answered" in {
+      val result = TaskStatusService.declareAdjustmentsTaskStatus(emptyAnswers)
+      result mustBe TaskStatus.NotStarted
+    }
+
+    "must return Completed when declared false" in {
+      val answers = emptyAnswers
+        .set(DeclareAdjustmentPage, false)
+        .success
+        .value
+
+      val result = TaskStatusService.declareAdjustmentsTaskStatus(answers)
+      result mustBe TaskStatus.Completed
+    }
+
+    "must return InProgress when declared true but no adjustment list" in {
+      val answers = emptyAnswers
+        .set(DeclareAdjustmentPage, true)
+        .success
+        .value
+
+      val result = TaskStatusService.declareAdjustmentsTaskStatus(answers)
+      result mustBe TaskStatus.InProgress
+    }
+
+    "must return InProgress when declared true with empty adjustment list" in {
+      val answers = emptyAnswers
+        .set(DeclareAdjustmentPage, true)
+        .flatMap(_.set(AdjustmentListPage, AdjustmentList.empty))
+        .success
+        .value
+
+      val result = TaskStatusService.declareAdjustmentsTaskStatus(answers)
+      result mustBe TaskStatus.InProgress
+    }
+
+    "must return Completed when declared true with non-empty adjustment list" in {
+      val adjustmentEntry = AdjustmentEntry(periodKey, AdjustmentType.UnderDeclared, BigDecimal(100))
+      val answers = emptyAnswers
+        .set(DeclareAdjustmentPage, true)
+        .flatMap(_.set(AdjustmentListPage, AdjustmentList(Seq(adjustmentEntry))))
+        .success
+        .value
+
+      val result = TaskStatusService.declareAdjustmentsTaskStatus(answers)
+      result mustBe TaskStatus.Completed
+    }
+  }
+
   "allTasksCompleted" - {
 
     "must return false when no tasks are completed" in {
@@ -144,6 +197,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .flatMap(_.set(DeclareDutySuspensePage, true))
         .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
         .flatMap(_.set(DeclareSpoiltProductsPage, false))
+        .flatMap(_.set(DeclareAdjustmentPage, false))
         .success
         .value
 
@@ -176,6 +230,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .flatMap(_.set(DeclareDutySuspensePage, true))
         .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
         .flatMap(_.set(DeclareSpoiltProductsPage, false))
+        .flatMap(_.set(DeclareAdjustmentPage, false))
         .success
         .value
 
