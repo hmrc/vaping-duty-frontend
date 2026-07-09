@@ -46,6 +46,7 @@ class ReturnsNavigator @Inject()(
     case DeclareAdjustmentPage          => ua  => declareAdjustmentQuestionPageRoutes(ua, periodKey)
     case AdjustmentListPage             => _   => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(), periodKey)
     case AddAnotherAdjustmentPage       => ua  => addAnotherAdjustmentPageRoutes(ua, periodKey)
+    case AdjustmentReasonPage           => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage        => ua  => declareDutySuspensePageRoutes(ua, periodKey)
     case EnterDutySuspensePage          => _   => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(), periodKey)
     case DeclarationPage                => _   => withPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad(), periodKey)
@@ -112,9 +113,14 @@ class ReturnsNavigator @Inject()(
 
   private def addAnotherAdjustmentPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(AddAnotherAdjustmentPage) match
-      case Some(true)  => withPeriod(controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None), periodKey)
-      case Some(false) => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
-      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case Some(true) => withPeriod(controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None), periodKey)
+      case Some(false) =>
+        val hasLargeEntry = ua.get(AdjustmentListPage).exists(_.adjustments.exists(_.volumeInMl >= 1000))
+        if (hasLargeEntry)
+          withPeriod(controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode), periodKey)
+        else
+          withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
+      case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
   def nextPage(page: Page, mode: Mode, userAnswers: ReturnsUserAnswers): Call = mode match {
