@@ -59,7 +59,7 @@
             ))
         }
 
-        @if(viewModel.hasAdjustments) {
+        @if(viewModel.hasAdjustments && viewModel.hasAvailablePeriodsToAdd) {
             @govukRadios(
                 RadiosViewModel.yesNo(
                     field = form("value"),

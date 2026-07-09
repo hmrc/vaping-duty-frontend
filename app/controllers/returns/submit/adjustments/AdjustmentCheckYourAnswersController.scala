@@ -20,13 +20,15 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import forms.returns.DeclareDutyFormProvider
 import models.NormalMode
+import models.requests.returns.ReturnsDataRequest
 import models.returns.adjustments.AdjustmentList
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.returns.{AdjustmentCheckYourAnswersService, ReturnsUserAnswersService}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.adjustments.AdjustmentCheckYourAnswersView
 
@@ -73,29 +75,33 @@ class AdjustmentCheckYourAnswersController @Inject()(
       val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
       val adjustmentList = request.userAnswers.get(AdjustmentListPage)
 
-      declareAdjustment match {
-        case Some(false) =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, false))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
+      adjustmentCheckYourAnswersService
+        .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId)
+        .flatMap { vm =>
+          declareAdjustment match {
+            case Some(false) => redirectToNextPageWithoutAddingAnother(request)
+            case _ if !vm.hasAvailablePeriodsToAdd => redirectToNextPageWithoutAddingAnother(request)
+            case _ =>
+              form.bindFromRequest().fold(
+                formWithErrors =>
+                  Future.successful(BadRequest(view(request.periodKey, vm, formWithErrors))),
 
-        case _ =>
-          form.bindFromRequest().fold(
-            formWithErrors =>
-              adjustmentCheckYourAnswersService
-                .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId)
-                .map { vm =>
-                  BadRequest(view(request.periodKey, vm, formWithErrors))
-                },
+                value =>
+                  for {
+                    updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
+                    _              <- sessionRepository.set(updatedAnswers)
+                  } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
+              )
+          }
+        }
+  }
 
-            value =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
-          )
-      }
+  private def redirectToNextPageWithoutAddingAnother(request: ReturnsDataRequest[AnyContent])
+                                                    (using HeaderCarrier): Future[Result] = {
+    for {
+      updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, false))
+      _              <- sessionRepository.set(updatedAnswers)
+    } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
   }
 
 }

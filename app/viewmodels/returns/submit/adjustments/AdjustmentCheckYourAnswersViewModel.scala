@@ -24,12 +24,14 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 import utils.{CurrencyFormatter, ReturnsDateUtils}
+import viewmodels.returns.submit.PeriodSelectionHelper
 
 case class AdjustmentCheckYourAnswersViewModel(
                                                 summaryCards: Seq[AdjustmentSummaryCard],
                                                 hasAdjustments: Boolean,
                                                 totalAdjustment: BigDecimal,
-                                                formattedTotalAdjustment: String
+                                                formattedTotalAdjustment: String,
+                                                hasAvailablePeriodsToAdd: Boolean
                                               )
 
 object AdjustmentCheckYourAnswersViewModel {
@@ -62,12 +64,31 @@ object AdjustmentCheckYourAnswersViewModel {
       }
     }.sum
 
+    val hasAvailablePeriodsToAdd = calculateAvailablePeriods(obligationDetails, periodKey, adjustmentList).nonEmpty
+
     AdjustmentCheckYourAnswersViewModel(
       summaryCards = summaryCards,
       hasAdjustments = adjustments.nonEmpty,
       totalAdjustment = totalAdjustment,
-      formattedTotalAdjustment = CurrencyFormatter.currencyFormatWithLeadingSign(totalAdjustment)
+      formattedTotalAdjustment = CurrencyFormatter.currencyFormatWithLeadingSign(totalAdjustment),
+      hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd
     )
+  }
+
+  private def calculateAvailablePeriods(
+                                         obligationDetails: Seq[ObligationDetails],
+                                         currentReturnPeriod: PeriodKey,
+                                         adjustmentList: Option[AdjustmentList]
+                                       ): Seq[ObligationDetails] = {
+    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
+      .filter(_.periodKey != currentReturnPeriod.toString)
+
+    val existingAdjustmentPeriods = adjustmentList
+      .map(_.adjustments.map(_.period.toString).toSet)
+      .getOrElse(Set.empty)
+
+    fulfilledObligations
+      .filterNot(ob => existingAdjustmentPeriods.contains(ob.periodKey))
   }
 
   private def buildAdjustmentUrl(baseUrl: String, currentPeriod: PeriodKey, adjustmentPeriod: Option[PeriodKey] = None): String = {

@@ -55,7 +55,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         summaryCards = Seq.empty,
         hasAdjustments = true,
         totalAdjustment = BigDecimal(1000),
-        formattedTotalAdjustment = "£1,000.00"
+        formattedTotalAdjustment = "£1,000.00",
+        hasAvailablePeriodsToAdd = true
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
@@ -87,7 +88,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         summaryCards = Seq.empty,
         hasAdjustments = true,
         totalAdjustment = BigDecimal(1000),
-        formattedTotalAdjustment = "£1,000.00"
+        formattedTotalAdjustment = "£1,000.00",
+        hasAvailablePeriodsToAdd = true
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
@@ -136,16 +138,28 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
     "must redirect to the next page when valid data is submitted" in {
       val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockService = mock[AdjustmentCheckYourAnswersService]
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
 
+      val mockViewModel = AdjustmentCheckYourAnswersViewModel(
+        summaryCards = Seq.empty,
+        hasAdjustments = true,
+        totalAdjustment = BigDecimal(1000),
+        formattedTotalAdjustment = "£1,000.00",
+        hasAvailablePeriodsToAdd = true
+      )
+
+      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+        .thenReturn(Future.successful(mockViewModel))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
         applicationBuilder(returnsUserAnswers = Some(userAnswers))
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[AdjustmentCheckYourAnswersService].toInstance(mockService)
           )
           .build()
 
@@ -163,17 +177,70 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
     "must skip form validation and auto-set AddAnotherAdjustmentPage to false when user declared No to adjustments" in {
       val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockService = mock[AdjustmentCheckYourAnswersService]
 
       val userAnswersWithNoAdjustments = returnsUserAnswers
         .set(DeclareAdjustmentPage, false).success.value
 
+      val mockViewModel = AdjustmentCheckYourAnswersViewModel(
+        summaryCards = Seq.empty,
+        hasAdjustments = false,
+        totalAdjustment = BigDecimal(0),
+        formattedTotalAdjustment = "£0.00",
+        hasAvailablePeriodsToAdd = true
+      )
+
+      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+        .thenReturn(Future.successful(mockViewModel))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
         applicationBuilder(returnsUserAnswers = Some(userAnswersWithNoAdjustments))
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[AdjustmentCheckYourAnswersService].toInstance(mockService)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, adjustmentCheckYourAnswersRoute)
+        // Note: No form data submitted - form validation should be skipped
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        // Verify that session was updated (with AddAnotherAdjustmentPage set to false)
+        verify(mockSessionRepository).set(any())(any())
+      }
+    }
+
+    "must skip form validation and auto-set AddAnotherAdjustmentPage to false when no available periods to add" in {
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockService = mock[AdjustmentCheckYourAnswersService]
+      val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
+      val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
+
+      val mockViewModel = AdjustmentCheckYourAnswersViewModel(
+        summaryCards = Seq.empty,
+        hasAdjustments = true,
+        totalAdjustment = BigDecimal(1000),
+        formattedTotalAdjustment = "£1,000.00",
+        hasAvailablePeriodsToAdd = false
+      )
+
+      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+        .thenReturn(Future.successful(mockViewModel))
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(userAnswers))
+          .overrides(
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[AdjustmentCheckYourAnswersService].toInstance(mockService)
           )
           .build()
 
@@ -200,7 +267,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         summaryCards = Seq.empty,
         hasAdjustments = true,
         totalAdjustment = BigDecimal(1000),
-        formattedTotalAdjustment = "£1,000.00"
+        formattedTotalAdjustment = "£1,000.00",
+        hasAvailablePeriodsToAdd = true
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
