@@ -476,7 +476,7 @@ returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.maxOne 
 
 returns.adjustmentCheckYourAnswers.title = Your adjustment is {0}
 returns.adjustmentCheckYourAnswers.heading = Your adjustment is {0}
-returns.adjustmentCheckYourAnswers.caption = Under and over adjustments
+returns.adjustmentCheckYourAnswers.caption = Over and under adjustments
 returns.adjustmentCheckYourAnswers.noAdjustments.heading = You have no adjustments to declare
 returns.adjustmentCheckYourAnswers.addAnother = Do you need to add another adjustment?
 returns.adjustmentCheckYourAnswers.question = Do you have any vaping products you need to over or under declare?
