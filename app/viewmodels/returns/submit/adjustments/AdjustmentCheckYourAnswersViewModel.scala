@@ -49,7 +49,7 @@ object AdjustmentCheckYourAnswersViewModel {
       case Some(false) =>
         Seq(buildNoAdjustmentCard(periodKey))
       case _ =>
-        adjustments.map { adjustment =>
+        adjustments.reverse.map { adjustment =>
           buildSummaryCard(adjustment, obligationDetails, periodKey, dutyRates, returnsDateUtils)
         }
     }
