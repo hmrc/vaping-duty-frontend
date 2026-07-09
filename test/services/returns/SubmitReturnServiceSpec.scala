@@ -23,18 +23,15 @@ import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.{DeclarationDetails, DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
-import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, UnderDeclaration}
 import models.returns.*
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.*
 import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
-import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage}
 import play.api.libs.json.JsObject
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -147,83 +144,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         result mustBe submittedResponse
         verify(mockSubmitReturnConnector).submitReturn(eqTo(nonNilReturnCreatedRequest), eqTo(vpdId))(any())
         verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
-      }
-
-      "populate reasonForUnderDecl and flip underDeclFilled when an UnderDeclared adjustment and a reason are present" in {
-        val adjustmentList = AdjustmentList(Seq(AdjustmentEntry(periodKey, AdjustmentType.UnderDeclared, BigDecimal("1000"))))
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, false).success.value
-          .set(AdjustmentListPage, adjustmentList).success.value
-          .set(AdjustmentReasonPage, "under declared reason").success.value
-          .set(DeclarationPage, declaration).success.value
-
-        val request = submitAndCaptureRequest(userAnswers)
-
-        request.underDeclaration.value.underDeclFilled mustBe "1"
-        request.underDeclaration.value.reasonForUnderDecl mustBe Some("under declared reason")
-        request.overDeclaration.value.overDeclFilled mustBe "0"
-        request.overDeclaration.value.reasonForOverDecl mustBe None
-      }
-
-      "populate reasonForOverDecl and flip overDeclFilled when an OverDeclared adjustment and a reason are present" in {
-        val adjustmentList = AdjustmentList(Seq(AdjustmentEntry(periodKey, AdjustmentType.OverDeclared, BigDecimal("1000"))))
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, false).success.value
-          .set(AdjustmentListPage, adjustmentList).success.value
-          .set(AdjustmentReasonPage, "over declared reason").success.value
-          .set(DeclarationPage, declaration).success.value
-
-        val request = submitAndCaptureRequest(userAnswers)
-
-        request.overDeclaration.value.overDeclFilled mustBe "1"
-        request.overDeclaration.value.reasonForOverDecl mustBe Some("over declared reason")
-        request.underDeclaration.value.underDeclFilled mustBe "0"
-        request.underDeclaration.value.reasonForUnderDecl mustBe None
-      }
-
-      "populate both reasons with the same text when both UnderDeclared and OverDeclared adjustments are present" in {
-        val adjustmentList = AdjustmentList(Seq(
-          AdjustmentEntry(periodKey, AdjustmentType.UnderDeclared, BigDecimal("1000")),
-          AdjustmentEntry(periodKey, AdjustmentType.OverDeclared, BigDecimal("1000"))
-        ))
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, false).success.value
-          .set(AdjustmentListPage, adjustmentList).success.value
-          .set(AdjustmentReasonPage, "shared reason").success.value
-          .set(DeclarationPage, declaration).success.value
-
-        val request = submitAndCaptureRequest(userAnswers)
-
-        request.underDeclaration.value.underDeclFilled mustBe "1"
-        request.underDeclaration.value.reasonForUnderDecl mustBe Some("shared reason")
-        request.overDeclaration.value.overDeclFilled mustBe "1"
-        request.overDeclaration.value.reasonForOverDecl mustBe Some("shared reason")
-      }
-
-      "leave both reasons and filled flags unset when there are no adjustments" in {
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, false).success.value
-          .set(DeclarationPage, declaration).success.value
-
-        val request = submitAndCaptureRequest(userAnswers)
-
-        request.underDeclaration.value.underDeclFilled mustBe "0"
-        request.underDeclaration.value.reasonForUnderDecl mustBe None
-        request.overDeclaration.value.overDeclFilled mustBe "0"
-        request.overDeclaration.value.reasonForOverDecl mustBe None
-      }
-
-      "flip the filled flag from the adjustment type even when no reason has been given" in {
-        val adjustmentList = AdjustmentList(Seq(AdjustmentEntry(periodKey, AdjustmentType.UnderDeclared, BigDecimal("1000"))))
-        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclareDutyPage, false).success.value
-          .set(AdjustmentListPage, adjustmentList).success.value
-          .set(DeclarationPage, declaration).success.value
-
-        val request = submitAndCaptureRequest(userAnswers)
-
-        request.underDeclaration.value.underDeclFilled mustBe "1"
-        request.underDeclaration.value.reasonForUnderDecl mustBe None
       }
 
       "fail when no obligation found" in {

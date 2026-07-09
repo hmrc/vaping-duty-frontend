@@ -20,9 +20,11 @@ import config.FrontendAppConfig
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.returns.*
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentType}
 import models.returns.submit.ReturnCreateRequest
 import models.returns.view.*
 import pages.returns.*
+import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage}
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -46,8 +48,8 @@ class BuildReturnSubmissionService @Inject()(
     val vapingProductsProduced = buildVapingProductsProduced(ua, obligation, periodKeyToDutyRateInPencePerMl)
     val totalDutyDueVapingProducts = vapingProductsProduced.returns.headOption.map(_.dutyDue).getOrElse(ZERO_VALUE)
 
-    val underDeclaration = buildUnderDeclaration()
-    val overDeclaration = buildOverDeclaration()
+    val underDeclaration = buildUnderDeclaration(ua, periodKeyToDutyRateInPencePerMl)
+    val overDeclaration = buildOverDeclaration(ua, periodKeyToDutyRateInPencePerMl)
     val otherOptions = buildOtherOptions(ua)
 
     val spoiltProduct = buildSpoiltProduct(ua, vpdId, periodKeyToDutyRateInPencePerMl)
@@ -104,19 +106,73 @@ class BuildReturnSubmissionService @Inject()(
     vapingProductsProduced
   }
 
-  private def buildUnderDeclaration(): Option[UnderDeclaration] =
-    Some(UnderDeclaration(
-      underDeclFilled = FLAG_NOT_FILLED,
-      reasonForUnderDecl = None,
-      underDeclarationProducts = None
-    ))
+  private def buildUnderDeclaration(ua: ReturnsUserAnswers, periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int]): Option[UnderDeclaration] = {
+    val underDeclaredEntries = ua.get(AdjustmentListPage)
+      .map(_.adjustments.filter(_.adjustmentType == AdjustmentType.UnderDeclared))
+      .getOrElse(Seq.empty)
 
-  private def buildOverDeclaration(): Option[OverDeclaration] =
-    Some(OverDeclaration(
-      overDeclFilled = FLAG_NOT_FILLED,
-      reasonForOverDecl = None,
-      overDeclarationProducts = None
-    ))
+    if (underDeclaredEntries.nonEmpty) {
+      Some(UnderDeclaration(
+        underDeclFilled = FLAG_FILLED,
+        reasonForUnderDecl = ua.get(AdjustmentReasonPage),
+        underDeclarationProducts = Some(underDeclaredEntries.map(buildUnderDeclarationProduct(_, periodKeyToDutyRateInPencePerMl)))
+      ))
+    } else {
+      Some(UnderDeclaration(
+        underDeclFilled = FLAG_NOT_FILLED,
+        reasonForUnderDecl = None,
+        underDeclarationProducts = None
+      ))
+    }
+  }
+
+  private def buildUnderDeclarationProduct(entry: AdjustmentEntry, periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int]): UnderDeclarationProduct = {
+    val dutyRateInPencePerMl = periodKeyToDutyRateInPencePerMl(entry.period)
+    val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) * 10) / 100
+    val dutyDue = (entry.volumeInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
+
+    UnderDeclarationProduct(
+      returnPeriodAffected = entry.period.toString,
+      taxType = config.taxType,
+      dutyRate = dutyRateInPoundsPer10Ml,
+      amountUnderDeclared = ConvertToLitres(entry.volumeInMl).toLitres,
+      dutyDue = dutyDue
+    )
+  }
+
+  private def buildOverDeclaration(ua: ReturnsUserAnswers, periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int]): Option[OverDeclaration] = {
+    val overDeclaredEntries = ua.get(AdjustmentListPage)
+      .map(_.adjustments.filter(_.adjustmentType == AdjustmentType.OverDeclared))
+      .getOrElse(Seq.empty)
+
+    if (overDeclaredEntries.nonEmpty) {
+      Some(OverDeclaration(
+        overDeclFilled = FLAG_FILLED,
+        reasonForOverDecl = ua.get(AdjustmentReasonPage),
+        overDeclarationProducts = Some(overDeclaredEntries.map(buildOverDeclarationProduct(_, periodKeyToDutyRateInPencePerMl)))
+      ))
+    } else {
+      Some(OverDeclaration(
+        overDeclFilled = FLAG_NOT_FILLED,
+        reasonForOverDecl = None,
+        overDeclarationProducts = None
+      ))
+    }
+  }
+
+  private def buildOverDeclarationProduct(entry: AdjustmentEntry, periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int]): OverDeclarationProduct = {
+    val dutyRateInPencePerMl = periodKeyToDutyRateInPencePerMl(entry.period)
+    val dutyRateInPoundsPer10Ml = (BigDecimal(dutyRateInPencePerMl) * 10) / 100
+    val dutyDue = (entry.volumeInMl * (BigDecimal(dutyRateInPencePerMl) / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
+
+    OverDeclarationProduct(
+      returnPeriodAffected = entry.period.toString,
+      taxType = config.taxType,
+      dutyRate = dutyRateInPoundsPer10Ml,
+      amountOverDeclared = ConvertToLitres(entry.volumeInMl).toLitres,
+      dutyDue = dutyDue
+    )
+  }
 
   private def buildSpoiltProduct(ua: ReturnsUserAnswers, vpdId: VpdId, periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int]): Option[SpoiltProduct] = {
     val declareSpoiltProducts = ua.get(DeclareSpoiltProductsPage)
