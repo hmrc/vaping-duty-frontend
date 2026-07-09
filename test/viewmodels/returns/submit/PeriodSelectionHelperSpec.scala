@@ -17,13 +17,8 @@
 package viewmodels.returns.submit
 
 import base.SpecBase
-import models.identifiers.PeriodKey
-import models.obligations.ObligationsResponse
 import models.returns.ReturnsConstants
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.TaskListItemTitle
-import utils.ReturnsDateUtils
 
 class PeriodSelectionHelperSpec extends SpecBase {
 

@@ -16,13 +16,9 @@
 
 package viewmodels.returns.submit
 
-import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
+import models.obligations.{ObligationDetails, ObligationStatus}
 import models.returns.ReturnsConstants
-import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
-import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.{TaskListItem, TaskListItemTitle}
-import utils.ReturnsDateUtils
 
 import java.time.LocalDate
 
