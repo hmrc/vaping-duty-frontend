@@ -97,14 +97,6 @@ object AdjustmentCheckYourAnswersViewModel {
 
     val cardActions = Seq(
       ActionItem(
-        href = buildAdjustmentUrl(
-          controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None).url,
-          currentPeriodKey
-        ),
-        content = Text(messages("site.change")),
-        visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.card.change.hidden", periodDisplay))
-      ),
-      ActionItem(
         href = "#",
         content = Text(messages("site.remove")),
         visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.card.remove.hidden", periodDisplay))
@@ -161,17 +153,7 @@ object AdjustmentCheckYourAnswersViewModel {
     SummaryListRow(
       key = Key(content = Text(messages("returns.adjustmentCheckYourAnswers.type"))),
       value = Value(content = Text(typeText)),
-      actions = Some(Actions(items = Seq(
-        ActionItem(
-          href = buildAdjustmentUrl(
-            controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(NormalMode).url,
-            currentPeriodKey,
-            Some(adjustmentPeriod)
-          ),
-          content = Text(messages("site.change")),
-          visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.type.change.hidden"))
-        )
-      )))
+      actions = None
     )
   }
 
