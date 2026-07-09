@@ -77,14 +77,14 @@
                 legend = LegendViewModel(messages("returns.adjustmentVolumeWithType.legend")).withCssClass(LegendSize.Medium.toString),
                 items = Seq(
                     RadioItem(
-                        content = Text(messages("returns.adjustmentVolumeWithType.underDeclared")),
-                        value = Some("underDeclared"),
-                        conditionalHtml = Some(underDeclaredInput)
-                    ),
-                    RadioItem(
                         content = Text(messages("returns.adjustmentVolumeWithType.overDeclared")),
                         value = Some("overDeclared"),
                         conditionalHtml = Some(overDeclaredInput)
+                    ),
+                    RadioItem(
+                        content = Text(messages("returns.adjustmentVolumeWithType.underDeclared")),
+                        value = Some("underDeclared"),
+                        conditionalHtml = Some(underDeclaredInput)
                     )
                 )
             ).withHint(Hint(content = Text(messages("returns.adjustmentVolumeWithType.hint"))))
