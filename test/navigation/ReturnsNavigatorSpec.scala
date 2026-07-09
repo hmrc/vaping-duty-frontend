@@ -20,9 +20,10 @@ import base.SpecBase
 import controllers.routes
 import models.*
 import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
+import models.returns.adjustments.AdjustmentList
 import pages.*
 import pages.returns.{AddSpoiltAdjustmentPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
-import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
+import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import play.api.libs.json.Json
 import play.api.mvc.Call
 
@@ -158,6 +159,29 @@ class ReturnsNavigatorSpec extends SpecBase {
         val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
 
         navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to AdjustmentReason when no more adjustments to make and an adjustment volume is 1000ml or more" in {
+        val ua = returnsUserAnswers
+          .set(AdjustmentListPage, adjustmentList).success.value
+          .set(AddAnotherAdjustmentPage, false).success.value
+
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to TaskList when no more adjustments to make and all adjustment volumes are under 1000ml" in {
+        val smallAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(volumeInMl = BigDecimal("999"))))
+        val ua = returnsUserAnswers
+          .set(AdjustmentListPage, smallAdjustmentList).success.value
+          .set(AddAnotherAdjustmentPage, false).success.value
+
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from AdjustmentReasonPage to TaskList" in {
+        val ua = returnsUserAnswers.set(AdjustmentReasonPage, "a reason").success.value
+
+        navigator.nextPage(AdjustmentReasonPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from AddAnotherAdjustmentPage to JourneyRecovery when there is no value present" in {

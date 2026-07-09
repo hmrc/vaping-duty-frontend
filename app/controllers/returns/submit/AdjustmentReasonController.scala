@@ -20,41 +20,53 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import forms.returns.AdjustmentReasonFormProvider
 import models.Mode
+import navigation.ReturnsNavigator
+import pages.returns.adjustments.AdjustmentReasonPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.AdjustmentReasonView
 
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class AdjustmentReasonController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        identify: ApprovedVapingManufacturerAuthAction,
-                                        getData: ReturnsDataRetrievalAction,
-                                        requireData: ReturnsDataRequiredAction,
-                                        formProvider: AdjustmentReasonFormProvider,
-                                        returnsEnabledAction: ReturnsEnabledAction,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: AdjustmentReasonView
-                                      ) extends FrontendBaseController with I18nSupport {
+  override val messagesApi: MessagesApi,
+  sessionRepository: ReturnsUserAnswersService,
+  navigator: ReturnsNavigator,
+  identify: ApprovedVapingManufacturerAuthAction,
+  getData: ReturnsDataRetrievalAction,
+  requireData: ReturnsDataRequiredAction,
+  formProvider: AdjustmentReasonFormProvider,
+  returnsEnabledAction: ReturnsEnabledAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: AdjustmentReasonView
+)(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
-      Ok(view(form, mode))
+      val preparedForm = request.userAnswers.get(AdjustmentReasonPage) match {
+        case Some(value) => form.fill(value)
+        case None        => form
+      }
+      Ok(view(request.periodKey, preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
 
-        _ =>
-          Future.successful(Redirect(controllers.returns.submit.routes.TaskListController.onPageLoad()))
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(AdjustmentReasonPage, value))
+            _              <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(AdjustmentReasonPage, mode, updatedAnswers))
       )
   }
 }

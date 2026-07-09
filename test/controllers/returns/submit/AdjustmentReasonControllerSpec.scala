@@ -20,17 +20,29 @@ import base.SpecBase
 import controllers.routes
 import forms.returns.AdjustmentReasonFormProvider
 import models.NormalMode
+import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
+import pages.returns.adjustments.AdjustmentReasonPage
 import play.api.data.Form
+import play.api.inject.bind
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.returns.ReturnsUserAnswersService
 import views.html.returns.submit.AdjustmentReasonView
 
-class AdjustmentReasonControllerSpec extends SpecBase {
+import scala.concurrent.Future
+
+class AdjustmentReasonControllerSpec extends SpecBase with MockitoSugar {
 
   val formProvider = new AdjustmentReasonFormProvider()
   val form: Form[String] = formProvider()
 
   val validAnswer = "This is a valid reason for adjustment"
+
+  def onwardRoute: Call = Call("GET", "/foo")
 
   lazy val adjustmentReasonRoute: String = controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url
 
@@ -52,9 +64,35 @@ class AdjustmentReasonControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to task list when valid data is submitted" in {
+    "must pre-fill the form when AdjustmentReasonPage already has a value" in {
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val userAnswers = returnsUserAnswers.set(AdjustmentReasonPage, validAnswer).success.value
+
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, adjustmentReasonRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[AdjustmentReasonView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(periodKey, form.fill(validAnswer), NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to the next page when valid data is submitted" in {
+
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(
+          bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+          bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
+        )
+        .build()
 
       running(application) {
         val request =
@@ -64,7 +102,7 @@ class AdjustmentReasonControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.returns.submit.routes.TaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
