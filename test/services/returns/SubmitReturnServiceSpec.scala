@@ -99,7 +99,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
   }
 
   private val yes = "1"
-  private val no = "0"
 
   private val nilTotalDutyDue = TotalDutyDue(0.0, 0.0, 0.0, 0.0, 0.0)
 

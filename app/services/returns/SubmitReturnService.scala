@@ -16,15 +16,11 @@
 
 package services.returns
 
-import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
-import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
-import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
-import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, SpoiltProductItem, UnderDeclaration}
-import pages.returns.{DeclarationPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import models.returns.submit.ReturnSubmittedResponse
 import services.contactPreference.AuditService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
