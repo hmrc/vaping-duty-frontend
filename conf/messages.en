@@ -466,11 +466,13 @@ returns.adjustmentVolumeWithType.ml = ml
 returns.adjustmentVolumeWithType.error.required = You must select an option and enter a value
 returns.adjustmentVolumeWithType.error.bothProvided = You can only enter a value for one option — either over declared or under declared
 returns.adjustmentVolumeWithType.underDeclared.error.required = Enter the total millilitres of under-declared products
-returns.adjustmentVolumeWithType.underDeclared.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place
-returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces = Enter a volume with up to 12 digits and 1 decimal place
+returns.adjustmentVolumeWithType.underDeclared.error.nonNumeric = You must enter a number greater than zero
+returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
+returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
 returns.adjustmentVolumeWithType.overDeclared.error.required = Enter the total millilitres of over-declared products
-returns.adjustmentVolumeWithType.overDeclared.error.nonNumeric = Enter a volume with up to 12 digits and 1 decimal place
-returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces = Enter a volume with up to 12 digits and 1 decimal place
+returns.adjustmentVolumeWithType.overDeclared.error.nonNumeric = You must enter a number greater than zero
+returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
+returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
 
 returns.adjustmentCheckYourAnswers.title = Your adjustment is {0}
 returns.adjustmentCheckYourAnswers.heading = Your adjustment is {0}
