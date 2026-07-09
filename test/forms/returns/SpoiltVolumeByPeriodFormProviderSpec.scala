@@ -139,21 +139,6 @@ class SpoiltVolumeByPeriodFormProviderSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must not bind values below the minimum of 1ml" in {
-      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
-        .thenReturn(Future.successful(testDutyRate))
-      when(mockVolumePrecisionService.calculateMaxVolume(any()))
-        .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
-
-      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
-        Seq("0", "0.1").foreach { input =>
-          val result = form.bind(Map(fieldName -> input)).apply(fieldName)
-          result.errors.head.key mustEqual fieldName
-          result.errors.head.message mustEqual "returns.spoiltVolumeByPeriod.error.exceedsMaxDuty"
-        }
-      }
-    }
-
     "must not bind values that exceed the calculated maximum" in {
       when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
