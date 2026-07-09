@@ -32,7 +32,7 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
     "must bind valid adjustment types" in {
       val result = form.bind(Map(
         fieldName -> "underDeclared",
-        "underDeclaredVolume" -> "100.55"
+        "underDeclaredVolume" -> "100.5"
       ))
       result.errors mustBe empty
       result.value.value.adjustmentType mustBe AdjustmentType.UnderDeclared
@@ -41,13 +41,13 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
     "must not bind invalid adjustment types" in {
       val result = form.bind(Map(
         fieldName -> "InvalidType",
-        "underDeclaredVolume" -> "1000.5"
+        "underDeclaredVolume" -> "1000"
       ))
       result.errors must contain(FormError(fieldName, "error.invalid"))
     }
 
     "must fail when adjustment type is missing" in {
-      val result = form.bind(Map("underDeclaredVolume" -> "100.55"))
+      val result = form.bind(Map("underDeclaredVolume" -> "100.5"))
       result.errors must contain(FormError(fieldName, requiredKey))
     }
   }
@@ -56,22 +56,23 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
 
     val fieldName = "underDeclaredVolume"
 
-    "must bind valid volumes >= 1000ml with up to 1 decimal place" in {
+    "must bind valid volumes >= 1000ml with no decimal places" in {
       val result = form.bind(Map(
         "adjustmentType" -> "underDeclared",
-        fieldName -> "1000.5"
+        fieldName -> "1000"
       ))
       result.errors mustBe empty
-      result.value.value.underDeclaredVolume mustBe Some(BigDecimal("1000.5"))
+      result.value.value.underDeclaredVolume mustBe Some(BigDecimal("1000"))
     }
 
-    "must bind valid volumes < 1000ml with exactly 2 decimal places" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "underDeclared",
-        fieldName -> "100.55"
-      ))
-      result.errors mustBe empty
-      result.value.value.underDeclaredVolume mustBe Some(BigDecimal("100.55"))
+    "must bind valid volumes < 1000ml with 0 or 1 decimal place" in {
+      Seq("100", "100.5", "999.9").foreach { input =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "underDeclared",
+          fieldName -> input
+        ))
+        result.errors mustBe empty
+      }
     }
 
     "must fail when under declared volume is missing for UnderDeclared type" in {
@@ -87,20 +88,24 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
       result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.underDeclared.error.nonNumeric"))
     }
 
-    "must fail when volume >= 1000ml has more than 1 decimal place" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "underDeclared",
-        fieldName -> "1000.55"
-      ))
-      result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces"))
+    "must fail when volume >= 1000ml has any decimal places" in {
+      Seq("1000.1", "1000.5", "2000.99").foreach { input =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "underDeclared",
+          fieldName -> input
+        ))
+        result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.wholeOnly"))
+      }
     }
 
-    "must fail when volume < 1000ml does not have exactly 2 decimal places" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "underDeclared",
-        fieldName -> "100.5"
-      ))
-      result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces"))
+    "must fail when volume < 1000ml has more than 1 decimal place" in {
+      Seq("100.55", "999.99", "10.123").foreach { input =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "underDeclared",
+          fieldName -> input
+        ))
+        result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.maxOne"))
+      }
     }
   }
 
@@ -108,22 +113,23 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
 
     val fieldName = "overDeclaredVolume"
 
-    "must bind valid volumes >= 1000ml with up to 1 decimal place" in {
+    "must bind valid volumes >= 1000ml with no decimal places" in {
       val result = form.bind(Map(
         "adjustmentType" -> "overDeclared",
-        fieldName -> "2000.7"
+        fieldName -> "2000"
       ))
       result.errors mustBe empty
-      result.value.value.overDeclaredVolume mustBe Some(BigDecimal("2000.7"))
+      result.value.value.overDeclaredVolume mustBe Some(BigDecimal("2000"))
     }
 
-    "must bind valid volumes < 1000ml with exactly 2 decimal places" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "overDeclared",
-        fieldName -> "200.77"
-      ))
-      result.errors mustBe empty
-      result.value.value.overDeclaredVolume mustBe Some(BigDecimal("200.77"))
+    "must bind valid volumes < 1000ml with 0 or 1 decimal place" in {
+      Seq("200", "200.7", "999.9").foreach { input =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "overDeclared",
+          fieldName -> input
+        ))
+        result.errors mustBe empty
+      }
     }
 
     "must fail when over declared volume is missing for OverDeclared type" in {
@@ -139,20 +145,24 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
       result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.overDeclared.error.nonNumeric"))
     }
 
-    "must fail when volume >= 1000ml has more than 1 decimal place" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "overDeclared",
-        fieldName -> "2000.77"
-      ))
-      result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces"))
+    "must fail when volume >= 1000ml has any decimal places" in {
+      Seq("2000.1", "2000.7", "3000.99").foreach { input =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "overDeclared",
+          fieldName -> input
+        ))
+        result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.wholeOnly"))
+      }
     }
 
-    "must fail when volume < 1000ml does not have exactly 2 decimal places" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "overDeclared",
-        fieldName -> "200.7"
-      ))
-      result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces"))
+    "must fail when volume < 1000ml has more than 1 decimal place" in {
+      Seq("200.77", "999.99", "50.123").foreach { input =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "overDeclared",
+          fieldName -> input
+        ))
+        result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.maxOne"))
+      }
     }
   }
 
@@ -161,44 +171,46 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
     "must fail when both volumes are provided" in {
       val result = form.bind(Map(
         "adjustmentType" -> "underDeclared",
-        "underDeclaredVolume" -> "100.55",
-        "overDeclaredVolume" -> "200.77"
+        "underDeclaredVolume" -> "100.5",
+        "overDeclaredVolume" -> "200.7"
       ))
       result.errors must contain(FormError("", "returns.adjustmentVolumeWithType.error.bothProvided"))
     }
 
-    "must accept minimum valid volume (< 1000ml with 2 decimal places)" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "underDeclared",
-        "underDeclaredVolume" -> "1.00"
-      ))
-      result.errors mustBe empty
-    }
-
-    "must accept maximum valid volume (>= 1000ml with 1 decimal place)" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "underDeclared",
-        "underDeclaredVolume" -> "999999999999.9"
-      ))
-      result.errors mustBe empty
-    }
-
-    "must fail when volume is below minimum" in {
-      val exception = the[IllegalArgumentException] thrownBy {
-        form.bind(Map(
+    "must accept minimum valid volume of 1ml" in {
+      Seq("1", "1.0").foreach { input =>
+        val result = form.bind(Map(
           "adjustmentType" -> "underDeclared",
-          "underDeclaredVolume" -> "0.50"
+          "underDeclaredVolume" -> input
         ))
+        result.errors mustBe empty
       }
-      exception.getMessage mustBe "returns.adjustmentVolumeWithType.error.outOfRange"
     }
 
-    "must fail when volume exceeds maximum" in {
+    "must accept maximum valid volume" in {
+      val result = form.bind(Map(
+        "adjustmentType" -> "underDeclared",
+        "underDeclaredVolume" -> "999999999999"
+      ))
+      result.errors mustBe empty
+    }
+
+    "must accept volumes below 1ml" in {
+      Seq("0.1", "0.5", "0.9").foreach { input =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "underDeclared",
+          "underDeclaredVolume" -> input
+        ))
+        result.errors mustBe empty
+      }
+    }
+
+    "must accept large volumes up to 13 digits" in {
       val result = form.bind(Map(
         "adjustmentType" -> "underDeclared",
         "underDeclaredVolume" -> "9999999999999"
       ))
-      result.errors must contain(FormError("underDeclaredVolume", "returns.adjustmentVolumeWithType.underDeclared.error.nonNumeric"))
+      result.errors mustBe empty
     }
   }
 
@@ -207,19 +219,19 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
     "must return the correct volume for UnderDeclared" in {
       val formData = AdjustmentVolumeWithTypeFormData(
         adjustmentType = AdjustmentType.UnderDeclared,
-        underDeclaredVolume = Some(BigDecimal("100.55")),
+        underDeclaredVolume = Some(BigDecimal("100.5")),
         overDeclaredVolume = None
       )
-      formData.getVolume mustBe BigDecimal("100.55")
+      formData.getVolume mustBe BigDecimal("100.5")
     }
 
     "must return the correct volume for OverDeclared" in {
       val formData = AdjustmentVolumeWithTypeFormData(
         adjustmentType = AdjustmentType.OverDeclared,
         underDeclaredVolume = None,
-        overDeclaredVolume = Some(BigDecimal("200.77"))
+        overDeclaredVolume = Some(BigDecimal("200.7"))
       )
-      formData.getVolume mustBe BigDecimal("200.77")
+      formData.getVolume mustBe BigDecimal("200.7")
     }
   }
 }

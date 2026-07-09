@@ -125,7 +125,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
           FakeRequest(POST, adjustmentVolumeWithTypeSubmitRoute)
             .withFormUrlEncodedBody(
               ("adjustmentType", "underDeclared"),
-              ("underDeclaredVolume", "100.50")
+              ("underDeclaredVolume", "100.5")
             )
 
         val result = route(application, request).value
