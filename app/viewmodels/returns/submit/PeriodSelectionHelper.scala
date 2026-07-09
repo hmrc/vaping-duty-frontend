@@ -29,17 +29,6 @@ import java.time.LocalDate
 object PeriodSelectionHelper {
 
   def filterFulfilledWithinThreeYears(
-    obligationsResponse: ObligationsResponse
-  ): Seq[ObligationItem] = {
-    val currentDate = LocalDate.now()
-    val threeYearsAgo = currentDate.minusYears(ReturnsConstants.YEARS_TO_SHOW)
-
-    obligationsResponse.obligation
-      .filter(_.obligationDetails.openOrFulfilledStatus == ObligationStatus.F.toString)
-      .filter(_.obligationDetails.iCFromDate.isAfter(threeYearsAgo))
-  }
-
-  def filterFulfilledWithinThreeYears(
     obligationDetails: Seq[ObligationDetails]
   ): Seq[ObligationDetails] = {
     val currentDate = LocalDate.now()
@@ -48,15 +37,6 @@ object PeriodSelectionHelper {
     obligationDetails
       .filter(_.openOrFulfilledStatus == ObligationStatus.F.toString)
       .filter(_.iCFromDate.isAfter(threeYearsAgo))
-  }
-
-  def extractAvailableYears(
-    obligations: Seq[ObligationItem]
-  ): Seq[Int] = {
-    obligations
-      .map(_.obligationDetails.iCFromDate.getYear)
-      .distinct
-      .sorted(Ordering[Int].reverse)
   }
 
   def extractAvailableYearsFromDetails(
@@ -84,32 +64,6 @@ object PeriodSelectionHelper {
     obligations
       .filter(_.iCFromDate.getYear == year)
       .sortBy(_.iCFromDate.getMonthValue)(Ordering[Int].reverse)
-  }
-
-  def filterObligationsByYear(
-    obligations: Seq[ObligationItem],
-    year: Int
-  ): Seq[ObligationItem] = {
-    obligations
-      .filter(_.obligationDetails.iCFromDate.getYear == year)
-      .sortBy(_.obligationDetails.iCFromDate.getMonthValue)(Ordering[Int].reverse)
-  }
-
-  def buildTaskListItems(
-    obligations: Seq[ObligationItem],
-    hrefBuilder: String => String,
-    returnsDateUtils: ReturnsDateUtils
-  )(implicit messages: Messages): Seq[TaskListItem] = {
-    obligations.map { obligation =>
-      val month = obligation.obligationDetails.iCFromDate.getMonthValue
-      val monthKey = returnsDateUtils.getMonthMessageKey(month)
-      val periodKey = obligation.obligationDetails.periodKey
-
-      TaskListItem(
-        title = TaskListItemTitle(content = Text(messages(monthKey))),
-        href = Some(hrefBuilder(periodKey))
-      )
-    }
   }
 
   def buildPaginationItems(
