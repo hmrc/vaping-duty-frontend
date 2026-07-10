@@ -41,18 +41,18 @@ class BuildReturnSubmissionService @Inject()(
   def buildSubmission(ua: ReturnsUserAnswers,
                       obligation: ObligationDetails,
                       vpdId: VpdId,
-                      periodKeyToDutyRateInPencePer10Ml: Map[PeriodKey, Int]): ReturnCreateRequest = {
+                      periodKeyToDutyRate: Map[PeriodKey, DutyRate]): ReturnCreateRequest = {
 
     val periodKey = PeriodKey(ua.periodKey)
 
-    val vapingProductsProduced = buildVapingProductsProduced(ua, obligation, periodKeyToDutyRateInPencePer10Ml)
+    val vapingProductsProduced = buildVapingProductsProduced(ua, obligation, periodKeyToDutyRate)
     val totalDutyDueVapingProducts = vapingProductsProduced.returns.headOption.map(_.dutyDue).getOrElse(ZERO_VALUE)
 
-    val underDeclaration = buildUnderDeclaration(ua, periodKeyToDutyRateInPencePer10Ml)
-    val overDeclaration = buildOverDeclaration(ua, periodKeyToDutyRateInPencePer10Ml)
+    val underDeclaration = buildUnderDeclaration(ua, periodKeyToDutyRate)
+    val overDeclaration = buildOverDeclaration(ua, periodKeyToDutyRate)
     val otherOptions = buildOtherOptions(ua)
 
-    val spoiltProduct = buildSpoiltProduct(ua, periodKeyToDutyRateInPencePer10Ml)
+    val spoiltProduct = buildSpoiltProduct(ua, periodKeyToDutyRate)
 
     val totalDutyDue = totalDutyDueCalculationService.calculate(
       totalDutyDueVapingProducts,
@@ -80,11 +80,11 @@ class BuildReturnSubmissionService @Inject()(
 
   private def buildVapingProductsProduced(ua: ReturnsUserAnswers,
                                           obligation: ObligationDetails,
-                                          periodKeyToDutyRateInPencePer10Ml: Map[PeriodKey, Int]): VapingProductsProduced = {
+                                          periodKeyToDutyRate: Map[PeriodKey, DutyRate]): VapingProductsProduced = {
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
     val liquidInMl = ua.get(EnterDutyAmountPage).getOrElse(ZERO_VALUE)
 
-    val dutyRateInPencePerMl = BigDecimal(periodKeyToDutyRateInPencePer10Ml(PeriodKey(obligation.periodKey))) / 10
+    val dutyRateInPencePerMl = periodKeyToDutyRate(PeriodKey(obligation.periodKey)).rateInPencePerMl
 
     val liquidInLitres = ConvertToLitres(liquidInMl).toLitres
 
@@ -106,13 +106,13 @@ class BuildReturnSubmissionService @Inject()(
     vapingProductsProduced
   }
 
-  private def buildUnderDeclaration(ua: ReturnsUserAnswers, periodKeyToDutyRateInPencePer10Ml: Map[PeriodKey, Int]): Option[UnderDeclaration] = {
+  private def buildUnderDeclaration(ua: ReturnsUserAnswers, periodKeyToDutyRate: Map[PeriodKey, DutyRate]): Option[UnderDeclaration] = {
     val underDeclaredEntries = ua.get(AdjustmentListPage)
       .map(_.adjustments.filter(_.adjustmentType == AdjustmentType.UnderDeclared))
       .getOrElse(Seq.empty)
 
     if (underDeclaredEntries.nonEmpty) {
-      val underDeclarationProducts = underDeclaredEntries.map(buildUnderDeclarationProduct(_, periodKeyToDutyRateInPencePer10Ml))
+      val underDeclarationProducts = underDeclaredEntries.map(buildUnderDeclarationProduct(_, periodKeyToDutyRate))
       val reasonForUnderDecl = if (underDeclarationProducts.map(_.dutyDue).sum >= AdjustmentType.dutyThreshold)
         ua.get(AdjustmentReasonPage)
       else
@@ -132,8 +132,8 @@ class BuildReturnSubmissionService @Inject()(
     }
   }
 
-  private def buildUnderDeclarationProduct(entry: AdjustmentEntry, periodKeyToDutyRateInPencePer10Ml: Map[PeriodKey, Int]): UnderDeclarationProduct = {
-    val dutyRateInPencePerMl = BigDecimal(periodKeyToDutyRateInPencePer10Ml(entry.period)) / 10
+  private def buildUnderDeclarationProduct(entry: AdjustmentEntry, periodKeyToDutyRate: Map[PeriodKey, DutyRate]): UnderDeclarationProduct = {
+    val dutyRateInPencePerMl = periodKeyToDutyRate(entry.period).rateInPencePerMl
     val dutyRateInPoundsPer10Ml = (dutyRateInPencePerMl * 10) / 100
     val dutyDue = (entry.volumeInMl * (dutyRateInPencePerMl / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
 
@@ -146,13 +146,13 @@ class BuildReturnSubmissionService @Inject()(
     )
   }
 
-  private def buildOverDeclaration(ua: ReturnsUserAnswers, periodKeyToDutyRateInPencePer10Ml: Map[PeriodKey, Int]): Option[OverDeclaration] = {
+  private def buildOverDeclaration(ua: ReturnsUserAnswers, periodKeyToDutyRate: Map[PeriodKey, DutyRate]): Option[OverDeclaration] = {
     val overDeclaredEntries = ua.get(AdjustmentListPage)
       .map(_.adjustments.filter(_.adjustmentType == AdjustmentType.OverDeclared))
       .getOrElse(Seq.empty)
 
     if (overDeclaredEntries.nonEmpty) {
-      val overDeclarationProducts = overDeclaredEntries.map(buildOverDeclarationProduct(_, periodKeyToDutyRateInPencePer10Ml))
+      val overDeclarationProducts = overDeclaredEntries.map(buildOverDeclarationProduct(_, periodKeyToDutyRate))
       val reasonForOverDecl = if (overDeclarationProducts.map(_.dutyDue).sum >= AdjustmentType.dutyThreshold)
         ua.get(AdjustmentReasonPage)
       else
@@ -172,8 +172,8 @@ class BuildReturnSubmissionService @Inject()(
     }
   }
 
-  private def buildOverDeclarationProduct(entry: AdjustmentEntry, periodKeyToDutyRateInPencePer10Ml: Map[PeriodKey, Int]): OverDeclarationProduct = {
-    val dutyRateInPencePerMl = BigDecimal(periodKeyToDutyRateInPencePer10Ml(entry.period)) / 10
+  private def buildOverDeclarationProduct(entry: AdjustmentEntry, periodKeyToDutyRate: Map[PeriodKey, DutyRate]): OverDeclarationProduct = {
+    val dutyRateInPencePerMl = periodKeyToDutyRate(entry.period).rateInPencePerMl
     val dutyRateInPoundsPer10Ml = (dutyRateInPencePerMl * 10) / 100
     val dutyDue = (entry.volumeInMl * (dutyRateInPencePerMl / 100)).setScale(2, BigDecimal.RoundingMode.DOWN)
 
@@ -186,13 +186,13 @@ class BuildReturnSubmissionService @Inject()(
     )
   }
 
-  private def buildSpoiltProduct(ua: ReturnsUserAnswers, periodKeyToDutyRateInPencePer10Ml: Map[PeriodKey, Int]) = {
+  private def buildSpoiltProduct(ua: ReturnsUserAnswers, periodKeyToDutyRate: Map[PeriodKey, DutyRate]) = {
     val declareSpoiltProducts = ua.get(DeclareSpoiltProductsPage)
     val spoiltVolumes = ua.get(SpoiltVolumeByPeriodPage)
 
     (declareSpoiltProducts, spoiltVolumes) match {
       case (Some(true), Some(volumes)) if volumes.nonEmpty =>
-        val spoiltProducts = volumes.map(buildSpoiltProductItem(_, periodKeyToDutyRateInPencePer10Ml))
+        val spoiltProducts = volumes.map(buildSpoiltProductItem(_, periodKeyToDutyRate))
 
         Some(SpoiltProduct(
           spoiltProductFilled = FLAG_FILLED,
@@ -210,8 +210,8 @@ class BuildReturnSubmissionService @Inject()(
     }
   }
 
-  private def buildSpoiltProductItem(spoiltVolume: SpoiltVolumeByPeriod, periodKeyToDutyRateInPencePer10Ml: Map[PeriodKey, Int]) = {
-    val dutyRateInPencePerMl = BigDecimal(periodKeyToDutyRateInPencePer10Ml(spoiltVolume.periodKey)) / 10
+  private def buildSpoiltProductItem(spoiltVolume: SpoiltVolumeByPeriod, periodKeyToDutyRate: Map[PeriodKey, DutyRate]) = {
+    val dutyRateInPencePerMl = periodKeyToDutyRate(spoiltVolume.periodKey).rateInPencePerMl
     val dutyRateInPoundsPer10Ml = (dutyRateInPencePerMl * 10) / 100
     val volumeInMl = spoiltVolume.volume
     val volumeInLitres = ConvertToLitres(volumeInMl).toLitres

@@ -54,7 +54,7 @@ class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationServic
       }
     }
 
-  def getDutyRatesInPencePer10MlForPeriodKeys(obligations: Seq[ObligationDetails]): Map[PeriodKey, Int] = {
-    obligations.map(o => PeriodKey(o.periodKey) -> getDutyRateForDate(o.iCFromDate).ratePencePer10Ml).toMap
+  def getDutyRatesForPeriodKeys(obligations: Seq[ObligationDetails]): Map[PeriodKey, DutyRate] = {
+    obligations.map(o => PeriodKey(o.periodKey) -> getDutyRateForDate(o.iCFromDate)).toMap
   }
 }

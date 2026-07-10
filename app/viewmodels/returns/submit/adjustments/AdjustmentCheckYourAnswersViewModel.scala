@@ -85,11 +85,11 @@ object AdjustmentCheckYourAnswersViewModel {
   private def totalDutyForType(
                                 adjustments: Seq[AdjustmentEntry],
                                 adjustmentType: AdjustmentType,
-                                dutyRates: Map[String, BigDecimal]
+                                dutyRates: Map[String, DutyRate]
                               ): BigDecimal =
     adjustments
       .filter(_.adjustmentType == adjustmentType)
-      .map(adjustment => calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0))))
+      .map(adjustment => dutyRates.get(adjustment.period.toString).map(_.calculateDuty(adjustment.volumeInMl)).getOrElse(BigDecimal(0)))
       .sum
 
   private def calculateAvailablePeriods(
