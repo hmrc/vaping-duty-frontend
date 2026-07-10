@@ -27,7 +27,7 @@ class AdjustmentReasonFormProvider @Inject() extends Mappings {
 
   def apply(): Form[String] =
     Form(
-      "adjustmentReason" -> text("returns.adjustmentReason.error.required")
+      "adjustmentReason" -> textWithSpaces("returns.adjustmentReason.error.required")
         .verifying(maxLength(maxLength, "returns.adjustmentReason.error.length"))
     )
 }
