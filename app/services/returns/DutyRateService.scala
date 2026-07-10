@@ -28,9 +28,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationService: ObligationService) {
-  
-  private def getRateForDateInPencePer10ml(date: LocalDate): Int =
-    getDutyRateForDate(date).ratePencePer10Ml
 
   def getDutyRateForDate(date: LocalDate) =
     DutyRate(
@@ -53,13 +50,13 @@ class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationServic
 
     obligationService.getObligationByPeriodKey(vpdId, periodKey).map { obligationOpt =>
       obligationOpt.map { obligation =>
-        val rateInPencePerMl = BigDecimal(getRateForDateInPencePer10ml(obligation.iCFromDate)) / 10
+        val rateInPencePerMl = BigDecimal(getDutyRateForDate(obligation.iCFromDate).ratePencePer10Ml) / 10
         val dutyRateInPoundsPerMl = rateInPencePerMl / 100
         dutyRateInPoundsPerMl
       }
     }
-    
+
   def getDutyRatesInPencePer10MlForPeriodKeys(obligations: Seq[ObligationDetails]): Map[PeriodKey, Int] = {
-    obligations.map(o => PeriodKey(o.periodKey) -> getRateForDateInPencePer10ml(o.iCFromDate)).toMap
+    obligations.map(o => PeriodKey(o.periodKey) -> getDutyRateForDate(o.iCFromDate).ratePencePer10Ml).toMap
   }
 }
