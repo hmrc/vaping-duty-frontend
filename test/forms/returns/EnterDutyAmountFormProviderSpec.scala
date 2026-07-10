@@ -97,6 +97,18 @@ class EnterDutyAmountFormProviderSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must not bind zero" in {
+      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+      when(mockVolumePrecisionService.calculateMaxVolume(any()))
+        .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(fieldName -> "0")).apply(fieldName)
+        result.errors mustEqual Seq(FormError(fieldName, "returns.enterDutyAmount.error.mustBeGreaterThanZero"))
+      }
+    }
+
     "must bind values >= 1000ml with trailing zeros" in {
       when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
