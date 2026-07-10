@@ -26,6 +26,6 @@ class ReturnsFakeNavigator(desiredRoute: Call, config: FrontendAppConfig)
   extends ReturnsNavigator(config) {
 
   override def nextPage(page: Page, mode: Mode, userAnswers: ReturnsUserAnswers,
-                         underDeclaredDutyTotal: BigDecimal, overDeclaredDutyTotal: BigDecimal): Call =
+                         adjustmentReasonMandatory: Boolean): Call =
     desiredRoute
 }

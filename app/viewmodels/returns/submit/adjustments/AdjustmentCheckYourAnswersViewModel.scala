@@ -32,8 +32,7 @@ case class AdjustmentCheckYourAnswersViewModel(
                                                 totalAdjustment: BigDecimal,
                                                 formattedTotalAdjustment: String,
                                                 hasAvailablePeriodsToAdd: Boolean,
-                                                underDeclaredDutyTotal: BigDecimal,
-                                                overDeclaredDutyTotal: BigDecimal
+                                                adjustmentReasonMandatory: Boolean
                                               )
 
 object AdjustmentCheckYourAnswersViewModel {
@@ -70,6 +69,7 @@ object AdjustmentCheckYourAnswersViewModel {
 
     val underDeclaredDutyTotal = totalDutyForType(adjustments, AdjustmentType.UnderDeclared, dutyRates)
     val overDeclaredDutyTotal = totalDutyForType(adjustments, AdjustmentType.OverDeclared, dutyRates)
+    val adjustmentReasonMandatory = underDeclaredDutyTotal >= AdjustmentType.dutyThreshold || overDeclaredDutyTotal >= AdjustmentType.dutyThreshold
 
     AdjustmentCheckYourAnswersViewModel(
       summaryCards = summaryCards,
@@ -77,8 +77,7 @@ object AdjustmentCheckYourAnswersViewModel {
       totalAdjustment = totalAdjustment,
       formattedTotalAdjustment = CurrencyFormatter.currencyFormatWithLeadingSign(totalAdjustment),
       hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd,
-      underDeclaredDutyTotal = underDeclaredDutyTotal,
-      overDeclaredDutyTotal = overDeclaredDutyTotal
+      adjustmentReasonMandatory = adjustmentReasonMandatory
     )
   }
 

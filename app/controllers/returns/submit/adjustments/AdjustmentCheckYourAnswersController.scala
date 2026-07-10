@@ -78,8 +78,8 @@ class AdjustmentCheckYourAnswersController @Inject()(
         .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId)
         .flatMap { vm =>
           declareAdjustment match {
-            case Some(false) => redirectToNextPageWithoutAddingAnother(request, vm.underDeclaredDutyTotal, vm.overDeclaredDutyTotal)
-            case _ if !vm.hasAvailablePeriodsToAdd => redirectToNextPageWithoutAddingAnother(request, vm.underDeclaredDutyTotal, vm.overDeclaredDutyTotal)
+            case Some(false) => redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory)
+            case _ if !vm.hasAvailablePeriodsToAdd => redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory)
             case _ =>
               form.bindFromRequest().fold(
                 formWithErrors =>
@@ -93,8 +93,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
                     AddAnotherAdjustmentPage,
                     NormalMode,
                     updatedAnswers,
-                    vm.underDeclaredDutyTotal,
-                    vm.overDeclaredDutyTotal
+                    vm.adjustmentReasonMandatory
                   ))
               )
           }
@@ -103,13 +102,12 @@ class AdjustmentCheckYourAnswersController @Inject()(
 
   private def redirectToNextPageWithoutAddingAnother(
                                                       request: ReturnsDataRequest[AnyContent],
-                                                      underDeclaredDutyTotal: BigDecimal,
-                                                      overDeclaredDutyTotal: BigDecimal
+                                                      adjustmentReasonMandatory: Boolean
                                                     )(using HeaderCarrier): Future[Result] = {
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, false))
       _ <- sessionRepository.set(updatedAnswers)
-    } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers, underDeclaredDutyTotal, overDeclaredDutyTotal))
+    } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers, adjustmentReasonMandatory))
   }
 
 }

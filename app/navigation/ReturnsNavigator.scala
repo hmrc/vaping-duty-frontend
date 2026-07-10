@@ -38,7 +38,7 @@ class ReturnsNavigator @Inject()(
   private def withPeriod(call: Call, periodKey: String): Call =
     Call(call.method, s"${call.url}?period=$periodKey")
 
-  private def normalRoutes(periodKey: String, underDeclaredDutyTotal: BigDecimal, overDeclaredDutyTotal: BigDecimal): Page => ReturnsUserAnswers => Call = {
+  private def normalRoutes(periodKey: String, adjustmentReasonMandatory: Boolean): Page => ReturnsUserAnswers => Call = {
     case DeclareDutyPage                => ua  => declareDutyPageRoutes(ua, periodKey)
     case EnterDutyAmountPage            => _   => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(), periodKey)
     case DeclareSpoiltProductsPage      => ua  => declareSpoiltProductsPageRoutes(ua, periodKey)
@@ -46,7 +46,7 @@ class ReturnsNavigator @Inject()(
     case SpoiltVolumeByPeriodPage       => _   => withPeriod(controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode), periodKey)
     case DeclareAdjustmentPage          => ua  => declareAdjustmentQuestionPageRoutes(ua, periodKey)
     case AdjustmentListPage             => _   => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(), periodKey)
-    case AddAnotherAdjustmentPage       => ua  => addAnotherAdjustmentPageRoutes(ua, periodKey, underDeclaredDutyTotal, overDeclaredDutyTotal)
+    case AddAnotherAdjustmentPage       => ua  => addAnotherAdjustmentPageRoutes(ua, periodKey, adjustmentReasonMandatory)
     case AdjustmentReasonPage           => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage        => ua  => declareDutySuspensePageRoutes(ua, periodKey)
     case EnterDutySuspensePage          => _   => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(), periodKey)
@@ -112,21 +112,20 @@ class ReturnsNavigator @Inject()(
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
-  private def addAnotherAdjustmentPageRoutes(ua: ReturnsUserAnswers, periodKey: String, underDeclaredDutyTotal: BigDecimal, overDeclaredDutyTotal: BigDecimal) = {
+  private def addAnotherAdjustmentPageRoutes(ua: ReturnsUserAnswers, periodKey: String, adjustmentReasonMandatory: Boolean) = {
     ua.get(AddAnotherAdjustmentPage) match
       case Some(true) => withPeriod(controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None), periodKey)
       case Some(false) =>
-        if (underDeclaredDutyTotal >= AdjustmentType.dutyThreshold || overDeclaredDutyTotal >= AdjustmentType.dutyThreshold)
+        if (adjustmentReasonMandatory)
           withPeriod(controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode), periodKey)
         else
           withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
       case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
-  def nextPage(page: Page, mode: Mode, userAnswers: ReturnsUserAnswers,
-               underDeclaredDutyTotal: BigDecimal = 0, overDeclaredDutyTotal: BigDecimal = 0): Call = mode match {
+  def nextPage(page: Page, mode: Mode, userAnswers: ReturnsUserAnswers, adjustmentReasonMandatory: Boolean = false): Call = mode match {
     case NormalMode =>
-      normalRoutes(userAnswers.periodKey, underDeclaredDutyTotal, overDeclaredDutyTotal)(page)(userAnswers)
+      normalRoutes(userAnswers.periodKey, adjustmentReasonMandatory)(page)(userAnswers)
     case CheckMode =>
       checkRouteMap(userAnswers.periodKey)(page)(userAnswers)
   }

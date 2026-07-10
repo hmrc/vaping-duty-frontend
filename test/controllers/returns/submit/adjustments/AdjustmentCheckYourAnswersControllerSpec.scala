@@ -57,8 +57,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
         hasAvailablePeriodsToAdd = true,
-        underDeclaredDutyTotal = BigDecimal(0),
-        overDeclaredDutyTotal = BigDecimal(0)
+        adjustmentReasonMandatory = false
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
@@ -92,8 +91,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
         hasAvailablePeriodsToAdd = true,
-        underDeclaredDutyTotal = BigDecimal(0),
-        overDeclaredDutyTotal = BigDecimal(0)
+        adjustmentReasonMandatory = false
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
@@ -152,8 +150,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
         hasAvailablePeriodsToAdd = true,
-        underDeclaredDutyTotal = BigDecimal(0),
-        overDeclaredDutyTotal = BigDecimal(0)
+        adjustmentReasonMandatory = false
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
@@ -194,8 +191,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(0),
         formattedTotalAdjustment = "£0.00",
         hasAvailablePeriodsToAdd = true,
-        underDeclaredDutyTotal = BigDecimal(0),
-        overDeclaredDutyTotal = BigDecimal(0)
+        adjustmentReasonMandatory = false
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
@@ -237,8 +233,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
         hasAvailablePeriodsToAdd = false,
-        underDeclaredDutyTotal = BigDecimal(0),
-        overDeclaredDutyTotal = BigDecimal(0)
+        adjustmentReasonMandatory = false
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
@@ -279,8 +274,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
         hasAvailablePeriodsToAdd = true,
-        underDeclaredDutyTotal = BigDecimal(0),
-        overDeclaredDutyTotal = BigDecimal(0)
+        adjustmentReasonMandatory = false
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))

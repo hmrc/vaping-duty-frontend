@@ -160,32 +160,18 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
       }
 
-      "must go from AddAnotherAdjustmentPage to AdjustmentReason when duty due is £1000 or more for UnderDeclared" in {
+      "must go from AddAnotherAdjustmentPage to AdjustmentReason when adjustmentReasonMandatory is true" in {
         val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
 
-        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, underDeclaredDutyTotal = BigDecimal("1000"), overDeclaredDutyTotal = BigDecimal("0"))
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, adjustmentReasonMandatory = true)
           .url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
-      "must go from AddAnotherAdjustmentPage to AdjustmentReason when duty due is £1000 or more for OverDeclared" in {
+      "must go from AddAnotherAdjustmentPage to TaskList when adjustmentReasonMandatory is false" in {
         val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
 
-        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, underDeclaredDutyTotal = BigDecimal("0"), overDeclaredDutyTotal = BigDecimal("1000"))
-          .url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=$periodKey"
-      }
-
-      "must go from AddAnotherAdjustmentPage to TaskList when neither type meets £1000 duty threshold" in {
-        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
-
-        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, underDeclaredDutyTotal = BigDecimal("800"), overDeclaredDutyTotal = BigDecimal("800"))
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, adjustmentReasonMandatory = false)
           .url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
-      }
-
-      "must go from AddAnotherAdjustmentPage to AdjustmentReason when one type meets threshold and other does not" in {
-        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
-
-        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, underDeclaredDutyTotal = BigDecimal("1000"), overDeclaredDutyTotal = BigDecimal("800"))
-          .url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
       "must go from AdjustmentReasonPage to TaskList" in {
