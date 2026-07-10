@@ -86,19 +86,13 @@ class BuildReturnSubmissionService @Inject()(
 
     val dutyRate = periodKeyToDutyRate(PeriodKey(obligation.periodKey))
 
-    val liquidInLitres = ConvertToLitres(liquidInMl).toLitres
-
-    val dutyDue = dutyRate.calculateDuty(liquidInMl)
-
-    val dutyRateInPoundsPer10Ml = dutyRate.dutyRateInPoundsPer10Ml
-
     val vapingProductsProduced = if (dutyDeclared) {
       VapingProductsProduced(vapingProdManufactured = FLAG_FILLED, returns = Seq(
         RegularReturn(
-          taxType = config.taxType,
-          dutyRate = dutyRateInPoundsPer10Ml,
-          amountProducedLiquid = liquidInLitres,
-          dutyDue = dutyDue
+          taxType              = config.taxType,
+          dutyRate             = dutyRate.dutyRateInPoundsPer10Ml,
+          amountProducedLiquid = ConvertToLitres(liquidInMl).toLitres,
+          dutyDue              = dutyRate.calculateDuty(liquidInMl)
         )))
     } else {
       VapingProductsProduced(vapingProdManufactured = FLAG_NOT_FILLED, returns = Seq())
@@ -134,15 +128,13 @@ class BuildReturnSubmissionService @Inject()(
 
   private def buildUnderDeclarationProduct(entry: AdjustmentEntry, periodKeyToDutyRate: Map[PeriodKey, DutyRate]): UnderDeclarationProduct = {
     val dutyRate = periodKeyToDutyRate(entry.period)
-    val dutyRateInPoundsPer10Ml = dutyRate.dutyRateInPoundsPer10Ml
-    val dutyDue = dutyRate.calculateDuty(entry.volumeInMl)
 
     UnderDeclarationProduct(
       returnPeriodAffected = entry.period.toString,
-      taxType = config.taxType,
-      dutyRate = dutyRateInPoundsPer10Ml,
-      amountUnderDeclared = ConvertToLitres(entry.volumeInMl).toLitres,
-      dutyDue = dutyDue
+      taxType              = config.taxType,
+      dutyRate             = dutyRate.dutyRateInPoundsPer10Ml,
+      amountUnderDeclared  = ConvertToLitres(entry.volumeInMl).toLitres,
+      dutyDue              = dutyRate.calculateDuty(entry.volumeInMl)
     )
   }
 
@@ -174,15 +166,13 @@ class BuildReturnSubmissionService @Inject()(
 
   private def buildOverDeclarationProduct(entry: AdjustmentEntry, periodKeyToDutyRate: Map[PeriodKey, DutyRate]): OverDeclarationProduct = {
     val dutyRate = periodKeyToDutyRate(entry.period)
-    val dutyRateInPoundsPer10Ml = dutyRate.dutyRateInPoundsPer10Ml
-    val dutyDue = dutyRate.calculateDuty(entry.volumeInMl)
 
     OverDeclarationProduct(
       returnPeriodAffected = entry.period.toString,
-      taxType = config.taxType,
-      dutyRate = dutyRateInPoundsPer10Ml,
-      amountOverDeclared = ConvertToLitres(entry.volumeInMl).toLitres,
-      dutyDue = dutyDue
+      taxType              = config.taxType,
+      dutyRate             = dutyRate.dutyRateInPoundsPer10Ml,
+      amountOverDeclared   = ConvertToLitres(entry.volumeInMl).toLitres,
+      dutyDue              = dutyRate.calculateDuty(entry.volumeInMl)
     )
   }
 
@@ -212,17 +202,13 @@ class BuildReturnSubmissionService @Inject()(
 
   private def buildSpoiltProductItem(spoiltVolume: SpoiltVolumeByPeriod, periodKeyToDutyRate: Map[PeriodKey, DutyRate]) = {
     val dutyRate = periodKeyToDutyRate(spoiltVolume.periodKey)
-    val dutyRateInPoundsPer10Ml = dutyRate.dutyRateInPoundsPer10Ml
-    val volumeInMl = spoiltVolume.volume
-    val volumeInLitres = ConvertToLitres(volumeInMl).toLitres
-    val dutyDue = dutyRate.calculateDuty(volumeInMl)
 
     SpoiltProductItem(
       returnPeriodAffected = spoiltVolume.periodKey.toString,
-      taxType = config.taxType,
-      dutyRate = dutyRateInPoundsPer10Ml,
-      amountSpoilt = volumeInLitres,
-      dutyDue = dutyDue
+      taxType              = config.taxType,
+      dutyRate             = dutyRate.dutyRateInPoundsPer10Ml,
+      amountSpoilt         = ConvertToLitres(spoiltVolume.volume).toLitres,
+      dutyDue              = dutyRate.calculateDuty(spoiltVolume.volume)
     )
   }
 
