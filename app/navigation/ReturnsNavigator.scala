@@ -124,7 +124,7 @@ class ReturnsNavigator @Inject()(
   }
 
   def nextPage(page: Page, mode: Mode, userAnswers: ReturnsUserAnswers,
-               underDeclaredDutyTotal: BigDecimal, overDeclaredDutyTotal: BigDecimal): Call = mode match {
+               underDeclaredDutyTotal: BigDecimal = 0, overDeclaredDutyTotal: BigDecimal = 0): Call = mode match {
     case NormalMode =>
       normalRoutes(userAnswers.periodKey, underDeclaredDutyTotal, overDeclaredDutyTotal)(page)(userAnswers)
     case CheckMode =>

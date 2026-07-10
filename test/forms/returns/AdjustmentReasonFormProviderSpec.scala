@@ -50,7 +50,7 @@ class AdjustmentReasonFormProviderSpec extends StringFieldBehaviours {
     )
 
     "bind a string that is below the maximum length" in {
-      val validData = "a" * 50
+      val validData = "April 2027: Error in warehouse data recording"
       val result = form.bind(Map(fieldName -> validData)).apply(fieldName)
       result.value.value mustBe validData
       result.errors mustBe empty
