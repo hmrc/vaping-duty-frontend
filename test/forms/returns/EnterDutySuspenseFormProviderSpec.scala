@@ -40,7 +40,7 @@ class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
   private val testFormattedMax = "29,000,000,000 ml"
 
   private def setupMocks(): Unit = {
-    when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+    when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
       .thenReturn(Future.successful(testDutyRate))
     when(mockVolumePrecisionService.calculateMaxVolume(any()))
       .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -139,7 +139,7 @@ class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
       }
 
       "must fail to bind values that exceed the calculated maximum" in {
-        when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
           .thenReturn(Future.successful(testDutyRate))
         when(mockVolumePrecisionService.calculateMaxVolume(337))
           .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -244,7 +244,7 @@ class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
       }
 
       "must fail to bind values that exceed the calculated maximum" in {
-        when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
           .thenReturn(Future.successful(testDutyRate))
         when(mockVolumePrecisionService.calculateMaxVolume(337))
           .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))

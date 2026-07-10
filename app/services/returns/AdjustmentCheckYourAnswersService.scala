@@ -65,8 +65,10 @@ class AdjustmentCheckYourAnswersService @Inject()(
     uniquePeriods.map { period =>
       val obligation = obligationDetails.find(_.periodKey == period.toString)
       val dutyRate = obligation.map { obl =>
-        val rateInPencePerMl = dutyRateService.getRateForDate(obl.iCFromDate)
-        BigDecimal(rateInPencePerMl) / 100
+        val rateInPencePer10Ml = dutyRateService.getRateForDateInPencePer10ml(obl.iCFromDate)
+        val rateInPencePerMl = BigDecimal(rateInPencePer10Ml) / 10
+        val dutyRateInPoundsPerMl = rateInPencePerMl / 100
+        dutyRateInPoundsPerMl
       }.getOrElse(
         // scalafix:off DisableSyntax.throw
         throw new RuntimeException(s"No obligation found for period ${period.toString}")

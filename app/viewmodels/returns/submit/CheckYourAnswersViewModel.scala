@@ -44,7 +44,7 @@ object CheckYourAnswersViewModel {
 
   private val ZERO = "0"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers, dutyRateInPoundsPer10Ml: BigDecimal, periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
     // scalafix:off DisableSyntax.throw
     val returnPeriod = userAnswers.returnPeriod
       .map(month => returnsDateUtils.getReturnMonth(month))
@@ -56,12 +56,12 @@ object CheckYourAnswersViewModel {
     val nilReturn = isNilReturn(userAnswers)
     
     CheckYourAnswersViewModel(
-      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRate, periodKey),
+      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRateInPoundsPer10Ml, periodKey),
       dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers, periodKey),
-      dutyDue = dutyDue(userAnswers, dutyRate),
-      dutyRate = currencyFormat(dutyRate),
+      dutyDue = dutyDue(userAnswers, dutyRateInPoundsPer10Ml),
+      dutyRate = currencyFormat(dutyRateInPoundsPer10Ml),
       dutyRateParagraph = dutyRateParagraph(nilReturn),
-      dutyCalculationParagraph = dutyCalculationParagraph(dutyRate),
+      dutyCalculationParagraph = dutyCalculationParagraph(dutyRateInPoundsPer10Ml),
       nilReturn = nilReturn,
       returnPeriod = returnPeriod,
       year = year

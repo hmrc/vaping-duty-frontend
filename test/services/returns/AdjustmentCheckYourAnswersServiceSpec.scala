@@ -50,7 +50,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     openObligation(periodKey)
   )
 
-  private val DUTY_RATE_PENCE = 100
+  private val DUTY_RATE_PENCE_PER_10ML = 1000
 
   implicit val messages: Messages = stubMessages()
 
@@ -68,8 +68,8 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForAdjustment)))
-      when(mockDutyRateService.getRateForDate(any()))
-        .thenReturn(DUTY_RATE_PENCE)
+      when(mockDutyRateService.getRateForDateInPencePer10ml(any()))
+        .thenReturn(DUTY_RATE_PENCE_PER_10ML)
 
       val result = service.buildViewModel(
         declareAdjustment = Some(true),
@@ -119,8 +119,8 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForAdjustment1, obligationForAdjustment2)))
-      when(mockDutyRateService.getRateForDate(any()))
-        .thenReturn(DUTY_RATE_PENCE)
+      when(mockDutyRateService.getRateForDateInPencePer10ml(any()))
+        .thenReturn(DUTY_RATE_PENCE_PER_10ML)
 
       val result = service.buildViewModel(
         declareAdjustment = Some(true),

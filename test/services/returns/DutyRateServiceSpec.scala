@@ -75,7 +75,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         val date = LocalDate.of(2026, 6, 15)
-        val result = service.getRateForDate(date)
+        val result = service.getRateForDateInPencePer10ml(date)
         
         result mustBe 220
       }
@@ -85,7 +85,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         val date = LocalDate.of(2027, 8, 20)
-        val result = service.getRateForDate(date)
+        val result = service.getRateForDateInPencePer10ml(date)
         
         result mustBe 300
       }
@@ -95,7 +95,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         val date = LocalDate.of(2028, 3, 10)
-        val result = service.getRateForDate(date)
+        val result = service.getRateForDateInPencePer10ml(date)
         
         result mustBe 400
       }
@@ -105,7 +105,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         val date = LocalDate.of(2027, 1, 1)
-        val result = service.getRateForDate(date)
+        val result = service.getRateForDateInPencePer10ml(date)
         
         result mustBe 300
       }
@@ -115,7 +115,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         val date = LocalDate.of(2026, 12, 31)
-        val result = service.getRateForDate(date)
+        val result = service.getRateForDateInPencePer10ml(date)
         
         result mustBe 220
       }
@@ -125,7 +125,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         val date = LocalDate.of(3000, 1, 1)
-        val result = service.getRateForDate(date)
+        val result = service.getRateForDateInPencePer10ml(date)
         
         result mustBe 400
       }
@@ -140,8 +140,8 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
-        whenReady(service.getDutyRateForPeriod(vpdId, PeriodKey("26AA"))) { result =>
-          result mustBe Some(BigDecimal("2.20"))
+        whenReady(service.getDutyRateForPeriodInPoundsPerMl(vpdId, PeriodKey("26AA"))) { result =>
+          result mustBe Some(BigDecimal("0.22"))
         }
       }
 
@@ -151,7 +151,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
-        whenReady(service.getDutyRateForPeriod(vpdId, PeriodKey("26XX"))) { result =>
+        whenReady(service.getDutyRateForPeriodInPoundsPerMl(vpdId, PeriodKey("26XX"))) { result =>
           result mustBe None
         }
       }
@@ -160,16 +160,14 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
     "getDutyRate" - {
 
       "must return the duty rate when obligation exists" in {
-        val expectedDutyRate = BigDecimal("2.20")
-        
         when(mockDutyRateConfig.rates).thenReturn(testRates)
         when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))
           .thenReturn(Future.successful(Some(testObligation)))
         
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
-        whenReady(service.getDutyRate(vpdId, periodKey)) { result =>
-          result mustBe expectedDutyRate
+        whenReady(service.getDutyRateInPoundsPerMl(vpdId, periodKey)) { result =>
+          result mustBe BigDecimal("0.22")
         }
       }
 
@@ -180,7 +178,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
-        whenReady(service.getDutyRate(vpdId, periodKey).failed) { exception =>
+        whenReady(service.getDutyRateInPoundsPerMl(vpdId, periodKey).failed) { exception =>
           exception mustBe a[RuntimeException]
           exception.getMessage mustBe "No duty rate found"
         }

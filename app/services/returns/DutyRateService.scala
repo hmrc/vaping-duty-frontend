@@ -28,33 +28,33 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationService: ObligationService) {
   
-  def getRateForDate(date: LocalDate): Int =
+  def getRateForDateInPencePer10ml(date: LocalDate): Int =
     dutyRateConfig.rates
       .find(_.isValidFor(date))
       .map(_.ratePencePer10Ml)
       .get  // Safe because validation ensures there's always a rate
 
 
-  def getDutyRate(vpdId: VpdId, periodKey: PeriodKey)
-                 (using ec: ExecutionContext, hc: HeaderCarrier): Future[BigDecimal] =
+  def getDutyRateInPoundsPerMl(vpdId: VpdId, periodKey: PeriodKey)
+                              (using ec: ExecutionContext, hc: HeaderCarrier): Future[BigDecimal] =
 
-    getDutyRateForPeriod(vpdId, periodKey).flatMap {
+    getDutyRateForPeriodInPoundsPerMl(vpdId, periodKey).flatMap {
       case Some(dutyRate) => Future.successful(dutyRate)
       case None => Future.failed(RuntimeException("No duty rate found"))
     }
 
-  def getDutyRateForPeriod(vpdId: VpdId, periodKey: PeriodKey)
-                          (using ec: ExecutionContext, hc: HeaderCarrier): Future[Option[BigDecimal]] =
+  def getDutyRateForPeriodInPoundsPerMl(vpdId: VpdId, periodKey: PeriodKey)
+                                       (using ec: ExecutionContext, hc: HeaderCarrier): Future[Option[BigDecimal]] =
 
     obligationService.getObligationByPeriodKey(vpdId, periodKey).map { obligationOpt =>
       obligationOpt.map { obligation =>
-        val rateInPencePerMl: Int = getRateForDate(obligation.iCFromDate)
-        val dutyRateInPoundsPerMl = BigDecimal(rateInPencePerMl) / 100
+        val rateInPencePerMl = BigDecimal(getRateForDateInPencePer10ml(obligation.iCFromDate)) / 10
+        val dutyRateInPoundsPerMl = rateInPencePerMl / 100
         dutyRateInPoundsPerMl
       }
     }
     
-  def getDutyRatesInPencePerMlForPeriodKeys(obligations: Seq[ObligationDetails]): Map[PeriodKey, Int] = {
-    obligations.map(o => PeriodKey(o.periodKey) -> getRateForDate(o.iCFromDate)).toMap
+  def getDutyRatesInPencePer10MlForPeriodKeys(obligations: Seq[ObligationDetails]): Map[PeriodKey, Int] = {
+    obligations.map(o => PeriodKey(o.periodKey) -> getRateForDateInPencePer10ml(o.iCFromDate)).toMap
   }
 }

@@ -95,7 +95,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockDutyRateService.getDutyRatesInPencePerMlForPeriodKeys(Seq(obligation)))
+    when(mockDutyRateService.getDutyRatesInPencePer10MlForPeriodKeys(Seq(obligation)))
       .thenReturn(Map(PeriodKey(obligation.periodKey) -> dutyRateInPence))
     reset(mockAuditService)
     reset(mockSubmitReturnConnector)

@@ -44,7 +44,7 @@ class SpoiltVolumeByPeriodFormProviderSpec extends SpecBase with MockitoSugar {
     val fieldName = "value"
 
     "must bind valid values >= 1000ml with no decimal places" in {
-      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+      when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
       when(mockVolumePrecisionService.calculateMaxVolume(any()))
         .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -58,7 +58,7 @@ class SpoiltVolumeByPeriodFormProviderSpec extends SpecBase with MockitoSugar {
     }
 
     "must bind valid values < 1000ml with 0 or 1 decimal place" in {
-      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+      when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
       when(mockVolumePrecisionService.calculateMaxVolume(any()))
         .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -72,7 +72,7 @@ class SpoiltVolumeByPeriodFormProviderSpec extends SpecBase with MockitoSugar {
     }
 
     "must not bind empty values" in {
-      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+      when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
       when(mockVolumePrecisionService.calculateMaxVolume(any()))
         .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -84,7 +84,7 @@ class SpoiltVolumeByPeriodFormProviderSpec extends SpecBase with MockitoSugar {
     }
 
     "must not bind non-numeric values" in {
-      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+      when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
       when(mockVolumePrecisionService.calculateMaxVolume(any()))
         .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -98,7 +98,7 @@ class SpoiltVolumeByPeriodFormProviderSpec extends SpecBase with MockitoSugar {
     }
 
     "must not bind zero" in {
-      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+      when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
       when(mockVolumePrecisionService.calculateMaxVolume(any()))
         .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -110,7 +110,7 @@ class SpoiltVolumeByPeriodFormProviderSpec extends SpecBase with MockitoSugar {
     }
 
     "must bind values >= 1000ml with trailing zeros" in {
-      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+      when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
       when(mockVolumePrecisionService.calculateMaxVolume(any()))
         .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -124,7 +124,7 @@ class SpoiltVolumeByPeriodFormProviderSpec extends SpecBase with MockitoSugar {
     }
 
     "must not bind values >= 1000ml with non-zero decimal places" in {
-      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+      when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
       when(mockVolumePrecisionService.calculateMaxVolume(any()))
         .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -138,7 +138,7 @@ class SpoiltVolumeByPeriodFormProviderSpec extends SpecBase with MockitoSugar {
     }
 
     "must not bind values < 1000ml with more than 1 decimal place" in {
-      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+      when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
       when(mockVolumePrecisionService.calculateMaxVolume(any()))
         .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -152,7 +152,7 @@ class SpoiltVolumeByPeriodFormProviderSpec extends SpecBase with MockitoSugar {
     }
 
     "must not bind values that exceed the calculated maximum" in {
-      when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+      when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
       when(mockVolumePrecisionService.calculateMaxVolume(337))
         .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
