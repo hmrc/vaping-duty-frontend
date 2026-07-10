@@ -16,7 +16,7 @@
 
 package config
 
-import models.returns.{DutyRate, DutyRateValidationError}
+import models.returns.{ConfigDutyRate, DutyRateValidationError}
 import DutyRateValidationError.*
 
 import java.time.{Clock, LocalDate}
@@ -24,11 +24,11 @@ import javax.inject.Inject
 
 class DutyRateValidator @Inject()(clock: Clock) {
 
-  def validateNonEmpty(rates: Seq[DutyRate]): Either[List[DutyRateValidationError], Seq[DutyRate]] =
+  def validateNonEmpty(rates: Seq[ConfigDutyRate]): Either[List[DutyRateValidationError], Seq[ConfigDutyRate]] =
     if (rates.nonEmpty) Right(rates)
     else Left(List(EmptyRates))
 
-  def validatePositiveRates(rates: Seq[DutyRate]): Either[List[DutyRateValidationError], Seq[DutyRate]] = {
+  def validatePositiveRates(rates: Seq[ConfigDutyRate]): Either[List[DutyRateValidationError], Seq[ConfigDutyRate]] = {
     val invalidRates = rates.collect {
       case rate if rate.ratePencePer10Ml <= 0 => NegativeRate(rate)
     }
@@ -38,7 +38,7 @@ class DutyRateValidator @Inject()(clock: Clock) {
     }
   }
 
-  def validateDateRanges(rates: Seq[DutyRate]): Either[List[DutyRateValidationError], Seq[DutyRate]] = {
+  def validateDateRanges(rates: Seq[ConfigDutyRate]): Either[List[DutyRateValidationError], Seq[ConfigDutyRate]] = {
     val invalidRanges = rates.collect {
       case rate if rate.period.end.isBefore(rate.period.start) => InvalidDateRange(rate)
     }
@@ -48,7 +48,7 @@ class DutyRateValidator @Inject()(clock: Clock) {
     }
   }
 
-  def validateNoGapsOrOverlaps(rates: Seq[DutyRate]): Either[List[DutyRateValidationError], Seq[DutyRate]] =
+  def validateNoGapsOrOverlaps(rates: Seq[ConfigDutyRate]): Either[List[DutyRateValidationError], Seq[ConfigDutyRate]] =
     if (rates.size <= 1) {
       Right(rates)
     } else {
@@ -63,13 +63,13 @@ class DutyRateValidator @Inject()(clock: Clock) {
     }
 
   def validateCurrentDateCovered(
-    rates: Seq[DutyRate],
-    date: LocalDate = LocalDate.now(clock)
-  ): Either[List[DutyRateValidationError], Seq[DutyRate]] =
+                                  rates: Seq[ConfigDutyRate],
+                                  date: LocalDate = LocalDate.now(clock)
+  ): Either[List[DutyRateValidationError], Seq[ConfigDutyRate]] =
     if (rates.exists(_.isValidFor(date))) Right(rates)
     else Left(List(CurrentDateNotCovered(date)))
 
-  def validate(rates: Seq[DutyRate]): Either[List[DutyRateValidationError], Seq[DutyRate]] = {
+  def validate(rates: Seq[ConfigDutyRate]): Either[List[DutyRateValidationError], Seq[ConfigDutyRate]] = {
     val allErrors = List(
       validateNonEmpty(rates),
       validatePositiveRates(rates),

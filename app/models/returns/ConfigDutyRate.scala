@@ -20,14 +20,14 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-final case class DutyRate(
-                           period: DateRange,
-                           ratePencePer10Ml: Int
-                         ) {
+final case class ConfigDutyRate(
+                                 period: DateRange,
+                                 ratePencePer10Ml: Int
+                               ) {
 
   def isValidFor(date: LocalDate): Boolean = period.contains(date)
 }
 
-object DutyRate {
-  given format: OFormat[DutyRate] = Json.format[DutyRate]
+object ConfigDutyRate {
+  given format: OFormat[ConfigDutyRate] = Json.format[ConfigDutyRate]
 }

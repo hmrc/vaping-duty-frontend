@@ -20,7 +20,7 @@ import base.SpecBase
 import config.DutyRateConfig
 import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationStatus}
-import models.returns.DutyRate
+import models.returns.ConfigDutyRate
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -34,21 +34,21 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
   private val mockObligationService: ObligationService = mock[ObligationService]
   
   private val testRates = Seq(
-    DutyRate(
+    ConfigDutyRate(
       period = models.returns.DateRange(
         start = LocalDate.of(2026, 1, 1),
         end = LocalDate.of(2026, 12, 31)
       ),
       ratePencePer10Ml = 220
     ),
-    DutyRate(
+    ConfigDutyRate(
       period = models.returns.DateRange(
         start = LocalDate.of(2027, 1, 1),
         end = LocalDate.of(2027, 12, 31)
       ),
       ratePencePer10Ml = 300
     ),
-    DutyRate(
+    ConfigDutyRate(
       period = models.returns.DateRange(
         start = LocalDate.of(2028, 1, 1),
         end = LocalDate.of(9999, 12, 31)

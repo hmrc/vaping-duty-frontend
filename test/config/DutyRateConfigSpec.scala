@@ -18,7 +18,7 @@ package config
 
 import base.SpecBase
 import com.typesafe.config.{ConfigException, ConfigFactory}
-import models.returns.{DateRange, DutyRate, DutyRateValidationError}
+import models.returns.{DateRange, ConfigDutyRate, DutyRateValidationError}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Configuration
@@ -91,8 +91,8 @@ class DutyRateConfigSpec extends SpecBase {
             |""".stripMargin))
 
         parseRatesFromConfig(config) mustBe Seq(
-          DutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-12-31")), 220),
-          DutyRate(DateRange(LocalDate.parse("2027-01-01"), LocalDate.parse("9999-12-31")), 300)
+          ConfigDutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-12-31")), 220),
+          ConfigDutyRate(DateRange(LocalDate.parse("2027-01-01"), LocalDate.parse("9999-12-31")), 300)
         )
       }
 
@@ -115,8 +115,8 @@ class DutyRateConfigSpec extends SpecBase {
             |""".stripMargin))
 
         parseRatesFromConfig(config) mustBe Seq(
-          DutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-11-30")), 220),
-          DutyRate(DateRange(LocalDate.parse("2027-02-01"), LocalDate.parse("9999-12-31")), 300)
+          ConfigDutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-11-30")), 220),
+          ConfigDutyRate(DateRange(LocalDate.parse("2027-02-01"), LocalDate.parse("9999-12-31")), 300)
         )
       }
 
@@ -238,8 +238,8 @@ class DutyRateConfigSpec extends SpecBase {
 
     "throwExceptionIfInvalid" - {
 
-      val validDutyRate1 = DutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-12-31")), 22)
-      val validDutyRate2 = DutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-12-31")), 30)
+      val validDutyRate1 = ConfigDutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-12-31")), 22)
+      val validDutyRate2 = ConfigDutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-12-31")), 30)
       
       "will return a single duty rates if valid" in {
         throwExceptionIfInvalid(Right(Seq(validDutyRate1))) mustBe

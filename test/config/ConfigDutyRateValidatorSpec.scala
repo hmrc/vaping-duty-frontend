@@ -17,16 +17,16 @@
 package config
 
 import base.SpecBase
-import models.returns.{DutyRate, DutyRateValidationError}
+import models.returns.{ConfigDutyRate, DutyRateValidationError}
 import DutyRateValidationError.*
 
 import java.time.LocalDate
 
-class DutyRateValidatorSpec extends SpecBase {
+class ConfigDutyRateValidatorSpec extends SpecBase {
 
   val validator = new DutyRateValidator(clock)
   
-  private val validRate1 = DutyRate(
+  private val validRate1 = ConfigDutyRate(
     period = models.returns.DateRange(
       start = LocalDate.of(2026, 1, 1),
       end = LocalDate.of(2026, 12, 31)
@@ -34,7 +34,7 @@ class DutyRateValidatorSpec extends SpecBase {
     ratePencePer10Ml = 220
   )
 
-  private val validRate2 = DutyRate(
+  private val validRate2 = ConfigDutyRate(
     period = models.returns.DateRange(
       start = LocalDate.of(2027, 1, 1),
       end = LocalDate.of(9999, 12, 31)
@@ -53,7 +53,7 @@ class DutyRateValidatorSpec extends SpecBase {
     }
 
     "must return Left(EmptyRates) for an empty sequence" in {
-      val rates = Seq.empty[DutyRate]
+      val rates = Seq.empty[ConfigDutyRate]
 
       val result = validator.validateNonEmpty(rates)
 
@@ -239,7 +239,7 @@ class DutyRateValidatorSpec extends SpecBase {
     }
 
     "must return Left(EmptyRates) when rates are empty" in {
-      val rates = Seq.empty[DutyRate]
+      val rates = Seq.empty[ConfigDutyRate]
       val today = LocalDate.now(clock)
 
       val result = validator.validate(rates)
