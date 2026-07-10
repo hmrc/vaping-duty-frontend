@@ -59,7 +59,7 @@ object AdjustmentCheckYourAnswersViewModel {
     }
 
     val totalAdjustment = adjustments.map { adjustment =>
-      val dutyAmount = calculateDuty(adjustment.volumeInMl, dutyRates.get(adjustment.period.toString).map(_.dutyRateInPoundsPerMl).getOrElse(BigDecimal(0)))
+      val dutyAmount = dutyRates.get(adjustment.period.toString).map(_.calculateDuty(adjustment.volumeInMl)).getOrElse(BigDecimal(0))
       adjustment.adjustmentType match {
         case AdjustmentType.OverDeclared => -dutyAmount
         case AdjustmentType.UnderDeclared => dutyAmount
@@ -124,7 +124,7 @@ object AdjustmentCheckYourAnswersViewModel {
                               )(implicit messages: Messages): AdjustmentSummaryCard = {
 
     val periodDisplay = formatPeriod(adjustment.period, obligationDetails, returnsDateUtils)
-    val dutyAmount = calculateDuty(adjustment.volumeInMl, dutyRates.get(adjustment.period.toString).map(_.dutyRateInPoundsPerMl).getOrElse(BigDecimal(0)))
+    val dutyAmount = dutyRates.get(adjustment.period.toString).map(_.calculateDuty(adjustment.volumeInMl)).getOrElse(BigDecimal(0))
 
     val rows = Seq(
       buildDeclareAdjustmentRow(currentPeriodKey, declaredAdjustment = true),
@@ -232,7 +232,4 @@ object AdjustmentCheckYourAnswersViewModel {
     returnsDateUtils.formatPeriodDisplay(periodKey, obligationDetails)
   }
 
-  private def calculateDuty(volumeInMl: BigDecimal, dutyRate: BigDecimal): BigDecimal = {
-    (volumeInMl * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
-  }
 }

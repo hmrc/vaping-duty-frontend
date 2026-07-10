@@ -21,4 +21,7 @@ case class DutyRate (ratePencePer10Ml: Int) {
   val rateInPencePerMl: BigDecimal = BigDecimal(ratePencePer10Ml) / 10
   val dutyRateInPoundsPerMl: BigDecimal = rateInPencePerMl / 100
 
+  def calculateDuty(volumeInMl: BigDecimal): BigDecimal =
+    (volumeInMl * dutyRateInPoundsPerMl).setScale(2, BigDecimal.RoundingMode.DOWN)
+
 }
