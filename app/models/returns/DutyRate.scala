@@ -17,5 +17,8 @@
 package models.returns
 
 case class DutyRate (ratePencePer10Ml: Int) {
-  
+
+  val rateInPencePerMl: BigDecimal = BigDecimal(ratePencePer10Ml) / 10
+  val dutyRateInPoundsPerMl: BigDecimal = rateInPencePerMl / 100
+
 }

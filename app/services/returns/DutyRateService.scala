@@ -30,13 +30,15 @@ import scala.concurrent.{ExecutionContext, Future}
 class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationService: ObligationService) {
   
   def getRateForDateInPencePer10ml(date: LocalDate): Int =
+    getDutyRateForDate(date).ratePencePer10Ml
+
+  def getDutyRateForDate(date: LocalDate) =
     DutyRate(
       dutyRateConfig.rates
-      .find(_.isValidFor(date))
-      .map(_.ratePencePer10Ml)
-      .get  // Safe because validation ensures there's always a rate
-      ).ratePencePer10Ml
-
+        .find(_.isValidFor(date))
+        .map(_.ratePencePer10Ml)
+        .get // Safe because validation ensures there's always a rate
+    )
 
   def getDutyRateInPoundsPerMl(vpdId: VpdId, periodKey: PeriodKey)
                               (using ec: ExecutionContext, hc: HeaderCarrier): Future[BigDecimal] =

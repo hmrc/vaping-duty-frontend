@@ -19,6 +19,7 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
+import models.returns.DutyRate
 import models.returns.adjustments.AdjustmentList
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.HeaderCarrier
@@ -56,7 +57,7 @@ class AdjustmentCheckYourAnswersService @Inject()(
   private def getDutyRatesForAdjustments(
                                           adjustmentList: Option[AdjustmentList],
                                           obligationDetails: Seq[ObligationDetails]
-                                        ): Map[String, BigDecimal] = {
+                                        ): Map[String, DutyRate] = {
 
     val uniquePeriods = adjustmentList
       .map(_.adjustments.map(_.period).distinct)
@@ -65,10 +66,7 @@ class AdjustmentCheckYourAnswersService @Inject()(
     uniquePeriods.map { period =>
       val obligation = obligationDetails.find(_.periodKey == period.toString)
       val dutyRate = obligation.map { obl =>
-        val rateInPencePer10Ml = dutyRateService.getRateForDateInPencePer10ml(obl.iCFromDate)
-        val rateInPencePerMl = BigDecimal(rateInPencePer10Ml) / 10
-        val dutyRateInPoundsPerMl = rateInPencePerMl / 100
-        dutyRateInPoundsPerMl
+        dutyRateService.getDutyRateForDate(obl.iCFromDate)
       }.getOrElse(
         // scalafix:off DisableSyntax.throw
         throw new RuntimeException(s"No obligation found for period ${period.toString}")

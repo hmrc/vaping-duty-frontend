@@ -17,12 +17,13 @@
 package viewmodels.returns.submit.adjustments
 
 import base.SpecBase
+import models.returns.DutyRate
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 
 class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
 
-  val dutyRate: BigDecimal = BigDecimal("3.00")
-  val dutyRatesMap: Map[String, BigDecimal] = Map(october2027.toString -> dutyRate)
+  val dutyRate = DutyRate(ratePencePer10Ml = 3000)
+  val dutyRatesMap: Map[String, DutyRate] = Map(october2027.toString -> dutyRate)
 
   "AdjustmentCheckYourAnswersViewModel" - {
 
