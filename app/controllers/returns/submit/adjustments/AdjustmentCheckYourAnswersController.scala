@@ -21,7 +21,6 @@ import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrie
 import forms.returns.DeclareDutyFormProvider
 import models.NormalMode
 import models.requests.returns.ReturnsDataRequest
-import models.returns.adjustments.AdjustmentList
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.data.Form
@@ -30,7 +29,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.returns.{AdjustmentCheckYourAnswersService, ReturnsUserAnswersService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel
 import views.html.returns.submit.adjustments.AdjustmentCheckYourAnswersView
 
 import javax.inject.Inject
@@ -80,8 +78,8 @@ class AdjustmentCheckYourAnswersController @Inject()(
         .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId)
         .flatMap { vm =>
           declareAdjustment match {
-            case Some(false) => redirectToNextPageWithoutAddingAnother(request)
-            case _ if !vm.hasAvailablePeriodsToAdd => redirectToNextPageWithoutAddingAnother(request)
+            case Some(false) => redirectToNextPageWithoutAddingAnother(request, vm.underDeclaredDutyTotal, vm.overDeclaredDutyTotal)
+            case _ if !vm.hasAvailablePeriodsToAdd => redirectToNextPageWithoutAddingAnother(request, vm.underDeclaredDutyTotal, vm.overDeclaredDutyTotal)
             case _ =>
               form.bindFromRequest().fold(
                 formWithErrors =>
@@ -90,19 +88,28 @@ class AdjustmentCheckYourAnswersController @Inject()(
                 value =>
                   for {
                     updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
-                    _              <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
+                    _ <- sessionRepository.set(updatedAnswers)
+                  } yield Redirect(navigator.nextPage(
+                    AddAnotherAdjustmentPage,
+                    NormalMode,
+                    updatedAnswers,
+                    vm.underDeclaredDutyTotal,
+                    vm.overDeclaredDutyTotal
+                  ))
               )
           }
         }
   }
 
-  private def redirectToNextPageWithoutAddingAnother(request: ReturnsDataRequest[AnyContent])
-                                                    (using HeaderCarrier): Future[Result] = {
+  private def redirectToNextPageWithoutAddingAnother(
+                                                      request: ReturnsDataRequest[AnyContent],
+                                                      underDeclaredDutyTotal: BigDecimal,
+                                                      overDeclaredDutyTotal: BigDecimal
+                                                    )(using HeaderCarrier): Future[Result] = {
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, false))
-      _              <- sessionRepository.set(updatedAnswers)
-    } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
+      _ <- sessionRepository.set(updatedAnswers)
+    } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers, underDeclaredDutyTotal, overDeclaredDutyTotal))
   }
 
 }

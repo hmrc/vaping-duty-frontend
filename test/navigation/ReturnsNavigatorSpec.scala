@@ -20,7 +20,6 @@ import base.SpecBase
 import controllers.routes
 import models.*
 import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
-import models.returns.adjustments.AdjustmentList
 import pages.*
 import pages.returns.{AddSpoiltAdjustmentPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
@@ -161,21 +160,32 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
       }
 
-      "must go from AddAnotherAdjustmentPage to AdjustmentReason when no more adjustments to make and an adjustment volume is 1000ml or more" in {
-        val ua = returnsUserAnswers
-          .set(AdjustmentListPage, adjustmentList).success.value
-          .set(AddAnotherAdjustmentPage, false).success.value
+      "must go from AddAnotherAdjustmentPage to AdjustmentReason when duty due is £1000 or more for UnderDeclared" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
 
-        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=$periodKey"
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, underDeclaredDutyTotal = BigDecimal("1000"), overDeclaredDutyTotal = BigDecimal("0"))
+          .url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
-      "must go from AddAnotherAdjustmentPage to TaskList when no more adjustments to make and all adjustment volumes are under 1000ml" in {
-        val smallAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(volumeInMl = BigDecimal("999"))))
-        val ua = returnsUserAnswers
-          .set(AdjustmentListPage, smallAdjustmentList).success.value
-          .set(AddAnotherAdjustmentPage, false).success.value
+      "must go from AddAnotherAdjustmentPage to AdjustmentReason when duty due is £1000 or more for OverDeclared" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
 
-        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, underDeclaredDutyTotal = BigDecimal("0"), overDeclaredDutyTotal = BigDecimal("1000"))
+          .url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to TaskList when neither type meets £1000 duty threshold" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
+
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, underDeclaredDutyTotal = BigDecimal("800"), overDeclaredDutyTotal = BigDecimal("800"))
+          .url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to AdjustmentReason when one type meets threshold and other does not" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
+
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, underDeclaredDutyTotal = BigDecimal("1000"), overDeclaredDutyTotal = BigDecimal("800"))
+          .url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
       "must go from AdjustmentReasonPage to TaskList" in {

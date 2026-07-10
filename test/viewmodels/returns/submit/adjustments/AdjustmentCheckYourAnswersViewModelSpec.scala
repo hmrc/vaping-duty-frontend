@@ -109,6 +109,29 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
       vm.summaryCards.size mustBe 1
       vm.summaryCards.head.rows.size mustBe 1
       vm.totalAdjustment mustBe BigDecimal("0")
+      vm.underDeclaredDutyTotal mustBe BigDecimal("0")
+      vm.overDeclaredDutyTotal mustBe BigDecimal("0")
+    }
+
+    "must calculate underDeclaredDutyTotal and overDeclaredDutyTotal independently, without combining them" in {
+      val adjustmentList = AdjustmentList(Seq(
+        AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.UnderDeclared, volumeInMl = BigDecimal("100.0")),
+        AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.UnderDeclared, volumeInMl = BigDecimal("50.0")),
+        AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.OverDeclared, volumeInMl = BigDecimal("10.0"))
+      ))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+
+      val vm = AdjustmentCheckYourAnswersViewModel(
+        Some(true),
+        Some(adjustmentList),
+        obligationDetails,
+        periodKey,
+        dutyRatesMap,
+        returnsDateUtils
+      )
+
+      vm.underDeclaredDutyTotal mustBe BigDecimal("450.00")
+      vm.overDeclaredDutyTotal mustBe BigDecimal("30.00")
     }
   }
 }

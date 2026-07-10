@@ -31,7 +31,9 @@ case class AdjustmentCheckYourAnswersViewModel(
                                                 hasAdjustments: Boolean,
                                                 totalAdjustment: BigDecimal,
                                                 formattedTotalAdjustment: String,
-                                                hasAvailablePeriodsToAdd: Boolean
+                                                hasAvailablePeriodsToAdd: Boolean,
+                                                underDeclaredDutyTotal: BigDecimal,
+                                                overDeclaredDutyTotal: BigDecimal
                                               )
 
 object AdjustmentCheckYourAnswersViewModel {
@@ -66,14 +68,29 @@ object AdjustmentCheckYourAnswersViewModel {
 
     val hasAvailablePeriodsToAdd = calculateAvailablePeriods(obligationDetails, periodKey, adjustmentList).nonEmpty
 
+    val underDeclaredDutyTotal = totalDutyForType(adjustments, AdjustmentType.UnderDeclared, dutyRates)
+    val overDeclaredDutyTotal = totalDutyForType(adjustments, AdjustmentType.OverDeclared, dutyRates)
+
     AdjustmentCheckYourAnswersViewModel(
       summaryCards = summaryCards,
       hasAdjustments = adjustments.nonEmpty,
       totalAdjustment = totalAdjustment,
       formattedTotalAdjustment = CurrencyFormatter.currencyFormatWithLeadingSign(totalAdjustment),
-      hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd
+      hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd,
+      underDeclaredDutyTotal = underDeclaredDutyTotal,
+      overDeclaredDutyTotal = overDeclaredDutyTotal
     )
   }
+
+  private def totalDutyForType(
+                                adjustments: Seq[AdjustmentEntry],
+                                adjustmentType: AdjustmentType,
+                                dutyRates: Map[String, BigDecimal]
+                              ): BigDecimal =
+    adjustments
+      .filter(_.adjustmentType == adjustmentType)
+      .map(adjustment => calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0))))
+      .sum
 
   private def calculateAvailablePeriods(
                                          obligationDetails: Seq[ObligationDetails],

@@ -112,10 +112,16 @@ class BuildReturnSubmissionService @Inject()(
       .getOrElse(Seq.empty)
 
     if (underDeclaredEntries.nonEmpty) {
+      val underDeclarationProducts = underDeclaredEntries.map(buildUnderDeclarationProduct(_, periodKeyToDutyRateInPencePerMl))
+      val reasonForUnderDecl = if (underDeclarationProducts.map(_.dutyDue).sum >= AdjustmentType.dutyThreshold)
+        ua.get(AdjustmentReasonPage)
+      else
+        None
+
       Some(UnderDeclaration(
         underDeclFilled = FLAG_FILLED,
-        reasonForUnderDecl = ua.get(AdjustmentReasonPage),
-        underDeclarationProducts = Some(underDeclaredEntries.map(buildUnderDeclarationProduct(_, periodKeyToDutyRateInPencePerMl)))
+        reasonForUnderDecl = reasonForUnderDecl,
+        underDeclarationProducts = Some(underDeclarationProducts)
       ))
     } else {
       Some(UnderDeclaration(
@@ -146,10 +152,16 @@ class BuildReturnSubmissionService @Inject()(
       .getOrElse(Seq.empty)
 
     if (overDeclaredEntries.nonEmpty) {
+      val overDeclarationProducts = overDeclaredEntries.map(buildOverDeclarationProduct(_, periodKeyToDutyRateInPencePerMl))
+      val reasonForOverDecl = if (overDeclarationProducts.map(_.dutyDue).sum >= AdjustmentType.dutyThreshold)
+        ua.get(AdjustmentReasonPage)
+      else
+        None
+
       Some(OverDeclaration(
         overDeclFilled = FLAG_FILLED,
-        reasonForOverDecl = ua.get(AdjustmentReasonPage),
-        overDeclarationProducts = Some(overDeclaredEntries.map(buildOverDeclarationProduct(_, periodKeyToDutyRateInPencePerMl)))
+        reasonForOverDecl = reasonForOverDecl,
+        overDeclarationProducts = Some(overDeclarationProducts)
       ))
     } else {
       Some(OverDeclaration(
