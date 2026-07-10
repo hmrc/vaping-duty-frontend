@@ -43,6 +43,7 @@ class EnterDutyAmountFormProvider @Inject()(
           "returns.enterDutyAmount.error.nonNumeric",
           "returns.enterDutyAmount.error.invalidDecimalPlaces.wholeOnly",
           "returns.enterDutyAmount.error.invalidDecimalPlaces.maxOne")
+            .verifying(greaterThanZero("returns.enterDutyAmount.error.mustBeGreaterThanZero"))
             .verifying(inRange(
               BigDecimal(0),
               maxVolumeResult.maxVolumeInMl,

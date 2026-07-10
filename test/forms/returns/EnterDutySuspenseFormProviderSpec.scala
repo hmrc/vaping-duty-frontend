@@ -277,6 +277,30 @@ class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
           result.value.value mustEqual DutySuspenseVolumes(BigDecimal("1500"), BigDecimal("2500"))
         }
       }
+
+      "must fail when both fields are zero" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map("volumeReceived" -> "0", "volumeMoved" -> "0"))
+          result.errors mustEqual Seq(FormError("", "returns.enterDutySuspense.error.bothZero"))
+        }
+      }
+
+      "must bind when volumeReceived is zero and volumeMoved is non-zero" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map("volumeReceived" -> "0", "volumeMoved" -> "1500"))
+          result.value.value mustEqual DutySuspenseVolumes(BigDecimal("0"), BigDecimal("1500"))
+        }
+      }
+
+      "must bind when volumeMoved is zero and volumeReceived is non-zero" in {
+        setupMocks()
+        whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+          val result = form.bind(Map("volumeReceived" -> "1500", "volumeMoved" -> "0"))
+          result.value.value mustEqual DutySuspenseVolumes(BigDecimal("1500"), BigDecimal("0"))
+        }
+      }
     }
   }
 }

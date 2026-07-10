@@ -68,6 +68,8 @@ class EnterDutySuspenseFormProvider @Inject()(
                 maxVolumeResult.formattedForDisplay
               ))
         )((received, moved) => DutySuspenseVolumes(received, moved))(o => Some((o.volumeReceived, o.volumeMoved)))
+          .verifying("returns.enterDutySuspense.error.bothZero", data =>
+            !(data.volumeReceived == 0 && data.volumeMoved == 0))
       )
     }
   }

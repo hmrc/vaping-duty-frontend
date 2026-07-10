@@ -69,6 +69,19 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
     }
   }
 
+  "greaterThanZero" - {
+
+    "must return Valid for a number greater than zero" in {
+      val result = greaterThanZero("error.gt0").apply(BigDecimal("0.1"))
+      result mustEqual Valid
+    }
+
+    "must return Invalid for zero" in {
+      val result = greaterThanZero("error.gt0").apply(BigDecimal(0))
+      result mustEqual Invalid("error.gt0")
+    }
+  }
+
   "maximumValue" - {
 
     "must return Valid for a number less than the threshold" in {

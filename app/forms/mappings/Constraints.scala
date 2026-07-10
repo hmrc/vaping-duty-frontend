@@ -101,6 +101,9 @@ trait Constraints {
         Valid
     }
 
+  protected def greaterThanZero(errorKey: String): Constraint[BigDecimal] =
+    Constraint(input => if (input > 0) Valid else Invalid(errorKey))
+
   protected def nonEmptySet(errorKey: String): Constraint[Set[_]] =
     Constraint {
       case set if set.nonEmpty =>

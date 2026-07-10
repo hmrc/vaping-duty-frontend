@@ -1,3 +1,4 @@
+
 service.name = Vaping Products Duty
 
 site.back = Back
@@ -203,6 +204,7 @@ returns.enterDutyAmount.error.required = You must enter a number greater than ze
 returns.enterDutyAmount.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
 returns.enterDutyAmount.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
 returns.enterDutyAmount.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
+returns.enterDutyAmount.error.mustBeGreaterThanZero = You must enter a number greater than zero
 returns.enterDutyAmount.change.hidden = EnterDutyAmount
 
 returns.declareSpoiltProducts.title = Declare spoilt products from an earlier return
@@ -243,6 +245,7 @@ returns.spoiltVolumeByPeriod.error.nonNumeric = You must enter a number greater 
 returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
 returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
 returns.spoiltVolumeByPeriod.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
+returns.spoiltVolumeByPeriod.error.mustBeGreaterThanZero = You must enter a number greater than zero
 
 returns.addSpoiltAdjustment.title = Do you want to make an adjustment for another month?
 returns.addSpoiltAdjustment.heading = Do you want to make an adjustment for another month?
@@ -280,6 +283,8 @@ returns.enterDutySuspense.volumeMoved.error.nonNumeric = You must enter a number
 returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
 returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
 returns.enterDutySuspense.volumeMoved.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
+
+returns.enterDutySuspense.error.bothZero = You must enter a number greater than zero
 
 returns.enterDutySuspense.ml = ml
 returns.enterDutySuspense.checkYourAnswersLabel = Enter duty suspense

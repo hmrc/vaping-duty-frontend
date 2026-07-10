@@ -43,6 +43,7 @@ class SpoiltVolumeByPeriodFormProvider @Inject()(
           "returns.spoiltVolumeByPeriod.error.nonNumeric",
           "returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.wholeOnly",
           "returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.maxOne")
+            .verifying(greaterThanZero("returns.spoiltVolumeByPeriod.error.mustBeGreaterThanZero"))
             .verifying(inRange(
               BigDecimal(0),
               maxVolumeResult.maxVolumeInMl,
