@@ -131,32 +131,6 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "getDutyRateForPeriod" - {
-
-      "must return the calculated duty rate when obligation exists" in {
-        when(mockDutyRateConfig.rates).thenReturn(testRates)
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(PeriodKey("26AA")))(using any()))
-          .thenReturn(Future.successful(Some(testObligation)))
-        
-        val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
-        
-        whenReady(service.getDutyRateForPeriodInPoundsPerMl(vpdId, PeriodKey("26AA"))) { result =>
-          result mustBe Some(BigDecimal("0.22"))
-        }
-      }
-
-      "must return None when obligation does not exist" in {
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(PeriodKey("26XX")))(using any()))
-          .thenReturn(Future.successful(None))
-        
-        val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
-        
-        whenReady(service.getDutyRateForPeriodInPoundsPerMl(vpdId, PeriodKey("26XX"))) { result =>
-          result mustBe None
-        }
-      }
-    }
-
     "getDutyRate" - {
 
       "must return the duty rate when obligation exists" in {

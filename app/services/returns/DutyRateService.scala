@@ -45,8 +45,8 @@ class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationServic
       case None => Future.failed(RuntimeException("No duty rate found"))
     }
 
-  def getDutyRateForPeriodInPoundsPerMl(vpdId: VpdId, periodKey: PeriodKey)
-                                       (using ec: ExecutionContext, hc: HeaderCarrier): Future[Option[BigDecimal]] =
+  private def getDutyRateForPeriodInPoundsPerMl(vpdId: VpdId, periodKey: PeriodKey)
+                                               (using ec: ExecutionContext, hc: HeaderCarrier): Future[Option[BigDecimal]] =
 
     obligationService.getObligationByPeriodKey(vpdId, periodKey).map { obligationOpt =>
       obligationOpt.map { obligation =>
