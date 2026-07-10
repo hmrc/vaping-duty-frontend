@@ -44,7 +44,7 @@ class EnterDutyAmountFormProvider @Inject()(
           "returns.enterDutyAmount.error.invalidDecimalPlaces.wholeOnly",
           "returns.enterDutyAmount.error.invalidDecimalPlaces.maxOne")
             .verifying(inRange(
-              BigDecimal(1),
+              BigDecimal(0),
               maxVolumeResult.maxVolumeInMl,
               "returns.enterDutyAmount.error.exceedsMaxDuty",
               maxVolumeResult.formattedForDisplay
