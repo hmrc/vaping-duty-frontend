@@ -48,5 +48,26 @@ class AdjustmentReasonFormProviderSpec extends StringFieldBehaviours {
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
     )
+
+    "bind a string that is below the maximum length" in {
+      val validData = "a" * 50
+      val result = form.bind(Map(fieldName -> validData)).apply(fieldName)
+      result.value.value mustBe validData
+      result.errors mustBe empty
+    }
+
+    "bind a string that is exactly at the maximum length" in {
+      val validData = "a" * maxLength
+      val result = form.bind(Map(fieldName -> validData)).apply(fieldName)
+      result.value.value mustBe validData
+      result.errors mustBe empty
+    }
+
+    "not bind a string one character over the maximum length" in {
+      val invalidData = "a" * (maxLength + 1)
+      val result = form.bind(Map(fieldName -> invalidData)).apply(fieldName)
+      result.errors must contain only FormError(fieldName, lengthKey, Seq(maxLength))
+    }
+
   }
 }
