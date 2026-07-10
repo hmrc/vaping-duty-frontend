@@ -39,21 +39,21 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         start = LocalDate.of(2026, 1, 1),
         end = LocalDate.of(2026, 12, 31)
       ),
-      ratePencePerMl = 22
+      ratePencePer10Ml = 220
     ),
     DutyRate(
       period = models.returns.DateRange(
         start = LocalDate.of(2027, 1, 1),
         end = LocalDate.of(2027, 12, 31)
       ),
-      ratePencePerMl = 30
+      ratePencePer10Ml = 300
     ),
     DutyRate(
       period = models.returns.DateRange(
         start = LocalDate.of(2028, 1, 1),
         end = LocalDate.of(9999, 12, 31)
       ),
-      ratePencePerMl = 40
+      ratePencePer10Ml = 400
     )
   )
 
@@ -77,7 +77,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val date = LocalDate.of(2026, 6, 15)
         val result = service.getRateForDate(date)
         
-        result mustBe 22
+        result mustBe 220
       }
 
       "must return the correct rate for a date within the second period" in {
@@ -87,7 +87,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val date = LocalDate.of(2027, 8, 20)
         val result = service.getRateForDate(date)
         
-        result mustBe 30
+        result mustBe 300
       }
 
       "must return the correct rate for a date within the third period" in {
@@ -97,7 +97,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val date = LocalDate.of(2028, 3, 10)
         val result = service.getRateForDate(date)
         
-        result mustBe 40
+        result mustBe 400
       }
 
       "must return the correct rate for a date on the start boundary" in {
@@ -107,7 +107,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val date = LocalDate.of(2027, 1, 1)
         val result = service.getRateForDate(date)
         
-        result mustBe 30
+        result mustBe 300
       }
 
       "must return the correct rate for a date on the end boundary" in {
@@ -117,7 +117,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val date = LocalDate.of(2026, 12, 31)
         val result = service.getRateForDate(date)
         
-        result mustBe 22
+        result mustBe 220
       }
 
       "must return the correct rate for a far future date" in {
@@ -127,7 +127,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val date = LocalDate.of(3000, 1, 1)
         val result = service.getRateForDate(date)
         
-        result mustBe 40
+        result mustBe 400
       }
     }
 
@@ -141,7 +141,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         whenReady(service.getDutyRateForPeriod(vpdId, PeriodKey("26AA"))) { result =>
-          result mustBe Some(BigDecimal("0.22"))
+          result mustBe Some(BigDecimal("2.20"))
         }
       }
 
@@ -160,7 +160,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
     "getDutyRate" - {
 
       "must return the duty rate when obligation exists" in {
-        val expectedDutyRate = BigDecimal("0.22")
+        val expectedDutyRate = BigDecimal("2.20")
         
         when(mockDutyRateConfig.rates).thenReturn(testRates)
         when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(periodKey))(using any()))

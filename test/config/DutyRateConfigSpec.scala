@@ -54,8 +54,8 @@ class DutyRateConfigSpec extends SpecBase {
       config.rates must have size 2
       config.rates.head.period.start mustBe LocalDate.of(2026, 1, 1)
       config.rates.head.period.end mustBe LocalDate.of(2026, 12, 31)
-      config.rates.head.ratePencePerMl mustBe 220
-      config.rates(1).ratePencePerMl mustBe 300
+      config.rates.head.ratePencePer10Ml mustBe 220
+      config.rates(1).ratePencePer10Ml mustBe 300
     }
 
 

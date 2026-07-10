@@ -31,7 +31,7 @@ class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationServic
   def getRateForDate(date: LocalDate): Int =
     dutyRateConfig.rates
       .find(_.isValidFor(date))
-      .map(_.ratePencePerMl)
+      .map(_.ratePencePer10Ml)
       .get  // Safe because validation ensures there's always a rate
 
 

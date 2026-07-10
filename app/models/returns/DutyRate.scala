@@ -22,7 +22,7 @@ import java.time.LocalDate
 
 final case class DutyRate(
                            period: DateRange,
-                           ratePencePerMl: Int
+                           ratePencePer10Ml: Int
                          ) {
 
   def isValidFor(date: LocalDate): Boolean = period.contains(date)
