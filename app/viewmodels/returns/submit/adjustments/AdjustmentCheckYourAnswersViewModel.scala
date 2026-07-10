@@ -127,7 +127,7 @@ object AdjustmentCheckYourAnswersViewModel {
 
     val rows = Seq(
       buildDeclareAdjustmentRow(currentPeriodKey, declaredAdjustment = true),
-      buildTypeRow(adjustment.adjustmentType, adjustment.period, currentPeriodKey),
+      buildTypeRow(adjustment.adjustmentType),
       buildVolumeRow(adjustment.volumeInMl, adjustment.period, currentPeriodKey),
       buildDutyRow(dutyAmount, adjustment.adjustmentType)
     )
@@ -179,8 +179,6 @@ object AdjustmentCheckYourAnswersViewModel {
 
   private def buildTypeRow(
                             adjustmentType: AdjustmentType,
-                            adjustmentPeriod: PeriodKey,
-                            currentPeriodKey: PeriodKey
                           )(implicit messages: Messages): SummaryListRow = {
     val typeText = adjustmentType match {
       case AdjustmentType.UnderDeclared => messages("returns.adjustmentCheckYourAnswers.type.underDeclared")

@@ -21,7 +21,7 @@ import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrie
 import controllers.returns.PeriodKeyExtraction
 import forms.returns.adjustments.{AdjustmentVolumeWithTypeFormData, AdjustmentVolumeWithTypeFormProvider}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
-import models.{Mode, NormalMode}
+import models.Mode
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.AdjustmentListPage
 import play.api.data.Form

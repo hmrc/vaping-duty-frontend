@@ -52,7 +52,7 @@ class BuildReturnSubmissionService @Inject()(
     val overDeclaration = buildOverDeclaration(ua, periodKeyToDutyRateInPencePerMl)
     val otherOptions = buildOtherOptions(ua)
 
-    val spoiltProduct = buildSpoiltProduct(ua, vpdId, periodKeyToDutyRateInPencePerMl)
+    val spoiltProduct = buildSpoiltProduct(ua, periodKeyToDutyRateInPencePerMl)
 
     val totalDutyDue = totalDutyDueCalculationService.calculate(
       totalDutyDueVapingProducts,
@@ -186,7 +186,7 @@ class BuildReturnSubmissionService @Inject()(
     )
   }
 
-  private def buildSpoiltProduct(ua: ReturnsUserAnswers, vpdId: VpdId, periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int]): Option[SpoiltProduct] = {
+  private def buildSpoiltProduct(ua: ReturnsUserAnswers, periodKeyToDutyRateInPencePerMl: Map[PeriodKey, Int]) = {
     val declareSpoiltProducts = ua.get(DeclareSpoiltProductsPage)
     val spoiltVolumes = ua.get(SpoiltVolumeByPeriodPage)
 
