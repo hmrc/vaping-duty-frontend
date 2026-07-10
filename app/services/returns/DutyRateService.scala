@@ -50,9 +50,7 @@ class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationServic
 
     obligationService.getObligationByPeriodKey(vpdId, periodKey).map { obligationOpt =>
       obligationOpt.map { obligation =>
-        val rateInPencePerMl = BigDecimal(getDutyRateForDate(obligation.iCFromDate).ratePencePer10Ml) / 10
-        val dutyRateInPoundsPerMl = rateInPencePerMl / 100
-        dutyRateInPoundsPerMl
+        getDutyRateForDate(obligation.iCFromDate).dutyRateInPoundsPerMl
       }
     }
 
