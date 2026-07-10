@@ -39,7 +39,7 @@ def parseRatesFromConfig(configuration: Configuration): Seq[DutyRate] = {
         start = LocalDate.parse(rateConfig.get[String]("start-date")),
         end   = LocalDate.parse(rateConfig.get[String]("end-date"))
       ),
-      ratePencePerMl = Integer.parseInt(rateConfig.get[String]("rate-pence-per-ml"))
+      ratePencePerMl = Integer.parseInt(rateConfig.get[String]("rate-pence-per-10ml"))
     )
   }.sortBy(_.period.start)
 }
