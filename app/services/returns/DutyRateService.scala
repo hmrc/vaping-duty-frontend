@@ -20,6 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import config.DutyRateConfig
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
+import models.returns.DutyRate
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
@@ -29,10 +30,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationService: ObligationService) {
   
   def getRateForDateInPencePer10ml(date: LocalDate): Int =
-    dutyRateConfig.rates
+    DutyRate(
+      dutyRateConfig.rates
       .find(_.isValidFor(date))
       .map(_.ratePencePer10Ml)
       .get  // Safe because validation ensures there's always a rate
+      ).ratePencePer10Ml
 
 
   def getDutyRateInPoundsPerMl(vpdId: VpdId, periodKey: PeriodKey)
