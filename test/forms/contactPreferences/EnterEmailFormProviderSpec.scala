@@ -59,7 +59,7 @@ class EnterEmailFormProviderSpec extends StringFieldBehaviours with Constraints 
       form,
       fieldName,
       maxLength = maxLength,
-      errors = Seq(FormError(fieldName, lengthKey, Seq(maxLength)), FormError(fieldName, formatKey, Seq(emailRegex)))
+      errors = Seq(FormError(fieldName, lengthKey, Seq(maxLength)), FormError(fieldName, formatKey, Seq(validEmailRegex)))
     )
 
     behave like mandatoryField(
@@ -71,7 +71,7 @@ class EnterEmailFormProviderSpec extends StringFieldBehaviours with Constraints 
     behave like emailFieldWithInvalidData(
       form,
       fieldName,
-      FormError(fieldName, Seq(formatKey), ArraySeq(emailRegex)),
+      FormError(fieldName, Seq(formatKey), ArraySeq(validEmailRegex)),
       stringsWithMaxLength(maxLength)
     )
   }

@@ -17,7 +17,7 @@
 package forms.mappings
 
 import models.Enumerable
-import play.api.data.FieldMapping
+import play.api.data.{FieldMapping, Mapping}
 import play.api.data.Forms.of
 import play.api.i18n.Messages
 
@@ -25,11 +25,16 @@ import java.time.LocalDate
 
 trait Mappings extends Formatters with Constraints {
 
-  protected def text(errorKey: String = "error.required", args: Seq[String] = Seq.empty): FieldMapping[String] =
-    of(stringFormatter(errorKey, args))
+  protected def textStrippingSpaces(errorKey: String = "error.required", args: Seq[String] = Seq.empty): FieldMapping[String] =
+    of(stringFormatterStrippingSpaces(errorKey, args))
 
   protected def textWithSpaces(errorKey: String = "error.required", args: Seq[String] = Seq.empty): FieldMapping[String] =
     of(stringFormatterWithSpaces(errorKey, args))
+
+  protected def email(errorPrefix: String, maxEmailLength: Int): Mapping[String] =
+    textStrippingSpaces(errorPrefix + "required")
+      .verifying(maxLength(maxEmailLength, errorPrefix + "length"))
+      .verifying(validEmail(errorPrefix + "format"))
 
   protected def int(requiredKey: String = "error.required",
                     wholeNumberKey: String = "error.wholeNumber",
