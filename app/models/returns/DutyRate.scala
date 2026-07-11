@@ -18,11 +18,13 @@ package models.returns
 
 case class DutyRate (ratePencePer10Ml: Int) {
 
-  val rateInPencePerMl        : BigDecimal = BigDecimal(ratePencePer10Ml) / 10
-  val dutyRateInPoundsPerMl   : BigDecimal = rateInPencePerMl / 100
-  val dutyRateInPoundsPer10Ml : BigDecimal = BigDecimal(ratePencePer10Ml) / 100
+  val dutyRateInPoundsPer10Ml       : BigDecimal = BigDecimal(ratePencePer10Ml) / 100
+  private val dutyRateInPoundsPerMl : BigDecimal = dutyRateInPoundsPer10Ml / 10
 
   def calculateDuty(volumeInMl: BigDecimal): BigDecimal =
     (volumeInMl * dutyRateInPoundsPerMl).setScale(2, BigDecimal.RoundingMode.DOWN)
+
+  def volumeForDutyInMl(dutyInPounds: BigDecimal): BigDecimal =
+    (dutyInPounds / dutyRateInPoundsPerMl).setScale(0, BigDecimal.RoundingMode.DOWN)
 
 }
