@@ -57,7 +57,7 @@ class AdjustmentCheckYourAnswersService @Inject()(
   private def getDutyRatesForAdjustments(
                                           adjustmentList: Option[AdjustmentList],
                                           obligationDetails: Seq[ObligationDetails]
-                                        ): Map[String, DutyRate] = {
+                                        ): Map[PeriodKey, DutyRate] = {
 
     val uniquePeriods = adjustmentList
       .map(_.adjustments.map(_.period).distinct)
@@ -71,7 +71,7 @@ class AdjustmentCheckYourAnswersService @Inject()(
         // scalafix:off DisableSyntax.throw
         throw new RuntimeException(s"No obligation found for period ${period.toString}")
       )
-      period.toString -> dutyRate
+      period -> dutyRate
     }.toMap
   }
 }

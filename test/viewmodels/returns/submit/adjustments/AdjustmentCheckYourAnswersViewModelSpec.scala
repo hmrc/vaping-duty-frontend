@@ -17,13 +17,14 @@
 package viewmodels.returns.submit.adjustments
 
 import base.SpecBase
+import models.identifiers.PeriodKey
 import models.returns.DutyRate
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 
 class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
 
   val dutyRate = DutyRate(ratePencePer10Ml = 3000)
-  val dutyRatesMap: Map[String, DutyRate] = Map(october2027.toString -> dutyRate)
+  val dutyRatesMap: Map[PeriodKey, DutyRate] = Map(october2027 -> dutyRate)
 
   "AdjustmentCheckYourAnswersViewModel" - {
 
@@ -114,7 +115,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
     }
 
     "must set adjustmentReasonMandatory when the under-declared duty total alone meets the £1000 threshold" in {
-      val oneRatePerMl: Map[String, DutyRate] = Map(october2027.toString -> DutyRate(1000))
+      val oneRatePerMl: Map[PeriodKey, DutyRate] = Map(october2027 -> DutyRate(1000))
       val adjustmentList = AdjustmentList(Seq(
         AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.UnderDeclared, volumeInMl = BigDecimal("1000")),
         AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.OverDeclared, volumeInMl = BigDecimal("500"))
@@ -134,7 +135,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
     }
 
     "must not set adjustmentReasonMandatory when under-declared and over-declared duty totals are each below £1000, even combined they would exceed it" in {
-      val oneRatePerMl: Map[String, DutyRate] = Map(october2027.toString -> DutyRate(100))
+      val oneRatePerMl: Map[PeriodKey, DutyRate] = Map(october2027 -> DutyRate(100))
       val adjustmentList = AdjustmentList(Seq(
         AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.UnderDeclared, volumeInMl = BigDecimal("800")),
         AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.OverDeclared, volumeInMl = BigDecimal("800"))
