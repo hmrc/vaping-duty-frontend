@@ -37,11 +37,11 @@ class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationServic
         .get // Safe because validation ensures there's always a rate
     )
 
-  def getDutyRateInPoundsPerMl(vpdId: VpdId, periodKey: PeriodKey)
-                              (using ec: ExecutionContext, hc: HeaderCarrier): Future[BigDecimal] =
+  def getDutyRate(vpdId: VpdId, periodKey: PeriodKey)
+                 (using ec: ExecutionContext, hc: HeaderCarrier): Future[DutyRate] =
 
     getDutyRateForPeriod(vpdId, periodKey).flatMap {
-      case Some(dutyRate) => Future.successful(dutyRate.dutyRateInPoundsPerMl)
+      case Some(dutyRate) => Future.successful(dutyRate)
       case None => Future.failed(RuntimeException("No duty rate found"))
     }
 

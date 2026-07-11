@@ -38,8 +38,8 @@ class EnterDutySuspenseFormProvider @Inject()(
   def apply(periodKey: PeriodKey, vpdId: VpdId)
            (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Form[DutySuspenseVolumes]] = {
 
-    dutyRateService.getDutyRateInPoundsPerMl(vpdId, periodKey).map { dutyRateInPoundsPer10ml =>
-      val dutyRateInPencePerMl = (dutyRateInPoundsPer10ml * 100).toInt
+    dutyRateService.getDutyRate(vpdId, periodKey).map { dutyRate =>
+      val dutyRateInPencePerMl = (dutyRate.dutyRateInPoundsPerMl * 100).toInt
       val maxVolumeResult = volumePrecisionService.calculateMaxVolume(dutyRateInPencePerMl)
 
       Form(

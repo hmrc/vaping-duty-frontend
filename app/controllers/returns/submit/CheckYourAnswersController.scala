@@ -44,8 +44,8 @@ class CheckYourAnswersController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     val pk = request.periodKey
     
-    dutyRateService.getDutyRateInPoundsPerMl(request.enrolmentVpdId, pk).map { dutyRateInPoundsPerMl =>
-      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRateInPoundsPerMl, pk, returnsDateUtils)))
+    dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
+      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRate.dutyRateInPoundsPerMl, pk, returnsDateUtils)))
     }
   }
 

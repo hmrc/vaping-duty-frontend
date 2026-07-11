@@ -40,7 +40,7 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
 
       val mockDutyRateService = mock[DutyRateService]
 
-      when(mockDutyRateService.getDutyRateInPoundsPerMl(any(), any())(using any(), any()))
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
 
       val application = applicationBuilder(returnsUserAnswers = Some(ua))
@@ -53,7 +53,7 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[DeclareDutyCheckAnswersView]
-        val vm = DeclareDutyCheckAnswersViewModel(ua, testDutyRate, periodKey)(messages(application)).get
+        val vm = DeclareDutyCheckAnswersViewModel(ua, testDutyRate.dutyRateInPoundsPerMl, periodKey)(messages(application)).get
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
@@ -64,7 +64,7 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
 
       val mockDutyRateService = mock[DutyRateService]
 
-      when(mockDutyRateService.getDutyRateInPoundsPerMl(any(), any())(using any(), any()))
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
@@ -85,7 +85,7 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
 
       val mockDutyRateService = mock[DutyRateService]
 
-      when(mockDutyRateService.getDutyRateInPoundsPerMl(any(), any())(using any(), any()))
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.failed(RuntimeException("No duty rate found")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))

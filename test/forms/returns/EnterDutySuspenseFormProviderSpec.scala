@@ -18,7 +18,7 @@ package forms.returns
 
 import base.SpecBase
 import models.identifiers.{PeriodKey, VpdId}
-import models.returns.{DutySuspenseVolumes, MaxVolumeResult}
+import models.returns.{DutyRate, DutySuspenseVolumes, MaxVolumeResult}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -35,12 +35,12 @@ class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
 
   private val testPeriodKey = PeriodKey("24KA")
   private val testVpdId = VpdId("VPDID123")
-  private val testDutyRate = BigDecimal("3.37")
+  private val testDutyRate = DutyRate(337)
   private val testMaxVolume = BigDecimal("29000000000")
   private val testFormattedMax = "29,000,000,000 ml"
 
   private def setupMocks(): Unit = {
-    when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+    when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
       .thenReturn(Future.successful(testDutyRate))
     when(mockVolumePrecisionService.calculateMaxVolume(any()))
       .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -139,7 +139,7 @@ class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
       }
 
       "must fail to bind values that exceed the calculated maximum" in {
-        when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
           .thenReturn(Future.successful(testDutyRate))
         when(mockVolumePrecisionService.calculateMaxVolume(337))
           .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -244,7 +244,7 @@ class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
       }
 
       "must fail to bind values that exceed the calculated maximum" in {
-        when(mockDutyRateService.getDutyRateInPoundsPerMl(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+        when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
           .thenReturn(Future.successful(testDutyRate))
         when(mockVolumePrecisionService.calculateMaxVolume(337))
           .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))

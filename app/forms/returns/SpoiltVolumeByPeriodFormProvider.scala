@@ -33,8 +33,8 @@ class SpoiltVolumeByPeriodFormProvider @Inject()(
   def apply(periodKey: PeriodKey, vpdId: VpdId)
            (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Form[BigDecimal]] = {
 
-    dutyRateService.getDutyRateInPoundsPerMl(vpdId, periodKey).map { dutyRateInPoundsPer10Ml =>
-      val dutyRateInPencePerMl = (dutyRateInPoundsPer10Ml * 100).toInt
+    dutyRateService.getDutyRate(vpdId, periodKey).map { dutyRate =>
+      val dutyRateInPencePerMl = (dutyRate.dutyRateInPoundsPerMl * 100).toInt
       val maxVolumeResult = volumePrecisionService.calculateMaxVolume(dutyRateInPencePerMl)
 
       Form(
