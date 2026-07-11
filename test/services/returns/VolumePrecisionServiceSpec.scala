@@ -82,6 +82,17 @@ class VolumePrecisionServiceSpec extends SpecBase {
       result.formattedForDisplay mustBe "450,000,000,000 ml"
     }
 
+    "must calculate and normalize max volume for a duty rate with the lowest digit non-zero in pence per ml" in {
+      // Duty rate: £0.22.5 per ml (225 pence per 10 ml)
+      // Max duty: £99,999,999,999.99
+      // Actual max volume: 99,999,999,999.99 / 0.225 = 444,444,444,444.40... → 444,444,444,444 (rounded down)
+      // Normalized: 440,000,000,000
+      val result = service.calculateMaxVolume(DutyRate(225))
+      
+      result.maxVolumeInMl mustBe BigDecimal("440000000000")
+      result.formattedForDisplay mustBe "440,000,000,000 ml"
+    }
+
     "must calculate and normalize max volume for a high duty rate" in {
       // Duty rate: £100 per ml (100,000 pence per 10 ml)
       // Max duty: £99,999,999,999.99

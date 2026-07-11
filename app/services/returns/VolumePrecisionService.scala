@@ -28,12 +28,10 @@ class VolumePrecisionService @Inject() {
   private val API_MAX_DUTY_DUE = BigDecimal("99999999999.99")
 
   def calculateMaxVolume(dutyRate: DutyRate): MaxVolumeResult = {
-    val dutyRateInPencePerMl = (dutyRate.dutyRateInPoundsPerMl * 100).toInt
-    val rateInPounds = BigDecimal(dutyRateInPencePerMl) / 100
-    val actualMaxVolume = (API_MAX_DUTY_DUE / rateInPounds)
+    val actualMaxVolumeMl = (API_MAX_DUTY_DUE / dutyRate.dutyRateInPoundsPerMl)
       .setScale(0, BigDecimal.RoundingMode.DOWN)
 
-    val normalizedMaxVolume = normalizeMaxVolume(actualMaxVolume)
+    val normalizedMaxVolume = normalizeMaxVolume(actualMaxVolumeMl)
 
     MaxVolumeResult(
       maxVolumeInMl = normalizedMaxVolume,
