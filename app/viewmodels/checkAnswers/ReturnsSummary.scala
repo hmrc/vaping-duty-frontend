@@ -76,9 +76,6 @@ object ReturnsSummary extends CurrencyFormatter {
     ))
   }
 
-  def calculateDuty(volumeInMl: BigDecimal, dutyRateInPoundsPerMl: BigDecimal): BigDecimal =
-    (volumeInMl * dutyRateInPoundsPerMl).setScale(2, BigDecimal.RoundingMode.DOWN)
-
   private def buildDutyRow(
                             answers: ReturnsUserAnswers,
                             dutyRate: DutyRate,

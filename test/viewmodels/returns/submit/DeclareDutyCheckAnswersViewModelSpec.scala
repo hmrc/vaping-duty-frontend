@@ -18,11 +18,12 @@ package viewmodels.returns.submit
 
 import base.SpecBase
 import models.NormalMode
+import models.returns.DutyRate
 import pages.returns.EnterDutyAmountPage
 
 class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
 
-  private val dutyRate = BigDecimal("2.20")
+  private val dutyRate = DutyRate(220)
   private val volumeInMl = BigDecimal(1000)
 
   "DeclareDutyCheckAnswersViewModel" - {
@@ -32,7 +33,7 @@ class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
       val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
 
       vm mustBe defined
-      vm.get.dutyDue mustBe "£2,200"
+      vm.get.dutyDue mustBe "£220"
     }
 
     "must handle zero volume" in {

@@ -53,7 +53,7 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[DeclareDutyCheckAnswersView]
-        val vm = DeclareDutyCheckAnswersViewModel(ua, testDutyRate.dutyRateInPoundsPerMl, periodKey)(messages(application)).get
+        val vm = DeclareDutyCheckAnswersViewModel(ua, testDutyRate, periodKey)(messages(application)).get
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString

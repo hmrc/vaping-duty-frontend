@@ -18,7 +18,7 @@ package viewmodels.returns.submit
 
 import models.NormalMode
 import models.identifiers.PeriodKey
-import models.returns.ReturnsUserAnswers
+import models.returns.{DutyRate, ReturnsUserAnswers}
 import pages.returns.EnterDutyAmountPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -38,13 +38,13 @@ object DeclareDutyCheckAnswersViewModel {
 
   private val ML_SUFFIX = " ml"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRateInPoundsPerMl: BigDecimal, periodKey: PeriodKey)
+  def apply(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate, periodKey: PeriodKey)
            (implicit messages: Messages): Option[DeclareDutyCheckAnswersViewModel] = {
     
     userAnswers.get(pages.returns.DeclareDutyPage).flatMap { declareDuty =>
       if (declareDuty) {
         userAnswers.get(EnterDutyAmountPage).map { volumeInMl =>
-          val dutyAmount = ReturnsSummary.calculateDuty(volumeInMl, dutyRateInPoundsPerMl)
+          val dutyAmount = dutyRate.calculateDuty(volumeInMl)
           DeclareDutyCheckAnswersViewModel(
             heading = messages("returns.declareDutyCheckAnswers.heading", ReturnsSummary.currencyFormat(dutyAmount)),
             volumeFormatted = Some(formatVolume(volumeInMl)),

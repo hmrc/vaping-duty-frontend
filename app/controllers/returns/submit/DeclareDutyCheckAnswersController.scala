@@ -43,7 +43,7 @@ class DeclareDutyCheckAnswersController @Inject()(
     val pk = request.periodKey
     
     dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
-      DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate.dutyRateInPoundsPerMl, pk) match {
+      DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk) match {
         case Some(vm) => Ok(view(pk, vm))
         case None     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
