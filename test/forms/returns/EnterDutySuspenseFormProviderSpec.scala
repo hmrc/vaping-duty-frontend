@@ -141,7 +141,7 @@ class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
       "must fail to bind values that exceed the calculated maximum" in {
         when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
           .thenReturn(Future.successful(testDutyRate))
-        when(mockVolumePrecisionService.calculateMaxVolume(337))
+        when(mockVolumePrecisionService.calculateMaxVolume(DutyRate(3370)))
           .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
 
         whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
@@ -246,7 +246,7 @@ class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
       "must fail to bind values that exceed the calculated maximum" in {
         when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
           .thenReturn(Future.successful(testDutyRate))
-        when(mockVolumePrecisionService.calculateMaxVolume(337))
+        when(mockVolumePrecisionService.calculateMaxVolume(DutyRate(337)))
           .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
 
         whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
