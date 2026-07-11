@@ -17,6 +17,7 @@
 package viewmodels.returns
 
 import base.SpecBase
+import models.returns.DutyRate
 import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage}
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.CheckYourAnswersViewModel
@@ -30,14 +31,14 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
     "must create view model with correct duty due" in {
       val userAnswers = returnsUserAnswers.set(EnterDutyAmountPage, BigDecimal(1000)).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate.dutyRateInPoundsPer10Ml, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate, periodKey, returnsDateUtils)
 
-      vm.dutyDue mustBe "£3,150"
+      vm.dutyDue mustBe "£315"
       vm.dutyRate mustBe "£3.15"
     }
 
     "must create view model with zero duty when no amount entered" in {
-      val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate.dutyRateInPoundsPer10Ml, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate, periodKey, returnsDateUtils)
 
       vm.dutyDue mustBe "£0"
       vm.dutyRate mustBe "£3.15"
@@ -49,7 +50,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
         .set(DeclareSpoiltProductsPage, false).success.value
         .set(DeclareDutySuspensePage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate.dutyRateInPoundsPer10Ml, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate, periodKey, returnsDateUtils)
 
       vm.nilReturn mustBe true
     }
@@ -60,7 +61,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
         .set(DeclareSpoiltProductsPage, false).success.value
         .set(DeclareDutySuspensePage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate.dutyRateInPoundsPer10Ml, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate, periodKey, returnsDateUtils)
 
       vm.nilReturn mustBe false
     }
@@ -71,7 +72,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
         .set(DeclareSpoiltProductsPage, true).success.value
         .set(DeclareDutySuspensePage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate.dutyRateInPoundsPer10Ml, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, testDutyRate, periodKey, returnsDateUtils)
 
       vm.nilReturn mustBe false
     }

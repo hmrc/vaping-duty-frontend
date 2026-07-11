@@ -17,7 +17,7 @@
 package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
-import models.returns.ReturnsUserAnswers
+import models.returns.{DutyRate, ReturnsUserAnswers}
 import pages.returns.{DeclareDutyPage, DeclareSpoiltProductsPage, EnterDutyAmountPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -44,7 +44,7 @@ object CheckYourAnswersViewModel {
 
   private val ZERO = "0"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRateInPoundsPer10Ml: BigDecimal, periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate, periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
     // scalafix:off DisableSyntax.throw
     val returnPeriod = userAnswers.returnPeriod
       .map(month => returnsDateUtils.getReturnMonth(month))
@@ -56,12 +56,12 @@ object CheckYourAnswersViewModel {
     val nilReturn = isNilReturn(userAnswers)
     
     CheckYourAnswersViewModel(
-      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRateInPoundsPer10Ml, periodKey),
+      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRate, periodKey),
       dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers, periodKey),
-      dutyDue = dutyDue(userAnswers, dutyRateInPoundsPer10Ml),
-      dutyRate = currencyFormat(dutyRateInPoundsPer10Ml),
+      dutyDue = dutyDue(userAnswers, dutyRate),
+      dutyRate = currencyFormat(dutyRate.dutyRateInPoundsPer10Ml),
       dutyRateParagraph = dutyRateParagraph(nilReturn),
-      dutyCalculationParagraph = dutyCalculationParagraph(dutyRateInPoundsPer10Ml),
+      dutyCalculationParagraph = dutyCalculationParagraph(dutyRate),
       nilReturn = nilReturn,
       returnPeriod = returnPeriod,
       year = year
@@ -75,9 +75,9 @@ object CheckYourAnswersViewModel {
     !declareDuty && !declareSpoilt
   }
 
-  private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal): String = {
+  private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate): String = {
     userAnswers.get(EnterDutyAmountPage) match {
-      case Some(volumeInMl)  => currencyFormat(ReturnsSummary.calculateDuty(volumeInMl, dutyRate))
+      case Some(volumeInMl)  => currencyFormat(dutyRate.calculateDuty(volumeInMl))
       case None              => currencyFormat(BigDecimal(ZERO))
     }
   }
@@ -92,8 +92,8 @@ object CheckYourAnswersViewModel {
     }
   }
 
-  private def dutyCalculationParagraph(dutyRate: BigDecimal)(implicit messages: Messages): HtmlFormat.Appendable = {
+  private def dutyCalculationParagraph(dutyRate: DutyRate)(implicit messages: Messages): HtmlFormat.Appendable = {
     val p = new Paragraph()
-    p(Seq(Text(messages("returns.CheckYourAnswers.dutyCalculation", currencyFormat(dutyRate * 10)))))
+    p(Seq(Text(messages("returns.CheckYourAnswers.dutyCalculation", currencyFormat(dutyRate.dutyRateInPoundsPer10Ml)))))
   }
 }

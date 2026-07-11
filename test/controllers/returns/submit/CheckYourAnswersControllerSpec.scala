@@ -52,7 +52,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[CheckYourAnswersView]
         val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
-        val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate.dutyRateInPoundsPerMl, periodKey, returnsDateUtils)(messages(application))
+        val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate, periodKey, returnsDateUtils)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString

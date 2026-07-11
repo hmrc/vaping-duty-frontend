@@ -45,7 +45,7 @@ class CheckYourAnswersController @Inject()(
     val pk = request.periodKey
     
     dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
-      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRate.dutyRateInPoundsPerMl, pk, returnsDateUtils)))
+      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRate, pk, returnsDateUtils)))
     }
   }
 

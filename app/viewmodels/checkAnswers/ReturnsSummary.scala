@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import models.CheckMode
 import models.identifiers.PeriodKey
-import models.returns.ReturnsUserAnswers
+import models.returns.{DutyRate, ReturnsUserAnswers}
 import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -31,16 +31,16 @@ object ReturnsSummary extends CurrencyFormatter {
 
   def summaryList(
                    answers: ReturnsUserAnswers,
-                   dutyRateInPoundsPerMl: BigDecimal,
+                   dutyRate: DutyRate,
                    periodKey: PeriodKey
   )(implicit messages: Messages): SummaryList = {
     val rows = Seq(
       buildDeclareDutyRow(answers, periodKey),
-      buildDutyRow(answers, dutyRateInPoundsPerMl, periodKey),
+      buildDutyRow(answers, dutyRate, periodKey),
       //      buildSpoiltRow(answers, periodKey),
       //      buildOverRow(answers, periodKey),
       //      buildUnderRow(answers, periodKey),
-      buildTotalDutyRow(answers, dutyRateInPoundsPerMl)
+      buildTotalDutyRow(answers, dutyRate)
     ).flatten
 
     SummaryList(rows = rows, classes = CssConstants.marginBottom9)
@@ -81,7 +81,7 @@ object ReturnsSummary extends CurrencyFormatter {
 
   private def buildDutyRow(
                             answers: ReturnsUserAnswers,
-                            dutyRateInPoundsPerMl: BigDecimal,
+                            dutyRate: DutyRate,
                             periodKey: PeriodKey
   )(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(DeclareDutyPage) match {
@@ -89,7 +89,7 @@ object ReturnsSummary extends CurrencyFormatter {
         answers.get(EnterDutyAmountPage) match {
           case Some(volumeInMl) if volumeInMl == 0 => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"), periodKey)
           case Some(volumeInMl) => 
-            val dutyDue = calculateDuty(volumeInMl, dutyRateInPoundsPerMl)
+            val dutyDue = dutyRate.calculateDuty(volumeInMl)
             dutyRow(currencyFormat(dutyDue), periodKey)
           case None => dutyRow(messages("returns.CheckYourAnswers.dutySummary.nothing"), periodKey)
         }
@@ -142,13 +142,13 @@ object ReturnsSummary extends CurrencyFormatter {
 
   private def buildTotalDutyRow(
                                  answers: ReturnsUserAnswers,
-                                 dutyRateInPoundsPerMl: BigDecimal
+                                 dutyRate: DutyRate
   )(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(DeclareDutyPage) match {
       case Some(true) =>
         answers.get(EnterDutyAmountPage) match {
           case Some(volumeInMl) => 
-            val dutyDue = calculateDuty(volumeInMl, dutyRateInPoundsPerMl)
+            val dutyDue = dutyRate.calculateDuty(volumeInMl)
             totalDutyRow(currencyFormat(dutyDue))
           case None => totalDutyRow(messages("returns.CheckYourAnswers.dutySummary.total.nil"))
         }
