@@ -63,7 +63,7 @@
     @formHelper(action = Call("POST", s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onSubmit(mode).url}?period=${periodKey.value}&adjustmentPeriod=${adjustmentPeriodKey.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form))
+            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("" -> "adjustmentType")))
         }
 
         @caption(messages("returns.adjustmentVolumeWithType.caption", vm.periodDisplay))
@@ -77,11 +77,13 @@
                 legend = LegendViewModel(messages("returns.adjustmentVolumeWithType.legend")).withCssClass(LegendSize.Medium.toString),
                 items = Seq(
                     RadioItem(
+                        id = Some("adjustmentType"),
                         content = Text(messages("returns.adjustmentVolumeWithType.overDeclared")),
                         value = Some("overDeclared"),
                         conditionalHtml = Some(overDeclaredInput)
                     ),
                     RadioItem(
+                        id = Some("adjustmentType-2"),
                         content = Text(messages("returns.adjustmentVolumeWithType.underDeclared")),
                         value = Some("underDeclared"),
                         conditionalHtml = Some(underDeclaredInput)

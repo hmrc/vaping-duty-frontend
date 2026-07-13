@@ -24,7 +24,7 @@ import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentTy
 import models.Mode
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.AdjustmentListPage
-import play.api.data.Form
+import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.{ObligationService, ReturnsUserAnswersService}
@@ -87,8 +87,9 @@ class AdjustmentVolumeWithTypeController @Inject()(
         obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap { obligationDetails =>
           form.bindFromRequest().fold(
             formWithErrors => {
+              val updatedForm = moveFormLevelErrorsToField(formWithErrors, "adjustmentType")
               val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, adjustmentPeriodKey, returnsDateUtils)
-              Future.successful(BadRequest(view(request.periodKey, adjustmentPeriodKey, formWithErrors, mode, vm)))
+              Future.successful(BadRequest(view(request.periodKey, adjustmentPeriodKey, updatedForm, mode, vm)))
             },
 
             formData => {
@@ -112,5 +113,15 @@ class AdjustmentVolumeWithTypeController @Inject()(
           )
         }
       }
+  }
+
+  private def moveFormLevelErrorsToField[T](form: Form[T], fieldName: String): Form[T] = {
+    val formLevelErrors = form.errors.filter(_.key.isEmpty)
+    if (formLevelErrors.nonEmpty) {
+      val fieldErrors = formLevelErrors.map(e => FormError(fieldName, e.message, e.args))
+      form.copy(errors = form.errors.filterNot(_.key.isEmpty) ++ fieldErrors)
+    } else {
+      form
+    }
   }
 }
