@@ -79,11 +79,11 @@ GET        /complete-return/adjustment/select-spoilt-period                     
 GET        /complete-return/adjustment/enter-spoilt-amount                                  controllers.returns.submit.spoilt.SpoiltVolumeByPeriodController.onPageLoad()
 POST       /complete-return/adjustment/enter-spoilt-amount                                  controllers.returns.submit.spoilt.SpoiltVolumeByPeriodController.onSubmit()
 
-GET        /complete-return/check-your-spoilt-products-answers                              controllers.returns.submit.spoilt.SpoiltCheckYourAnswersController.onPageLoad()
-POST       /complete-return/check-your-spoilt-products-answers                              controllers.returns.submit.spoilt.SpoiltCheckYourAnswersController.onSubmit()
+GET        /complete-return/adjustment/check-your-spoilt-products-answers                              controllers.returns.submit.spoilt.SpoiltCheckYourAnswersController.onPageLoad()
+POST       /complete-return/adjustment/check-your-spoilt-products-answers                              controllers.returns.submit.spoilt.SpoiltCheckYourAnswersController.onSubmit()
 
-GET        /complete-return/remove-spoilt-adjustment                                        controllers.returns.submit.spoilt.RemoveSpoiltAdjustmentController.onPageLoad()
-POST       /complete-return/remove-spoilt-adjustment                                        controllers.returns.submit.spoilt.RemoveSpoiltAdjustmentController.onSubmit()
+GET        /complete-return/adjustment/remove-spoilt-adjustment                                        controllers.returns.submit.spoilt.RemoveSpoiltAdjustmentController.onPageLoad()
+POST       /complete-return/adjustment/remove-spoilt-adjustment                                        controllers.returns.submit.spoilt.RemoveSpoiltAdjustmentController.onSubmit()
 
 GET        /complete-return/adjustment/declare-adjustments                                  controllers.returns.submit.adjustments.DeclareAdjustmentQuestionController.onPageLoad(mode: Mode = NormalMode)
 POST       /complete-return/adjustment/declare-adjustments                                  controllers.returns.submit.adjustments.DeclareAdjustmentQuestionController.onSubmit(mode: Mode = NormalMode)
