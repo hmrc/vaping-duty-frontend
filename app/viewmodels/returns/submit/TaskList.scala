@@ -18,6 +18,7 @@ package viewmodels.returns.submit
 
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import models.{NormalMode, TaskStatus}
+import pages.returns.SpoiltVolumeByPeriodPage
 import pages.returns.adjustments.AdjustmentListPage
 import play.api.i18n.Messages
 import play.api.mvc.Call
@@ -62,7 +63,7 @@ object TaskList {
         TaskRows(
           id = "declareAdjustments-task-1",
           linkText = messages("returns.taskList.declareAdjustments.task1"),
-          link = controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode),
+          link = determineSpoiltLink(userAnswers),
           status = TaskStatusService.declareSpoiltProductsTaskStatus(userAnswers),
           periodKey = Some(periodKey)
         ).toTaskListItem,
@@ -83,6 +84,15 @@ object TaskList {
         controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad()
       case _ =>
         controllers.returns.submit.adjustments.routes.DeclareAdjustmentQuestionController.onPageLoad(NormalMode)
+    }
+  }
+
+  private def determineSpoiltLink(userAnswers: ReturnsUserAnswers): Call = {
+    userAnswers.get(SpoiltVolumeByPeriodPage) match {
+      case Some(list) if list.nonEmpty =>
+        controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad()
+      case _ =>
+        controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode)
     }
   }
 
