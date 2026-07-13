@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-package forms.contactPreference
+package pages.returns.adjustments
 
-import javax.inject.Inject
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-import forms.mappings.Mappings
-import play.api.data.Form
+case object AdjustmentReasonPage extends QuestionPage[String] {
+  override def path: JsPath = JsPath \ toString
 
-class EnterEmailFormProvider @Inject() extends Mappings {
-
-  val EMAIL = "email"
-
-  def apply(): Form[String] =
-    Form(
-      EMAIL -> email(errorPrefix = "contactPreference.enterEmail.error.",
-                     maxEmailLength = 254)
-    )
+  override def toString: String = "adjustmentReason"
 }

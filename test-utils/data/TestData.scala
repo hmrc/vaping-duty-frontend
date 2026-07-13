@@ -334,7 +334,7 @@ trait TestData extends ObligationsBuilders {
                   returnPeriodAffected = "26AE",
                   taxType = "311",
                   dutyRate = BigDecimal("0.50"),
-                  amountOverDeclaration = BigDecimal("1000.00"),
+                  amountOverDeclared = BigDecimal("1000.00"),
                   dutyDue = BigDecimal("500.00")
                 )
               )
@@ -351,7 +351,7 @@ trait TestData extends ObligationsBuilders {
                   returnPeriodAffected = "26AD",
                   taxType = "312",
                   dutyRate = BigDecimal("0.75"),
-                  amountUnderDeclaration = BigDecimal("500.00"),
+                  amountUnderDeclared = BigDecimal("500.00"),
                   dutyDue = BigDecimal("375.00")
                 )
               )

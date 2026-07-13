@@ -56,7 +56,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         hasAdjustments = true,
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
-        hasAvailablePeriodsToAdd = true
+        hasAvailablePeriodsToAdd = true,
+        adjustmentReasonMandatory = false
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
@@ -89,7 +90,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         hasAdjustments = true,
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
-        hasAvailablePeriodsToAdd = true
+        hasAvailablePeriodsToAdd = true,
+        adjustmentReasonMandatory = false
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
@@ -147,7 +149,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         hasAdjustments = true,
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
-        hasAvailablePeriodsToAdd = true
+        hasAvailablePeriodsToAdd = true,
+        adjustmentReasonMandatory = false
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
@@ -187,7 +190,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         hasAdjustments = false,
         totalAdjustment = BigDecimal(0),
         formattedTotalAdjustment = "£0.00",
-        hasAvailablePeriodsToAdd = true
+        hasAvailablePeriodsToAdd = true,
+        adjustmentReasonMandatory = false
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
@@ -228,7 +232,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         hasAdjustments = true,
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
-        hasAvailablePeriodsToAdd = false
+        hasAvailablePeriodsToAdd = false,
+        adjustmentReasonMandatory = false
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
@@ -268,7 +273,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         hasAdjustments = true,
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
-        hasAvailablePeriodsToAdd = true
+        hasAvailablePeriodsToAdd = true,
+        adjustmentReasonMandatory = false
       )
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))

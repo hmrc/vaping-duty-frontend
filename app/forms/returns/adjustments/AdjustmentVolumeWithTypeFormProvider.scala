@@ -62,10 +62,10 @@ class AdjustmentVolumeWithTypeFormProvider @Inject() extends Mappings {
 }
 
 case class AdjustmentVolumeWithTypeFormData(
-  adjustmentType: AdjustmentType,
-  underDeclaredVolume: Option[BigDecimal],
-  overDeclaredVolume: Option[BigDecimal]
-) {
+                                             adjustmentType: AdjustmentType,
+                                             underDeclaredVolume: Option[BigDecimal],
+                                             overDeclaredVolume: Option[BigDecimal]
+                                           ) {
   def getVolume: BigDecimal = adjustmentType match {
     case AdjustmentType.UnderDeclared => underDeclaredVolume.getOrElse(BigDecimal(0))
     case AdjustmentType.OverDeclared => overDeclaredVolume.getOrElse(BigDecimal(0))

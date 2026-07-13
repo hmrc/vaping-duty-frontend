@@ -22,7 +22,7 @@ final case class UnderDeclarationProduct(
   returnPeriodAffected: String,
   taxType: String,
   dutyRate: BigDecimal,
-  amountUnderDeclaration: BigDecimal,
+  amountUnderDeclared: BigDecimal,
   dutyDue: BigDecimal
 )
 

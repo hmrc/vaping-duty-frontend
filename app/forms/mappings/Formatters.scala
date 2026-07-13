@@ -24,7 +24,7 @@ import scala.util.control.Exception.nonFatalCatch
 
 trait Formatters {
 
-  private[mappings] def stringFormatter(errorKey: String, args: Seq[String] = Seq.empty): Formatter[String] = new Formatter[String] {
+  private[mappings] def stringFormatterStrippingSpaces(errorKey: String, args: Seq[String] = Seq.empty): Formatter[String] = new Formatter[String] {
 
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
       data.get(key) match {
@@ -53,7 +53,7 @@ trait Formatters {
   private[mappings] def booleanFormatter(requiredKey: String, invalidKey: String, args: Seq[String] = Seq.empty): Formatter[Boolean] =
     new Formatter[Boolean] {
 
-      private val baseFormatter = stringFormatter(requiredKey, args)
+      private val baseFormatter = stringFormatterStrippingSpaces(requiredKey, args)
 
       override def bind(key: String, data: Map[String, String]) =
         baseFormatter
@@ -72,7 +72,7 @@ trait Formatters {
 
       val decimalRegexp = """^-?(\d*\.\d*)$"""
 
-      private val baseFormatter = stringFormatter(requiredKey, args)
+      private val baseFormatter = stringFormatterStrippingSpaces(requiredKey, args)
 
       override def bind(key: String, data: Map[String, String]) =
         baseFormatter
@@ -97,7 +97,7 @@ trait Formatters {
                                                args: Seq[String] = Seq.empty)(implicit ev: Enumerable[A]): Formatter[A] =
     new Formatter[A] {
 
-      private val baseFormatter = stringFormatter(requiredKey, args)
+      private val baseFormatter = stringFormatterStrippingSpaces(requiredKey, args)
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], A] =
         baseFormatter.bind(key, data).flatMap {
@@ -121,7 +121,7 @@ trait Formatters {
       val isNumeric = """(^£?\d*$)|(^£?\d*\.\d*$)"""
       val validDecimal = """(^£?\d*$)|(^£?\d*\.\d{1,2}$)"""
 
-      private val baseFormatter = stringFormatter(requiredKey, args)
+      private val baseFormatter = stringFormatterStrippingSpaces(requiredKey, args)
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
         baseFormatter
@@ -154,7 +154,7 @@ trait Formatters {
       val validFormat = """^\d+(\.\d*)?$"""
       val litre = 1000
 
-      private val baseFormatter = stringFormatter(requiredKey, args)
+      private val baseFormatter = stringFormatterStrippingSpaces(requiredKey, args)
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], BigDecimal] =
         baseFormatter

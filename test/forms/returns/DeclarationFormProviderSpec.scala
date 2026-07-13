@@ -235,7 +235,7 @@ class DeclarationFormProviderSpec extends FormSpec with Constraints {
           CAPACITY_FIELD -> "Director",
           EMAIL_FIELD -> "invalid-email"
         ))
-        result.errors must contain(FormError(EMAIL_FIELD, formatKey, Seq(emailRegex)))
+        result.errors must contain(FormError(EMAIL_FIELD, formatKey, Seq(validEmailRegex)))
       }
 
       "must bind valid email addresses with various formats" in {
@@ -269,7 +269,7 @@ class DeclarationFormProviderSpec extends FormSpec with Constraints {
             CAPACITY_FIELD -> "Director",
             EMAIL_FIELD -> email
           ))
-          result.errors must contain(FormError(EMAIL_FIELD, formatKey, Seq(emailRegex)))
+          result.errors must contain(FormError(EMAIL_FIELD, formatKey, Seq(validEmailRegex)))
         }
       }
     }

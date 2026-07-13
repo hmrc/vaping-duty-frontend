@@ -22,7 +22,7 @@ final case class OverDeclarationProduct(
   returnPeriodAffected: String,
   taxType: String,
   dutyRate: BigDecimal,
-  amountOverDeclaration: BigDecimal,
+  amountOverDeclared: BigDecimal,
   dutyDue: BigDecimal
 )
 

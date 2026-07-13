@@ -21,7 +21,6 @@ import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrie
 import forms.returns.DeclareDutyFormProvider
 import models.NormalMode
 import models.requests.returns.ReturnsDataRequest
-import models.returns.adjustments.AdjustmentList
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.data.Form
@@ -79,8 +78,8 @@ class AdjustmentCheckYourAnswersController @Inject()(
         .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId)
         .flatMap { vm =>
           declareAdjustment match {
-            case Some(false) => redirectToNextPageWithoutAddingAnother(request)
-            case _ if !vm.hasAvailablePeriodsToAdd => redirectToNextPageWithoutAddingAnother(request)
+            case Some(false) => redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory)
+            case _ if !vm.hasAvailablePeriodsToAdd => redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory)
             case _ =>
               form.bindFromRequest().fold(
                 formWithErrors =>
@@ -89,19 +88,26 @@ class AdjustmentCheckYourAnswersController @Inject()(
                 value =>
                   for {
                     updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
-                    _              <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
+                    _ <- sessionRepository.set(updatedAnswers)
+                  } yield Redirect(navigator.nextPage(
+                    AddAnotherAdjustmentPage,
+                    NormalMode,
+                    updatedAnswers,
+                    vm.adjustmentReasonMandatory
+                  ))
               )
           }
         }
   }
 
-  private def redirectToNextPageWithoutAddingAnother(request: ReturnsDataRequest[AnyContent])
-                                                    (using HeaderCarrier): Future[Result] = {
+  private def redirectToNextPageWithoutAddingAnother(
+                                                      request: ReturnsDataRequest[AnyContent],
+                                                      adjustmentReasonMandatory: Boolean
+                                                    )(using HeaderCarrier): Future[Result] = {
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, false))
-      _              <- sessionRepository.set(updatedAnswers)
-    } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers))
+      _ <- sessionRepository.set(updatedAnswers)
+    } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers, adjustmentReasonMandatory))
   }
 
 }

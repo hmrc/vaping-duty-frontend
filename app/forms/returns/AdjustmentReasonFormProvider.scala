@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package forms.contactPreference
-
-import javax.inject.Inject
+package forms.returns
 
 import forms.mappings.Mappings
 import play.api.data.Form
 
-class EnterEmailFormProvider @Inject() extends Mappings {
+import javax.inject.Inject
 
-  val EMAIL = "email"
+class AdjustmentReasonFormProvider @Inject() extends Mappings {
+
+  private val maxLength = 250
 
   def apply(): Form[String] =
     Form(
-      EMAIL -> email(errorPrefix = "contactPreference.enterEmail.error.",
-                     maxEmailLength = 254)
+      "adjustmentReason" -> textWithSpaces("returns.adjustmentReason.error.required")
+        .verifying(maxLength(maxLength, "returns.adjustmentReason.error.length"))
     )
 }

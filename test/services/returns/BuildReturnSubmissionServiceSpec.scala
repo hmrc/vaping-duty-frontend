@@ -22,11 +22,13 @@ import config.FrontendAppConfig
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.returns.*
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import models.returns.submit.ReturnCreateRequest
 import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.*
+import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage}
 
 import java.time.LocalDate
 
@@ -200,6 +202,61 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
         returnCreateRequest.totalDutyDue.totalDutyUnderDeclaration mustBe 0
         returnCreateRequest.totalDutyDue.totalDutyOverDeclaration mustBe 0
         returnCreateRequest.totalDutyDue.totalDue mustBe 10500
+      }
+
+      "must only save reasonForUnderDecl when only the under-declared duty total meets the £1000 threshold" in {
+        val adjustmentList = AdjustmentList(Seq(
+          AdjustmentEntry(periodKey, AdjustmentType.UnderDeclared, BigDecimal("1000")),
+          AdjustmentEntry(periodKey, AdjustmentType.OverDeclared, BigDecimal("500"))
+        ))
+
+        val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
+          .set(AdjustmentListPage, adjustmentList).success.value
+          .set(AdjustmentReasonPage, "a reason").success.value
+          .set(DeclarationPage, declaration).success.value
+
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(periodKey -> 100))
+
+        returnCreateRequest.underDeclaration.get.underDeclFilled mustBe yes
+        returnCreateRequest.underDeclaration.get.reasonForUnderDecl mustBe Some("a reason")
+        returnCreateRequest.overDeclaration.get.overDeclFilled mustBe yes
+        returnCreateRequest.overDeclaration.get.reasonForOverDecl mustBe None
+      }
+
+      "must save both reasons when both under-declared and over-declared duty totals meet the £1000 threshold" in {
+        val adjustmentList = AdjustmentList(Seq(
+          AdjustmentEntry(periodKey, AdjustmentType.UnderDeclared, BigDecimal("1000")),
+          AdjustmentEntry(periodKey, AdjustmentType.OverDeclared, BigDecimal("1000"))
+        ))
+
+        val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
+          .set(AdjustmentListPage, adjustmentList).success.value
+          .set(AdjustmentReasonPage, "a reason").success.value
+          .set(DeclarationPage, declaration).success.value
+
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(periodKey -> 100))
+
+        returnCreateRequest.underDeclaration.get.reasonForUnderDecl mustBe Some("a reason")
+        returnCreateRequest.overDeclaration.get.reasonForOverDecl mustBe Some("a reason")
+      }
+
+      "must save neither reason when neither type's duty total meets the £1000 threshold, even though both are filled" in {
+        val adjustmentList = AdjustmentList(Seq(
+          AdjustmentEntry(periodKey, AdjustmentType.UnderDeclared, BigDecimal("500")),
+          AdjustmentEntry(periodKey, AdjustmentType.OverDeclared, BigDecimal("500"))
+        ))
+
+        val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
+          .set(AdjustmentListPage, adjustmentList).success.value
+          .set(AdjustmentReasonPage, "a reason").success.value
+          .set(DeclarationPage, declaration).success.value
+
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(periodKey -> 100))
+
+        returnCreateRequest.underDeclaration.get.underDeclFilled mustBe yes
+        returnCreateRequest.underDeclaration.get.reasonForUnderDecl mustBe None
+        returnCreateRequest.overDeclaration.get.overDeclFilled mustBe yes
+        returnCreateRequest.overDeclaration.get.reasonForOverDecl mustBe None
       }
 
       "fail to build a return submission when declaration details are missing" in {

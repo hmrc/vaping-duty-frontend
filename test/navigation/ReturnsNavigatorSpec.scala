@@ -22,7 +22,7 @@ import models.*
 import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import pages.*
 import pages.returns.{AddSpoiltAdjustmentPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
-import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
+import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import play.api.libs.json.Json
 import play.api.mvc.Call
 
@@ -158,6 +158,26 @@ class ReturnsNavigatorSpec extends SpecBase {
         val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
 
         navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to AdjustmentReason when adjustmentReasonMandatory is true" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
+
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, adjustmentReasonMandatory = true)
+          .url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to TaskList when adjustmentReasonMandatory is false" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
+
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, adjustmentReasonMandatory = false)
+          .url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from AdjustmentReasonPage to TaskList" in {
+        val ua = returnsUserAnswers.set(AdjustmentReasonPage, "a reason").success.value
+
+        navigator.nextPage(AdjustmentReasonPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from AddAnotherAdjustmentPage to JourneyRecovery when there is no value present" in {

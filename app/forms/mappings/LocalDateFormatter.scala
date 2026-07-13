@@ -97,7 +97,7 @@ private[mappings] class LocalDateFormatter(
 
 private class MonthFormatter(invalidKey: String, args: Seq[String] = Seq.empty) extends Formatter[Int] with Formatters {
 
-  private val baseFormatter = stringFormatter(invalidKey, args)
+  private val baseFormatter = stringFormatterStrippingSpaces(invalidKey, args)
 
   override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Int] = {
 

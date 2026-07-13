@@ -46,4 +46,6 @@ object AdjustmentType extends Enumerable.Implicits {
   }
 
   implicit val format: Format[AdjustmentType] = Format(reads, writes)
+
+  val dutyThreshold: BigDecimal = BigDecimal("1000")
 }

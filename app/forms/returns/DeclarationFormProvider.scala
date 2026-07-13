@@ -35,13 +35,12 @@ class DeclarationFormProvider @Inject() extends Mappings {
         FULL_NAME -> textWithSpaces("returns.declaration.fullName.error.required")
           .verifying(maxLength(120, "returns.declaration.fullName.error.length"))
           .verifying(regexp("""^[a-zA-Z0-9\-\.\s']+$""", "returns.declaration.fullName.error.invalidCharacters")),
-        
+
         CAPACITY -> textWithSpaces("returns.declaration.capacity.error.required")
           .verifying(maxLength(100, "returns.declaration.capacity.error.length")),
-        
-        EMAIL -> text("returns.declaration.emailAddress.error.required")
-          .verifying(maxLength(132, "returns.declaration.emailAddress.error.length"))
-          .verifying(email("returns.declaration.emailAddress.error.format"))
+
+        EMAIL -> email(errorPrefix = "returns.declaration.emailAddress.error.", maxEmailLength = 132)
+
       )((fullName, capacityInWhichSigned, signeesEmailAddress) => 
         DeclarationDetails(fullName, capacityInWhichSigned, signeesEmailAddress))(o => Some((o.fullName, o.capacityInWhichSigned, o.signeesEmailAddress)))
     )

@@ -45,7 +45,7 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
 
     val testForm: Form[String] =
       Form(
-        "value" -> text()
+        "value" -> textStrippingSpaces()
       )
 
     "must bind a valid string" in {
@@ -69,7 +69,7 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
     }
 
     "must return a custom error message" in {
-      val form = Form("value" -> text("custom.error"))
+      val form = Form("value" -> textStrippingSpaces("custom.error"))
       val result = form.bind(Map("value" -> ""))
       result.errors must contain(FormError("value", "custom.error"))
     }

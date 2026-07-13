@@ -109,6 +109,47 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
       vm.summaryCards.size mustBe 1
       vm.summaryCards.head.rows.size mustBe 1
       vm.totalAdjustment mustBe BigDecimal("0")
+      vm.adjustmentReasonMandatory mustBe false
+    }
+
+    "must set adjustmentReasonMandatory when the under-declared duty total alone meets the £1000 threshold" in {
+      val oneRatePerMl: Map[String, BigDecimal] = Map(october2027.toString -> BigDecimal("1.00"))
+      val adjustmentList = AdjustmentList(Seq(
+        AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.UnderDeclared, volumeInMl = BigDecimal("1000")),
+        AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.OverDeclared, volumeInMl = BigDecimal("500"))
+      ))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+
+      val vm = AdjustmentCheckYourAnswersViewModel(
+        Some(true),
+        Some(adjustmentList),
+        obligationDetails,
+        periodKey,
+        oneRatePerMl,
+        returnsDateUtils
+      )
+
+      vm.adjustmentReasonMandatory mustBe true
+    }
+
+    "must not set adjustmentReasonMandatory when under-declared and over-declared duty totals are each below £1000, even combined they would exceed it" in {
+      val oneRatePerMl: Map[String, BigDecimal] = Map(october2027.toString -> BigDecimal("1.00"))
+      val adjustmentList = AdjustmentList(Seq(
+        AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.UnderDeclared, volumeInMl = BigDecimal("800")),
+        AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.OverDeclared, volumeInMl = BigDecimal("800"))
+      ))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+
+      val vm = AdjustmentCheckYourAnswersViewModel(
+        Some(true),
+        Some(adjustmentList),
+        obligationDetails,
+        periodKey,
+        oneRatePerMl,
+        returnsDateUtils
+      )
+
+      vm.adjustmentReasonMandatory mustBe false
     }
   }
 }

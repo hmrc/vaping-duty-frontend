@@ -253,6 +253,17 @@ returns.addSpoiltAdjustment.caption = Adjust spoilt vaping products
 returns.addSpoiltAdjustment.checkYourAnswersLabel = Add another spoilt adjustment
 returns.addSpoiltAdjustment.change.hidden = add another spoilt adjustment
 
+returns.adjustmentReason.title = Why did you make these adjustments?
+returns.adjustmentReason.heading = Why did you make these adjustments?
+returns.adjustmentReason.caption = Adjusted vaping products
+returns.adjustmentReason.p = Use the text input box to tell us about, for example:
+returns.adjustmentReason.list1 = inaccurate duty calculations
+returns.adjustmentReason.list2 = warehouse records that do not match goods going in or out records
+returns.adjustmentReason.list3 = volume of vaping liquid manufactured or released from warehouse is incorrect
+returns.adjustmentReason.label = Tell us your reasons for adjusting
+returns.adjustmentReason.error.required = Enter a reason for your adjustment
+returns.adjustmentReason.error.length = Reason for adjustment must be 250 characters or fewer
+
 returns.declareDutySuspense.title = Finished vaping products received or moved under duty suspension
 returns.declareDutySuspense.heading = Finished vaping products received or moved under duty suspension
 returns.declareDutySuspense.caption.text = Report duty suspended vaping products
