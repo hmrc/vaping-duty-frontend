@@ -91,10 +91,10 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad().url}?period=$periodKey"
       }
 
-      "must go from DeclareSpoiltProductsPage to TaskList when there are NO spoilt products to declare" in {
+      "must go from DeclareSpoiltProductsPage to SpoiltCheckYourAnswers when there are NO spoilt products to declare" in {
         val ua = returnsUserAnswers.set(DeclareSpoiltProductsPage, false).success.value
 
-        navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from DeclareSpoiltProductsPage to JourneyRecovery when there is no value present" in {
@@ -102,10 +102,10 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from SpoiltVolumeByPeriodPage to AddSpoiltAdjustmentPage when entering spoilt products" in {
+      "must go from SpoiltVolumeByPeriodPage to SpoiltCheckYourAnswersPage when entering spoilt products" in {
         val ua = returnsUserAnswers.set(SpoiltVolumeByPeriodPage, List(SpoiltVolumeByPeriod(1, periodKey))).success.value
 
-        navigator.nextPage(SpoiltVolumeByPeriodPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode).url}?period=$periodKey"
+        navigator.nextPage(SpoiltVolumeByPeriodPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from AddSpoiltAdjustmentPage to SelectSpoiltPeriod view when user has more spoilt adjustments to make" in {
