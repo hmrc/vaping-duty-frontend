@@ -58,9 +58,7 @@ class SpoiltCheckYourAnswersService @Inject()(
                                             obligationDetails: Seq[ObligationDetails]
                                           ): Map[String, BigDecimal] = {
 
-    val uniquePeriods = spoiltList
-      .map(_.map(_.periodKey).distinct)
-      .getOrElse(List.empty)
+    val uniquePeriods = spoiltList.getOrElse(List.empty).map(_.periodKey).distinct
 
     uniquePeriods.map { period =>
       val obligation = obligationDetails.find(_.periodKey == period.toString)

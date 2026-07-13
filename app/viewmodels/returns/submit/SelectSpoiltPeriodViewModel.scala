@@ -44,9 +44,7 @@ object SelectSpoiltPeriodViewModel {
     val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
       .filter(_.periodKey != currentReturnPeriod.toString)
 
-    val existingSpoiltPeriods = spoiltList
-      .map(_.map(_.periodKey.toString).toSet)
-      .getOrElse(Set.empty)
+    val existingSpoiltPeriods = spoiltList.getOrElse(List.empty).map(_.periodKey.toString).toSet
 
     val availableObligations = fulfilledObligations
       .filterNot(ob => existingSpoiltPeriods.contains(ob.periodKey))

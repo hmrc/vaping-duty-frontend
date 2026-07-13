@@ -21,6 +21,7 @@ import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrie
 import controllers.returns.PeriodKeyExtraction
 import forms.returns.RemoveSpoiltAdjustmentFormProvider
 import models.identifiers.PeriodKey
+import models.returns.ReturnsUserAnswers
 import pages.returns.{DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -31,6 +32,7 @@ import views.html.returns.submit.spoilt.RemoveSpoiltAdjustmentView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class RemoveSpoiltAdjustmentController @Inject()(
                                                   override val messagesApi: MessagesApi,
@@ -61,29 +63,31 @@ class RemoveSpoiltAdjustmentController @Inject()(
             Future.successful(BadRequest(view(request.periodKey, spoiltPeriod, formWithErrors))),
 
           confirmed =>
-            if (confirmed) {
-              val existingList = request.userAnswers.get(SpoiltVolumeByPeriodPage).getOrElse(List.empty)
-              val updatedList = existingList.filterNot(_.periodKey == spoiltPeriod)
+            val resultAnswers =
+              if (confirmed) {
+                for {
+                  updatedAnswers <- Future.fromTry(removeEntry(request.userAnswers, spoiltPeriod))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield updatedAnswers
+              } else {
+                Future.successful(request.userAnswers)
+              }
 
-              val updatedAnswersTry =
-                if (updatedList.isEmpty) request.userAnswers.set(DeclareSpoiltProductsPage, false)
-                else request.userAnswers.set(SpoiltVolumeByPeriodPage, updatedList)
-
-              for {
-                updatedAnswers <- Future.fromTry(updatedAnswersTry)
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(withPeriod(
+            resultAnswers.map { _ =>
+              Redirect(withPeriod(
                 controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url,
                 request.periodKey
               ))
-            } else {
-              Future.successful(Redirect(withPeriod(
-                controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url,
-                request.periodKey
-              )))
             }
         )
       }
+  }
+
+  private def removeEntry(userAnswers: ReturnsUserAnswers, spoiltPeriod: PeriodKey): Try[ReturnsUserAnswers] = {
+    val updatedList = userAnswers.get(SpoiltVolumeByPeriodPage).getOrElse(List.empty).filterNot(_.periodKey == spoiltPeriod)
+
+    if (updatedList.isEmpty) userAnswers.set(DeclareSpoiltProductsPage, false)
+    else userAnswers.set(SpoiltVolumeByPeriodPage, updatedList)
   }
 
   private def withPeriod(url: String, periodKey: PeriodKey): String = s"$url?period=${periodKey.value}"

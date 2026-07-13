@@ -60,7 +60,7 @@ object SpoiltCheckYourAnswersViewModel {
       calculateDuty(entry.volume, dutyRates.getOrElse(entry.periodKey.toString, BigDecimal(0)))
     }.sum
 
-    val hasAvailablePeriodsToAdd = calculateAvailablePeriods(obligationDetails, periodKey, spoiltList).nonEmpty
+    val hasAvailablePeriodsToAdd = calculateAvailablePeriods(obligationDetails, periodKey, spoiltEntries).nonEmpty
 
     SpoiltCheckYourAnswersViewModel(
       summaryCards = summaryCards,
@@ -74,14 +74,12 @@ object SpoiltCheckYourAnswersViewModel {
   private def calculateAvailablePeriods(
                                          obligationDetails: Seq[ObligationDetails],
                                          currentReturnPeriod: PeriodKey,
-                                         spoiltList: Option[List[SpoiltVolumeByPeriod]]
+                                         spoiltEntries: List[SpoiltVolumeByPeriod]
                                        ): Seq[ObligationDetails] = {
     val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
       .filter(_.periodKey != currentReturnPeriod.toString)
 
-    val existingSpoiltPeriods = spoiltList
-      .map(_.map(_.periodKey.toString).toSet)
-      .getOrElse(Set.empty)
+    val existingSpoiltPeriods = spoiltEntries.map(_.periodKey.toString).toSet
 
     fulfilledObligations
       .filterNot(ob => existingSpoiltPeriods.contains(ob.periodKey))
