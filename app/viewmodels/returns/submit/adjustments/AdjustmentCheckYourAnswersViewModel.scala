@@ -58,18 +58,13 @@ object AdjustmentCheckYourAnswersViewModel {
         }
     }
 
-    val totalAdjustment = adjustments.map { adjustment =>
-      val dutyAmount = dutyRates.get(adjustment.period).map(_.calculateDuty(adjustment.volumeInMl)).getOrElse(BigDecimal(0))
-      adjustment.adjustmentType match {
-        case AdjustmentType.OverDeclared => -dutyAmount
-        case AdjustmentType.UnderDeclared => dutyAmount
-      }
-    }.sum
-
     val hasAvailablePeriodsToAdd = calculateAvailablePeriods(obligationDetails, periodKey, adjustmentList).nonEmpty
 
     val underDeclaredDutyTotal = totalDutyForType(adjustments, AdjustmentType.UnderDeclared, dutyRates)
     val overDeclaredDutyTotal = totalDutyForType(adjustments, AdjustmentType.OverDeclared, dutyRates)
+
+    val totalAdjustment = underDeclaredDutyTotal - overDeclaredDutyTotal
+
     val adjustmentReasonMandatory = underDeclaredDutyTotal >= AdjustmentType.dutyThreshold || overDeclaredDutyTotal >= AdjustmentType.dutyThreshold
 
     AdjustmentCheckYourAnswersViewModel(
