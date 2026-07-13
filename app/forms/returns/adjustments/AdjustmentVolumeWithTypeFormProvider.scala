@@ -36,13 +36,13 @@ class AdjustmentVolumeWithTypeFormProvider @Inject() extends Mappings {
           "returns.adjustmentVolumeWithType.underDeclared.error.nonNumeric",
           "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.wholeOnly",
           "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.maxOne"
-        )),
+        ).verifying(greaterThanZero("returns.adjustmentVolumeWithType.underDeclared.error.mustBeGreaterThanZero"))),
         "overDeclaredVolume" -> optional(volume(
           "returns.adjustmentVolumeWithType.overDeclared.error.required",
           "returns.adjustmentVolumeWithType.overDeclared.error.nonNumeric",
           "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.wholeOnly",
           "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.maxOne"
-        ))
+        ).verifying(greaterThanZero("returns.adjustmentVolumeWithType.overDeclared.error.mustBeGreaterThanZero")))
       )(
         (adjustmentType, underDeclaredVolume, overDeclaredVolume) =>
           AdjustmentVolumeWithTypeFormData(adjustmentType, underDeclaredVolume, overDeclaredVolume)

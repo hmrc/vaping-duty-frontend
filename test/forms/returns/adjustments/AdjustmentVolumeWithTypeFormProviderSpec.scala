@@ -177,6 +177,22 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
       result.errors must contain(FormError("", "returns.adjustmentVolumeWithType.error.bothProvided"))
     }
 
+    "must not bind zero for under declared volume" in {
+      val result = form.bind(Map(
+        "adjustmentType" -> "underDeclared",
+        "underDeclaredVolume" -> "0"
+      ))
+      result.errors must contain(FormError("underDeclaredVolume", "returns.adjustmentVolumeWithType.underDeclared.error.mustBeGreaterThanZero"))
+    }
+
+    "must not bind zero for over declared volume" in {
+      val result = form.bind(Map(
+        "adjustmentType" -> "overDeclared",
+        "overDeclaredVolume" -> "0"
+      ))
+      result.errors must contain(FormError("overDeclaredVolume", "returns.adjustmentVolumeWithType.overDeclared.error.mustBeGreaterThanZero"))
+    }
+
     "must accept minimum valid volume of 1ml" in {
       Seq("1", "1.0").foreach { input =>
         val result = form.bind(Map(
