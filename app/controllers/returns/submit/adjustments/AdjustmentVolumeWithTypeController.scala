@@ -20,6 +20,7 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import controllers.returns.PeriodKeyExtraction
 import forms.returns.adjustments.{AdjustmentVolumeWithTypeFormData, AdjustmentVolumeWithTypeFormProvider}
+import models.returns.ReturnsConstants
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import models.Mode
 import navigation.ReturnsNavigator
@@ -85,23 +86,24 @@ class AdjustmentVolumeWithTypeController @Inject()(
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
         obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap { obligationDetails =>
-          form.bindFromRequest().fold(
+          val rawData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
+          val cleanedData = cleanFormData(rawData)
+
+          form.bind(cleanedData).fold(
             formWithErrors => {
-              val updatedForm = moveFormLevelErrorsToField(formWithErrors, "adjustmentType")
+              val updatedForm = prepareFormForDisplay(formWithErrors)
               val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, adjustmentPeriodKey, returnsDateUtils)
               Future.successful(BadRequest(view(request.periodKey, adjustmentPeriodKey, updatedForm, mode, vm)))
             },
 
             formData => {
-              val volume = formData.getVolume
               val newEntry = AdjustmentEntry(
                 period = adjustmentPeriodKey,
                 adjustmentType = formData.adjustmentType,
-                volumeInMl = volume
+                volumeInMl = formData.getVolume
               )
 
               val existingList = request.userAnswers.get(AdjustmentListPage).getOrElse(AdjustmentList.empty)
-
               val updatedAdjustments = existingList.adjustments.filterNot(_.period == adjustmentPeriodKey) :+ newEntry
               val updatedList = AdjustmentList(updatedAdjustments)
 
@@ -113,6 +115,43 @@ class AdjustmentVolumeWithTypeController @Inject()(
           )
         }
       }
+  }
+
+  private def cleanFormData(rawData: Map[String, Seq[String]]): Map[String, String] = {
+    val flattenedData = rawData.view.mapValues(_.head).toMap
+    flattenedData.get(ReturnsConstants.ADJUSTMENT_TYPE_FIELD) match {
+      case Some(AdjustmentType.UnderDeclared.toString) =>
+        flattenedData - ReturnsConstants.OVER_DECLARED_VOLUME_FIELD
+      case Some(AdjustmentType.OverDeclared.toString) =>
+        flattenedData - ReturnsConstants.UNDER_DECLARED_VOLUME_FIELD
+      case _ => flattenedData
+    }
+  }
+
+  private def prepareFormForDisplay(form: Form[AdjustmentVolumeWithTypeFormData]): Form[AdjustmentVolumeWithTypeFormData] = {
+    val cleanedForm = clearNonSelectedField(form)
+    moveFormLevelErrorsToField(cleanedForm, ReturnsConstants.ADJUSTMENT_TYPE_FIELD)
+  }
+
+  private def clearNonSelectedField(form: Form[AdjustmentVolumeWithTypeFormData]): Form[AdjustmentVolumeWithTypeFormData] = {
+    // Get the adjustment type from the form data
+    form.data.get(ReturnsConstants.ADJUSTMENT_TYPE_FIELD) match {
+      case Some(AdjustmentType.UnderDeclared.toString) =>
+        // Clear overDeclaredVolume from the form data and remove any errors for that field
+        form.copy(
+          data = form.data - ReturnsConstants.OVER_DECLARED_VOLUME_FIELD,
+          errors = form.errors.filterNot(_.key == ReturnsConstants.OVER_DECLARED_VOLUME_FIELD)
+        )
+      case Some(AdjustmentType.OverDeclared.toString) =>
+        // Clear underDeclaredVolume from the form data and remove any errors for that field
+        form.copy(
+          data = form.data - ReturnsConstants.UNDER_DECLARED_VOLUME_FIELD,
+          errors = form.errors.filterNot(_.key == ReturnsConstants.UNDER_DECLARED_VOLUME_FIELD)
+        )
+      case _ =>
+        // If no adjustment type is selected, return form as-is
+        form
+    }
   }
 
   private def moveFormLevelErrorsToField[T](form: Form[T], fieldName: String): Form[T] = {

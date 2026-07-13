@@ -135,6 +135,72 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
+    "must redirect to the next page when valid underDeclared data is submitted" in {
+      val mockObligationService = mock[ObligationService]
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+          .overrides(
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(mockObligationService)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, adjustmentVolumeWithTypeSubmitRoute)
+            .withFormUrlEncodedBody(
+              ("adjustmentType", "underDeclared"),
+              ("underDeclaredVolume", "100.5")
+            )
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must redirect to the next page when valid overDeclared data is submitted" in {
+      val mockObligationService = mock[ObligationService]
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+          .overrides(
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(mockObligationService)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, adjustmentVolumeWithTypeSubmitRoute)
+            .withFormUrlEncodedBody(
+              ("adjustmentType", "overDeclared"),
+              ("overDeclaredVolume", "200.7")
+            )
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
     "must return a Bad Request and errors when invalid data is submitted" in {
       val mockObligationService = mock[ObligationService]
       val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
@@ -157,6 +223,71 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
+    "must clear the non-selected field and its errors when form has errors" in {
+      val mockObligationService = mock[ObligationService]
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .build()
+
+      running(application) {
+        // Submit with underDeclared selected but invalid volume (zero), and a value in overDeclared field
+        val request =
+          FakeRequest(POST, adjustmentVolumeWithTypeSubmitRoute)
+            .withFormUrlEncodedBody(
+              ("adjustmentType", "underDeclared"),
+              ("underDeclaredVolume", "0"),
+              ("overDeclaredVolume", "200.7")
+            )
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        val content = contentAsString(result)
+        // The form should be re-displayed with the overDeclared field cleared
+        content must not include "200.7"
+        // The error summary should not contain errors for the cleared field
+        content must not include "overDeclaredVolume-error"
+      }
+    }
+
+    "must redirect to the next page when valid overDeclared data is submitted without underDeclared field" in {
+      val mockObligationService = mock[ObligationService]
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(
+          bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+          bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+          bind[ObligationService].toInstance(mockObligationService)
+        )
+        .build()
+
+      running(application) {
+        // Submit with overDeclared selected and only the relevant field
+        val request =
+          FakeRequest(POST, adjustmentVolumeWithTypeSubmitRoute)
+            .withFormUrlEncodedBody(
+              ("adjustmentType", "overDeclared"),
+              ("overDeclaredVolume", "200.7")
+            )
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
     "must redirect to Journey Recovery when no adjustment period is provided" in {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
@@ -167,6 +298,133 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "clearNonSelectedField" - {
+      "must clear overDeclaredVolume field and its errors when adjustmentType is underDeclared" in {
+        val mockObligationService = mock[ObligationService]
+        val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+
+        when(mockObligationService.getObligationsDirectly(any())(using any()))
+          .thenReturn(Future.successful(obligationDetails))
+
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .build()
+
+        running(application) {
+          // Submit with underDeclared selected and an invalid overDeclared value
+          val request =
+            FakeRequest(POST, adjustmentVolumeWithTypeSubmitRoute)
+              .withFormUrlEncodedBody(
+                ("adjustmentType", "underDeclared"),
+                ("underDeclaredVolume", "0"), // Invalid - will trigger error
+                ("overDeclaredVolume", "999.99") // Should be cleared
+              )
+
+          val result = route(application, request).value
+          val content = contentAsString(result)
+
+          status(result) mustEqual BAD_REQUEST
+          // The overDeclaredVolume value should be cleared from the form
+          content must not include "999.99"
+          // No errors should be shown for overDeclaredVolume field
+          content must not include "overDeclaredVolume-error"
+        }
+      }
+
+      "must clear underDeclaredVolume field and its errors when adjustmentType is overDeclared" in {
+        val mockObligationService = mock[ObligationService]
+        val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+
+        when(mockObligationService.getObligationsDirectly(any())(using any()))
+          .thenReturn(Future.successful(obligationDetails))
+
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .build()
+
+        running(application) {
+          // Submit with overDeclared selected and an invalid underDeclared value
+          val request =
+            FakeRequest(POST, adjustmentVolumeWithTypeSubmitRoute)
+              .withFormUrlEncodedBody(
+                ("adjustmentType", "overDeclared"),
+                ("underDeclaredVolume", "888.88"), // Should be cleared
+                ("overDeclaredVolume", "0") // Invalid - will trigger error
+              )
+
+          val result = route(application, request).value
+          val content = contentAsString(result)
+
+          status(result) mustEqual BAD_REQUEST
+          // The underDeclaredVolume value should be cleared from the form
+          content must not include "888.88"
+          // No errors should be shown for underDeclaredVolume field
+          content must not include "underDeclaredVolume-error"
+        }
+      }
+
+      "must return form unchanged when adjustmentType is not present" in {
+        val mockObligationService = mock[ObligationService]
+        val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+
+        when(mockObligationService.getObligationsDirectly(any())(using any()))
+          .thenReturn(Future.successful(obligationDetails))
+
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .build()
+
+        running(application) {
+          // Submit without adjustmentType
+          val request =
+            FakeRequest(POST, adjustmentVolumeWithTypeSubmitRoute)
+              .withFormUrlEncodedBody(
+                ("underDeclaredVolume", "100.5"),
+                ("overDeclaredVolume", "200.7")
+              )
+
+          val result = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          // Both values should still be present since no adjustmentType was selected
+          val content = contentAsString(result)
+          content must include("100.5")
+          content must include("200.7")
+        }
+      }
+
+      "must return form unchanged when adjustmentType is invalid" in {
+        val mockObligationService = mock[ObligationService]
+        val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+
+        when(mockObligationService.getObligationsDirectly(any())(using any()))
+          .thenReturn(Future.successful(obligationDetails))
+
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .build()
+
+        running(application) {
+          // Submit with an invalid adjustmentType value
+          val request =
+            FakeRequest(POST, adjustmentVolumeWithTypeSubmitRoute)
+              .withFormUrlEncodedBody(
+                ("adjustmentType", "invalidType"),
+                ("underDeclaredVolume", "100.5"),
+                ("overDeclaredVolume", "200.7")
+              )
+
+          val result = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          // Both values should still be present since adjustmentType was invalid
+          val content = contentAsString(result)
+          content must include("100.5")
+          content must include("200.7")
+        }
       }
     }
   }

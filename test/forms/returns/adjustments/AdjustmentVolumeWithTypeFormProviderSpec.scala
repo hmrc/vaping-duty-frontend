@@ -169,6 +169,7 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
   "form validation" - {
 
     "must fail when both volumes are provided" in {
+      // Note: The controller also clears the non-selected field as a defensive measure
       val result = form.bind(Map(
         "adjustmentType" -> "underDeclared",
         "underDeclaredVolume" -> "100.5",
