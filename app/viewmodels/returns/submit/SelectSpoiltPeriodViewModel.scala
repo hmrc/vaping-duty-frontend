@@ -18,6 +18,7 @@ package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
+import models.returns.SpoiltVolumeByPeriod
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
@@ -36,16 +37,25 @@ object SelectSpoiltPeriodViewModel {
     obligationDetails: Seq[ObligationDetails],
     selectedYear: Option[Int],
     currentReturnPeriod: PeriodKey,
+    spoiltList: Option[List[SpoiltVolumeByPeriod]],
     returnsDateUtils: ReturnsDateUtils
   )(implicit messages: Messages): SelectSpoiltPeriodViewModel = {
 
     val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
+      .filter(_.periodKey != currentReturnPeriod.toString)
 
-    val availableYears = PeriodSelectionHelper.extractAvailableYearsFromDetails(fulfilledObligations)
+    val existingSpoiltPeriods = spoiltList
+      .map(_.map(_.periodKey.toString).toSet)
+      .getOrElse(Set.empty)
+
+    val availableObligations = fulfilledObligations
+      .filterNot(ob => existingSpoiltPeriods.contains(ob.periodKey))
+
+    val availableYears = PeriodSelectionHelper.extractAvailableYearsFromDetails(availableObligations)
 
     val currentYear = PeriodSelectionHelper.selectCurrentYear(availableYears, selectedYear)
 
-    val obligationsForYear = PeriodSelectionHelper.filterObligationsByYearFromDetails(fulfilledObligations, currentYear)
+    val obligationsForYear = PeriodSelectionHelper.filterObligationsByYearFromDetails(availableObligations, currentYear)
 
     val taskListItems = obligationsForYear.map { obligation =>
       val month = obligation.iCFromDate.getMonthValue

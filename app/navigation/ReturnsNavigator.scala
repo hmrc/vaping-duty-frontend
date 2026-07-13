@@ -43,7 +43,7 @@ class ReturnsNavigator @Inject()(
     case EnterDutyAmountPage            => _   => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(), periodKey)
     case DeclareSpoiltProductsPage      => ua  => declareSpoiltProductsPageRoutes(ua, periodKey)
     case AddSpoiltAdjustmentPage        => ua  => addSpoiltAdjustmentPageRoutes(ua, periodKey)
-    case SpoiltVolumeByPeriodPage       => _   => withPeriod(controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode), periodKey)
+    case SpoiltVolumeByPeriodPage       => _   => withPeriod(controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareAdjustmentPage          => ua  => declareAdjustmentQuestionPageRoutes(ua, periodKey)
     case AdjustmentListPage             => _   => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(), periodKey)
     case AddAnotherAdjustmentPage       => ua  => addAnotherAdjustmentPageRoutes(ua, periodKey, adjustmentReasonMandatory)
@@ -94,7 +94,7 @@ class ReturnsNavigator @Inject()(
   private def declareSpoiltProductsPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(DeclareSpoiltProductsPage) match
       case Some(true)  => withPeriod(controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None), periodKey)
-      case Some(false) => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
+      case Some(false) => withPeriod(controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(), periodKey)
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 

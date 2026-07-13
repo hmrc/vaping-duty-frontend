@@ -18,6 +18,7 @@ package controllers.returns.submit.spoilt
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import pages.returns.SpoiltVolumeByPeriodPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ObligationService
@@ -45,7 +46,8 @@ class SelectSpoiltPeriodController @Inject()(
     (identify andThen returnsEnabledAction andThen getData andThen requireData).async { implicit request =>
 
       obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligationDetails =>
-        val viewModel = SelectSpoiltPeriodViewModel(obligationDetails, year, request.periodKey, returnsDateUtils)
+        val spoiltList = request.userAnswers.get(SpoiltVolumeByPeriodPage)
+        val viewModel = SelectSpoiltPeriodViewModel(obligationDetails, year, request.periodKey, spoiltList, returnsDateUtils)
         Ok(view(viewModel))
       }.recover {
         case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
