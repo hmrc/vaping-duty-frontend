@@ -468,7 +468,8 @@ returns.declareAdjustmentQuestion.p2 = You may be required to explain why these 
 returns.declareAdjustmentQuestion.details.summary = What ‘over-declared’ and ‘under-declared’ mean
 returns.declareAdjustmentQuestion.details.content.p1 = Over-declared means the quantity you declared is greater than the amount that was released.
 returns.declareAdjustmentQuestion.details.content.p2 = For example, you included a despatch twice or declared in the wrong period.
-returns.declareAdjustmentQuestion.details.content.p3 = Under-declared means you have declared less leaving the premises than has been released. For example, you missed a despatch from the accounting record.
+returns.declareAdjustmentQuestion.details.content.p3 = Under-declared means you have declared less leaving the premises than has been released.
+returns.declareAdjustmentQuestion.details.content.p4 = For example, you missed a despatch from the accounting record.
 returns.declareAdjustmentQuestion.question = Do you have any vaping products you need to over or under declare?
 
 returns.selectAdjustmentPeriod.title = When do you need to make this adjustment for?
