@@ -30,7 +30,7 @@ class DutyRateValidator @Inject()(clock: Clock) {
 
   def validatePositiveRates(rates: Seq[DutyRate]): Either[List[DutyRateValidationError], Seq[DutyRate]] = {
     val invalidRates = rates.collect {
-      case rate if rate.ratePencePerMl <= 0 => NegativeRate(rate)
+      case rate if rate.ratePencePer10Ml <= 0 => NegativeRate(rate)
     }
     invalidRates match {
       case Nil    => Right(rates)

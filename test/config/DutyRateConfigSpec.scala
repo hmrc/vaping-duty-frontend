@@ -41,12 +41,12 @@ class DutyRateConfigSpec extends SpecBase {
           |  {
           |    start-date = "2026-01-01"
           |    end-date = "2026-12-31"
-          |    rate-pence-per-ml = 22
+          |    rate-pence-per-10ml = 220
           |  },
           |  {
           |    start-date = "2027-01-01"
           |    end-date = "9999-12-31"
-          |    rate-pence-per-ml = 30
+          |    rate-pence-per-10ml = 300
           |  }
           |]
           |""".stripMargin)), validator)
@@ -54,8 +54,8 @@ class DutyRateConfigSpec extends SpecBase {
       config.rates must have size 2
       config.rates.head.period.start mustBe LocalDate.of(2026, 1, 1)
       config.rates.head.period.end mustBe LocalDate.of(2026, 12, 31)
-      config.rates.head.ratePencePerMl mustBe 22
-      config.rates(1).ratePencePerMl mustBe 30
+      config.rates.head.ratePencePer10Ml mustBe 220
+      config.rates(1).ratePencePer10Ml mustBe 300
     }
 
 
@@ -80,19 +80,19 @@ class DutyRateConfigSpec extends SpecBase {
             |  {
             |    start-date = "2026-01-01"
             |    end-date = "2026-12-31"
-            |    rate-pence-per-ml = 22
+            |    rate-pence-per-10ml = 220
             |  },
             |  {
             |    start-date = "2027-01-01"
             |    end-date = "9999-12-31"
-            |    rate-pence-per-ml = 30
+            |    rate-pence-per-10ml = 300
             |  }
             |]
             |""".stripMargin))
 
         parseRatesFromConfig(config) mustBe Seq(
-          DutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-12-31")), 22),
-          DutyRate(DateRange(LocalDate.parse("2027-01-01"), LocalDate.parse("9999-12-31")), 30)
+          DutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-12-31")), 220),
+          DutyRate(DateRange(LocalDate.parse("2027-01-01"), LocalDate.parse("9999-12-31")), 300)
         )
       }
 
@@ -103,20 +103,20 @@ class DutyRateConfigSpec extends SpecBase {
             |  {
             |    start-date = "2026-01-01"
             |    end-date = "2026-11-30"
-            |    rate-pence-per-ml = 22
+            |    rate-pence-per-10ml = 220
             |  },
             |  # Gap between Nov and Feb can be read but will fail later validation checks!
             |  {
             |    start-date = "2027-02-01"
             |    end-date = "9999-12-31"
-            |    rate-pence-per-ml = 30
+            |    rate-pence-per-10ml = 300
             |  }
             |]
             |""".stripMargin))
 
         parseRatesFromConfig(config) mustBe Seq(
-          DutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-11-30")), 22),
-          DutyRate(DateRange(LocalDate.parse("2027-02-01"), LocalDate.parse("9999-12-31")), 30)
+          DutyRate(DateRange(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-11-30")), 220),
+          DutyRate(DateRange(LocalDate.parse("2027-02-01"), LocalDate.parse("9999-12-31")), 300)
         )
       }
 
@@ -128,7 +128,7 @@ class DutyRateConfigSpec extends SpecBase {
             |    start-date = "2026-01-01"
             |    # The 31st Nov does not exist! 
             |    end-date = "2026-11-31"
-            |    rate-pence-per-ml = 22
+            |    rate-pence-per-10ml = 220
             |  }
             |]
             |""".stripMargin))
@@ -140,14 +140,14 @@ class DutyRateConfigSpec extends SpecBase {
         exception.getMessage must include("Text '2026-11-31' could not be parsed: Invalid date 'NOVEMBER 31'")
       }
 
-      "will fail to parse non-integer rate-pence-per-ml" in {
+      "will fail to parse non-integer rate-pence-per-10ml" in {
         val config = Configuration(ConfigFactory.parseString(
           """
             |duty-rates = [
             |  {
             |    start-date = "2026-01-01"
             |    end-date = "2026-11-30"
-            |    rate-pence-per-ml = 22.5
+            |    rate-pence-per-10ml = 220.5
             |  }
             |]
             |""".stripMargin))
@@ -156,7 +156,7 @@ class DutyRateConfigSpec extends SpecBase {
           parseRatesFromConfig(config)
         }
 
-        exception.getMessage must include("For input string: \"22.5\"")
+        exception.getMessage must include("For input string: \"220.5\"")
       }
 
       "will fail to parse non-numeric reate-pence-per-ml" in {
@@ -166,7 +166,7 @@ class DutyRateConfigSpec extends SpecBase {
             |  {
             |    start-date = "2026-01-01"
             |    end-date = "2026-11-30"
-            |    rate-pence-per-ml = "foo-bar"
+            |    rate-pence-per-10ml = "foo-bar"
             |  }
             |]
             |""".stripMargin))
@@ -185,7 +185,7 @@ class DutyRateConfigSpec extends SpecBase {
             |  {
             |    # start-date missing!
             |    end-date = "2026-11-31"
-            |    rate-pence-per-ml = 22
+            |    rate-pence-per-10ml = 220
             |  }
             |]
             |""".stripMargin))
@@ -204,7 +204,7 @@ class DutyRateConfigSpec extends SpecBase {
             |  {
             |    start-date = "2026-01-01"
             |    # end-date missing!
-            |    rate-pence-per-ml = 22
+            |    rate-pence-per-10ml = 220
             |  }
             |]
             |""".stripMargin))
@@ -216,14 +216,14 @@ class DutyRateConfigSpec extends SpecBase {
         exception.getMessage must include("No configuration setting found for key 'end-date'")
       }
 
-      "will fail to parse if the rate-pence-per-ml is missing" in {
+      "will fail to parse if the rate-pence-per-10ml is missing" in {
         val config = Configuration(ConfigFactory.parseString(
           """
             |duty-rates = [
             |  {
             |    start-date = "2026-01-01"
             |    end-date = "2026-11-30"
-            |    # rate-pence-per-ml missing!
+            |    # rate-pence-per-10ml missing!
             |  }
             |]
             |""".stripMargin))
@@ -232,7 +232,7 @@ class DutyRateConfigSpec extends SpecBase {
           parseRatesFromConfig(config)
         }
 
-        exception.getMessage must include("No configuration setting found for key 'rate-pence-per-ml'")
+        exception.getMessage must include("No configuration setting found for key 'rate-pence-per-10ml'")
       }
     }
 

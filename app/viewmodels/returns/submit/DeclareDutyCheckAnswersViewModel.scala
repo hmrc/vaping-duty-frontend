@@ -38,13 +38,13 @@ object DeclareDutyCheckAnswersViewModel {
 
   private val ML_SUFFIX = " ml"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: BigDecimal, periodKey: PeriodKey)
+  def apply(userAnswers: ReturnsUserAnswers, dutyRateInPoundsPerMl: BigDecimal, periodKey: PeriodKey)
            (implicit messages: Messages): Option[DeclareDutyCheckAnswersViewModel] = {
     
     userAnswers.get(pages.returns.DeclareDutyPage).flatMap { declareDuty =>
       if (declareDuty) {
         userAnswers.get(EnterDutyAmountPage).map { volumeInMl =>
-          val dutyAmount = ReturnsSummary.calculateDuty(volumeInMl, dutyRate)
+          val dutyAmount = ReturnsSummary.calculateDuty(volumeInMl, dutyRateInPoundsPerMl)
           DeclareDutyCheckAnswersViewModel(
             heading = messages("returns.declareDutyCheckAnswers.heading", ReturnsSummary.currencyFormat(dutyAmount)),
             volumeFormatted = Some(formatVolume(volumeInMl)),

@@ -31,7 +31,7 @@ class DutyRateValidatorSpec extends SpecBase {
       start = LocalDate.of(2026, 1, 1),
       end = LocalDate.of(2026, 12, 31)
     ),
-    ratePencePerMl = 22
+    ratePencePer10Ml = 220
   )
 
   private val validRate2 = DutyRate(
@@ -39,7 +39,7 @@ class DutyRateValidatorSpec extends SpecBase {
       start = LocalDate.of(2027, 1, 1),
       end = LocalDate.of(9999, 12, 31)
     ),
-    ratePencePerMl = 30
+    ratePencePer10Ml = 300
   )
 
   "validateNonEmpty" - {
@@ -72,7 +72,7 @@ class DutyRateValidatorSpec extends SpecBase {
     }
 
     "must return Left(NegativeRate) when a rate is zero" in {
-      val zeroRate = validRate1.copy(ratePencePerMl = 0)
+      val zeroRate = validRate1.copy(ratePencePer10Ml = 0)
       val rates = Seq(zeroRate)
 
       val result = validator.validatePositiveRates(rates)
@@ -81,7 +81,7 @@ class DutyRateValidatorSpec extends SpecBase {
     }
 
     "must return Left(NegativeRate) when a rate is negative" in {
-      val negativeRate = validRate1.copy(ratePencePerMl = -10)
+      val negativeRate = validRate1.copy(ratePencePer10Ml = -100)
       val rates = Seq(negativeRate)
 
       val result = validator.validatePositiveRates(rates)
@@ -90,8 +90,8 @@ class DutyRateValidatorSpec extends SpecBase {
     }
 
     "must return Left with all invalid rates when multiple rates are invalid" in {
-      val zeroRate = validRate1.copy(ratePencePerMl = 0)
-      val negativeRate = validRate2.copy(ratePencePerMl = -5)
+      val zeroRate = validRate1.copy(ratePencePer10Ml = 0)
+      val negativeRate = validRate2.copy(ratePencePer10Ml = -50)
       val rates = Seq(zeroRate, negativeRate)
 
       val result = validator.validatePositiveRates(rates)
@@ -261,7 +261,7 @@ class DutyRateValidatorSpec extends SpecBase {
           start = today.minusDays(10),
           end = today.plusDays(10)
         ),
-        ratePencePerMl = -5
+        ratePencePer10Ml = -50
       )
       val rates = Seq(invalidRate)
 
@@ -277,7 +277,7 @@ class DutyRateValidatorSpec extends SpecBase {
           start = today.plusDays(10),
           end = today.minusDays(10)
         ),
-        ratePencePerMl = 25
+        ratePencePer10Ml = 250
       )
       val rates = Seq(invalidRate)
 
@@ -332,7 +332,7 @@ class DutyRateValidatorSpec extends SpecBase {
           start = LocalDate.of(2026, 6, 1),
           end = LocalDate.of(2026, 6, 10)
         ),
-        ratePencePerMl = -5
+        ratePencePer10Ml = -50
       )
 
       val rate2 = validRate2.copy(
@@ -340,7 +340,7 @@ class DutyRateValidatorSpec extends SpecBase {
           start = LocalDate.of(2026, 6, 15),
           end = LocalDate.of(2026, 6, 12)
         ),
-        ratePencePerMl = 10
+        ratePencePer10Ml = 100
       )
 
       val rates = Seq(rate1, rate2)

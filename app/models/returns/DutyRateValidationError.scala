@@ -29,7 +29,7 @@ object DutyRateValidationError {
   }
 
   final case class NegativeRate(rate: DutyRate) extends DutyRateValidationError {
-    val message: String = s"Duty rate must be positive: ${rate.ratePencePerMl}"
+    val message: String = s"Duty rate must be positive: ${rate.ratePencePer10Ml}"
   }
 
   final case class InvalidDateRange(rate: DutyRate) extends DutyRateValidationError {

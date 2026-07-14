@@ -33,7 +33,7 @@ class DutyRateConfigValidationISpec extends AnyFreeSpec with Matchers {
       dutyRateConfig.rates must not be empty
       
       dutyRateConfig.rates.foreach { rate =>
-        rate.ratePencePerMl must be > 0
+        rate.ratePencePer10Ml must be > 0
       }
       
       dutyRateConfig.rates.foreach { rate =>
