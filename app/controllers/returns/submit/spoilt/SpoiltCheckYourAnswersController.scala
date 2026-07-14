@@ -22,7 +22,7 @@ import forms.returns.AddSpoiltAdjustmentFormProvider
 import models.NormalMode
 import models.requests.returns.ReturnsDataRequest
 import navigation.ReturnsNavigator
-import pages.returns.{AddSpoiltAdjustmentPage, DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
+import pages.returns.{SpoiltCheckYourAnswersPage, DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -59,7 +59,7 @@ class SpoiltCheckYourAnswersController @Inject()(
       spoiltCheckYourAnswersService
         .buildViewModel(declareSpoiltProducts, spoiltList, request.periodKey, request.enrolmentVpdId)
         .map { vm =>
-          val preparedForm = request.userAnswers.get(AddSpoiltAdjustmentPage) match {
+          val preparedForm = request.userAnswers.get(SpoiltCheckYourAnswersPage) match {
             case None => form
             case Some(value) => form.fill(value)
           }
@@ -74,33 +74,38 @@ class SpoiltCheckYourAnswersController @Inject()(
       val declareSpoiltProducts = request.userAnswers.get(DeclareSpoiltProductsPage)
       val spoiltList = request.userAnswers.get(SpoiltVolumeByPeriodPage)
 
-      spoiltCheckYourAnswersService
-        .buildViewModel(declareSpoiltProducts, spoiltList, request.periodKey, request.enrolmentVpdId)
-        .flatMap { vm =>
-          declareSpoiltProducts match {
-            case Some(false) => redirectToNextPageWithoutAddingAnother(request)
-            case _ if !vm.hasAvailablePeriodsToAdd => redirectToNextPageWithoutAddingAnother(request)
-            case _ =>
-              form.bindFromRequest().fold(
-                formWithErrors =>
-                  Future.successful(BadRequest(view(request.periodKey, vm, formWithErrors))),
+      declareSpoiltProducts match {
+        case Some(false) =>
+          redirectToNextPageWithoutAddingAnother(request)
+        case _ =>
+          spoiltCheckYourAnswersService
+            .hasAvailablePeriodsToAdd(spoiltList, request.periodKey, request.enrolmentVpdId)
+            .flatMap {
+              case false =>
+                redirectToNextPageWithoutAddingAnother(request)
+              case true =>
+                form.bindFromRequest().fold(
+                  formWithErrors =>
+                    spoiltCheckYourAnswersService
+                      .buildViewModel(declareSpoiltProducts, spoiltList, request.periodKey, request.enrolmentVpdId)
+                      .map(vm => BadRequest(view(request.periodKey, vm, formWithErrors))),
 
-                value =>
-                  for {
-                    updatedAnswers <- Future.fromTry(request.userAnswers.set(AddSpoiltAdjustmentPage, value))
-                    _              <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(navigator.nextPage(AddSpoiltAdjustmentPage, NormalMode, updatedAnswers))
-              )
-          }
-        }
+                  value =>
+                    for {
+                      updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltCheckYourAnswersPage, value))
+                      _              <- sessionRepository.set(updatedAnswers)
+                    } yield Redirect(navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, updatedAnswers))
+                )
+            }
+      }
   }
 
   private def redirectToNextPageWithoutAddingAnother(request: ReturnsDataRequest[AnyContent])
                                                     (using HeaderCarrier): Future[Result] = {
     for {
-      updatedAnswers <- Future.fromTry(request.userAnswers.set(AddSpoiltAdjustmentPage, false))
+      updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltCheckYourAnswersPage, false))
       _              <- sessionRepository.set(updatedAnswers)
-    } yield Redirect(navigator.nextPage(AddSpoiltAdjustmentPage, NormalMode, updatedAnswers))
+    } yield Redirect(navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, updatedAnswers))
   }
 
 }

@@ -23,7 +23,7 @@ import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.returns.{AddSpoiltAdjustmentPage, DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
+import pages.returns.{SpoiltCheckYourAnswersPage, DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -82,7 +82,7 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
       val testSpoiltList = List(SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = periodKey))
       val userAnswers = returnsUserAnswers
         .set(SpoiltVolumeByPeriodPage, testSpoiltList).success.value
-        .set(AddSpoiltAdjustmentPage, true).success.value
+        .set(SpoiltCheckYourAnswersPage, true).success.value
 
       val mockViewModel = SpoiltCheckYourAnswersViewModel(
         summaryCards = Seq.empty,
@@ -152,6 +152,8 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
+      when(mockService.hasAvailablePeriodsToAdd(any(), any(), any())(using any()))
+        .thenReturn(Future.successful(true))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
@@ -232,6 +234,8 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
+      when(mockService.hasAvailablePeriodsToAdd(any(), any(), any())(using any()))
+        .thenReturn(Future.successful(false))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
@@ -271,6 +275,8 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
+      when(mockService.hasAvailablePeriodsToAdd(any(), any(), any())(using any()))
+        .thenReturn(Future.successful(true))
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
         .overrides(

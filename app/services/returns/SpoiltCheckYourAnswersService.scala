@@ -53,6 +53,15 @@ class SpoiltCheckYourAnswersService @Inject()(
     }
   }
 
+  def hasAvailablePeriodsToAdd(
+                                spoiltList: Option[List[SpoiltVolumeByPeriod]],
+                                periodKey: PeriodKey,
+                                vpdId: VpdId
+                              )(using HeaderCarrier): Future[Boolean] =
+    obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
+      SpoiltCheckYourAnswersViewModel.hasAvailablePeriodsToAdd(obligationDetails, periodKey, spoiltList)
+    }
+
   private def getDutyRatesForSpoiltEntries(
                                             spoiltList: Option[List[SpoiltVolumeByPeriod]],
                                             obligationDetails: Seq[ObligationDetails]

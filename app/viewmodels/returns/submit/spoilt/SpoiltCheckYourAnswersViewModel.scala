@@ -60,16 +60,21 @@ object SpoiltCheckYourAnswersViewModel {
       calculateDuty(entry.volume, dutyRates.getOrElse(entry.periodKey.toString, BigDecimal(0)))
     }.sum
 
-    val hasAvailablePeriodsToAdd = calculateAvailablePeriods(obligationDetails, periodKey, spoiltEntries).nonEmpty
-
     SpoiltCheckYourAnswersViewModel(
       summaryCards = summaryCards,
       hasSpoiltProducts = spoiltEntries.nonEmpty,
       totalSpoiltDuty = totalSpoiltDuty,
       formattedTotalSpoiltDuty = CurrencyFormatter.currencyFormat(totalSpoiltDuty),
-      hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd
+      hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd(obligationDetails, periodKey, spoiltList)
     )
   }
+
+  def hasAvailablePeriodsToAdd(
+                                obligationDetails: Seq[ObligationDetails],
+                                periodKey: PeriodKey,
+                                spoiltList: Option[List[SpoiltVolumeByPeriod]]
+                              ): Boolean =
+    calculateAvailablePeriods(obligationDetails, periodKey, spoiltList.getOrElse(List.empty)).nonEmpty
 
   private def calculateAvailablePeriods(
                                          obligationDetails: Seq[ObligationDetails],

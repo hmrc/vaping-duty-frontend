@@ -153,4 +153,33 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
       exception.getMessage must include("No obligation found for period 24ZZ")
     }
   }
+
+  "hasAvailablePeriodsToAdd" - {
+
+    "must return true when a fulfilled period has not yet been declared as spoilt" in {
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(Seq(fulfilledObligation(spoiltPeriodKey))))
+
+      val result = service.hasAvailablePeriodsToAdd(
+        spoiltList = None,
+        periodKey = periodKey,
+        vpdId = vpdId
+      ).futureValue
+
+      result mustBe true
+    }
+
+    "must return false when every fulfilled period has already been declared as spoilt" in {
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(Seq(fulfilledObligation(spoiltPeriodKey))))
+
+      val result = service.hasAvailablePeriodsToAdd(
+        spoiltList = Some(List(SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = spoiltPeriodKey))),
+        periodKey = periodKey,
+        vpdId = vpdId
+      ).futureValue
+
+      result mustBe false
+    }
+  }
 }
