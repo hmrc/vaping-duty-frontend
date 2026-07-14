@@ -29,6 +29,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ReturnsUserAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.spoilt.RemoveSpoiltAdjustmentView
+import models.returns.ReturnsConstants
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -50,14 +51,14 @@ class RemoveSpoiltAdjustmentController @Inject()(
 
   def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-      withPeriodKey("spoiltPeriod") { spoiltPeriod =>
+      withPeriodKey(ReturnsConstants.QUERY_PARAM_SPOILT_PERIOD) { spoiltPeriod =>
         Future.successful(Ok(view(request.periodKey, spoiltPeriod, form)))
       }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-      withPeriodKey("spoiltPeriod") { spoiltPeriod =>
+      withPeriodKey(ReturnsConstants.QUERY_PARAM_SPOILT_PERIOD) { spoiltPeriod =>
         form.bindFromRequest().fold(
           formWithErrors =>
             Future.successful(BadRequest(view(request.periodKey, spoiltPeriod, formWithErrors))),

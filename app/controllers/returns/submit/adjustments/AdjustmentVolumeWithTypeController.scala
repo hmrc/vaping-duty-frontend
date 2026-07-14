@@ -32,6 +32,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.adjustments.AdjustmentVolumeWithTypeViewModel
 import views.html.returns.submit.adjustments.AdjustmentVolumeWithTypeView
+import models.returns.ReturnsConstants
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -56,7 +57,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
-      withPeriodKey("adjustmentPeriod") { adjustmentPeriodKey =>
+      withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
         obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligationDetails =>
 
           val existingAdjustment = request.userAnswers.get(AdjustmentListPage)
@@ -82,7 +83,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
-      withPeriodKey("adjustmentPeriod") { adjustmentPeriodKey =>
+      withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
         obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap { obligationDetails =>
           form.bindFromRequest().fold(
             formWithErrors => {
