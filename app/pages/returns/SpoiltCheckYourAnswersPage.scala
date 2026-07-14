@@ -19,7 +19,7 @@ package pages.returns
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object AddSpoiltAdjustmentPage extends QuestionPage[Boolean] {
+case object SpoiltCheckYourAnswersPage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ toString
 
