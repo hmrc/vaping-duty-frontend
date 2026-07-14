@@ -42,13 +42,13 @@ class SubmitReturnService @Inject()(
 
     for {
       obligations <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
-      periodKeyToDutyRateInPencePer10Ml = dutyRateService.getDutyRatesInPencePer10MlForPeriodKeys(obligations)
+      periodKeyToDutyRate = dutyRateService.getDutyRatesForPeriodKeys(obligations)
       obligationOpt = obligations.find(_.periodKey == request.periodKey.toString)
       obligation <- obligationOpt match {
         case Some(obl) => Future.successful(obl)
         case None => Future.failed(new IllegalStateException(s"No obligation found for period key: ${ua.periodKey}"))
       }
-      submission = buildReturnSubmissionService.buildSubmission(ua, obligation, request.enrolmentVpdId, periodKeyToDutyRateInPencePer10Ml)
+      submission = buildReturnSubmissionService.buildSubmission(ua, obligation, request.enrolmentVpdId, periodKeyToDutyRate)
       result <- submitReturnConnector.submitReturn(submission, request.enrolmentVpdId)
     } yield {
       auditService.auditReturnSubmitted(

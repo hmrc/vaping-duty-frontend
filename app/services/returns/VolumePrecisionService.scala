@@ -17,7 +17,7 @@
 package services.returns
 
 import com.google.inject.{Inject, Singleton}
-import models.returns.MaxVolumeResult
+import models.returns.{DutyRate, MaxVolumeResult}
 
 import java.text.NumberFormat
 import java.util.Locale
@@ -25,14 +25,12 @@ import java.util.Locale
 @Singleton
 class VolumePrecisionService @Inject() {
 
-  private val API_MAX_DUTY_DUE = BigDecimal("99999999999.99")
+  private val API_MAX_DUTY_DUE_IN_POUNDS = BigDecimal("99999999999.99")
 
-  def calculateMaxVolume(dutyRateInPencePerMl: Int): MaxVolumeResult = {
-    val rateInPounds = BigDecimal(dutyRateInPencePerMl) / 100
-    val actualMaxVolume = (API_MAX_DUTY_DUE / rateInPounds)
-      .setScale(0, BigDecimal.RoundingMode.DOWN)
+  def calculateMaxVolume(dutyRate: DutyRate): MaxVolumeResult = {
+    val actualMaxVolumeMl = dutyRate.volumeForDutyInMl(API_MAX_DUTY_DUE_IN_POUNDS)
 
-    val normalizedMaxVolume = normalizeMaxVolume(actualMaxVolume)
+    val normalizedMaxVolume = normalizeMaxVolume(actualMaxVolumeMl)
 
     MaxVolumeResult(
       maxVolumeInMl = normalizedMaxVolume,

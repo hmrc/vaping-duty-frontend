@@ -19,6 +19,7 @@ package viewmodels.returns.submit.adjustments
 import models.NormalMode
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
+import models.returns.DutyRate
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
@@ -42,7 +43,7 @@ object AdjustmentCheckYourAnswersViewModel {
              adjustmentList: Option[AdjustmentList],
              obligationDetails: Seq[ObligationDetails],
              periodKey: PeriodKey,
-             dutyRates: Map[String, BigDecimal],
+             dutyRates: Map[PeriodKey, DutyRate],
              returnsDateUtils: ReturnsDateUtils
            )(implicit messages: Messages): AdjustmentCheckYourAnswersViewModel = {
 
@@ -57,18 +58,13 @@ object AdjustmentCheckYourAnswersViewModel {
         }
     }
 
-    val totalAdjustment = adjustments.map { adjustment =>
-      val dutyAmount = calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0)))
-      adjustment.adjustmentType match {
-        case AdjustmentType.OverDeclared => -dutyAmount
-        case AdjustmentType.UnderDeclared => dutyAmount
-      }
-    }.sum
-
     val hasAvailablePeriodsToAdd = calculateAvailablePeriods(obligationDetails, periodKey, adjustmentList).nonEmpty
 
     val underDeclaredDutyTotal = totalDutyForType(adjustments, AdjustmentType.UnderDeclared, dutyRates)
     val overDeclaredDutyTotal = totalDutyForType(adjustments, AdjustmentType.OverDeclared, dutyRates)
+
+    val totalAdjustment = underDeclaredDutyTotal - overDeclaredDutyTotal
+
     val adjustmentReasonMandatory = underDeclaredDutyTotal >= AdjustmentType.dutyThreshold || overDeclaredDutyTotal >= AdjustmentType.dutyThreshold
 
     AdjustmentCheckYourAnswersViewModel(
@@ -84,11 +80,11 @@ object AdjustmentCheckYourAnswersViewModel {
   private def totalDutyForType(
                                 adjustments: Seq[AdjustmentEntry],
                                 adjustmentType: AdjustmentType,
-                                dutyRates: Map[String, BigDecimal]
+                                dutyRates: Map[PeriodKey, DutyRate]
                               ): BigDecimal =
     adjustments
       .filter(_.adjustmentType == adjustmentType)
-      .map(adjustment => calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0))))
+      .map(adjustment => dutyRates.get(adjustment.period).map(_.calculateDuty(adjustment.volumeInMl)).getOrElse(BigDecimal(0)))
       .sum
 
   private def calculateAvailablePeriods(
@@ -118,12 +114,12 @@ object AdjustmentCheckYourAnswersViewModel {
                                 adjustment: AdjustmentEntry,
                                 obligationDetails: Seq[ObligationDetails],
                                 currentPeriodKey: PeriodKey,
-                                dutyRates: Map[String, BigDecimal],
+                                dutyRates: Map[PeriodKey, DutyRate],
                                 returnsDateUtils: ReturnsDateUtils
                               )(implicit messages: Messages): AdjustmentSummaryCard = {
 
     val periodDisplay = formatPeriod(adjustment.period, obligationDetails, returnsDateUtils)
-    val dutyAmount = calculateDuty(adjustment.volumeInMl, dutyRates.getOrElse(adjustment.period.toString, BigDecimal(0)))
+    val dutyAmount = dutyRates.get(adjustment.period).map(_.calculateDuty(adjustment.volumeInMl)).getOrElse(BigDecimal(0))
 
     val rows = Seq(
       buildDeclareAdjustmentRow(currentPeriodKey, declaredAdjustment = true),
@@ -231,7 +227,4 @@ object AdjustmentCheckYourAnswersViewModel {
     returnsDateUtils.formatPeriodDisplay(periodKey, obligationDetails)
   }
 
-  private def calculateDuty(volumeInMl: BigDecimal, dutyRate: BigDecimal): BigDecimal = {
-    (volumeInMl * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
-  }
 }

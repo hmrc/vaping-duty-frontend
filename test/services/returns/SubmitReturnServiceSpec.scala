@@ -58,7 +58,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
   private val vpdId = VpdId("GBWK1234567WK")
   private val periodKey = PeriodKey("24KA")
-  private val dutyRateInPence = 1050
   private val taxType = "641"
 
   private val obligation = ObligationDetails(
@@ -95,8 +94,8 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    when(mockDutyRateService.getDutyRatesInPencePer10MlForPeriodKeys(Seq(obligation)))
-      .thenReturn(Map(PeriodKey(obligation.periodKey) -> dutyRateInPence))
+    when(mockDutyRateService.getDutyRatesForPeriodKeys(Seq(obligation)))
+      .thenReturn(Map(PeriodKey(obligation.periodKey) -> DutyRate(1050)))
     reset(mockAuditService)
     reset(mockSubmitReturnConnector)
   }
@@ -134,7 +133,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
         stubManufacturersObligations(vpdId, Seq(obligation))
-        when(mockBuildReturnSubmissionService.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> dutyRateInPence)))
+        when(mockBuildReturnSubmissionService.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(1050))))
           .thenReturn(nonNilReturnCreatedRequest)
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
           .thenReturn(Future.successful(submittedResponse))

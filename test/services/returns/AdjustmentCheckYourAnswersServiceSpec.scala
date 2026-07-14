@@ -20,6 +20,7 @@ import base.SpecBase
 import builders.ObligationsBuilders
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
+import models.returns.DutyRate
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
@@ -50,7 +51,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     openObligation(periodKey)
   )
 
-  private val DUTY_RATE_PENCE_PER_10ML = 1000
+  private val DUTY_RATE_PENCE_PER_10ML = DutyRate(1000)
 
   implicit val messages: Messages = stubMessages()
 
@@ -68,7 +69,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForAdjustment)))
-      when(mockDutyRateService.getRateForDateInPencePer10ml(any()))
+      when(mockDutyRateService.getDutyRateForDate(any()))
         .thenReturn(DUTY_RATE_PENCE_PER_10ML)
 
       val result = service.buildViewModel(
@@ -119,7 +120,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForAdjustment1, obligationForAdjustment2)))
-      when(mockDutyRateService.getRateForDateInPencePer10ml(any()))
+      when(mockDutyRateService.getDutyRateForDate(any()))
         .thenReturn(DUTY_RATE_PENCE_PER_10ML)
 
       val result = service.buildViewModel(

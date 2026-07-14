@@ -24,7 +24,7 @@ import models.obligations.{ObligationDetails, ObligationItem, ObligationsRespons
 import models.payments.OutstandingPayment
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
-import models.returns.{DeclarationDetails, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
+import models.returns.{DeclarationDetails, DutyRate, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
@@ -40,11 +40,11 @@ trait TestData extends ObligationsBuilders {
   val periodKey = PeriodKey("26AF")
   val ukTimeZoneStringId = "Europe/London"
   val clock: Clock = Clock.fixed(LocalDateTime.parse("2026-02-12T11:13:06").toInstant(ZoneOffset.UTC), ZoneId.of(ukTimeZoneStringId))
-  val testDutyRate = BigDecimal("3.15")
+  val testDutyRate = DutyRate(315)
 
   val sampleRegularReturn: models.returns.RegularReturn = models.returns.RegularReturn(
     taxType = "351",
-    dutyRate = testDutyRate,
+    dutyRate = testDutyRate.dutyRateInPoundsPer10Ml,
     amountProducedLiquid = BigDecimal("1000"),
     dutyDue = BigDecimal("3150")
   )

@@ -79,7 +79,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
           .set(DeclarationPage, declaration).success.value
 
-        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> 10500))
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(10500)))
         
         returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe yes
         returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
@@ -109,7 +109,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
           .set(DeclarationPage, declaration).success.value
 
 
-        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> 1050))
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(1050)))
 
         returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe no
         returnCreateRequest.vapingProductsProduced.returns.size mustBe 0
@@ -144,7 +144,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
           .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
           .set(DeclarationPage, declaration).success.value
 
-        val returnCreateRequest = service.buildSubmission(userAnswers, openObligation(december2026), vpdId, Map(october2026 -> 10500, november2026 -> 10500, december2026 -> 10500))
+        val returnCreateRequest = service.buildSubmission(userAnswers, openObligation(december2026), vpdId, Map(october2026 -> DutyRate(10500), november2026 -> DutyRate(10500), december2026 -> DutyRate(10500)))
 
         returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe yes
         returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
@@ -178,7 +178,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
           .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
           .set(DeclarationPage, declaration).success.value
 
-        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> 10500))
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(10500)))
 
         returnCreateRequest.vapingProductsProduced.vapingProdManufactured mustBe yes
         returnCreateRequest.vapingProductsProduced.returns.size mustBe 1
@@ -215,7 +215,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
           .set(AdjustmentReasonPage, "a reason").success.value
           .set(DeclarationPage, declaration).success.value
 
-        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(periodKey -> 1000))
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(periodKey -> DutyRate(1000)))
 
         returnCreateRequest.underDeclaration.get.underDeclFilled mustBe yes
         returnCreateRequest.underDeclaration.get.reasonForUnderDecl mustBe Some("a reason")
@@ -234,7 +234,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
           .set(AdjustmentReasonPage, "a reason").success.value
           .set(DeclarationPage, declaration).success.value
 
-        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(periodKey -> 1000))
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(periodKey -> DutyRate(1000)))
 
         returnCreateRequest.underDeclaration.get.reasonForUnderDecl mustBe Some("a reason")
         returnCreateRequest.overDeclaration.get.reasonForOverDecl mustBe Some("a reason")
@@ -251,7 +251,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
           .set(AdjustmentReasonPage, "a reason").success.value
           .set(DeclarationPage, declaration).success.value
 
-        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(periodKey -> 100))
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(periodKey -> DutyRate(100)))
 
         returnCreateRequest.underDeclaration.get.underDeclFilled mustBe yes
         returnCreateRequest.underDeclaration.get.reasonForUnderDecl mustBe None
@@ -265,7 +265,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
 
         val exception = intercept[IllegalStateException] {
-          service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> 1050))
+          service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(1050)))
         }
 
         exception.getMessage must include("Declaration details are required")

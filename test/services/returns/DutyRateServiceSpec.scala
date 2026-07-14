@@ -20,7 +20,7 @@ import base.SpecBase
 import config.DutyRateConfig
 import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationStatus}
-import models.returns.DutyRate
+import models.returns.{ConfigDutyRate, DutyRate}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -34,21 +34,21 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
   private val mockObligationService: ObligationService = mock[ObligationService]
   
   private val testRates = Seq(
-    DutyRate(
+    ConfigDutyRate(
       period = models.returns.DateRange(
         start = LocalDate.of(2026, 1, 1),
         end = LocalDate.of(2026, 12, 31)
       ),
       ratePencePer10Ml = 220
     ),
-    DutyRate(
+    ConfigDutyRate(
       period = models.returns.DateRange(
         start = LocalDate.of(2027, 1, 1),
         end = LocalDate.of(2027, 12, 31)
       ),
       ratePencePer10Ml = 300
     ),
-    DutyRate(
+    ConfigDutyRate(
       period = models.returns.DateRange(
         start = LocalDate.of(2028, 1, 1),
         end = LocalDate.of(9999, 12, 31)
@@ -75,9 +75,9 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         val date = LocalDate.of(2026, 6, 15)
-        val result = service.getRateForDateInPencePer10ml(date)
+        val result = service.getDutyRateForDate(date)
         
-        result mustBe 220
+        result mustBe DutyRate(220)
       }
 
       "must return the correct rate for a date within the second period" in {
@@ -85,9 +85,9 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         val date = LocalDate.of(2027, 8, 20)
-        val result = service.getRateForDateInPencePer10ml(date)
+        val result = service.getDutyRateForDate(date)
         
-        result mustBe 300
+        result mustBe DutyRate(300)
       }
 
       "must return the correct rate for a date within the third period" in {
@@ -95,9 +95,9 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         val date = LocalDate.of(2028, 3, 10)
-        val result = service.getRateForDateInPencePer10ml(date)
+        val result = service.getDutyRateForDate(date)
         
-        result mustBe 400
+        result mustBe DutyRate(400)
       }
 
       "must return the correct rate for a date on the start boundary" in {
@@ -105,9 +105,9 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         val date = LocalDate.of(2027, 1, 1)
-        val result = service.getRateForDateInPencePer10ml(date)
+        val result = service.getDutyRateForDate(date)
         
-        result mustBe 300
+        result mustBe DutyRate(300)
       }
 
       "must return the correct rate for a date on the end boundary" in {
@@ -115,9 +115,9 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         val date = LocalDate.of(2026, 12, 31)
-        val result = service.getRateForDateInPencePer10ml(date)
+        val result = service.getDutyRateForDate(date)
         
-        result mustBe 220
+        result mustBe DutyRate(220)
       }
 
       "must return the correct rate for a far future date" in {
@@ -125,35 +125,9 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
         val date = LocalDate.of(3000, 1, 1)
-        val result = service.getRateForDateInPencePer10ml(date)
+        val result = service.getDutyRateForDate(date)
         
-        result mustBe 400
-      }
-    }
-
-    "getDutyRateForPeriod" - {
-
-      "must return the calculated duty rate when obligation exists" in {
-        when(mockDutyRateConfig.rates).thenReturn(testRates)
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(PeriodKey("26AA")))(using any()))
-          .thenReturn(Future.successful(Some(testObligation)))
-        
-        val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
-        
-        whenReady(service.getDutyRateForPeriodInPoundsPerMl(vpdId, PeriodKey("26AA"))) { result =>
-          result mustBe Some(BigDecimal("0.22"))
-        }
-      }
-
-      "must return None when obligation does not exist" in {
-        when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(PeriodKey("26XX")))(using any()))
-          .thenReturn(Future.successful(None))
-        
-        val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
-        
-        whenReady(service.getDutyRateForPeriodInPoundsPerMl(vpdId, PeriodKey("26XX"))) { result =>
-          result mustBe None
-        }
+        result mustBe DutyRate(400)
       }
     }
 
@@ -166,8 +140,8 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
-        whenReady(service.getDutyRateInPoundsPerMl(vpdId, periodKey)) { result =>
-          result mustBe BigDecimal("0.22")
+        whenReady(service.getDutyRate(vpdId, periodKey)) { result =>
+          result mustBe DutyRate(220)
         }
       }
 
@@ -178,7 +152,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
         
         val service = new DutyRateService(mockDutyRateConfig, mockObligationService)
         
-        whenReady(service.getDutyRateInPoundsPerMl(vpdId, periodKey).failed) { exception =>
+        whenReady(service.getDutyRate(vpdId, periodKey).failed) { exception =>
           exception mustBe a[RuntimeException]
           exception.getMessage mustBe "No duty rate found"
         }

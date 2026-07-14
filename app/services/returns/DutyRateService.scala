@@ -20,6 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import config.DutyRateConfig
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
+import models.returns.DutyRate
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
@@ -27,34 +28,33 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationService: ObligationService) {
-  
-  def getRateForDateInPencePer10ml(date: LocalDate): Int =
-    dutyRateConfig.rates
-      .find(_.isValidFor(date))
-      .map(_.ratePencePer10Ml)
-      .get  // Safe because validation ensures there's always a rate
 
+  def getDutyRateForDate(date: LocalDate) =
+    DutyRate(
+      dutyRateConfig.rates
+        .find(_.isValidFor(date))
+        .map(_.ratePencePer10Ml)
+        .get // Safe because validation ensures there's always a rate
+    )
 
-  def getDutyRateInPoundsPerMl(vpdId: VpdId, periodKey: PeriodKey)
-                              (using ec: ExecutionContext, hc: HeaderCarrier): Future[BigDecimal] =
+  def getDutyRate(vpdId: VpdId, periodKey: PeriodKey)
+                 (using ec: ExecutionContext, hc: HeaderCarrier): Future[DutyRate] =
 
-    getDutyRateForPeriodInPoundsPerMl(vpdId, periodKey).flatMap {
+    getDutyRateForPeriod(vpdId, periodKey).flatMap {
       case Some(dutyRate) => Future.successful(dutyRate)
       case None => Future.failed(RuntimeException("No duty rate found"))
     }
 
-  def getDutyRateForPeriodInPoundsPerMl(vpdId: VpdId, periodKey: PeriodKey)
-                                       (using ec: ExecutionContext, hc: HeaderCarrier): Future[Option[BigDecimal]] =
+  private def getDutyRateForPeriod(vpdId: VpdId, periodKey: PeriodKey)
+                                  (using ec: ExecutionContext, hc: HeaderCarrier): Future[Option[DutyRate]] =
 
     obligationService.getObligationByPeriodKey(vpdId, periodKey).map { obligationOpt =>
       obligationOpt.map { obligation =>
-        val rateInPencePerMl = BigDecimal(getRateForDateInPencePer10ml(obligation.iCFromDate)) / 10
-        val dutyRateInPoundsPerMl = rateInPencePerMl / 100
-        dutyRateInPoundsPerMl
+        getDutyRateForDate(obligation.iCFromDate)
       }
     }
-    
-  def getDutyRatesInPencePer10MlForPeriodKeys(obligations: Seq[ObligationDetails]): Map[PeriodKey, Int] = {
-    obligations.map(o => PeriodKey(o.periodKey) -> getRateForDateInPencePer10ml(o.iCFromDate)).toMap
+
+  def getDutyRatesForPeriodKeys(obligations: Seq[ObligationDetails]): Map[PeriodKey, DutyRate] = {
+    obligations.map(o => PeriodKey(o.periodKey) -> getDutyRateForDate(o.iCFromDate)).toMap
   }
 }

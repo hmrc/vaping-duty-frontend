@@ -33,9 +33,8 @@ class EnterDutyAmountFormProvider @Inject()(
   def apply(periodKey: PeriodKey, vpdId: VpdId)
            (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Form[BigDecimal]] = {
 
-    dutyRateService.getDutyRateInPoundsPerMl(vpdId, periodKey).map { dutyRateInPoundsPerMl =>
-      val dutyRateInPencePerMl = (dutyRateInPoundsPerMl * 100).toInt
-      val maxVolumeResult = volumePrecisionService.calculateMaxVolume(dutyRateInPencePerMl)
+    dutyRateService.getDutyRate(vpdId, periodKey).map { dutyRate =>
+      val maxVolumeResult = volumePrecisionService.calculateMaxVolume(dutyRate)
 
       Form(
         "value" -> volume(

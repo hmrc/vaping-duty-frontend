@@ -17,7 +17,7 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
-import models.returns.{DutyRate, DutyRateValidationError, DateRange}
+import models.returns.{ConfigDutyRate, DutyRateValidationError, DateRange}
 import play.api.Configuration
 
 import java.time.LocalDate
@@ -25,16 +25,16 @@ import java.time.LocalDate
 @Singleton
 class DutyRateConfig @Inject()(configuration: Configuration, dutyRateValidator: DutyRateValidator) {
   
-  val rates: Seq[DutyRate] = {
-    val parsedRates: Seq[DutyRate] = parseRatesFromConfig(configuration)
+  val rates: Seq[ConfigDutyRate] = {
+    val parsedRates: Seq[ConfigDutyRate] = parseRatesFromConfig(configuration)
     throwExceptionIfInvalid(dutyRateValidator.validate(parsedRates))
   }
 }
 
-def parseRatesFromConfig(configuration: Configuration): Seq[DutyRate] = {
+def parseRatesFromConfig(configuration: Configuration): Seq[ConfigDutyRate] = {
   val configList = configuration.get[Seq[Configuration]]("duty-rates")
   configList.map { rateConfig =>
-    DutyRate(
+    ConfigDutyRate(
       period = DateRange(
         start = LocalDate.parse(rateConfig.get[String]("start-date")),
         end   = LocalDate.parse(rateConfig.get[String]("end-date"))
@@ -44,7 +44,7 @@ def parseRatesFromConfig(configuration: Configuration): Seq[DutyRate] = {
   }.sortBy(_.period.start)
 }
 
-def throwExceptionIfInvalid(validatedRates: Either[List[DutyRateValidationError], Seq[DutyRate]]): Seq[DutyRate] = {
+def throwExceptionIfInvalid(validatedRates: Either[List[DutyRateValidationError], Seq[ConfigDutyRate]]): Seq[ConfigDutyRate] = {
   validatedRates match {
     case Right(validRates) => validRates
     case Left(errors) =>

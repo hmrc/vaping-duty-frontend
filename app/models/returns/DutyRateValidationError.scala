@@ -28,15 +28,15 @@ object DutyRateValidationError {
     val message: String = "At least one duty rate must be configured"
   }
 
-  final case class NegativeRate(rate: DutyRate) extends DutyRateValidationError {
+  final case class NegativeRate(rate: ConfigDutyRate) extends DutyRateValidationError {
     val message: String = s"Duty rate must be positive: ${rate.ratePencePer10Ml}"
   }
 
-  final case class InvalidDateRange(rate: DutyRate) extends DutyRateValidationError {
+  final case class InvalidDateRange(rate: ConfigDutyRate) extends DutyRateValidationError {
     val message: String = s"End date must be after or equal to start date: ${rate.period.start} to ${rate.period.end}"
   }
 
-  final case class GapOrOverlap(current: DutyRate, next: DutyRate) extends DutyRateValidationError {
+  final case class GapOrOverlap(current: ConfigDutyRate, next: ConfigDutyRate) extends DutyRateValidationError {
     val message: String = s"Gap or overlap detected between periods: ${current.period.end} and ${next.period.start}"
   }
 

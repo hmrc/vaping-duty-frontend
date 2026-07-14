@@ -42,8 +42,8 @@ class DeclareDutyCheckAnswersController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     val pk = request.periodKey
     
-    dutyRateService.getDutyRateInPoundsPerMl(request.enrolmentVpdId, pk).map { dutyRateInPoundsPerMl =>
-      DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRateInPoundsPerMl, pk) match {
+    dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
+      DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk) match {
         case Some(vm) => Ok(view(pk, vm))
         case None     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
