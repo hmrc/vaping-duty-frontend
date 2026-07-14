@@ -16,13 +16,37 @@
 
 package forms.returns.adjustments
 
+import base.SpecBase
 import forms.behaviours.FieldBehaviours
-import models.returns.adjustments.AdjustmentType
+import models.identifiers.{PeriodKey, VpdId}
+import models.returns.MaxVolumeResult
+import models.returns.adjustments.{AdjustmentType, AdjustmentVolumeWithTypeFormData}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.FormError
+import services.returns.{DutyRateService, VolumePrecisionService}
 
-class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
+import scala.concurrent.Future
 
-  val form = new AdjustmentVolumeWithTypeFormProvider()()
+class AdjustmentVolumeWithTypeFormProviderSpec extends SpecBase with FieldBehaviours with MockitoSugar {
+
+  private val mockDutyRateService = mock[DutyRateService]
+  private val mockVolumePrecisionService = mock[VolumePrecisionService]
+  private val formProvider = new AdjustmentVolumeWithTypeFormProvider(mockDutyRateService, mockVolumePrecisionService)
+
+  private val testPeriodKey = PeriodKey("24KA")
+  private val testVpdId = VpdId("VPDID123")
+  private val testDutyRate = BigDecimal("3.37")
+  private val testMaxVolume = BigDecimal("29000000000")
+  private val testFormattedMax = "29,000,000,000 ml"
+
+  private def setupMocks(): Unit = {
+    when(mockDutyRateService.getDutyRate(eqTo(testVpdId), eqTo(testPeriodKey))(using any(), any()))
+      .thenReturn(Future.successful(testDutyRate))
+    when(mockVolumePrecisionService.calculateMaxVolume(any()))
+      .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+  }
 
   ".adjustmentType" - {
 
@@ -30,25 +54,37 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
     val requiredKey = "returns.adjustmentVolumeWithType.error.required"
 
     "must bind valid adjustment types" in {
-      val result = form.bind(Map(
-        fieldName -> "underDeclared",
-        "underDeclaredVolume" -> "100.5"
-      ))
-      result.errors mustBe empty
-      result.value.value.adjustmentType mustBe AdjustmentType.UnderDeclared
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(
+          fieldName -> "underDeclared",
+          "underDeclaredVolume" -> "100.5"
+        ))
+        result.errors mustBe empty
+        result.value.value.adjustmentType mustBe AdjustmentType.UnderDeclared
+      }
     }
 
     "must not bind invalid adjustment types" in {
-      val result = form.bind(Map(
-        fieldName -> "InvalidType",
-        "underDeclaredVolume" -> "1000"
-      ))
-      result.errors must contain(FormError(fieldName, "error.invalid"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(
+          fieldName -> "InvalidType",
+          "underDeclaredVolume" -> "1000"
+        ))
+        result.errors must contain(FormError(fieldName, "error.invalid"))
+      }
     }
 
     "must fail when adjustment type is missing" in {
-      val result = form.bind(Map("underDeclaredVolume" -> "100.5"))
-      result.errors must contain(FormError(fieldName, requiredKey))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map("underDeclaredVolume" -> "100.5"))
+        result.errors must contain(FormError(fieldName, requiredKey))
+      }
     }
   }
 
@@ -57,54 +93,78 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
     val fieldName = "underDeclaredVolume"
 
     "must bind valid volumes >= 1000ml with no decimal places" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "underDeclared",
-        fieldName -> "1000"
-      ))
-      result.errors mustBe empty
-      result.value.value.underDeclaredVolume mustBe Some(BigDecimal("1000"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "underDeclared",
+          fieldName -> "1000"
+        ))
+        result.errors mustBe empty
+        result.value.value.underDeclaredVolume mustBe Some(BigDecimal("1000"))
+      }
     }
 
     "must bind valid volumes < 1000ml with 0 or 1 decimal place" in {
-      Seq("100", "100.5", "999.9").foreach { input =>
-        val result = form.bind(Map(
-          "adjustmentType" -> "underDeclared",
-          fieldName -> input
-        ))
-        result.errors mustBe empty
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("100", "100.5", "999.9").foreach { input =>
+          val result = form.bind(Map(
+            "adjustmentType" -> "underDeclared",
+            fieldName -> input
+          ))
+          result.errors mustBe empty
+        }
       }
     }
 
     "must fail when under declared volume is missing for UnderDeclared type" in {
-      val result = form.bind(Map("adjustmentType" -> "underDeclared"))
-      result.errors must contain(FormError("", "returns.adjustmentVolumeWithType.error.required"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map("adjustmentType" -> "underDeclared"))
+        result.errors must contain(FormError("", "returns.adjustmentVolumeWithType.error.required"))
+      }
     }
 
     "must fail when under declared volume is not numeric" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "underDeclared",
-        fieldName -> "abc"
-      ))
-      result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.underDeclared.error.nonNumeric"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "underDeclared",
+          fieldName -> "abc"
+        ))
+        result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.underDeclared.error.nonNumeric"))
+      }
     }
 
     "must fail when volume >= 1000ml has any decimal places" in {
-      Seq("1000.1", "1000.5", "2000.99").foreach { input =>
-        val result = form.bind(Map(
-          "adjustmentType" -> "underDeclared",
-          fieldName -> input
-        ))
-        result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.wholeOnly"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("1000.1", "1000.5", "2000.99").foreach { input =>
+          val result = form.bind(Map(
+            "adjustmentType" -> "underDeclared",
+            fieldName -> input
+          ))
+          result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.wholeOnly"))
+        }
       }
     }
 
     "must fail when volume < 1000ml has more than 1 decimal place" in {
-      Seq("100.55", "999.99", "10.123").foreach { input =>
-        val result = form.bind(Map(
-          "adjustmentType" -> "underDeclared",
-          fieldName -> input
-        ))
-        result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.maxOne"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("100.55", "999.99", "10.123").foreach { input =>
+          val result = form.bind(Map(
+            "adjustmentType" -> "underDeclared",
+            fieldName -> input
+          ))
+          result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.maxOne"))
+        }
       }
     }
   }
@@ -114,54 +174,78 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
     val fieldName = "overDeclaredVolume"
 
     "must bind valid volumes >= 1000ml with no decimal places" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "overDeclared",
-        fieldName -> "2000"
-      ))
-      result.errors mustBe empty
-      result.value.value.overDeclaredVolume mustBe Some(BigDecimal("2000"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "overDeclared",
+          fieldName -> "2000"
+        ))
+        result.errors mustBe empty
+        result.value.value.overDeclaredVolume mustBe Some(BigDecimal("2000"))
+      }
     }
 
     "must bind valid volumes < 1000ml with 0 or 1 decimal place" in {
-      Seq("200", "200.7", "999.9").foreach { input =>
-        val result = form.bind(Map(
-          "adjustmentType" -> "overDeclared",
-          fieldName -> input
-        ))
-        result.errors mustBe empty
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("200", "200.7", "999.9").foreach { input =>
+          val result = form.bind(Map(
+            "adjustmentType" -> "overDeclared",
+            fieldName -> input
+          ))
+          result.errors mustBe empty
+        }
       }
     }
 
     "must fail when over declared volume is missing for OverDeclared type" in {
-      val result = form.bind(Map("adjustmentType" -> "overDeclared"))
-      result.errors must contain(FormError("", "returns.adjustmentVolumeWithType.error.required"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map("adjustmentType" -> "overDeclared"))
+        result.errors must contain(FormError("", "returns.adjustmentVolumeWithType.error.required"))
+      }
     }
 
     "must fail when over declared volume is not numeric" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "overDeclared",
-        fieldName -> "xyz"
-      ))
-      result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.overDeclared.error.nonNumeric"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "overDeclared",
+          fieldName -> "xyz"
+        ))
+        result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.overDeclared.error.nonNumeric"))
+      }
     }
 
     "must fail when volume >= 1000ml has any decimal places" in {
-      Seq("2000.1", "2000.7", "3000.99").foreach { input =>
-        val result = form.bind(Map(
-          "adjustmentType" -> "overDeclared",
-          fieldName -> input
-        ))
-        result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.wholeOnly"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("2000.1", "2000.7", "3000.99").foreach { input =>
+          val result = form.bind(Map(
+            "adjustmentType" -> "overDeclared",
+            fieldName -> input
+          ))
+          result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.wholeOnly"))
+        }
       }
     }
 
     "must fail when volume < 1000ml has more than 1 decimal place" in {
-      Seq("200.77", "999.99", "50.123").foreach { input =>
-        val result = form.bind(Map(
-          "adjustmentType" -> "overDeclared",
-          fieldName -> input
-        ))
-        result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.maxOne"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("200.77", "999.99", "50.123").foreach { input =>
+          val result = form.bind(Map(
+            "adjustmentType" -> "overDeclared",
+            fieldName -> input
+          ))
+          result.errors must contain(FormError(fieldName, "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.maxOne"))
+        }
       }
     }
   }
@@ -169,65 +253,105 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends FieldBehaviours {
   "form validation" - {
 
     "must fail when both volumes are provided" in {
-      // Note: The controller also clears the non-selected field as a defensive measure
-      val result = form.bind(Map(
-        "adjustmentType" -> "underDeclared",
-        "underDeclaredVolume" -> "100.5",
-        "overDeclaredVolume" -> "200.7"
-      ))
-      result.errors must contain(FormError("", "returns.adjustmentVolumeWithType.error.bothProvided"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        // Note: The controller also clears the non-selected field as a defensive measure
+        val result = form.bind(Map(
+          "adjustmentType" -> "underDeclared",
+          "underDeclaredVolume" -> "100.5",
+          "overDeclaredVolume" -> "200.7"
+        ))
+        result.errors must contain(FormError("", "returns.adjustmentVolumeWithType.error.bothProvided"))
+      }
     }
 
     "must not bind zero for under declared volume" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "underDeclared",
-        "underDeclaredVolume" -> "0"
-      ))
-      result.errors must contain(FormError("underDeclaredVolume", "returns.adjustmentVolumeWithType.underDeclared.error.mustBeGreaterThanZero"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "underDeclared",
+          "underDeclaredVolume" -> "0"
+        ))
+        result.errors must contain(FormError("underDeclaredVolume", "returns.adjustmentVolumeWithType.underDeclared.error.mustBeGreaterThanZero"))
+      }
     }
 
     "must not bind zero for over declared volume" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "overDeclared",
-        "overDeclaredVolume" -> "0"
-      ))
-      result.errors must contain(FormError("overDeclaredVolume", "returns.adjustmentVolumeWithType.overDeclared.error.mustBeGreaterThanZero"))
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "overDeclared",
+          "overDeclaredVolume" -> "0"
+        ))
+        result.errors must contain(FormError("overDeclaredVolume", "returns.adjustmentVolumeWithType.overDeclared.error.mustBeGreaterThanZero"))
+      }
     }
 
     "must accept minimum valid volume of 1ml" in {
-      Seq("1", "1.0").foreach { input =>
-        val result = form.bind(Map(
-          "adjustmentType" -> "underDeclared",
-          "underDeclaredVolume" -> input
-        ))
-        result.errors mustBe empty
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("1", "1.0").foreach { input =>
+          val result = form.bind(Map(
+            "adjustmentType" -> "underDeclared",
+            "underDeclaredVolume" -> input
+          ))
+          result.errors mustBe empty
+        }
       }
     }
 
     "must accept maximum valid volume" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "underDeclared",
-        "underDeclaredVolume" -> "999999999999"
-      ))
-      result.errors mustBe empty
-    }
-
-    "must accept volumes below 1ml" in {
-      Seq("0.1", "0.5", "0.9").foreach { input =>
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
         val result = form.bind(Map(
           "adjustmentType" -> "underDeclared",
-          "underDeclaredVolume" -> input
+          "underDeclaredVolume" -> testMaxVolume.toString
         ))
         result.errors mustBe empty
       }
     }
 
-    "must accept large volumes up to 13 digits" in {
-      val result = form.bind(Map(
-        "adjustmentType" -> "underDeclared",
-        "underDeclaredVolume" -> "9999999999999"
-      ))
-      result.errors mustBe empty
+    "must accept volumes below 1ml" in {
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        Seq("0.1", "0.5", "0.9").foreach { input =>
+          val result = form.bind(Map(
+            "adjustmentType" -> "underDeclared",
+            "underDeclaredVolume" -> input
+          ))
+          result.errors mustBe empty
+        }
+      }
+    }
+
+    "must not bind values that exceed the calculated maximum for under declared volume" in {
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "underDeclared",
+          "underDeclaredVolume" -> "999999999999"
+        ))
+        result.errors must contain only FormError("", "returns.adjustmentVolumeWithType.error.exceedsMaxDuty", Seq(testFormattedMax))
+      }
+    }
+
+    "must not bind values that exceed the calculated maximum for over declared volume" in {
+      setupMocks()
+      
+      whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
+        val result = form.bind(Map(
+          "adjustmentType" -> "overDeclared",
+          "overDeclaredVolume" -> "999999999999"
+        ))
+        result.errors must contain only FormError("", "returns.adjustmentVolumeWithType.error.exceedsMaxDuty", Seq(testFormattedMax))
+      }
     }
   }
 

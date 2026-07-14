@@ -19,7 +19,8 @@ package controllers.returns.submit.adjustments
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import controllers.returns.PeriodKeyExtraction
-import forms.returns.adjustments.{AdjustmentVolumeWithTypeFormData, AdjustmentVolumeWithTypeFormProvider}
+import forms.returns.adjustments.AdjustmentVolumeWithTypeFormProvider
+import models.returns.adjustments.AdjustmentVolumeWithTypeFormData
 import models.returns.ReturnsConstants
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import models.Mode
@@ -53,14 +54,14 @@ class AdjustmentVolumeWithTypeController @Inject()(
                                                     view: AdjustmentVolumeWithTypeView
                                                   )(using ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
 
-  val form: Form[AdjustmentVolumeWithTypeFormData] = formProvider()
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
-        obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligationDetails =>
-
+        for {
+          obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
+          form              <- formProvider(request.periodKey, request.enrolmentVpdId)
+        } yield {
           val existingAdjustment = request.userAnswers.get(AdjustmentListPage)
             .flatMap(_.adjustments.find(_.period == adjustmentPeriodKey))
 
@@ -85,35 +86,39 @@ class AdjustmentVolumeWithTypeController @Inject()(
     implicit request =>
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
-        obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap { obligationDetails =>
-          val rawData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
-          val cleanedData = cleanFormData(rawData)
+        for {
+          obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
+          form              <- formProvider(request.periodKey, request.enrolmentVpdId)
+          result            <- {
+            val rawData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
+            val cleanedData = cleanFormData(rawData)
 
-          form.bind(cleanedData).fold(
-            formWithErrors => {
-              val updatedForm = prepareFormForDisplay(formWithErrors)
-              val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, adjustmentPeriodKey, returnsDateUtils)
-              Future.successful(BadRequest(view(request.periodKey, adjustmentPeriodKey, updatedForm, mode, vm)))
-            },
+            form.bind(cleanedData).fold(
+              formWithErrors => {
+                val updatedForm = prepareFormForDisplay(formWithErrors)
+                val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, adjustmentPeriodKey, returnsDateUtils)
+                Future.successful(BadRequest(view(request.periodKey, adjustmentPeriodKey, updatedForm, mode, vm)))
+              },
 
-            formData => {
-              val newEntry = AdjustmentEntry(
-                period = adjustmentPeriodKey,
-                adjustmentType = formData.adjustmentType,
-                volumeInMl = formData.getVolume
-              )
+              formData => {
+                val newEntry = AdjustmentEntry(
+                  period = adjustmentPeriodKey,
+                  adjustmentType = formData.adjustmentType,
+                  volumeInMl = formData.getVolume
+                )
 
-              val existingList = request.userAnswers.get(AdjustmentListPage).getOrElse(AdjustmentList.empty)
-              val updatedAdjustments = existingList.adjustments.filterNot(_.period == adjustmentPeriodKey) :+ newEntry
-              val updatedList = AdjustmentList(updatedAdjustments)
+                val existingList = request.userAnswers.get(AdjustmentListPage).getOrElse(AdjustmentList.empty)
+                val updatedAdjustments = existingList.adjustments.filterNot(_.period == adjustmentPeriodKey) :+ newEntry
+                val updatedList = AdjustmentList(updatedAdjustments)
 
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(AdjustmentListPage, updatedList))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(AdjustmentListPage, mode, updatedAnswers))
-            }
-          )
-        }
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(AdjustmentListPage, updatedList))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(AdjustmentListPage, mode, updatedAnswers))
+              }
+            )
+          }
+        } yield result
       }
   }
 

@@ -500,6 +500,7 @@ returns.adjustmentVolumeWithType.overDeclared.error.nonNumeric = You must enter 
 returns.adjustmentVolumeWithType.overDeclared.error.mustBeGreaterThanZero = You must enter a number greater than zero
 returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
 returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
+returns.adjustmentVolumeWithType.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
 
 returns.adjustmentCheckYourAnswers.title = Your adjustment is {0}
 returns.adjustmentCheckYourAnswers.heading = Your adjustment is {0}

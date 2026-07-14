@@ -17,20 +17,19 @@
 package controllers.returns.submit.adjustments
 
 import base.SpecBase
-import forms.returns.adjustments.{AdjustmentVolumeWithTypeFormData, AdjustmentVolumeWithTypeFormProvider}
 import models.NormalMode
+import models.returns.MaxVolumeResult
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.adjustments.AdjustmentListPage
-import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.{ObligationService, ReturnsUserAnswersService}
+import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService, VolumePrecisionService}
 
 import scala.concurrent.Future
 
@@ -38,10 +37,11 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new AdjustmentVolumeWithTypeFormProvider()
-  val form: Form[AdjustmentVolumeWithTypeFormData] = formProvider()
-
   val adjustmentPeriodKey = october2027
+  
+  override val testDutyRate: BigDecimal = BigDecimal("3.37")
+  val testMaxVolume: BigDecimal = BigDecimal("29000000000")
+  val testFormattedMax: String = "29,000,000,000 ml"
 
   lazy val adjustmentVolumeWithTypeRoute: String =
     controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController
@@ -51,17 +51,32 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
     controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController
       .onSubmit(NormalMode).url + s"?period=${periodKey.value}&adjustmentPeriod=${adjustmentPeriodKey.value}"
 
+  private def setupFormProviderMocks(mockDutyRateService: DutyRateService, 
+                                     mockVolumePrecisionService: VolumePrecisionService): Unit = {
+    when(mockDutyRateService.getDutyRate(eqTo(vpdId), eqTo(periodKey))(using any(), any()))
+      .thenReturn(Future.successful(testDutyRate))
+    when(mockVolumePrecisionService.calculateMaxVolume(any()))
+      .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+  }
+
   "AdjustmentVolumeWithType Controller" - {
 
     "must return OK and the correct view for a GET" in {
       val mockObligationService = mock[ObligationService]
+      val mockDutyRateService = mock[DutyRateService]
+      val mockVolumePrecisionService = mock[VolumePrecisionService]
       val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
       when(mockObligationService.getObligationsDirectly(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
+      setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(
+          bind[ObligationService].toInstance(mockObligationService),
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
+        )
         .build()
 
       running(application) {
@@ -75,10 +90,13 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
     "must populate the view correctly on a GET when editing an existing adjustment" in {
       val mockObligationService = mock[ObligationService]
+      val mockDutyRateService = mock[DutyRateService]
+      val mockVolumePrecisionService = mock[VolumePrecisionService]
       val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
       when(mockObligationService.getObligationsDirectly(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
+      setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
 
       // Test-specific adjustment with different period (october2027) and volume (100.5) than TestData
       val existingAdjustment = AdjustmentEntry(
@@ -90,7 +108,11 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val userAnswers = returnsUserAnswers.set(AdjustmentListPage, adjustmentList).success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(
+          bind[ObligationService].toInstance(mockObligationService),
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
+        )
         .build()
 
       running(application) {
@@ -105,18 +127,23 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
     "must redirect to the next page when valid data is submitted" in {
       val mockObligationService = mock[ObligationService]
       val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockDutyRateService = mock[DutyRateService]
+      val mockVolumePrecisionService = mock[VolumePrecisionService]
       val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
       when(mockObligationService.getObligationsDirectly(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+      setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
 
       val application =
         applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-            bind[ObligationService].toInstance(mockObligationService)
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[DutyRateService].toInstance(mockDutyRateService),
+            bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
           )
           .build()
 
@@ -138,18 +165,23 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
     "must redirect to the next page when valid underDeclared data is submitted" in {
       val mockObligationService = mock[ObligationService]
       val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockDutyRateService = mock[DutyRateService]
+      val mockVolumePrecisionService = mock[VolumePrecisionService]
       val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
       when(mockObligationService.getObligationsDirectly(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+      setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
 
       val application =
         applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-            bind[ObligationService].toInstance(mockObligationService)
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[DutyRateService].toInstance(mockDutyRateService),
+            bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
           )
           .build()
 
@@ -171,18 +203,23 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
     "must redirect to the next page when valid overDeclared data is submitted" in {
       val mockObligationService = mock[ObligationService]
       val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockDutyRateService = mock[DutyRateService]
+      val mockVolumePrecisionService = mock[VolumePrecisionService]
       val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
       when(mockObligationService.getObligationsDirectly(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+      setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
 
       val application =
         applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-            bind[ObligationService].toInstance(mockObligationService)
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[DutyRateService].toInstance(mockDutyRateService),
+            bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
           )
           .build()
 
@@ -203,13 +240,20 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
     "must return a Bad Request and errors when invalid data is submitted" in {
       val mockObligationService = mock[ObligationService]
+      val mockDutyRateService = mock[DutyRateService]
+      val mockVolumePrecisionService = mock[VolumePrecisionService]
       val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
       when(mockObligationService.getObligationsDirectly(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
+      setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(
+          bind[ObligationService].toInstance(mockObligationService),
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
+        )
         .build()
 
       running(application) {
@@ -225,13 +269,20 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
     "must clear the non-selected field and its errors when form has errors" in {
       val mockObligationService = mock[ObligationService]
+      val mockDutyRateService = mock[DutyRateService]
+      val mockVolumePrecisionService = mock[VolumePrecisionService]
       val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
       when(mockObligationService.getObligationsDirectly(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
+      setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(
+          bind[ObligationService].toInstance(mockObligationService),
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
+        )
         .build()
 
       running(application) {
@@ -258,17 +309,22 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
     "must redirect to the next page when valid overDeclared data is submitted without underDeclared field" in {
       val mockObligationService = mock[ObligationService]
       val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockDutyRateService = mock[DutyRateService]
+      val mockVolumePrecisionService = mock[VolumePrecisionService]
       val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
       when(mockObligationService.getObligationsDirectly(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+      setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(
           bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
           bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-          bind[ObligationService].toInstance(mockObligationService)
+          bind[ObligationService].toInstance(mockObligationService),
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
         )
         .build()
 
@@ -304,13 +360,20 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
     "clearNonSelectedField" - {
       "must clear overDeclaredVolume field and its errors when adjustmentType is underDeclared" in {
         val mockObligationService = mock[ObligationService]
+        val mockDutyRateService = mock[DutyRateService]
+        val mockVolumePrecisionService = mock[VolumePrecisionService]
         val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
         when(mockObligationService.getObligationsDirectly(any())(using any()))
           .thenReturn(Future.successful(obligationDetails))
+        setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .overrides(
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[DutyRateService].toInstance(mockDutyRateService),
+            bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
+          )
           .build()
 
         running(application) {
@@ -336,13 +399,20 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
       "must clear underDeclaredVolume field and its errors when adjustmentType is overDeclared" in {
         val mockObligationService = mock[ObligationService]
+        val mockDutyRateService = mock[DutyRateService]
+        val mockVolumePrecisionService = mock[VolumePrecisionService]
         val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
         when(mockObligationService.getObligationsDirectly(any())(using any()))
           .thenReturn(Future.successful(obligationDetails))
+        setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .overrides(
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[DutyRateService].toInstance(mockDutyRateService),
+            bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
+          )
           .build()
 
         running(application) {
@@ -368,13 +438,20 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
       "must return form unchanged when adjustmentType is not present" in {
         val mockObligationService = mock[ObligationService]
+        val mockDutyRateService = mock[DutyRateService]
+        val mockVolumePrecisionService = mock[VolumePrecisionService]
         val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
         when(mockObligationService.getObligationsDirectly(any())(using any()))
           .thenReturn(Future.successful(obligationDetails))
+        setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .overrides(
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[DutyRateService].toInstance(mockDutyRateService),
+            bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
+          )
           .build()
 
         running(application) {
@@ -398,13 +475,20 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
       "must return form unchanged when adjustmentType is invalid" in {
         val mockObligationService = mock[ObligationService]
+        val mockDutyRateService = mock[DutyRateService]
+        val mockVolumePrecisionService = mock[VolumePrecisionService]
         val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
 
         when(mockObligationService.getObligationsDirectly(any())(using any()))
           .thenReturn(Future.successful(obligationDetails))
+        setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .overrides(
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[DutyRateService].toInstance(mockDutyRateService),
+            bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
+          )
           .build()
 
         running(application) {
