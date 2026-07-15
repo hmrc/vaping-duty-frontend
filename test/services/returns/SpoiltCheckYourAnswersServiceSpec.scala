@@ -19,7 +19,7 @@ package services.returns
 import base.SpecBase
 import builders.ObligationsBuilders
 import models.identifiers.{PeriodKey, VpdId}
-import models.returns.SpoiltVolumeByPeriod
+import models.returns.{DutyRate, SpoiltVolumeByPeriod}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -49,7 +49,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
     openObligation(periodKey)
   )
 
-  private val DUTY_RATE_PENCE = 100
+  private val DUTY_RATE = DutyRate(1000)
 
   implicit val messages: Messages = stubMessages()
 
@@ -61,8 +61,8 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt)))
-      when(mockDutyRateService.getRateForDate(any()))
-        .thenReturn(DUTY_RATE_PENCE)
+      when(mockDutyRateService.getDutyRateForDate(any()))
+        .thenReturn(DUTY_RATE)
 
       val result = service.buildViewModel(
         declareSpoiltProducts = Some(true),
@@ -103,8 +103,8 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt1, obligationForSpoilt2)))
-      when(mockDutyRateService.getRateForDate(any()))
-        .thenReturn(DUTY_RATE_PENCE)
+      when(mockDutyRateService.getDutyRateForDate(any()))
+        .thenReturn(DUTY_RATE)
 
       val result = service.buildViewModel(
         declareSpoiltProducts = Some(true),

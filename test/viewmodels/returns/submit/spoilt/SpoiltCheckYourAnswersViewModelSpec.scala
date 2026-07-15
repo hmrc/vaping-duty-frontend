@@ -17,12 +17,13 @@
 package viewmodels.returns.submit.spoilt
 
 import base.SpecBase
-import models.returns.SpoiltVolumeByPeriod
+import models.identifiers.PeriodKey
+import models.returns.{DutyRate, SpoiltVolumeByPeriod}
 
 class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
 
-  val dutyRate: BigDecimal = BigDecimal("3.00")
-  val dutyRatesMap: Map[String, BigDecimal] = Map(october2027.toString -> dutyRate)
+  val dutyRate = DutyRate(3000)
+  val dutyRatesMap: Map[PeriodKey, DutyRate] = Map(october2027 -> dutyRate)
 
   "SpoiltCheckYourAnswersViewModel" - {
 

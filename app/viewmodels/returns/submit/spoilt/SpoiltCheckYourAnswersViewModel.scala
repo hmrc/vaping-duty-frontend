@@ -19,7 +19,7 @@ package viewmodels.returns.submit.spoilt
 import models.NormalMode
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
-import models.returns.SpoiltVolumeByPeriod
+import models.returns.{DutyRate, SpoiltVolumeByPeriod}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
@@ -41,7 +41,7 @@ object SpoiltCheckYourAnswersViewModel {
              spoiltList: Option[List[SpoiltVolumeByPeriod]],
              obligationDetails: Seq[ObligationDetails],
              periodKey: PeriodKey,
-             dutyRates: Map[String, BigDecimal],
+             dutyRates: Map[PeriodKey, DutyRate],
              returnsDateUtils: ReturnsDateUtils
            )(implicit messages: Messages): SpoiltCheckYourAnswersViewModel = {
 
@@ -57,7 +57,7 @@ object SpoiltCheckYourAnswersViewModel {
     }
 
     val totalSpoiltDuty = spoiltEntries.map { entry =>
-      calculateDuty(entry.volume, dutyRates.getOrElse(entry.periodKey.toString, BigDecimal(0)))
+      dutyRates.get(entry.periodKey).fold(BigDecimal(0))(_.calculateDuty(entry.volume))
     }.sum
 
     SpoiltCheckYourAnswersViewModel(
@@ -101,12 +101,12 @@ object SpoiltCheckYourAnswersViewModel {
                                 entry: SpoiltVolumeByPeriod,
                                 obligationDetails: Seq[ObligationDetails],
                                 currentPeriodKey: PeriodKey,
-                                dutyRates: Map[String, BigDecimal],
+                                dutyRates: Map[PeriodKey, DutyRate],
                                 returnsDateUtils: ReturnsDateUtils
                               )(implicit messages: Messages): SpoiltSummaryCard = {
 
     val periodDisplay = returnsDateUtils.formatPeriodDisplay(entry.periodKey, obligationDetails)
-    val dutyAmount = calculateDuty(entry.volume, dutyRates.getOrElse(entry.periodKey.toString, BigDecimal(0)))
+    val dutyAmount = dutyRates.get(entry.periodKey).fold(BigDecimal(0))(_.calculateDuty(entry.volume))
 
     val rows = Seq(
       buildDeclareSpoiltProductsRow(currentPeriodKey, declared = true),

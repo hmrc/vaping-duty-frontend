@@ -19,7 +19,7 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
-import models.returns.SpoiltVolumeByPeriod
+import models.returns.{DutyRate, SpoiltVolumeByPeriod}
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.ReturnsDateUtils
@@ -65,20 +65,19 @@ class SpoiltCheckYourAnswersService @Inject()(
   private def getDutyRatesForSpoiltEntries(
                                             spoiltList: Option[List[SpoiltVolumeByPeriod]],
                                             obligationDetails: Seq[ObligationDetails]
-                                          ): Map[String, BigDecimal] = {
+                                          ): Map[PeriodKey, DutyRate] = {
 
     val uniquePeriods = spoiltList.getOrElse(List.empty).map(_.periodKey).distinct
 
     uniquePeriods.map { period =>
       val obligation = obligationDetails.find(_.periodKey == period.toString)
       val dutyRate = obligation.map { obl =>
-        val rateInPencePerMl = dutyRateService.getRateForDate(obl.iCFromDate)
-        BigDecimal(rateInPencePerMl) / 100
+        dutyRateService.getDutyRateForDate(obl.iCFromDate)
       }.getOrElse(
         // scalafix:off DisableSyntax.throw
         throw new RuntimeException(s"No obligation found for period ${period.toString}")
       )
-      period.toString -> dutyRate
+      period -> dutyRate
     }.toMap
   }
 }
