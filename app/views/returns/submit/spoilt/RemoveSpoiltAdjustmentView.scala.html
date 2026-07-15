@@ -15,7 +15,6 @@
  *@
 
 @import viewmodels.LegendSize
-@import components.{Caption, Heading}
 @import models.identifiers.PeriodKey
 @import play.api.mvc.Call
 
@@ -24,29 +23,25 @@
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukRadios: GovukRadios,
-    govukButton: GovukButton,
-    caption: Caption,
-    h1: Heading
+    govukButton: GovukButton
 )
 
-@(periodKey: PeriodKey, form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, spoiltPeriod: PeriodKey, form: Form[_])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("returns.addSpoiltAdjustment.title"))) {
+@layout(pageTitle = title(form, messages("returns.removeSpoiltAdjustment.title"))) {
 
-    @formHelper(action = Call("POST", s"${controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onSubmit(mode).url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onSubmit().url}?period=${periodKey.value}&spoiltPeriod=${spoiltPeriod.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        @caption(messages("returns.addSpoiltAdjustment.caption"))
-
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("returns.addSpoiltAdjustment.heading"))
+                legend = LegendViewModel(messages("returns.removeSpoiltAdjustment.heading"))
                     .asPageHeading(LegendSize.Large)
-            )
+            ).withHint(Hint(content = Text(messages("returns.removeSpoiltAdjustment.hint"))))
         )
 
         @govukButton(

@@ -95,7 +95,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val returnsDateUtils = application.injector.instanceOf[utils.ReturnsDateUtils]
-        val vm = SelectSpoiltPeriodViewModel(obligationDetails, None, periodKey, returnsDateUtils)(messages(application))
+        val vm = SelectSpoiltPeriodViewModel(obligationDetails, None, periodKey, None, returnsDateUtils)(messages(application))
         val view = application.injector.instanceOf[SelectSpoiltPeriodView]
 
         status(result) mustEqual OK
@@ -121,11 +121,37 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val returnsDateUtils = application.injector.instanceOf[utils.ReturnsDateUtils]
-        val vm = SelectSpoiltPeriodViewModel(obligationDetails, Some(specificYear), periodKey, returnsDateUtils)(messages(application))
+        val vm = SelectSpoiltPeriodViewModel(obligationDetails, Some(specificYear), periodKey, None, returnsDateUtils)(messages(application))
         val view = application.injector.instanceOf[SelectSpoiltPeriodView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+      }
+    }
+
+    "must exclude periods that already have spoilt data entered" in {
+      val mockService = mock[ObligationService]
+      val obligationsResponse = createMultiYearObligationsResponse()
+      val obligationDetails = obligationsResponse.obligation.map(_.obligationDetails)
+      val alreadyDeclaredPeriod = models.identifiers.PeriodKey("26AJ")
+
+      when(mockService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(obligationDetails))
+
+      val userAnswers = returnsUserAnswers
+        .set(pages.returns.SpoiltVolumeByPeriodPage, List(models.returns.SpoiltVolumeByPeriod(BigDecimal(100), alreadyDeclaredPeriod)))
+        .success.value
+
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
+        .overrides(bind[ObligationService].to(mockService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None).url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must not include alreadyDeclaredPeriod.value
       }
     }
 

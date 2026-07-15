@@ -190,7 +190,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
     }
 
 
-    "must redirect to AddSpoiltAdjustment page when valid data is submitted on a POST" in {
+    "must redirect to SpoiltCheckYourAnswers page when valid data is submitted on a POST" in {
       val mockSessionRepository = mock[ReturnsUserAnswersService]
       val mockObligationService = mock[ObligationService]
 
@@ -216,7 +216,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value must include(
-          controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onPageLoad(models.NormalMode).url
+          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url
         )
         redirectLocation(result).value must include(s"period=${periodKey.value}")
       }

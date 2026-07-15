@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package pages.returns
+package forms.returns
 
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case object AddSpoiltAdjustmentPage extends QuestionPage[Boolean] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ toString
+class RemoveSpoiltAdjustmentFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "addSpoiltAdjustment"
+  val requiredError = "site.yesNo.error.required"
+
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean(requiredError, requiredError)
+    )
 }

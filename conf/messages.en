@@ -247,11 +247,19 @@ returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.maxOne = Enter no more t
 returns.spoiltVolumeByPeriod.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
 returns.spoiltVolumeByPeriod.error.mustBeGreaterThanZero = You must enter a number greater than zero
 
-returns.addSpoiltAdjustment.title = Do you want to make an adjustment for another month?
-returns.addSpoiltAdjustment.heading = Do you want to make an adjustment for another month?
-returns.addSpoiltAdjustment.caption = Adjust spoilt vaping products
-returns.addSpoiltAdjustment.checkYourAnswersLabel = Add another spoilt adjustment
-returns.addSpoiltAdjustment.change.hidden = add another spoilt adjustment
+returns.spoiltCheckYourAnswers.title = Your spoilt products amount is {0}
+returns.spoiltCheckYourAnswers.heading = Your spoilt products amount is {0}
+returns.spoiltCheckYourAnswers.caption = Spoilt vaping products
+returns.spoiltCheckYourAnswers.noSpoiltProducts.heading = You have no spoilt products to declare
+returns.spoiltCheckYourAnswers.addAnother = Add another month?
+returns.spoiltCheckYourAnswers.volume = Volume
+returns.spoiltCheckYourAnswers.duty = Duty
+returns.spoiltCheckYourAnswers.card.remove.hidden = spoilt products for {0}
+returns.spoiltCheckYourAnswers.volume.change.hidden = spoilt products volume
+
+returns.removeSpoiltAdjustment.title = Remove this adjustment?
+returns.removeSpoiltAdjustment.heading = Remove this adjustment?
+returns.removeSpoiltAdjustment.hint = The adjustment and its information will be removed from your return.
 
 returns.adjustmentReason.title = Why did you make these adjustments?
 returns.adjustmentReason.heading = Why did you make these adjustments?

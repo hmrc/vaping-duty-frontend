@@ -21,7 +21,7 @@ import controllers.routes
 import models.*
 import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import pages.*
-import pages.returns.{AddSpoiltAdjustmentPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
+import pages.returns.{SpoiltCheckYourAnswersPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import play.api.libs.json.Json
 import play.api.mvc.Call
@@ -91,10 +91,10 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad().url}?period=$periodKey"
       }
 
-      "must go from DeclareSpoiltProductsPage to TaskList when there are NO spoilt products to declare" in {
+      "must go from DeclareSpoiltProductsPage to SpoiltCheckYourAnswers when there are NO spoilt products to declare" in {
         val ua = returnsUserAnswers.set(DeclareSpoiltProductsPage, false).success.value
 
-        navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from DeclareSpoiltProductsPage to JourneyRecovery when there is no value present" in {
@@ -102,27 +102,27 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from SpoiltVolumeByPeriodPage to AddSpoiltAdjustmentPage when entering spoilt products" in {
+      "must go from SpoiltVolumeByPeriodPage to SpoiltCheckYourAnswersPage when entering spoilt products" in {
         val ua = returnsUserAnswers.set(SpoiltVolumeByPeriodPage, List(SpoiltVolumeByPeriod(1, periodKey))).success.value
 
-        navigator.nextPage(SpoiltVolumeByPeriodPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.AddSpoiltAdjustmentController.onPageLoad(NormalMode).url}?period=$periodKey"
+        navigator.nextPage(SpoiltVolumeByPeriodPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from AddSpoiltAdjustmentPage to SelectSpoiltPeriod view when user has more spoilt adjustments to make" in {
-        val ua = returnsUserAnswers.set(AddSpoiltAdjustmentPage, true).success.value
+        val ua = returnsUserAnswers.set(SpoiltCheckYourAnswersPage, true).success.value
 
-        navigator.nextPage(AddSpoiltAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from AddSpoiltAdjustmentPage to TaskList view when no more spoilt adjustments to make" in {
-        val ua = returnsUserAnswers.set(AddSpoiltAdjustmentPage, false).success.value
+        val ua = returnsUserAnswers.set(SpoiltCheckYourAnswersPage, false).success.value
 
-        navigator.nextPage(AddSpoiltAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
       }
 
       "must go from AddSpoiltAdjustmentPage to JourneyRecovery when there is no value present" in {
         val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
-        navigator.nextPage(AddSpoiltAdjustmentPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+        navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from DeclareAdjustmentPage to SelectAdjustmentPeriod when there are adjustments to declare" in {
