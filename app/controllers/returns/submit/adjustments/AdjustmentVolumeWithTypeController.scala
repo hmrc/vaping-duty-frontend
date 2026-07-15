@@ -20,10 +20,9 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import controllers.returns.PeriodKeyExtraction
 import forms.returns.adjustments.AdjustmentVolumeWithTypeFormProvider
-import models.returns.adjustments.AdjustmentVolumeWithTypeFormData
-import models.returns.ReturnsConstants
-import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import models.Mode
+import models.returns.ReturnsConstants
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType, AdjustmentVolumeWithTypeFormData}
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.AdjustmentListPage
 import play.api.data.{Form, FormError}
@@ -34,7 +33,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.adjustments.AdjustmentVolumeWithTypeViewModel
 import views.html.returns.submit.adjustments.AdjustmentVolumeWithTypeView
-import models.returns.ReturnsConstants
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

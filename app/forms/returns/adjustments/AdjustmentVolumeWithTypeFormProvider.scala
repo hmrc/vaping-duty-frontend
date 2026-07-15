@@ -37,8 +37,7 @@ class AdjustmentVolumeWithTypeFormProvider @Inject()(
            (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Form[AdjustmentVolumeWithTypeFormData]] = {
 
     dutyRateService.getDutyRate(vpdId, periodKey).map { dutyRate =>
-      val dutyRateInPencePerMl = (dutyRate * 100).toInt
-      val maxVolumeResult = volumePrecisionService.calculateMaxVolume(dutyRateInPencePerMl)
+      val maxVolumeResult = volumePrecisionService.calculateMaxVolume(dutyRate)
 
       Form(
         mapping(
