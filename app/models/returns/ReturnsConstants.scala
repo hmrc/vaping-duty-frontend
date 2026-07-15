@@ -21,4 +21,7 @@ object ReturnsConstants {
   val QUERY_PARAM_ADJUSTMENT_PERIOD: String = "adjustmentPeriod"
   val QUERY_PARAM_SPOILT_PERIOD: String = "spoiltPeriod"
   val YEARS_TO_SHOW: Int = 3
+  val ADJUSTMENT_TYPE_FIELD: String = "adjustmentType"
+  val UNDER_DECLARED_VOLUME_FIELD: String = "underDeclaredVolume"
+  val OVER_DECLARED_VOLUME_FIELD: String = "overDeclaredVolume"
 }

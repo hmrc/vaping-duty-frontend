@@ -17,57 +17,70 @@
 package forms.returns.adjustments
 
 import forms.mappings.Mappings
-import models.returns.adjustments.AdjustmentType
+import models.identifiers.{PeriodKey, VpdId}
+import models.returns.adjustments.{AdjustmentType, AdjustmentVolumeWithTypeFormData}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, optional}
+import play.api.data.validation.{Constraint, Invalid, Valid}
+import services.returns.{DutyRateService, VolumePrecisionService}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
-class AdjustmentVolumeWithTypeFormProvider @Inject() extends Mappings {
+class AdjustmentVolumeWithTypeFormProvider @Inject()(
+  dutyRateService: DutyRateService,
+  volumePrecisionService: VolumePrecisionService
+) extends Mappings {
 
-  def apply(): Form[AdjustmentVolumeWithTypeFormData] =
-    Form(
-      mapping(
-        "adjustmentType" -> enumerable[AdjustmentType](
-          "returns.adjustmentVolumeWithType.error.required"
-        ),
-        "underDeclaredVolume" -> optional(volume(
-          "returns.adjustmentVolumeWithType.underDeclared.error.required",
-          "returns.adjustmentVolumeWithType.underDeclared.error.nonNumeric",
-          "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.wholeOnly",
-          "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.maxOne"
-        )),
-        "overDeclaredVolume" -> optional(volume(
-          "returns.adjustmentVolumeWithType.overDeclared.error.required",
-          "returns.adjustmentVolumeWithType.overDeclared.error.nonNumeric",
-          "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.wholeOnly",
-          "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.maxOne"
-        ))
-      )(
-        (adjustmentType, underDeclaredVolume, overDeclaredVolume) =>
+  def apply(periodKey: PeriodKey, vpdId: VpdId)
+           (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Form[AdjustmentVolumeWithTypeFormData]] = {
+
+    dutyRateService.getDutyRate(vpdId, periodKey).map { dutyRate =>
+      val maxVolumeResult = volumePrecisionService.calculateMaxVolume(dutyRate)
+
+      Form(
+        mapping(
+          "adjustmentType" -> enumerable[AdjustmentType](
+            "returns.adjustmentVolumeWithType.error.required"
+          ),
+          "underDeclaredVolume" -> optional(volume(
+            "returns.adjustmentVolumeWithType.underDeclared.error.required",
+            "returns.adjustmentVolumeWithType.underDeclared.error.nonNumeric",
+            "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.wholeOnly",
+            "returns.adjustmentVolumeWithType.underDeclared.error.invalidDecimalPlaces.maxOne"
+          ).verifying(greaterThanZero("returns.adjustmentVolumeWithType.underDeclared.error.mustBeGreaterThanZero"))),
+          "overDeclaredVolume" -> optional(volume(
+            "returns.adjustmentVolumeWithType.overDeclared.error.required",
+            "returns.adjustmentVolumeWithType.overDeclared.error.nonNumeric",
+            "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.wholeOnly",
+            "returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.maxOne"
+          ).verifying(greaterThanZero("returns.adjustmentVolumeWithType.overDeclared.error.mustBeGreaterThanZero")))
+        )((adjustmentType, underDeclaredVolume, overDeclaredVolume) =>
           AdjustmentVolumeWithTypeFormData(adjustmentType, underDeclaredVolume, overDeclaredVolume)
-      )(
-        data => Some((data.adjustmentType, data.underDeclaredVolume, data.overDeclaredVolume))
+        )(data =>
+          Some((data.adjustmentType, data.underDeclaredVolume, data.overDeclaredVolume))
+        )
+          .verifying("returns.adjustmentVolumeWithType.error.required", data => {
+            data.adjustmentType match {
+              case AdjustmentType.UnderDeclared => data.underDeclaredVolume.isDefined
+              case AdjustmentType.OverDeclared => data.overDeclaredVolume.isDefined
+            }
+          })
+          .verifying("returns.adjustmentVolumeWithType.error.bothProvided", data => {
+            !(data.underDeclaredVolume.isDefined && data.overDeclaredVolume.isDefined)
+          })
+          .verifying(
+            Constraint[AdjustmentVolumeWithTypeFormData] { data =>
+              val volume = data.getVolume
+              if (volume >= BigDecimal(0) && volume <= maxVolumeResult.maxVolumeInMl) {
+                Valid
+              } else {
+                Invalid("returns.adjustmentVolumeWithType.error.exceedsMaxDuty", maxVolumeResult.formattedForDisplay)
+              }
+            }
+          )
       )
-        .verifying("returns.adjustmentVolumeWithType.error.required", data => {
-          data.adjustmentType match {
-            case AdjustmentType.UnderDeclared => data.underDeclaredVolume.isDefined
-            case AdjustmentType.OverDeclared => data.overDeclaredVolume.isDefined
-          }
-        })
-        .verifying("returns.adjustmentVolumeWithType.error.bothProvided", data => {
-          !(data.underDeclaredVolume.isDefined && data.overDeclaredVolume.isDefined)
-        })
-    )
-}
-
-case class AdjustmentVolumeWithTypeFormData(
-                                             adjustmentType: AdjustmentType,
-                                             underDeclaredVolume: Option[BigDecimal],
-                                             overDeclaredVolume: Option[BigDecimal]
-                                           ) {
-  def getVolume: BigDecimal = adjustmentType match {
-    case AdjustmentType.UnderDeclared => underDeclaredVolume.getOrElse(BigDecimal(0))
-    case AdjustmentType.OverDeclared => overDeclaredVolume.getOrElse(BigDecimal(0))
+    }
   }
 }

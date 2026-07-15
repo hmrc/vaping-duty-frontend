@@ -192,8 +192,4 @@ object SpoiltCheckYourAnswersViewModel {
       actions = None
     )
   }
-
-  private def calculateDuty(volumeInMl: BigDecimal, dutyRate: BigDecimal): BigDecimal = {
-    (volumeInMl * dutyRate).setScale(2, BigDecimal.RoundingMode.DOWN)
-  }
 }

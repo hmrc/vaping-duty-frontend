@@ -19,12 +19,13 @@ package controllers.returns.submit.adjustments
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import controllers.returns.PeriodKeyExtraction
-import forms.returns.adjustments.{AdjustmentVolumeWithTypeFormData, AdjustmentVolumeWithTypeFormProvider}
-import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
+import forms.returns.adjustments.AdjustmentVolumeWithTypeFormProvider
 import models.Mode
+import models.returns.ReturnsConstants
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType, AdjustmentVolumeWithTypeFormData}
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.AdjustmentListPage
-import play.api.data.Form
+import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.{ObligationService, ReturnsUserAnswersService}
@@ -32,7 +33,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.adjustments.AdjustmentVolumeWithTypeViewModel
 import views.html.returns.submit.adjustments.AdjustmentVolumeWithTypeView
-import models.returns.ReturnsConstants
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -52,14 +52,14 @@ class AdjustmentVolumeWithTypeController @Inject()(
                                                     view: AdjustmentVolumeWithTypeView
                                                   )(using ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
 
-  val form: Form[AdjustmentVolumeWithTypeFormData] = formProvider()
-
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
-        obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligationDetails =>
-
+        for {
+          obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
+          form              <- formProvider(request.periodKey, request.enrolmentVpdId)
+        } yield {
           val existingAdjustment = request.userAnswers.get(AdjustmentListPage)
             .flatMap(_.adjustments.find(_.period == adjustmentPeriodKey))
 
@@ -84,33 +84,86 @@ class AdjustmentVolumeWithTypeController @Inject()(
     implicit request =>
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
-        obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap { obligationDetails =>
-          form.bindFromRequest().fold(
-            formWithErrors => {
-              val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, adjustmentPeriodKey, returnsDateUtils)
-              Future.successful(BadRequest(view(request.periodKey, adjustmentPeriodKey, formWithErrors, mode, vm)))
-            },
+        for {
+          obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
+          form              <- formProvider(request.periodKey, request.enrolmentVpdId)
+          result            <- {
+            val rawData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
+            val cleanedData = cleanFormData(rawData)
 
-            formData => {
-              val volume = formData.getVolume
-              val newEntry = AdjustmentEntry(
-                period = adjustmentPeriodKey,
-                adjustmentType = formData.adjustmentType,
-                volumeInMl = volume
-              )
+            form.bind(cleanedData).fold(
+              formWithErrors => {
+                val updatedForm = prepareFormForDisplay(formWithErrors)
+                val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, adjustmentPeriodKey, returnsDateUtils)
+                Future.successful(BadRequest(view(request.periodKey, adjustmentPeriodKey, updatedForm, mode, vm)))
+              },
 
-              val existingList = request.userAnswers.get(AdjustmentListPage).getOrElse(AdjustmentList.empty)
+              formData => {
+                val newEntry = AdjustmentEntry(
+                  period = adjustmentPeriodKey,
+                  adjustmentType = formData.adjustmentType,
+                  volumeInMl = formData.getVolume
+                )
 
-              val updatedAdjustments = existingList.adjustments.filterNot(_.period == adjustmentPeriodKey) :+ newEntry
-              val updatedList = AdjustmentList(updatedAdjustments)
+                val existingList = request.userAnswers.get(AdjustmentListPage).getOrElse(AdjustmentList.empty)
+                val updatedAdjustments = existingList.adjustments.filterNot(_.period == adjustmentPeriodKey) :+ newEntry
+                val updatedList = AdjustmentList(updatedAdjustments)
 
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(AdjustmentListPage, updatedList))
-                _              <- sessionRepository.set(updatedAnswers)
-              } yield Redirect(navigator.nextPage(AdjustmentListPage, mode, updatedAnswers))
-            }
-          )
-        }
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(AdjustmentListPage, updatedList))
+                  _              <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(AdjustmentListPage, mode, updatedAnswers))
+              }
+            )
+          }
+        } yield result
       }
+  }
+
+  private def cleanFormData(rawData: Map[String, Seq[String]]): Map[String, String] = {
+    val flattenedData = rawData.view.mapValues(_.head).toMap
+    flattenedData.get(ReturnsConstants.ADJUSTMENT_TYPE_FIELD) match {
+      case Some(AdjustmentType.UnderDeclared.toString) =>
+        flattenedData - ReturnsConstants.OVER_DECLARED_VOLUME_FIELD
+      case Some(AdjustmentType.OverDeclared.toString) =>
+        flattenedData - ReturnsConstants.UNDER_DECLARED_VOLUME_FIELD
+      case _ => flattenedData
+    }
+  }
+
+  private def prepareFormForDisplay(form: Form[AdjustmentVolumeWithTypeFormData]): Form[AdjustmentVolumeWithTypeFormData] = {
+    val cleanedForm = clearNonSelectedField(form)
+    moveFormLevelErrorsToField(cleanedForm, ReturnsConstants.ADJUSTMENT_TYPE_FIELD)
+  }
+
+  private def clearNonSelectedField(form: Form[AdjustmentVolumeWithTypeFormData]): Form[AdjustmentVolumeWithTypeFormData] = {
+    // Get the adjustment type from the form data
+    form.data.get(ReturnsConstants.ADJUSTMENT_TYPE_FIELD) match {
+      case Some(AdjustmentType.UnderDeclared.toString) =>
+        // Clear overDeclaredVolume from the form data and remove any errors for that field
+        form.copy(
+          data = form.data - ReturnsConstants.OVER_DECLARED_VOLUME_FIELD,
+          errors = form.errors.filterNot(_.key == ReturnsConstants.OVER_DECLARED_VOLUME_FIELD)
+        )
+      case Some(AdjustmentType.OverDeclared.toString) =>
+        // Clear underDeclaredVolume from the form data and remove any errors for that field
+        form.copy(
+          data = form.data - ReturnsConstants.UNDER_DECLARED_VOLUME_FIELD,
+          errors = form.errors.filterNot(_.key == ReturnsConstants.UNDER_DECLARED_VOLUME_FIELD)
+        )
+      case _ =>
+        // If no adjustment type is selected, return form as-is
+        form
+    }
+  }
+
+  private def moveFormLevelErrorsToField[T](form: Form[T], fieldName: String): Form[T] = {
+    val formLevelErrors = form.errors.filter(_.key.isEmpty)
+    if (formLevelErrors.nonEmpty) {
+      val fieldErrors = formLevelErrors.map(e => FormError(fieldName, e.message, e.args))
+      form.copy(errors = form.errors.filterNot(_.key.isEmpty) ++ fieldErrors)
+    } else {
+      form
+    }
   }
 }

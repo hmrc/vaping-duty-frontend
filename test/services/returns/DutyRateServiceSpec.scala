@@ -18,7 +18,6 @@ package services.returns
 
 import base.SpecBase
 import config.DutyRateConfig
-import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationStatus}
 import models.returns.{ConfigDutyRate, DutyRate}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
