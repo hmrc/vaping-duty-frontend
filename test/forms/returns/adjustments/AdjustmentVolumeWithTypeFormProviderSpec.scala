@@ -19,7 +19,7 @@ package forms.returns.adjustments
 import base.SpecBase
 import forms.behaviours.FieldBehaviours
 import models.identifiers.{PeriodKey, VpdId}
-import models.returns.MaxVolumeResult
+import models.returns.{DutyRate, MaxVolumeResult}
 import models.returns.adjustments.{AdjustmentType, AdjustmentVolumeWithTypeFormData}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
@@ -37,7 +37,7 @@ class AdjustmentVolumeWithTypeFormProviderSpec extends SpecBase with FieldBehavi
 
   private val testPeriodKey = PeriodKey("24KA")
   private val testVpdId = VpdId("VPDID123")
-  private val testDutyRate = BigDecimal("3.37")
+  private val testDutyRate = DutyRate(3370)
   private val testMaxVolume = BigDecimal("29000000000")
   private val testFormattedMax = "29,000,000,000 ml"
 

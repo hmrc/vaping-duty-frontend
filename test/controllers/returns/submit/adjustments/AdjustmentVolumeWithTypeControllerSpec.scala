@@ -18,7 +18,7 @@ package controllers.returns.submit.adjustments
 
 import base.SpecBase
 import models.NormalMode
-import models.returns.MaxVolumeResult
+import models.returns.{DutyRate, MaxVolumeResult}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -39,7 +39,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
   val adjustmentPeriodKey = october2027
   
-  override val testDutyRate: BigDecimal = BigDecimal("3.37")
+  override val testDutyRate: DutyRate = DutyRate(3370)
   val testMaxVolume: BigDecimal = BigDecimal("29000000000")
   val testFormattedMax: String = "29,000,000,000 ml"
 
