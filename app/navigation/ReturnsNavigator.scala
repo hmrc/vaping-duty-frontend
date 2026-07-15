@@ -20,7 +20,6 @@ import config.FrontendAppConfig
 import controllers.routes
 import models.*
 import models.returns.ReturnsUserAnswers
-import models.returns.adjustments.AdjustmentType
 import pages.*
 import pages.returns.*
 import pages.returns.adjustments.*
