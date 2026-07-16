@@ -89,7 +89,8 @@ POST       /complete-return/adjustment/declare-adjustments                      
 GET        /complete-return/adjustment/change-declare-adjustments                           controllers.returns.submit.adjustments.DeclareAdjustmentQuestionController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/adjustment/change-declare-adjustments                           controllers.returns.submit.adjustments.DeclareAdjustmentQuestionController.onSubmit(mode: Mode = CheckMode)
 
-GET        /complete-return/adjustment/select-period                                        controllers.returns.submit.adjustments.SelectAdjustmentPeriodController.onPageLoad(year: Option[Int] ?= None)
+GET        /complete-return/adjustment/select-period                                        controllers.returns.submit.adjustments.SelectAdjustmentPeriodController.onPageLoad(mode: Mode = NormalMode, year: Option[Int] ?= None)
+GET        /complete-return/adjustment/change-select-period                                 controllers.returns.submit.adjustments.SelectAdjustmentPeriodController.onPageLoad(mode: Mode = CheckMode, year: Option[Int] ?= None)
 
 GET        /complete-return/adjustment/enter-over-or-under-declaration-amount               controllers.returns.submit.adjustments.AdjustmentVolumeWithTypeController.onPageLoad(mode: Mode = NormalMode)
 POST       /complete-return/adjustment/enter-over-or-under-declaration-amount               controllers.returns.submit.adjustments.AdjustmentVolumeWithTypeController.onSubmit(mode: Mode = NormalMode)

@@ -110,17 +110,22 @@ class ReturnsNavigator @Inject()(
 
   private def declareAdjustmentQuestionPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(DeclareAdjustmentPage) match
-      case Some(true)  => withPeriod(controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None), periodKey)
+      case Some(true)  => withPeriod(controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(NormalMode, None), periodKey)
       case Some(false) => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode), periodKey)
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
   private def addAnotherAdjustmentPageRoutes(ua: ReturnsUserAnswers, periodKey: String, adjustmentReasonMandatory: Boolean, mode: Mode) = {
     ua.get(AddAnotherAdjustmentPage) match
-      case Some(true) => withPeriod(controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None), periodKey)
+      case Some(true) => withPeriod(controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(mode, None), periodKey)
       case Some(false) =>
         mode match {
-          case CheckMode => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
+          case CheckMode =>
+            val hasReason = ua.get(AdjustmentReasonPage).isDefined
+            if (adjustmentReasonMandatory && !hasReason)
+              withPeriod(controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(CheckMode), periodKey)
+            else
+              withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
           case NormalMode =>
             if (adjustmentReasonMandatory)
               withPeriod(controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode), periodKey)

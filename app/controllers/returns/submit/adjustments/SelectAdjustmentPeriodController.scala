@@ -18,6 +18,7 @@ package controllers.returns.submit.adjustments
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import models.Mode
 import pages.returns.adjustments.AdjustmentListPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -42,7 +43,7 @@ class SelectAdjustmentPeriodController @Inject()(
                                                   view: SelectAdjustmentPeriodView
                                                 )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(year: Option[Int]): Action[AnyContent] =
+  def onPageLoad(mode: Mode, year: Option[Int]): Action[AnyContent] =
     (identify andThen returnsEnabledAction andThen getData andThen requireData).async { implicit request =>
 
       obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligationDetails =>
@@ -52,7 +53,8 @@ class SelectAdjustmentPeriodController @Inject()(
           year,
           request.periodKey,
           adjustmentList,
-          returnsDateUtils
+          returnsDateUtils,
+          mode
         )
         Ok(view(vm, request.periodKey))
       }.recover {
