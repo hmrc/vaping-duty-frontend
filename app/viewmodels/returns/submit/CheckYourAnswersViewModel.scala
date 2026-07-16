@@ -18,7 +18,9 @@ package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
 import models.returns.{DutyRate, ReturnsUserAnswers}
+import models.returns.adjustments.AdjustmentType
 import pages.returns.{DeclareDutyPage, DeclareSpoiltProductsPage, EnterDutyAmountPage}
+import pages.returns.adjustments.AdjustmentListPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -75,7 +77,26 @@ object CheckYourAnswersViewModel {
 
   private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate): String = {
     userAnswers.get(EnterDutyAmountPage) match {
-      case Some(volumeInMl)  => currencyFormat(dutyRate.calculateDuty(volumeInMl))
+      case Some(volumeInMl)  => 
+        val vapingProductsDuty = dutyRate.calculateDuty(volumeInMl)
+        
+        // Calculate adjustment totals to match the total duty row calculation
+        val adjustmentTotal = userAnswers.get(AdjustmentListPage).map { list =>
+          val underDuty = list.adjustments
+            .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
+            .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+            .sum
+          
+          val overDuty = list.adjustments
+            .filter(_.adjustmentType == AdjustmentType.OverDeclared)
+            .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+            .sum
+          
+          underDuty - overDuty
+        }.getOrElse(BigDecimal(ZERO))
+        
+        val totalDuty = vapingProductsDuty + adjustmentTotal
+        currencyFormat(totalDuty)
       case None              => currencyFormat(BigDecimal(ZERO))
     }
   }
