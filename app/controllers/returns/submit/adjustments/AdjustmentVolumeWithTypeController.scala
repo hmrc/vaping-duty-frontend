@@ -114,7 +114,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
                   updatedAnswers <- Future.fromTry(request.userAnswers.set(AdjustmentListPage, updatedList))
                   dutyRate <- dutyRateService.getDutyRate(request.enrolmentVpdId, adjustmentPeriodKey)
                   // Check if reason should be removed due to threshold change
-                  finalAnswers <- {
+                  (finalAnswers, reasonRequired) <- {
                     val adjustments = updatedList.adjustments
                     val underDuty: BigDecimal = adjustments
                       .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
@@ -128,13 +128,13 @@ class AdjustmentVolumeWithTypeController @Inject()(
                     val reasonRequired = underDuty >= AdjustmentType.dutyThreshold || overDuty >= AdjustmentType.dutyThreshold
                     
                     if (!reasonRequired && updatedAnswers.get(AdjustmentReasonPage).isDefined) {
-                      Future.fromTry(updatedAnswers.remove(AdjustmentReasonPage))
+                      Future.fromTry(updatedAnswers.remove(AdjustmentReasonPage)).map(ans => (ans, reasonRequired))
                     } else {
-                      Future.successful(updatedAnswers)
+                      Future.successful((updatedAnswers, reasonRequired))
                     }
                   }
                   _ <- sessionRepository.set(finalAnswers)
-                } yield Redirect(navigator.nextPage(AdjustmentListPage, mode, finalAnswers))
+                } yield Redirect(navigator.nextPage(AdjustmentListPage, mode, finalAnswers, reasonRequired))
               }
             )
           }

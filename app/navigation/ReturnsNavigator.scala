@@ -44,7 +44,7 @@ class ReturnsNavigator @Inject()(
     case SpoiltCheckYourAnswersPage     => ua  => addSpoiltAdjustmentPageRoutes(ua, periodKey)
     case SpoiltVolumeByPeriodPage       => _   => withPeriod(controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareAdjustmentPage          => ua  => declareAdjustmentQuestionPageRoutes(ua, periodKey)
-    case AdjustmentListPage             => _   => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode), periodKey)
+    case AdjustmentListPage             => ua  => adjustmentListPageRoutes(ua, periodKey, adjustmentReasonMandatory)
     case AddAnotherAdjustmentPage       => ua  => addAnotherAdjustmentPageRoutes(ua, periodKey, adjustmentReasonMandatory, NormalMode)
     case AdjustmentReasonPage           => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage        => ua  => declareDutySuspensePageRoutes(ua, periodKey)
@@ -113,6 +113,18 @@ class ReturnsNavigator @Inject()(
       case Some(true)  => withPeriod(controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(NormalMode, None), periodKey)
       case Some(false) => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode), periodKey)
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+  }
+
+  private def adjustmentListPageRoutes(ua: ReturnsUserAnswers, periodKey: String, adjustmentReasonMandatory: Boolean) = {
+    val hasReason = ua.get(AdjustmentReasonPage).isDefined
+    
+    if (adjustmentReasonMandatory && !hasReason) {
+      // Reason required but missing - redirect to reason page
+      withPeriod(controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode), periodKey)
+    } else {
+      // Either reason not required, or already provided - go to CYA
+      withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode), periodKey)
+    }
   }
 
   private def addAnotherAdjustmentPageRoutes(ua: ReturnsUserAnswers, periodKey: String, adjustmentReasonMandatory: Boolean, mode: Mode) = {
