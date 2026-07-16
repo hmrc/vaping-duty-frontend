@@ -23,7 +23,7 @@ import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
+import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -322,6 +322,86 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
           exception mustBe a[RuntimeException]
           exception.getMessage mustBe "Service unavailable"
         }
+      }
+    }
+
+    "must redirect to reason page when reason is required but missing" in {
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockService = mock[AdjustmentCheckYourAnswersService]
+      val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
+      val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
+
+      val mockViewModel = AdjustmentCheckYourAnswersViewModel(
+        summaryCards = Seq.empty,
+        hasAdjustments = true,
+        totalAdjustment = BigDecimal(1000),
+        formattedTotalAdjustment = "£1,000.00",
+        hasAvailablePeriodsToAdd = false,
+        adjustmentReasonMandatory = true // Reason is required
+      )
+
+      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+        .thenReturn(Future.successful(mockViewModel))
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(userAnswers))
+          .overrides(
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[AdjustmentCheckYourAnswersService].toInstance(mockService)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, adjustmentCheckYourAnswersRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value must include("reason-for-adjustment")
+      }
+    }
+
+    "must remove reason when no longer required and redirect to task list" in {
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockService = mock[AdjustmentCheckYourAnswersService]
+      val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
+      val userAnswers = returnsUserAnswers
+        .set(AdjustmentListPage, testAdjustmentList).success.value
+        .set(AdjustmentReasonPage, "old reason").success.value
+
+      val mockViewModel = AdjustmentCheckYourAnswersViewModel(
+        summaryCards = Seq.empty,
+        hasAdjustments = true,
+        totalAdjustment = BigDecimal(100), // Below threshold
+        formattedTotalAdjustment = "£100.00",
+        hasAvailablePeriodsToAdd = false,
+        adjustmentReasonMandatory = false // Reason no longer required
+      )
+
+      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+        .thenReturn(Future.successful(mockViewModel))
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(userAnswers))
+          .overrides(
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[AdjustmentCheckYourAnswersService].toInstance(mockService)
+          )
+          .build()
+
+      running(application) {
+        val request = FakeRequest(POST, adjustmentCheckYourAnswersRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+        
+        // Verify that the reason was removed from user answers
+        verify(mockSessionRepository).set(any())(any())
       }
     }
   }

@@ -22,9 +22,9 @@ import models.returns.{DutyRate, MaxVolumeResult}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.returns.adjustments.AdjustmentListPage
+import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -54,6 +54,8 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
   private def setupFormProviderMocks(mockDutyRateService: DutyRateService, 
                                      mockVolumePrecisionService: VolumePrecisionService): Unit = {
     when(mockDutyRateService.getDutyRate(eqTo(vpdId), eqTo(periodKey))(using any(), any()))
+      .thenReturn(Future.successful(testDutyRate))
+    when(mockDutyRateService.getDutyRate(eqTo(vpdId), eqTo(adjustmentPeriodKey))(using any(), any()))
       .thenReturn(Future.successful(testDutyRate))
     when(mockVolumePrecisionService.calculateMaxVolume(any()))
       .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
@@ -509,6 +511,114 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
           content must include("100.5")
           content must include("200.7")
         }
+      }
+    }
+
+    "must remove adjustment reason when duty drops below threshold" in {
+      val mockObligationService = mock[ObligationService]
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockDutyRateService = mock[DutyRateService]
+      val mockVolumePrecisionService = mock[VolumePrecisionService]
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+
+      // User has existing reason and large adjustment
+      val existingAdjustment = AdjustmentEntry(
+        period = adjustmentPeriodKey,
+        adjustmentType = AdjustmentType.UnderDeclared,
+        volumeInMl = BigDecimal(5000) // High volume
+      )
+      val userAnswers = returnsUserAnswers
+        .set(AdjustmentListPage, AdjustmentList(Seq(existingAdjustment))).success.value
+        .set(AdjustmentReasonPage, "existing reason").success.value
+
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+      setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(userAnswers))
+          .overrides(
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[DutyRateService].toInstance(mockDutyRateService),
+            bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
+          )
+          .build()
+
+      running(application) {
+        // Submit with low volume that will result in duty < £1000
+        val request =
+          FakeRequest(POST, adjustmentVolumeWithTypeSubmitRoute)
+            .withFormUrlEncodedBody(
+              ("adjustmentType", "underDeclared"),
+              ("underDeclaredVolume", "10") // Low volume - duty will be < £1000
+            )
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+        
+        // Verify that session was updated (reason should be removed)
+        verify(mockSessionRepository).set(any())(any())
+      }
+    }
+
+    "must keep adjustment reason when duty remains above threshold" in {
+      val mockObligationService = mock[ObligationService]
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockDutyRateService = mock[DutyRateService]
+      val mockVolumePrecisionService = mock[VolumePrecisionService]
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+
+      // User has existing reason and large adjustment
+      val existingAdjustment = AdjustmentEntry(
+        period = adjustmentPeriodKey,
+        adjustmentType = AdjustmentType.UnderDeclared,
+        volumeInMl = BigDecimal(5000)
+      )
+      val userAnswers = returnsUserAnswers
+        .set(AdjustmentListPage, AdjustmentList(Seq(existingAdjustment))).success.value
+        .set(AdjustmentReasonPage, "existing reason").success.value
+
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+      setupFormProviderMocks(mockDutyRateService, mockVolumePrecisionService)
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(userAnswers))
+          .overrides(
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[DutyRateService].toInstance(mockDutyRateService),
+            bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
+          )
+          .build()
+
+      running(application) {
+        // Submit with high volume that will result in duty >= £1000
+        val request =
+          FakeRequest(POST, adjustmentVolumeWithTypeSubmitRoute)
+            .withFormUrlEncodedBody(
+              ("adjustmentType", "underDeclared"),
+              ("underDeclaredVolume", "6000") // High volume - duty will be >= £1000
+            )
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+        
+        // Verify that session was updated (reason should be kept)
+        verify(mockSessionRepository).set(any())(any())
       }
     }
   }

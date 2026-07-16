@@ -242,6 +242,15 @@ class ReturnsNavigatorSpec extends SpecBase {
       "must go from DeclareSpoiltProductsPage to TaskList" in {
         navigator.nextPage(DeclareSpoiltProductsPage, CheckMode, returnsUserAnswers) mustBe controllers.returns.submit.routes.TaskListController.onPageLoad()
       }
+
+      "must go from DeclareAdjustmentPage to AdjustmentCheckYourAnswers (mini CYA)" in {
+        navigator.nextPage(DeclareAdjustmentPage, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from AdjustmentReasonPage to CheckYourAnswers" in {
+        val ua = returnsUserAnswers.set(AdjustmentReasonPage, "test reason").success.value
+        navigator.nextPage(AdjustmentReasonPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+      }
     }
   }
 }

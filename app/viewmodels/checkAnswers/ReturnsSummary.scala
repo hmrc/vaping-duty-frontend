@@ -149,8 +149,23 @@ object ReturnsSummary extends CurrencyFormatter {
       case Some(true) =>
         answers.get(EnterDutyAmountPage) match {
           case Some(volumeInMl) => 
-            val dutyDue = dutyRate.calculateDuty(volumeInMl)
-            totalDutyRow(currencyFormat(dutyDue))
+            val vapingProductsDuty = dutyRate.calculateDuty(volumeInMl)
+            
+            // Calculate adjustment totals
+            val adjustmentTotal = answers.get(AdjustmentListPage).map { list =>
+              val underDuty = list.adjustments
+                .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
+                .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+                .sum
+              val overDuty = list.adjustments
+                .filter(_.adjustmentType == AdjustmentType.OverDeclared)
+                .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+                .sum
+              underDuty - overDuty
+            }.getOrElse(BigDecimal(0))
+            
+            val totalDuty = vapingProductsDuty + adjustmentTotal
+            totalDutyRow(currencyFormat(totalDuty))
           case None => totalDutyRow(messages("returns.CheckYourAnswers.dutySummary.total.nil"))
         }
       case _ => None
