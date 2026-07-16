@@ -18,6 +18,7 @@ package controllers.returns.submit.adjustments
 
 import base.SpecBase
 import forms.returns.DeclareDutyFormProvider
+import models.NormalMode
 import models.returns.adjustments.AdjustmentList
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
@@ -42,7 +43,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
   val form: Form[Boolean] = formProvider()
 
   lazy val adjustmentCheckYourAnswersRoute: String =
-    controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url
+    controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode).url
 
   "AdjustmentCheckYourAnswers Controller" - {
 
@@ -57,10 +58,11 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
         hasAvailablePeriodsToAdd = true,
-        adjustmentReasonMandatory = false
+        adjustmentReasonMandatory = false,
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -91,10 +93,11 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
         hasAvailablePeriodsToAdd = true,
-        adjustmentReasonMandatory = false
+        adjustmentReasonMandatory = false,
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -117,7 +120,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -150,10 +153,11 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
         hasAvailablePeriodsToAdd = true,
-        adjustmentReasonMandatory = false
+        adjustmentReasonMandatory = false,
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
@@ -191,10 +195,11 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(0),
         formattedTotalAdjustment = "£0.00",
         hasAvailablePeriodsToAdd = true,
-        adjustmentReasonMandatory = false
+        adjustmentReasonMandatory = false,
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
@@ -233,10 +238,11 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
         hasAvailablePeriodsToAdd = false,
-        adjustmentReasonMandatory = false
+        adjustmentReasonMandatory = false,
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
@@ -274,10 +280,11 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
         hasAvailablePeriodsToAdd = true,
-        adjustmentReasonMandatory = false
+        adjustmentReasonMandatory = false,
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -302,7 +309,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -337,10 +344,11 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
         hasAvailablePeriodsToAdd = false,
-        adjustmentReasonMandatory = true // Reason is required
+        adjustmentReasonMandatory = true, // Reason is required
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
@@ -376,10 +384,11 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(100), // Below threshold
         formattedTotalAdjustment = "£100.00",
         hasAvailablePeriodsToAdd = false,
-        adjustmentReasonMandatory = false // Reason no longer required
+        adjustmentReasonMandatory = false, // Reason no longer required
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
