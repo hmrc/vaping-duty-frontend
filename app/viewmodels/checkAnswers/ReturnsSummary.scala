@@ -171,7 +171,7 @@ object ReturnsSummary extends CurrencyFormatter {
         actions = Seq(
           ActionItemViewModel(
             "site.change",
-            s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url}?period=${periodKey.value}"
+            s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
           ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.question.change.hidden"))
         )
       )
@@ -192,7 +192,7 @@ object ReturnsSummary extends CurrencyFormatter {
           actions = Seq(
             ActionItemViewModel(
               "site.change",
-              s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url}?period=${periodKey.value}"
+              s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
             ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.combined.change.hidden"))
           )
         ))

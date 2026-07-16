@@ -19,7 +19,7 @@ package controllers.returns.submit.adjustments
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import forms.returns.DeclareDutyFormProvider
-import models.NormalMode
+import models.{Mode, NormalMode}
 import models.requests.returns.ReturnsDataRequest
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
@@ -50,40 +50,40 @@ class AdjustmentCheckYourAnswersController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
       val adjustmentList = request.userAnswers.get(AdjustmentListPage)
 
       adjustmentCheckYourAnswersService
-        .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId)
+        .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId, mode)
         .map { vm =>
           val preparedForm = request.userAnswers.get(AddAnotherAdjustmentPage) match {
             case None => form
             case Some(value) => form.fill(value)
           }
 
-          Ok(view(request.periodKey, vm, preparedForm))
+          Ok(view(request.periodKey, vm, preparedForm, mode))
         }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
       val adjustmentList = request.userAnswers.get(AdjustmentListPage)
 
       adjustmentCheckYourAnswersService
-        .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId)
+        .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId, mode)
         .flatMap { vm =>
           declareAdjustment match {
-            case Some(false) => redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory)
-            case _ if !vm.hasAvailablePeriodsToAdd => redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory)
+            case Some(false) => redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory, mode)
+            case _ if !vm.hasAvailablePeriodsToAdd => redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory, mode)
             case _ =>
               form.bindFromRequest().fold(
                 formWithErrors =>
-                  Future.successful(BadRequest(view(request.periodKey, vm, formWithErrors))),
+                  Future.successful(BadRequest(view(request.periodKey, vm, formWithErrors, mode))),
 
                 value =>
                   for {
@@ -91,7 +91,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
                     _ <- sessionRepository.set(updatedAnswers)
                   } yield Redirect(navigator.nextPage(
                     AddAnotherAdjustmentPage,
-                    NormalMode,
+                    mode,
                     updatedAnswers,
                     vm.adjustmentReasonMandatory
                   ))
@@ -102,7 +102,8 @@ class AdjustmentCheckYourAnswersController @Inject()(
 
   private def redirectToNextPageWithoutAddingAnother(
                                                       request: ReturnsDataRequest[AnyContent],
-                                                      adjustmentReasonMandatory: Boolean
+                                                      adjustmentReasonMandatory: Boolean,
+                                                      mode: Mode
                                                     )(using HeaderCarrier): Future[Result] = {
     // Check if reason is required but missing
     val hasReason = request.userAnswers.get(AdjustmentReasonPage).isDefined
@@ -110,7 +111,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
     if (adjustmentReasonMandatory && !hasReason) {
       // Reason required but missing - redirect to reason page
       Future.successful(Redirect(
-        s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=${request.periodKey}"
+        s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(mode).url}?period=${request.periodKey}"
       ))
     } else {
       // Check if reason exists but is no longer required - clean it up
@@ -123,7 +124,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
       for {
         updatedAnswers <- Future.fromTry(answersToSave.set(AddAnotherAdjustmentPage, false))
         _ <- sessionRepository.set(updatedAnswers)
-      } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers, adjustmentReasonMandatory))
+      } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, mode, updatedAnswers, adjustmentReasonMandatory))
     }
   }
 

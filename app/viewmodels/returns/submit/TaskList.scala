@@ -81,7 +81,7 @@ object TaskList {
   private def determineAdjustmentLink(userAnswers: ReturnsUserAnswers): Call = {
     userAnswers.get(AdjustmentListPage) match {
       case Some(list) if list.adjustments.nonEmpty =>
-        controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad()
+        controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode)
       case _ =>
         controllers.returns.submit.adjustments.routes.DeclareAdjustmentQuestionController.onPageLoad(NormalMode)
     }

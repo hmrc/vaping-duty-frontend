@@ -17,6 +17,7 @@
 package services.returns
 
 import com.google.inject.{Inject, Singleton}
+import models.{Mode, NormalMode}
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.returns.{DutyRate, ReturnsUserAnswers}
@@ -42,7 +43,8 @@ class AdjustmentCheckYourAnswersService @Inject()(
                       declareAdjustment: Option[Boolean],
                       adjustmentList: Option[AdjustmentList],
                       periodKey: PeriodKey,
-                      vpdId: VpdId
+                      vpdId: VpdId,
+                      mode: Mode = NormalMode
                     )(using HeaderCarrier, Messages): Future[AdjustmentCheckYourAnswersViewModel] = {
     obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
       val dutyRatesMap = getDutyRatesForAdjustments(adjustmentList, obligationDetails)
@@ -52,7 +54,8 @@ class AdjustmentCheckYourAnswersService @Inject()(
         obligationDetails,
         periodKey,
         dutyRatesMap,
-        returnsDateUtils
+        returnsDateUtils,
+        mode
       )
     }
   }

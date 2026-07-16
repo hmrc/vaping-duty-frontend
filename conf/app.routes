@@ -96,8 +96,10 @@ POST       /complete-return/adjustment/enter-over-or-under-declaration-amount   
 GET        /complete-return/adjustment/change-enter-over-or-under-declaration-amount        controllers.returns.submit.adjustments.AdjustmentVolumeWithTypeController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/adjustment/change-enter-over-or-under-declaration-amount        controllers.returns.submit.adjustments.AdjustmentVolumeWithTypeController.onSubmit(mode: Mode = CheckMode)
 
-GET        /complete-return/adjustment/check-your-answers                                   controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onPageLoad()
-POST       /complete-return/adjustment/check-your-answers                                   controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onSubmit()
+GET        /complete-return/adjustment/check-your-answers                                   controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/adjustment/check-your-answers                                   controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/adjustment/change-check-your-answers                            controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/adjustment/change-check-your-answers                            controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onSubmit(mode: Mode = CheckMode)
 
 GET        /complete-return/adjustment/remove-adjustment                                    controllers.returns.submit.adjustments.RemoveAdjustmentController.onPageLoad()
 POST       /complete-return/adjustment/remove-adjustment                                    controllers.returns.submit.adjustments.RemoveAdjustmentController.onSubmit()
