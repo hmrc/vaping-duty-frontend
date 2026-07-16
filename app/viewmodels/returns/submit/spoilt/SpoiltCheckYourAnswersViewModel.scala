@@ -64,7 +64,7 @@ object SpoiltCheckYourAnswersViewModel {
       summaryCards = summaryCards,
       hasSpoiltProducts = spoiltEntries.nonEmpty,
       totalSpoiltDuty = totalSpoiltDuty,
-      formattedTotalSpoiltDuty = CurrencyFormatter.currencyFormat(totalSpoiltDuty),
+      formattedTotalSpoiltDuty = CurrencyFormatter.currencyFormatWithLeadingSign(-totalSpoiltDuty),
       hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd(obligationDetails, periodKey, spoiltList)
     )
   }
@@ -188,7 +188,7 @@ object SpoiltCheckYourAnswersViewModel {
   private def buildDutyRow(dutyAmount: BigDecimal)(implicit messages: Messages): SummaryListRow = {
     SummaryListRow(
       key = Key(content = Text(messages("returns.spoiltCheckYourAnswers.duty"))),
-      value = Value(content = Text(CurrencyFormatter.currencyFormat(dutyAmount))),
+      value = Value(content = Text(CurrencyFormatter.currencyFormatWithLeadingSign(-dutyAmount))),
       actions = None
     )
   }
