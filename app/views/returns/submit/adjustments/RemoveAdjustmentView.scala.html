@@ -16,7 +16,7 @@
 
 @import models.identifiers.PeriodKey
 @import play.api.mvc.Call
-@import components.{Heading, Heading2}
+@import components.{Caption, Heading, Heading2}
 @import viewmodels.returns.submit.adjustments.RemoveAdjustmentViewModel
 
 @this(
@@ -26,6 +26,7 @@
     govukSummaryList: GovukSummaryList,
     govukRadios: GovukRadios,
     govukButton: GovukButton,
+    caption: Caption,
     h1: Heading,
     h2: Heading2
 )
@@ -40,6 +41,8 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        @caption(messages("returns.removeAdjustment.caption"))
+
         @h1(Text(messages("returns.removeAdjustment.heading")))
 
         @h2(Text(messages("returns.removeAdjustment.detailsHeading")))
@@ -49,7 +52,7 @@
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("returns.removeAdjustment.heading"))
+                legend = LegendViewModel(messages("returns.removeAdjustment.question"))
                     .withCssClass("govuk-fieldset__legend--m")
             )
         )
