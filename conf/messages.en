@@ -354,6 +354,15 @@ returns.CheckYourAnswers.dutySummary.total = Total duty
 returns.CheckYourAnswers.dutySummary.total.nil = £0
 returns.CheckYourAnswers.dutySummary.nothing = Nothing to declare
 
+returns.CheckYourAnswers.adjustments.question = Do you have any vaping products you need to over or under declare?
+returns.CheckYourAnswers.adjustments.question.change.hidden = adjustment declaration
+returns.CheckYourAnswers.adjustments.underDeclared = Under-declared adjustment
+returns.CheckYourAnswers.adjustments.underDeclared.change.hidden = under-declared adjustment
+returns.CheckYourAnswers.adjustments.overDeclared = Over-declared adjustment
+returns.CheckYourAnswers.adjustments.overDeclared.change.hidden = over-declared adjustment
+returns.CheckYourAnswers.adjustments.reason = Adjustment reason
+returns.CheckYourAnswers.adjustments.reason.change.hidden = adjustment reason
+
 returns.CheckYourAnswers.declareDutySuspense.question = Have you received or moved any finished vaping products in duty suspense?
 returns.CheckYourAnswers.dutySuspended.declared = Duty suspense
 returns.CheckYourAnswers.dutySuspended.declared.value = Declared

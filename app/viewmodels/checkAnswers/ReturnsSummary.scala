@@ -19,7 +19,9 @@ package viewmodels.checkAnswers
 import models.CheckMode
 import models.identifiers.PeriodKey
 import models.returns.{DutyRate, ReturnsUserAnswers}
+import models.returns.adjustments.{AdjustmentList, AdjustmentType}
 import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
+import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
@@ -38,8 +40,10 @@ object ReturnsSummary extends CurrencyFormatter {
       buildDeclareDutyRow(answers, periodKey),
       buildDutyRow(answers, dutyRate, periodKey),
       //      buildSpoiltRow(answers, periodKey),
-      //      buildOverRow(answers, periodKey),
-      //      buildUnderRow(answers, periodKey),
+      buildAdjustmentQuestionRow(answers, periodKey),
+      buildUnderDeclaredRow(answers, dutyRate, periodKey),
+      buildOverDeclaredRow(answers, dutyRate, periodKey),
+      buildAdjustmentReasonRow(answers, dutyRate, periodKey),
       buildTotalDutyRow(answers, dutyRate)
     ).flatten
 
@@ -151,4 +155,99 @@ object ReturnsSummary extends CurrencyFormatter {
         }
       case _ => None
     }
+
+  private def buildAdjustmentQuestionRow(
+    answers: ReturnsUserAnswers,
+    periodKey: PeriodKey
+  )(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(DeclareAdjustmentPage).map { answer =>
+      SummaryListRowViewModel(
+        key = "returns.CheckYourAnswers.adjustments.question",
+        value = ValueViewModel(Text(messages(if (answer) "site.yes" else "site.no"))),
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url}?period=${periodKey.value}"
+          ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.question.change.hidden"))
+        )
+      )
+    }
+
+  private def buildUnderDeclaredRow(
+    answers: ReturnsUserAnswers,
+    dutyRate: DutyRate,
+    periodKey: PeriodKey
+  )(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(AdjustmentListPage).flatMap { list =>
+      val underAdjustments = list.adjustments.filter(_.adjustmentType == AdjustmentType.UnderDeclared)
+      if (underAdjustments.nonEmpty) {
+        val totalDuty = underAdjustments.map(adj => dutyRate.calculateDuty(adj.volumeInMl)).sum
+        Some(SummaryListRowViewModel(
+          key = "returns.CheckYourAnswers.adjustments.underDeclared",
+          value = ValueViewModel(Text(currencyFormatWithLeadingSign(totalDuty))),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url}?period=${periodKey.value}"
+            ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.underDeclared.change.hidden"))
+          )
+        ))
+      } else None
+    }
+
+  private def buildOverDeclaredRow(
+    answers: ReturnsUserAnswers,
+    dutyRate: DutyRate,
+    periodKey: PeriodKey
+  )(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(AdjustmentListPage).flatMap { list =>
+      val overAdjustments = list.adjustments.filter(_.adjustmentType == AdjustmentType.OverDeclared)
+      if (overAdjustments.nonEmpty) {
+        val totalDuty = overAdjustments.map(adj => dutyRate.calculateDuty(adj.volumeInMl)).sum
+        Some(SummaryListRowViewModel(
+          key = "returns.CheckYourAnswers.adjustments.overDeclared",
+          value = ValueViewModel(Text(currencyFormatWithLeadingSign(-totalDuty))),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url}?period=${periodKey.value}"
+            ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.overDeclared.change.hidden"))
+          )
+        ))
+      } else None
+    }
+
+  private def buildAdjustmentReasonRow(
+    answers: ReturnsUserAnswers,
+    dutyRate: DutyRate,
+    periodKey: PeriodKey
+  )(implicit messages: Messages): Option[SummaryListRow] = {
+    val shouldShowReason = answers.get(AdjustmentListPage).exists { list =>
+      val underDuty = list.adjustments
+        .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
+        .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+        .sum
+      val overDuty = list.adjustments
+        .filter(_.adjustmentType == AdjustmentType.OverDeclared)
+        .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+        .sum
+      
+      underDuty >= AdjustmentType.dutyThreshold || overDuty >= AdjustmentType.dutyThreshold
+    }
+
+    if (shouldShowReason) {
+      answers.get(AdjustmentReasonPage).map { reason =>
+        SummaryListRowViewModel(
+          key = "returns.CheckYourAnswers.adjustments.reason",
+          value = ValueViewModel(Text(reason)),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+            ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.reason.change.hidden"))
+          )
+        )
+      }
+    } else None
+  }
 }

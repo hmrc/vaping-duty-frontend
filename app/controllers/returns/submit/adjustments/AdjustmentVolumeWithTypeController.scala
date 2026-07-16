@@ -24,11 +24,11 @@ import models.Mode
 import models.returns.ReturnsConstants
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType, AdjustmentVolumeWithTypeFormData}
 import navigation.ReturnsNavigator
-import pages.returns.adjustments.AdjustmentListPage
+import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage}
 import play.api.data.{Form, FormError}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{ObligationService, ReturnsUserAnswersService}
+import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.adjustments.AdjustmentVolumeWithTypeViewModel
@@ -47,6 +47,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
                                                     formProvider: AdjustmentVolumeWithTypeFormProvider,
                                                     returnsEnabledAction: ReturnsEnabledAction,
                                                     obligationService: ObligationService,
+                                                    dutyRateService: DutyRateService,
                                                     returnsDateUtils: ReturnsDateUtils,
                                                     val controllerComponents: MessagesControllerComponents,
                                                     view: AdjustmentVolumeWithTypeView
@@ -111,8 +112,29 @@ class AdjustmentVolumeWithTypeController @Inject()(
 
                 for {
                   updatedAnswers <- Future.fromTry(request.userAnswers.set(AdjustmentListPage, updatedList))
-                  _              <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(AdjustmentListPage, mode, updatedAnswers))
+                  dutyRate <- dutyRateService.getDutyRate(request.enrolmentVpdId, adjustmentPeriodKey)
+                  // Check if reason should be removed due to threshold change
+                  finalAnswers <- {
+                    val adjustments = updatedList.adjustments
+                    val underDuty: BigDecimal = adjustments
+                      .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
+                      .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+                      .foldLeft(BigDecimal(0))(_ + _)
+                    val overDuty: BigDecimal = adjustments
+                      .filter(_.adjustmentType == AdjustmentType.OverDeclared)
+                      .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+                      .foldLeft(BigDecimal(0))(_ + _)
+                    
+                    val reasonRequired = underDuty >= AdjustmentType.dutyThreshold || overDuty >= AdjustmentType.dutyThreshold
+                    
+                    if (!reasonRequired && updatedAnswers.get(AdjustmentReasonPage).isDefined) {
+                      Future.fromTry(updatedAnswers.remove(AdjustmentReasonPage))
+                    } else {
+                      Future.successful(updatedAnswers)
+                    }
+                  }
+                  _ <- sessionRepository.set(finalAnswers)
+                } yield Redirect(navigator.nextPage(AdjustmentListPage, mode, finalAnswers))
               }
             )
           }

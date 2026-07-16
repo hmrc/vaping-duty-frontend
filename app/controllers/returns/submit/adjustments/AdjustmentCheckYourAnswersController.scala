@@ -22,7 +22,7 @@ import forms.returns.DeclareDutyFormProvider
 import models.NormalMode
 import models.requests.returns.ReturnsDataRequest
 import navigation.ReturnsNavigator
-import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
+import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -104,10 +104,27 @@ class AdjustmentCheckYourAnswersController @Inject()(
                                                       request: ReturnsDataRequest[AnyContent],
                                                       adjustmentReasonMandatory: Boolean
                                                     )(using HeaderCarrier): Future[Result] = {
-    for {
-      updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, false))
-      _ <- sessionRepository.set(updatedAnswers)
-    } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers, adjustmentReasonMandatory))
+    // Check if reason is required but missing
+    val hasReason = request.userAnswers.get(AdjustmentReasonPage).isDefined
+    
+    if (adjustmentReasonMandatory && !hasReason) {
+      // Reason required but missing - redirect to reason page
+      Future.successful(Redirect(
+        s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=${request.periodKey}"
+      ))
+    } else {
+      // Check if reason exists but is no longer required - clean it up
+      val answersToSave = if (!adjustmentReasonMandatory && hasReason) {
+        request.userAnswers.remove(AdjustmentReasonPage).getOrElse(request.userAnswers)
+      } else {
+        request.userAnswers
+      }
+      
+      for {
+        updatedAnswers <- Future.fromTry(answersToSave.set(AddAnotherAdjustmentPage, false))
+        _ <- sessionRepository.set(updatedAnswers)
+      } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers, adjustmentReasonMandatory))
+    }
   }
 
 }

@@ -57,6 +57,8 @@ class ReturnsNavigator @Inject()(
     case DeclareDutyPage            => ua => checkDeclareDutyPageRoutes(ua, periodKey)
     case EnterDutyAmountPage        => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareSpoiltProductsPage  => _  => controllers.returns.submit.routes.TaskListController.onPageLoad()
+    case DeclareAdjustmentPage      => _  => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(), periodKey)
+    case AdjustmentReasonPage       => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage    => ua => checkDeclareDutySuspensePageRoutes(ua, periodKey)
     case EnterDutySuspensePage      => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
     case _                          => _  => routes.JourneyRecoveryController.onPageLoad()
