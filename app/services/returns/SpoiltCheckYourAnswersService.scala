@@ -23,7 +23,7 @@ import models.returns.{DutyRate, SpoiltVolumeByPeriod}
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.ReturnsDateUtils
-import viewmodels.returns.submit.spoilt.SpoiltCheckYourAnswersViewModel
+import viewmodels.returns.submit.spoilt.{RemoveSpoiltAdjustmentViewModel, SpoiltCheckYourAnswersViewModel}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -52,6 +52,23 @@ class SpoiltCheckYourAnswersService @Inject()(
       )
     }
   }
+
+  def buildRemoveViewModel(
+                            spoiltList: Option[List[SpoiltVolumeByPeriod]],
+                            spoiltPeriod: PeriodKey,
+                            vpdId: VpdId
+                          )(using HeaderCarrier, Messages): Future[Option[RemoveSpoiltAdjustmentViewModel]] =
+    obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
+      for {
+        entry      <- spoiltList.getOrElse(List.empty).find(_.periodKey == spoiltPeriod)
+        obligation <- obligationDetails.find(_.periodKey == spoiltPeriod.toString)
+      } yield RemoveSpoiltAdjustmentViewModel(
+        entry,
+        obligationDetails,
+        dutyRateService.getDutyRateForDate(obligation.iCFromDate),
+        returnsDateUtils
+      )
+    }
 
   def hasAvailablePeriodsToAdd(
                                 spoiltList: Option[List[SpoiltVolumeByPeriod]],

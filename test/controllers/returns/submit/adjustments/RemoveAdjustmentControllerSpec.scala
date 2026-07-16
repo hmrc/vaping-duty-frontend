@@ -18,6 +18,7 @@ package controllers.returns.submit.adjustments
 
 import base.SpecBase
 import models.returns.ReturnsUserAnswers
+import models.returns.DutyRate
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -27,7 +28,7 @@ import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.ReturnsUserAnswersService
+import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService}
 
 import scala.concurrent.Future
 
@@ -42,6 +43,19 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
   lazy val removeAdjustmentSubmitRoute: String =
     controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onSubmit().url + s"?adjustmentPeriod=${adjustmentPeriodKey.value}"
 
+  private def stubbedObligationService: ObligationService = {
+    val mockObligationService = mock[ObligationService]
+    when(mockObligationService.getObligationsDirectly(any())(using any()))
+      .thenReturn(Future.successful(Seq(fulfilledObligation(adjustmentPeriodKey), fulfilledObligation(otherAdjustmentPeriodKey))))
+    mockObligationService
+  }
+
+  private def stubbedDutyRateService: DutyRateService = {
+    val mockDutyRateService = mock[DutyRateService]
+    when(mockDutyRateService.getDutyRateForDate(any())).thenReturn(DutyRate(3000))
+    mockDutyRateService
+  }
+
   "RemoveAdjustment Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -49,7 +63,12 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
         .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(adjustmentPeriodKey, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
         .success.value
 
-      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
+        .overrides(
+          bind[ObligationService].toInstance(stubbedObligationService),
+          bind[DutyRateService].toInstance(stubbedDutyRateService)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, removeAdjustmentRoute)
@@ -73,6 +92,24 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to Journey Recovery for a GET when the adjustmentPeriod does not match any entry" in {
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(
+          bind[ObligationService].toInstance(stubbedObligationService),
+          bind[DutyRateService].toInstance(stubbedDutyRateService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, removeAdjustmentRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
     "must redirect to the summary page when confirmed removal leaves other entries" in {
       val mockSessionRepository = mock[ReturnsUserAnswersService]
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
@@ -86,7 +123,11 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(returnsUserAnswers = Some(userAnswers))
-          .overrides(bind[ReturnsUserAnswersService].toInstance(mockSessionRepository))
+          .overrides(
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(stubbedObligationService),
+            bind[DutyRateService].toInstance(stubbedDutyRateService)
+          )
           .build()
 
       running(application) {
@@ -114,7 +155,11 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(returnsUserAnswers = Some(userAnswers))
-          .overrides(bind[ReturnsUserAnswersService].toInstance(mockSessionRepository))
+          .overrides(
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(stubbedObligationService),
+            bind[DutyRateService].toInstance(stubbedDutyRateService)
+          )
           .build()
 
       running(application) {
@@ -145,7 +190,11 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(returnsUserAnswers = Some(userAnswers))
-          .overrides(bind[ReturnsUserAnswersService].toInstance(mockSessionRepository))
+          .overrides(
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(stubbedObligationService),
+            bind[DutyRateService].toInstance(stubbedDutyRateService)
+          )
           .build()
 
       running(application) {
@@ -168,7 +217,12 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
         .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(adjustmentPeriodKey, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
         .success.value
 
-      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
+        .overrides(
+          bind[ObligationService].toInstance(stubbedObligationService),
+          bind[DutyRateService].toInstance(stubbedDutyRateService)
+        )
+        .build()
 
       running(application) {
         val request =

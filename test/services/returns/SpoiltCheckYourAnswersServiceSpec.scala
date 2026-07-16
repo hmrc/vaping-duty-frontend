@@ -154,6 +154,57 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
     }
   }
 
+  "buildRemoveViewModel" - {
+
+    "must return Some with the details rows when the entry and its obligation are found" in {
+      val spoiltEntry = SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = spoiltPeriodKey)
+      val obligationForSpoilt = openObligation(spoiltPeriodKey)
+
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(Seq(obligationForSpoilt)))
+      when(mockDutyRateService.getDutyRateForDate(any()))
+        .thenReturn(DUTY_RATE)
+      when(mockReturnsDateUtils.formatPeriodDisplay(eqTo(spoiltPeriodKey), any[Seq[models.obligations.ObligationDetails]])(using any()))
+        .thenReturn("December 2026")
+
+      val result = service.buildRemoveViewModel(
+        spoiltList = Some(List(spoiltEntry)),
+        spoiltPeriod = spoiltPeriodKey,
+        vpdId = vpdId
+      ).futureValue
+
+      result.value.rows.size mustBe 3
+    }
+
+    "must return None when the entry is not in the spoilt list" in {
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(obligationDetails))
+
+      val result = service.buildRemoveViewModel(
+        spoiltList = Some(List.empty),
+        spoiltPeriod = spoiltPeriodKey,
+        vpdId = vpdId
+      ).futureValue
+
+      result mustBe None
+    }
+
+    "must return None when no obligation exists for the entry's period" in {
+      val spoiltEntry = SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = spoiltPeriodKey)
+
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(Seq.empty))
+
+      val result = service.buildRemoveViewModel(
+        spoiltList = Some(List(spoiltEntry)),
+        spoiltPeriod = spoiltPeriodKey,
+        vpdId = vpdId
+      ).futureValue
+
+      result mustBe None
+    }
+  }
+
   "hasAvailablePeriodsToAdd" - {
 
     "must return true when a fulfilled period has not yet been declared as spoilt" in {

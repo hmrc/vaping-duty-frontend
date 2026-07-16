@@ -18,7 +18,7 @@ package controllers.returns.submit.spoilt
 
 import base.SpecBase
 import models.identifiers.PeriodKey
-import models.returns.{ReturnsUserAnswers, SpoiltVolumeByPeriod}
+import models.returns.{DutyRate, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, verify, when}
@@ -27,20 +27,33 @@ import pages.returns.{DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.ReturnsUserAnswersService
+import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService}
 
 import scala.concurrent.Future
 
 class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
-  val spoiltPeriodKey: PeriodKey = PeriodKey("24AA")
-  val otherSpoiltPeriodKey: PeriodKey = PeriodKey("24AB")
+  val spoiltPeriodKey: PeriodKey = october2027
+  val otherSpoiltPeriodKey: PeriodKey = november2027
 
   lazy val removeSpoiltAdjustmentRoute: String =
     controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onPageLoad().url + s"?spoiltPeriod=${spoiltPeriodKey.value}"
 
   lazy val removeSpoiltAdjustmentSubmitRoute: String =
     controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onSubmit().url + s"?spoiltPeriod=${spoiltPeriodKey.value}"
+
+  private def stubbedObligationService: ObligationService = {
+    val mockObligationService = mock[ObligationService]
+    when(mockObligationService.getObligationsDirectly(any())(using any()))
+      .thenReturn(Future.successful(Seq(fulfilledObligation(spoiltPeriodKey), fulfilledObligation(otherSpoiltPeriodKey))))
+    mockObligationService
+  }
+
+  private def stubbedDutyRateService: DutyRateService = {
+    val mockDutyRateService = mock[DutyRateService]
+    when(mockDutyRateService.getDutyRateForDate(any())).thenReturn(DutyRate(3000))
+    mockDutyRateService
+  }
 
   "RemoveSpoiltAdjustment Controller" - {
 
@@ -49,7 +62,12 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
         .set(SpoiltVolumeByPeriodPage, List(SpoiltVolumeByPeriod(BigDecimal(1000), spoiltPeriodKey)))
         .success.value
 
-      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
+        .overrides(
+          bind[ObligationService].toInstance(stubbedObligationService),
+          bind[DutyRateService].toInstance(stubbedDutyRateService)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, removeSpoiltAdjustmentRoute)
@@ -73,6 +91,24 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to Journey Recovery for a GET when the spoiltPeriod does not match any entry" in {
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(
+          bind[ObligationService].toInstance(stubbedObligationService),
+          bind[DutyRateService].toInstance(stubbedDutyRateService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, removeSpoiltAdjustmentRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
     "must redirect to the summary page when confirmed removal leaves other entries" in {
       val mockSessionRepository = mock[ReturnsUserAnswersService]
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
@@ -86,7 +122,11 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(returnsUserAnswers = Some(userAnswers))
-          .overrides(bind[ReturnsUserAnswersService].toInstance(mockSessionRepository))
+          .overrides(
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(stubbedObligationService),
+            bind[DutyRateService].toInstance(stubbedDutyRateService)
+          )
           .build()
 
       running(application) {
@@ -114,7 +154,11 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(returnsUserAnswers = Some(userAnswers))
-          .overrides(bind[ReturnsUserAnswersService].toInstance(mockSessionRepository))
+          .overrides(
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(stubbedObligationService),
+            bind[DutyRateService].toInstance(stubbedDutyRateService)
+          )
           .build()
 
       running(application) {
@@ -145,7 +189,11 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       val application =
         applicationBuilder(returnsUserAnswers = Some(userAnswers))
-          .overrides(bind[ReturnsUserAnswersService].toInstance(mockSessionRepository))
+          .overrides(
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(stubbedObligationService),
+            bind[DutyRateService].toInstance(stubbedDutyRateService)
+          )
           .build()
 
       running(application) {
@@ -168,7 +216,12 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
         .set(SpoiltVolumeByPeriodPage, List(SpoiltVolumeByPeriod(BigDecimal(1000), spoiltPeriodKey)))
         .success.value
 
-      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
+        .overrides(
+          bind[ObligationService].toInstance(stubbedObligationService),
+          bind[DutyRateService].toInstance(stubbedDutyRateService)
+        )
+        .build()
 
       running(application) {
         val request =

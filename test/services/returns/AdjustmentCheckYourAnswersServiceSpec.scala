@@ -177,4 +177,64 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
       exception.getMessage must include("No obligation found for period 24ZZ")
     }
   }
+
+  "buildRemoveViewModel" - {
+
+    "must return Some with the details rows when the entry and its obligation are found" in {
+      val adjustmentEntry = AdjustmentEntry(
+        period = adjustmentPeriodKey,
+        adjustmentType = AdjustmentType.OverDeclared,
+        volumeInMl = BigDecimal(1000)
+      )
+      val adjustmentList = AdjustmentList(Seq(adjustmentEntry))
+      val obligationForAdjustment = openObligation(adjustmentPeriodKey)
+
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(Seq(obligationForAdjustment)))
+      when(mockDutyRateService.getDutyRateForDate(any()))
+        .thenReturn(DUTY_RATE_PENCE_PER_10ML)
+      when(mockReturnsDateUtils.formatPeriodDisplay(eqTo(adjustmentPeriodKey), any[Seq[ObligationDetails]])(using any()))
+        .thenReturn("December 2026")
+
+      val result = service.buildRemoveViewModel(
+        adjustmentList = Some(adjustmentList),
+        adjustmentPeriod = adjustmentPeriodKey,
+        vpdId = vpdId
+      ).futureValue
+
+      result.value.rows.size mustBe 4
+    }
+
+    "must return None when the entry is not in the adjustment list" in {
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(obligationDetails))
+
+      val result = service.buildRemoveViewModel(
+        adjustmentList = Some(AdjustmentList(Seq.empty)),
+        adjustmentPeriod = adjustmentPeriodKey,
+        vpdId = vpdId
+      ).futureValue
+
+      result mustBe None
+    }
+
+    "must return None when no obligation exists for the entry's period" in {
+      val adjustmentEntry = AdjustmentEntry(
+        period = adjustmentPeriodKey,
+        adjustmentType = AdjustmentType.UnderDeclared,
+        volumeInMl = BigDecimal(1000)
+      )
+
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(Seq.empty))
+
+      val result = service.buildRemoveViewModel(
+        adjustmentList = Some(AdjustmentList(Seq(adjustmentEntry))),
+        adjustmentPeriod = adjustmentPeriodKey,
+        vpdId = vpdId
+      ).futureValue
+
+      result mustBe None
+    }
+  }
 }

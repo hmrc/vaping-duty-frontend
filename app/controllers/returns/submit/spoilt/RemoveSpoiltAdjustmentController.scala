@@ -26,7 +26,7 @@ import pages.returns.{DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.ReturnsUserAnswersService
+import services.returns.{ReturnsUserAnswersService, SpoiltCheckYourAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.spoilt.RemoveSpoiltAdjustmentView
 import models.returns.ReturnsConstants
@@ -43,6 +43,7 @@ class RemoveSpoiltAdjustmentController @Inject()(
                                                   requireData: ReturnsDataRequiredAction,
                                                   formProvider: RemoveSpoiltAdjustmentFormProvider,
                                                   returnsEnabledAction: ReturnsEnabledAction,
+                                                  spoiltCheckYourAnswersService: SpoiltCheckYourAnswersService,
                                                   val controllerComponents: MessagesControllerComponents,
                                                   view: RemoveSpoiltAdjustmentView
                                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
@@ -52,35 +53,46 @@ class RemoveSpoiltAdjustmentController @Inject()(
   def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey(ReturnsConstants.QUERY_PARAM_SPOILT_PERIOD) { spoiltPeriod =>
-        Future.successful(Ok(view(request.periodKey, spoiltPeriod, form)))
+        spoiltCheckYourAnswersService
+          .buildRemoveViewModel(request.userAnswers.get(SpoiltVolumeByPeriodPage), spoiltPeriod, request.enrolmentVpdId)
+          .map {
+            case Some(vm) => Ok(view(request.periodKey, spoiltPeriod, form, vm))
+            case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          }
       }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey(ReturnsConstants.QUERY_PARAM_SPOILT_PERIOD) { spoiltPeriod =>
-        form.bindFromRequest().fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(request.periodKey, spoiltPeriod, formWithErrors))),
+        spoiltCheckYourAnswersService
+          .buildRemoveViewModel(request.userAnswers.get(SpoiltVolumeByPeriodPage), spoiltPeriod, request.enrolmentVpdId)
+          .flatMap {
+            case None => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+            case Some(vm) =>
+              form.bindFromRequest().fold(
+                formWithErrors =>
+                  Future.successful(BadRequest(view(request.periodKey, spoiltPeriod, formWithErrors, vm))),
 
-          confirmed =>
-            val resultAnswers =
-              if (confirmed) {
-                for {
-                  updatedAnswers <- Future.fromTry(removeEntry(request.userAnswers, spoiltPeriod))
-                  _              <- sessionRepository.set(updatedAnswers)
-                } yield updatedAnswers
-              } else {
-                Future.successful(request.userAnswers)
-              }
+                confirmed =>
+                  val resultAnswers =
+                    if (confirmed) {
+                      for {
+                        updatedAnswers <- Future.fromTry(removeEntry(request.userAnswers, spoiltPeriod))
+                        _              <- sessionRepository.set(updatedAnswers)
+                      } yield updatedAnswers
+                    } else {
+                      Future.successful(request.userAnswers)
+                    }
 
-            resultAnswers.map { _ =>
-              Redirect(withPeriod(
-                controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url,
-                request.periodKey
-              ))
-            }
-        )
+                  resultAnswers.map { _ =>
+                    Redirect(withPeriod(
+                      controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url,
+                      request.periodKey
+                    ))
+                  }
+              )
+          }
       }
   }
 

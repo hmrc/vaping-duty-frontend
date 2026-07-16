@@ -259,7 +259,8 @@ returns.spoiltCheckYourAnswers.volume.change.hidden = spoilt products volume
 
 returns.removeSpoiltAdjustment.title = Remove this adjustment?
 returns.removeSpoiltAdjustment.heading = Remove this adjustment?
-returns.removeSpoiltAdjustment.hint = The adjustment and its information will be removed from your return.
+returns.removeSpoiltAdjustment.detailsHeading = Spoilt products details
+returns.removeSpoiltAdjustment.month = Month
 
 returns.adjustmentReason.title = Why did you make these adjustments?
 returns.adjustmentReason.heading = Why did you make these adjustments?
@@ -523,7 +524,8 @@ returns.adjustmentCheckYourAnswers.volume.change.hidden = adjustment volume
 
 returns.removeAdjustment.title = Remove this adjustment?
 returns.removeAdjustment.heading = Remove this adjustment?
-returns.removeAdjustment.hint = The adjustment and its information will be removed from your return.
+returns.removeAdjustment.detailsHeading = Adjustment details
+returns.removeAdjustment.month = Month
 
 ### Payments ###
 

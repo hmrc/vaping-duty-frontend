@@ -14,19 +14,23 @@
  * limitations under the License.
  *@
 
-@import viewmodels.LegendSize
 @import models.identifiers.PeriodKey
 @import play.api.mvc.Call
+@import components.{Heading, Heading2}
+@import viewmodels.returns.submit.spoilt.RemoveSpoiltAdjustmentViewModel
 
 @this(
     layout: templates.ReturnsLayout,
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
+    govukSummaryList: GovukSummaryList,
     govukRadios: GovukRadios,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    h1: Heading,
+    h2: Heading2
 )
 
-@(periodKey: PeriodKey, spoiltPeriod: PeriodKey, form: Form[_])(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, spoiltPeriod: PeriodKey, form: Form[_], vm: RemoveSpoiltAdjustmentViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("returns.removeSpoiltAdjustment.title"))) {
 
@@ -36,12 +40,18 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        @h1(Text(messages("returns.removeSpoiltAdjustment.heading")))
+
+        @h2(Text(messages("returns.removeSpoiltAdjustment.detailsHeading")))
+
+        @govukSummaryList(SummaryList(rows = vm.rows))
+
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
                 legend = LegendViewModel(messages("returns.removeSpoiltAdjustment.heading"))
-                    .asPageHeading(LegendSize.Large)
-            ).withHint(Hint(content = Text(messages("returns.removeSpoiltAdjustment.hint"))))
+                    .withCssClass("govuk-fieldset__legend--m")
+            )
         )
 
         @govukButton(

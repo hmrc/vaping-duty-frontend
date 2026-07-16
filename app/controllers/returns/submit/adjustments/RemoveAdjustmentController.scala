@@ -28,7 +28,7 @@ import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.ReturnsUserAnswersService
+import services.returns.{AdjustmentCheckYourAnswersService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.adjustments.RemoveAdjustmentView
 
@@ -44,6 +44,7 @@ class RemoveAdjustmentController @Inject()(
                                             requireData: ReturnsDataRequiredAction,
                                             formProvider: RemoveAdjustmentFormProvider,
                                             returnsEnabledAction: ReturnsEnabledAction,
+                                            adjustmentCheckYourAnswersService: AdjustmentCheckYourAnswersService,
                                             val controllerComponents: MessagesControllerComponents,
                                             view: RemoveAdjustmentView
                                           )(using ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
@@ -53,35 +54,46 @@ class RemoveAdjustmentController @Inject()(
   def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriod =>
-        Future.successful(Ok(view(request.periodKey, adjustmentPeriod, form)))
+        adjustmentCheckYourAnswersService
+          .buildRemoveViewModel(request.userAnswers.get(AdjustmentListPage), adjustmentPeriod, request.enrolmentVpdId)
+          .map {
+            case Some(vm) => Ok(view(request.periodKey, adjustmentPeriod, form, vm))
+            case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          }
       }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriod =>
-        form.bindFromRequest().fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(request.periodKey, adjustmentPeriod, formWithErrors))),
+        adjustmentCheckYourAnswersService
+          .buildRemoveViewModel(request.userAnswers.get(AdjustmentListPage), adjustmentPeriod, request.enrolmentVpdId)
+          .flatMap {
+            case None => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+            case Some(vm) =>
+              form.bindFromRequest().fold(
+                formWithErrors =>
+                  Future.successful(BadRequest(view(request.periodKey, adjustmentPeriod, formWithErrors, vm))),
 
-          confirmed =>
-            val resultAnswers =
-              if (confirmed) {
-                for {
-                  updatedAnswers <- Future.fromTry(removeEntry(request.userAnswers, adjustmentPeriod))
-                  _              <- sessionRepository.set(updatedAnswers)
-                } yield updatedAnswers
-              } else {
-                Future.successful(request.userAnswers)
-              }
+                confirmed =>
+                  val resultAnswers =
+                    if (confirmed) {
+                      for {
+                        updatedAnswers <- Future.fromTry(removeEntry(request.userAnswers, adjustmentPeriod))
+                        _              <- sessionRepository.set(updatedAnswers)
+                      } yield updatedAnswers
+                    } else {
+                      Future.successful(request.userAnswers)
+                    }
 
-            resultAnswers.map { _ =>
-              Redirect(withPeriod(
-                controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url,
-                request.periodKey
-              ))
-            }
-        )
+                  resultAnswers.map { _ =>
+                    Redirect(withPeriod(
+                      controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url,
+                      request.periodKey
+                    ))
+                  }
+              )
+          }
       }
   }
 

@@ -24,7 +24,7 @@ import models.returns.adjustments.AdjustmentList
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.ReturnsDateUtils
-import viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel
+import viewmodels.returns.submit.adjustments.{AdjustmentCheckYourAnswersViewModel, RemoveAdjustmentViewModel}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -53,6 +53,23 @@ class AdjustmentCheckYourAnswersService @Inject()(
       )
     }
   }
+
+  def buildRemoveViewModel(
+                            adjustmentList: Option[AdjustmentList],
+                            adjustmentPeriod: PeriodKey,
+                            vpdId: VpdId
+                          )(using HeaderCarrier, Messages): Future[Option[RemoveAdjustmentViewModel]] =
+    obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
+      for {
+        entry      <- adjustmentList.map(_.adjustments).getOrElse(Seq.empty).find(_.period == adjustmentPeriod)
+        obligation <- obligationDetails.find(_.periodKey == adjustmentPeriod.toString)
+      } yield RemoveAdjustmentViewModel(
+        entry,
+        obligationDetails,
+        dutyRateService.getDutyRateForDate(obligation.iCFromDate),
+        returnsDateUtils
+      )
+    }
 
   private def getDutyRatesForAdjustments(
                                           adjustmentList: Option[AdjustmentList],
