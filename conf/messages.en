@@ -521,6 +521,10 @@ returns.adjustmentCheckYourAnswers.remove.hidden = adjustment for {0}
 returns.adjustmentCheckYourAnswers.type.change.hidden = adjustment type
 returns.adjustmentCheckYourAnswers.volume.change.hidden = adjustment volume
 
+returns.removeAdjustment.title = Remove this adjustment?
+returns.removeAdjustment.heading = Remove this adjustment?
+returns.removeAdjustment.hint = The adjustment and its information will be removed from your return.
+
 ### Payments ###
 
 payments.viewPayments.title = Vaping Products Duty payments
