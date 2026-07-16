@@ -31,6 +31,27 @@ import viewmodels.implicits.*
 
 object ReturnsSummary extends CurrencyFormatter {
 
+  private case class AdjustmentTotals(underDuty: BigDecimal, overDuty: BigDecimal) {
+    def netAdjustment: BigDecimal = underDuty - overDuty
+  }
+
+  private def calculateAdjustmentTotals(
+    adjustmentList: AdjustmentList,
+    dutyRate: DutyRate
+  ): AdjustmentTotals = {
+    val underDuty = adjustmentList.adjustments
+      .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
+      .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+      .sum
+    
+    val overDuty = adjustmentList.adjustments
+      .filter(_.adjustmentType == AdjustmentType.OverDeclared)
+      .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+      .sum
+    
+    AdjustmentTotals(underDuty, overDuty)
+  }
+
   def summaryList(
                    answers: ReturnsUserAnswers,
                    dutyRate: DutyRate,
@@ -41,8 +62,7 @@ object ReturnsSummary extends CurrencyFormatter {
       buildDutyRow(answers, dutyRate, periodKey),
       //      buildSpoiltRow(answers, periodKey),
       buildAdjustmentQuestionRow(answers, periodKey),
-      buildUnderDeclaredRow(answers, dutyRate, periodKey),
-      buildOverDeclaredRow(answers, dutyRate, periodKey),
+      buildCombinedAdjustmentsRow(answers, dutyRate, periodKey),
       buildAdjustmentReasonRow(answers, dutyRate, periodKey),
       buildTotalDutyRow(answers, dutyRate)
     ).flatten
@@ -97,34 +117,10 @@ object ReturnsSummary extends CurrencyFormatter {
       case _ => None
     }
 
-  private def buildSpoiltRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  private def buildSpoiltRow(answers: ReturnsUserAnswers, periodKey: PeriodKey)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(DeclareDutyPage).map { answer =>
       SummaryListRowViewModel(
         key = "returns.CheckYourAnswers.dutySummary.spoilt",
-        value = ValueViewModel(""),
-        actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
-            .withVisuallyHiddenText(messages(""))
-        )
-      )
-    }
-
-  private def buildOverRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclareDutyPage).map { answer =>
-      SummaryListRowViewModel(
-        key = "returns.CheckYourAnswers.dutySummary.over",
-        value = ValueViewModel(""),
-        actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
-            .withVisuallyHiddenText(messages(""))
-        )
-      )
-    }
-
-  private def buildUnderRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclareDutyPage).map { answer =>
-      SummaryListRowViewModel(
-        key = "returns.CheckYourAnswers.dutySummary.under",
         value = ValueViewModel(""),
         actions = Seq(
           ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
@@ -153,15 +149,8 @@ object ReturnsSummary extends CurrencyFormatter {
             
             // Calculate adjustment totals
             val adjustmentTotal = answers.get(AdjustmentListPage).map { list =>
-              val underDuty = list.adjustments
-                .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
-                .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
-                .sum
-              val overDuty = list.adjustments
-                .filter(_.adjustmentType == AdjustmentType.OverDeclared)
-                .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
-                .sum
-              underDuty - overDuty
+              val totals = calculateAdjustmentTotals(list, dutyRate)
+              totals.netAdjustment
             }.getOrElse(BigDecimal(0))
             
             val totalDuty = vapingProductsDuty + adjustmentTotal
@@ -188,45 +177,23 @@ object ReturnsSummary extends CurrencyFormatter {
       )
     }
 
-  private def buildUnderDeclaredRow(
+  private def buildCombinedAdjustmentsRow(
     answers: ReturnsUserAnswers,
     dutyRate: DutyRate,
     periodKey: PeriodKey
   )(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(AdjustmentListPage).flatMap { list =>
-      val underAdjustments = list.adjustments.filter(_.adjustmentType == AdjustmentType.UnderDeclared)
-      if (underAdjustments.nonEmpty) {
-        val totalDuty = underAdjustments.map(adj => dutyRate.calculateDuty(adj.volumeInMl)).sum
+      if (list.adjustments.nonEmpty) {
+        val totals = calculateAdjustmentTotals(list, dutyRate)
+        
         Some(SummaryListRowViewModel(
-          key = "returns.CheckYourAnswers.adjustments.underDeclared",
-          value = ValueViewModel(Text(currencyFormatWithLeadingSign(totalDuty))),
+          key = "returns.CheckYourAnswers.adjustments.combined",
+          value = ValueViewModel(Text(currencyFormatWithLeadingSign(totals.netAdjustment))),
           actions = Seq(
             ActionItemViewModel(
               "site.change",
               s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url}?period=${periodKey.value}"
-            ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.underDeclared.change.hidden"))
-          )
-        ))
-      } else None
-    }
-
-  private def buildOverDeclaredRow(
-    answers: ReturnsUserAnswers,
-    dutyRate: DutyRate,
-    periodKey: PeriodKey
-  )(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(AdjustmentListPage).flatMap { list =>
-      val overAdjustments = list.adjustments.filter(_.adjustmentType == AdjustmentType.OverDeclared)
-      if (overAdjustments.nonEmpty) {
-        val totalDuty = overAdjustments.map(adj => dutyRate.calculateDuty(adj.volumeInMl)).sum
-        Some(SummaryListRowViewModel(
-          key = "returns.CheckYourAnswers.adjustments.overDeclared",
-          value = ValueViewModel(Text(currencyFormatWithLeadingSign(-totalDuty))),
-          actions = Seq(
-            ActionItemViewModel(
-              "site.change",
-              s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url}?period=${periodKey.value}"
-            ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.overDeclared.change.hidden"))
+            ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.combined.change.hidden"))
           )
         ))
       } else None
@@ -238,16 +205,8 @@ object ReturnsSummary extends CurrencyFormatter {
     periodKey: PeriodKey
   )(implicit messages: Messages): Option[SummaryListRow] = {
     val shouldShowReason = answers.get(AdjustmentListPage).exists { list =>
-      val underDuty = list.adjustments
-        .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
-        .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
-        .sum
-      val overDuty = list.adjustments
-        .filter(_.adjustmentType == AdjustmentType.OverDeclared)
-        .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
-        .sum
-      
-      underDuty >= AdjustmentType.dutyThreshold || overDuty >= AdjustmentType.dutyThreshold
+      val totals = calculateAdjustmentTotals(list, dutyRate)
+      totals.underDuty >= AdjustmentType.dutyThreshold || totals.overDuty >= AdjustmentType.dutyThreshold
     }
 
     if (shouldShowReason) {

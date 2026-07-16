@@ -356,10 +356,8 @@ returns.CheckYourAnswers.dutySummary.nothing = Nothing to declare
 
 returns.CheckYourAnswers.adjustments.question = Do you have any vaping products you need to over or under declare?
 returns.CheckYourAnswers.adjustments.question.change.hidden = adjustment declaration
-returns.CheckYourAnswers.adjustments.underDeclared = Under-declared adjustment
-returns.CheckYourAnswers.adjustments.underDeclared.change.hidden = under-declared adjustment
-returns.CheckYourAnswers.adjustments.overDeclared = Over-declared adjustment
-returns.CheckYourAnswers.adjustments.overDeclared.change.hidden = over-declared adjustment
+returns.CheckYourAnswers.adjustments.combined = Adjustments
+returns.CheckYourAnswers.adjustments.combined.change.hidden = adjustments
 returns.CheckYourAnswers.adjustments.reason = Adjustment reason
 returns.CheckYourAnswers.adjustments.reason.change.hidden = adjustment reason
 
