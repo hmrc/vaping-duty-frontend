@@ -200,7 +200,10 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
           value = Value(content = Text(yesNoText))
         )
 
-        if (sp.spoiltProductFilled == "1") {
+        if (nilReturn) {
+          // For nil returns, only show the question row
+          Seq(SummaryList(rows = Seq(questionRow)))
+        } else if (sp.spoiltProductFilled == "1") {
           val items = sp.spoiltProducts.getOrElse(Seq.empty)
           
           if (items.isEmpty) {
@@ -212,15 +215,15 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
             val firstList = SummaryList(rows = Seq(
               questionRow,
               SummaryListRow(
-                key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.returnPeriodAffected"))),
+                key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.month"))),
                 value = Value(content = Text(lookupPeriodKey(firstItem.returnPeriodAffected, obligations, returnsDateUtils)))
               ),
               SummaryListRow(
-                key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.amountSpoilt"))),
+                key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))),
                 value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(firstItem.amountSpoilt).toMl))))
               ),
               SummaryListRow(
-                key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
+                key = Key(content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))),
                 value = Value(content = Text(firstDutyDue), classes = CssConstants.boldFontWeight)
               )
             ))
@@ -230,15 +233,15 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
               val dutyDue = currencyFormat(item.dutyDue.abs).replace("£", "-£")
               SummaryList(rows = Seq(
                 SummaryListRow(
-                  key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.returnPeriodAffected"))),
+                  key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.month"))),
                   value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected, obligations, returnsDateUtils)))
                 ),
                 SummaryListRow(
-                  key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.amountSpoilt"))),
+                  key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))),
                   value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountSpoilt).toMl))))
                 ),
                 SummaryListRow(
-                  key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
+                  key = Key(content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))),
                   value = Value(content = Text(dutyDue), classes = CssConstants.boldFontWeight)
                 )
               ))
