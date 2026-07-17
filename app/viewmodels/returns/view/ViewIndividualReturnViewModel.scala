@@ -38,8 +38,8 @@ case class ViewIndividualReturnViewModel(
                                           nilReturn: Boolean,
                                           personalDetailsSummaryList: SummaryList,
                                           dutyDeclarationSummaryList: Option[SummaryList],
-                                          spoiltSummaryList: SummaryList,
-                                          adjustmentsSummaryList: SummaryList,
+                                          spoiltSummaryLists: Seq[SummaryList],
+                                          adjustmentsSummaryLists: Seq[SummaryList],
                                           totalDutySummaryList: SummaryList,
                                           dutySuspenseSummaryList: Option[SummaryList]
                                          )
@@ -99,8 +99,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
     val personalDetails = buildPersonalDetailsSummaryList(success.declaration)
     val dutyDeclaration = buildDutyDeclarationSummaryList(hasDeclaration, amountProduced, dutyDueAmount)
-    val spoilt = buildSpoiltSummaryList(success.spoiltProduct, isNilReturn, totalDutySpoiltProducts, obligations, returnsDateUtils)
-    val adjustments = buildAdjustmentsSummaryList(success.overDeclaration, success.underDeclaration, obligations, returnsDateUtils)
+    val spoiltLists = buildSpoiltSummaryLists(success.spoiltProduct, isNilReturn, totalDutySpoiltProducts, obligations, returnsDateUtils)
+    val adjustmentsLists = buildAdjustmentsSummaryLists(success.overDeclaration, success.underDeclaration, obligations, returnsDateUtils)
     val totalDutySummary = buildTotalDutySummaryList(success.totalDutyDue)
     val dutySuspenseSummary = buildDutySuspenseSummaryList(success.otherOptions)
 
@@ -116,8 +116,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       nilReturn = isNilReturn,
       personalDetailsSummaryList = personalDetails,
       dutyDeclarationSummaryList = dutyDeclaration,
-      spoiltSummaryList = spoilt,
-      adjustmentsSummaryList = adjustments,
+      spoiltSummaryLists = spoiltLists,
+      adjustmentsSummaryLists = adjustmentsLists,
       totalDutySummaryList = totalDutySummary,
       dutySuspenseSummaryList = dutySuspenseSummary
     )
@@ -180,14 +180,14 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     ))
   }
 
-  private def buildSpoiltSummaryList(
-                                      spoiltProduct: Option[SpoiltProduct],
-                                      nilReturn: Boolean,
-                                      totalDutySpoiltProducts: String,
-                                      obligations: ObligationsResponse,
-                                      returnsDateUtils: ReturnsDateUtils
-                                    )(using messages: Messages): SummaryList = {
-    val spoiltProductsRows = spoiltProduct match {
+  private def buildSpoiltSummaryLists(
+                                       spoiltProduct: Option[SpoiltProduct],
+                                       nilReturn: Boolean,
+                                       totalDutySpoiltProducts: String,
+                                       obligations: ObligationsResponse,
+                                       returnsDateUtils: ReturnsDateUtils
+                                     )(using messages: Messages): Seq[SummaryList] = {
+    spoiltProduct match {
       case Some(sp) =>
         val yesNoText = if (sp.spoiltProductFilled == "1") {
           messages("viewIndividualReturn.spoiltProducts.yes")
@@ -200,44 +200,66 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
           value = Value(content = Text(yesNoText))
         )
 
-        val detailRows = if (sp.spoiltProductFilled == "1") {
-          sp.spoiltProducts.getOrElse(Seq.empty).flatMap { item =>
-            val dutyDue = currencyFormat(item.dutyDue.abs).replace("£", "-£")
-            Seq(
+        if (sp.spoiltProductFilled == "1") {
+          val items = sp.spoiltProducts.getOrElse(Seq.empty)
+          
+          if (items.isEmpty) {
+            Seq(SummaryList(rows = Seq(questionRow)))
+          } else {
+            // First list includes question + first item
+            val firstItem = items.head
+            val firstDutyDue = currencyFormat(firstItem.dutyDue.abs).replace("£", "-£")
+            val firstList = SummaryList(rows = Seq(
+              questionRow,
               SummaryListRow(
-                key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.month"))),
-                value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected, obligations, returnsDateUtils)))
+                key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.returnPeriodAffected"))),
+                value = Value(content = Text(lookupPeriodKey(firstItem.returnPeriodAffected, obligations, returnsDateUtils)))
               ),
               SummaryListRow(
-                key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))),
-                value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountSpoilt).toMl))))
+                key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.amountSpoilt"))),
+                value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(firstItem.amountSpoilt).toMl))))
               ),
               SummaryListRow(
                 key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
-                value = Value(content = Text(dutyDue), classes = CssConstants.boldFontWeight)
+                value = Value(content = Text(firstDutyDue), classes = CssConstants.boldFontWeight)
               )
-            )
-          }
-        } else Seq.empty
+            ))
+            
+            // Remaining items get their own lists
+            val remainingLists = items.tail.map { item =>
+              val dutyDue = currencyFormat(item.dutyDue.abs).replace("£", "-£")
+              SummaryList(rows = Seq(
+                SummaryListRow(
+                  key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.returnPeriodAffected"))),
+                  value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected, obligations, returnsDateUtils)))
+                ),
+                SummaryListRow(
+                  key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.amountSpoilt"))),
+                  value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountSpoilt).toMl))))
+                ),
+                SummaryListRow(
+                  key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
+                  value = Value(content = Text(dutyDue), classes = CssConstants.boldFontWeight)
+                )
+              ))
+            }
+            
+            val totalList = if (!nilReturn) {
+              Seq(SummaryList(rows = Seq(
+                SummaryListRow(
+                  key = Key(content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))),
+                  value = Value(content = Text(totalDutySpoiltProducts))
+                )
+              )))
+            } else Seq.empty
 
-        questionRow +: detailRows
+            Seq(firstList) ++ remainingLists ++ totalList
+          }
+        } else {
+          Seq(SummaryList(rows = Seq(questionRow)))
+        }
       case None => Seq.empty
     }
-
-    val spoiltDeclared = spoiltProduct.exists(_.spoiltProductFilled == "1")
-
-    val totalRows = if (nilReturn) {
-      Seq.empty
-    } else {
-      if (spoiltDeclared) Seq(
-        SummaryListRow(
-          key = Key(content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))),
-          value = Value(content = Text(totalDutySpoiltProducts))
-        )
-      ) else Seq.empty
-    }
-
-    SummaryList(rows = spoiltProductsRows ++ totalRows)
   }
 
   private def buildTotalDutySummaryList(totalDutyDue: Option[TotalDutyDue])(using messages: Messages): SummaryList = {
@@ -246,12 +268,10 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     totalDutyDue match {
       case Some(tdd) =>
         val rows = Seq(
-          // Total duty due vaping products
           SummaryListRow(
             key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyDueVapingProducts")), classes = CssConstants.boldFontWeight),
             value = Value(content = Text(currencyFormat(tdd.totalDutyDueVapingProducts)))
           ),
-          // Total duty spoilt product (with negative formatting)
           SummaryListRow(
             key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutySpoiltProduct")), classes = CssConstants.boldFontWeight),
             value = Value(content = Text(
@@ -259,12 +279,10 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
               else currencyFormat(tdd.totalDutySpoiltProduct.abs).replace("£", "-£")
             ))
           ),
-          // Total duty under declaration
           SummaryListRow(
             key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyUnderDeclaration")), classes = CssConstants.boldFontWeight),
             value = Value(content = Text(currencyFormat(tdd.totalDutyUnderDeclaration)))
           ),
-          // Total duty over declaration (with negative formatting)
           SummaryListRow(
             key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyOverDeclaration")), classes = CssConstants.boldFontWeight),
             value = Value(content = Text(
@@ -272,7 +290,6 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
               else currencyFormat(tdd.totalDutyOverDeclaration.abs).replace("£", "-£")
             ))
           ),
-          // Total due (bold value as well)
           SummaryListRow(
             key = Key(content = Text(messages("viewIndividualReturn.totals.totalDue")), classes = CssConstants.boldFontWeight),
             value = Value(
@@ -330,12 +347,12 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     }
   }
 
-  private def buildAdjustmentsSummaryList(
-                                           overDeclaration: Option[OverDeclaration],
-                                           underDeclaration: Option[UnderDeclaration],
-                                           obligations: ObligationsResponse,
-                                           returnsDateUtils: ReturnsDateUtils
-                                         )(using messages: Messages): SummaryList = {
+  private def buildAdjustmentsSummaryLists(
+                                            overDeclaration: Option[OverDeclaration],
+                                            underDeclaration: Option[UnderDeclaration],
+                                            obligations: ObligationsResponse,
+                                            returnsDateUtils: ReturnsDateUtils
+                                          )(using messages: Messages): Seq[SummaryList] = {
     val hasOverDeclarations = overDeclaration.exists(_.overDeclFilled == "1")
     val hasUnderDeclarations = underDeclaration.exists(_.underDeclFilled == "1")
     val hasAnyAdjustments = hasOverDeclarations || hasUnderDeclarations
@@ -351,12 +368,61 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       ))
     )
 
-    val adjustmentRows = if (hasAnyAdjustments) {
-      val underDeclarationRows = underDeclaration
+    if (hasAnyAdjustments) {
+      val underDeclarationItems = underDeclaration
         .flatMap(_.underDeclarationProducts)
         .getOrElse(Seq.empty)
-        .flatMap { item =>
-          Seq(
+
+      val overDeclarationItems = overDeclaration
+        .flatMap(_.overDeclarationProducts)
+        .getOrElse(Seq.empty)
+
+      val allItems = underDeclarationItems ++ overDeclarationItems
+
+      if (allItems.isEmpty) {
+        Seq(SummaryList(rows = Seq(questionRow)))
+      } else {
+        // First list includes question + first item
+        val firstList = if (underDeclarationItems.nonEmpty) {
+          val firstItem = underDeclarationItems.head
+          SummaryList(rows = Seq(
+            questionRow,
+            SummaryListRow(
+              key = Key(content = Text(messages("viewIndividualReturn.adjustments.returnPeriodAffected"))),
+              value = Value(content = Text(lookupPeriodKey(firstItem.returnPeriodAffected, obligations, returnsDateUtils)))
+            ),
+            SummaryListRow(
+              key = Key(content = Text(messages("viewIndividualReturn.adjustments.amountUnderDeclared"))),
+              value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(firstItem.amountUnderDeclared).toMl))))
+            ),
+            SummaryListRow(
+              key = Key(content = Text(messages("viewIndividualReturn.adjustments.dutyDue"))),
+              value = Value(content = Text(currencyFormat(firstItem.dutyDue)), classes = CssConstants.boldFontWeight)
+            )
+          ))
+        } else {
+          val firstItem = overDeclarationItems.head
+          val dutyDueFormatted = currencyFormat(firstItem.dutyDue.abs).replace("£", "-£")
+          SummaryList(rows = Seq(
+            questionRow,
+            SummaryListRow(
+              key = Key(content = Text(messages("viewIndividualReturn.adjustments.returnPeriodAffected"))),
+              value = Value(content = Text(lookupPeriodKey(firstItem.returnPeriodAffected, obligations, returnsDateUtils)))
+            ),
+            SummaryListRow(
+              key = Key(content = Text(messages("viewIndividualReturn.adjustments.amountOverDeclared"))),
+              value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(firstItem.amountOverDeclared).toMl))))
+            ),
+            SummaryListRow(
+              key = Key(content = Text(messages("viewIndividualReturn.adjustments.dutyDue"))),
+              value = Value(content = Text(dutyDueFormatted), classes = CssConstants.boldFontWeight)
+            )
+          ))
+        }
+
+        // Remaining under declarations
+        val remainingUnderLists = underDeclarationItems.tail.map { item =>
+          SummaryList(rows = Seq(
             SummaryListRow(
               key = Key(content = Text(messages("viewIndividualReturn.adjustments.returnPeriodAffected"))),
               value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected, obligations, returnsDateUtils)))
@@ -369,44 +435,65 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
               key = Key(content = Text(messages("viewIndividualReturn.adjustments.dutyDue"))),
               value = Value(content = Text(currencyFormat(item.dutyDue)), classes = CssConstants.boldFontWeight)
             )
-          )
+          ))
         }
 
-      val overDeclarationRows = overDeclaration
-        .flatMap(_.overDeclarationProducts)
-        .getOrElse(Seq.empty)
-        .flatMap { item =>
-          val dutyDueFormatted = currencyFormat(item.dutyDue.abs).replace("£", "-£")
-          Seq(
+        // All over declarations (or remaining if first was over)
+        val overLists = if (underDeclarationItems.isEmpty) {
+          overDeclarationItems.tail.map { item =>
+            val dutyDueFormatted = currencyFormat(item.dutyDue.abs).replace("£", "-£")
+            SummaryList(rows = Seq(
+              SummaryListRow(
+                key = Key(content = Text(messages("viewIndividualReturn.adjustments.returnPeriodAffected"))),
+                value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected, obligations, returnsDateUtils)))
+              ),
+              SummaryListRow(
+                key = Key(content = Text(messages("viewIndividualReturn.adjustments.amountOverDeclared"))),
+                value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountOverDeclared).toMl))))
+              ),
+              SummaryListRow(
+                key = Key(content = Text(messages("viewIndividualReturn.adjustments.dutyDue"))),
+                value = Value(content = Text(dutyDueFormatted), classes = CssConstants.boldFontWeight)
+              )
+            ))
+          }
+        } else {
+          overDeclarationItems.map { item =>
+            val dutyDueFormatted = currencyFormat(item.dutyDue.abs).replace("£", "-£")
+            SummaryList(rows = Seq(
+              SummaryListRow(
+                key = Key(content = Text(messages("viewIndividualReturn.adjustments.returnPeriodAffected"))),
+                value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected, obligations, returnsDateUtils)))
+              ),
+              SummaryListRow(
+                key = Key(content = Text(messages("viewIndividualReturn.adjustments.amountOverDeclared"))),
+                value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountOverDeclared).toMl))))
+              ),
+              SummaryListRow(
+                key = Key(content = Text(messages("viewIndividualReturn.adjustments.dutyDue"))),
+                value = Value(content = Text(dutyDueFormatted), classes = CssConstants.boldFontWeight)
+              )
+            ))
+          }
+        }
+
+        val adjustmentReason = underDeclaration.flatMap(_.reasonForUnderDecl)
+          .orElse(overDeclaration.flatMap(_.reasonForOverDecl))
+
+        val reasonList = adjustmentReason.map { reason =>
+          SummaryList(rows = Seq(
             SummaryListRow(
-              key = Key(content = Text(messages("viewIndividualReturn.adjustments.returnPeriodAffected"))),
-              value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected, obligations, returnsDateUtils)))
-            ),
-            SummaryListRow(
-              key = Key(content = Text(messages("viewIndividualReturn.adjustments.amountOverDeclared"))),
-              value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountOverDeclared).toMl))))
-            ),
-            SummaryListRow(
-              key = Key(content = Text(messages("viewIndividualReturn.adjustments.dutyDue"))),
-              value = Value(content = Text(dutyDueFormatted), classes = CssConstants.boldFontWeight)
+              key = Key(content = Text(messages("viewIndividualReturn.adjustments.reason"))),
+              value = Value(content = Text(reason))
             )
-          )
-        }
+          ))
+        }.toSeq
 
-      val adjustmentReason = underDeclaration.flatMap(_.reasonForUnderDecl)
-        .orElse(overDeclaration.flatMap(_.reasonForOverDecl))
-
-      val reasonRow = adjustmentReason.map { reason =>
-        SummaryListRow(
-          key = Key(content = Text(messages("viewIndividualReturn.adjustments.reason"))),
-          value = Value(content = Text(reason))
-        )
-      }.toSeq
-
-      underDeclarationRows ++ overDeclarationRows ++ reasonRow
-    } else Seq.empty
-
-    SummaryList(rows = questionRow +: adjustmentRows)
+        Seq(firstList) ++ remainingUnderLists ++ overLists ++ reasonList
+      }
+    } else {
+      Seq(SummaryList(rows = Seq(questionRow)))
+    }
   }
 
   private def lookupPeriodKey(periodKey: String, obligations: ObligationsResponse, returnsDateUtils: ReturnsDateUtils)(using messages: Messages): String = {

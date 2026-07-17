@@ -89,15 +89,18 @@
         @govukSummaryList(summaryList)
     }
 
-    @govukSummaryList(vm.spoiltSummaryList)
+    @vm.spoiltSummaryLists.map { summaryList =>
+        @govukSummaryList(summaryList)
+    }
 
-    @govukSummaryList(vm.adjustmentsSummaryList)
+    @vm.adjustmentsSummaryLists.map { summaryList =>
+        @govukSummaryList(summaryList)
+    }
 
     @vm.dutySuspenseSummaryList.map { summaryList =>
         @h2(messages("viewIndividualReturn.h2.dutySuspended"))
         @govukSummaryList(summaryList)
     }
-
 
     @h2(messages("viewIndividualReturn.h2.totals"))
     @govukSummaryList(vm.totalDutySummaryList)
