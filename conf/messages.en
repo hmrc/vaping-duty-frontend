@@ -450,6 +450,15 @@ viewIndividualReturn.h2.amountDue = The amount is based on the total duty on:
 viewIndividualReturn.li.amountDue = the vaping products you declared
 viewIndividualReturn.li2.amountDue = all applicable adjustments you declared
 
+viewIndividualReturn.adjustments.question = Do you have any vaping products you need to over or under declare?
+viewIndividualReturn.adjustments.yes = Yes
+viewIndividualReturn.adjustments.no = No
+viewIndividualReturn.adjustments.returnPeriodAffected = Return period affected
+viewIndividualReturn.adjustments.amountUnderDeclared = Amount under declared
+viewIndividualReturn.adjustments.amountOverDeclared = Amount over declared
+viewIndividualReturn.adjustments.dutyDue = Duty due
+viewIndividualReturn.adjustments.reason = Adjustment reason
+
 viewIndividualReturn.h2.dutySuspended = Duty suspended summary
 viewIndividualReturn.dutySuspense.question = Have you received or moved any finished vaping products in duty suspense?
 viewIndividualReturn.dutySuspense.yes = Yes
