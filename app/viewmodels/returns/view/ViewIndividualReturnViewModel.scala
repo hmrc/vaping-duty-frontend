@@ -22,7 +22,7 @@ import models.returns.{ConvertToMl, DeclarationDetails, TotalDutyDue}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
-import utils.{CurrencyFormatter, PeriodKeys, ReturnsDateUtils}
+import utils.{CssConstants, CurrencyFormatter, PeriodKeys, ReturnsDateUtils}
 
 import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 
@@ -157,7 +157,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
         dutyDue.map { duty =>
           SummaryListRow(
             key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
-            value = Value(content = Text(duty))
+            value = Value(content = Text(duty), classes = CssConstants.boldFontWeight)
           )
         }
       ).flatten
@@ -202,6 +202,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
         val detailRows = if (sp.spoiltProductFilled == "1") {
           sp.spoiltProducts.getOrElse(Seq.empty).flatMap { item =>
+            val dutyDue = currencyFormat(item.dutyDue.abs).replace("£", "-£")
             Seq(
               SummaryListRow(
                 key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.month"))),
@@ -210,6 +211,10 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
               SummaryListRow(
                 key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))),
                 value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountSpoilt).toMl))))
+              ),
+              SummaryListRow(
+                key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
+                value = Value(content = Text(dutyDue), classes = CssConstants.boldFontWeight)
               )
             )
           }
@@ -238,23 +243,51 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
   private def buildTotalDutySummaryList(totalDutyDue: Option[TotalDutyDue])(using messages: Messages): SummaryList = {
     val zeroValue = BigDecimal("0")
 
-    val totalDuty = totalDutyDue.fold(zeroValue)(_.totalDue)
-
-    val displayTotalDutyDue =
-      if (totalDuty < zeroValue) currencyFormat(totalDuty.abs).replace("£", "-£")
-      else currencyFormat(totalDuty)
-
-
-    SummaryList(
-      if (totalDuty != zeroValue) {
-        Seq(SummaryListRow(
-          key = Key(content = Text(messages("viewIndividualReturn.totalDutyDue"))),
-          value = Value(content = Text(displayTotalDutyDue))
-        ))
-      } else {
-        Seq.empty
-      }
-    )
+    totalDutyDue match {
+      case Some(tdd) =>
+        val rows = Seq(
+          // Total duty due vaping products
+          SummaryListRow(
+            key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyDueVapingProducts")), classes = CssConstants.boldFontWeight),
+            value = Value(content = Text(currencyFormat(tdd.totalDutyDueVapingProducts)))
+          ),
+          // Total duty spoilt product (with negative formatting)
+          SummaryListRow(
+            key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutySpoiltProduct")), classes = CssConstants.boldFontWeight),
+            value = Value(content = Text(
+              if (tdd.totalDutySpoiltProduct == zeroValue) currencyFormat(tdd.totalDutySpoiltProduct)
+              else currencyFormat(tdd.totalDutySpoiltProduct.abs).replace("£", "-£")
+            ))
+          ),
+          // Total duty under declaration
+          SummaryListRow(
+            key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyUnderDeclaration")), classes = CssConstants.boldFontWeight),
+            value = Value(content = Text(currencyFormat(tdd.totalDutyUnderDeclaration)))
+          ),
+          // Total duty over declaration (with negative formatting)
+          SummaryListRow(
+            key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyOverDeclaration")), classes = CssConstants.boldFontWeight),
+            value = Value(content = Text(
+              if (tdd.totalDutyOverDeclaration == zeroValue) currencyFormat(tdd.totalDutyOverDeclaration)
+              else currencyFormat(tdd.totalDutyOverDeclaration.abs).replace("£", "-£")
+            ))
+          ),
+          // Total due (bold value as well)
+          SummaryListRow(
+            key = Key(content = Text(messages("viewIndividualReturn.totals.totalDue")), classes = CssConstants.boldFontWeight),
+            value = Value(
+              content = Text(
+                if (tdd.totalDue < zeroValue) currencyFormat(tdd.totalDue.abs).replace("£", "-£")
+                else currencyFormat(tdd.totalDue)
+              ),
+              classes = CssConstants.boldFontWeight
+            )
+          )
+        )
+        SummaryList(rows = rows)
+      case None =>
+        SummaryList(rows = Seq.empty)
+    }
   }
 
   private def buildDutySuspenseSummaryList(otherOptions: Option[OtherOptions])(using messages: Messages): Option[SummaryList] = {
@@ -334,7 +367,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
             ),
             SummaryListRow(
               key = Key(content = Text(messages("viewIndividualReturn.adjustments.dutyDue"))),
-              value = Value(content = Text(currencyFormat(item.dutyDue)))
+              value = Value(content = Text(currencyFormat(item.dutyDue)), classes = CssConstants.boldFontWeight)
             )
           )
         }
@@ -355,7 +388,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
             ),
             SummaryListRow(
               key = Key(content = Text(messages("viewIndividualReturn.adjustments.dutyDue"))),
-              value = Value(content = Text(dutyDueFormatted))
+              value = Value(content = Text(dutyDueFormatted), classes = CssConstants.boldFontWeight)
             )
           )
         }

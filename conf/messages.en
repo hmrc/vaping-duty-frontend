@@ -467,6 +467,13 @@ viewIndividualReturn.dutySuspense.productReceived = Product received
 viewIndividualReturn.dutySuspense.productMoved = Product moved
 viewIndividualReturn.dutySuspense.nothingToDeclare = Nothing to declare
 
+viewIndividualReturn.h2.totals = Totals
+viewIndividualReturn.totals.totalDutyDueVapingProducts = Total duty due vaping products
+viewIndividualReturn.totals.totalDutySpoiltProduct = Total duty spoilt product
+viewIndividualReturn.totals.totalDutyUnderDeclaration = Total duty under declaration
+viewIndividualReturn.totals.totalDutyOverDeclaration = Total duty over declaration
+viewIndividualReturn.totals.totalDue = Total due
+
 returns.declareAdjustmentQuestion.title = Declare adjustments from earlier returns
 returns.declareAdjustmentQuestion.heading = Declare adjustments from earlier returns
 returns.declareAdjustmentQuestion.caption = Adjust a previous return

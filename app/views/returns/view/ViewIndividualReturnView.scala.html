@@ -93,12 +93,14 @@
 
     @govukSummaryList(vm.adjustmentsSummaryList)
 
-    @govukSummaryList(vm.totalDutySummaryList)
-
     @vm.dutySuspenseSummaryList.map { summaryList =>
         @h2(messages("viewIndividualReturn.h2.dutySuspended"))
         @govukSummaryList(summaryList)
     }
+
+
+    @h2(messages("viewIndividualReturn.h2.totals"))
+    @govukSummaryList(vm.totalDutySummaryList)
 
     @govukButton(ButtonViewModel(messages("site.backToBta")))
 
