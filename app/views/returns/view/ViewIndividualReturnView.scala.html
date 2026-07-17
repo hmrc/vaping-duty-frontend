@@ -89,20 +89,20 @@
         @govukSummaryList(summaryList)
     }
 
-    @vm.spoiltSummaryLists.map { summaryList =>
-        @govukSummaryList(summaryList)
+    @vm.spoiltSummaryLists.zipWithIndex.map { case (summaryList, index) =>
+        @govukSummaryList(summaryList.copy(classes = if(index == 0) "govuk-!-margin-top-8" else ""))
     }
 
-    @vm.adjustmentsSummaryLists.map { summaryList =>
-        @govukSummaryList(summaryList)
+    @vm.adjustmentsSummaryLists.zipWithIndex.map { case (summaryList, index) =>
+        @govukSummaryList(summaryList.copy(classes = if(index == 0) "govuk-!-margin-top-8" else ""))
     }
 
     @vm.dutySuspenseSummaryList.map { summaryList =>
-        @h2(messages("viewIndividualReturn.h2.dutySuspended"))
+        @h2(messages("viewIndividualReturn.h2.dutySuspended"), classes = "govuk-heading-m govuk-!-padding-top-6")
         @govukSummaryList(summaryList)
     }
 
-    @h2(messages("viewIndividualReturn.h2.totals"))
+    @h2(messages("viewIndividualReturn.h2.totals"), classes = "govuk-heading-m govuk-!-padding-top-6")
     @govukSummaryList(vm.totalDutySummaryList)
 
     @govukButton(ButtonViewModel(messages("site.backToBta")))
