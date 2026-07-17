@@ -243,17 +243,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
                 )
               ))
             }
-            
-            val totalList = if (!nilReturn) {
-              Seq(SummaryList(rows = Seq(
-                SummaryListRow(
-                  key = Key(content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))),
-                  value = Value(content = Text(totalDutySpoiltProducts))
-                )
-              )))
-            } else Seq.empty
-
-            Seq(firstList) ++ remainingLists ++ totalList
+            Seq(firstList) ++ remainingLists
           }
         } else {
           Seq(SummaryList(rows = Seq(questionRow)))
@@ -421,21 +411,25 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
         }
 
         // Remaining under declarations
-        val remainingUnderLists = underDeclarationItems.tail.map { item =>
-          SummaryList(rows = Seq(
-            SummaryListRow(
-              key = Key(content = Text(messages("viewIndividualReturn.adjustments.returnPeriodAffected"))),
-              value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected, obligations, returnsDateUtils)))
-            ),
-            SummaryListRow(
-              key = Key(content = Text(messages("viewIndividualReturn.adjustments.amountUnderDeclared"))),
-              value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountUnderDeclared).toMl))))
-            ),
-            SummaryListRow(
-              key = Key(content = Text(messages("viewIndividualReturn.adjustments.dutyDue"))),
-              value = Value(content = Text(currencyFormat(item.dutyDue)), classes = CssConstants.boldFontWeight)
-            )
-          ))
+        val remainingUnderLists = if (underDeclarationItems.nonEmpty) {
+          underDeclarationItems.tail.map { item =>
+            SummaryList(rows = Seq(
+              SummaryListRow(
+                key = Key(content = Text(messages("viewIndividualReturn.adjustments.returnPeriodAffected"))),
+                value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected, obligations, returnsDateUtils)))
+              ),
+              SummaryListRow(
+                key = Key(content = Text(messages("viewIndividualReturn.adjustments.amountUnderDeclared"))),
+                value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountUnderDeclared).toMl))))
+              ),
+              SummaryListRow(
+                key = Key(content = Text(messages("viewIndividualReturn.adjustments.dutyDue"))),
+                value = Value(content = Text(currencyFormat(item.dutyDue)), classes = CssConstants.boldFontWeight)
+              )
+            ))
+          }
+        } else {
+          Seq.empty
         }
 
         // All over declarations (or remaining if first was over)

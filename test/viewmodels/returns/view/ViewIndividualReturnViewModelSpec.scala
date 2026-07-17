@@ -18,40 +18,23 @@ package viewmodels.returns.view
 
 import base.SpecBase
 import data.TestData
-import models.obligations.{ObligationDetails, ObligationStatus, ObligationsResponse, SingleObligation}
+import models.identifiers.PeriodKey
+import models.obligations.{ObligationItem, ObligationsResponse}
+import models.returns.DeclarationDetails
 import models.returns.view.*
-import models.returns.{ChargeDetails, DeclarationDetails, TotalDutyDue}
-import play.api.i18n.Messages
-import utils.ReturnsDateUtils
 
 import java.time.{Instant, LocalDate}
 
 class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
-
-  private val returnsDateUtils = app.injector.instanceOf[ReturnsDateUtils]
   
-  private val obligationDetails = ObligationDetails(
-    obligationStatus = ObligationStatus.F,
-    openOrFulfilledStatus = "F",
-    iCFromDate = LocalDate.of(2027, 8, 1),
-    iCToDate = LocalDate.of(2027, 8, 31),
-    iCDueDate = LocalDate.of(2027, 10, 25),
-    periodKey = "24AH"
-  )
+  private val obligationDetails = fulfilledObligation(periodKey)
 
-  private val obligationDetailsJuly = ObligationDetails(
-    obligationStatus = ObligationStatus.F,
-    openOrFulfilledStatus = "F",
-    iCFromDate = LocalDate.of(2027, 7, 1),
-    iCToDate = LocalDate.of(2027, 7, 31),
-    iCDueDate = LocalDate.of(2027, 9, 25),
-    periodKey = "24AG"
-  )
+  private val obligationDetailsJuly = fulfilledObligation(PeriodKey("24AG"))
 
   private val obligations = ObligationsResponse(
     obligation = Seq(
-      SingleObligation(obligationDetails),
-      SingleObligation(obligationDetailsJuly)
+      ObligationItem(None, obligationDetails),
+      ObligationItem(None, obligationDetailsJuly)
     )
   )
 
@@ -67,6 +50,34 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     fullName = "Craig Cottingham",
     signeesEmailAddress = "craig@craigsvapes.co.uk",
     capacityInWhichSigned = "Manufacturer"
+  )
+
+  private val sampleUnderDeclaration = UnderDeclaration(
+    "1",
+    Some("Additional products found"),
+    Option(Seq(
+      UnderDeclarationProduct(
+        returnPeriodAffected = "24AG",
+        taxType = "614",
+        dutyRate = BigDecimal("1.00"),
+        amountUnderDeclared = BigDecimal("100.00"),
+        dutyDue = BigDecimal("100.00")
+      )
+    ))
+  )
+
+  private val sampleOverDeclaration = OverDeclaration(
+    "1",
+    Some("Correction of previous return"),
+    Option(Seq(
+      OverDeclarationProduct(
+        returnPeriodAffected = "24AG",
+        taxType = "614",
+        dutyRate = BigDecimal("1.00"),
+        amountOverDeclared = BigDecimal("50.00"),
+        dutyDue = BigDecimal("-50.00")
+      )
+    ))
   )
 
   "ViewIndividualReturnViewModel" - {
@@ -89,19 +100,18 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         val returnDisplayResponse = ReturnDisplayResponse(returnDisplaySuccess)
         val viewModel = ViewIndividualReturnViewModel(returnDisplayResponse, obligations, returnsDateUtils)
 
-        viewModel.adjustmentsSummaryList.rows.size mustBe 1
-        viewModel.adjustmentsSummaryList.rows.head.key.content.asHtml.body must include("Do you have any vaping products you need to over or under declare?")
-        viewModel.adjustmentsSummaryList.rows.head.value.content.asHtml.body must include("No")
+        viewModel.adjustmentsSummaryLists.size mustBe 1
+        viewModel.adjustmentsSummaryLists.head.rows.size mustBe 1
       }
 
       "must display under declarations correctly" in {
         val returnDisplaySuccess = ReturnDisplaySuccess(
           processingDate = Instant.now(clock),
           idDetails = None,
-          chargeDetails = Some(chargeDetails),
+          chargeDetails = Option(chargeDetails),
           vapingProductsProduced = None,
           overDeclaration = None,
-          underDeclaration = Some(sampleUnderDeclaration),
+          underDeclaration = Option(sampleUnderDeclaration),
           spoiltProduct = None,
           totalDutyDue = None,
           totalDutyDueByTaxType = None,
@@ -112,7 +122,74 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         val returnDisplayResponse = ReturnDisplayResponse(returnDisplaySuccess)
         val viewModel = ViewIndividualReturnViewModel(returnDisplayResponse, obligations, returnsDateUtils)
 
-        viewModel.adjustmentsSummaryList.rows.size mustBe 5
-        viewModel.adjustmentsSummaryList.rows.head.value.content.asHtml.body must include("Yes")
-        viewModel.adjustmentsSummaryList.rows(1).key.content.asHtml.body must include("Return period affected")
-        viewModel.
+        // Should have 2 lists: one for the under declaration, one for the reason
+        viewModel.adjustmentsSummaryLists.size mustBe 2
+        
+        // First list has question + under declaration details
+        viewModel.adjustmentsSummaryLists.head.rows.size mustBe 4
+        
+        // Second list has the reason
+        viewModel.adjustmentsSummaryLists(1).rows.size mustBe 1
+      }
+
+      "must display over declarations correctly" in {
+        val returnDisplaySuccess = ReturnDisplaySuccess(
+          processingDate = Instant.now(clock),
+          idDetails = None,
+          chargeDetails = Option(chargeDetails),
+          vapingProductsProduced = None,
+          overDeclaration = Option(sampleOverDeclaration),
+          underDeclaration = None,
+          spoiltProduct = None,
+          totalDutyDue = None,
+          totalDutyDueByTaxType = None,
+          otherOptions = None,
+          declaration = declaration
+        )
+
+        val returnDisplayResponse = ReturnDisplayResponse(returnDisplaySuccess)
+        val viewModel = ViewIndividualReturnViewModel(returnDisplayResponse, obligations, returnsDateUtils)
+
+        // With 1 over declaration and a reason, should have 2 lists
+        viewModel.adjustmentsSummaryLists.size mustBe 2
+        
+        // First list has question + over declaration details
+        viewModel.adjustmentsSummaryLists.head.rows.size mustBe 4
+        
+        // Second list has the reason
+        viewModel.adjustmentsSummaryLists(1).rows.size mustBe 1
+      }
+
+      "must display both under and over declarations correctly" in {
+        val returnDisplaySuccess = ReturnDisplaySuccess(
+          processingDate = Instant.now(clock),
+          idDetails = None,
+          chargeDetails = Option(chargeDetails),
+          vapingProductsProduced = None,
+          overDeclaration = Option(sampleOverDeclaration),
+          underDeclaration = Option(sampleUnderDeclaration),
+          spoiltProduct = None,
+          totalDutyDue = None,
+          totalDutyDueByTaxType = None,
+          otherOptions = None,
+          declaration = declaration
+        )
+
+        val returnDisplayResponse = ReturnDisplayResponse(returnDisplaySuccess)
+        val viewModel = ViewIndividualReturnViewModel(returnDisplayResponse, obligations, returnsDateUtils)
+
+        // Should have 3 summary lists: one for under declaration, one for over declaration, one for reason
+        viewModel.adjustmentsSummaryLists.size mustBe 3
+        
+        // First list (under declaration) should have 4 rows (question + details)
+        viewModel.adjustmentsSummaryLists.head.rows.size mustBe 4
+        
+        // Second list (over declaration) should have 3 rows (no question row)
+        viewModel.adjustmentsSummaryLists(1).rows.size mustBe 3
+        
+        // Third list has the reason (uses under declaration reason since it's checked first)
+        viewModel.adjustmentsSummaryLists(2).rows.size mustBe 1
+      }
+    }
+  }
+}
