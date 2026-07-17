@@ -107,15 +107,21 @@ class AdjustmentCheckYourAnswersService @Inject()(
       .map(_.adjustments.map(_.period).distinct)
       .getOrElse(Seq.empty)
 
-    uniquePeriods.map { period =>
-      val obligation = obligationDetails.find(_.periodKey == period.toString)
-      val dutyRate = obligation.map { obl =>
-        dutyRateService.getDutyRateForDate(obl.iCFromDate)
-      }.getOrElse(
-        // scalafix:off DisableSyntax.throw
-        throw new RuntimeException(s"No obligation found for period ${period.toString}")
+    dutyRateService.getDutyRatesForPeriods(uniquePeriods, obligationDetails)
+  }
+
+  private def calculateDutyTotalByType(
+                                        adjustments: Seq[models.returns.adjustments.Adjustment],
+                                        adjustmentType: models.returns.adjustments.AdjustmentType,
+                                        dutyRatesMap: Map[PeriodKey, DutyRate]
+                                      ): BigDecimal = {
+    adjustments
+      .filter(_.adjustmentType == adjustmentType)
+      .flatMap(adjustment =>
+        dutyRatesMap
+          .get(adjustment.period)
+          .map(_.calculateDuty(adjustment.volumeInMl))
       )
-      period -> dutyRate
-    }.toMap
+      .sum
   }
 }

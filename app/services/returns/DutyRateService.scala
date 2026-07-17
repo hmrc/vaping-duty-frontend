@@ -57,4 +57,20 @@ class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationServic
   def getDutyRatesForPeriodKeys(obligations: Seq[ObligationDetails]): Map[PeriodKey, DutyRate] = {
     obligations.map(o => PeriodKey(o.periodKey) -> getDutyRateForDate(o.iCFromDate)).toMap
   }
+
+  def getDutyRatesForPeriods(
+                               periods: Seq[PeriodKey],
+                               obligationDetails: Seq[ObligationDetails]
+                             ): Map[PeriodKey, DutyRate] = {
+    periods.map { period =>
+      val obligation = obligationDetails.find(_.periodKey == period.toString)
+      val dutyRate = obligation.map { obl =>
+        getDutyRateForDate(obl.iCFromDate)
+      }.getOrElse(
+        // scalafix:off DisableSyntax.throw
+        throw new RuntimeException(s"No obligation found for period ${period.toString}")
+      )
+      period -> dutyRate
+    }.toMap
+  }
 }
