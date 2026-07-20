@@ -19,7 +19,6 @@ package viewmodels.returns.view
 import base.SpecBase
 import data.TestData
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationItem, ObligationsResponse}
 import models.returns.view.{SpoiltProduct, SpoiltProductItem}
 import play.api.i18n.Messages
 import utils.ReturnsDateUtils
@@ -29,8 +28,8 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
   implicit val messages: Messages = messages(applicationBuilder(None).build())
 
   private val returnsDateUtils = new ReturnsDateUtils(clock)
-  private val obligationDetails = fulfilledObligation(periodKey)
-  private val obligations = ObligationsResponse(obligation = Seq(ObligationItem(None, obligationDetails)))
+  private val obligationDetailsItem = fulfilledObligation(periodKey)
+  private val obligationDetails = Seq(obligationDetailsItem)
 
   private val spoiltProductItem = SpoiltProductItem(
     returnPeriodAffected = periodKey.value,
@@ -49,7 +48,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
           spoiltProduct = None,
           nilReturn = false,
           totalDutySpoiltProducts = "£0",
-          obligations = obligations,
+          obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -63,7 +62,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
           spoiltProduct = Some(spoiltProduct),
           nilReturn = false,
           totalDutySpoiltProducts = "£0",
-          obligations = obligations,
+          obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -80,7 +79,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
           spoiltProduct = Some(spoiltProduct),
           nilReturn = true,
           totalDutySpoiltProducts = "-£100",
-          obligations = obligations,
+          obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -100,7 +99,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
           spoiltProduct = Some(spoiltProduct),
           nilReturn = false,
           totalDutySpoiltProducts = "-£100",
-          obligations = obligations,
+          obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -120,7 +119,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
           spoiltProduct = Some(spoiltProduct),
           nilReturn = false,
           totalDutySpoiltProducts = "-£250",
-          obligations = obligations,
+          obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -136,7 +135,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
           spoiltProduct = Some(spoiltProduct),
           nilReturn = false,
           totalDutySpoiltProducts = "-£100",
-          obligations = obligations,
+          obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -150,7 +149,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
           spoiltProduct = Some(spoiltProduct),
           nilReturn = false,
           totalDutySpoiltProducts = "-£100",
-          obligations = obligations,
+          obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -164,7 +163,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
           spoiltProduct = Some(spoiltProduct),
           nilReturn = false,
           totalDutySpoiltProducts = "-£100",
-          obligations = obligations,
+          obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -173,16 +172,14 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
       }
 
       "throw exception when period key not found" in {
-        val obligationsWithMissingPeriod = ObligationsResponse(
-          obligation = Seq(ObligationItem(None, fulfilledObligation(PeriodKey("26AF"))))
-        )
+        val obligationDetailsWithMissingPeriod = Seq(fulfilledObligation(PeriodKey("26AF")))
         val itemWithMissingPeriod = spoiltProductItem.copy(returnPeriodAffected = "24AC")
         val spoiltProduct = SpoiltProduct(spoiltProductFilled = "1", spoiltProducts = Some(Seq(itemWithMissingPeriod)))
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
           nilReturn = false,
           totalDutySpoiltProducts = "-£100",
-          obligations = obligationsWithMissingPeriod,
+          obligationDetails = obligationDetailsWithMissingPeriod,
           returnsDateUtils = returnsDateUtils
         )
 

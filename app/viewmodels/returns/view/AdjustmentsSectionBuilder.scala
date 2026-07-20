@@ -16,7 +16,7 @@
 
 package viewmodels.returns.view
 
-import models.obligations.ObligationsResponse
+import models.obligations.ObligationDetails
 import models.returns.ConvertToMl
 import models.returns.view.{OverDeclaration, UnderDeclaration}
 import play.api.i18n.Messages
@@ -27,7 +27,7 @@ import utils.{CssConstants, CurrencyFormatter, ReturnsDateUtils}
 final case class AdjustmentsSectionBuilder(
   overDeclaration: Option[OverDeclaration],
   underDeclaration: Option[UnderDeclaration],
-  obligations: ObligationsResponse,
+  obligationDetails: Seq[ObligationDetails],
   returnsDateUtils: ReturnsDateUtils
 ) extends CurrencyFormatter {
 
@@ -180,8 +180,7 @@ final case class AdjustmentsSectionBuilder(
   }
 
   private def lookupPeriodKey(periodKey: String)(implicit messages: Messages): String = {
-    obligations.obligation
-      .map(_.obligationDetails)
+    obligationDetails
       .find(_.periodKey == periodKey)
       .map { obligation =>
         val month = obligation.iCFromDate.getMonth

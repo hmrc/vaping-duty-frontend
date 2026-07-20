@@ -364,7 +364,7 @@ trait TestData extends ObligationsBuilders {
             spoiltProducts = Some(
               Seq(
                 SpoiltProductItem(
-                  returnPeriodAffected = "27AJ",
+                  returnPeriodAffected = "26AF",
                   taxType = "311",
                   dutyRate = BigDecimal("0.50"),
                   amountSpoilt = BigDecimal("200.00"),

@@ -35,6 +35,8 @@ import scala.concurrent.Future
 
 class ViewIndividualReturnControllerSpec extends SpecBase {
   
+  private val obligationDetails = Seq(fulfilledObligation(periodKey))
+  
   "ViewIndividualReturn Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -46,8 +48,8 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         createReturnDisplayResponse()
       ))
 
-      when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(
-        createMockObligationsResponse()
+      when(mockObligationService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(
+        obligationDetails
       ))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
@@ -63,7 +65,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
-        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), createMockObligationsResponse(), returnsDateUtils)(using messages(application))
+        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), obligationDetails, returnsDateUtils)(using messages(application))
 
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 
@@ -90,8 +92,8 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         returnDataWithoutRegularReturn
       ))
 
-      when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(
-        createMockObligationsResponse()
+      when(mockObligationService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(
+        obligationDetails
       ))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
@@ -107,7 +109,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
-        val vm = ViewIndividualReturnViewModel(returnDataWithoutRegularReturn, createMockObligationsResponse(), returnsDateUtils)(using messages(application))
+        val vm = ViewIndividualReturnViewModel(returnDataWithoutRegularReturn, obligationDetails, returnsDateUtils)(using messages(application))
 
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 

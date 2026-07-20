@@ -16,7 +16,7 @@
 
 package viewmodels.returns.view
 
-import models.obligations.ObligationsResponse
+import models.obligations.ObligationDetails
 import models.returns.ConvertToMl
 import models.returns.view.SpoiltProduct
 import play.api.i18n.Messages
@@ -28,7 +28,7 @@ final case class SpoiltProductSectionBuilder(
   spoiltProduct: Option[SpoiltProduct],
   nilReturn: Boolean,
   totalDutySpoiltProducts: String,
-  obligations: ObligationsResponse,
+  obligationDetails: Seq[ObligationDetails],
   returnsDateUtils: ReturnsDateUtils
 ) extends CurrencyFormatter {
 
@@ -99,8 +99,7 @@ final case class SpoiltProductSectionBuilder(
   }
 
   private def lookupPeriodKey(periodKey: String)(implicit messages: Messages): String = {
-    obligations.obligation
-      .map(_.obligationDetails)
+    obligationDetails
       .find(_.periodKey == periodKey)
       .map { obligation =>
         val month = obligation.iCFromDate.getMonth
