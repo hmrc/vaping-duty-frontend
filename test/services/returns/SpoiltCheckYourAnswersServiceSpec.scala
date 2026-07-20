@@ -34,11 +34,13 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
   private val mockObligationService: ObligationService = mock[ObligationService]
   private val mockDutyRateService: DutyRateService = mock[DutyRateService]
   private val mockReturnsDateUtils: ReturnsDateUtils = mock[ReturnsDateUtils]
+  private val mockSessionRepository: ReturnsUserAnswersService = mock[ReturnsUserAnswersService]
 
   private val service = new SpoiltCheckYourAnswersService(
     mockObligationService,
     mockDutyRateService,
-    mockReturnsDateUtils
+    mockReturnsDateUtils,
+    mockSessionRepository
   )
 
   private val vpdId = VpdId("XMVPD0000000123")
@@ -49,7 +51,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
     openObligation(periodKey)
   )
 
-  private val DUTY_RATE = DutyRate(1000)
+  private val TEN_POUNDS_PER_10ML = DutyRate(1000)
 
   implicit val messages: Messages = stubMessages()
 
@@ -62,7 +64,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt)))
       when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(DUTY_RATE)
+        .thenReturn(TEN_POUNDS_PER_10ML)
 
       val result = service.buildViewModel(
         declareSpoiltProducts = Some(true),
@@ -104,7 +106,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt1, obligationForSpoilt2)))
       when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(DUTY_RATE)
+        .thenReturn(TEN_POUNDS_PER_10ML)
 
       val result = service.buildViewModel(
         declareSpoiltProducts = Some(true),
@@ -163,7 +165,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt)))
       when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(DUTY_RATE)
+        .thenReturn(TEN_POUNDS_PER_10ML)
       when(mockReturnsDateUtils.formatPeriodDisplay(eqTo(spoiltPeriodKey), any[Seq[models.obligations.ObligationDetails]])(using any()))
         .thenReturn("December 2026")
 

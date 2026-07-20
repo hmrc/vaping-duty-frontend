@@ -36,11 +36,13 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
   private val mockObligationService: ObligationService = mock[ObligationService]
   private val mockDutyRateService: DutyRateService = mock[DutyRateService]
   private val mockReturnsDateUtils: ReturnsDateUtils = mock[ReturnsDateUtils]
+  private val mockSessionRepository: ReturnsUserAnswersService = mock[ReturnsUserAnswersService]
 
   private val service = new AdjustmentCheckYourAnswersService(
     mockObligationService,
     mockDutyRateService,
-    mockReturnsDateUtils
+    mockReturnsDateUtils,
+    mockSessionRepository
   )
 
   private val vpdId = VpdId("XMVPD0000000123")
@@ -51,7 +53,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     openObligation(periodKey)
   )
 
-  private val DUTY_RATE_PENCE_PER_10ML = DutyRate(1000)
+  private val TEN_POUNDS_PER_10ML = DutyRate(1000)
 
   implicit val messages: Messages = stubMessages()
 
@@ -70,7 +72,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForAdjustment)))
       when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(DUTY_RATE_PENCE_PER_10ML)
+        .thenReturn(TEN_POUNDS_PER_10ML)
 
       val result = service.buildViewModel(
         declareAdjustment = Some(true),
@@ -121,7 +123,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForAdjustment1, obligationForAdjustment2)))
       when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(DUTY_RATE_PENCE_PER_10ML)
+        .thenReturn(TEN_POUNDS_PER_10ML)
 
       val result = service.buildViewModel(
         declareAdjustment = Some(true),
@@ -192,7 +194,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForAdjustment)))
       when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(DUTY_RATE_PENCE_PER_10ML)
+        .thenReturn(TEN_POUNDS_PER_10ML)
       when(mockReturnsDateUtils.formatPeriodDisplay(eqTo(adjustmentPeriodKey), any[Seq[ObligationDetails]])(using any()))
         .thenReturn("December 2026")
 

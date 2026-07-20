@@ -17,8 +17,10 @@
 package controllers.returns.submit.adjustments
 
 import base.SpecBase
-import models.returns.ReturnsUserAnswers
-import models.returns.DutyRate
+import controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController
+import controllers.routes.*
+import models.identifiers.PeriodKey
+import models.returns.{DutyRate, ReturnsUserAnswers}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -34,19 +36,19 @@ import scala.concurrent.Future
 
 class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
-  val adjustmentPeriodKey = october2027
-  val otherAdjustmentPeriodKey = november2027
+  // We could read from the prod.routes file, or just have one locally for all the tests so that the duplication is minimal?
+  private val reverseController = new ReverseRemoveAdjustmentController(_prefix = "/vaping-duty")
 
-  lazy val removeAdjustmentRoute: String =
-    controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onPageLoad().url + s"?adjustmentPeriod=${adjustmentPeriodKey.value}"
+  private def removeAdjustmentGetUrl(periodKey: PeriodKey): String =
+    reverseController.onPageLoad().url + s"?adjustmentPeriod=${periodKey.value}"
 
-  lazy val removeAdjustmentSubmitRoute: String =
-    controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onSubmit().url + s"?adjustmentPeriod=${adjustmentPeriodKey.value}"
+  private def removeAdjustmentPutUrl(periodKey: PeriodKey) =
+    reverseController.onSubmit().url + s"?adjustmentPeriod=${periodKey.value}"
 
   private def stubbedObligationService: ObligationService = {
     val mockObligationService = mock[ObligationService]
     when(mockObligationService.getObligationsDirectly(any())(using any()))
-      .thenReturn(Future.successful(Seq(fulfilledObligation(adjustmentPeriodKey), fulfilledObligation(otherAdjustmentPeriodKey))))
+      .thenReturn(Future.successful(Seq(fulfilledObligation(october2027), fulfilledObligation(november2027))))
     mockObligationService
   }
 
@@ -56,11 +58,18 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
     mockDutyRateService
   }
 
+  private def obligationServiceWithNoMatchingObligation: ObligationService = {
+    val mockObligationService = mock[ObligationService]
+    when(mockObligationService.getObligationsDirectly(any())(using any()))
+      .thenReturn(Future.successful(Seq.empty))
+    mockObligationService
+  }
+
   "RemoveAdjustment Controller" - {
 
     "must return OK and the correct view for a GET" in {
       val userAnswers = returnsUserAnswers
-        .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(adjustmentPeriodKey, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
+        .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(october2027, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
         .success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -71,7 +80,7 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, removeAdjustmentRoute)
+        val request = FakeRequest(GET, removeAdjustmentGetUrl(october2027))
 
         val result = route(application, request).value
 
@@ -83,12 +92,12 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onPageLoad().url)
+        val request = FakeRequest(GET, reverseController.onPageLoad().url)
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual JourneyRecoveryController.onPageLoad().url
       }
     }
 
@@ -101,12 +110,12 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, removeAdjustmentRoute)
+        val request = FakeRequest(GET, removeAdjustmentGetUrl(october2027))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual JourneyRecoveryController.onPageLoad().url
       }
     }
 
@@ -116,8 +125,8 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers = returnsUserAnswers
         .set(AdjustmentListPage, AdjustmentList(Seq(
-          AdjustmentEntry(adjustmentPeriodKey, AdjustmentType.UnderDeclared, BigDecimal(1000)),
-          AdjustmentEntry(otherAdjustmentPeriodKey, AdjustmentType.OverDeclared, BigDecimal(500))
+          AdjustmentEntry(october2027, AdjustmentType.UnderDeclared, BigDecimal(1000)),
+          AdjustmentEntry(november2027, AdjustmentType.OverDeclared, BigDecimal(500))
         )))
         .success.value
 
@@ -132,15 +141,45 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, removeAdjustmentSubmitRoute)
+          FakeRequest(POST, removeAdjustmentPutUrl(october2027))
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include(
-          controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url
-        )
+        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad().url)
+        verify(mockSessionRepository).set(any())(any())
+      }
+    }
+
+    "must remove the entry and redirect on a confirmed submission even when no obligation exists for the period" in {
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val userAnswers = returnsUserAnswers
+        .set(AdjustmentListPage, AdjustmentList(Seq(
+          AdjustmentEntry(october2027, AdjustmentType.UnderDeclared, BigDecimal(1000)),
+          AdjustmentEntry(november2027, AdjustmentType.OverDeclared, BigDecimal(500))
+        )))
+        .success.value
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(userAnswers))
+          .overrides(
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(obligationServiceWithNoMatchingObligation)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, removeAdjustmentPutUrl(october2027))
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad().url)
         verify(mockSessionRepository).set(any())(any())
       }
     }
@@ -150,7 +189,7 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val userAnswers = returnsUserAnswers
-        .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(adjustmentPeriodKey, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
+        .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(october2027, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
         .success.value
 
       val application =
@@ -164,15 +203,13 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, removeAdjustmentSubmitRoute)
+          FakeRequest(POST, removeAdjustmentPutUrl(october2027))
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include(
-          controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url
-        )
+        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad().url)
 
         val captor = ArgumentCaptor.forClass(classOf[ReturnsUserAnswers])
         verify(mockSessionRepository).set(captor.capture())(any())
@@ -185,7 +222,7 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[ReturnsUserAnswersService]
 
       val userAnswers = returnsUserAnswers
-        .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(adjustmentPeriodKey, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
+        .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(october2027, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
         .success.value
 
       val application =
@@ -199,22 +236,20 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, removeAdjustmentSubmitRoute)
+          FakeRequest(POST, removeAdjustmentPutUrl(october2027))
             .withFormUrlEncodedBody(("value", "false"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include(
-          controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url
-        )
+        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad().url)
         verify(mockSessionRepository, never).set(any())(any())
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
       val userAnswers = returnsUserAnswers
-        .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(adjustmentPeriodKey, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
+        .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(october2027, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
         .success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -226,7 +261,7 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, removeAdjustmentSubmitRoute)
+          FakeRequest(POST, removeAdjustmentPutUrl(october2027))
             .withFormUrlEncodedBody(("value", ""))
 
         val result = route(application, request).value
@@ -240,13 +275,13 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onSubmit().url)
+          FakeRequest(POST, reverseController.onSubmit().url)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual JourneyRecoveryController.onPageLoad().url
       }
     }
 
@@ -254,12 +289,12 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(returnsUserAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, removeAdjustmentRoute)
+        val request = FakeRequest(GET, removeAdjustmentGetUrl(october2027))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual JourneyRecoveryController.onPageLoad().url
       }
     }
   }

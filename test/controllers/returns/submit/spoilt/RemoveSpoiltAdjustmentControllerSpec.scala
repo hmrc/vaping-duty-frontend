@@ -55,6 +55,13 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
     mockDutyRateService
   }
 
+  private def obligationServiceWithNoMatchingObligation: ObligationService = {
+    val mockObligationService = mock[ObligationService]
+    when(mockObligationService.getObligationsDirectly(any())(using any()))
+      .thenReturn(Future.successful(Seq.empty))
+    mockObligationService
+  }
+
   "RemoveSpoiltAdjustment Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -126,6 +133,40 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
             bind[ObligationService].toInstance(stubbedObligationService),
             bind[DutyRateService].toInstance(stubbedDutyRateService)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, removeSpoiltAdjustmentSubmitRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value must include(
+          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url
+        )
+        verify(mockSessionRepository).set(any())(any())
+      }
+    }
+
+    "must remove the entry and redirect on a confirmed submission even when no obligation exists for the period" in {
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val userAnswers = returnsUserAnswers
+        .set(SpoiltVolumeByPeriodPage, List(
+          SpoiltVolumeByPeriod(BigDecimal(1000), spoiltPeriodKey),
+          SpoiltVolumeByPeriod(BigDecimal(500), otherSpoiltPeriodKey)
+        ))
+        .success.value
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(userAnswers))
+          .overrides(
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(obligationServiceWithNoMatchingObligation)
           )
           .build()
 
