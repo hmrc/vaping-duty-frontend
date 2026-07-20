@@ -23,6 +23,9 @@ import java.time.LocalDate
 
 trait ObligationsBuilders {
 
+  val january2024  = PeriodKey("24AA")
+  val february2024 = PeriodKey("24AB")
+  val march2024    = PeriodKey("24AC")
   val october2026  = PeriodKey("26AJ")
   val november2026 = PeriodKey("26AK")
   val december2026 = PeriodKey("26AL")

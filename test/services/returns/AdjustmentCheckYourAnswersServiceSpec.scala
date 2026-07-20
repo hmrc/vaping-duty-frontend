@@ -46,12 +46,6 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
   )
 
   private val vpdId = VpdId("XMVPD0000000123")
-  private val periodKey = PeriodKey("24AA")
-  private val adjustmentPeriodKey = PeriodKey("24AB")
-
-  private val obligationDetails = Seq(
-    openObligation(periodKey)
-  )
 
   private val TEN_POUNDS_PER_10ML = DutyRate(1000)
 
@@ -60,24 +54,15 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
   "buildViewModel" - {
 
     "must successfully build view model with adjustments" in {
-      val adjustmentEntry = AdjustmentEntry(
-        period = adjustmentPeriodKey,
-        adjustmentType = AdjustmentType.UnderDeclared,
-        volumeInMl = BigDecimal(1000)
-      )
-      val adjustmentList = AdjustmentList(Seq(adjustmentEntry))
-
-      val obligationForAdjustment = openObligation(adjustmentPeriodKey)
-
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-        .thenReturn(Future.successful(Seq(obligationForAdjustment)))
-      when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(TEN_POUNDS_PER_10ML)
+      stubObligations(Seq(openObligation(february2024)))
+      stubDutyRate(TEN_POUNDS_PER_10ML)
 
       val result = service.buildViewModel(
         declareAdjustment = Some(true),
-        adjustmentList = Some(adjustmentList),
-        periodKey = periodKey,
+        adjustmentList = Some(AdjustmentList(Seq(
+          underDeclaredAdjustment(february2024, ml(1000))
+        ))),
+        periodKey = january2024,
         vpdId = vpdId
       ).futureValue
 
@@ -87,13 +72,12 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     }
 
     "must successfully build view model with no adjustments when declareAdjustment is false" in {
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-        .thenReturn(Future.successful(obligationDetails))
+      stubObligations(Seq(openObligation(january2024)))
 
       val result = service.buildViewModel(
         declareAdjustment = Some(false),
         adjustmentList = None,
-        periodKey = periodKey,
+        periodKey = january2024,
         vpdId = vpdId
       ).futureValue
 
@@ -103,32 +87,16 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     }
 
     "must correctly calculate duty rates for multiple periods" in {
-      val adjustmentPeriodKey2 = PeriodKey("24AC")
-      
-      val obligationForAdjustment1 = openObligation(adjustmentPeriodKey)
-      val obligationForAdjustment2 = openObligation(adjustmentPeriodKey2)
-
-      val adjustmentEntry1 = AdjustmentEntry(
-        period = adjustmentPeriodKey,
-        adjustmentType = AdjustmentType.UnderDeclared,
-        volumeInMl = BigDecimal(1000)
-      )
-      val adjustmentEntry2 = AdjustmentEntry(
-        period = adjustmentPeriodKey2,
-        adjustmentType = AdjustmentType.OverDeclared,
-        volumeInMl = BigDecimal(500)
-      )
-      val adjustmentList = AdjustmentList(Seq(adjustmentEntry1, adjustmentEntry2))
-
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-        .thenReturn(Future.successful(Seq(obligationForAdjustment1, obligationForAdjustment2)))
-      when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(TEN_POUNDS_PER_10ML)
+      stubObligations(Seq(openObligation(february2024), openObligation(march2024)))
+      stubDutyRate(TEN_POUNDS_PER_10ML)
 
       val result = service.buildViewModel(
         declareAdjustment = Some(true),
-        adjustmentList = Some(adjustmentList),
-        periodKey = periodKey,
+        adjustmentList = Some(AdjustmentList(Seq(
+          underDeclaredAdjustment(february2024, ml(1000)),
+          overDeclaredAdjustment(march2024, ml(500))
+        ))),
+        periodKey = january2024,
         vpdId = vpdId
       ).futureValue
 
@@ -138,15 +106,12 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     }
 
     "must handle empty adjustment list" in {
-      val adjustmentList = AdjustmentList(Seq.empty)
-
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-        .thenReturn(Future.successful(obligationDetails))
+      stubObligations(Seq(openObligation(january2024)))
 
       val result = service.buildViewModel(
         declareAdjustment = Some(true),
-        adjustmentList = Some(adjustmentList),
-        periodKey = periodKey,
+        adjustmentList = Some(AdjustmentList(Seq.empty)),
+        periodKey = january2024,
         vpdId = vpdId
       ).futureValue
 
@@ -157,21 +122,14 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
 
     "must throw RuntimeException when obligation not found for adjustment period" in {
       val nonExistentPeriodKey = PeriodKey("24ZZ")
-      val adjustmentEntry = AdjustmentEntry(
-        period = nonExistentPeriodKey,
-        adjustmentType = AdjustmentType.UnderDeclared,
-        volumeInMl = BigDecimal(1000)
-      )
-      val adjustmentList = AdjustmentList(Seq(adjustmentEntry))
 
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-        .thenReturn(Future.successful(obligationDetails))
+      stubObligations(Seq(openObligation(january2024)))
 
       val exception = intercept[RuntimeException] {
         service.buildViewModel(
           declareAdjustment = Some(true),
-          adjustmentList = Some(adjustmentList),
-          periodKey = periodKey,
+          adjustmentList = Some(AdjustmentList(Seq(underDeclaredAdjustment(nonExistentPeriodKey, ml(1000))))),
+          periodKey = january2024,
           vpdId = vpdId
         ).futureValue
       }
@@ -183,24 +141,14 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
   "buildRemoveViewModel" - {
 
     "must return Some with the details rows when the entry and its obligation are found" in {
-      val adjustmentEntry = AdjustmentEntry(
-        period = adjustmentPeriodKey,
-        adjustmentType = AdjustmentType.OverDeclared,
-        volumeInMl = BigDecimal(1000)
-      )
-      val adjustmentList = AdjustmentList(Seq(adjustmentEntry))
-      val obligationForAdjustment = openObligation(adjustmentPeriodKey)
-
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-        .thenReturn(Future.successful(Seq(obligationForAdjustment)))
-      when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(TEN_POUNDS_PER_10ML)
-      when(mockReturnsDateUtils.formatPeriodDisplay(eqTo(adjustmentPeriodKey), any[Seq[ObligationDetails]])(using any()))
-        .thenReturn("December 2026")
+      stubObligations(Seq(openObligation(february2024)))
+      stubDutyRate(TEN_POUNDS_PER_10ML)
 
       val result = service.buildRemoveViewModel(
-        adjustmentList = Some(adjustmentList),
-        adjustmentPeriod = adjustmentPeriodKey,
+        adjustmentList = Some(AdjustmentList(Seq(
+          overDeclaredAdjustment(february2024, ml(1000))
+        ))),
+        adjustmentPeriod = february2024,
         vpdId = vpdId
       ).futureValue
 
@@ -208,12 +156,11 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     }
 
     "must return None when the entry is not in the adjustment list" in {
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-        .thenReturn(Future.successful(obligationDetails))
+      stubObligations(Seq(openObligation(january2024)))
 
       val result = service.buildRemoveViewModel(
         adjustmentList = Some(AdjustmentList(Seq.empty)),
-        adjustmentPeriod = adjustmentPeriodKey,
+        adjustmentPeriod = february2024,
         vpdId = vpdId
       ).futureValue
 
@@ -221,22 +168,39 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     }
 
     "must return None when no obligation exists for the entry's period" in {
-      val adjustmentEntry = AdjustmentEntry(
-        period = adjustmentPeriodKey,
-        adjustmentType = AdjustmentType.UnderDeclared,
-        volumeInMl = BigDecimal(1000)
-      )
-
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-        .thenReturn(Future.successful(Seq.empty))
+      stubObligations(Seq.empty)
 
       val result = service.buildRemoveViewModel(
-        adjustmentList = Some(AdjustmentList(Seq(adjustmentEntry))),
-        adjustmentPeriod = adjustmentPeriodKey,
+        adjustmentList = Some(AdjustmentList(Seq(underDeclaredAdjustment(february2024, ml(1000))))),
+        adjustmentPeriod = february2024,
         vpdId = vpdId
       ).futureValue
 
       result mustBe None
     }
   }
+
+  private def stubObligations(allObligations: Seq[ObligationDetails]): Unit =
+    when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      .thenReturn(Future.successful(allObligations))
+
+  private def stubDutyRate(dutyRate: DutyRate): Unit =
+    when(mockDutyRateService.getDutyRateForDate(any()))
+      .thenReturn(dutyRate)
+
+  private def overDeclaredAdjustment(period: PeriodKey, volumeInMl: BigDecimal): AdjustmentEntry =
+    AdjustmentEntry(
+      period = period,
+      adjustmentType = AdjustmentType.OverDeclared,
+      volumeInMl = volumeInMl
+    )
+
+  private def underDeclaredAdjustment(period: PeriodKey, volumeInMl: BigDecimal): AdjustmentEntry =
+    AdjustmentEntry(
+      period = period,
+      adjustmentType = AdjustmentType.UnderDeclared,
+      volumeInMl = volumeInMl
+    )
+
+  private def ml(volume: Int): BigDecimal = BigDecimal(volume)
 }
