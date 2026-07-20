@@ -36,7 +36,6 @@ import scala.concurrent.Future
 
 class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
-  // We could read from the prod.routes file, or just have one locally for all the tests so that the duplication is minimal?
   private val reverseController = new ReverseRemoveAdjustmentController(_prefix = "/vaping-duty")
 
   private def removeAdjustmentGetUrl(periodKey: PeriodKey): String =
