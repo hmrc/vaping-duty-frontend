@@ -221,7 +221,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
       result.head.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.question"))
       result.head.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.month"))
       result.head.rows(2).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))
-      result.head.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutySpoiltProducts"))
+      result.head.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.dutyDue"))
     }
 
     "must hide totalDutySpoiltProducts row when spoilt products answer is No" in {
@@ -236,7 +236,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
       result.head.rows.size mustBe 1
       result.head.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.question"))
       result.head.rows.forall(row =>
-        !row.key.content.asHtml.toString.contains(messages("viewIndividualReturn.totalDutySpoiltProducts"))
+        !row.key.content.asHtml.toString.contains(messages("viewIndividualReturn.dutyDue"))
       ) mustBe true
     }
   }

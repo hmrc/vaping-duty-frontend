@@ -66,7 +66,7 @@ final case class SpoiltProductSectionBuilder(
                 value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(firstItem.amountSpoilt).toMl))))
               ),
               SummaryListRow(
-                key = Key(content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))),
+                key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
                 value = Value(content = Text(firstDutyDue), classes = CssConstants.boldFontWeight)
               )
             ))
@@ -84,7 +84,7 @@ final case class SpoiltProductSectionBuilder(
                   value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountSpoilt).toMl))))
                 ),
                 SummaryListRow(
-                  key = Key(content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))),
+                  key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
                   value = Value(content = Text(dutyDue), classes = CssConstants.boldFontWeight)
                 )
               ))

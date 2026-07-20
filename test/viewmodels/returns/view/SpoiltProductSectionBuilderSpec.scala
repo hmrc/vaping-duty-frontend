@@ -91,7 +91,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         result.head.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.yes"))
         result.head.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.month"))
         result.head.rows(2).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))
-        result.head.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutySpoiltProducts"))
+        result.head.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.dutyDue"))
       }
 
       "return single list with question and details when single item" in {
@@ -110,7 +110,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         result.head.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.question"))
         result.head.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.month"))
         result.head.rows(2).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))
-        result.head.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutySpoiltProducts"))
+        result.head.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.dutyDue"))
       }
 
       "return multiple lists when multiple items" in {
