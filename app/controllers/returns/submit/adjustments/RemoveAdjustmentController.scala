@@ -22,23 +22,19 @@ import controllers.returns.PeriodKeyExtraction
 import forms.returns.adjustments.RemoveAdjustmentFormProvider
 import models.identifiers.PeriodKey
 import models.returns.ReturnsConstants
-import models.returns.ReturnsUserAnswers
-import models.returns.adjustments.AdjustmentList
-import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
+import pages.returns.adjustments.AdjustmentListPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{AdjustmentCheckYourAnswersService, ReturnsUserAnswersService}
+import services.returns.AdjustmentCheckYourAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.adjustments.RemoveAdjustmentView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import scala.concurrent.ExecutionContext
 
 class RemoveAdjustmentController @Inject()(
                                             override val messagesApi: MessagesApi,
-                                            sessionRepository: ReturnsUserAnswersService,
                                             identify: ApprovedVapingManufacturerAuthAction,
                                             getData: ReturnsDataRetrievalAction,
                                             requireData: ReturnsDataRequiredAction,
@@ -66,42 +62,26 @@ class RemoveAdjustmentController @Inject()(
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriod =>
-        adjustmentCheckYourAnswersService
-          .buildRemoveViewModel(request.userAnswers.get(AdjustmentListPage), adjustmentPeriod, request.enrolmentVpdId)
-          .flatMap {
-            case None => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-            case Some(vm) =>
-              form.bindFromRequest().fold(
-                formWithErrors =>
-                  Future.successful(BadRequest(view(request.periodKey, adjustmentPeriod, formWithErrors, vm))),
+        form.bindFromRequest().fold(
+          formWithErrors =>
+            adjustmentCheckYourAnswersService
+              .buildRemoveViewModel(request.userAnswers.get(AdjustmentListPage), adjustmentPeriod, request.enrolmentVpdId)
+              .map {
+                case Some(vm) => BadRequest(view(request.periodKey, adjustmentPeriod, formWithErrors, vm))
+                case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+              },
 
-                confirmed =>
-                  val resultAnswers =
-                    if (confirmed) {
-                      for {
-                        updatedAnswers <- Future.fromTry(removeEntry(request.userAnswers, adjustmentPeriod))
-                        _              <- sessionRepository.set(updatedAnswers)
-                      } yield updatedAnswers
-                    } else {
-                      Future.successful(request.userAnswers)
-                    }
-
-                  resultAnswers.map { _ =>
-                    Redirect(withPeriod(
-                      controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url,
-                      request.periodKey
-                    ))
-                  }
-              )
-          }
+          confirmed =>
+            adjustmentCheckYourAnswersService
+              .handleRemoval(request.userAnswers, adjustmentPeriod, confirmed)
+              .map { _ =>
+                Redirect(withPeriod(
+                  controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url,
+                  request.periodKey
+                ))
+              }
+        )
       }
-  }
-
-  private def removeEntry(userAnswers: ReturnsUserAnswers, adjustmentPeriod: PeriodKey): Try[ReturnsUserAnswers] = {
-    val updatedAdjustments = userAnswers.get(AdjustmentListPage).map(_.adjustments).getOrElse(Seq.empty).filterNot(_.period == adjustmentPeriod)
-
-    if (updatedAdjustments.isEmpty) userAnswers.set(DeclareAdjustmentPage, false)
-    else userAnswers.set(AdjustmentListPage, AdjustmentList(updatedAdjustments))
   }
 
   private def withPeriod(url: String, periodKey: PeriodKey): String = s"$url?period=${periodKey.value}"

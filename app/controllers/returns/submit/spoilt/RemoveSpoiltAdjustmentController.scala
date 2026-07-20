@@ -21,23 +21,20 @@ import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrie
 import controllers.returns.PeriodKeyExtraction
 import forms.returns.RemoveSpoiltAdjustmentFormProvider
 import models.identifiers.PeriodKey
-import models.returns.ReturnsUserAnswers
-import pages.returns.{DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
+import pages.returns.SpoiltVolumeByPeriodPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{ReturnsUserAnswersService, SpoiltCheckYourAnswersService}
+import services.returns.SpoiltCheckYourAnswersService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.spoilt.RemoveSpoiltAdjustmentView
 import models.returns.ReturnsConstants
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import scala.concurrent.ExecutionContext
 
 class RemoveSpoiltAdjustmentController @Inject()(
                                                   override val messagesApi: MessagesApi,
-                                                  sessionRepository: ReturnsUserAnswersService,
                                                   identify: ApprovedVapingManufacturerAuthAction,
                                                   getData: ReturnsDataRetrievalAction,
                                                   requireData: ReturnsDataRequiredAction,
@@ -46,7 +43,7 @@ class RemoveSpoiltAdjustmentController @Inject()(
                                                   spoiltCheckYourAnswersService: SpoiltCheckYourAnswersService,
                                                   val controllerComponents: MessagesControllerComponents,
                                                   view: RemoveSpoiltAdjustmentView
-                                                )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
+                                                )(using ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
 
   val form: Form[Boolean] = formProvider()
 
@@ -65,42 +62,26 @@ class RemoveSpoiltAdjustmentController @Inject()(
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey(ReturnsConstants.QUERY_PARAM_SPOILT_PERIOD) { spoiltPeriod =>
-        spoiltCheckYourAnswersService
-          .buildRemoveViewModel(request.userAnswers.get(SpoiltVolumeByPeriodPage), spoiltPeriod, request.enrolmentVpdId)
-          .flatMap {
-            case None => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-            case Some(vm) =>
-              form.bindFromRequest().fold(
-                formWithErrors =>
-                  Future.successful(BadRequest(view(request.periodKey, spoiltPeriod, formWithErrors, vm))),
+        form.bindFromRequest().fold(
+          formWithErrors =>
+            spoiltCheckYourAnswersService
+              .buildRemoveViewModel(request.userAnswers.get(SpoiltVolumeByPeriodPage), spoiltPeriod, request.enrolmentVpdId)
+              .map {
+                case Some(vm) => BadRequest(view(request.periodKey, spoiltPeriod, formWithErrors, vm))
+                case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+              },
 
-                confirmed =>
-                  val resultAnswers =
-                    if (confirmed) {
-                      for {
-                        updatedAnswers <- Future.fromTry(removeEntry(request.userAnswers, spoiltPeriod))
-                        _              <- sessionRepository.set(updatedAnswers)
-                      } yield updatedAnswers
-                    } else {
-                      Future.successful(request.userAnswers)
-                    }
-
-                  resultAnswers.map { _ =>
-                    Redirect(withPeriod(
-                      controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url,
-                      request.periodKey
-                    ))
-                  }
-              )
-          }
+          confirmed =>
+            spoiltCheckYourAnswersService
+              .handleRemoval(request.userAnswers, spoiltPeriod, confirmed)
+              .map { _ =>
+                Redirect(withPeriod(
+                  controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url,
+                  request.periodKey
+                ))
+              }
+        )
       }
-  }
-
-  private def removeEntry(userAnswers: ReturnsUserAnswers, spoiltPeriod: PeriodKey): Try[ReturnsUserAnswers] = {
-    val updatedList = userAnswers.get(SpoiltVolumeByPeriodPage).getOrElse(List.empty).filterNot(_.periodKey == spoiltPeriod)
-
-    if (updatedList.isEmpty) userAnswers.set(DeclareSpoiltProductsPage, false)
-    else userAnswers.set(SpoiltVolumeByPeriodPage, updatedList)
   }
 
   private def withPeriod(url: String, periodKey: PeriodKey): String = s"$url?period=${periodKey.value}"
