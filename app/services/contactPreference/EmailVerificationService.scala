@@ -73,7 +73,7 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
             paperlessPreference = toValue(Email),
             emailAddress = Some(email),
             emailVerification = Some(verified),
-            bouncedEmail = None
+            bouncedEmail = Some(false)
           ), request)
         .map {
           case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
