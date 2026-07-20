@@ -58,7 +58,6 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       .map(_.dutyRate)
 
     val dutyRateFormatted = dutyRateValue
-      .filter(_ != zeroValue)
       .map(currencyFormat)
 
     val chargeRef = success.chargeDetails
