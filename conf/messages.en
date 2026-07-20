@@ -317,8 +317,8 @@ returns.dutySuspenseCheckAnswers.p = These answers will not affect the total dut
 returns.dutySuspenseCheckAnswers.cardTitle = Duty suspense
 returns.dutySuspenseCheckAnswers.declareDutySuspense = Have you received or moved any finished vaping products in duty suspense?
 returns.dutySuspenseCheckAnswers.declareDutySuspense.change.hidden = duty suspense declaration
-returns.dutySuspenseCheckAnswers.productReceived = Product received
-returns.dutySuspenseCheckAnswers.productMoved = Product moved
+returns.dutySuspenseCheckAnswers.productReceived = Volume received
+returns.dutySuspenseCheckAnswers.productMoved = Volume moved
 returns.dutySuspenseCheckAnswers.cardActions.change.hidden = duty suspense details
 returns.dutySuspenseCheckAnswers.change.hidden = product received into duty suspension
 
@@ -448,7 +448,7 @@ viewIndividualReturn.h2.personalDetails = Return submitted by
 viewIndividualReturn.personalDetails.fullName = Full name
 viewIndividualReturn.personalDetails.email = Business email address
 viewIndividualReturn.personalDetails.capacity = Role in the company, for example, proprietor, director
-viewIndividualReturn.h2.amountDue = The amount is based on the total duty on:
+viewIndividualReturn.h2.amountDue = The amount is based on the total duty due on:
 viewIndividualReturn.li.amountDue = the vaping products you declared
 viewIndividualReturn.li2.amountDue = all applicable adjustments you declared
 
