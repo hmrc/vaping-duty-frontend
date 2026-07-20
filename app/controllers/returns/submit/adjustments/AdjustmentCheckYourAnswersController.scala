@@ -19,12 +19,13 @@ package controllers.returns.submit.adjustments
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import forms.returns.DeclareDutyFormProvider
+import models.identifiers.PeriodKey
 import models.{Mode, NormalMode}
 import models.requests.returns.ReturnsDataRequest
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.returns.{AdjustmentCheckYourAnswersService, ReturnsUserAnswersService}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -105,7 +106,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
   }
 
   private def buildViewModel(request: ReturnsDataRequest[AnyContent], mode: Mode)
-                            (using HeaderCarrier): Future[viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel] = {
+                            (using HeaderCarrier, Messages): Future[viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel] = {
     val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
     val adjustmentList = request.userAnswers.get(AdjustmentListPage)
 
@@ -132,45 +133,21 @@ class AdjustmentCheckYourAnswersController @Inject()(
                                                       adjustmentReasonMandatory: Boolean,
                                                       mode: Mode
                                                     )(using HeaderCarrier): Future[Result] = {
-    val hasReason = request.userAnswers.get(AdjustmentReasonPage).isDefined
-
-    if (adjustmentReasonMandatory && !hasReason) {
-      redirectToReasonPage(request.periodKey, mode)
+    if (adjustmentCheckYourAnswersService.shouldRedirectToReasonPage(request.userAnswers, adjustmentReasonMandatory)) {
+      Future.successful(Redirect(
+        s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(mode).url}?period=${request.periodKey.value}"
+      ))
     } else {
-      val cleanedAnswers = cleanupReasonIfNotRequired(request.userAnswers, adjustmentReasonMandatory)
-      saveAndRedirect(cleanedAnswers, adjustmentReasonMandatory, mode)
+      val cleanedAnswersTry = adjustmentCheckYourAnswersService.cleanupReasonIfNotRequired(
+        request.userAnswers,
+        adjustmentReasonMandatory
+      )
+      for {
+        cleanedAnswers <- Future.fromTry(cleanedAnswersTry)
+        updatedAnswers <- Future.fromTry(cleanedAnswers.set(AddAnotherAdjustmentPage, false))
+        _ <- sessionRepository.set(updatedAnswers)
+      } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, mode, updatedAnswers, adjustmentReasonMandatory))
     }
-  }
-
-  private def redirectToReasonPage(periodKey: String, mode: Mode): Future[Result] = {
-    Future.successful(Redirect(
-      s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(mode).url}?period=$periodKey"
-    ))
-  }
-
-  private def cleanupReasonIfNotRequired(
-                                          userAnswers: models.returns.ReturnsUserAnswers,
-                                          adjustmentReasonMandatory: Boolean
-                                        ): models.returns.ReturnsUserAnswers = {
-    val hasReason = userAnswers.get(AdjustmentReasonPage).isDefined
-
-    if (!adjustmentReasonMandatory && hasReason) {
-      userAnswers.remove(AdjustmentReasonPage).getOrElse(userAnswers)
-    } else {
-      userAnswers
-    }
-  }
-
-  private def saveAndRedirect(
-                               userAnswers: models.returns.ReturnsUserAnswers,
-                               adjustmentReasonMandatory: Boolean,
-                               mode: Mode
-                             )(using HeaderCarrier): Future[Result] = {
-    for {
-      // Set AddAnotherAdjustmentPage to false as user is not adding another adjustment
-      updatedAnswers <- Future.fromTry(userAnswers.set(AddAnotherAdjustmentPage, false))
-      _ <- sessionRepository.set(updatedAnswers)
-    } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, mode, updatedAnswers, adjustmentReasonMandatory))
   }
 
 }

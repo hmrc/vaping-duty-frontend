@@ -20,6 +20,10 @@ import com.google.inject.{Inject, Singleton}
 import models.{Mode, NormalMode}
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
+import models.returns.DutyRate
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
+import models.returns.ReturnsUserAnswers
+import pages.returns.adjustments.AdjustmentReasonPage
 import models.returns.{DutyRate, ReturnsUserAnswers}
 import models.returns.adjustments.AdjustmentList
 import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
@@ -98,11 +102,31 @@ class AdjustmentCheckYourAnswersService @Inject()(
     else userAnswers.set(AdjustmentListPage, AdjustmentList(updatedAdjustments))
   }
 
+  def shouldRedirectToReasonPage(
+                                  userAnswers: ReturnsUserAnswers,
+                                  adjustmentReasonMandatory: Boolean
+                                ): Boolean = {
+    val hasReason = userAnswers.get(AdjustmentReasonPage).isDefined
+    adjustmentReasonMandatory && !hasReason
+  }
+
+  def cleanupReasonIfNotRequired(
+                                  userAnswers: ReturnsUserAnswers,
+                                  adjustmentReasonMandatory: Boolean
+                                ): scala.util.Try[ReturnsUserAnswers] = {
+    val hasReason = userAnswers.get(AdjustmentReasonPage).isDefined
+
+    if (!adjustmentReasonMandatory && hasReason) {
+      userAnswers.remove(AdjustmentReasonPage)
+    } else {
+      scala.util.Success(userAnswers)
+    }
+  }
+
   private def getDutyRatesForAdjustments(
                                           adjustmentList: Option[AdjustmentList],
                                           obligationDetails: Seq[ObligationDetails]
                                         ): Map[PeriodKey, DutyRate] = {
-
     val uniquePeriods = adjustmentList
       .map(_.adjustments.map(_.period).distinct)
       .getOrElse(Seq.empty)
@@ -111,8 +135,8 @@ class AdjustmentCheckYourAnswersService @Inject()(
   }
 
   private def calculateDutyTotalByType(
-                                        adjustments: Seq[models.returns.adjustments.Adjustment],
-                                        adjustmentType: models.returns.adjustments.AdjustmentType,
+                                        adjustments: Seq[AdjustmentEntry],
+                                        adjustmentType: AdjustmentType,
                                         dutyRatesMap: Map[PeriodKey, DutyRate]
                                       ): BigDecimal = {
     adjustments
