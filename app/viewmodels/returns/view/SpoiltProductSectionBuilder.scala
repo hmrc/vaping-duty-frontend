@@ -46,10 +46,7 @@ final case class SpoiltProductSectionBuilder(
           value = Value(content = Text(yesNoText))
         )
 
-        if (nilReturn) {
-          // For nil returns, only show the question row
-          Seq(SummaryList(rows = Seq(questionRow)))
-        } else if (sp.spoiltProductFilled == "1") {
+        if (sp.spoiltProductFilled == "1") {
           val items = sp.spoiltProducts.getOrElse(Seq.empty)
           
           if (items.isEmpty) {

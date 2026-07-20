@@ -239,14 +239,6 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         !row.key.content.asHtml.toString.contains(messages("viewIndividualReturn.totalDutySpoiltProducts"))
       ) mustBe true
     }
-
-    "must only include question row when nilReturn is true" in {
-      val nilReturnResponse = returnResponseNoDeclaration
-      val nilViewModel = ViewIndividualReturnViewModel(nilReturnResponse, obligations, returnsDateUtils)
-      val result = nilViewModel.spoiltSummaryLists
-
-      result.head.rows.size mustBe 1
-    }
   }
 
   "period key lookup" - {

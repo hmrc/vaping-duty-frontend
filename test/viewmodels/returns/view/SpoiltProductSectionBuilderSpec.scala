@@ -74,19 +74,24 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         result.head.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.no"))
       }
 
-      "return single list with question row only when nilReturn is true" in {
+      "return full details when spoiltProductFilled is 1 with items, even if nilReturn is true" in {
         val spoiltProduct = SpoiltProduct(spoiltProductFilled = "1", spoiltProducts = Some(Seq(spoiltProductItem)))
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
           nilReturn = true,
-          totalDutySpoiltProducts = "£0",
+          totalDutySpoiltProducts = "-£100",
           obligations = obligations,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
 
         result.size mustBe 1
-        result.head.rows.size mustBe 1
+        result.head.rows.size mustBe 4
+        result.head.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.question"))
+        result.head.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.yes"))
+        result.head.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.month"))
+        result.head.rows(2).key.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))
+        result.head.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.totalDutySpoiltProducts"))
       }
 
       "return single list with question and details when single item" in {
