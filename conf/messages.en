@@ -450,6 +450,7 @@ viewIndividualReturn.personalDetails.capacity = Role in the company, for example
 viewIndividualReturn.h2.amountDue = The amount is based on the total duty due on:
 viewIndividualReturn.li.amountDue = the vaping products you declared
 viewIndividualReturn.li2.amountDue = all applicable adjustments you declared
+viewIndividualReturn.goToBta = Go to your business tax account
 
 viewIndividualReturn.adjustments.question = Do you have any vaping products you need to over or under declare?
 viewIndividualReturn.adjustments.yes = Yes
