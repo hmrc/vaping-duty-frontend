@@ -40,41 +40,36 @@
 
     @h1(vm.monthYear)
 
-    @govukInsetText(InsetText(content =
-        if(vm.nilReturn) {
+    @govukInsetText(InsetText(content = {
+        vm.chargeReference.fold(
             HtmlContent(
                 s"${messages("viewIndividualReturn.chargeDetails.submittedOn", vm.submittedOn)}"
             )
-        } else {
+        ) { ref =>
             HtmlContent(
-                s"${messages("viewIndividualReturn.chargeDetails.chargeReference")}  <span class=$boldFontWeight>${vm.chargeReference}</span>" +
-                        "<br>" +
-                        s"${messages("viewIndividualReturn.chargeDetails.submittedOn", vm.submittedOn)}"
+                s"${messages("viewIndividualReturn.chargeDetails.chargeReference")}  <span class=$boldFontWeight>$ref</span>" +
+                "<br>" +
+                s"${messages("viewIndividualReturn.chargeDetails.submittedOn", vm.submittedOn)}"
             )
         }
-    ))
+    }))
 
     @h2(messages("viewIndividualReturn.h2.personalDetails"))
 
     @govukSummaryList(vm.personalDetailsSummaryList)
 
-    @if(!vm.nilReturn) {
-        @h2(messages("viewIndividualReturn.h2.amountDue"))
-        @list(
-            Seq(
-                messages("viewIndividualReturn.li.amountDue"),
-                messages("viewIndividualReturn.li2.amountDue")
-            ),
-            classes = "govuk-list govuk-list--bullet"
-        )
+    @h2(messages("viewIndividualReturn.h2.amountDue"))
+        @list(Seq(
+            messages("viewIndividualReturn.li.amountDue"),
+            messages("viewIndividualReturn.li2.amountDue")
+        ), classes = "govuk-list govuk-list--bullet")
 
-    }
+    @h2(messages("viewIndividualReturn.h2.dutyDetails"))
 
-    @if(!vm.nilReturn) {
-        @h2(messages("viewIndividualReturn.h2.dutyDetails"))
-        @p(Seq(Text(messages("viewIndividualReturn.dutyDetails", vm.dutyRate))))
-    } else {
-        @p(Seq(Text(messages("viewIndividualReturn.nil.dutyDetails"))))
+    @vm.dutyRate.fold {
+        @p(Seq(Text(messages("viewIndividualReturn.noDutyRate.dutyDetails"))))
+    } { rate =>
+        @p(Seq(Text(messages("viewIndividualReturn.dutyDetails", rate))))
     }
 
     @p(Seq(Text(messages("viewIndividualReturn.p.youCan"))))

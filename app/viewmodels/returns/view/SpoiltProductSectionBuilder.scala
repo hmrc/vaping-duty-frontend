@@ -26,7 +26,6 @@ import utils.{CssConstants, CurrencyFormatter, ReturnsDateUtils}
 
 final case class SpoiltProductSectionBuilder(
   spoiltProduct: Option[SpoiltProduct],
-  nilReturn: Boolean,
   totalDutySpoiltProducts: String,
   obligationDetails: Seq[ObligationDetails],
   returnsDateUtils: ReturnsDateUtils

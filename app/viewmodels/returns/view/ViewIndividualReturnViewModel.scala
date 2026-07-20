@@ -26,15 +26,14 @@ import utils.{CurrencyFormatter, PeriodKeys, ReturnsDateUtils}
 import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 
 case class ViewIndividualReturnViewModel(
-                                          chargeReference: String,
+                                          chargeReference: Option[String],
                                           hasVapingProductsDeclaration: Boolean,
                                           amountProducedLiquid: Option[String],
                                           dutyDue: Option[String],
                                           totalDutySpoiltProducts: String,
                                           monthYear: String,
                                           submittedOn: String,
-                                          dutyRate: String,
-                                          nilReturn: Boolean,
+                                          dutyRate: Option[String],
                                           personalDetailsSummaryList: SummaryList,
                                           dutyDeclarationSummaryList: Option[SummaryList],
                                           spoiltSummaryLists: Seq[SummaryList],
@@ -54,15 +53,16 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val zeroValue = BigDecimal("0")
     val success = returnsData.success
 
-    val dutyRate = returnsData.success.vapingProductsProduced
+    val dutyRateValue = returnsData.success.vapingProductsProduced
       .flatMap(_.returns.headOption)
       .map(_.dutyRate)
 
-    val isNilReturn = dutyRate.forall(_ == zeroValue)
+    val dutyRateFormatted = dutyRateValue
+      .filter(_ != zeroValue)
+      .map(currencyFormat)
 
     val chargeRef = success.chargeDetails
       .flatMap(_.chargeReference)
-      .getOrElse("")
 
     val vapingProducts = success.vapingProductsProduced
 
@@ -98,7 +98,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
     val personalDetails = PersonalDetailsSectionBuilder(success.declaration).build()
     val dutyDeclaration = DutyDeclarationSectionBuilder(hasDeclaration, amountProduced, dutyDueAmount).build()
-    val spoiltLists = SpoiltProductSectionBuilder(success.spoiltProduct, isNilReturn, totalDutySpoiltProducts, obligationDetails, returnsDateUtils).build()
+    val spoiltLists = SpoiltProductSectionBuilder(success.spoiltProduct, totalDutySpoiltProducts, obligationDetails, returnsDateUtils).build()
     val adjustmentsLists = AdjustmentsSectionBuilder(success.overDeclaration, success.underDeclaration, obligationDetails, returnsDateUtils).build()
     val dutySuspenseSummary = DutySuspenseSectionBuilder(success.otherOptions).build()
     val totalDutySummary = TotalDutySectionBuilder(success.totalDutyDue).build()
@@ -111,8 +111,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       totalDutySpoiltProducts = totalDutySpoiltProducts,
       monthYear = monthYearString,
       submittedOn = submittedOnString,
-      dutyRate = currencyFormat(dutyRate.getOrElse(zeroValue)),
-      nilReturn = isNilReturn,
+      dutyRate = dutyRateFormatted,
       personalDetailsSummaryList = personalDetails,
       dutyDeclarationSummaryList = dutyDeclaration,
       spoiltSummaryLists = spoiltLists,

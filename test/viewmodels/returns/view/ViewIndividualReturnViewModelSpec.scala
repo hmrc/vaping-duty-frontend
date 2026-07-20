@@ -101,14 +101,14 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     "must create view model with all fields from ReturnDisplayResponse" in {
       val result = ViewIndividualReturnViewModel(returnResponse, Seq(obligationDetails), returnsDateUtils)
 
-      result.chargeReference mustBe "XVC123456789012"
+      result.chargeReference mustBe Some("XVC123456789012")
       result.hasVapingProductsDeclaration mustBe true
       result.amountProducedLiquid mustBe Some("1,000,000.00")
       result.dutyDue mustBe Some("£3,150")
       result.totalDutySpoiltProducts mustBe "-£100"
       result.monthYear mustBe "June 2026"
       result.submittedOn must include("February 2026")
-      result.dutyRate mustBe "£3.15"
+      result.dutyRate mustBe Some("£3.15")
       result.personalDetailsSummaryList.rows.size mustBe 3
       result.dutyDeclarationSummaryList mustBe defined
       result.spoiltSummaryLists.nonEmpty mustBe true
@@ -118,13 +118,13 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     "must default duty rate to £0 when none is supplied" in {
       val result = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Seq(obligationDetails), returnsDateUtils)
 
-      result.dutyRate mustBe "£0"
+      result.dutyRate mustBe None
     }
 
     "must handle missing charge reference" in {
       val result = ViewIndividualReturnViewModel(returnResponseNoChargeRef, Seq(obligationDetails), returnsDateUtils)
 
-      result.chargeReference mustBe ""
+      result.chargeReference mustBe None
     }
 
     "must handle missing vaping products declaration" in {

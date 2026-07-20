@@ -46,7 +46,6 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
       "return empty sequence when spoiltProduct is None" in {
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = None,
-          nilReturn = false,
           totalDutySpoiltProducts = "£0",
           obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
@@ -60,7 +59,6 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val spoiltProduct = SpoiltProduct(spoiltProductFilled = "0", spoiltProducts = None)
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
-          nilReturn = false,
           totalDutySpoiltProducts = "£0",
           obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
@@ -73,11 +71,10 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         result.head.rows.head.value.content.asHtml.toString must include(messages("viewIndividualReturn.spoiltProducts.no"))
       }
 
-      "return full details when spoiltProductFilled is 1 with items, even if nilReturn is true" in {
+      "return full details when spoiltProductFilled is 1 with items" in {
         val spoiltProduct = SpoiltProduct(spoiltProductFilled = "1", spoiltProducts = Some(Seq(spoiltProductItem)))
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
-          nilReturn = true,
           totalDutySpoiltProducts = "-£100",
           obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
@@ -97,7 +94,6 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val spoiltProduct = SpoiltProduct(spoiltProductFilled = "1", spoiltProducts = Some(Seq(spoiltProductItem)))
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
-          nilReturn = false,
           totalDutySpoiltProducts = "-£100",
           obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
@@ -117,7 +113,6 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val spoiltProduct = SpoiltProduct(spoiltProductFilled = "1", spoiltProducts = Some(Seq(spoiltProductItem, item2)))
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
-          nilReturn = false,
           totalDutySpoiltProducts = "-£250",
           obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
@@ -133,7 +128,6 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val spoiltProduct = SpoiltProduct(spoiltProductFilled = "1", spoiltProducts = Some(Seq(spoiltProductItem)))
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
-          nilReturn = false,
           totalDutySpoiltProducts = "-£100",
           obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
@@ -147,7 +141,6 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val spoiltProduct = SpoiltProduct(spoiltProductFilled = "1", spoiltProducts = Some(Seq(spoiltProductItem)))
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
-          nilReturn = false,
           totalDutySpoiltProducts = "-£100",
           obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
@@ -161,7 +154,6 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val spoiltProduct = SpoiltProduct(spoiltProductFilled = "1", spoiltProducts = Some(Seq(spoiltProductItem)))
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
-          nilReturn = false,
           totalDutySpoiltProducts = "-£100",
           obligationDetails = obligationDetails,
           returnsDateUtils = returnsDateUtils
@@ -177,7 +169,6 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val spoiltProduct = SpoiltProduct(spoiltProductFilled = "1", spoiltProducts = Some(Seq(itemWithMissingPeriod)))
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
-          nilReturn = false,
           totalDutySpoiltProducts = "-£100",
           obligationDetails = obligationDetailsWithMissingPeriod,
           returnsDateUtils = returnsDateUtils
