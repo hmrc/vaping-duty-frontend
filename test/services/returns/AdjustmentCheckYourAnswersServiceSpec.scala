@@ -46,6 +46,8 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
   )
 
   private val vpdId = VpdId("XMVPD0000000123")
+  private val periodKey = PeriodKey("24AA")
+  private val adjustmentPeriodKey = PeriodKey("24AB")
 
   private val TEN_POUNDS_PER_10ML = DutyRate(1000)
 
@@ -54,8 +56,19 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
   "buildViewModel" - {
 
     "must successfully build view model with adjustments" in {
-      stubObligations(Seq(openObligation(february2024)))
-      stubDutyRate(TEN_POUNDS_PER_10ML)
+      val adjustmentEntry = AdjustmentEntry(
+        period = adjustmentPeriodKey,
+        adjustmentType = AdjustmentType.UnderDeclared,
+        volumeInMl = BigDecimal(1000)
+      )
+      val adjustmentList = AdjustmentList(Seq(adjustmentEntry))
+
+      val obligationForAdjustment = openObligation(adjustmentPeriodKey)
+
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(Seq(obligationForAdjustment)))
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(adjustmentPeriodKey -> DUTY_RATE_PENCE_PER_10ML))
 
       val result = service.buildViewModel(
         declareAdjustment = Some(true),
@@ -77,7 +90,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
       val result = service.buildViewModel(
         declareAdjustment = Some(false),
         adjustmentList = None,
-        periodKey = january2024,
+        periodKey = periodKey,
         vpdId = vpdId
       ).futureValue
 
@@ -87,8 +100,30 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     }
 
     "must correctly calculate duty rates for multiple periods" in {
-      stubObligations(Seq(openObligation(february2024), openObligation(march2024)))
-      stubDutyRate(TEN_POUNDS_PER_10ML)
+      val adjustmentPeriodKey2 = PeriodKey("24AC")
+      
+      val obligationForAdjustment1 = openObligation(adjustmentPeriodKey)
+      val obligationForAdjustment2 = openObligation(adjustmentPeriodKey2)
+
+      val adjustmentEntry1 = AdjustmentEntry(
+        period = adjustmentPeriodKey,
+        adjustmentType = AdjustmentType.UnderDeclared,
+        volumeInMl = BigDecimal(1000)
+      )
+      val adjustmentEntry2 = AdjustmentEntry(
+        period = adjustmentPeriodKey2,
+        adjustmentType = AdjustmentType.OverDeclared,
+        volumeInMl = BigDecimal(500)
+      )
+      val adjustmentList = AdjustmentList(Seq(adjustmentEntry1, adjustmentEntry2))
+
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(Seq(obligationForAdjustment1, obligationForAdjustment2)))
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(
+          adjustmentPeriodKey -> DUTY_RATE_PENCE_PER_10ML,
+          adjustmentPeriodKey2 -> DUTY_RATE_PENCE_PER_10ML
+        ))
 
       val result = service.buildViewModel(
         declareAdjustment = Some(true),
@@ -123,13 +158,16 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     "must throw RuntimeException when obligation not found for adjustment period" in {
       val nonExistentPeriodKey = PeriodKey("24ZZ")
 
-      stubObligations(Seq(openObligation(january2024)))
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(obligationDetails))
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenThrow(new RuntimeException("No obligation found for period 24ZZ"))
 
       val exception = intercept[RuntimeException] {
         service.buildViewModel(
           declareAdjustment = Some(true),
-          adjustmentList = Some(AdjustmentList(Seq(underDeclaredAdjustment(nonExistentPeriodKey, ml(1000))))),
-          periodKey = january2024,
+          adjustmentList = Some(adjustmentList),
+          periodKey = periodKey,
           vpdId = vpdId
         ).futureValue
       }
@@ -203,4 +241,80 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     )
 
   private def ml(volume: Int): BigDecimal = BigDecimal(volume)
+}
+
+
+  "shouldRedirectToReasonPage" - {
+
+    "must return true when reason is mandatory and not present" in {
+      val userAnswers = returnsUserAnswers
+
+      val result = service.shouldRedirectToReasonPage(userAnswers, adjustmentReasonMandatory = true)
+
+      result mustBe true
+    }
+
+    "must return false when reason is mandatory and present" in {
+      val userAnswers = returnsUserAnswers
+        .set(pages.returns.adjustments.AdjustmentReasonPage, "Test reason").success.value
+
+      val result = service.shouldRedirectToReasonPage(userAnswers, adjustmentReasonMandatory = true)
+
+      result mustBe false
+    }
+
+    "must return false when reason is not mandatory and not present" in {
+      val userAnswers = returnsUserAnswers
+
+      val result = service.shouldRedirectToReasonPage(userAnswers, adjustmentReasonMandatory = false)
+
+      result mustBe false
+    }
+
+    "must return false when reason is not mandatory and present" in {
+      val userAnswers = returnsUserAnswers
+        .set(pages.returns.adjustments.AdjustmentReasonPage, "Test reason").success.value
+
+      val result = service.shouldRedirectToReasonPage(userAnswers, adjustmentReasonMandatory = false)
+
+      result mustBe false
+    }
+  }
+
+  "cleanupReasonIfNotRequired" - {
+
+    "must remove reason when not mandatory and present" in {
+      val userAnswers = returnsUserAnswers
+        .set(pages.returns.adjustments.AdjustmentReasonPage, "Test reason").success.value
+
+      val result = service.cleanupReasonIfNotRequired(userAnswers, adjustmentReasonMandatory = false).success.value
+
+      result.get(pages.returns.adjustments.AdjustmentReasonPage) mustBe None
+    }
+
+    "must keep reason when mandatory and present" in {
+      val userAnswers = returnsUserAnswers
+        .set(pages.returns.adjustments.AdjustmentReasonPage, "Test reason").success.value
+
+      val result = service.cleanupReasonIfNotRequired(userAnswers, adjustmentReasonMandatory = true).success.value
+
+      result.get(pages.returns.adjustments.AdjustmentReasonPage) mustBe Some("Test reason")
+    }
+
+    "must not change user answers when reason not present and not mandatory" in {
+      val userAnswers = returnsUserAnswers
+
+      val result = service.cleanupReasonIfNotRequired(userAnswers, adjustmentReasonMandatory = false).success.value
+
+      result mustBe userAnswers
+    }
+
+    "must not change user answers when reason not present and mandatory" in {
+      val userAnswers = returnsUserAnswers
+
+      val result = service.cleanupReasonIfNotRequired(userAnswers, adjustmentReasonMandatory = true).success.value
+
+      result mustBe userAnswers
+    }
+  }
 }

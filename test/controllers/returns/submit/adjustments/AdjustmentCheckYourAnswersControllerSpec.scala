@@ -34,6 +34,7 @@ import services.returns.{AdjustmentCheckYourAnswersService, ReturnsUserAnswersSe
 import viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel
 
 import scala.concurrent.Future
+import scala.util.Success
 
 class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
 
@@ -159,6 +160,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
       when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
+      when(mockService.getAdjustmentFlags(any(), any(), any())(using any()))
+        .thenReturn(Future.successful((false, true)))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
@@ -201,6 +204,10 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
       when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
+      when(mockService.getAdjustmentFlags(any(), any(), any())(using any()))
+        .thenReturn(Future.successful((false, true)))
+      when(mockService.cleanupReasonIfNotRequired(any(), any()))
+        .thenReturn(Success(userAnswersWithNoAdjustments))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
@@ -244,6 +251,10 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
       when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
+      when(mockService.getAdjustmentFlags(any(), any(), any())(using any()))
+        .thenReturn(Future.successful((false, false)))
+      when(mockService.cleanupReasonIfNotRequired(any(), any()))
+        .thenReturn(Success(userAnswers))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
@@ -286,6 +297,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
       when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
+      when(mockService.getAdjustmentFlags(any(), any(), any())(using any()))
+        .thenReturn(Future.successful((false, true)))
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
         .overrides(
@@ -311,6 +324,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
       when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
+      when(mockService.getAdjustmentFlags(any(), any(), any())(using any()))
+        .thenReturn(Future.successful((false, true)))
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
         .overrides(
@@ -350,6 +365,10 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
       when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
+      when(mockService.getAdjustmentFlags(any(), any(), any())(using any()))
+        .thenReturn(Future.successful((true, false)))
+      when(mockService.shouldRedirectToReasonPage(any(), any()))
+        .thenReturn(true)
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
@@ -378,6 +397,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         .set(AdjustmentListPage, testAdjustmentList).success.value
         .set(AdjustmentReasonPage, "old reason").success.value
 
+      val cleanedUserAnswers = userAnswers.remove(AdjustmentReasonPage).success.value
+
       val mockViewModel = AdjustmentCheckYourAnswersViewModel(
         summaryCards = Seq.empty,
         hasAdjustments = true,
@@ -390,6 +411,12 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
       when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
+      when(mockService.getAdjustmentFlags(any(), any(), any())(using any()))
+        .thenReturn(Future.successful((false, false)))
+      when(mockService.shouldRedirectToReasonPage(any(), any()))
+        .thenReturn(false)
+      when(mockService.cleanupReasonIfNotRequired(any(), any()))
+        .thenReturn(Success(cleanedUserAnswers))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
