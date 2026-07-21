@@ -326,9 +326,10 @@ returns.dutySuspenseCheckAnswers.productMoved = Volume moved
 returns.dutySuspenseCheckAnswers.cardActions.change.hidden = duty suspense details
 returns.dutySuspenseCheckAnswers.change.hidden = product received into duty suspension
 
-returns.CheckYourAnswers.title = The duty due is {0}
+returns.CheckYourAnswers.title = Check your answers
 returns.CheckYourAnswers.caption = Check your answers for {0} {1} return
-returns.CheckYourAnswers.heading = The duty due is {0}
+returns.CheckYourAnswers.heading = Check your answers
+returns.CheckYourAnswers.dutyDue = The duty due is {0}
 returns.CheckYourAnswers.nilReturn.heading = You have nothing to pay for this period
 returns.CheckYourAnswers.nilReturn.paragraph = You declared no vaping products had been released for consumption in the UK for this period, so no duty is due.
 returns.CheckYourAnswers.p.duty = Duty is calculated by multiplying the volume of vaping products released for sale by the Vaping Product Duty rate of {0} per 10ml.
