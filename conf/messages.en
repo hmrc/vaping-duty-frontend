@@ -524,8 +524,8 @@ returns.adjustmentCheckYourAnswers.remove.hidden = adjustment for {0}
 returns.adjustmentCheckYourAnswers.type.change.hidden = adjustment type
 returns.adjustmentCheckYourAnswers.volume.change.hidden = adjustment volume
 
-returns.removeAdjustment.title = Remove adjustment?
-returns.removeAdjustment.heading = Remove adjustment?
+returns.removeAdjustment.title = Remove adjustment
+returns.removeAdjustment.heading = Remove adjustment
 returns.removeAdjustment.caption = Over and under adjustments
 returns.removeAdjustment.question = Do you want to remove this adjustment?
 returns.removeAdjustment.detailsHeading = Adjustment details
