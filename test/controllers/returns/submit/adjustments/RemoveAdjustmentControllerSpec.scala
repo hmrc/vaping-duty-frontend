@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package controllers.returns.submit.spoilt
+package controllers.returns.submit.adjustments
 
 import base.SpecBase
+import controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController
+import controllers.routes.*
 import models.identifiers.PeriodKey
-import models.returns.{DutyRate, ReturnsUserAnswers, SpoiltVolumeByPeriod}
+import models.returns.{DutyRate, ReturnsUserAnswers}
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.returns.{DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
+import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -31,21 +34,20 @@ import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersS
 
 import scala.concurrent.Future
 
-class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
+class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
-  val spoiltPeriodKey: PeriodKey = october2027
-  val otherSpoiltPeriodKey: PeriodKey = november2027
+  private val reverseController = new ReverseRemoveAdjustmentController(_prefix = "/vaping-duty")
 
-  lazy val removeSpoiltAdjustmentRoute: String =
-    controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onPageLoad().url + s"?spoiltPeriod=${spoiltPeriodKey.value}"
+  private def removeAdjustmentGetUrl(periodKey: PeriodKey): String =
+    reverseController.onPageLoad().url + s"?adjustmentPeriod=${periodKey.value}"
 
-  lazy val removeSpoiltAdjustmentSubmitRoute: String =
-    controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onSubmit().url + s"?spoiltPeriod=${spoiltPeriodKey.value}"
+  private def removeAdjustmentPutUrl(periodKey: PeriodKey) =
+    reverseController.onSubmit().url + s"?adjustmentPeriod=${periodKey.value}"
 
   private def stubbedObligationService: ObligationService = {
     val mockObligationService = mock[ObligationService]
     when(mockObligationService.getObligationsDirectly(any())(using any()))
-      .thenReturn(Future.successful(Seq(fulfilledObligation(spoiltPeriodKey), fulfilledObligation(otherSpoiltPeriodKey))))
+      .thenReturn(Future.successful(Seq(fulfilledObligation(october2027), fulfilledObligation(november2027))))
     mockObligationService
   }
 
@@ -62,11 +64,11 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
     mockObligationService
   }
 
-  "RemoveSpoiltAdjustment Controller" - {
+  "RemoveAdjustment Controller" - {
 
     "must return OK and the correct view for a GET" in {
       val userAnswers = returnsUserAnswers
-        .set(SpoiltVolumeByPeriodPage, List(SpoiltVolumeByPeriod(BigDecimal(1000), spoiltPeriodKey)))
+        .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(october2027, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
         .success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -77,7 +79,7 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, removeSpoiltAdjustmentRoute)
+        val request = FakeRequest(GET, removeAdjustmentGetUrl(october2027))
 
         val result = route(application, request).value
 
@@ -85,20 +87,20 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery for a GET when no spoiltPeriod is supplied" in {
+    "must redirect to Journey Recovery for a GET when no adjustmentPeriod is supplied" in {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onPageLoad().url)
+        val request = FakeRequest(GET, reverseController.onPageLoad().url)
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual JourneyRecoveryController.onPageLoad().url
       }
     }
 
-    "must redirect to Journey Recovery for a GET when the spoiltPeriod does not match any entry" in {
+    "must redirect to Journey Recovery for a GET when the adjustmentPeriod does not match any entry" in {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(
           bind[ObligationService].toInstance(stubbedObligationService),
@@ -107,12 +109,12 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, removeSpoiltAdjustmentRoute)
+        val request = FakeRequest(GET, removeAdjustmentGetUrl(october2027))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual JourneyRecoveryController.onPageLoad().url
       }
     }
 
@@ -121,10 +123,10 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val userAnswers = returnsUserAnswers
-        .set(SpoiltVolumeByPeriodPage, List(
-          SpoiltVolumeByPeriod(BigDecimal(1000), spoiltPeriodKey),
-          SpoiltVolumeByPeriod(BigDecimal(500), otherSpoiltPeriodKey)
-        ))
+        .set(AdjustmentListPage, AdjustmentList(Seq(
+          AdjustmentEntry(october2027, AdjustmentType.UnderDeclared, BigDecimal(1000)),
+          AdjustmentEntry(november2027, AdjustmentType.OverDeclared, BigDecimal(500))
+        )))
         .success.value
 
       val application =
@@ -138,15 +140,13 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, removeSpoiltAdjustmentSubmitRoute)
+          FakeRequest(POST, removeAdjustmentPutUrl(october2027))
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include(
-          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url
-        )
+        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad().url)
         verify(mockSessionRepository).set(any())(any())
       }
     }
@@ -156,10 +156,10 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val userAnswers = returnsUserAnswers
-        .set(SpoiltVolumeByPeriodPage, List(
-          SpoiltVolumeByPeriod(BigDecimal(1000), spoiltPeriodKey),
-          SpoiltVolumeByPeriod(BigDecimal(500), otherSpoiltPeriodKey)
-        ))
+        .set(AdjustmentListPage, AdjustmentList(Seq(
+          AdjustmentEntry(october2027, AdjustmentType.UnderDeclared, BigDecimal(1000)),
+          AdjustmentEntry(november2027, AdjustmentType.OverDeclared, BigDecimal(500))
+        )))
         .success.value
 
       val application =
@@ -172,15 +172,13 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, removeSpoiltAdjustmentSubmitRoute)
+          FakeRequest(POST, removeAdjustmentPutUrl(october2027))
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include(
-          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url
-        )
+        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad().url)
         verify(mockSessionRepository).set(any())(any())
       }
     }
@@ -190,7 +188,7 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val userAnswers = returnsUserAnswers
-        .set(SpoiltVolumeByPeriodPage, List(SpoiltVolumeByPeriod(BigDecimal(1000), spoiltPeriodKey)))
+        .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(october2027, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
         .success.value
 
       val application =
@@ -204,20 +202,18 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, removeSpoiltAdjustmentSubmitRoute)
+          FakeRequest(POST, removeAdjustmentPutUrl(october2027))
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include(
-          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url
-        )
+        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad().url)
 
         val captor = ArgumentCaptor.forClass(classOf[ReturnsUserAnswers])
         verify(mockSessionRepository).set(captor.capture())(any())
-        captor.getValue.get(DeclareSpoiltProductsPage) mustBe Some(false)
-        captor.getValue.get(SpoiltVolumeByPeriodPage) mustBe None
+        captor.getValue.get(DeclareAdjustmentPage) mustBe Some(false)
+        captor.getValue.get(AdjustmentListPage) mustBe None
       }
     }
 
@@ -225,7 +221,7 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[ReturnsUserAnswersService]
 
       val userAnswers = returnsUserAnswers
-        .set(SpoiltVolumeByPeriodPage, List(SpoiltVolumeByPeriod(BigDecimal(1000), spoiltPeriodKey)))
+        .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(october2027, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
         .success.value
 
       val application =
@@ -239,22 +235,20 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, removeSpoiltAdjustmentSubmitRoute)
+          FakeRequest(POST, removeAdjustmentPutUrl(october2027))
             .withFormUrlEncodedBody(("value", "false"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include(
-          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url
-        )
+        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad().url)
         verify(mockSessionRepository, never).set(any())(any())
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
       val userAnswers = returnsUserAnswers
-        .set(SpoiltVolumeByPeriodPage, List(SpoiltVolumeByPeriod(BigDecimal(1000), spoiltPeriodKey)))
+        .set(AdjustmentListPage, AdjustmentList(Seq(AdjustmentEntry(october2027, AdjustmentType.UnderDeclared, BigDecimal(1000)))))
         .success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -266,7 +260,7 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, removeSpoiltAdjustmentSubmitRoute)
+          FakeRequest(POST, removeAdjustmentPutUrl(october2027))
             .withFormUrlEncodedBody(("value", ""))
 
         val result = route(application, request).value
@@ -275,18 +269,18 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery for a POST when no spoiltPeriod is supplied" in {
+    "must redirect to Journey Recovery for a POST when no adjustmentPeriod is supplied" in {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
         val request =
-          FakeRequest(POST, controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onSubmit().url)
+          FakeRequest(POST, reverseController.onSubmit().url)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual JourneyRecoveryController.onPageLoad().url
       }
     }
 
@@ -294,12 +288,12 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(returnsUserAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, removeSpoiltAdjustmentRoute)
+        val request = FakeRequest(GET, removeAdjustmentGetUrl(october2027))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual JourneyRecoveryController.onPageLoad().url
       }
     }
   }

@@ -19,19 +19,22 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
-import models.returns.{DutyRate, SpoiltVolumeByPeriod}
+import models.returns.{DutyRate, ReturnsUserAnswers, SpoiltVolumeByPeriod}
+import pages.returns.{DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.ReturnsDateUtils
-import viewmodels.returns.submit.spoilt.SpoiltCheckYourAnswersViewModel
+import viewmodels.returns.submit.spoilt.{RemoveSpoiltAdjustmentViewModel, SpoiltCheckYourAnswersViewModel}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 @Singleton
 class SpoiltCheckYourAnswersService @Inject()(
                                                obligationService: ObligationService,
                                                dutyRateService: DutyRateService,
-                                               returnsDateUtils: ReturnsDateUtils
+                                               returnsDateUtils: ReturnsDateUtils,
+                                               sessionRepository: ReturnsUserAnswersService
                                              )(using ExecutionContext) {
 
   def buildViewModel(
@@ -51,6 +54,44 @@ class SpoiltCheckYourAnswersService @Inject()(
         returnsDateUtils
       )
     }
+  }
+
+  def buildRemoveViewModel(
+                            spoiltList: Option[List[SpoiltVolumeByPeriod]],
+                            spoiltPeriod: PeriodKey,
+                            vpdId: VpdId
+                          )(using HeaderCarrier, Messages): Future[Option[RemoveSpoiltAdjustmentViewModel]] =
+    obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
+      for {
+        entry      <- spoiltList.getOrElse(List.empty).find(_.periodKey == spoiltPeriod)
+        obligation <- obligationDetails.find(_.periodKey == spoiltPeriod.toString)
+      } yield RemoveSpoiltAdjustmentViewModel(
+        entry,
+        obligationDetails,
+        dutyRateService.getDutyRateForDate(obligation.iCFromDate),
+        returnsDateUtils
+      )
+    }
+
+  def handleRemoval(
+                     userAnswers: ReturnsUserAnswers,
+                     spoiltPeriod: PeriodKey,
+                     confirmed: Boolean
+                   )(using HeaderCarrier): Future[ReturnsUserAnswers] =
+    if (confirmed) {
+      for {
+        updatedAnswers <- Future.fromTry(removeEntry(userAnswers, spoiltPeriod))
+        _              <- sessionRepository.set(updatedAnswers)
+      } yield updatedAnswers
+    } else {
+      Future.successful(userAnswers)
+    }
+
+  private def removeEntry(userAnswers: ReturnsUserAnswers, spoiltPeriod: PeriodKey): Try[ReturnsUserAnswers] = {
+    val updatedList = userAnswers.get(SpoiltVolumeByPeriodPage).getOrElse(List.empty).filterNot(_.periodKey == spoiltPeriod)
+
+    if (updatedList.isEmpty) userAnswers.set(DeclareSpoiltProductsPage, false)
+    else userAnswers.set(SpoiltVolumeByPeriodPage, updatedList)
   }
 
   def hasAvailablePeriodsToAdd(

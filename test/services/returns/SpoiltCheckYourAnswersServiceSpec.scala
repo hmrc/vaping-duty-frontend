@@ -34,11 +34,13 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
   private val mockObligationService: ObligationService = mock[ObligationService]
   private val mockDutyRateService: DutyRateService = mock[DutyRateService]
   private val mockReturnsDateUtils: ReturnsDateUtils = mock[ReturnsDateUtils]
+  private val mockSessionRepository: ReturnsUserAnswersService = mock[ReturnsUserAnswersService]
 
   private val service = new SpoiltCheckYourAnswersService(
     mockObligationService,
     mockDutyRateService,
-    mockReturnsDateUtils
+    mockReturnsDateUtils,
+    mockSessionRepository
   )
 
   private val vpdId = VpdId("XMVPD0000000123")
@@ -49,7 +51,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
     openObligation(periodKey)
   )
 
-  private val DUTY_RATE = DutyRate(1000)
+  private val TEN_POUNDS_PER_10ML = DutyRate(1000)
 
   implicit val messages: Messages = stubMessages()
 
@@ -62,7 +64,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt)))
       when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(DUTY_RATE)
+        .thenReturn(TEN_POUNDS_PER_10ML)
 
       val result = service.buildViewModel(
         declareSpoiltProducts = Some(true),
@@ -104,7 +106,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt1, obligationForSpoilt2)))
       when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(DUTY_RATE)
+        .thenReturn(TEN_POUNDS_PER_10ML)
 
       val result = service.buildViewModel(
         declareSpoiltProducts = Some(true),
@@ -151,6 +153,57 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
       }
 
       exception.getMessage must include("No obligation found for period 24ZZ")
+    }
+  }
+
+  "buildRemoveViewModel" - {
+
+    "must return Some with the details rows when the entry and its obligation are found" in {
+      val spoiltEntry = SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = spoiltPeriodKey)
+      val obligationForSpoilt = openObligation(spoiltPeriodKey)
+
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(Seq(obligationForSpoilt)))
+      when(mockDutyRateService.getDutyRateForDate(any()))
+        .thenReturn(TEN_POUNDS_PER_10ML)
+      when(mockReturnsDateUtils.formatPeriodDisplay(eqTo(spoiltPeriodKey), any[Seq[models.obligations.ObligationDetails]])(using any()))
+        .thenReturn("December 2026")
+
+      val result = service.buildRemoveViewModel(
+        spoiltList = Some(List(spoiltEntry)),
+        spoiltPeriod = spoiltPeriodKey,
+        vpdId = vpdId
+      ).futureValue
+
+      result.value.rows.size mustBe 3
+    }
+
+    "must return None when the entry is not in the spoilt list" in {
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(obligationDetails))
+
+      val result = service.buildRemoveViewModel(
+        spoiltList = Some(List.empty),
+        spoiltPeriod = spoiltPeriodKey,
+        vpdId = vpdId
+      ).futureValue
+
+      result mustBe None
+    }
+
+    "must return None when no obligation exists for the entry's period" in {
+      val spoiltEntry = SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = spoiltPeriodKey)
+
+      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(Seq.empty))
+
+      val result = service.buildRemoveViewModel(
+        spoiltList = Some(List(spoiltEntry)),
+        spoiltPeriod = spoiltPeriodKey,
+        vpdId = vpdId
+      ).futureValue
+
+      result mustBe None
     }
   }
 

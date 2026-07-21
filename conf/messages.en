@@ -257,9 +257,12 @@ returns.spoiltCheckYourAnswers.duty = Duty
 returns.spoiltCheckYourAnswers.card.remove.hidden = spoilt products for {0}
 returns.spoiltCheckYourAnswers.volume.change.hidden = spoilt products volume
 
-returns.removeSpoiltAdjustment.title = Remove this adjustment?
-returns.removeSpoiltAdjustment.heading = Remove this adjustment?
-returns.removeSpoiltAdjustment.hint = The adjustment and its information will be removed from your return.
+returns.removeSpoiltAdjustment.title = Remove spoilt product
+returns.removeSpoiltAdjustment.heading = Remove spoilt product
+returns.removeSpoiltAdjustment.caption = Spoilt vaping products
+returns.removeSpoiltAdjustment.question = Do you want to remove this spoilt product?
+returns.removeSpoiltAdjustment.detailsHeading = Spoilt products details
+returns.removeSpoiltAdjustment.month = Month
 
 returns.adjustmentReason.title = Why did you make these adjustments?
 returns.adjustmentReason.heading = Why did you make these adjustments?
@@ -520,6 +523,13 @@ returns.adjustmentCheckYourAnswers.change.hidden = adjustment for {0}
 returns.adjustmentCheckYourAnswers.remove.hidden = adjustment for {0}
 returns.adjustmentCheckYourAnswers.type.change.hidden = adjustment type
 returns.adjustmentCheckYourAnswers.volume.change.hidden = adjustment volume
+
+returns.removeAdjustment.title = Remove adjustment?
+returns.removeAdjustment.heading = Remove adjustment?
+returns.removeAdjustment.caption = Over and under adjustments
+returns.removeAdjustment.question = Do you want to remove this adjustment?
+returns.removeAdjustment.detailsHeading = Adjustment details
+returns.removeAdjustment.month = Month
 
 ### Payments ###
 

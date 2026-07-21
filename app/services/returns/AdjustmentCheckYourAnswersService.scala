@@ -19,20 +19,23 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
-import models.returns.DutyRate
+import models.returns.{DutyRate, ReturnsUserAnswers}
 import models.returns.adjustments.AdjustmentList
+import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.ReturnsDateUtils
-import viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel
+import viewmodels.returns.submit.adjustments.{AdjustmentCheckYourAnswersViewModel, RemoveAdjustmentViewModel}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 @Singleton
 class AdjustmentCheckYourAnswersService @Inject()(
                                                    obligationService: ObligationService,
                                                    dutyRateService: DutyRateService,
-                                                   returnsDateUtils: ReturnsDateUtils
+                                                   returnsDateUtils: ReturnsDateUtils,
+                                                   sessionRepository: ReturnsUserAnswersService
                                                  )(using ExecutionContext) {
 
   def buildViewModel(
@@ -52,6 +55,44 @@ class AdjustmentCheckYourAnswersService @Inject()(
         returnsDateUtils
       )
     }
+  }
+
+  def buildRemoveViewModel(
+                            adjustmentList: Option[AdjustmentList],
+                            adjustmentPeriod: PeriodKey,
+                            vpdId: VpdId
+                          )(using HeaderCarrier, Messages): Future[Option[RemoveAdjustmentViewModel]] =
+    obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
+      for {
+        entry      <- adjustmentList.map(_.adjustments).getOrElse(Seq.empty).find(_.period == adjustmentPeriod)
+        obligation <- obligationDetails.find(_.periodKey == adjustmentPeriod.toString)
+      } yield RemoveAdjustmentViewModel(
+        entry,
+        obligationDetails,
+        dutyRateService.getDutyRateForDate(obligation.iCFromDate),
+        returnsDateUtils
+      )
+    }
+
+  def handleRemoval(
+                     userAnswers: ReturnsUserAnswers,
+                     adjustmentPeriod: PeriodKey,
+                     confirmed: Boolean
+                   )(using HeaderCarrier): Future[ReturnsUserAnswers] =
+    if (confirmed) {
+      for {
+        updatedAnswers <- Future.fromTry(removeEntry(userAnswers, adjustmentPeriod))
+        _              <- sessionRepository.set(updatedAnswers)
+      } yield updatedAnswers
+    } else {
+      Future.successful(userAnswers)
+    }
+
+  private def removeEntry(userAnswers: ReturnsUserAnswers, adjustmentPeriod: PeriodKey): Try[ReturnsUserAnswers] = {
+    val updatedAdjustments = userAnswers.get(AdjustmentListPage).map(_.adjustments).getOrElse(Seq.empty).filterNot(_.period == adjustmentPeriod)
+
+    if (updatedAdjustments.isEmpty) userAnswers.set(DeclareAdjustmentPage, false)
+    else userAnswers.set(AdjustmentListPage, AdjustmentList(updatedAdjustments))
   }
 
   private def getDutyRatesForAdjustments(

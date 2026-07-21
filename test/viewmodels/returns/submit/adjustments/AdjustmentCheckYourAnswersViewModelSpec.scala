@@ -20,6 +20,7 @@ import base.SpecBase
 import models.identifiers.PeriodKey
 import models.returns.DutyRate
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
 
@@ -49,6 +50,31 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
       vm.hasAdjustments mustBe true
       vm.summaryCards.size mustBe 1
       vm.summaryCards.head.rows.size mustBe 4
+    }
+
+    "must build a remove link pointing at RemoveAdjustmentController for each summary card" in {
+      val adjustment = AdjustmentEntry(
+        period = october2027,
+        adjustmentType = AdjustmentType.UnderDeclared,
+        volumeInMl = BigDecimal("100.0")
+      )
+      val adjustmentList = AdjustmentList(Seq(adjustment))
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+
+      val vm = AdjustmentCheckYourAnswersViewModel(
+        Some(true),
+        Some(adjustmentList),
+        obligationDetails,
+        periodKey,
+        dutyRatesMap,
+        returnsDateUtils
+      )
+
+      val expectedHref = controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onPageLoad().url +
+        s"?period=${periodKey.value}&adjustmentPeriod=${october2027.value}"
+
+      val removeAction = vm.summaryCards.head.card.actions.value.items.find(_.content == Text("Remove")).value
+      removeAction.href mustBe expectedHref
     }
 
     "must calculate correct total adjustment for under declared" in {

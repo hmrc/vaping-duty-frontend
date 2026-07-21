@@ -130,7 +130,11 @@ object AdjustmentCheckYourAnswersViewModel {
 
     val cardActions = Seq(
       ActionItem(
-        href = "#",
+        href = buildAdjustmentUrl(
+          controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onPageLoad().url,
+          currentPeriodKey,
+          Some(adjustment.period)
+        ),
         content = Text(messages("site.remove")),
         visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.card.remove.hidden", periodDisplay))
       )

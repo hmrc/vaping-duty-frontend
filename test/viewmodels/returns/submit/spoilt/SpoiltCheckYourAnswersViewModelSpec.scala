@@ -19,6 +19,7 @@ package viewmodels.returns.submit.spoilt
 import base.SpecBase
 import models.identifiers.PeriodKey
 import models.returns.{DutyRate, SpoiltVolumeByPeriod}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
 
@@ -59,7 +60,24 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
       )
 
       vm.totalSpoiltDuty mustBe BigDecimal("3000.00")
-      vm.formattedTotalSpoiltDuty mustBe "£3,000"
+      vm.formattedTotalSpoiltDuty mustBe "-£3,000"
+    }
+
+    "must always show the per-card Duty row as a negative amount" in {
+      val entry = SpoiltVolumeByPeriod(volume = BigDecimal("1000.0"), periodKey = october2027)
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+
+      val vm = SpoiltCheckYourAnswersViewModel(
+        Some(true),
+        Some(List(entry)),
+        obligationDetails,
+        periodKey,
+        dutyRatesMap,
+        returnsDateUtils
+      )
+
+      val dutyRow = vm.summaryCards.head.rows.find(_.key.content == Text("Duty")).value
+      dutyRow.value.content mustBe Text("-£3,000")
     }
 
     "must handle no spoilt products declared" in {
