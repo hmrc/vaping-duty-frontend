@@ -47,9 +47,9 @@ class ViewIndividualReturnController @Inject()(
     implicit request =>
       for {
         returnData <- connector.getReturn(periodKey, request.enrolmentVpdId)
-        obligations <- obligationService.getObligations(request.enrolmentVpdId)
+        obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
       } yield {
-        Ok(view(ViewIndividualReturnViewModel(returnData, obligations, returnsDateUtils)))
+        Ok(view(ViewIndividualReturnViewModel(returnData, obligationDetails, returnsDateUtils)))
       }
   }
 }

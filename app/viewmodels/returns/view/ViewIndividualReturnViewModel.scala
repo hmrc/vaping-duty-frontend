@@ -16,53 +16,52 @@
 
 package viewmodels.returns.view
 
-import models.obligations.ObligationsResponse
+import models.obligations.ObligationDetails
+import models.returns.ConvertToMl
 import models.returns.view.*
-import models.returns.{ConvertToMl, DeclarationDetails, TotalDutyDue}
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 import utils.{CurrencyFormatter, PeriodKeys, ReturnsDateUtils}
 
 import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 
 case class ViewIndividualReturnViewModel(
-                                          chargeReference: String,
+                                          chargeReference: Option[String],
                                           hasVapingProductsDeclaration: Boolean,
                                           amountProducedLiquid: Option[String],
                                           dutyDue: Option[String],
                                           totalDutySpoiltProducts: String,
                                           monthYear: String,
                                           submittedOn: String,
-                                          dutyRate: String,
-                                          nilReturn: Boolean,
+                                          dutyRate: Option[String],
                                           personalDetailsSummaryList: SummaryList,
                                           dutyDeclarationSummaryList: Option[SummaryList],
-                                          spoiltSummaryList: SummaryList,
+                                          spoiltSummaryLists: Seq[SummaryList],
+                                          adjustmentsSummaryLists: Seq[SummaryList],
                                           totalDutySummaryList: SummaryList,
                                           dutySuspenseSummaryList: Option[SummaryList]
-                                        )
+                                         )
 
 object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
   def apply(
              returnsData: ReturnDisplayResponse,
-             obligations: ObligationsResponse,
+             obligationDetails: Seq[ObligationDetails],
              returnsDateUtils: ReturnsDateUtils
            )(using messages: Messages): ViewIndividualReturnViewModel = {
 
     val zeroValue = BigDecimal("0")
     val success = returnsData.success
 
-    val dutyRate = returnsData.success.vapingProductsProduced
+    val dutyRateValue = returnsData.success.vapingProductsProduced
       .flatMap(_.returns.headOption)
       .map(_.dutyRate)
 
-    val isNilReturn = dutyRate.forall(_ == zeroValue)
+    val dutyRateFormatted = dutyRateValue
+      .map(currencyFormat)
 
     val chargeRef = success.chargeDetails
       .flatMap(_.chargeReference)
-      .getOrElse("")
 
     val vapingProducts = success.vapingProductsProduced
 
@@ -96,11 +95,12 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val monthYearString = s"${returnsDateUtils.getMonthMessage(monthFromLocalDate)} $year"
     val submittedOnString = s"$submittedOnDay $submittedOnMonth $year"
 
-    val personalDetails = buildPersonalDetailsSummaryList(success.declaration)
-    val dutyDeclaration = buildDutyDeclarationSummaryList(hasDeclaration, amountProduced, dutyDueAmount)
-    val spoilt = buildSpoiltSummaryList(success.spoiltProduct, isNilReturn, totalDutySpoiltProducts, obligations, returnsDateUtils)
-    val totalDutySummary = buildTotalDutySummaryList(success.totalDutyDue)
-    val dutySuspenseSummary = buildDutySuspenseSummaryList(success.otherOptions)
+    val personalDetails = PersonalDetailsSectionBuilder(success.declaration).build()
+    val dutyDeclaration = DutyDeclarationSectionBuilder(hasDeclaration, amountProduced, dutyDueAmount).build()
+    val spoiltLists = SpoiltProductSectionBuilder(success.spoiltProduct, totalDutySpoiltProducts, obligationDetails, returnsDateUtils).build()
+    val adjustmentsLists = AdjustmentsSectionBuilder(success.overDeclaration, success.underDeclaration, obligationDetails, returnsDateUtils).build()
+    val dutySuspenseSummary = DutySuspenseSectionBuilder(success.otherOptions).build()
+    val totalDutySummary = TotalDutySectionBuilder(success.totalDutyDue).build()
 
     ViewIndividualReturnViewModel(
       chargeReference = chargeRef,
@@ -110,202 +110,13 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       totalDutySpoiltProducts = totalDutySpoiltProducts,
       monthYear = monthYearString,
       submittedOn = submittedOnString,
-      dutyRate = currencyFormat(dutyRate.getOrElse(zeroValue)),
-      nilReturn = isNilReturn,
+      dutyRate = dutyRateFormatted,
       personalDetailsSummaryList = personalDetails,
       dutyDeclarationSummaryList = dutyDeclaration,
-      spoiltSummaryList = spoilt,
+      spoiltSummaryLists = spoiltLists,
+      adjustmentsSummaryLists = adjustmentsLists,
       totalDutySummaryList = totalDutySummary,
       dutySuspenseSummaryList = dutySuspenseSummary
     )
-  }
-
-  private def buildPersonalDetailsSummaryList(declarationDetails: DeclarationDetails)(using messages: Messages): SummaryList =
-    SummaryList(
-      rows = Seq(
-        SummaryListRow(
-          key = Key(content = Text(messages("viewIndividualReturn.personalDetails.fullName"))),
-          value = Value(content = Text(declarationDetails.fullName))
-        ),
-        SummaryListRow(
-          key = Key(content = Text(messages("viewIndividualReturn.personalDetails.email"))),
-          value = Value(content = Text(declarationDetails.signeesEmailAddress))
-        ),
-        SummaryListRow(
-          key = Key(content = Text(messages("viewIndividualReturn.personalDetails.capacity"))),
-          value = Value(content = Text(declarationDetails.capacityInWhichSigned))
-        )
-      )
-    )
-
-  private def buildDutyDeclarationSummaryList(
-                                               hasVapingProductsDeclaration: Boolean,
-                                               amountProducedLiquid: Option[String],
-                                               dutyDue: Option[String]
-                                             )(using messages: Messages): Option[SummaryList] = {
-    val detailRows = if (hasVapingProductsDeclaration) {
-      Seq(
-        amountProducedLiquid.map { amount =>
-          SummaryListRow(
-            key = Key(content = Text(messages("viewIndividualReturn.amountProducedLiquid"))),
-            value = Value(content = Text(messages("viewIndividualReturn.millilitres", amount)))
-          )
-        },
-        dutyDue.map { duty =>
-          SummaryListRow(
-            key = Key(content = Text(messages("viewIndividualReturn.dutyDue"))),
-            value = Value(content = Text(duty))
-          )
-        }
-      ).flatten
-    } else Seq.empty
-
-    Some(SummaryList(
-      rows = Seq(
-        SummaryListRow(
-          key = Key(content = Text(messages("viewIndividualReturn.vapingProductsDeclaration.question"))),
-          value = Value(
-            content = Text(
-              if (hasVapingProductsDeclaration) {
-                messages("viewIndividualReturn.vapingProductsDeclaration.yes")
-              } else {
-                messages("viewIndividualReturn.vapingProductsDeclaration.no")
-              }
-            )
-          )
-        )) ++ detailRows
-    ))
-  }
-
-  private def buildSpoiltSummaryList(
-                                      spoiltProduct: Option[SpoiltProduct],
-                                      nilReturn: Boolean,
-                                      totalDutySpoiltProducts: String,
-                                      obligations: ObligationsResponse,
-                                      returnsDateUtils: ReturnsDateUtils
-                                    )(using messages: Messages): SummaryList = {
-    val spoiltProductsRows = spoiltProduct match {
-      case Some(sp) =>
-        val yesNoText = if (sp.spoiltProductFilled == "1") {
-          messages("viewIndividualReturn.spoiltProducts.yes")
-        } else {
-          messages("viewIndividualReturn.spoiltProducts.no")
-        }
-
-        val questionRow = SummaryListRow(
-          key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.question"))),
-          value = Value(content = Text(yesNoText))
-        )
-
-        val detailRows = if (sp.spoiltProductFilled == "1") {
-          sp.spoiltProducts.getOrElse(Seq.empty).flatMap { item =>
-            Seq(
-              SummaryListRow(
-                key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.month"))),
-                value = Value(content = Text(lookupPeriodKey(item.returnPeriodAffected, obligations, returnsDateUtils)))
-              ),
-              SummaryListRow(
-                key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.spoiltProducts"))),
-                value = Value(content = Text(messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(item.amountSpoilt).toMl))))
-              )
-            )
-          }
-        } else Seq.empty
-
-        questionRow +: detailRows
-      case None => Seq.empty
-    }
-
-    val spoiltDeclared = spoiltProduct.exists(_.spoiltProductFilled == "1")
-
-    val totalRows = if (nilReturn) {
-      Seq.empty
-    } else {
-      if (spoiltDeclared) Seq(
-        SummaryListRow(
-          key = Key(content = Text(messages("viewIndividualReturn.totalDutySpoiltProducts"))),
-          value = Value(content = Text(totalDutySpoiltProducts))
-        )
-      ) else Seq.empty
-    }
-
-    SummaryList(rows = spoiltProductsRows ++ totalRows)
-  }
-
-  private def buildTotalDutySummaryList(totalDutyDue: Option[TotalDutyDue])(using messages: Messages): SummaryList = {
-    val zeroValue = BigDecimal("0")
-
-    val totalDuty = totalDutyDue.fold(zeroValue)(_.totalDue)
-
-    val displayTotalDutyDue =
-      if (totalDuty < zeroValue) currencyFormat(totalDuty.abs).replace("£", "-£")
-      else currencyFormat(totalDuty)
-
-
-    SummaryList(
-      if (totalDuty != zeroValue) {
-        Seq(SummaryListRow(
-          key = Key(content = Text(messages("viewIndividualReturn.totalDutyDue"))),
-          value = Value(content = Text(displayTotalDutyDue))
-        ))
-      } else {
-        Seq.empty
-      }
-    )
-  }
-
-  private def buildDutySuspenseSummaryList(otherOptions: Option[OtherOptions])(using messages: Messages): Option[SummaryList] = {
-    otherOptions.map { options =>
-      val yesNoText = if (options.vapingProductUnderDutySuspense == "1") {
-        messages("viewIndividualReturn.dutySuspense.yes")
-      } else {
-        messages("viewIndividualReturn.dutySuspense.no")
-      }
-
-      val questionRow = SummaryListRow(
-        key = Key(content = Text(messages("viewIndividualReturn.dutySuspense.question"))),
-        value = Value(content = Text(yesNoText))
-      )
-
-      val detailRows = if (options.vapingProductUnderDutySuspense == "1") {
-        val receivedValue = options.volumeMovedFromDutySuspense match {
-          case Some(volume) if volume > 0 => messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(volume).toMl))
-          case _ => messages("viewIndividualReturn.dutySuspense.nothingToDeclare")
-        }
-
-        val movedValue = options.volumeMovedToDutySuspense match {
-          case Some(volume) if volume > 0 => messages("viewIndividualReturn.millilitres", milliliterFormat(ConvertToMl(volume).toMl))
-          case _ => messages("viewIndividualReturn.dutySuspense.nothingToDeclare")
-        }
-
-        Seq(
-          SummaryListRow(
-            key = Key(content = Text(messages("viewIndividualReturn.dutySuspense.productReceived"))),
-            value = Value(content = Text(receivedValue))
-          ),
-          SummaryListRow(
-            key = Key(content = Text(messages("viewIndividualReturn.dutySuspense.productMoved"))),
-            value = Value(content = Text(movedValue))
-          )
-        )
-      } else Seq.empty
-
-      SummaryList(rows = questionRow +: detailRows)
-    }
-  }
-
-  private def lookupPeriodKey(periodKey: String, obligations: ObligationsResponse, returnsDateUtils: ReturnsDateUtils)(using messages: Messages): String = {
-    obligations.obligation
-      .map(_.obligationDetails)
-      .find(_.periodKey == periodKey)
-      .map { obligation =>
-        val month = obligation.iCFromDate.getMonth
-        val year = obligation.iCFromDate.getYear
-        s"${returnsDateUtils.getMonthMessage(month)} $year"
-      }
-      .getOrElse {
-        // scalafix:off DisableSyntax.throw
-        throw new IllegalStateException(s"Period key $periodKey not found in obligations. This indicates a data integrity issue.")
-      }
   }
 }
