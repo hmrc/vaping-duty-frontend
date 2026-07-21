@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import models.CheckMode
 import models.identifiers.PeriodKey
 import models.returns.{DutyRate, ReturnsUserAnswers}
-import models.returns.adjustments.{AdjustmentList, AdjustmentType}
+import models.returns.adjustments.{AdjustmentDutyCalculator, AdjustmentList}
 import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
 import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import play.api.i18n.Messages
@@ -32,26 +32,19 @@ import viewmodels.implicits.*
 object ReturnsSummary extends CurrencyFormatter {
 
   // scalafix:off DisableSyntax.throw
-  private case class AdjustmentTotals(underDuty: BigDecimal, overDuty: BigDecimal) {
-    def netAdjustment: BigDecimal = underDuty - overDuty
-  }
+  def calculateTotalDuty(
+    answers: ReturnsUserAnswers,
+    dutyRates: Map[PeriodKey, DutyRate],
+    periodKey: PeriodKey
+  ): Option[BigDecimal] =
+    answers.get(EnterDutyAmountPage).map { volumeInMl =>
+      val vapingProductsDuty = dutyRates(periodKey).calculateDuty(volumeInMl)
+      val adjustmentTotal = answers.get(AdjustmentListPage)
+        .map(list => AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).netAdjustment)
+        .getOrElse(BigDecimal(0))
 
-  private def calculateAdjustmentTotals(
-    adjustmentList: AdjustmentList,
-    dutyRates: Map[PeriodKey, DutyRate]
-  ): AdjustmentTotals = {
-    val underDuty = adjustmentList.adjustments
-      .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
-      .map(adj => dutyRates.get(adj.period).map(_.calculateDuty(adj.volumeInMl)).getOrElse(BigDecimal(0)))
-      .sum
-    
-    val overDuty = adjustmentList.adjustments
-      .filter(_.adjustmentType == AdjustmentType.OverDeclared)
-      .map(adj => dutyRates.get(adj.period).map(_.calculateDuty(adj.volumeInMl)).getOrElse(BigDecimal(0)))
-      .sum
-    
-    AdjustmentTotals(underDuty, overDuty)
-  }
+      vapingProductsDuty + adjustmentTotal
+    }
 
   def summaryList(
                    answers: ReturnsUserAnswers,
@@ -145,20 +138,9 @@ object ReturnsSummary extends CurrencyFormatter {
   )(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(DeclareDutyPage) match {
       case Some(true) =>
-        answers.get(EnterDutyAmountPage) match {
-          case Some(volumeInMl) => 
-            val currentPeriodRate = dutyRates.getOrElse(periodKey, throw new IllegalStateException(s"No duty rate found for period $periodKey"))
-            val vapingProductsDuty = currentPeriodRate.calculateDuty(volumeInMl)
-            
-            // Calculate adjustment totals
-            val adjustmentTotal = answers.get(AdjustmentListPage).map { list =>
-              val totals = calculateAdjustmentTotals(list, dutyRates)
-              totals.netAdjustment
-            }.getOrElse(BigDecimal(0))
-            
-            val totalDuty = vapingProductsDuty + adjustmentTotal
-            totalDutyRow(currencyFormat(totalDuty))
-          case None => totalDutyRow(messages("returns.CheckYourAnswers.dutySummary.total.nil"))
+        calculateTotalDuty(answers, dutyRates, periodKey) match {
+          case Some(totalDuty) => totalDutyRow(currencyFormat(totalDuty))
+          case None             => totalDutyRow(messages("returns.CheckYourAnswers.dutySummary.total.nil"))
         }
       case _ => None
     }
@@ -187,7 +169,7 @@ object ReturnsSummary extends CurrencyFormatter {
   )(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(AdjustmentListPage).flatMap { list =>
       if (list.adjustments.nonEmpty) {
-        val totals = calculateAdjustmentTotals(list, dutyRates)
+        val totals = AdjustmentDutyCalculator.totals(list.adjustments, dutyRates)
         
         Some(SummaryListRowViewModel(
           key = "returns.CheckYourAnswers.adjustments.combined",
@@ -208,8 +190,7 @@ object ReturnsSummary extends CurrencyFormatter {
     periodKey: PeriodKey
   )(implicit messages: Messages): Option[SummaryListRow] = {
     val shouldShowReason = answers.get(AdjustmentListPage).exists { list =>
-      val totals = calculateAdjustmentTotals(list, dutyRates)
-      totals.underDuty >= AdjustmentType.dutyThreshold || totals.overDuty >= AdjustmentType.dutyThreshold
+      AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).reasonMandatory
     }
 
     if (shouldShowReason) {

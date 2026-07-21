@@ -22,7 +22,7 @@ import controllers.returns.PeriodKeyExtraction
 import forms.returns.adjustments.AdjustmentVolumeWithTypeFormProvider
 import models.Mode
 import models.returns.ReturnsConstants
-import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType, AdjustmentVolumeWithTypeFormData}
+import models.returns.adjustments.{AdjustmentDutyCalculator, AdjustmentEntry, AdjustmentList, AdjustmentType, AdjustmentVolumeWithTypeFormData}
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage}
 import play.api.data.{Form, FormError}
@@ -110,29 +110,16 @@ class AdjustmentVolumeWithTypeController @Inject()(
                 val updatedAdjustments = existingList.adjustments.filterNot(_.period == adjustmentPeriodKey) :+ newEntry
                 val updatedList = AdjustmentList(updatedAdjustments)
 
+                val dutyRates = dutyRateService.getDutyRatesForPeriods(updatedList.adjustments.map(_.period).distinct, obligationDetails)
+                val reasonRequired = AdjustmentDutyCalculator.totals(updatedList.adjustments, dutyRates).reasonMandatory
+
                 for {
                   updatedAnswers <- Future.fromTry(request.userAnswers.set(AdjustmentListPage, updatedList))
-                  // Get duty rates for all adjustment periods
-                  adjustmentPeriods = updatedList.adjustments.map(_.period).distinct
-                  dutyRates = dutyRateService.getDutyRatesForPeriods(adjustmentPeriods, obligationDetails)
-                  // Check if reason should be removed due to threshold change
-                  (finalAnswers, reasonRequired) <- {
-                    val adjustments = updatedList.adjustments
-                    val underDuty: BigDecimal = adjustments
-                      .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
-                      .map(adj => dutyRates.get(adj.period).map(_.calculateDuty(adj.volumeInMl)).getOrElse(BigDecimal(0)))
-                      .foldLeft(BigDecimal(0))(_ + _)
-                    val overDuty: BigDecimal = adjustments
-                      .filter(_.adjustmentType == AdjustmentType.OverDeclared)
-                      .map(adj => dutyRates.get(adj.period).map(_.calculateDuty(adj.volumeInMl)).getOrElse(BigDecimal(0)))
-                      .foldLeft(BigDecimal(0))(_ + _)
-                    
-                    val reasonRequired = underDuty >= AdjustmentType.dutyThreshold || overDuty >= AdjustmentType.dutyThreshold
-                    
+                  finalAnswers <- {
                     if (!reasonRequired && updatedAnswers.get(AdjustmentReasonPage).isDefined) {
-                      Future.fromTry(updatedAnswers.remove(AdjustmentReasonPage)).map(ans => (ans, reasonRequired))
+                      Future.fromTry(updatedAnswers.remove(AdjustmentReasonPage))
                     } else {
-                      Future.successful((updatedAnswers, reasonRequired))
+                      Future.successful(updatedAnswers)
                     }
                   }
                   _ <- sessionRepository.set(finalAnswers)

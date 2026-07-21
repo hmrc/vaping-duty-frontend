@@ -20,7 +20,7 @@ import models.{Mode, NormalMode}
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.returns.DutyRate
-import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
+import models.returns.adjustments.{AdjustmentDutyCalculator, AdjustmentEntry, AdjustmentList, AdjustmentType}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
@@ -62,33 +62,18 @@ object AdjustmentCheckYourAnswersViewModel {
 
     val hasAvailablePeriodsToAdd = calculateAvailablePeriods(obligationDetails, periodKey, adjustmentList).nonEmpty
 
-    val underDeclaredDutyTotal = totalDutyForType(adjustments, AdjustmentType.UnderDeclared, dutyRates)
-    val overDeclaredDutyTotal = totalDutyForType(adjustments, AdjustmentType.OverDeclared, dutyRates)
-
-    val totalAdjustment = underDeclaredDutyTotal - overDeclaredDutyTotal
-
-    val adjustmentReasonMandatory = underDeclaredDutyTotal >= AdjustmentType.dutyThreshold || overDeclaredDutyTotal >= AdjustmentType.dutyThreshold
+    val totals = AdjustmentDutyCalculator.totals(adjustments, dutyRates)
 
     AdjustmentCheckYourAnswersViewModel(
       summaryCards = summaryCards,
       hasAdjustments = adjustments.nonEmpty,
-      totalAdjustment = totalAdjustment,
-      formattedTotalAdjustment = CurrencyFormatter.currencyFormatWithLeadingSign(totalAdjustment),
+      totalAdjustment = totals.netAdjustment,
+      formattedTotalAdjustment = CurrencyFormatter.currencyFormatWithLeadingSign(totals.netAdjustment),
       hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd,
-      adjustmentReasonMandatory = adjustmentReasonMandatory,
+      adjustmentReasonMandatory = totals.reasonMandatory,
       mode = mode
     )
   }
-
-  private def totalDutyForType(
-                                adjustments: Seq[AdjustmentEntry],
-                                adjustmentType: AdjustmentType,
-                                dutyRates: Map[PeriodKey, DutyRate]
-                              ): BigDecimal =
-    adjustments
-      .filter(_.adjustmentType == adjustmentType)
-      .map(adjustment => dutyRates.get(adjustment.period).map(_.calculateDuty(adjustment.volumeInMl)).getOrElse(BigDecimal(0)))
-      .sum
 
   private def calculateAvailablePeriods(
                                          obligationDetails: Seq[ObligationDetails],

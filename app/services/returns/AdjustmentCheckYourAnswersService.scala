@@ -20,9 +20,9 @@ import com.google.inject.{Inject, Singleton}
 import models.{Mode, NormalMode}
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
-import models.returns.DutyRate
-import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
-import models.returns.ReturnsUserAnswers
+import models.returns.{DutyRate, ReturnsUserAnswers}
+import models.returns.adjustments.AdjustmentList
+import models.{Mode, NormalMode}
 import pages.returns.adjustments.AdjustmentReasonPage
 import models.returns.{DutyRate, ReturnsUserAnswers}
 import models.returns.adjustments.AdjustmentList
@@ -132,20 +132,5 @@ class AdjustmentCheckYourAnswersService @Inject()(
       .getOrElse(Seq.empty)
 
     dutyRateService.getDutyRatesForPeriods(uniquePeriods, obligationDetails)
-  }
-
-  private def calculateDutyTotalByType(
-                                        adjustments: Seq[AdjustmentEntry],
-                                        adjustmentType: AdjustmentType,
-                                        dutyRatesMap: Map[PeriodKey, DutyRate]
-                                      ): BigDecimal = {
-    adjustments
-      .filter(_.adjustmentType == adjustmentType)
-      .flatMap(adjustment =>
-        dutyRatesMap
-          .get(adjustment.period)
-          .map(_.calculateDuty(adjustment.volumeInMl))
-      )
-      .sum
   }
 }

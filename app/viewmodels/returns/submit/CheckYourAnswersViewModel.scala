@@ -18,9 +18,7 @@ package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
 import models.returns.{DutyRate, ReturnsUserAnswers}
-import models.returns.adjustments.AdjustmentType
-import pages.returns.{DeclareDutyPage, DeclareSpoiltProductsPage, EnterDutyAmountPage}
-import pages.returns.adjustments.AdjustmentListPage
+import pages.returns.{DeclareDutyPage, DeclareSpoiltProductsPage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -77,32 +75,11 @@ object CheckYourAnswersViewModel {
     !declareDuty && !declareSpoilt
   }
 
-  private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey): String = {
-    userAnswers.get(EnterDutyAmountPage) match {
-      case Some(volumeInMl)  => 
-        val currentPeriodRate = dutyRates.getOrElse(periodKey, throw new IllegalStateException(s"No duty rate found for period $periodKey"))
-        val vapingProductsDuty = currentPeriodRate.calculateDuty(volumeInMl)
-        
-        // Calculate adjustment totals to match the total duty row calculation
-        val adjustmentTotal = userAnswers.get(AdjustmentListPage).map { list =>
-          val underDuty = list.adjustments
-            .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
-            .map(adj => dutyRates.get(adj.period).map(_.calculateDuty(adj.volumeInMl)).getOrElse(BigDecimal(0)))
-            .sum
-          
-          val overDuty = list.adjustments
-            .filter(_.adjustmentType == AdjustmentType.OverDeclared)
-            .map(adj => dutyRates.get(adj.period).map(_.calculateDuty(adj.volumeInMl)).getOrElse(BigDecimal(0)))
-            .sum
-          
-          underDuty - overDuty
-        }.getOrElse(BigDecimal(ZERO))
-        
-        val totalDuty = vapingProductsDuty + adjustmentTotal
-        currencyFormat(totalDuty)
-      case None              => currencyFormat(BigDecimal(ZERO))
+  private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey): String =
+    ReturnsSummary.calculateTotalDuty(userAnswers, dutyRates, periodKey) match {
+      case Some(totalDuty) => currencyFormat(totalDuty)
+      case None             => currencyFormat(BigDecimal(ZERO))
     }
-  }
 
   private def dutyRateParagraph(nilReturn: Boolean)(implicit messages: Messages): HtmlFormat.Appendable = {
     val p = new Paragraph()

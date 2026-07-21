@@ -19,11 +19,10 @@ package controllers.returns.submit.adjustments
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import forms.returns.DeclareDutyFormProvider
-import models.identifiers.PeriodKey
-import models.{Mode, NormalMode}
 import models.requests.returns.ReturnsDataRequest
+import models.{Mode, NormalMode}
 import navigation.ReturnsNavigator
-import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
+import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -66,42 +65,32 @@ class AdjustmentCheckYourAnswersController @Inject()(
   def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
-      
-      declareAdjustment match {
-        case Some(false) =>
-          // User declared no adjustments - calculate flags and redirect
-          getAdjustmentFlags(request).flatMap { case (adjustmentReasonMandatory, _) =>
-            redirectToNextPageWithoutAddingAnother(request, adjustmentReasonMandatory, mode)
-          }
-          
-        case _ =>
-          // User has adjustments - check if they can add more
-          getAdjustmentFlags(request).flatMap { case (adjustmentReasonMandatory, hasAvailablePeriodsToAdd) =>
-            if (!hasAvailablePeriodsToAdd) {
-              // No more periods available - redirect without showing form
-              redirectToNextPageWithoutAddingAnother(request, adjustmentReasonMandatory, mode)
-            } else {
-              // Periods available - process form submission
-              form.bindFromRequest().fold(
-                formWithErrors =>
-                  // Only build full view model when there's a form error
-                  buildViewModel(request, mode).map { vm =>
-                    BadRequest(view(request.periodKey, vm, formWithErrors, mode))
-                  },
 
-                value =>
-                  for {
-                    updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
-                    _ <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(navigator.nextPage(
-                    AddAnotherAdjustmentPage,
-                    mode,
-                    updatedAnswers,
-                    adjustmentReasonMandatory
-                  ))
-              )
-            }
-          }
+      buildViewModel(request, mode).flatMap { vm =>
+        declareAdjustment match {
+          case Some(false) =>
+            redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory, mode)
+
+          case _ if !vm.hasAvailablePeriodsToAdd =>
+            redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory, mode)
+
+          case _ =>
+            form.bindFromRequest().fold(
+              formWithErrors =>
+                Future.successful(BadRequest(view(request.periodKey, vm, formWithErrors, mode))),
+
+              value =>
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
+                  _ <- sessionRepository.set(updatedAnswers)
+                } yield Redirect(navigator.nextPage(
+                  AddAnotherAdjustmentPage,
+                  mode,
+                  updatedAnswers,
+                  vm.adjustmentReasonMandatory
+                ))
+            )
+        }
       }
   }
 
@@ -116,15 +105,6 @@ class AdjustmentCheckYourAnswersController @Inject()(
       request.periodKey,
       request.enrolmentVpdId,
       mode
-    )
-  }
-
-  private def getAdjustmentFlags(request: ReturnsDataRequest[AnyContent])
-                                (using HeaderCarrier): Future[(Boolean, Boolean)] = {
-    adjustmentCheckYourAnswersService.getAdjustmentFlags(
-      request.userAnswers.get(AdjustmentListPage),
-      request.periodKey,
-      request.enrolmentVpdId
     )
   }
 

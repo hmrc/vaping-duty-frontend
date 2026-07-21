@@ -623,5 +623,71 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
         verify(mockSessionRepository).set(any())(any())
       }
     }
+
+    "must apply each adjustment's own period duty rate when deciding whether a reason is required" in {
+      val mockObligationService = mock[ObligationService]
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockDutyRateService = mock[DutyRateService]
+      val mockVolumePrecisionService = mock[VolumePrecisionService]
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey), fulfilledObligation(november2027))).map(_.obligationDetails)
+
+      // Existing adjustment against a DIFFERENT period (november2027) with a high duty rate -
+      // on its own this is well above the £1000 threshold, so the existing reason must be kept.
+      val existingAdjustment = AdjustmentEntry(
+        period = november2027,
+        adjustmentType = AdjustmentType.UnderDeclared,
+        volumeInMl = BigDecimal(5000)
+      )
+      val userAnswers = returnsUserAnswers
+        .set(AdjustmentListPage, AdjustmentList(Seq(existingAdjustment))).success.value
+        .set(AdjustmentReasonPage, "existing reason").success.value
+
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(obligationDetails))
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+      when(mockDutyRateService.getDutyRate(eqTo(vpdId), eqTo(periodKey))(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+      when(mockVolumePrecisionService.calculateMaxVolume(any()))
+        .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
+      // october2027 (the period being submitted) has a low rate; november2027 (the existing
+      // adjustment's period) has a high rate - each must be applied to its own adjustment only.
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(adjustmentPeriodKey -> DutyRate(100), november2027 -> testDutyRate))
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(userAnswers))
+          .overrides(
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[DutyRateService].toInstance(mockDutyRateService),
+            bind[VolumePrecisionService].toInstance(mockVolumePrecisionService)
+          )
+          .build()
+
+      running(application) {
+        // Tiny volume against october2027 - would be well under £1000 on its own, and would
+        // wrongly drag the november2027 entry's duty down too if a single rate were applied
+        // to the whole list (the bug this test guards against).
+        val request =
+          FakeRequest(POST, adjustmentVolumeWithTypeSubmitRoute)
+            .withFormUrlEncodedBody(
+              ("adjustmentType", "underDeclared"),
+              ("underDeclaredVolume", "1")
+            )
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        import org.mockito.ArgumentCaptor
+        import models.returns.ReturnsUserAnswers
+        val captor = ArgumentCaptor.forClass(classOf[ReturnsUserAnswers])
+        verify(mockSessionRepository).set(captor.capture())(any())
+        // The november2027 entry alone crosses the threshold at its own (high) rate, so the
+        // reason must be kept even though the newly-submitted october2027 entry is tiny.
+        captor.getValue.get(AdjustmentReasonPage) mustBe Some("existing reason")
+      }
+    }
   }
 }
