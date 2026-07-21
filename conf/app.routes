@@ -53,18 +53,18 @@ GET        /view-your-returns                                                   
 GET        /complete-return/before-you-start                                                controllers.returns.submit.BeforeYouStartController.onPageLoad()
 GET        /complete-return/task-list                                                       controllers.returns.submit.TaskListController.onPageLoad()
 
-GET        /complete-return/declare-duty                                                    controllers.returns.submit.DeclareDutyController.onPageLoad(mode: Mode = NormalMode)
-POST       /complete-return/declare-duty                                                    controllers.returns.submit.DeclareDutyController.onSubmit(mode: Mode = NormalMode)
-GET        /complete-return/change-declare-duty                                             controllers.returns.submit.DeclareDutyController.onPageLoad(mode: Mode = CheckMode)
-POST       /complete-return/change-declare-duty                                             controllers.returns.submit.DeclareDutyController.onSubmit(mode: Mode = CheckMode)
+GET        /complete-return/declare-duty/declare-duty                                       controllers.returns.submit.DeclareDutyController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/declare-duty/declare-duty                                       controllers.returns.submit.DeclareDutyController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/declare-duty/change-declare-duty                                controllers.returns.submit.DeclareDutyController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/declare-duty/change-declare-duty                                controllers.returns.submit.DeclareDutyController.onSubmit(mode: Mode = CheckMode)
 
-GET        /complete-return/enter-amount-released                                           controllers.returns.submit.EnterDutyAmountController.onPageLoad(mode: Mode = NormalMode)
-POST       /complete-return/enter-amount-released                                           controllers.returns.submit.EnterDutyAmountController.onSubmit(mode: Mode = NormalMode)
-GET        /complete-return/change-enter-amount-released                                    controllers.returns.submit.EnterDutyAmountController.onPageLoad(mode: Mode = CheckMode)
-POST       /complete-return/change-enter-amount-released                                    controllers.returns.submit.EnterDutyAmountController.onSubmit(mode: Mode = CheckMode)
+GET        /complete-return/declare-duty/enter-amount-released                              controllers.returns.submit.EnterDutyAmountController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/declare-duty/enter-amount-released                              controllers.returns.submit.EnterDutyAmountController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/declare-duty/change-enter-amount-released                       controllers.returns.submit.EnterDutyAmountController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/declare-duty/change-enter-amount-released                       controllers.returns.submit.EnterDutyAmountController.onSubmit(mode: Mode = CheckMode)
 
-GET        /complete-return/duty-check-your-answers-summary                                 controllers.returns.submit.DeclareDutyCheckAnswersController.onPageLoad()
-POST       /complete-return/duty-check-your-answers-summary                                 controllers.returns.submit.DeclareDutyCheckAnswersController.onSubmit()
+GET        /complete-return/declare-duty/duty-check-your-answers-summary                    controllers.returns.submit.DeclareDutyCheckAnswersController.onPageLoad()
+POST       /complete-return/declare-duty/duty-check-your-answers-summary                    controllers.returns.submit.DeclareDutyCheckAnswersController.onSubmit()
 
 GET        /complete-return/duty-suspended/duty-suspense-check-your-answers-summary         controllers.returns.submit.DutySuspenseCheckAnswersController.onPageLoad()
 POST       /complete-return/duty-suspended/duty-suspense-check-your-answers-summary         controllers.returns.submit.DutySuspenseCheckAnswersController.onSubmit()
@@ -79,11 +79,10 @@ GET        /complete-return/adjustment/select-spoilt-period                     
 GET        /complete-return/adjustment/enter-spoilt-amount                                  controllers.returns.submit.spoilt.SpoiltVolumeByPeriodController.onPageLoad()
 POST       /complete-return/adjustment/enter-spoilt-amount                                  controllers.returns.submit.spoilt.SpoiltVolumeByPeriodController.onSubmit()
 
-GET        /complete-return/adjustment/check-your-spoilt-products-answers                              controllers.returns.submit.spoilt.SpoiltCheckYourAnswersController.onPageLoad()
-POST       /complete-return/adjustment/check-your-spoilt-products-answers                              controllers.returns.submit.spoilt.SpoiltCheckYourAnswersController.onSubmit()
-
-GET        /complete-return/adjustment/remove-spoilt-adjustment                                        controllers.returns.submit.spoilt.RemoveSpoiltAdjustmentController.onPageLoad()
-POST       /complete-return/adjustment/remove-spoilt-adjustment                                        controllers.returns.submit.spoilt.RemoveSpoiltAdjustmentController.onSubmit()
+GET        /complete-return/adjustment/check-your-spoilt-products-answers                   controllers.returns.submit.spoilt.SpoiltCheckYourAnswersController.onPageLoad()
+POST       /complete-return/adjustment/check-your-spoilt-products-answers                   controllers.returns.submit.spoilt.SpoiltCheckYourAnswersController.
+GET        /complete-return/adjustment/remove-spoilt-adjustment                             controllers.returns.submit.spoilt.RemoveSpoiltAdjustmentController.onPageLoad()
+POST       /complete-return/adjustment/remove-spoilt-adjustment                             controllers.returns.submit.spoilt.RemoveSpoiltAdjustmentController.onSubmit()
 
 GET        /complete-return/adjustment/declare-adjustments                                  controllers.returns.submit.adjustments.DeclareAdjustmentQuestionController.onPageLoad(mode: Mode = NormalMode)
 POST       /complete-return/adjustment/declare-adjustments                                  controllers.returns.submit.adjustments.DeclareAdjustmentQuestionController.onSubmit(mode: Mode = NormalMode)
@@ -129,4 +128,4 @@ POST       /complete-return/return-declaration                                  
 GET        /view-your-returns/:periodKey                                                    controllers.returns.view.ViewIndividualReturnController.onPageLoad(periodKey: PeriodKey)
 
 # Payments
-GET        /view-payments                                                            controllers.payments.ViewPaymentsController.onPageLoad()
+GET        /view-payments                                                                   controllers.payments.ViewPaymentsController.onPageLoad()
