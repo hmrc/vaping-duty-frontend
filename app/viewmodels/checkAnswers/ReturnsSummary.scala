@@ -31,22 +31,23 @@ import viewmodels.implicits.*
 
 object ReturnsSummary extends CurrencyFormatter {
 
+  // scalafix:off DisableSyntax.throw
   private case class AdjustmentTotals(underDuty: BigDecimal, overDuty: BigDecimal) {
     def netAdjustment: BigDecimal = underDuty - overDuty
   }
 
   private def calculateAdjustmentTotals(
     adjustmentList: AdjustmentList,
-    dutyRate: DutyRate
+    dutyRates: Map[PeriodKey, DutyRate]
   ): AdjustmentTotals = {
     val underDuty = adjustmentList.adjustments
       .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
-      .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+      .map(adj => dutyRates.get(adj.period).map(_.calculateDuty(adj.volumeInMl)).getOrElse(BigDecimal(0)))
       .sum
     
     val overDuty = adjustmentList.adjustments
       .filter(_.adjustmentType == AdjustmentType.OverDeclared)
-      .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+      .map(adj => dutyRates.get(adj.period).map(_.calculateDuty(adj.volumeInMl)).getOrElse(BigDecimal(0)))
       .sum
     
     AdjustmentTotals(underDuty, overDuty)
@@ -54,17 +55,17 @@ object ReturnsSummary extends CurrencyFormatter {
 
   def summaryList(
                    answers: ReturnsUserAnswers,
-                   dutyRate: DutyRate,
+                   dutyRates: Map[PeriodKey, DutyRate],
                    periodKey: PeriodKey
   )(implicit messages: Messages): SummaryList = {
     val rows = Seq(
       buildDeclareDutyRow(answers, periodKey),
-      buildDutyRow(answers, dutyRate, periodKey),
+      buildDutyRow(answers, dutyRates.getOrElse(periodKey, throw new IllegalStateException(s"No duty rate found for period $periodKey")), periodKey),
       //      buildSpoiltRow(answers, periodKey),
       buildAdjustmentQuestionRow(answers, periodKey),
-      buildCombinedAdjustmentsRow(answers, dutyRate, periodKey),
-      buildAdjustmentReasonRow(answers, dutyRate, periodKey),
-      buildTotalDutyRow(answers, dutyRate)
+      buildCombinedAdjustmentsRow(answers, dutyRates, periodKey),
+      buildAdjustmentReasonRow(answers, dutyRates, periodKey),
+      buildTotalDutyRow(answers, dutyRates, periodKey)
     ).flatten
 
     SummaryList(rows = rows, classes = CssConstants.marginBottom9)
@@ -139,17 +140,19 @@ object ReturnsSummary extends CurrencyFormatter {
 
   private def buildTotalDutyRow(
                                  answers: ReturnsUserAnswers,
-                                 dutyRate: DutyRate
+                                 dutyRates: Map[PeriodKey, DutyRate],
+                                 periodKey: PeriodKey
   )(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(DeclareDutyPage) match {
       case Some(true) =>
         answers.get(EnterDutyAmountPage) match {
           case Some(volumeInMl) => 
-            val vapingProductsDuty = dutyRate.calculateDuty(volumeInMl)
+            val currentPeriodRate = dutyRates.getOrElse(periodKey, throw new IllegalStateException(s"No duty rate found for period $periodKey"))
+            val vapingProductsDuty = currentPeriodRate.calculateDuty(volumeInMl)
             
             // Calculate adjustment totals
             val adjustmentTotal = answers.get(AdjustmentListPage).map { list =>
-              val totals = calculateAdjustmentTotals(list, dutyRate)
+              val totals = calculateAdjustmentTotals(list, dutyRates)
               totals.netAdjustment
             }.getOrElse(BigDecimal(0))
             
@@ -179,12 +182,12 @@ object ReturnsSummary extends CurrencyFormatter {
 
   private def buildCombinedAdjustmentsRow(
     answers: ReturnsUserAnswers,
-    dutyRate: DutyRate,
+    dutyRates: Map[PeriodKey, DutyRate],
     periodKey: PeriodKey
   )(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(AdjustmentListPage).flatMap { list =>
       if (list.adjustments.nonEmpty) {
-        val totals = calculateAdjustmentTotals(list, dutyRate)
+        val totals = calculateAdjustmentTotals(list, dutyRates)
         
         Some(SummaryListRowViewModel(
           key = "returns.CheckYourAnswers.adjustments.combined",
@@ -201,11 +204,11 @@ object ReturnsSummary extends CurrencyFormatter {
 
   private def buildAdjustmentReasonRow(
     answers: ReturnsUserAnswers,
-    dutyRate: DutyRate,
+    dutyRates: Map[PeriodKey, DutyRate],
     periodKey: PeriodKey
   )(implicit messages: Messages): Option[SummaryListRow] = {
     val shouldShowReason = answers.get(AdjustmentListPage).exists { list =>
-      val totals = calculateAdjustmentTotals(list, dutyRate)
+      val totals = calculateAdjustmentTotals(list, dutyRates)
       totals.underDuty >= AdjustmentType.dutyThreshold || totals.overDuty >= AdjustmentType.dutyThreshold
     }
 

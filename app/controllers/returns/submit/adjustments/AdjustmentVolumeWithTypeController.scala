@@ -112,17 +112,19 @@ class AdjustmentVolumeWithTypeController @Inject()(
 
                 for {
                   updatedAnswers <- Future.fromTry(request.userAnswers.set(AdjustmentListPage, updatedList))
-                  dutyRate <- dutyRateService.getDutyRate(request.enrolmentVpdId, adjustmentPeriodKey)
+                  // Get duty rates for all adjustment periods
+                  adjustmentPeriods = updatedList.adjustments.map(_.period).distinct
+                  dutyRates = dutyRateService.getDutyRatesForPeriods(adjustmentPeriods, obligationDetails)
                   // Check if reason should be removed due to threshold change
                   (finalAnswers, reasonRequired) <- {
                     val adjustments = updatedList.adjustments
                     val underDuty: BigDecimal = adjustments
                       .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
-                      .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+                      .map(adj => dutyRates.get(adj.period).map(_.calculateDuty(adj.volumeInMl)).getOrElse(BigDecimal(0)))
                       .foldLeft(BigDecimal(0))(_ + _)
                     val overDuty: BigDecimal = adjustments
                       .filter(_.adjustmentType == AdjustmentType.OverDeclared)
-                      .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+                      .map(adj => dutyRates.get(adj.period).map(_.calculateDuty(adj.volumeInMl)).getOrElse(BigDecimal(0)))
                       .foldLeft(BigDecimal(0))(_ + _)
                     
                     val reasonRequired = underDuty >= AdjustmentType.dutyThreshold || overDuty >= AdjustmentType.dutyThreshold

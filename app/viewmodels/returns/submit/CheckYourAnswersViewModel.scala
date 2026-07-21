@@ -45,7 +45,7 @@ object CheckYourAnswersViewModel {
 
   private val ZERO = "0"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate, periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
     // scalafix:off DisableSyntax.throw
     val returnPeriod = userAnswers.returnPeriod
       .map(month => returnsDateUtils.getReturnMonth(month))
@@ -56,12 +56,14 @@ object CheckYourAnswersViewModel {
     
     val nilReturn = isNilReturn(userAnswers)
     
+    val currentPeriodRate = dutyRates.getOrElse(periodKey, throw new IllegalStateException(s"No duty rate found for period $periodKey"))
+    
     CheckYourAnswersViewModel(
-      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRate, periodKey),
+      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRates, periodKey),
       dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers, periodKey),
-      dutyDue = dutyDue(userAnswers, dutyRate),
+      dutyDue = dutyDue(userAnswers, dutyRates, periodKey),
       dutyRateParagraph = dutyRateParagraph(nilReturn),
-      dutyCalculationParagraph = dutyCalculationParagraph(dutyRate),
+      dutyCalculationParagraph = dutyCalculationParagraph(currentPeriodRate),
       nilReturn = nilReturn,
       returnPeriod = returnPeriod,
       year = year
@@ -75,21 +77,22 @@ object CheckYourAnswersViewModel {
     !declareDuty && !declareSpoilt
   }
 
-  private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate): String = {
+  private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey): String = {
     userAnswers.get(EnterDutyAmountPage) match {
       case Some(volumeInMl)  => 
-        val vapingProductsDuty = dutyRate.calculateDuty(volumeInMl)
+        val currentPeriodRate = dutyRates.getOrElse(periodKey, throw new IllegalStateException(s"No duty rate found for period $periodKey"))
+        val vapingProductsDuty = currentPeriodRate.calculateDuty(volumeInMl)
         
         // Calculate adjustment totals to match the total duty row calculation
         val adjustmentTotal = userAnswers.get(AdjustmentListPage).map { list =>
           val underDuty = list.adjustments
             .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
-            .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+            .map(adj => dutyRates.get(adj.period).map(_.calculateDuty(adj.volumeInMl)).getOrElse(BigDecimal(0)))
             .sum
           
           val overDuty = list.adjustments
             .filter(_.adjustmentType == AdjustmentType.OverDeclared)
-            .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+            .map(adj => dutyRates.get(adj.period).map(_.calculateDuty(adj.volumeInMl)).getOrElse(BigDecimal(0)))
             .sum
           
           underDuty - overDuty

@@ -57,6 +57,8 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       .thenReturn(Future.successful(testDutyRate))
     when(mockDutyRateService.getDutyRate(eqTo(vpdId), eqTo(adjustmentPeriodKey))(using any(), any()))
       .thenReturn(Future.successful(testDutyRate))
+    when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+      .thenReturn(Map(adjustmentPeriodKey -> testDutyRate))
     when(mockVolumePrecisionService.calculateMaxVolume(any()))
       .thenReturn(MaxVolumeResult(testMaxVolume, testFormattedMax))
   }

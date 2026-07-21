@@ -37,12 +37,19 @@ class CheckYourAnswersControllerSpec extends SpecBase {
     "must return OK and the correct view for a GET" in {
 
       val mockDutyRateService = mock[DutyRateService]
+      val mockObligationService = mock[services.returns.ObligationService]
 
-      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
-        .thenReturn(Future.successful(testDutyRate))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(Seq.empty))
+      
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(periodKey -> testDutyRate))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
+        .overrides(
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[services.returns.ObligationService].toInstance(mockObligationService)
+        )
         .build()
 
       running(application) {
@@ -52,22 +59,30 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[CheckYourAnswersView]
         val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
-        val vm = CheckYourAnswersViewModel(returnsUserAnswers, testDutyRate, periodKey, returnsDateUtils)(messages(application))
+        val dutyRates = Map(periodKey -> testDutyRate)
+        val vm = CheckYourAnswersViewModel(returnsUserAnswers, dutyRates, periodKey, returnsDateUtils)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
       }
     }
 
-    "must fail when obligation service returns None" in {
+    "must fail when obligation service fails" in {
 
       val mockDutyRateService = mock[DutyRateService]
+      val mockObligationService = mock[services.returns.ObligationService]
 
-      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
-        .thenReturn(Future.failed(RuntimeException("No duty rate found")))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.failed(RuntimeException("Obligation service failed")))
+      
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(periodKey -> testDutyRate))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
+        .overrides(
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[services.returns.ObligationService].toInstance(mockObligationService)
+        )
         .build()
 
       running(application) {
@@ -77,7 +92,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         whenReady(result.failed) { exception =>
           exception mustBe a[RuntimeException]
-          exception.getMessage mustBe "No duty rate found"
+          exception.getMessage mustBe "Obligation service failed"
         }
       }
     }
