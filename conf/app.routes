@@ -80,7 +80,7 @@ GET        /complete-return/adjustment/enter-spoilt-amount                      
 POST       /complete-return/adjustment/enter-spoilt-amount                                  controllers.returns.submit.spoilt.SpoiltVolumeByPeriodController.onSubmit()
 
 GET        /complete-return/adjustment/check-your-spoilt-products-answers                   controllers.returns.submit.spoilt.SpoiltCheckYourAnswersController.onPageLoad()
-POST       /complete-return/adjustment/check-your-spoilt-products-answers                   controllers.returns.submit.spoilt.SpoiltCheckYourAnswersController.
+POST       /complete-return/adjustment/check-your-spoilt-products-answers                   controllers.returns.submit.spoilt.SpoiltCheckYourAnswersController.onSubmit()
 GET        /complete-return/adjustment/remove-spoilt-adjustment                             controllers.returns.submit.spoilt.RemoveSpoiltAdjustmentController.onPageLoad()
 POST       /complete-return/adjustment/remove-spoilt-adjustment                             controllers.returns.submit.spoilt.RemoveSpoiltAdjustmentController.onSubmit()
 
