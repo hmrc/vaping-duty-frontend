@@ -39,7 +39,7 @@
         messages("returns.CheckYourAnswers.title", vm.dutyDue)
 )) {
 
-    @caption(messages("returns.CheckYourAnswers.caption", vm.returnPeriod, vm.year))
+    @caption(messages("returns.caption", vm.returnPeriod, vm.year))
     @h1(
         if(vm.nilReturn)
             messages("returns.CheckYourAnswers.nilReturn.heading")

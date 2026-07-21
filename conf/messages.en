@@ -123,9 +123,10 @@ emailVerificationJourney.signature = Vaping Products Duty
 
 ### Returns ###
 
+returns.caption = Return for {0} {1}
+
 returns.beforeYouStart.title = Before you start
 returns.beforeYouStart.heading = Before you start
-returns.beforeYouStart.caption = Vaping Products Duty return
 returns.beforeYouStart.deadline = The deadline for completing this return is {0} {1}.
 returns.beforeYouStart.useThis = Use this service to submit your Vaping Products Duty return for {0} {1}.
 returns.beforeYouStart.thereAre = There are tasks to complete before you can submit the return.

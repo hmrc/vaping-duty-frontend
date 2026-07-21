@@ -17,7 +17,7 @@
 package utils
 
 import models.identifiers.PeriodKey
-import models.obligations.ObligationsResponse
+import models.obligations.{ObligationDetails, ObligationsResponse}
 import play.api.i18n.Messages
 
 import java.time.{Clock, LocalDate, Month, Year}
@@ -91,7 +91,7 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
 
   def formatPeriodDisplay(
                            periodKey: PeriodKey,
-                           obligationDetails: Seq[models.obligations.ObligationDetails]
+                           obligationDetails: Seq[ObligationDetails]
                          )(implicit messages: Messages): String = {
     obligationDetails
       .find(_.periodKey == periodKey.toString)

@@ -33,7 +33,7 @@
 
 @layout(pageTitle = titleNoForm(messages("returns.beforeYouStart.title"))) {
 
-    @caption(messages("returns.beforeYouStart.caption"))
+    @caption(messages("returns.caption", vm.returnPeriod, vm.yearOfReturn.toString))
     @h1(messages("returns.beforeYouStart.heading"))
 
     @govukWarningText(WarningText(
