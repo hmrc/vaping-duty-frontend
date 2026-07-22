@@ -72,13 +72,10 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           val view = application.injector.instanceOf[DeclarationView]
-          val periodDisplay = returnsDateUtils.formatPeriodDisplay(periodKey, obligationDataSingleOpen)
-          val parts = periodDisplay.split(" ")
-          val periodMonth = parts.head
-          val periodYear = parts.last
+          val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligationDataSingleOpen)
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(periodKey, form, periodMonth, periodYear)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(periodKey, form, periodDisplay.month, periodDisplay.year)(request, messages(application)).toString
         }
       }
 
@@ -98,15 +95,12 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
 
           val view = application.injector.instanceOf[DeclarationView]
-          val periodDisplay = returnsDateUtils.formatPeriodDisplay(periodKey, obligationDataSingleOpen)
-          val parts = periodDisplay.split(" ")
-          val periodMonth = parts.head
-          val periodYear = parts.last
+          val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligationDataSingleOpen)
 
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(periodKey, form.fill(validDeclaration), periodMonth, periodYear)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(periodKey, form.fill(validDeclaration), periodDisplay.month, periodDisplay.year)(request, messages(application)).toString
         }
       }
 
@@ -187,15 +181,12 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val boundForm = form.bind(Map("fullName" -> ""))
 
           val view = application.injector.instanceOf[DeclarationView]
-          val periodDisplay = returnsDateUtils.formatPeriodDisplay(periodKey, obligationDataSingleOpen)
-          val parts = periodDisplay.split(" ")
-          val periodMonth = parts.head
-          val periodYear = parts.last
+          val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligationDataSingleOpen)
 
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(periodKey, boundForm, periodMonth, periodYear)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(periodKey, boundForm, periodDisplay.month, periodDisplay.year)(request, messages(application)).toString
         }
       }
 
@@ -225,15 +216,12 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           ))
 
           val view = application.injector.instanceOf[DeclarationView]
-          val periodDisplay = returnsDateUtils.formatPeriodDisplay(periodKey, obligationDataSingleOpen)
-          val parts = periodDisplay.split(" ")
-          val periodMonth = parts.head
-          val periodYear = parts.last
+          val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligationDataSingleOpen)
 
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(periodKey, boundForm, periodMonth, periodYear)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(periodKey, boundForm, periodDisplay.month, periodDisplay.year)(request, messages(application)).toString
         }
       }
 

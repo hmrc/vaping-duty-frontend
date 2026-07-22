@@ -63,26 +63,20 @@ class DeclarationController @Inject()(
           case Some(value) => form.fill(value)
         }
         
-        val periodDisplay = returnsDateUtils.formatPeriodDisplay(request.periodKey, obligations)
-        val parts = periodDisplay.split(" ")
-        val periodMonth = parts.head
-        val periodYear = parts.last
+        val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
         
-        Ok(view(request.periodKey, preparedForm, periodMonth, periodYear))
+        Ok(view(request.periodKey, preparedForm, periodDisplay.month, periodDisplay.year))
       }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap { obligations =>
-        val periodDisplay = returnsDateUtils.formatPeriodDisplay(request.periodKey, obligations)
-        val parts = periodDisplay.split(" ")
-        val periodMonth = parts.head
-        val periodYear = parts.last
+        val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
         
         form.bindFromRequest().fold(
           formWithErrors =>
-            Future.successful(BadRequest(view(request.periodKey, formWithErrors, periodMonth, periodYear))),
+            Future.successful(BadRequest(view(request.periodKey, formWithErrors, periodDisplay.month, periodDisplay.year))),
 
           value =>
             Future.fromTry(request.userAnswers.set(DeclarationPage, value))
