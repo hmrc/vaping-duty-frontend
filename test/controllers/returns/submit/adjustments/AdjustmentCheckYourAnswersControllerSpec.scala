@@ -217,14 +217,12 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
       running(application) {
         val request = FakeRequest(POST, adjustmentCheckYourAnswersRoute)
-        // Note: No form data submitted - form validation should be skipped
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
 
-        // Verify that session was updated (with AddAnotherAdjustmentPage set to false)
         verify(mockSessionRepository).set(any())(any())
       }
     }
@@ -262,14 +260,12 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
       running(application) {
         val request = FakeRequest(POST, adjustmentCheckYourAnswersRoute)
-        // Note: No form data submitted - form validation should be skipped
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
 
-        // Verify that session was updated (with AddAnotherAdjustmentPage set to false)
         verify(mockSessionRepository).set(any())(any())
       }
     }
@@ -349,7 +345,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         totalAdjustment = BigDecimal(1000),
         formattedTotalAdjustment = "£1,000.00",
         hasAvailablePeriodsToAdd = false,
-        adjustmentReasonMandatory = true, // Reason is required
+        adjustmentReasonMandatory = true,
         mode = NormalMode
       )
 
@@ -390,10 +386,10 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       val mockViewModel = AdjustmentCheckYourAnswersViewModel(
         summaryCards = Seq.empty,
         hasAdjustments = true,
-        totalAdjustment = BigDecimal(100), // Below threshold
+        totalAdjustment = BigDecimal(100),
         formattedTotalAdjustment = "£100.00",
         hasAvailablePeriodsToAdd = false,
-        adjustmentReasonMandatory = false, // Reason no longer required
+        adjustmentReasonMandatory = false,
         mode = NormalMode
       )
 
@@ -422,7 +418,6 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
         
-        // Verify that the reason was removed from user answers
         verify(mockSessionRepository).set(any())(any())
       }
     }
