@@ -64,7 +64,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt)))
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
-        .thenReturn(Map(spoiltPeriodKey -> DUTY_RATE))
+        .thenReturn(Map(spoiltPeriodKey -> TEN_POUNDS_PER_10ML))
 
       val result = service.buildViewModel(
         declareSpoiltProducts = Some(true),
@@ -107,8 +107,8 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
         .thenReturn(Future.successful(Seq(obligationForSpoilt1, obligationForSpoilt2)))
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenReturn(Map(
-          spoiltPeriodKey -> DUTY_RATE,
-          spoiltPeriodKey2 -> DUTY_RATE
+          spoiltPeriodKey -> TEN_POUNDS_PER_10ML,
+          spoiltPeriodKey2 -> TEN_POUNDS_PER_10ML
         ))
 
       val result = service.buildViewModel(

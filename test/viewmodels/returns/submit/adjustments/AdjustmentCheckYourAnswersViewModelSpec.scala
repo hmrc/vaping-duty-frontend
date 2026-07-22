@@ -70,7 +70,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         returnsDateUtils
       )
 
-      val expectedHref = controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onPageLoad().url +
+      val expectedHref = controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onPageLoad(models.NormalMode).url +
         s"?period=${periodKey.value}&adjustmentPeriod=${october2027.value}"
 
       val removeAction = vm.summaryCards.head.card.actions.value.items.find(_.content == Text("Remove")).value

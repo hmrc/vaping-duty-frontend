@@ -120,7 +120,7 @@ object AdjustmentCheckYourAnswersViewModel {
     val cardActions = Seq(
       ActionItem(
         href = buildAdjustmentUrl(
-          controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onPageLoad().url,
+          controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onPageLoad(mode).url,
           currentPeriodKey,
           Some(adjustment.period)
         ),

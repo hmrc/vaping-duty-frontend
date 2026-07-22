@@ -21,6 +21,7 @@ import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrie
 import controllers.returns.PeriodKeyExtraction
 import forms.returns.adjustments.RemoveAdjustmentFormProvider
 import models.identifiers.PeriodKey
+import models.Mode
 import models.returns.ReturnsConstants
 import pages.returns.adjustments.AdjustmentListPage
 import play.api.data.Form
@@ -47,19 +48,19 @@ class RemoveAdjustmentController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriod =>
         adjustmentCheckYourAnswersService
           .buildRemoveViewModel(request.userAnswers.get(AdjustmentListPage), adjustmentPeriod, request.enrolmentVpdId)
           .map {
-            case Some(vm) => Ok(view(request.periodKey, adjustmentPeriod, form, vm))
+            case Some(vm) => Ok(view(request.periodKey, adjustmentPeriod, form, vm, mode))
             case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           }
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriod =>
         form.bindFromRequest().fold(
@@ -67,7 +68,7 @@ class RemoveAdjustmentController @Inject()(
             adjustmentCheckYourAnswersService
               .buildRemoveViewModel(request.userAnswers.get(AdjustmentListPage), adjustmentPeriod, request.enrolmentVpdId)
               .map {
-                case Some(vm) => BadRequest(view(request.periodKey, adjustmentPeriod, formWithErrors, vm))
+                case Some(vm) => BadRequest(view(request.periodKey, adjustmentPeriod, formWithErrors, vm, mode))
                 case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
               },
 
@@ -76,7 +77,7 @@ class RemoveAdjustmentController @Inject()(
               .handleRemoval(request.userAnswers, adjustmentPeriod, confirmed)
               .map { _ =>
                 Redirect(withPeriod(
-                  controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url,
+                  controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(mode).url,
                   request.periodKey
                 ))
               }

@@ -15,6 +15,7 @@
  *@
 
 @import models.identifiers.PeriodKey
+@import models.Mode
 @import play.api.mvc.Call
 @import components.{Caption, Heading, Heading2}
 @import viewmodels.returns.submit.adjustments.RemoveAdjustmentViewModel
@@ -31,11 +32,11 @@
     h2: Heading2
 )
 
-@(periodKey: PeriodKey, adjustmentPeriod: PeriodKey, form: Form[_], vm: RemoveAdjustmentViewModel)(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, adjustmentPeriod: PeriodKey, form: Form[_], vm: RemoveAdjustmentViewModel, mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("returns.removeAdjustment.title"))) {
 
-    @formHelper(action = Call("POST", s"${controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onSubmit().url}?period=${periodKey.value}&adjustmentPeriod=${adjustmentPeriod.value}"), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onSubmit(mode).url}?period=${periodKey.value}&adjustmentPeriod=${adjustmentPeriod.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

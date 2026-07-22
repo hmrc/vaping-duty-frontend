@@ -68,7 +68,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForAdjustment)))
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
-        .thenReturn(Map(adjustmentPeriodKey -> DUTY_RATE_PENCE_PER_10ML))
+        .thenReturn(Map(adjustmentPeriodKey -> TEN_POUNDS_PER_10ML))
 
       val result = service.buildViewModel(
         declareAdjustment = Some(true),
@@ -121,8 +121,8 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
         .thenReturn(Future.successful(Seq(obligationForAdjustment1, obligationForAdjustment2)))
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenReturn(Map(
-          adjustmentPeriodKey -> DUTY_RATE_PENCE_PER_10ML,
-          adjustmentPeriodKey2 -> DUTY_RATE_PENCE_PER_10ML
+          adjustmentPeriodKey -> TEN_POUNDS_PER_10ML,
+          adjustmentPeriodKey2 -> TEN_POUNDS_PER_10ML
         ))
 
       val result = service.buildViewModel(
@@ -157,9 +157,15 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
 
     "must throw RuntimeException when obligation not found for adjustment period" in {
       val nonExistentPeriodKey = PeriodKey("24ZZ")
+      val adjustmentEntry = AdjustmentEntry(
+        period = nonExistentPeriodKey,
+        adjustmentType = AdjustmentType.UnderDeclared,
+        volumeInMl = BigDecimal(1000)
+      )
+      val adjustmentList = AdjustmentList(Seq(adjustmentEntry))
 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
-        .thenReturn(Future.successful(obligationDetails))
+        .thenReturn(Future.successful(Seq.empty))
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenThrow(new RuntimeException("No obligation found for period 24ZZ"))
 
@@ -241,8 +247,6 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     )
 
   private def ml(volume: Int): BigDecimal = BigDecimal(volume)
-}
-
 
   "shouldRedirectToReasonPage" - {
 
