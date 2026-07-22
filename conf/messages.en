@@ -534,7 +534,7 @@ returns.adjustmentCheckYourAnswers.volume.change.hidden = adjustment volume
 
 returns.removeAdjustment.title = Remove adjustment
 returns.removeAdjustment.heading = Remove adjustment
-returns.removeAdjustment.caption = Over and under-declared adjustments
+returns.removeAdjustment.caption = Over or under-declared adjustments
 returns.removeAdjustment.question = Do you want to remove this adjustment?
 returns.removeAdjustment.detailsHeading = Adjustment details
 returns.removeAdjustment.month = Month
