@@ -20,7 +20,7 @@ import base.SpecBase
 import forms.returns.DeclarationFormProvider
 import models.emailverification.ErrorModel
 import models.identifiers.PeriodKey
-import models.obligations.ObligationsResponse
+import models.obligations.{ObligationDetails, ObligationsResponse}
 import models.returns.DeclarationDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -46,14 +46,14 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
     signeesEmailAddress = "john.smith@example.com"
   )
 
+  private val june2026 = PeriodKey("26AF")
+
   private val obligationDataSingleOpen: ObligationsResponse = ObligationsResponse(
-    obligation = obligations(Seq(openObligation(periodKey)))
+    obligation = obligations(Seq(openObligation(june2026)))
   )
 
-  private val obligationDetailsSingleOpen: Seq[models.obligations.ObligationDetails] = 
+  private val obligationDetailsSingleOpen: Seq[ObligationDetails] =
     obligationDataSingleOpen.obligation.map(_.obligationDetails)
-
-  private val june2026 = PeriodKey("26AF")
 
   "DeclarationController" - {
 
@@ -65,7 +65,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockObligationService.getObligationsDirectly(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
           .overrides(bind[ObligationService].toInstance(mockObligationService))
           .build()
 
@@ -89,7 +89,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockObligationService.getObligationsDirectly(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
-        val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
+        val application = applicationBuilder(returnsUserAnswers = Some(userAnswers.copy(periodKey = june2026.value)))
           .overrides(bind[ObligationService].toInstance(mockObligationService))
           .build()
 
@@ -136,7 +136,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application =
-          applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+          applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
             .overrides(
               bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
               bind[SubmitReturnService].toInstance(mockSubmitReturnService),
@@ -157,7 +157,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value must include(controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
-          redirectLocation(result).value must include(s"period=${periodKey.value}")
+          redirectLocation(result).value must include(s"period=${june2026.value}")
 
           verify(mockSessionRepository).set(any())(any())
           verify(mockSubmitReturnService).submit(any())(any())
@@ -170,7 +170,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockObligationService.getObligationsDirectly(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
           .overrides(bind[ObligationService].toInstance(mockObligationService))
           .build()
 
@@ -196,7 +196,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockObligationService.getObligationsDirectly(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
           .overrides(bind[ObligationService].toInstance(mockObligationService))
           .build()
 
@@ -216,7 +216,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           ))
 
           val view = application.injector.instanceOf[DeclarationView]
-          val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligationDataSingleOpen)
 
           val result = route(application, request).value
 
