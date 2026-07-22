@@ -203,7 +203,7 @@ class EmailVerificationServiceSpec extends SpecBase {
       }
     }
 
-    "must submit a PaperlessPreferenceSubmission with bouncedEmail set to Some(false) when successful" in new Setup {
+    "must always clear the bounced email flag (even if not set) so the manufacturer can receive emails again" in new Setup {
 
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(testSubmissionResponse)))
