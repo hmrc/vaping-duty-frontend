@@ -39,17 +39,14 @@
         messages("returns.CheckYourAnswers.title", vm.dutyDue)
 )) {
 
-    @caption(messages("returns.CheckYourAnswers.caption", vm.returnPeriod, vm.year))
-    @h1(
-        if(vm.nilReturn)
-            messages("returns.CheckYourAnswers.nilReturn.heading")
-        else
-            messages("returns.CheckYourAnswers.heading", vm.dutyDue)
-    )
+    @caption(messages("returns.caption", vm.returnPeriod, vm.year))
+    @h1(messages("returns.CheckYourAnswers.heading"))
+
+    @h2(messages("returns.CheckYourAnswers.dutyDue", vm.dutyDue))
 
     @vm.dutyRateParagraph
 
-    @h2(messages("returns.CheckYourAnswers.h2.theAmount"))
+    @p(Seq(messages("returns.CheckYourAnswers.h2.theAmount")), classes = "govuk-body-l")
 
     @list(
         Seq(

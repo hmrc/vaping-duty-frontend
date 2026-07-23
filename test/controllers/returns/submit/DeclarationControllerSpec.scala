@@ -19,6 +19,8 @@ package controllers.returns.submit
 import base.SpecBase
 import forms.returns.DeclarationFormProvider
 import models.emailverification.ErrorModel
+import models.identifiers.PeriodKey
+import models.obligations.{ObligationDetails, ObligationsResponse}
 import models.returns.DeclarationDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -28,7 +30,7 @@ import pages.returns.DeclarationPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.{ReturnsUserAnswersService, SubmitReturnService}
+import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
 import views.html.returns.submit.DeclarationView
 
 import scala.concurrent.Future
@@ -44,13 +46,28 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
     signeesEmailAddress = "john.smith@example.com"
   )
 
+  private val june2026 = PeriodKey("26AF")
+
+  private val obligationDataSingleOpen: ObligationsResponse = ObligationsResponse(
+    obligation = obligations(Seq(openObligation(june2026)))
+  )
+
+  private val obligationDetailsSingleOpen: Seq[ObligationDetails] =
+    obligationDataSingleOpen.obligation.map(_.obligationDetails)
+
   "DeclarationController" - {
 
     "onPageLoad" - {
 
       "must return OK and the correct view for a GET" in {
 
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+        val mockObligationService = mock[ObligationService]
+        when(mockObligationService.getObligationsDirectly(any())(using any()))
+          .thenReturn(Future.successful(obligationDetailsSingleOpen))
+
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
+          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .build()
 
         running(application) {
           val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
@@ -60,7 +77,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val view = application.injector.instanceOf[DeclarationView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(periodKey, form)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(june2026, form, "June", "2026")(request, messages(application)).toString
         }
       }
 
@@ -68,7 +85,13 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
         val userAnswers = returnsUserAnswers.set(DeclarationPage, validDeclaration).success.value
 
-        val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
+        val mockObligationService = mock[ObligationService]
+        when(mockObligationService.getObligationsDirectly(any())(using any()))
+          .thenReturn(Future.successful(obligationDetailsSingleOpen))
+
+        val application = applicationBuilder(returnsUserAnswers = Some(userAnswers.copy(periodKey = june2026.value)))
+          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .build()
 
         running(application) {
           val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
@@ -78,7 +101,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(periodKey, form.fill(validDeclaration))(request, messages(application)).toString
+          contentAsString(result) mustEqual view(june2026, form.fill(validDeclaration), "June", "2026")(request, messages(application)).toString
         }
       }
 
@@ -103,17 +126,21 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
         val mockSessionRepository = mock[ReturnsUserAnswersService]
         val mockSubmitReturnService = mock[SubmitReturnService]
+        val mockObligationService = mock[ObligationService]
 
         when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
         when(mockSubmitReturnService.submit(any())(any())) thenReturn Future.successful(testReturnSubmissionResponse)
         when(mockSessionRepository.clear(any(), any())(any()))
           .thenReturn(Future.successful(Right(())))
+        when(mockObligationService.getObligationsDirectly(any())(using any()))
+          .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application =
-          applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+          applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
             .overrides(
               bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-              bind[SubmitReturnService].toInstance(mockSubmitReturnService)
+              bind[SubmitReturnService].toInstance(mockSubmitReturnService),
+              bind[ObligationService].toInstance(mockObligationService)
             )
             .build()
 
@@ -130,7 +157,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value must include(controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
-          redirectLocation(result).value must include(s"period=${periodKey.value}")
+          redirectLocation(result).value must include(s"period=${june2026.value}")
 
           verify(mockSessionRepository).set(any())(any())
           verify(mockSubmitReturnService).submit(any())(any())
@@ -139,7 +166,13 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
       "must return a Bad Request and errors when invalid data is submitted" in {
 
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+        val mockObligationService = mock[ObligationService]
+        when(mockObligationService.getObligationsDirectly(any())(using any()))
+          .thenReturn(Future.successful(obligationDetailsSingleOpen))
+
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
+          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .build()
 
         running(application) {
           val request =
@@ -153,13 +186,19 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(periodKey, boundForm)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(june2026, boundForm, "June", "2026")(request, messages(application)).toString
         }
       }
 
       "must return a Bad Request and errors when invalid email is submitted" in {
 
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+        val mockObligationService = mock[ObligationService]
+        when(mockObligationService.getObligationsDirectly(any())(using any()))
+          .thenReturn(Future.successful(obligationDetailsSingleOpen))
+
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
+          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .build()
 
         running(application) {
           val request =
@@ -181,7 +220,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(periodKey, boundForm)(request, messages(application)).toString
+          contentAsString(result) mustEqual view(june2026, boundForm, "June", "2026")(request, messages(application)).toString
         }
       }
 
@@ -208,14 +247,18 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
         val mockService = mock[SubmitReturnService]
         val mockSessionRepository = mock[ReturnsUserAnswersService]
+        val mockObligationService = mock[ObligationService]
 
         when(mockService.submit(any())(any())).thenReturn(Future.successful(Left(ErrorModel(BAD_GATEWAY, "Bad gateway"))))
         when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+        when(mockObligationService.getObligationsDirectly(any())(using any()))
+          .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
           .overrides(
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-            bind[SubmitReturnService].to(mockService)
+            bind[SubmitReturnService].to(mockService),
+            bind[ObligationService].toInstance(mockObligationService)
           )
           .build()
 

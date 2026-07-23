@@ -28,8 +28,9 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.returns.{ReturnsUserAnswersService, SubmitReturnService}
+import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import views.html.returns.submit.DeclarationView
 
 import javax.inject.Inject
@@ -44,6 +45,8 @@ class DeclarationController @Inject()(
                                        returnsEnabled: ReturnsEnabledAction,
                                        formProvider: DeclarationFormProvider,
                                        submitReturnService: SubmitReturnService,
+                                       obligationService: ObligationService,
+                                       returnsDateUtils: ReturnsDateUtils,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: DeclarationView,
                                        navigator: ReturnsNavigator,
@@ -52,31 +55,38 @@ class DeclarationController @Inject()(
 
   val form: Form[DeclarationDetails] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) {
+  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
-      val preparedForm = request.userAnswers.get(DeclarationPage) match {
-        case None => form
-
-        case Some(value) => form.fill(value)
+      obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligations =>
+        val preparedForm = request.userAnswers.get(DeclarationPage) match {
+          case None => form
+          case Some(value) => form.fill(value)
+        }
+        
+        val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
+        
+        Ok(view(request.periodKey, preparedForm, periodDisplay.month, periodDisplay.year))
       }
-
-      Ok(view(request.periodKey, preparedForm))
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
-      form.bindFromRequest().fold(
+      obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap { obligations =>
+        val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
+        
+        form.bindFromRequest().fold(
           formWithErrors =>
-            Future.successful(BadRequest(view(request.periodKey, formWithErrors))),
+            Future.successful(BadRequest(view(request.periodKey, formWithErrors, periodDisplay.month, periodDisplay.year))),
 
           value =>
             Future.fromTry(request.userAnswers.set(DeclarationPage, value))
-        .flatMap { updatedAnswers =>
-          sessionRepository.set(updatedAnswers).flatMap { _ =>
-            submitAndContinue(updatedAnswers)
-          }
-        }
-    )
+              .flatMap { updatedAnswers =>
+                sessionRepository.set(updatedAnswers).flatMap { _ =>
+                  submitAndContinue(updatedAnswers)
+                }
+              }
+        )
+      }
   }
 
   private def submitAndContinue(updatedAnswers: ReturnsUserAnswers)(using request: ReturnsDataRequest[?]): Future[Result] = {

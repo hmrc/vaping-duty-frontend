@@ -17,7 +17,8 @@
 package utils
 
 import models.identifiers.PeriodKey
-import models.obligations.ObligationsResponse
+import models.obligations.{ObligationDetails, ObligationsResponse}
+import models.returns.PeriodDisplay
 import play.api.i18n.Messages
 
 import java.time.{Clock, LocalDate, Month, Year}
@@ -81,25 +82,25 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
       throw new IllegalArgumentException(s"Invalid month number: $month. Must be between 1 and 12.")
   }
 
-  def formatPeriodDisplay(
-                           periodKey: PeriodKey,
-                           obligations: ObligationsResponse
-                         )(implicit messages: Messages): String = {
+  def getPeriodDisplay(
+                        periodKey: PeriodKey,
+                        obligations: ObligationsResponse
+                      )(implicit messages: Messages): PeriodDisplay = {
     val obligationDetails = obligations.obligation.map(_.obligationDetails)
-    formatPeriodDisplay(periodKey, obligationDetails)
+    getPeriodDisplay(periodKey, obligationDetails)
   }
 
-  def formatPeriodDisplay(
-                           periodKey: PeriodKey,
-                           obligationDetails: Seq[models.obligations.ObligationDetails]
-                         )(implicit messages: Messages): String = {
+  def getPeriodDisplay(
+                        periodKey: PeriodKey,
+                        obligationDetails: Seq[ObligationDetails]
+                      )(implicit messages: Messages): PeriodDisplay = {
     obligationDetails
       .find(_.periodKey == periodKey.toString)
       .map { obligation =>
         val month = obligation.iCFromDate.getMonthValue
         val year = obligation.iCFromDate.getYear
         val monthKey = getMonthMessageKey(month)
-        s"${messages(monthKey)} $year"
+        PeriodDisplay(messages(monthKey), year.toString)
       }
       .getOrElse {
         val availableKeys = if (obligationDetails.isEmpty) {
@@ -112,5 +113,19 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
             s"Available period keys: $availableKeys"
         )
       }
+  }
+
+  def formatPeriodDisplay(
+                           periodKey: PeriodKey,
+                           obligations: ObligationsResponse
+                         )(implicit messages: Messages): String = {
+    getPeriodDisplay(periodKey, obligations).formatted
+  }
+
+  def formatPeriodDisplay(
+                           periodKey: PeriodKey,
+                           obligationDetails: Seq[ObligationDetails]
+                         )(implicit messages: Messages): String = {
+    getPeriodDisplay(periodKey, obligationDetails).formatted
   }
 }

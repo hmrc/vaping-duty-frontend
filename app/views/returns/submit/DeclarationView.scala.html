@@ -31,7 +31,7 @@
         declarationFormProvider: DeclarationFormProvider
 )
 
-@(periodKey: PeriodKey, form: Form[DeclarationDetails])(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, form: Form[DeclarationDetails], periodMonth: String, periodYear: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("returns.declaration.title"))) {
 
@@ -40,6 +40,7 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        @caption(messages("returns.caption", periodMonth, periodYear))
         @h1(messages("returns.declaration.heading"))
 
         @p(Seq(messages("returns.declaration.authorised")))
