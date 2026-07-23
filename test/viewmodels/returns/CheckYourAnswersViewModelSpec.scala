@@ -88,7 +88,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
       val adjustmentList = AdjustmentList(Seq(
         AdjustmentEntry(
           period = periodKey,
-          adjustmentType = AdjustmentType.Underdeclaration,
+          adjustmentType = AdjustmentType.UnderDeclared,
           volumeInMl = BigDecimal(500)
         )
       ))
@@ -109,7 +109,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
       val adjustmentList = AdjustmentList(Seq(
         AdjustmentEntry(
           period = periodKey,
-          adjustmentType = AdjustmentType.Overdeclaration,
+          adjustmentType = AdjustmentType.OverDeclared,
           volumeInMl = BigDecimal(500)
         )
       ))

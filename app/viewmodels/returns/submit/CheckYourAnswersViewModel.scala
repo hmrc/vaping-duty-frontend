@@ -18,7 +18,9 @@ package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
 import models.returns.{DutyRate, ReturnsUserAnswers}
+import models.returns.adjustments.AdjustmentDutyCalculator
 import pages.returns.{DeclareDutyPage, DeclareSpoiltProductsPage}
+import pages.returns.adjustments.AdjustmentListPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -52,7 +54,7 @@ object CheckYourAnswersViewModel {
     val year = userAnswers.year
       .getOrElse(throw new IllegalStateException("Return year not found in user answers"))
     
-    val nilReturn = isNilReturn(userAnswers)
+    val nilReturn = isNilReturn(userAnswers, dutyRates)
     
     val currentPeriodRate = dutyRates.getOrElse(periodKey, throw new IllegalStateException(s"No duty rate found for period $periodKey"))
     
@@ -68,17 +70,39 @@ object CheckYourAnswersViewModel {
     )
   }
 
-  private def isNilReturn(userAnswers: ReturnsUserAnswers): Boolean = {
+  private def isNilReturn(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate]): Boolean = {
     val declareDuty = userAnswers.get(DeclareDutyPage).getOrElse(false)
     val declareSpoilt = userAnswers.get(DeclareSpoiltProductsPage).getOrElse(false)
+    val adjustmentTotal = userAnswers.get(AdjustmentListPage)
+      .map(list => AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).netAdjustment)
+      .getOrElse(BigDecimal(0))
 
-    !declareDuty && !declareSpoilt
+    !declareDuty && !declareSpoilt && adjustmentTotal == 0
   }
 
-  private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey): String =
-    ReturnsSummary.calculateTotalDuty(userAnswers, dutyRates, periodKey) match {
-      case Some(totalDuty) => currencyFormat(totalDuty)
-      case None             => currencyFormat(BigDecimal(ZERO))
+  private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey): String = {
+    val declareDuty = userAnswers.get(DeclareDutyPage).getOrElse(false)
+    
+    if (declareDuty) {
+      // When duty is declared, calculate total including adjustments
+      ReturnsSummary.calculateTotalDuty(userAnswers, dutyRates, periodKey) match {
+        case Some(totalDuty) => formatDutyAmount(totalDuty)
+        case None => currencyFormat(BigDecimal(ZERO))
+      }
+    } else {
+      // When duty is not declared, show adjustment total only
+      val adjustmentTotal = userAnswers.get(AdjustmentListPage)
+        .map(list => AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).netAdjustment)
+        .getOrElse(BigDecimal(0))
+      formatDutyAmount(adjustmentTotal)
+    }
+  }
+
+  private def formatDutyAmount(amount: BigDecimal): String =
+    if (amount < 0) {
+      currencyFormat(amount.abs).replace("£", "-£")
+    } else {
+      currencyFormat(amount)
     }
 
   private def dutyRateParagraph(nilReturn: Boolean)(implicit messages: Messages): HtmlFormat.Appendable = {
