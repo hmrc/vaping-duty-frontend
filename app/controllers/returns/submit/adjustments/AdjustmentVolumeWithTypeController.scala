@@ -123,7 +123,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
                     }
                   }
                   _ <- sessionRepository.set(finalAnswers)
-                } yield Redirect(navigator.nextPage(AdjustmentListPage, mode, finalAnswers, reasonRequired))
+                } yield Redirect(navigator.nextPage(AdjustmentListPage, mode, finalAnswers))
               }
             )
           }

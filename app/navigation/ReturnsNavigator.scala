@@ -116,15 +116,7 @@ class ReturnsNavigator @Inject()(
   }
 
   private def adjustmentListPageRoutes(ua: ReturnsUserAnswers, periodKey: String, adjustmentReasonMandatory: Boolean) = {
-    val hasReason = ua.get(AdjustmentReasonPage).isDefined
-    
-    if (adjustmentReasonMandatory && !hasReason) {
-      // Reason required but missing - redirect to reason page
-      withPeriod(controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode), periodKey)
-    } else {
-      // Either reason not required, or already provided - go to CYA
-      withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode), periodKey)
-    }
+    withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode), periodKey)
   }
 
   private def addAnotherAdjustmentPageRoutes(ua: ReturnsUserAnswers, periodKey: String, adjustmentReasonMandatory: Boolean, mode: Mode) = {
