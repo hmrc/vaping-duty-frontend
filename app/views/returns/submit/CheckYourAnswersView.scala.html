@@ -22,7 +22,8 @@
         layout: templates.ReturnsLayout,
         formHelper: FormWithCSRF,
         govukButton: GovukButton,
-        govukSummaryList: GovukSummaryList,
+        govukInsetText: GovukInsetText,
+        summaryCard: SummaryCard,
         caption: Caption,
         h1: Heading,
         h2: Heading2,
@@ -36,17 +37,15 @@
     if(vm.nilReturn)
         messages("returns.CheckYourAnswers.nilReturn.heading")
     else
-        messages("returns.CheckYourAnswers.title", vm.dutyDue)
+        messages("returns.CheckYourAnswers.title", vm.formattedTotalDuty)
 )) {
 
     @caption(messages("returns.caption", vm.returnPeriod, vm.year))
     @h1(messages("returns.CheckYourAnswers.heading"))
 
-    @h2(messages("returns.CheckYourAnswers.dutyDue", vm.dutyDue))
+    @h2(messages("returns.CheckYourAnswers.dutyDue", vm.formattedTotalDuty))
 
-    @vm.dutyRateParagraph
-
-    @p(Seq(messages("returns.CheckYourAnswers.h2.theAmount")), classes = "govuk-body-l")
+    @h2(messages("returns.CheckYourAnswers.h2.theAmount"))
 
     @list(
         Seq(
@@ -60,13 +59,41 @@
 
     @vm.dutyCalculationParagraph
 
-    @govukSummaryList(vm.finalDutySummaryList)
+    @summaryCard(
+        title = vm.declareDutyCard._1,
+        summaryList = vm.declareDutyCard._2,
+        actions = vm.declareDutyCard._3
+    )
 
-    @h2(messages("returns.CheckYourAnswers.h2.dutySuspended"))
+    @summaryCard(
+        title = vm.spoiltProductsCard._1,
+        summaryList = vm.spoiltProductsCard._2,
+        actions = vm.spoiltProductsCard._3
+    )
 
-    @p(Seq(messages("returns.CheckYourAnswers.p.theseAnswers")))
+    @summaryCard(
+        title = vm.adjustmentsCard._1,
+        summaryList = vm.adjustmentsCard._2,
+        actions = vm.adjustmentsCard._3
+    )
 
-    @govukSummaryList(vm.dutySuspendedSummaryList)
+    @govukInsetText(InsetText(
+        content = HtmlContent(s"${messages("returns.CheckYourAnswers.inset.totalDuty")} <strong>${vm.formattedTotalDuty}</strong>")
+    ))
+
+    @if(vm.hasDutySuspended) {
+        @h2(messages("returns.CheckYourAnswers.h2.dutySuspended"))
+
+        @p(Seq(messages("returns.CheckYourAnswers.p.theseAnswers")))
+
+        @vm.dutySuspendedCard.map { card =>
+            @summaryCard(
+                title = card._1,
+                summaryList = card._2,
+                actions = card._3
+            )
+        }
+    }
 
     @p(Seq(messages("returns.CheckYourAnswers.p.bySubmitting")))
 

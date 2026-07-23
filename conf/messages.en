@@ -369,6 +369,30 @@ returns.CheckYourAnswers.dutySuspended.moved = Product moved
 returns.CheckYourAnswers.dutySuspended.total = Total volume
 returns.CheckYourAnswers.dutySuspended.total.nil = 0 ml
 
+returns.CheckYourAnswers.card.declareDuty.title = Declare vaping products for duty
+returns.CheckYourAnswers.card.declareDuty.change.hidden = declare vaping products for duty
+returns.CheckYourAnswers.card.declareDuty.question = Do you need to declare vaping products for duty?
+returns.CheckYourAnswers.card.declareDuty.duty = Vaping duty
+
+returns.CheckYourAnswers.card.spoilt.title = Declare any spoilt products
+returns.CheckYourAnswers.card.spoilt.change.hidden = spoilt products
+returns.CheckYourAnswers.card.spoilt.question = Do you have any spoilt vaping products to declare?
+returns.CheckYourAnswers.card.spoilt.total = Spoilt products
+
+returns.CheckYourAnswers.card.adjustments.title = Declare any over or under-declared adjustments
+returns.CheckYourAnswers.card.adjustments.change.hidden = adjustments
+returns.CheckYourAnswers.card.adjustments.question = Do you have any vaping products you need to over or under declare?
+returns.CheckYourAnswers.card.adjustments.total = Adjustments
+returns.CheckYourAnswers.card.adjustments.reason = Adjustment reason
+returns.CheckYourAnswers.card.adjustments.reason.change.hidden = adjustment reason
+
+returns.CheckYourAnswers.card.dutySuspended.title = Report suspended vaping deliveries
+returns.CheckYourAnswers.card.dutySuspended.change.hidden = duty suspended deliveries
+returns.CheckYourAnswers.card.dutySuspended.question = Have you received or moved any finished vaping products in duty suspense?
+returns.CheckYourAnswers.card.dutySuspended.declared = Duty suspense
+
+returns.CheckYourAnswers.inset.totalDuty = Your total duty to pay is
+
 returns.confirmation.title = Return submitted
 returns.confirmation.panel.title = Return submitted
 returns.confirmation.panel.yourReturn = Your return reference number is
