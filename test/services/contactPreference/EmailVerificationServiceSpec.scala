@@ -22,8 +22,9 @@ import connectors.contactPreference.{EmailVerificationConnector, SubmitPreferenc
 import models.returns.*
 import models.emailverification.*
 import models.requests.contactPreference.DataRequest
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.mvc.Results.{Ok, Redirect}
@@ -199,6 +200,27 @@ class EmailVerificationServiceSpec extends SpecBase {
         )(hc, DataRequest(FakeRequest(), vpdId, internalId, credId, userAnswers))) {
 
         _ mustBe Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
+      }
+    }
+
+    "must always clear the bounced email flag (even if not set) so the manufacturer can receive emails again" in new Setup {
+
+      when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
+        .thenReturn(Future.successful(Right(testSubmissionResponse)))
+
+      when(mockSubmissionService.submit(any(), any())).thenReturn(Future.successful(Success()))
+
+      whenReady(testService.submitVerifiedEmail(
+        emailAddress,
+        verified = true
+        )(hc, DataRequest(FakeRequest(), vpdId, internalId, credId, userAnswers))) { _ =>
+
+        val captor: ArgumentCaptor[PaperlessPreferenceSubmission] = ArgumentCaptor.forClass(classOf[PaperlessPreferenceSubmission])
+        verify(mockSubmissionService).submit(captor.capture(), any())
+
+        captor.getValue.emailAddress mustBe Some(emailAddress)
+        captor.getValue.emailVerification mustBe Some(true)
+        captor.getValue.bouncedEmail mustBe Some(false)
       }
     }
 
