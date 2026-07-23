@@ -58,15 +58,15 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
     
     val year = userAnswers.year
       .getOrElse(throw new IllegalStateException("Return year not found in user answers"))
-    
-    val nilReturn = isNilReturn(userAnswers)
+
     val hasDutySuspended = userAnswers.get(DeclareDutySuspensePage).getOrElse(false)
 
     val declareDutyAmount = calculateDeclareDutyAmount(userAnswers, dutyRate)
     val spoiltAmount = calculateSpoiltAmount(userAnswers, dutyRate)
     val adjustmentAmount = calculateAdjustmentAmount(userAnswers, dutyRate)
     val totalDuty = declareDutyAmount + spoiltAmount + adjustmentAmount
-    
+    val nilReturn = totalDuty == BigDecimal(ZERO)
+
     CheckYourAnswersViewModel(
       declareDutyCard = buildDeclareDutyCard(userAnswers, declareDutyAmount, periodKey),
       spoiltProductsCard = buildSpoiltProductsCard(userAnswers, spoiltAmount, periodKey),
@@ -80,14 +80,6 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
       returnPeriod = returnPeriod,
       year = year
     )
-  }
-
-  private def isNilReturn(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate]): Boolean = {
-    val declareDuty = userAnswers.get(DeclareDutyPage).getOrElse(false)
-    val declareSpoilt = userAnswers.get(DeclareSpoiltProductsPage).getOrElse(false)
-    val declareAdjustment = userAnswers.get(DeclareAdjustmentPage).getOrElse(false)
-
-    !declareDuty && !declareSpoilt && !declareAdjustment
   }
 
   private def calculateDeclareDutyAmount(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate): BigDecimal = {

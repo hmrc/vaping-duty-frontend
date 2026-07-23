@@ -37,49 +37,68 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
   "CheckYourAnswersViewModel" - {
 
-    "must identify a nil return when no duty, spoilt products, or adjustments are declared" in {
+    "must identify a nil return when total duty calculates is zero" in {
+      val volumeInMl = BigDecimal("1000")
+      val dutyRate = DutyRate(315)
+      val spoiltVolumes = List(SpoiltVolumeByPeriod(volumeInMl, periodKey))
+
       val userAnswers = returnsUserAnswers
-        .set(DeclareDutyPage, false).success.value
-        .set(DeclareSpoiltProductsPage, false).success.value
-        .set(DeclareAdjustmentPage, false).success.value
+        .set(DeclareDutyPage, true).success.value
+        .set(EnterDutyAmountPage, volumeInMl).success.value
+        .set(DeclareSpoiltProductsPage, true).success.value
+        .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
 
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
+      vm.totalDuty mustBe BigDecimal(0)
       vm.nilReturn mustBe true
     }
 
-    "must not identify a nil return when duty is declared" in {
+    "must identify a nil return when adjustments result in zero total" in {
+      val volumeInMl = BigDecimal("1000")
+      val overDeclaredVolume = BigDecimal("1000")
+      val dutyRate = DutyRate(315)
+
+      val adjustmentList = AdjustmentList(Seq(
+        AdjustmentEntry(periodKey, AdjustmentType.OverDeclared, overDeclaredVolume)
+      ))
+
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, true).success.value
-        .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-        .set(DeclareSpoiltProductsPage, false).success.value
-        .set(DeclareAdjustmentPage, false).success.value
+        .set(EnterDutyAmountPage, volumeInMl).success.value
+        .set(DeclareAdjustmentPage, true).success.value
+        .set(AdjustmentListPage, adjustmentList).success.value
 
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
+      vm.totalDuty mustBe BigDecimal(0)
+      vm.nilReturn mustBe true
+    }
+
+    "must not identify a nil return when total duty is non-zero" in {
+      val volumeInMl = BigDecimal("1000")
+      val dutyRate = DutyRate(315)
+
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, true).success.value
+        .set(EnterDutyAmountPage, volumeInMl).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRate, periodKey, returnsDateUtils)
+
+      vm.totalDuty must be > BigDecimal(0)
       vm.nilReturn mustBe false
     }
 
-    "must not identify a nil return when spoilt products are declared" in {
+    "must identify a nil return when nothing is declared" in {
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, false).success.value
-        .set(DeclareSpoiltProductsPage, true).success.value
+        .set(DeclareSpoiltProductsPage, false).success.value
         .set(DeclareAdjustmentPage, false).success.value
 
       val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
 
-      vm.nilReturn mustBe false
-    }
-
-    "must not identify a nil return when adjustments are declared" in {
-      val userAnswers = returnsUserAnswers
-        .set(DeclareDutyPage, false).success.value
-        .set(DeclareSpoiltProductsPage, false).success.value
-        .set(DeclareAdjustmentPage, true).success.value
-
-      val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
-
-      vm.nilReturn mustBe false
+      vm.totalDuty mustBe BigDecimal(0)
+      vm.nilReturn mustBe true
     }
 
     "must calculate total duty correctly with declare duty only" in {
