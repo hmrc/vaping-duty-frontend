@@ -108,7 +108,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must not show duty suspended card when duty suspended is not declared" in {
+    "must show duty suspended card with only question row when duty suspended is not declared" in {
 
       val mockDutyRateService = mock[DutyRateService]
 
@@ -131,9 +131,10 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         
         val content = contentAsString(result)
         
-        // Verify duty suspended section is NOT present
-        content must not include "Duty suspended summary"
-        content must not include "Report suspended vaping deliveries"
+        // Verify duty suspended card is present with question
+        content must include("Report suspended vaping deliveries")
+        // But the detail row should not be present when answer is No
+        content must not include "Duty suspended deliveries declared"
       }
     }
 

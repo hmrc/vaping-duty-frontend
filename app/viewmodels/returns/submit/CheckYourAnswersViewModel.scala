@@ -71,7 +71,7 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
       declareDutyCard = buildDeclareDutyCard(userAnswers, declareDutyAmount, periodKey),
       spoiltProductsCard = buildSpoiltProductsCard(userAnswers, spoiltAmount, periodKey),
       adjustmentsCard = buildAdjustmentsCard(userAnswers, adjustmentAmount, periodKey),
-      dutySuspendedCard = if (hasDutySuspended) Some(buildDutySuspendedCard(userAnswers, periodKey)) else None,
+      dutySuspendedCard = Some(buildDutySuspendedCard(userAnswers, periodKey)),
       totalDuty = totalDuty,
       formattedTotalDuty = currencyFormat(totalDuty),
       hasDutySuspended = hasDutySuspended,

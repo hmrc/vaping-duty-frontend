@@ -238,14 +238,59 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       actions mustBe defined
     }
 
-    "must not build duty suspended card when not declared" in {
+    "must build duty suspended card with only question row when not declared" in {
       val userAnswers = returnsUserAnswers
         .set(DeclareDutySuspensePage, false).success.value
 
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       vm.hasDutySuspended mustBe false
-      vm.dutySuspendedCard mustBe None
+      vm.dutySuspendedCard mustBe defined
+      
+      val (title, summaryList, actions) = vm.dutySuspendedCard.get
+      
+      title mustBe messages("returns.CheckYourAnswers.card.dutySuspended.title")
+      summaryList.rows.size mustBe 1 // Only question row, no detail row
+      actions mustBe defined
+    }
+
+    "must build declare duty card with only question row when not declared" in {
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, false).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
+
+      val (title, summaryList, actions) = vm.declareDutyCard
+      
+      title mustBe messages("returns.CheckYourAnswers.card.declareDuty.title")
+      summaryList.rows.size mustBe 1 // Only question row, no duty row
+      actions mustBe defined
+    }
+
+    "must build spoilt products card with only question row when not declared" in {
+      val userAnswers = returnsUserAnswers
+        .set(DeclareSpoiltProductsPage, false).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
+
+      val (title, summaryList, actions) = vm.spoiltProductsCard
+      
+      title mustBe messages("returns.CheckYourAnswers.card.spoilt.title")
+      summaryList.rows.size mustBe 1 // Only question row, no total row
+      actions mustBe defined
+    }
+
+    "must build adjustments card with only question row when not declared" in {
+      val userAnswers = returnsUserAnswers
+        .set(DeclareAdjustmentPage, false).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
+
+      val (title, summaryList, actions) = vm.adjustmentsCard
+      
+      title mustBe messages("returns.CheckYourAnswers.card.adjustments.title")
+      summaryList.rows.size mustBe 1 // Only question row, no total or reason rows
+      actions mustBe defined
     }
 
     "must show total due when DeclareDutyPage is false but adjustments exist" in {
