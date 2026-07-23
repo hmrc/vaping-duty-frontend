@@ -17,16 +17,12 @@
 package services.returns
 
 import com.google.inject.{Inject, Singleton}
-import models.{Mode, NormalMode}
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
-import models.returns.{DutyRate, ReturnsUserAnswers}
 import models.returns.adjustments.AdjustmentList
+import models.returns.{DutyRate, ReturnsUserAnswers}
 import models.{Mode, NormalMode}
-import pages.returns.adjustments.AdjustmentReasonPage
-import models.returns.{DutyRate, ReturnsUserAnswers}
-import models.returns.adjustments.AdjustmentList
-import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
+import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.ReturnsDateUtils
