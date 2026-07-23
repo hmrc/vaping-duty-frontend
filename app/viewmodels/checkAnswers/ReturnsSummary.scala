@@ -131,19 +131,38 @@ object ReturnsSummary extends CurrencyFormatter {
     ))
   }
 
+  private def formatTotalDuty(amount: BigDecimal): String =
+    if (amount < 0) {
+      currencyFormat(amount.abs).replace("£", "-£")
+    } else {
+      currencyFormat(amount)
+    }
+
   private def buildTotalDutyRow(
                                  answers: ReturnsUserAnswers,
                                  dutyRates: Map[PeriodKey, DutyRate],
                                  periodKey: PeriodKey
-  )(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclareDutyPage) match {
-      case Some(true) =>
+  )(implicit messages: Messages): Option[SummaryListRow] = {
+    val declareDuty = answers.get(DeclareDutyPage).getOrElse(false)
+    val adjustmentTotal = answers.get(AdjustmentListPage)
+      .map(list => AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).netAdjustment)
+      .getOrElse(BigDecimal(0))
+    
+    val hasAdjustments = adjustmentTotal != 0
+    
+    if (declareDuty || hasAdjustments) {
+      if (declareDuty) {
         calculateTotalDuty(answers, dutyRates, periodKey) match {
-          case Some(totalDuty) => totalDutyRow(currencyFormat(totalDuty))
-          case None             => totalDutyRow(messages("returns.CheckYourAnswers.dutySummary.total.nil"))
+          case Some(totalDuty) => totalDutyRow(formatTotalDuty(totalDuty))
+          case None => totalDutyRow(messages("returns.CheckYourAnswers.dutySummary.total.nil"))
         }
-      case _ => None
+      } else {
+        totalDutyRow(formatTotalDuty(adjustmentTotal))
+      }
+    } else {
+      None
     }
+  }
 
   private def buildAdjustmentQuestionRow(
     answers: ReturnsUserAnswers,

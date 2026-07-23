@@ -18,7 +18,9 @@ package viewmodels.returns
 
 import base.SpecBase
 import models.returns.DutyRate
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage}
+import pages.returns.adjustments.AdjustmentListPage
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 
@@ -80,6 +82,57 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       vm.nilReturn mustBe false
+    }
+
+    "must show total due when DeclareDutyPage is false but adjustments exist" in {
+      val adjustmentList = AdjustmentList(Seq(
+        AdjustmentEntry(
+          period = periodKey,
+          adjustmentType = AdjustmentType.Underdeclaration,
+          volumeInMl = BigDecimal(500)
+        )
+      ))
+      
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, false).success.value
+        .set(DeclareSpoiltProductsPage, false).success.value
+        .set(DeclareDutySuspensePage, false).success.value
+        .set(AdjustmentListPage, adjustmentList).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
+
+      vm.dutyDue mustBe "£157.50"
+      vm.nilReturn mustBe false
+    }
+
+    "must show negative total due when adjustments result in negative value" in {
+      val adjustmentList = AdjustmentList(Seq(
+        AdjustmentEntry(
+          period = periodKey,
+          adjustmentType = AdjustmentType.Overdeclaration,
+          volumeInMl = BigDecimal(500)
+        )
+      ))
+      
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, false).success.value
+        .set(AdjustmentListPage, adjustmentList).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
+
+      vm.dutyDue mustBe "-£157.50"
+    }
+
+    "must not show total due row when DeclareDutyPage is false and no adjustments" in {
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, false).success.value
+        .set(DeclareSpoiltProductsPage, false).success.value
+        .set(DeclareDutySuspensePage, false).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
+
+      vm.dutyDue mustBe "£0"
+      vm.nilReturn mustBe true
     }
   }
 }
