@@ -40,6 +40,14 @@ object TaskList {
     ).flatten
   }
 
+  private def determineDutyLink(userAnswers: ReturnsUserAnswers): Call = {
+    TaskStatusService.declareDutyTaskStatus(userAnswers) match {
+      case TaskStatus.Completed =>
+        controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad()
+      case _ =>
+        controllers.returns.submit.routes.DeclareDutyController.onPageLoad(NormalMode)
+    }
+  }
 
   private def declareDutySection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
@@ -48,7 +56,7 @@ object TaskList {
         TaskRows(
           id       = "duty-task",
           linkText = messages("returns.taskList.section.declareDuty.task1"),
-          link     = controllers.returns.submit.routes.DeclareDutyController.onPageLoad(NormalMode),
+          link     = determineDutyLink(userAnswers),
           status   = TaskStatusService.declareDutyTaskStatus(userAnswers),
           periodKey = Some(periodKey)
         ).toTaskListItem
@@ -96,6 +104,14 @@ object TaskList {
     }
   }
 
+  private def determineDutySuspendedLink(userAnswers: ReturnsUserAnswers): Call = {
+    TaskStatusService.dutySuspenseTaskStatus(userAnswers) match {
+      case TaskStatus.Completed =>
+        controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad()
+      case _ =>
+        controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(NormalMode)
+    }
+  }
 
   private def dutySuspendedSection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
@@ -104,7 +120,7 @@ object TaskList {
         TaskRows(
           id = "duty-suspended",
           linkText = messages("returns.taskList.section.dutySuspended.task1"),
-          link = controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(NormalMode),
+          link = determineDutySuspendedLink(userAnswers),
           status = TaskStatusService.dutySuspenseTaskStatus(userAnswers),
           periodKey = Some(periodKey)
         ).toTaskListItem
