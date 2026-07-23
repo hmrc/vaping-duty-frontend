@@ -17,9 +17,9 @@
 package controllers.returns.submit.adjustments
 
 import base.SpecBase
-import models.NormalMode
-import models.returns.{DutyRate, MaxVolumeResult}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
+import models.returns.{DutyRate, MaxVolumeResult}
+import models.{CheckMode, NormalMode}
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
@@ -655,8 +655,8 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
         status(result) mustEqual SEE_OTHER
 
-        import org.mockito.ArgumentCaptor
         import models.returns.ReturnsUserAnswers
+        import org.mockito.ArgumentCaptor
         val captor = ArgumentCaptor.forClass(classOf[ReturnsUserAnswers])
         verify(mockSessionRepository).set(captor.capture())(any())
         captor.getValue.get(AdjustmentReasonPage) mustBe Some("existing reason")
