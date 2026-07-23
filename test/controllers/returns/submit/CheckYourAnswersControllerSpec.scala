@@ -64,6 +64,76 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
+        
+        val content = contentAsString(result)
+        
+        // Verify summary cards are present
+        content must include("govuk-summary-card")
+        content must include("Declare vaping products for duty")
+        content must include("Declare any spoilt products")
+        content must include("Declare any over or under-declared adjustments")
+        
+        // Verify inset text with total duty
+        content must include("govuk-inset-text")
+        content must include("Your total duty to pay is")
+      }
+    }
+
+    "must show duty suspended card when duty suspended is declared" in {
+
+      val mockDutyRateService = mock[DutyRateService]
+
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+
+      val userAnswersWithDutySuspended = returnsUserAnswers
+        .set(pages.returns.DeclareDutySuspensePage, true).success.value
+
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswersWithDutySuspended))
+        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        
+        val content = contentAsString(result)
+        
+        // Verify duty suspended section is present
+        content must include("Duty suspended summary")
+        content must include("Report suspended vaping deliveries")
+      }
+    }
+
+    "must not show duty suspended card when duty suspended is not declared" in {
+
+      val mockDutyRateService = mock[DutyRateService]
+
+      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
+        .thenReturn(Future.successful(testDutyRate))
+
+      val userAnswersWithoutDutySuspended = returnsUserAnswers
+        .set(pages.returns.DeclareDutySuspensePage, false).success.value
+
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswersWithoutDutySuspended))
+        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        
+        val content = contentAsString(result)
+        
+        // Verify duty suspended section is NOT present
+        content must not include "Duty suspended summary"
+        content must not include "Report suspended vaping deliveries"
       }
     }
 
