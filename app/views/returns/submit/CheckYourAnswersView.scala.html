@@ -81,19 +81,15 @@
         content = HtmlContent(s"${messages("returns.CheckYourAnswers.inset.totalDuty")} <strong>${vm.formattedTotalDuty}</strong>")
     ))
 
-    @if(vm.hasDutySuspended) {
-        @h2(messages("returns.CheckYourAnswers.h2.dutySuspended"))
 
-        @p(Seq(messages("returns.CheckYourAnswers.p.theseAnswers")))
+    @h2(messages("returns.CheckYourAnswers.h2.dutySuspended"))
+    @p(Seq(messages("returns.CheckYourAnswers.p.theseAnswers")))
 
-        @vm.dutySuspendedCard.map { card =>
-            @summaryCard(
-                title = card._1,
-                summaryList = card._2,
-                actions = card._3
-            )
-        }
-    }
+    @summaryCard(
+        title = vm.dutySuspendedCard._1,
+        summaryList = vm.dutySuspendedCard._2,
+        actions = vm.dutySuspendedCard._3
+    )
 
     @p(Seq(messages("returns.CheckYourAnswers.p.bySubmitting")))
 

@@ -229,10 +229,9 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
 
       vm.hasDutySuspended mustBe true
-      vm.dutySuspendedCard mustBe defined
 
-      val (title, summaryList, actions) = vm.dutySuspendedCard.get
-
+      val (title, summaryList, actions) = vm.dutySuspendedCard
+      
       title mustBe messages("returns.CheckYourAnswers.card.dutySuspended.title")
       summaryList.rows.size mustBe 2
       actions mustBe defined
@@ -245,9 +244,8 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       vm.hasDutySuspended mustBe false
-      vm.dutySuspendedCard mustBe defined
       
-      val (title, summaryList, actions) = vm.dutySuspendedCard.get
+      val (title, summaryList, actions) = vm.dutySuspendedCard
       
       title mustBe messages("returns.CheckYourAnswers.card.dutySuspended.title")
       summaryList.rows.size mustBe 1 // Only question row, no detail row
