@@ -48,16 +48,6 @@
         @h1(messages("returns.CheckYourAnswers.heading"))
     }
 
-    @h2(messages("returns.CheckYourAnswers.h2.theAmount"))
-
-    @list(
-        Seq(
-            messages("returns.CheckYourAnswers.list.theVaping"),
-            messages("returns.CheckYourAnswers.list.all")
-        ), classes = "govuk-list govuk-list--bullet")
-
-    @p(Seq(messages("returns.CheckYourAnswers.p.youWillBe")))
-
     @h2(messages("returns.CheckYourAnswers.h2.finalDuty"))
 
     @vm.dutyCalculationParagraph
@@ -84,6 +74,15 @@
         content = HtmlContent(s"${messages("returns.CheckYourAnswers.inset.totalDuty")} <strong>${vm.formattedTotalDuty}</strong>")
     ))
 
+    @p(Seq(messages("returns.CheckYourAnswers.h2.theAmount")))
+
+    @list(
+        Seq(
+            messages("returns.CheckYourAnswers.list.theVaping"),
+         messages("returns.CheckYourAnswers.list.all")
+    ), classes = "govuk-list govuk-list--bullet")
+
+    @p(Seq(messages("returns.CheckYourAnswers.p.youWillBe")))
 
     @h2(messages("returns.CheckYourAnswers.h2.dutySuspended"))
     @p(Seq(messages("returns.CheckYourAnswers.p.theseAnswers")))
