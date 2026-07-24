@@ -84,13 +84,11 @@ object CheckYourAnswersViewModel {
     val declareDuty = userAnswers.get(DeclareDutyPage).getOrElse(false)
     
     if (declareDuty) {
-      // When duty is declared, calculate total including adjustments
       ReturnsSummary.calculateTotalDuty(userAnswers, dutyRates, periodKey) match {
         case Some(totalDuty) => formatDutyAmount(totalDuty)
         case None => currencyFormat(BigDecimal(ZERO))
       }
     } else {
-      // When duty is not declared, show adjustment total only
       val adjustmentTotal = userAnswers.get(AdjustmentListPage)
         .map(list => AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).netAdjustment)
         .getOrElse(BigDecimal(0))
