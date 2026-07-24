@@ -28,7 +28,7 @@
 
 @(vm: ViewPaymentsViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("payments.viewPayments.title"))) {
+@layout(pageTitle = titleNoForm(messages("payments.viewPayments.title")), fullWidth = true) {
 
     @h1(messages("payments.viewPayments.heading"))
 
