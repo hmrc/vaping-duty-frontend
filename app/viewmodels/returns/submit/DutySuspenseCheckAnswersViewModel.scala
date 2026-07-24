@@ -78,7 +78,7 @@ object DutySuspenseCheckAnswersViewModel {
     )
   }
 
-  private def buildProductReceivedRow(volumes: DutySuspenseVolumes, periodKey: PeriodKey, mode: Mode)
+  private def buildProductReceivedRow(volumes: DutySuspenseVolumes)
                                      (implicit messages: Messages): SummaryListRow = {
     SummaryListRowViewModel(
       key = "returns.dutySuspenseCheckAnswers.productReceived",
@@ -87,7 +87,7 @@ object DutySuspenseCheckAnswersViewModel {
     )
   }
 
-  private def buildProductMovedRow(volumes: DutySuspenseVolumes, periodKey: PeriodKey, mode: Mode)
+  private def buildProductMovedRow(volumes: DutySuspenseVolumes)
                                   (implicit messages: Messages): SummaryListRow = {
     SummaryListRowViewModel(
       key = "returns.dutySuspenseCheckAnswers.productMoved",
@@ -101,8 +101,8 @@ object DutySuspenseCheckAnswersViewModel {
                                          (implicit messages: Messages): SummaryList = {
     val rows = Seq(
       buildDeclareDutySuspenseRow(declareDutySuspense, periodKey, mode),
-      buildProductReceivedRow(volumes, periodKey, mode),
-      buildProductMovedRow(volumes, periodKey, mode)
+      buildProductReceivedRow(volumes),
+      buildProductMovedRow(volumes)
     )
 
     SummaryList(rows = rows)

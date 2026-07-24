@@ -46,7 +46,6 @@ case class CheckYourAnswersViewModel(
 object CheckYourAnswersViewModel extends CurrencyFormatter {
 
   private val ZERO = "0"
-  private val PLACEHOLDER_URL = "#"
 
   def apply(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
     // scalafix:off DisableSyntax.throw
@@ -117,13 +116,6 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
       case _ => BigDecimal(ZERO)
     }
   }
-
-  private def formatDutyAmount(amount: BigDecimal): String =
-    if (amount < 0) {
-      currencyFormat(amount.abs).replace("£", "-£")
-    } else {
-      currencyFormat(amount)
-    }
 
   private def buildDeclareDutyCard(
                                      userAnswers: ReturnsUserAnswers,

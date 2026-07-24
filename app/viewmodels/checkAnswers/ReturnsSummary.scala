@@ -111,18 +111,6 @@ object ReturnsSummary extends CurrencyFormatter {
       case _ => None
     }
 
-  private def buildSpoiltRow(answers: ReturnsUserAnswers, periodKey: PeriodKey)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclareDutyPage).map { answer =>
-      SummaryListRowViewModel(
-        key = "returns.CheckYourAnswers.dutySummary.spoilt",
-        value = ValueViewModel(""),
-        actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
-            .withVisuallyHiddenText(messages(""))
-        )
-      )
-    }
-
   private def totalDutyRow(value: String)(implicit messages: Messages) = {
     Option(SummaryListRowViewModel(
       key = "returns.CheckYourAnswers.dutySummary.total",

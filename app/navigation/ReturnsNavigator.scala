@@ -44,7 +44,7 @@ class ReturnsNavigator @Inject()(
     case SpoiltCheckYourAnswersPage     => ua  => addSpoiltAdjustmentPageRoutes(ua, periodKey)
     case SpoiltVolumeByPeriodPage       => _   => withPeriod(controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(NormalMode), periodKey)
     case DeclareAdjustmentPage          => ua  => declareAdjustmentQuestionPageRoutes(ua, periodKey)
-    case AdjustmentListPage             => ua  => adjustmentListPageRoutes(ua, periodKey)
+    case AdjustmentListPage             => _   => adjustmentListPageRoutes(periodKey)
     case AddAnotherAdjustmentPage       => ua  => addAnotherAdjustmentPageRoutes(ua, periodKey, adjustmentReasonMandatory, NormalMode)
     case AdjustmentReasonPage           => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage        => ua  => declareDutySuspensePageRoutes(ua, periodKey)
@@ -59,7 +59,6 @@ class ReturnsNavigator @Inject()(
     case DeclareSpoiltProductsPage  => ua => checkDeclareSpoiltProductsPageRoutes(ua, periodKey)
     case SpoiltVolumeByPeriodPage   => _  => withPeriod(controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(CheckMode), periodKey)
     case SpoiltCheckYourAnswersPage => ua => checkAddSpoiltAdjustmentPageRoutes(ua, periodKey)
-    case DeclareSpoiltProductsPage  => _  => controllers.returns.submit.routes.TaskListController.onPageLoad()
     case DeclareAdjustmentPage      => ua => checkDeclareAdjustmentPageRoutes(ua, periodKey)
     case AdjustmentListPage         => _  => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode), periodKey)
     case AddAnotherAdjustmentPage   => ua => addAnotherAdjustmentPageRoutes(ua, periodKey, adjustmentReasonMandatory, CheckMode)
@@ -139,7 +138,7 @@ class ReturnsNavigator @Inject()(
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
-  private def adjustmentListPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
+  private def adjustmentListPageRoutes(periodKey: String) = {
     withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode), periodKey)
   }
 
