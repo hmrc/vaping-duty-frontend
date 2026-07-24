@@ -16,7 +16,7 @@
 
 package viewmodels.returns.submit.spoilt
 
-import models.NormalMode
+import models.{CheckMode, Mode}
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.returns.{DutyRate, SpoiltVolumeByPeriod}
@@ -31,7 +31,8 @@ case class SpoiltCheckYourAnswersViewModel(
                                             hasSpoiltProducts: Boolean,
                                             totalSpoiltDuty: BigDecimal,
                                             formattedTotalSpoiltDuty: String,
-                                            hasAvailablePeriodsToAdd: Boolean
+                                            hasAvailablePeriodsToAdd: Boolean,
+                                            mode: Mode
                                           )
 
 object SpoiltCheckYourAnswersViewModel {
@@ -42,17 +43,18 @@ object SpoiltCheckYourAnswersViewModel {
              obligationDetails: Seq[ObligationDetails],
              periodKey: PeriodKey,
              dutyRates: Map[PeriodKey, DutyRate],
-             returnsDateUtils: ReturnsDateUtils
+             returnsDateUtils: ReturnsDateUtils,
+             mode: Mode
            )(implicit messages: Messages): SpoiltCheckYourAnswersViewModel = {
 
     val spoiltEntries = spoiltList.getOrElse(List.empty)
 
     val summaryCards = declareSpoiltProducts match {
       case Some(false) =>
-        Seq(buildNoSpoiltProductsCard(periodKey))
+        Seq(buildNoSpoiltProductsCard(periodKey, mode))
       case _ =>
         spoiltEntries.reverse.map { entry =>
-          buildSummaryCard(entry, obligationDetails, periodKey, dutyRates, returnsDateUtils)
+          buildSummaryCard(entry, obligationDetails, periodKey, dutyRates, returnsDateUtils, mode)
         }
     }
 
@@ -65,7 +67,8 @@ object SpoiltCheckYourAnswersViewModel {
       hasSpoiltProducts = spoiltEntries.nonEmpty,
       totalSpoiltDuty = totalSpoiltDuty,
       formattedTotalSpoiltDuty = CurrencyFormatter.currencyFormatWithLeadingSign(-totalSpoiltDuty),
-      hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd(obligationDetails, periodKey, spoiltList)
+      hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd(obligationDetails, periodKey, spoiltList),
+      mode = mode
     )
   }
 
@@ -90,10 +93,14 @@ object SpoiltCheckYourAnswersViewModel {
       .filterNot(ob => existingSpoiltPeriods.contains(ob.periodKey))
   }
 
-  private def buildSpoiltUrl(baseUrl: String, currentPeriod: PeriodKey, spoiltPeriod: Option[PeriodKey] = None): String = {
+  private def buildSpoiltUrl(baseUrl: String, currentPeriod: PeriodKey, spoiltPeriod: Option[PeriodKey] = None, mode: Mode): String = {
+    val modeParam = mode match {
+      case CheckMode => "&mode=CheckMode"
+      case _ => ""
+    }
     spoiltPeriod match {
-      case Some(period) => s"$baseUrl?period=${currentPeriod.value}&spoiltPeriod=${period.value}"
-      case None => s"$baseUrl?period=${currentPeriod.value}"
+      case Some(period) => s"$baseUrl?period=${currentPeriod.value}&spoiltPeriod=${period.value}$modeParam"
+      case None => s"$baseUrl?period=${currentPeriod.value}$modeParam"
     }
   }
 
@@ -102,24 +109,26 @@ object SpoiltCheckYourAnswersViewModel {
                                 obligationDetails: Seq[ObligationDetails],
                                 currentPeriodKey: PeriodKey,
                                 dutyRates: Map[PeriodKey, DutyRate],
-                                returnsDateUtils: ReturnsDateUtils
+                                returnsDateUtils: ReturnsDateUtils,
+                                mode: Mode
                               )(implicit messages: Messages): SpoiltSummaryCard = {
 
     val periodDisplay = returnsDateUtils.formatPeriodDisplay(entry.periodKey, obligationDetails)
     val dutyAmount = dutyRates.get(entry.periodKey).fold(BigDecimal(0))(_.calculateDuty(entry.volume))
 
     val rows = Seq(
-      buildDeclareSpoiltProductsRow(currentPeriodKey, declared = true),
-      buildVolumeRow(entry.volume, entry.periodKey, currentPeriodKey),
+      buildDeclareSpoiltProductsRow(currentPeriodKey, declared = true, mode),
+      buildVolumeRow(entry.volume, entry.periodKey, currentPeriodKey, mode),
       buildDutyRow(dutyAmount)
     )
 
     val cardActions = Seq(
       ActionItem(
         href = buildSpoiltUrl(
-          controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onPageLoad().url,
+          controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onPageLoad(mode).url,
           currentPeriodKey,
-          Some(entry.periodKey)
+          Some(entry.periodKey),
+          mode
         ),
         content = Text(messages("site.remove")),
         visuallyHiddenText = Some(messages("returns.spoiltCheckYourAnswers.card.remove.hidden", periodDisplay))
@@ -135,8 +144,8 @@ object SpoiltCheckYourAnswersViewModel {
     )
   }
 
-  private def buildNoSpoiltProductsCard(currentPeriodKey: PeriodKey)(implicit messages: Messages): SpoiltSummaryCard = {
-    val row = buildDeclareSpoiltProductsRow(currentPeriodKey, declared = false)
+  private def buildNoSpoiltProductsCard(currentPeriodKey: PeriodKey, mode: Mode)(implicit messages: Messages): SpoiltSummaryCard = {
+    val row = buildDeclareSpoiltProductsRow(currentPeriodKey, declared = false, mode)
 
     SpoiltSummaryCard(
       rows = Seq(row),
@@ -146,16 +155,18 @@ object SpoiltCheckYourAnswersViewModel {
     )
   }
 
-  private def buildDeclareSpoiltProductsRow(currentPeriodKey: PeriodKey, declared: Boolean)(implicit messages: Messages): SummaryListRow = {
+  private def buildDeclareSpoiltProductsRow(currentPeriodKey: PeriodKey, declared: Boolean, mode: Mode)(implicit messages: Messages): SummaryListRow = {
+    val changeMode = mode match {
+      case CheckMode => CheckMode
+      case _ => models.NormalMode
+    }
+    
     SummaryListRow(
       key = Key(content = Text(messages("returns.declareSpoiltProducts.question"))),
       value = Value(content = Text(messages(if (declared) "site.yes" else "site.no"))),
       actions = Some(Actions(items = Seq(
         ActionItem(
-          href = buildSpoiltUrl(
-            controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode).url,
-            currentPeriodKey
-          ),
+          href = s"${controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(changeMode).url}?period=${currentPeriodKey.value}",
           content = Text(messages("site.change")),
           visuallyHiddenText = Some(messages("returns.declareSpoiltProducts.change.hidden"))
         )
@@ -166,18 +177,15 @@ object SpoiltCheckYourAnswersViewModel {
   private def buildVolumeRow(
                               volume: BigDecimal,
                               spoiltPeriod: PeriodKey,
-                              currentPeriodKey: PeriodKey
+                              currentPeriodKey: PeriodKey,
+                              mode: Mode
                             )(implicit messages: Messages): SummaryListRow = {
     SummaryListRow(
       key = Key(content = Text(messages("returns.spoiltCheckYourAnswers.volume"))),
       value = Value(content = HtmlContent(s"${volume.toString} ml")),
       actions = Some(Actions(items = Seq(
         ActionItem(
-          href = buildSpoiltUrl(
-            controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad().url,
-            currentPeriodKey,
-            Some(spoiltPeriod)
-          ),
+          href = s"${controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad(mode).url}?period=${currentPeriodKey.value}&spoiltPeriod=${spoiltPeriod.value}",
           content = Text(messages("site.change")),
           visuallyHiddenText = Some(messages("returns.spoiltCheckYourAnswers.volume.change.hidden"))
         )

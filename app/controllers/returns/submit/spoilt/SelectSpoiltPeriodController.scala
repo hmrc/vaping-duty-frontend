@@ -18,6 +18,7 @@ package controllers.returns.submit.spoilt
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import models.{Mode, NormalMode}
 import pages.returns.SpoiltVolumeByPeriodPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -42,12 +43,12 @@ class SelectSpoiltPeriodController @Inject()(
   view: SelectSpoiltPeriodView
 )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(year: Option[Int]): Action[AnyContent] =
+  def onPageLoad(year: Option[Int], mode: Mode = NormalMode): Action[AnyContent] =
     (identify andThen returnsEnabledAction andThen getData andThen requireData).async { implicit request =>
 
       obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligationDetails =>
         val spoiltList = request.userAnswers.get(SpoiltVolumeByPeriodPage)
-        val viewModel = SelectSpoiltPeriodViewModel(obligationDetails, year, request.periodKey, spoiltList, returnsDateUtils)
+        val viewModel = SelectSpoiltPeriodViewModel(obligationDetails, year, request.periodKey, spoiltList, returnsDateUtils, mode)
         Ok(view(viewModel))
       }.recover {
         case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

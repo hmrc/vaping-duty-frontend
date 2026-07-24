@@ -17,6 +17,7 @@
 package services.returns
 
 import com.google.inject.{Inject, Singleton}
+import models.Mode
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.returns.{DutyRate, ReturnsUserAnswers, SpoiltVolumeByPeriod}
@@ -41,7 +42,8 @@ class SpoiltCheckYourAnswersService @Inject()(
                       declareSpoiltProducts: Option[Boolean],
                       spoiltList: Option[List[SpoiltVolumeByPeriod]],
                       periodKey: PeriodKey,
-                      vpdId: VpdId
+                      vpdId: VpdId,
+                      mode: Mode
                     )(using HeaderCarrier, Messages): Future[SpoiltCheckYourAnswersViewModel] = {
     obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
       val dutyRatesMap = getDutyRatesForSpoiltEntries(spoiltList, obligationDetails)
@@ -51,7 +53,8 @@ class SpoiltCheckYourAnswersService @Inject()(
         obligationDetails,
         periodKey,
         dutyRatesMap,
-        returnsDateUtils
+        returnsDateUtils,
+        mode
       )
     }
   }

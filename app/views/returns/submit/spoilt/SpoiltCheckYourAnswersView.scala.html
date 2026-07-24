@@ -29,7 +29,7 @@
     h1: Heading
 )
 
-@(periodKey: PeriodKey, viewModel: SpoiltCheckYourAnswersViewModel, form: Form[_])(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, viewModel: SpoiltCheckYourAnswersViewModel, form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form,
     if(viewModel.hasSpoiltProducts)
@@ -38,7 +38,7 @@
         messages("returns.spoiltCheckYourAnswers.noSpoiltProducts.heading")
 )) {
 
-    @formHelper(action = Call("POST", s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onSubmit(mode).url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

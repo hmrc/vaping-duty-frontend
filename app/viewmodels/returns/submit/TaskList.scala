@@ -82,7 +82,7 @@ object TaskList {
 
     (spoiltList, declareSpoilt) match {
       case (list, declaration) if list.nonEmpty || declaration.nonEmpty =>
-        controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad()
+        controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(NormalMode)
       case _ =>
         controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode)
     }

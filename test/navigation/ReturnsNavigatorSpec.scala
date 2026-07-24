@@ -243,8 +243,12 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareDutySuspensePage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from DeclareSpoiltProductsPage to TaskList" in {
-        navigator.nextPage(DeclareSpoiltProductsPage, CheckMode, returnsUserAnswers) mustBe controllers.returns.submit.routes.TaskListController.onPageLoad()
+      "must go from DeclareSpoiltProductsPage to SpoiltCheckYourAnswers in CheckMode" in {
+        navigator.nextPage(DeclareSpoiltProductsPage, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
+      }
+
+      "must go from SpoiltVolumeByPeriodPage to SpoiltCheckYourAnswers in CheckMode" in {
+        navigator.nextPage(SpoiltVolumeByPeriodPage, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
       }
 
       "must go from DeclareAdjustmentPage to SelectAdjustmentPeriodPage (mini CYA)" in {
