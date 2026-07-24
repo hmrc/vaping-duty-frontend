@@ -91,26 +91,10 @@ class SpoiltCheckYourAnswersController @Inject()(
                       .map(vm => BadRequest(view(request.periodKey, vm, formWithErrors, mode))),
 
                   value =>
-                    mode match {
-                      case CheckMode =>
-                        // In CheckMode, if "Yes" continue to add another, if "No" go back to main CYA
-                        if (value) {
-                          // User wants to add another - continue with CheckMode flow
-                          for {
-                            updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltCheckYourAnswersPage, value))
-                            _              <- sessionRepository.set(updatedAnswers)
-                          } yield Redirect(navigator.nextPage(SpoiltCheckYourAnswersPage, CheckMode, updatedAnswers))
-                        } else {
-                          // User doesn't want to add another - go back to main CYA
-                          Future.successful(Redirect(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url + s"?period=${request.periodKey.value}"))
-                        }
-                      case NormalMode =>
-                        // In NormalMode, continue with normal navigation
-                        for {
-                          updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltCheckYourAnswersPage, value))
-                          _              <- sessionRepository.set(updatedAnswers)
-                        } yield Redirect(navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, updatedAnswers))
-                    }
+                    for {
+                      updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltCheckYourAnswersPage, value))
+                      _ <- sessionRepository.set(updatedAnswers)
+                    } yield Redirect(navigator.nextPage(SpoiltCheckYourAnswersPage, mode, updatedAnswers))
                 )
             }
       }
@@ -124,9 +108,8 @@ class SpoiltCheckYourAnswersController @Inject()(
       case NormalMode =>
         for {
           updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltCheckYourAnswersPage, false))
-          _              <- sessionRepository.set(updatedAnswers)
+          _ <- sessionRepository.set(updatedAnswers)
         } yield Redirect(navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, updatedAnswers))
     }
   }
-
 }
