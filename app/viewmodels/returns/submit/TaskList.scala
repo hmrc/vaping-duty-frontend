@@ -70,7 +70,7 @@ object TaskList {
 
     (adjustmentList, declareAdjustment) match {
       case (list, declaration) if list.nonEmpty || declaration.nonEmpty =>
-        controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad()
+        controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode)
       case _ =>
         controllers.returns.submit.adjustments.routes.DeclareAdjustmentQuestionController.onPageLoad(NormalMode)
     }

@@ -59,9 +59,9 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
 
     val hasDutySuspended = userAnswers.get(DeclareDutySuspensePage).getOrElse(false)
 
-    val declareDutyAmount = calculateDeclareDutyAmount(userAnswers, dutyRate)
-    val spoiltAmount = calculateSpoiltAmount(userAnswers, dutyRate)
-    val adjustmentAmount = calculateAdjustmentAmount(userAnswers, dutyRate)
+    val declareDutyAmount = calculateDeclareDutyAmount(userAnswers, dutyRates(periodKey))
+    val spoiltAmount = calculateSpoiltAmount(userAnswers, dutyRates)
+    val adjustmentAmount = calculateAdjustmentAmount(userAnswers, dutyRates)
     val totalDuty = declareDutyAmount + spoiltAmount + adjustmentAmount
     val nilReturn = totalDuty == BigDecimal(ZERO)
 
@@ -73,7 +73,7 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
       totalDuty = totalDuty,
       formattedTotalDuty = currencyFormat(totalDuty),
       hasDutySuspended = hasDutySuspended,
-      dutyCalculationParagraph = dutyCalculationParagraph(dutyRate),
+      dutyCalculationParagraph = dutyCalculationParagraph(dutyRates(periodKey)),
       nilReturn = nilReturn,
       returnPeriod = returnPeriod,
       year = year
@@ -91,26 +91,27 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
     }
   }
 
-  private def calculateSpoiltAmount(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate): BigDecimal = {
+  private def calculateSpoiltAmount(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate]): BigDecimal = {
     userAnswers.get(DeclareSpoiltProductsPage) match {
       case Some(true) =>
-        val spoiltList = userAnswers.get(SpoiltVolumeByPeriodPage).map(_.map(_.volume)).getOrElse(List.empty)
-        -spoiltList.map(entry => dutyRate.calculateDuty(entry)).sum
+        val spoiltList = userAnswers.get(SpoiltVolumeByPeriodPage).getOrElse(List.empty)
+       
+        -spoiltList.map(entry => dutyRates(entry.periodKey).calculateDuty(entry.volume)).sum
       case _ => BigDecimal(ZERO)
     }
   }
 
-  private def calculateAdjustmentAmount(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate): BigDecimal = {
+  private def calculateAdjustmentAmount(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate]): BigDecimal = {
     userAnswers.get(DeclareAdjustmentPage) match {
       case Some(true) =>
         val adjustmentList = userAnswers.get(AdjustmentListPage).map(_.adjustments).getOrElse(Seq.empty)
         val underDeclared = adjustmentList
           .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
-          .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+          .map(adj => dutyRates(adj.period).calculateDuty(adj.volumeInMl))
           .sum
         val overDeclared = adjustmentList
           .filter(_.adjustmentType == AdjustmentType.OverDeclared)
-          .map(adj => dutyRate.calculateDuty(adj.volumeInMl))
+          .map(adj => dutyRates(adj.period).calculateDuty(adj.volumeInMl))
           .sum
         underDeclared - overDeclared
       case _ => BigDecimal(ZERO)
