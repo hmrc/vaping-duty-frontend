@@ -34,12 +34,12 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
   private val returnsDateUtils = new ReturnsDateUtils(clock)
   implicit val messages: Messages = messages(applicationBuilder(None).build())
-
+  val dutyRates = Map(periodKey -> testDutyRate)
   "CheckYourAnswersViewModel" - {
 
     "must identify a nil return when total duty calculates is zero" in {
       val volumeInMl = BigDecimal("1000")
-      val dutyRate = DutyRate(315)
+      
       val spoiltVolumes = List(SpoiltVolumeByPeriod(volumeInMl, periodKey))
 
       val userAnswers = returnsUserAnswers
@@ -57,7 +57,6 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
     "must identify a nil return when adjustments result in zero total" in {
       val volumeInMl = BigDecimal("1000")
       val overDeclaredVolume = BigDecimal("1000")
-      val dutyRate = DutyRate(315)
 
       val adjustmentList = AdjustmentList(Seq(
         AdjustmentEntry(periodKey, AdjustmentType.OverDeclared, overDeclaredVolume)
@@ -77,13 +76,12 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
     "must not identify a nil return when total duty is non-zero" in {
       val volumeInMl = BigDecimal("1000")
-      val dutyRate = DutyRate(315)
 
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, true).success.value
         .set(EnterDutyAmountPage, volumeInMl).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRate, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       vm.totalDuty must be > BigDecimal(0)
       vm.nilReturn mustBe false
@@ -95,7 +93,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareSpoiltProductsPage, false).success.value
         .set(DeclareAdjustmentPage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       vm.totalDuty mustBe BigDecimal(0)
       vm.nilReturn mustBe true
@@ -103,14 +101,13 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
     "must calculate total duty correctly with declare duty only" in {
       val volumeInMl = BigDecimal("1000")
-      val dutyRate = DutyRate(315)
-      val expectedDuty = dutyRate.calculateDuty(volumeInMl)
+      val expectedDuty = dutyRates(periodKey).calculateDuty(volumeInMl)
 
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, true).success.value
         .set(EnterDutyAmountPage, volumeInMl).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRate, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       vm.totalDuty mustBe expectedDuty
       vm.formattedTotalDuty mustBe currencyFormat(expectedDuty)
@@ -119,9 +116,9 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
     "must calculate total duty correctly with declare duty and spoilt products" in {
       val volumeInMl = BigDecimal("1000")
       val spoiltVolume = BigDecimal("100")
-      val dutyRate = DutyRate(315)
-      val declareDuty = dutyRate.calculateDuty(volumeInMl)
-      val spoiltDuty = dutyRate.calculateDuty(spoiltVolume)
+      val dutyRate = dutyRates
+      val declareDuty = dutyRates(periodKey).calculateDuty(volumeInMl)
+      val spoiltDuty = dutyRate(periodKey).calculateDuty(spoiltVolume)
       val expectedTotal = declareDuty - spoiltDuty
 
       val spoiltVolumes = List(SpoiltVolumeByPeriod(spoiltVolume, periodKey))
@@ -132,7 +129,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareSpoiltProductsPage, true).success.value
         .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRate, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       vm.totalDuty mustBe expectedTotal
       vm.formattedTotalDuty mustBe currencyFormat(expectedTotal)
@@ -142,11 +139,10 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val volumeInMl = BigDecimal("1000")
       val underDeclaredVolume = BigDecimal("200")
       val overDeclaredVolume = BigDecimal("50")
-      val dutyRate = DutyRate(315)
 
-      val declareDuty = dutyRate.calculateDuty(volumeInMl)
-      val underDeclaredDuty = dutyRate.calculateDuty(underDeclaredVolume)
-      val overDeclaredDuty = dutyRate.calculateDuty(overDeclaredVolume)
+      val declareDuty = dutyRates(periodKey).calculateDuty(volumeInMl)
+      val underDeclaredDuty = dutyRates(periodKey).calculateDuty(underDeclaredVolume)
+      val overDeclaredDuty = dutyRates(periodKey).calculateDuty(overDeclaredVolume)
       val expectedTotal = declareDuty + underDeclaredDuty - overDeclaredDuty
 
       val adjustmentList = AdjustmentList(Seq(
@@ -160,7 +156,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareAdjustmentPage, true).success.value
         .set(AdjustmentListPage, adjustmentList).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRate, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       vm.totalDuty mustBe expectedTotal
       vm.formattedTotalDuty mustBe currencyFormat(expectedTotal)
@@ -172,7 +168,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareDutyPage, true).success.value
         .set(EnterDutyAmountPage, volumeInMl).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       val (title, summaryList, actions) = vm.declareDutyCard
 
@@ -190,7 +186,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareSpoiltProductsPage, true).success.value
         .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       val (title, summaryList, actions) = vm.spoiltProductsCard
 
@@ -209,7 +205,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(AdjustmentListPage, adjustmentList).success.value
         .set(AdjustmentReasonPage, "Test reason").success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       val (title, summaryList, actions) = vm.adjustmentsCard
 
@@ -226,7 +222,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val userAnswers = returnsUserAnswers
         .set(DeclareDutySuspensePage, true).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       vm.hasDutySuspended mustBe true
 
@@ -248,7 +244,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val (title, summaryList, actions) = vm.dutySuspendedCard
       
       title mustBe messages("returns.CheckYourAnswers.card.dutySuspended.title")
-      summaryList.rows.size mustBe 1 // Only question row, no detail row
+      summaryList.rows.size mustBe 1
       actions mustBe defined
     }
 
@@ -256,12 +252,12 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       val (title, summaryList, actions) = vm.declareDutyCard
       
       title mustBe messages("returns.CheckYourAnswers.card.declareDuty.title")
-      summaryList.rows.size mustBe 1 // Only question row, no duty row
+      summaryList.rows.size mustBe 1
       actions mustBe defined
     }
 
@@ -269,7 +265,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val userAnswers = returnsUserAnswers
         .set(DeclareSpoiltProductsPage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       val (title, summaryList, actions) = vm.spoiltProductsCard
       
@@ -282,7 +278,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val userAnswers = returnsUserAnswers
         .set(DeclareAdjustmentPage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, DutyRate(315), periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
       val (title, summaryList, actions) = vm.adjustmentsCard
       
@@ -304,11 +300,12 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareDutyPage, false).success.value
         .set(DeclareSpoiltProductsPage, false).success.value
         .set(DeclareDutySuspensePage, false).success.value
+        .set(DeclareAdjustmentPage, true).success.value
         .set(AdjustmentListPage, adjustmentList).success.value
 
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
-      vm.dutyDue mustBe "£157.50"
+      vm.formattedTotalDuty mustBe "£157.50"
       vm.nilReturn mustBe false
     }
 
@@ -323,22 +320,24 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, false).success.value
+        .set(DeclareAdjustmentPage, true).success.value
         .set(AdjustmentListPage, adjustmentList).success.value
 
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
-      vm.dutyDue mustBe "-£157.50"
+      vm.formattedTotalDuty mustBe "-£157.50"
     }
 
     "must not show total due row when DeclareDutyPage is false and no adjustments" in {
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, false).success.value
         .set(DeclareSpoiltProductsPage, false).success.value
+        .set(DeclareAdjustmentPage, false).success.value
         .set(DeclareDutySuspensePage, false).success.value
 
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
 
-      vm.dutyDue mustBe "£0"
+      vm.formattedTotalDuty mustBe "£0"
       vm.nilReturn mustBe true
     }
   }

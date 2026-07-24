@@ -23,7 +23,7 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.DutyRateService
+import services.returns.{DutyRateService, ObligationService}
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
@@ -37,7 +37,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
     "must return OK and the correct view for a GET" in {
 
       val mockDutyRateService = mock[DutyRateService]
-      val mockObligationService = mock[services.returns.ObligationService]
+      val mockObligationService = mock[ObligationService]
 
       when(mockObligationService.getObligationsDirectly(any())(using any()))
         .thenReturn(Future.successful(Seq.empty))
@@ -82,15 +82,21 @@ class CheckYourAnswersControllerSpec extends SpecBase {
     "must show duty suspended card when duty suspended is declared" in {
 
       val mockDutyRateService = mock[DutyRateService]
+      val mockObligationService = mock[ObligationService]
 
-      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
-        .thenReturn(Future.successful(testDutyRate))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(Seq(openObligation(periodKey))))
+
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(periodKey -> testDutyRate))
 
       val userAnswersWithDutySuspended = returnsUserAnswers
         .set(pages.returns.DeclareDutySuspensePage, true).success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswersWithDutySuspended))
-        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
+        .overrides(bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[ObligationService].toInstance(mockObligationService)
+        )
         .build()
 
       running(application) {
@@ -104,22 +110,31 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         
         // Verify duty suspended section is present
         content must include("Duty suspended summary")
-        content must include("Report suspended vaping deliveries")
+        content must include("Report duty suspended vaping deliveries")
       }
     }
 
     "must show duty suspended card with only question row when duty suspended is not declared" in {
 
       val mockDutyRateService = mock[DutyRateService]
+      val mockObligationService = mock[ObligationService]
 
-      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
-        .thenReturn(Future.successful(testDutyRate))
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(Seq.empty))
+
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(periodKey -> testDutyRate))
 
       val userAnswersWithoutDutySuspended = returnsUserAnswers
         .set(pages.returns.DeclareDutySuspensePage, false).success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswersWithoutDutySuspended))
-        .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
+        .overrides(
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[ObligationService].toInstance(mockObligationService)
+        )
+
+
         .build()
 
       running(application) {
@@ -132,7 +147,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val content = contentAsString(result)
         
         // Verify duty suspended card is present with question
-        content must include("Report suspended vaping deliveries")
+        content must include("Report duty suspended vaping deliveries")
         // But the detail row should not be present when answer is No
         content must not include "Duty suspended deliveries declared"
       }
@@ -141,7 +156,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
     "must fail when obligation service fails" in {
 
       val mockDutyRateService = mock[DutyRateService]
-      val mockObligationService = mock[services.returns.ObligationService]
+      val mockObligationService = mock[ObligationService]
 
       when(mockObligationService.getObligationsDirectly(any())(using any()))
         .thenReturn(Future.failed(RuntimeException("Obligation service failed")))
@@ -152,7 +167,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(
           bind[DutyRateService].toInstance(mockDutyRateService),
-          bind[services.returns.ObligationService].toInstance(mockObligationService)
+          bind[ObligationService].toInstance(mockObligationService)
         )
         .build()
 

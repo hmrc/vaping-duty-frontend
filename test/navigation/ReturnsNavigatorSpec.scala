@@ -168,7 +168,7 @@ class ReturnsNavigatorSpec extends SpecBase {
         val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
 
         navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, adjustmentReasonMandatory = true)
-          .url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=$periodKey"
+          .url mustBe s"${controllers.returns.submit.adjustments.routes.AdjustmentReasonController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
       "must go from AddAnotherAdjustmentPage to TaskList when adjustmentReasonMandatory is false" in {
@@ -264,7 +264,7 @@ class ReturnsNavigatorSpec extends SpecBase {
         val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
 
         navigator.nextPage(AddAnotherAdjustmentPage, CheckMode, ua, adjustmentReasonMandatory = true)
-          .url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(CheckMode).url}?period=$periodKey"
+          .url mustBe s"${controllers.returns.submit.adjustments.routes.AdjustmentReasonController.onPageLoad(CheckMode).url}?period=$periodKey"
       }
 
       "must go from AddAnotherAdjustmentPage to CheckYourAnswers when adjustmentReasonMandatory is false in CheckMode" in {
