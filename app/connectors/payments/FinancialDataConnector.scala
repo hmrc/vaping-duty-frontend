@@ -18,7 +18,7 @@ package connectors.payments
 
 import config.FrontendAppConfig
 import models.identifiers.VpdId
-import models.payments.OutstandingPayment
+import models.payments.PaymentsResponse
 import play.api.Logging
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -34,16 +34,16 @@ class FinancialDataConnector @Inject()(
   extends HttpReadsInstances
   with Logging {
 
-  private val parsingError = "Parsing failed for outstanding payments response"
+  private val parsingError = "Parsing failed for payments response"
 
-  def getOutstandingPayments(vpdId: VpdId)
-    (using HeaderCarrier): Future[Seq[OutstandingPayment]] =
+  def getPayments(vpdId: VpdId)
+    (using HeaderCarrier): Future[PaymentsResponse] =
     httpClient
-      .get(url"${config.getOutstandingPaymentsUrl(vpdId)}")
+      .get(url"${config.getPaymentsUrl(vpdId)}")
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .recoverWith { case e: Exception =>
-        logger.warn(s"Exception while getting outstanding payments: ${e.getMessage}")
-        Future.failed(InternalServerException("Failed to get outstanding payments"))
+        logger.warn(s"Exception while getting payments: ${e.getMessage}")
+        Future.failed(InternalServerException("Failed to get payments"))
       }
       .flatMap(logHttpErrors)
       .flatMap(parseJson)
@@ -52,14 +52,14 @@ class FinancialDataConnector @Inject()(
     response match {
       case Right(response) => Future.successful(response)
       case Left(error) =>
-        logger.warn(s"Unexpected response from outstanding payments API. Status: ${error.statusCode}")
-        Future.failed(InternalServerException("Failed to get outstanding payments"))
+        logger.warn(s"Unexpected response from payments API. Status: ${error.statusCode}")
+        Future.failed(InternalServerException("Failed to get payments"))
     }
   }
 
   private def parseJson(response: HttpResponse) = {
     Try {
-      response.json.as[Seq[OutstandingPayment]]
+      response.json.as[PaymentsResponse]
     } match {
       case Success(payments) => Future.successful(payments)
       case Failure(_) =>

@@ -19,12 +19,11 @@ package connectors.payments
 import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import data.TestData
-import models.payments.OutstandingPayment
+import models.payments.PaymentsResponse
 import play.api.Application
 import play.api.http.Status.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.InternalServerException
-import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
 import util.WireMockHelper
 
 class FinancialDataConnectorISpec extends ISpecBase with WireMockHelper with TestData {
@@ -34,27 +33,29 @@ class FinancialDataConnectorISpec extends ISpecBase with WireMockHelper with Tes
       "microservice.services.vaping-duty-finance.port" -> server.port
     ).build()
 
-  private val url            = "/vaping-duty-finance/financial-data/outstanding-payments"
+  private val url            = "/vaping-duty-finance/financial-data/payments"
   private lazy val connector = application.injector.instanceOf[FinancialDataConnector]
 
-  private val testPayment = OutstandingPayment(
-    chargeReference = "VPD38270541977",
-    period = "December 2026",
-    amountDue = BigDecimal("330000.00"),
-    dueDate = "2026-12-15",
-    status = PaymentStatus.Due
-  )
+  "getPayments must" - {
 
-  "getOutstandingPayments must" - {
-
-    "successfully fetch outstanding payments" in {
+    "successfully fetch payments" in {
       server.stubFor(
-        get(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(Seq(testPayment)).toString))
+        get(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(testPaymentsResponse).toString))
       )
 
-      val result = connector.getOutstandingPayments(vpdId).futureValue
+      val result = connector.getPayments(vpdId).futureValue
 
-      result mustBe Seq(testPayment)
+      result mustBe testPaymentsResponse
+    }
+
+    "successfully fetch an entirely empty payments response" in {
+      server.stubFor(
+        get(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(PaymentsResponse.empty).toString))
+      )
+
+      val result = connector.getPayments(vpdId).futureValue
+
+      result mustBe PaymentsResponse.empty
     }
 
     "fail when invalid JSON is returned" in {
@@ -62,7 +63,7 @@ class FinancialDataConnectorISpec extends ISpecBase with WireMockHelper with Tes
         get(url).willReturn(aResponse().withStatus(OK).withBody("invalid json"))
       )
 
-      val result = connector.getOutstandingPayments(vpdId)
+      val result = connector.getPayments(vpdId)
 
       whenReady(result.failed) { exception =>
         exception mustBe an[InternalServerException]
@@ -75,11 +76,11 @@ class FinancialDataConnectorISpec extends ISpecBase with WireMockHelper with Tes
         get(url).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
       )
 
-      val result = connector.getOutstandingPayments(vpdId)
+      val result = connector.getPayments(vpdId)
 
       whenReady(result.failed) { exception =>
         exception mustBe an[InternalServerException]
-        exception.getMessage must include("Failed to get outstanding payments")
+        exception.getMessage must include("Failed to get payments")
       }
     }
   }

@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package services.payments
+package models.payments
 
-import connectors.payments.FinancialDataConnector
-import models.identifiers.VpdId
-import models.payments.PaymentsResponse
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.libs.json.{Json, OFormat}
 
-import javax.inject.Inject
-import scala.concurrent.Future
+final case class PaymentsResponse(
+  outstanding: Seq[OutstandingPayment],
+  unallocated: Seq[UnallocatedPayment],
+  cleared: Seq[ClearedPayment]
+)
 
-class FinancialDataService @Inject()(
-  connector: FinancialDataConnector
-) {
+object PaymentsResponse {
+  val empty: PaymentsResponse = PaymentsResponse(Seq.empty, Seq.empty, Seq.empty)
 
-  def getPayments(vpdId: VpdId)(using HeaderCarrier): Future[PaymentsResponse] =
-    connector.getPayments(vpdId)
+  implicit val format: OFormat[PaymentsResponse] = Json.format[PaymentsResponse]
 }

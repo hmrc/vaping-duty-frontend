@@ -102,7 +102,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def getReturnUrl(vpdReference: VpdId, periodKey: PeriodKey): String             = s"$returnsBaseUrl/vpd-return/$periodKey/$vpdReference"
 
   private val financeBaseUrl                                      = s"$financeHost/vaping-duty-finance"
-  def getOutstandingPaymentsUrl(vpdId: VpdId): String            = s"$financeBaseUrl/financial-data/outstanding-payments"
+  def getPaymentsUrl(vpdId: VpdId): String                       = s"$financeBaseUrl/financial-data/payments"
 
   val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/confirm-email-address"
   val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"
@@ -131,4 +131,16 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     s"$stubsBaseUrl"
   def setCustomObligationsUrl(vpdId: VpdId): String =
     s"$stubsBaseUrl/$vpdId/custom"
+
+  // Test-only endpoints for financial data management
+  private val financialDataStubsBaseUrl = s"$stubsHost/test-only/financial-data"
+
+  def setFinancialDataScenarioUrl(vpdId: VpdId, scenario: String): String =
+    s"$financialDataStubsBaseUrl/$vpdId/scenario/$scenario"
+  def clearVpdIdFinancialDataUrl(vpdId: VpdId): String =
+    s"$financialDataStubsBaseUrl/$vpdId/clear"
+  def clearAllFinancialDataUrl: String =
+    s"$financialDataStubsBaseUrl/clear-all"
+  def setCustomFinancialDataUrl(vpdId: VpdId): String =
+    s"$financialDataStubsBaseUrl/$vpdId/custom"
 }

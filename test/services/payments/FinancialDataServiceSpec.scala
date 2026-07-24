@@ -18,46 +18,37 @@ package services.payments
 
 import base.SpecBase
 import connectors.payments.FinancialDataConnector
-import models.payments.OutstandingPayment
+import models.payments.PaymentsResponse
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar.mock
-import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
 
 import scala.concurrent.Future
 
 class FinancialDataServiceSpec extends SpecBase {
 
-  val testPayment = OutstandingPayment(
-    chargeReference = "VPD38270541977",
-    period = "December 2026",
-    amountDue = BigDecimal("330000.00"),
-    dueDate = "2026-12-15",
-    status = PaymentStatus.Due
-  )
-
-  "getOutstandingPayments" - {
+  "getPayments" - {
     "must return payments from the connector" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
 
-      when(mockConnector.getOutstandingPayments(eqTo(vpdId))(using any()))
-        .thenReturn(Future.successful(Seq(testPayment)))
+      when(mockConnector.getPayments(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(testPaymentsResponse))
 
-      whenReady(service.getOutstandingPayments(vpdId)) { result =>
-        result mustBe Seq(testPayment)
+      whenReady(service.getPayments(vpdId)) { result =>
+        result mustBe testPaymentsResponse
       }
     }
 
-    "must return empty sequence when connector returns empty" in {
+    "must return empty sections when connector returns nothing" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
 
-      when(mockConnector.getOutstandingPayments(eqTo(vpdId))(using any()))
-        .thenReturn(Future.successful(Seq.empty))
+      when(mockConnector.getPayments(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(PaymentsResponse.empty))
 
-      whenReady(service.getOutstandingPayments(vpdId)) { result =>
-        result mustBe Seq.empty
+      whenReady(service.getPayments(vpdId)) { result =>
+        result mustBe PaymentsResponse.empty
       }
     }
 
@@ -65,10 +56,10 @@ class FinancialDataServiceSpec extends SpecBase {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
 
-      when(mockConnector.getOutstandingPayments(eqTo(vpdId))(using any()))
+      when(mockConnector.getPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.failed(new RuntimeException("Connector error")))
 
-      whenReady(service.getOutstandingPayments(vpdId).failed) { exception =>
+      whenReady(service.getPayments(vpdId).failed) { exception =>
         exception.getMessage mustBe "Connector error"
       }
     }

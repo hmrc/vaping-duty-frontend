@@ -39,13 +39,13 @@ class ViewPaymentsController @Inject()(
 )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
-    service.getOutstandingPayments(request.enrolmentVpdId)
+    service.getPayments(request.enrolmentVpdId)
       .map { payments =>
         val viewModel = ViewPaymentsViewModel(payments)
         Ok(view(viewModel))
       }
       .recover { case e: Exception =>
-        logger.warn(s"Error retrieving outstanding payments: ${e.getMessage}")
+        logger.warn(s"Error retrieving payments: ${e.getMessage}")
         Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
   }

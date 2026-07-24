@@ -46,11 +46,43 @@
             HeadCell(content = Text(messages("payments.viewPayments.table.status"))),
             HeadCell(content = Text(messages("payments.viewPayments.table.action")))
         )),
-        rows = vm.paymentRows,
+        rows = vm.outstandingRows,
         classes = "govuk-table"
     ))
 
-    @if(vm.paymentRows.isEmpty) {
+    @if(vm.outstandingRows.isEmpty) {
         @p(Seq(messages("payments.viewPayments.noPayments")))
+    }
+
+    @h2(messages("payments.viewPayments.unallocated.heading"))
+
+    @if(vm.unallocatedRows.nonEmpty) {
+        @govukTable(Table(
+            head = Some(Seq(
+                HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.paymentDate"))),
+                HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.paymentReference"))),
+                HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.amount")), classes = "govuk-table__header")
+            )),
+            rows = vm.unallocatedRows,
+            classes = "govuk-table"
+        ))
+    } else {
+        @p(Seq(messages("payments.viewPayments.unallocated.designPlaceholder")))
+    }
+
+    @h2(messages("payments.viewPayments.cleared.heading"))
+
+    @if(vm.clearedRows.nonEmpty) {
+        @govukTable(Table(
+            head = Some(Seq(
+                HeadCell(content = Text(messages("payments.viewPayments.cleared.table.clearedDate"))),
+                HeadCell(content = Text(messages("payments.viewPayments.cleared.table.chargeReference"))),
+                HeadCell(content = Text(messages("payments.viewPayments.cleared.table.amountPaid")), classes = "govuk-table__header")
+            )),
+            rows = vm.clearedRows,
+            classes = "govuk-table"
+        ))
+    } else {
+        @p(Seq(messages("payments.viewPayments.cleared.designPlaceholder")))
     }
 }

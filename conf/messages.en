@@ -569,3 +569,15 @@ payments.viewPayments.noPayments = You have no outstanding payments
 payments.viewPayments.status.due = Due
 payments.viewPayments.status.overdue = Overdue
 payments.viewPayments.status.nothingToPay = Nothing to pay
+
+payments.viewPayments.unallocated.heading = Unallocated payments
+payments.viewPayments.unallocated.designPlaceholder = Design not here yet
+payments.viewPayments.unallocated.table.paymentDate = Payment date
+payments.viewPayments.unallocated.table.paymentReference = Payment reference
+payments.viewPayments.unallocated.table.amount = Amount
+
+payments.viewPayments.cleared.heading = Cleared payments
+payments.viewPayments.cleared.designPlaceholder = Design not here yet
+payments.viewPayments.cleared.table.clearedDate = Cleared date
+payments.viewPayments.cleared.table.chargeReference = Charge reference
+payments.viewPayments.cleared.table.amountPaid = Amount paid
