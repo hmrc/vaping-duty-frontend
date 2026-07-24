@@ -20,8 +20,8 @@ import base.{SpecBase, UnitSpec}
 import models.TaskStatus
 import models.returns.{AdjustmentsEligibility, SpoiltVolumeByPeriod}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
-import pages.returns.SpoiltVolumeByPeriodPage
-import pages.returns.adjustments.AdjustmentListPage
+import pages.returns.{DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
+import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.test.Helpers.*
 import viewmodels.returns.submit.{TaskList, TaskRows}
 import models.identifiers.PeriodKey
@@ -240,22 +240,6 @@ class TaskListSpec extends UnitSpec with SpecBase {
         }
       }
 
-      "must link to DeclareAdjustmentQuestionController when adjustment list is empty" in {
-        val application = applicationBuilder().build()
-        running(application) {
-          val emptyList = AdjustmentList(Seq.empty)
-          val userAnswers = returnsUserAnswers
-            .set(AdjustmentListPage, emptyList).success.value
-          
-          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
-          
-          val adjustmentsSection = sections(1)
-          val adjustmentsTask = adjustmentsSection.rows(1)
-          
-          adjustmentsTask.href.get must include("/declare-adjustments")
-        }
-      }
-
       "must link to AdjustmentCheckYourAnswersController when adjustment data exists" in {
         val application = applicationBuilder().build()
         running(application) {
@@ -276,6 +260,21 @@ class TaskListSpec extends UnitSpec with SpecBase {
           adjustmentsTask.href.get must include("/check-your-answers")
         }
       }
+
+      "must link to AdjustmentCheckYourAnswersController when adjustments has been declared as false" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          val userAnswers = returnsUserAnswers
+            .set(DeclareAdjustmentPage, false).success.value
+
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+
+          val adjustmentsSection = sections(1)
+          val adjustmentsTask = adjustmentsSection.rows(1)
+
+          adjustmentsTask.href.get must include("/check-your-answers")
+        }
+      }
     }
 
     "declareSpoiltProductsSection" - {
@@ -292,27 +291,27 @@ class TaskListSpec extends UnitSpec with SpecBase {
         }
       }
 
-      "must link to DeclareSpoiltProductsController when spoilt list is empty" in {
-        val application = applicationBuilder().build()
-        running(application) {
-          val userAnswers = returnsUserAnswers
-            .set(SpoiltVolumeByPeriodPage, List.empty).success.value
-
-          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
-
-          val adjustmentsSection = sections(1)
-          val spoiltTask = adjustmentsSection.rows(0)
-
-          spoiltTask.href.get must include("/declare-spoilt-products")
-        }
-      }
-
       "must link to SpoiltCheckYourAnswersController when spoilt data exists" in {
         val application = applicationBuilder().build()
         running(application) {
           val spoiltList = List(SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = PeriodKey("24AI")))
           val userAnswers = returnsUserAnswers
             .set(SpoiltVolumeByPeriodPage, spoiltList).success.value
+
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+
+          val adjustmentsSection = sections(1)
+          val spoiltTask = adjustmentsSection.rows(0)
+
+          spoiltTask.href.get must include("/check-your-spoilt-products-answers")
+        }
+      }
+
+      "must link to SpoiltCheckYourAnswersController when spoilt has been declared as false" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          val userAnswers = returnsUserAnswers
+            .set(DeclareSpoiltProductsPage, false).success.value
 
           val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
 
