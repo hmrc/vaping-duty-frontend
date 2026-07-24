@@ -16,7 +16,7 @@
 
 package viewmodels.returns.submit
 
-import models.NormalMode
+import models.Mode
 import models.identifiers.PeriodKey
 import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers}
 import pages.returns.{DeclareDutySuspensePage, EnterDutySuspensePage}
@@ -35,7 +35,7 @@ case class DutySuspenseCheckAnswersViewModel(
 
 object DutySuspenseCheckAnswersViewModel {
 
-  def apply(userAnswers: ReturnsUserAnswers, periodKey: PeriodKey)
+  def apply(userAnswers: ReturnsUserAnswers, periodKey: PeriodKey, mode: Mode)
            (implicit messages: Messages): Option[DutySuspenseCheckAnswersViewModel] = {
     
     userAnswers.get(DeclareDutySuspensePage).flatMap { declareDutySuspense =>
@@ -43,11 +43,11 @@ object DutySuspenseCheckAnswersViewModel {
         userAnswers.get(EnterDutySuspensePage).map { volumes =>
           DutySuspenseCheckAnswersViewModel(
             heading = messages("returns.dutySuspenseCheckAnswers.heading"),
-            summaryList = buildSummaryListWithVolumes(declareDutySuspense, volumes, periodKey),
+            summaryList = buildSummaryListWithVolumes(declareDutySuspense, volumes, periodKey, mode),
             cardActions = Some(Seq(
               ActionItemViewModel(
                 "site.change",
-                s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(NormalMode).url}?period=${periodKey.value}"
+                s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(mode).url}?period=${periodKey.value}"
               ).withVisuallyHiddenText(messages("returns.dutySuspenseCheckAnswers.cardActions.change.hidden"))
             ))
           )
@@ -55,14 +55,14 @@ object DutySuspenseCheckAnswersViewModel {
       } else {
         Some(DutySuspenseCheckAnswersViewModel(
           heading = messages("returns.dutySuspenseCheckAnswers.noDutyHeading"),
-          summaryList = buildSummaryListNilReturn(declareDutySuspense, periodKey),
+          summaryList = buildSummaryListNilReturn(declareDutySuspense, periodKey, mode),
           cardActions = None
         ))
       }
     }
   }
 
-  private def buildDeclareDutySuspenseRow(declareDutySuspense: Boolean, periodKey: PeriodKey)
+  private def buildDeclareDutySuspenseRow(declareDutySuspense: Boolean, periodKey: PeriodKey, mode: Mode)
                                          (implicit messages: Messages): SummaryListRow = {
     val value = if (declareDutySuspense) "site.yes" else "site.no"
     
@@ -72,13 +72,13 @@ object DutySuspenseCheckAnswersViewModel {
       actions = Seq(
         ActionItemViewModel(
           "site.change",
-          s"${controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(NormalMode).url}?period=${periodKey.value}"
+          s"${controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(mode).url}?period=${periodKey.value}"
         ).withVisuallyHiddenText(messages("returns.dutySuspenseCheckAnswers.declareDutySuspense.change.hidden"))
       )
     )
   }
 
-  private def buildProductReceivedRow(volumes: DutySuspenseVolumes)
+  private def buildProductReceivedRow(volumes: DutySuspenseVolumes, periodKey: PeriodKey, mode: Mode)
                                      (implicit messages: Messages): SummaryListRow = {
     SummaryListRowViewModel(
       key = "returns.dutySuspenseCheckAnswers.productReceived",
@@ -87,7 +87,7 @@ object DutySuspenseCheckAnswersViewModel {
     )
   }
 
-  private def buildProductMovedRow(volumes: DutySuspenseVolumes)
+  private def buildProductMovedRow(volumes: DutySuspenseVolumes, periodKey: PeriodKey, mode: Mode)
                                   (implicit messages: Messages): SummaryListRow = {
     SummaryListRowViewModel(
       key = "returns.dutySuspenseCheckAnswers.productMoved",
@@ -97,21 +97,21 @@ object DutySuspenseCheckAnswersViewModel {
   }
 
   private def buildSummaryListWithVolumes(declareDutySuspense: Boolean, volumes: DutySuspenseVolumes, 
-                                          periodKey: PeriodKey)
+                                          periodKey: PeriodKey, mode: Mode)
                                          (implicit messages: Messages): SummaryList = {
     val rows = Seq(
-      buildDeclareDutySuspenseRow(declareDutySuspense, periodKey),
-      buildProductReceivedRow(volumes),
-      buildProductMovedRow(volumes)
+      buildDeclareDutySuspenseRow(declareDutySuspense, periodKey, mode),
+      buildProductReceivedRow(volumes, periodKey, mode),
+      buildProductMovedRow(volumes, periodKey, mode)
     )
 
     SummaryList(rows = rows)
   }
 
-  private def buildSummaryListNilReturn(declareDutySuspense: Boolean, periodKey: PeriodKey)
+  private def buildSummaryListNilReturn(declareDutySuspense: Boolean, periodKey: PeriodKey, mode: Mode)
                                        (implicit messages: Messages): SummaryList = {
     val rows = Seq(
-      buildDeclareDutySuspenseRow(declareDutySuspense, periodKey)
+      buildDeclareDutySuspenseRow(declareDutySuspense, periodKey, mode)
     )
 
     SummaryList(rows = rows)

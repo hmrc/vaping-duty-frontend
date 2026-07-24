@@ -30,7 +30,7 @@ class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
 
     "must calculate duty correctly" in {
       val ua = returnsUserAnswers.set(EnterDutyAmountPage, volumeInMl).success.value
-      val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
+      val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey, NormalMode)
 
       vm mustBe defined
       vm.get.dutyDue mustBe "£220"
@@ -38,7 +38,7 @@ class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
 
     "must handle zero volume" in {
       val ua = returnsUserAnswers.set(EnterDutyAmountPage, BigDecimal(0)).success.value
-      val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
+      val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey, NormalMode)
 
       vm mustBe defined
       vm.get.volumeFormatted mustBe Some("0 ml")
@@ -46,14 +46,14 @@ class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
     }
 
     "must return None when EnterDutyAmountPage is not answered" in {
-      val vm = DeclareDutyCheckAnswersViewModel(returnsUserAnswers, dutyRate, periodKey)
+      val vm = DeclareDutyCheckAnswersViewModel(returnsUserAnswers, dutyRate, periodKey, NormalMode)
 
       vm mustBe None
     }
 
     "must create summary list with three rows when user has answered YES" in {
       val ua = returnsUserAnswers.set(EnterDutyAmountPage, volumeInMl).success.value
-      val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
+      val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey, NormalMode)
 
       vm mustBe defined
       vm.get.summaryList.rows.size mustBe 3
@@ -61,7 +61,7 @@ class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
 
     "must have volume row with Change link in NormalMode" in {
       val ua = returnsUserAnswers.set(EnterDutyAmountPage, volumeInMl).success.value
-      val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey)
+      val vm = DeclareDutyCheckAnswersViewModel(ua, dutyRate, periodKey, NormalMode)
 
       vm mustBe defined
       val volumeRow = vm.get.summaryList.rows(1)

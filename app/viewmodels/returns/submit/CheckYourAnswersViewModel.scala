@@ -260,7 +260,7 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
 
     val cardActions = Some(Seq(
       ActionItem(
-        href = PLACEHOLDER_URL,
+        href = s"${controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(CheckMode).url}?period=${periodKey.value}",
         content = Text(messages("site.change")),
         visuallyHiddenText = Some(messages("returns.CheckYourAnswers.card.dutySuspended.change.hidden"))
       )

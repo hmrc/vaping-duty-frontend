@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import models.{CheckMode, Mode, NormalMode}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -36,18 +37,21 @@ class DutySuspenseCheckAnswersController @Inject()(
                                                     view: DutySuspenseCheckAnswersView
                                                   ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) {
     implicit request =>
       val pk = request.periodKey
 
-      DutySuspenseCheckAnswersViewModel(request.userAnswers, pk) match {
-        case Some(vm) => Ok(view(pk, vm))
+      DutySuspenseCheckAnswersViewModel(request.userAnswers, pk, mode) match {
+        case Some(vm) => Ok(view(pk, vm, mode))
         case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
   }
 
-  def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) {
     implicit request =>
-      Redirect(controllers.returns.submit.routes.TaskListController.onPageLoad().url + s"?period=${request.periodKey}")
+      mode match {
+        case CheckMode => Redirect(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url + s"?period=${request.periodKey.value}")
+        case NormalMode => Redirect(controllers.returns.submit.routes.TaskListController.onPageLoad().url + s"?period=${request.periodKey.value}")
+      }
   }
 }

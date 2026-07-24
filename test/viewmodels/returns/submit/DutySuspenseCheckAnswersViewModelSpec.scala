@@ -17,7 +17,7 @@
 package viewmodels.returns.submit
 
 import base.SpecBase
-import models.NormalMode
+import models.{CheckMode, NormalMode}
 import models.returns.DutySuspenseVolumes
 import pages.returns.{DeclareDutySuspensePage, EnterDutySuspensePage}
 import play.api.i18n.Messages
@@ -32,14 +32,14 @@ class DutySuspenseCheckAnswersViewModelSpec extends SpecBase {
 
   "DutySuspenseCheckAnswersViewModel" - {
 
-    "when user answers YES and has entered volumes" - {
+    "when user answers YES and has entered volumes in NormalMode" - {
 
       "must return Some(viewModel)" in {
         val ua = returnsUserAnswers
           .set(DeclareDutySuspensePage, true).success.value
           .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
         
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, NormalMode)
 
         vm mustBe defined
       }
@@ -49,17 +49,17 @@ class DutySuspenseCheckAnswersViewModelSpec extends SpecBase {
           .set(DeclareDutySuspensePage, true).success.value
           .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
         
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, NormalMode)
 
         vm.get.heading mustBe messages("returns.dutySuspenseCheckAnswers.heading")
       }
 
-      "must have card actions with change link" in {
+      "must have card actions with change link in NormalMode" in {
         val ua = returnsUserAnswers
           .set(DeclareDutySuspensePage, true).success.value
           .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
         
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, NormalMode)
 
         vm.get.cardActions mustBe defined
         vm.get.cardActions.get.size mustBe 1
@@ -74,17 +74,17 @@ class DutySuspenseCheckAnswersViewModelSpec extends SpecBase {
           .set(DeclareDutySuspensePage, true).success.value
           .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
         
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, NormalMode)
 
         vm.get.summaryList.rows.size mustBe 3
       }
 
-      "must have declare duty suspense row showing Yes with change link" in {
+      "must have declare duty suspense row showing Yes with change link in NormalMode" in {
         val ua = returnsUserAnswers
           .set(DeclareDutySuspensePage, true).success.value
           .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
         
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, NormalMode)
 
         val declareRow = vm.get.summaryList.rows.head
         declareRow.key.content.asHtml.toString must include(messages("returns.dutySuspenseCheckAnswers.declareDutySuspense"))
@@ -96,12 +96,12 @@ class DutySuspenseCheckAnswersViewModelSpec extends SpecBase {
         changeLink.href must include(s"period=${periodKey.value}")
       }
 
-      "must have product received row with formatted volume and no change link" in {
+      "must have product received row with formatted volume and change link in NormalMode" in {
         val ua = returnsUserAnswers
           .set(DeclareDutySuspensePage, true).success.value
           .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
         
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, NormalMode)
 
         val receivedRow = vm.get.summaryList.rows(1)
         receivedRow.key.content.asHtml.toString must include(messages("returns.dutySuspenseCheckAnswers.productReceived"))
@@ -109,12 +109,12 @@ class DutySuspenseCheckAnswersViewModelSpec extends SpecBase {
         receivedRow.actions mustBe Some(Actions("", List()))
       }
 
-      "must have product moved row with formatted volume and no change link" in {
+      "must have product moved row with formatted volume and change link in NormalMode" in {
         val ua = returnsUserAnswers
           .set(DeclareDutySuspensePage, true).success.value
           .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
         
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, NormalMode)
 
         val movedRow = vm.get.summaryList.rows(2)
         movedRow.key.content.asHtml.toString must include(messages("returns.dutySuspenseCheckAnswers.productMoved"))
@@ -127,7 +127,7 @@ class DutySuspenseCheckAnswersViewModelSpec extends SpecBase {
           .set(DeclareDutySuspensePage, true).success.value
           .set(EnterDutySuspensePage, DutySuspenseVolumes(0, 12345)).success.value
         
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, NormalMode)
 
         val receivedRow = vm.get.summaryList.rows(1)
         val movedRow = vm.get.summaryList.rows(2)
@@ -137,12 +137,53 @@ class DutySuspenseCheckAnswersViewModelSpec extends SpecBase {
       }
     }
 
+    "when user answers YES and has entered volumes in CheckMode" - {
+
+      "must have card actions with change link in CheckMode" in {
+        val ua = returnsUserAnswers
+          .set(DeclareDutySuspensePage, true).success.value
+          .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
+        
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, CheckMode)
+
+        vm.get.cardActions mustBe defined
+        vm.get.cardActions.get.size mustBe 1
+        
+        val changeAction = vm.get.cardActions.get.head
+        changeAction.href must include(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url)
+        changeAction.href must include(s"period=${periodKey.value}")
+      }
+
+      "must have declare duty suspense row with change link in CheckMode" in {
+        val ua = returnsUserAnswers
+          .set(DeclareDutySuspensePage, true).success.value
+          .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
+        
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, CheckMode)
+
+        val declareRow = vm.get.summaryList.rows.head
+        val changeLink = declareRow.actions.value.items.head
+        changeLink.href must include(controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(CheckMode).url)
+      }
+
+      "must have product rows with change links in CheckMode" in {
+        val ua = returnsUserAnswers
+          .set(DeclareDutySuspensePage, true).success.value
+          .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
+        
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, CheckMode)
+
+        val receivedRow = vm.get.summaryList.rows(1)
+        val movedRow = vm.get.summaryList.rows(2)
+      }
+    }
+
     "when user answers NO" - {
 
       "must have no card actions" in {
         val ua = returnsUserAnswers.set(DeclareDutySuspensePage, false).success.value
         
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, NormalMode)
 
         vm.get.cardActions mustBe None
       }
@@ -150,7 +191,7 @@ class DutySuspenseCheckAnswersViewModelSpec extends SpecBase {
       "must create summary list with one row" in {
         val ua = returnsUserAnswers.set(DeclareDutySuspensePage, false).success.value
         
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, NormalMode)
 
         vm.get.summaryList.rows.size mustBe 1
       }
@@ -158,7 +199,7 @@ class DutySuspenseCheckAnswersViewModelSpec extends SpecBase {
       "must have declare duty suspense row showing No with change link" in {
         val ua = returnsUserAnswers.set(DeclareDutySuspensePage, false).success.value
         
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey)
+        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, NormalMode)
 
         val declareRow = vm.get.summaryList.rows.head
         declareRow.key.content.asHtml.toString must include(messages("returns.dutySuspenseCheckAnswers.declareDutySuspense"))

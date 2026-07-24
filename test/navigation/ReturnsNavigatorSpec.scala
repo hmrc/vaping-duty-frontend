@@ -47,7 +47,7 @@ class ReturnsNavigatorSpec extends SpecBase {
           .set(DeclareDutyPage, false).success.value
 
         ua.get(EnterDutyAmountPage) mustBe None
-        navigator.nextPage(DeclareDutyPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(DeclareDutyPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
       "must go from DeclareDuty to JourneyRecovery when there is no value present" in {
@@ -58,7 +58,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       "must go from EnterDutyAmount to DeclareDutyCheckAnswers (mini CYA)" in {
         val ua = returnsUserAnswers.set(EnterDutyAmountPage, BigDecimal(1)).success.value
 
-        navigator.nextPage(EnterDutyAmountPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(EnterDutyAmountPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
       "must go from DeclareDutySuspense to EnterDutySuspense when there IS suspended duty to declare" in {
@@ -71,7 +71,7 @@ class ReturnsNavigatorSpec extends SpecBase {
           .set(DeclareDutySuspensePage, false).success.value
 
         ua.get(EnterDutySuspensePage) mustBe None
-        navigator.nextPage(DeclareDutySuspensePage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(DeclareDutySuspensePage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
       "must go from DeclareDutySuspense to JourneyRecovery when there is no value present" in {
@@ -82,7 +82,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       "must go from EnterDutySuspense to DutySuspenseCheckAnswers (mini CYA)" in {
         val ua = returnsUserAnswers.set(EnterDutySuspensePage, DutySuspenseVolumes(1, 1)).success.value
 
-        navigator.nextPage(EnterDutySuspensePage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(EnterDutySuspensePage, NormalMode, ua).url mustBe s"${controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
       "must go from DeclareSpoiltProductsPage to SelectSpoiltPeriodPage when there are spoilt products to declare" in {
@@ -203,14 +203,14 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(UnknownPage, CheckMode, returnsUserAnswers) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from EnterDutyAmountPage to CheckYourAnswers" in {
+      "must go from EnterDutyAmountPage to DeclareDutyCheckAnswers (mini CYA) in CheckMode" in {
 
-        navigator.nextPage(EnterDutyAmountPage, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(EnterDutyAmountPage, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
       }
 
-      "must go from DeclareDutyPage to CheckYourAnswers when selecting 'No'" in {
+      "must go from DeclareDutyPage to DeclareDutyCheckAnswers (mini CYA) when selecting 'No' in CheckMode" in {
         val ua = returnsUserAnswers.set(DeclareDutyPage, false).success.value
-        navigator.nextPage(DeclareDutyPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(DeclareDutyPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
       }
 
       "must go from DeclareDutyPage to EnterDutyAmount when selecting 'Yes'" in {
@@ -223,14 +223,14 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareDutyPage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from EnterDutySuspensePage to CheckYourAnswers" in {
+      "must go from EnterDutySuspensePage to DutySuspenseCheckAnswers (mini CYA) in CheckMode" in {
 
-        navigator.nextPage(EnterDutySuspensePage, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(EnterDutySuspensePage, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
       }
 
-      "must go from DeclareDutySuspensePage to EnterDutySuspensePage when selecting 'No" in {
+      "must go from DeclareDutySuspensePage to DutySuspenseCheckAnswers (mini CYA) when selecting 'No' in CheckMode" in {
         val ua = returnsUserAnswers.set(DeclareDutySuspensePage, false).success.value
-        navigator.nextPage(DeclareDutySuspensePage, CheckMode, ua).url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(DeclareDutySuspensePage, CheckMode, ua).url mustBe s"${controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
       }
 
       "must go from DeclareDutySuspensePage to EnterDutySuspensePage when selecting 'Yes" in {

@@ -48,7 +48,7 @@ class ReturnsNavigator @Inject()(
     case AddAnotherAdjustmentPage       => ua  => addAnotherAdjustmentPageRoutes(ua, periodKey, adjustmentReasonMandatory, NormalMode)
     case AdjustmentReasonPage           => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage        => ua  => declareDutySuspensePageRoutes(ua, periodKey)
-    case EnterDutySuspensePage          => _   => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(), periodKey)
+    case EnterDutySuspensePage          => _   => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(NormalMode), periodKey)
     case DeclarationPage                => _   => withPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad(), periodKey)
     case _                              => _   => Call(GET, BtaLink(config))
   }
@@ -62,7 +62,7 @@ class ReturnsNavigator @Inject()(
     case AddAnotherAdjustmentPage   => ua => addAnotherAdjustmentPageRoutes(ua, periodKey, adjustmentReasonMandatory, CheckMode)
     case AdjustmentReasonPage       => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage    => ua => checkDeclareDutySuspensePageRoutes(ua, periodKey)
-    case EnterDutySuspensePage      => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
+    case EnterDutySuspensePage      => _  => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(CheckMode), periodKey)
     case _                          => _  => routes.JourneyRecoveryController.onPageLoad()
   }
 
@@ -76,21 +76,21 @@ class ReturnsNavigator @Inject()(
   private def checkDeclareDutyPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(DeclareDutyPage) match
       case Some(true)   => withPeriod(controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(CheckMode), periodKey)
-      case Some(false)  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
+      case Some(false)  => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(CheckMode), periodKey)
       case _            => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
   private def declareDutySuspensePageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(DeclareDutySuspensePage) match
       case Some(true)  => withPeriod(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(NormalMode), periodKey)
-      case Some(false) => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(), periodKey)
+      case Some(false) => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(NormalMode), periodKey)
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
   private def checkDeclareDutySuspensePageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(DeclareDutySuspensePage) match
       case Some(true)   => withPeriod(controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode), periodKey)
-      case Some(false)  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
+      case Some(false)  => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(CheckMode), periodKey)
       case _            => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 

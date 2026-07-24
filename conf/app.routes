@@ -68,8 +68,10 @@ POST       /complete-return/declare-duty/duty-check-your-answers-summary        
 GET        /complete-return/declare-duty/change-duty-check-your-answers-summary             controllers.returns.submit.DeclareDutyCheckAnswersController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/declare-duty/change-duty-check-your-answers-summary             controllers.returns.submit.DeclareDutyCheckAnswersController.onSubmit(mode: Mode = CheckMode)
 
-GET        /complete-return/duty-suspended/duty-suspense-check-your-answers-summary         controllers.returns.submit.DutySuspenseCheckAnswersController.onPageLoad()
-POST       /complete-return/duty-suspended/duty-suspense-check-your-answers-summary         controllers.returns.submit.DutySuspenseCheckAnswersController.onSubmit()
+GET        /complete-return/duty-suspended/duty-suspense-check-your-answers-summary         controllers.returns.submit.DutySuspenseCheckAnswersController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/duty-suspended/duty-suspense-check-your-answers-summary         controllers.returns.submit.DutySuspenseCheckAnswersController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/duty-suspended/change-duty-suspense-check-your-answers-summary  controllers.returns.submit.DutySuspenseCheckAnswersController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/duty-suspended/change-duty-suspense-check-your-answers-summary  controllers.returns.submit.DutySuspenseCheckAnswersController.onSubmit(mode: Mode = CheckMode)
 
 GET        /complete-return/adjustment/declare-spoilt-products                              controllers.returns.submit.spoilt.DeclareSpoiltProductsController.onPageLoad(mode: Mode = NormalMode)
 POST       /complete-return/adjustment/declare-spoilt-products                              controllers.returns.submit.spoilt.DeclareSpoiltProductsController.onSubmit(mode: Mode = NormalMode)

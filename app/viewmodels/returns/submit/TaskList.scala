@@ -113,7 +113,7 @@ object TaskList {
   private def determineDutySuspendedLink(userAnswers: ReturnsUserAnswers): Call = {
     TaskStatusService.dutySuspenseTaskStatus(userAnswers) match {
       case TaskStatus.Completed =>
-        controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad()
+        controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(NormalMode)
       case _ =>
         controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(NormalMode)
     }
