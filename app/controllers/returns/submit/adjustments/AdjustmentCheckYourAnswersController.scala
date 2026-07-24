@@ -124,7 +124,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
       result <- {
         if (adjustmentCheckYourAnswersService.shouldRedirectToReasonPage(request.userAnswers, currentReasonMandatory)) {
           Future.successful(Redirect(
-            s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(mode).url}?period=${request.periodKey.value}"
+            s"${controllers.returns.submit.adjustments.routes.AdjustmentReasonController.onPageLoad(mode).url}?period=${request.periodKey.value}"
           ))
         } else {
           val cleanedAnswersTry = adjustmentCheckYourAnswersService.cleanupReasonIfNotRequired(

@@ -220,7 +220,7 @@ object ReturnsSummary extends CurrencyFormatter {
           actions = Seq(
             ActionItemViewModel(
               "site.change",
-              s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+              s"${controllers.returns.submit.adjustments.routes.AdjustmentReasonController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
             ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.reason.change.hidden"))
           )
         )

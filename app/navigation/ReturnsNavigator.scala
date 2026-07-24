@@ -151,12 +151,12 @@ class ReturnsNavigator @Inject()(
           case CheckMode =>
             val hasReason = ua.get(AdjustmentReasonPage).isDefined
             if (adjustmentReasonMandatory && !hasReason)
-              withPeriod(controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(CheckMode), periodKey)
+              withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentReasonController.onPageLoad(CheckMode), periodKey)
             else
               withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
           case NormalMode =>
             if (adjustmentReasonMandatory)
-              withPeriod(controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode), periodKey)
+              withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentReasonController.onPageLoad(NormalMode), periodKey)
             else
               withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
         }
