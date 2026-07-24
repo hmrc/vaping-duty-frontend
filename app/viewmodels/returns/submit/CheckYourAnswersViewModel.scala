@@ -71,7 +71,7 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
       adjustmentsCard = buildAdjustmentsCard(userAnswers, adjustmentAmount, periodKey),
       dutySuspendedCard = buildDutySuspendedCard(userAnswers, periodKey),
       totalDuty = totalDuty,
-      formattedTotalDuty = currencyFormat(totalDuty),
+      formattedTotalDuty = currencyFormatWithLeadingSign(totalDuty),
       hasDutySuspended = hasDutySuspended,
       dutyCalculationParagraph = dutyCalculationParagraph(dutyRates(periodKey)),
       nilReturn = nilReturn,
