@@ -53,6 +53,62 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
 
   implicit val messages: Messages = stubMessages()
 
+  "isReasonMandatory" - {
+
+    "must return true when under-declaration duty exceeds threshold" in {
+      val adjustmentList = AdjustmentList(Seq(
+        underDeclaredAdjustment(february2024, ml(50000))
+      ))
+      val userAnswers = returnsUserAnswers.set(pages.returns.adjustments.AdjustmentListPage, adjustmentList).success.value
+
+      stubObligations(Seq(openObligation(february2024)))
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(february2024 -> TEN_POUNDS_PER_10ML))
+
+      val result = service.isReasonMandatory(userAnswers, vpdId).futureValue
+
+      result mustBe true
+    }
+
+    "must return true when over-declaration duty exceeds threshold" in {
+      val adjustmentList = AdjustmentList(Seq(
+        overDeclaredAdjustment(february2024, ml(50000))
+      ))
+      val userAnswers = returnsUserAnswers.set(pages.returns.adjustments.AdjustmentListPage, adjustmentList).success.value
+
+      stubObligations(Seq(openObligation(february2024)))
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(february2024 -> TEN_POUNDS_PER_10ML))
+
+      val result = service.isReasonMandatory(userAnswers, vpdId).futureValue
+
+      result mustBe true
+    }
+
+    "must return false when duty is below threshold" in {
+      val adjustmentList = AdjustmentList(Seq(
+        underDeclaredAdjustment(february2024, ml(100))
+      ))
+      val userAnswers = returnsUserAnswers.set(pages.returns.adjustments.AdjustmentListPage, adjustmentList).success.value
+
+      stubObligations(Seq(openObligation(february2024)))
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(february2024 -> TEN_POUNDS_PER_10ML))
+
+      val result = service.isReasonMandatory(userAnswers, vpdId).futureValue
+
+      result mustBe false
+    }
+
+    "must return false when no adjustments exist" in {
+      val userAnswers = returnsUserAnswers
+
+      val result = service.isReasonMandatory(userAnswers, vpdId).futureValue
+
+      result mustBe false
+    }
+  }
+
   "buildViewModel" - {
 
     "must successfully build view model with adjustments" in {
@@ -247,62 +303,6 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     )
 
   private def ml(volume: Int): BigDecimal = BigDecimal(volume)
-
-  "isReasonMandatory" - {
-
-    "must return true when under-declaration duty exceeds threshold" in {
-      val adjustmentList = AdjustmentList(Seq(
-        underDeclaredAdjustment(february2024, ml(50000))
-      ))
-      val userAnswers = returnsUserAnswers.set(pages.returns.adjustments.AdjustmentListPage, adjustmentList).success.value
-
-      stubObligations(Seq(openObligation(february2024)))
-      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
-        .thenReturn(Map(february2024 -> TEN_POUNDS_PER_10ML))
-
-      val result = service.isReasonMandatory(userAnswers, vpdId).futureValue
-
-      result mustBe true
-    }
-
-    "must return true when over-declaration duty exceeds threshold" in {
-      val adjustmentList = AdjustmentList(Seq(
-        overDeclaredAdjustment(february2024, ml(50000))
-      ))
-      val userAnswers = returnsUserAnswers.set(pages.returns.adjustments.AdjustmentListPage, adjustmentList).success.value
-
-      stubObligations(Seq(openObligation(february2024)))
-      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
-        .thenReturn(Map(february2024 -> TEN_POUNDS_PER_10ML))
-
-      val result = service.isReasonMandatory(userAnswers, vpdId).futureValue
-
-      result mustBe true
-    }
-
-    "must return false when duty is below threshold" in {
-      val adjustmentList = AdjustmentList(Seq(
-        underDeclaredAdjustment(february2024, ml(100))
-      ))
-      val userAnswers = returnsUserAnswers.set(pages.returns.adjustments.AdjustmentListPage, adjustmentList).success.value
-
-      stubObligations(Seq(openObligation(february2024)))
-      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
-        .thenReturn(Map(february2024 -> TEN_POUNDS_PER_10ML))
-
-      val result = service.isReasonMandatory(userAnswers, vpdId).futureValue
-
-      result mustBe false
-    }
-
-    "must return false when no adjustments exist" in {
-      val userAnswers = returnsUserAnswers
-
-      val result = service.isReasonMandatory(userAnswers, vpdId).futureValue
-
-      result mustBe false
-    }
-  }
 
   "shouldRedirectToReasonPage" - {
 
