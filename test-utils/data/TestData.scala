@@ -21,7 +21,7 @@ import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, Use
 import models.emailverification.*
 import models.identifiers.*
 import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse}
-import models.payments.OutstandingPayment
+import models.payments.{ClearedPayment, OutstandingPayment, PaymentsResponse, UnallocatedPayment}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
 import models.returns.{DeclarationDetails, DutyRate, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
@@ -284,6 +284,25 @@ trait TestData extends ObligationsBuilders {
     amountDue = BigDecimal("0.00"),
     dueDate = "2026-10-15",
     status = PaymentStatus.NothingToPay
+  )
+
+  val testUnallocatedPayment = UnallocatedPayment(
+    paymentReference = "3000000000001",
+    amount = BigDecimal("150.00"),
+    paymentDate = "2026-10-18"
+  )
+
+  val testClearedPayment = ClearedPayment(
+    chargeReference = "VPD38270541980",
+    period = "September 2026",
+    amountPaid = BigDecimal("750.00"),
+    clearedDate = "2026-10-09"
+  )
+
+  val testPaymentsResponse = PaymentsResponse(
+    outstanding = Seq(testPaymentDue),
+    unallocated = Seq(testUnallocatedPayment),
+    cleared = Seq(testClearedPayment)
   )
 
   def createMockObligations(): Seq[ObligationItem] = {

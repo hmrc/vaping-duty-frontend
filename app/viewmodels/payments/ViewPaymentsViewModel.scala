@@ -16,7 +16,7 @@
 
 package viewmodels.payments
 
-import models.payments.OutstandingPayment
+import models.payments.{ClearedPayment, OutstandingPayment, PaymentsResponse, UnallocatedPayment}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Tag, Text}
 import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag
@@ -28,7 +28,9 @@ import java.time.format.DateTimeFormatter
 
 final case class ViewPaymentsViewModel(
   totalOwed: String,
-  paymentRows: Seq[Seq[TableRow]]
+  outstandingRows: Seq[Seq[TableRow]],
+  unallocatedRows: Seq[Seq[TableRow]],
+  clearedRows: Seq[Seq[TableRow]]
 )
 
 object ViewPaymentsViewModel {
@@ -36,19 +38,22 @@ object ViewPaymentsViewModel {
   private val TAG_STYLE_RED = "govuk-tag--red"
   private val TAG_STYLE_GREEN = "govuk-tag--green"
 
-  private val DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy")
+  private val DATE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
   private val govukTag = GovukTag()
 
-  def apply(paymentOption: Seq[OutstandingPayment])(implicit messages: Messages): ViewPaymentsViewModel = {
-    val totalOwed = CurrencyFormatter.currencyFormat(paymentOption.map(_.amountDue).sum)
+  def apply(payments: PaymentsResponse)(implicit messages: Messages): ViewPaymentsViewModel = {
+    val totalOwed = CurrencyFormatter.currencyFormat(payments.outstanding.map(_.amountDue).sum)
 
-    val paymentRows = paymentOption.map(buildTableRow)
-
-    ViewPaymentsViewModel(totalOwed, paymentRows)
+    ViewPaymentsViewModel(
+      totalOwed = totalOwed,
+      outstandingRows = payments.outstanding.map(buildOutstandingRow),
+      unallocatedRows = payments.unallocated.map(buildUnallocatedRow),
+      clearedRows = payments.cleared.map(buildClearedRow)
+    )
   }
 
-  private def buildTableRow(payment: OutstandingPayment)(implicit messages: Messages): Seq[TableRow] =
+  private def buildOutstandingRow(payment: OutstandingPayment)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
         content = Text(formatDate(payment.dueDate)),
@@ -76,6 +81,34 @@ object ViewPaymentsViewModel {
         content = HtmlContent(
           s"""<a href="#" class="govuk-link no-wrap-link">${messages("payments.viewPayments.table.payNow")}</a>"""
         )
+      )
+    )
+
+  private def buildUnallocatedRow(payment: UnallocatedPayment): Seq[TableRow] =
+    Seq(
+      TableRow(
+        content = Text(formatDate(payment.paymentDate)),
+        classes = "govuk-table__header",
+        attributes = Map("scope" -> "row")
+      ),
+      TableRow(content = Text(payment.paymentReference)),
+      TableRow(
+        content = Text(CurrencyFormatter.currencyFormat(payment.amount)),
+        classes = "govuk-table__cell--numeric"
+      )
+    )
+
+  private def buildClearedRow(payment: ClearedPayment): Seq[TableRow] =
+    Seq(
+      TableRow(
+        content = Text(formatDate(payment.clearedDate)),
+        classes = "govuk-table__header",
+        attributes = Map("scope" -> "row")
+      ),
+      TableRow(content = Text(payment.chargeReference)),
+      TableRow(
+        content = Text(CurrencyFormatter.currencyFormat(payment.amountPaid)),
+        classes = "govuk-table__cell--numeric"
       )
     )
 

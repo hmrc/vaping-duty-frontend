@@ -17,38 +17,67 @@
 package viewmodels.payments
 
 import base.SpecBase
+import models.payments.PaymentsResponse
 
 class ViewPaymentsViewModelSpec extends SpecBase {
 
   "ViewPaymentsViewModel" - {
-    "when payment exists" - {
-      "must format total owed correctly" in {
-        val vm = ViewPaymentsViewModel(Seq(testPaymentDue))
+    "when payments exist" - {
+      "must format total owed correctly from outstanding payments only" in {
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty))
         vm.totalOwed mustBe "£330,000"
       }
 
-      "must build a table row for each payment status" in {
-        ViewPaymentsViewModel(Seq(testPaymentDue)).paymentRows must have size 1
-        ViewPaymentsViewModel(Seq(testPaymentOverdue)).paymentRows must have size 1
-        ViewPaymentsViewModel(Seq(testPaymentNothingToPay)).paymentRows must have size 1
+      "must build a table row for each outstanding payment status" in {
+        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty)).outstandingRows must have size 1
+        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty)).outstandingRows must have size 1
+        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentNothingToPay), Seq.empty, Seq.empty)).outstandingRows must have size 1
       }
 
-      "must sum multiple payments correctly" in {
-        val vm = ViewPaymentsViewModel(Seq(testPaymentDue, testPaymentOverdue))
+      "must sum multiple outstanding payments correctly" in {
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue, testPaymentOverdue), Seq.empty, Seq.empty))
         vm.totalOwed mustBe "£497,000.80"
-        vm.paymentRows must have size 2
+        vm.outstandingRows must have size 2
+      }
+
+      "must build a table row for each unallocated payment" in {
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq.empty, Seq(testUnallocatedPayment), Seq.empty))
+        vm.unallocatedRows must have size 1
+      }
+
+      "must build a table row for each cleared payment" in {
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq.empty, Seq.empty, Seq(testClearedPayment)))
+        vm.clearedRows must have size 1
+      }
+
+      "must build rows for all three sections independently when all are populated" in {
+        val vm = ViewPaymentsViewModel(testPaymentsResponse)
+        vm.outstandingRows must have size 1
+        vm.unallocatedRows must have size 1
+        vm.clearedRows must have size 1
       }
     }
 
-    "when no payment exists" - {
+    "when no payments exist" - {
       "must show £0 as total owed" in {
-        val vm = ViewPaymentsViewModel(Seq.empty)
+        val vm = ViewPaymentsViewModel(PaymentsResponse.empty)
         vm.totalOwed mustBe "£0"
       }
 
-      "must have no table rows" in {
-        val vm = ViewPaymentsViewModel(Seq.empty)
-        vm.paymentRows mustBe Seq.empty
+      "must have no rows in any section" in {
+        val vm = ViewPaymentsViewModel(PaymentsResponse.empty)
+        vm.outstandingRows mustBe Seq.empty
+        vm.unallocatedRows mustBe Seq.empty
+        vm.clearedRows mustBe Seq.empty
+      }
+    }
+
+    "when only some sections have data" - {
+      "must independently reflect emptiness per section" in {
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq(testClearedPayment)))
+        vm.outstandingRows must have size 1
+        vm.unallocatedRows mustBe Seq.empty
+        vm.clearedRows must have size 1
       }
     }
   }
