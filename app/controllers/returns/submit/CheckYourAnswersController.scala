@@ -18,9 +18,10 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import pages.returns.adjustments.AdjustmentListPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.DutyRateService
+import services.returns.{DutyRateService, ObligationService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.CheckYourAnswersViewModel
@@ -36,6 +37,7 @@ class CheckYourAnswersController @Inject()(
                                             requireData: ReturnsDataRequiredAction,
                                             returnsEnabled: ReturnsEnabledAction,
                                             dutyRateService: DutyRateService,
+                                            obligationService: ObligationService,
                                             val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourAnswersView,
                                             returnsDateUtils: ReturnsDateUtils
@@ -44,8 +46,16 @@ class CheckYourAnswersController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     val pk = request.periodKey
     
-    dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
-      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRate, pk, returnsDateUtils)))
+    val adjustmentPeriods = request.userAnswers.get(AdjustmentListPage)
+      .map(_.adjustments.map(_.period))
+      .getOrElse(Seq.empty)
+    val allPeriods = (adjustmentPeriods :+ pk).distinct
+    
+    for {
+      obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
+      dutyRates = dutyRateService.getDutyRatesForPeriods(allPeriods, obligationDetails)
+    } yield {
+      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRates, pk, returnsDateUtils)))
     }
   }
 

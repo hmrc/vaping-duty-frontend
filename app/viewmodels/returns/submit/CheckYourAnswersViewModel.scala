@@ -18,7 +18,9 @@ package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
 import models.returns.{DutyRate, ReturnsUserAnswers}
-import pages.returns.{DeclareDutyPage, DeclareSpoiltProductsPage, EnterDutyAmountPage}
+import models.returns.adjustments.AdjustmentDutyCalculator
+import pages.returns.{DeclareDutyPage, DeclareSpoiltProductsPage}
+import pages.returns.adjustments.AdjustmentListPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -43,7 +45,7 @@ object CheckYourAnswersViewModel {
 
   private val ZERO = "0"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate, periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
     // scalafix:off DisableSyntax.throw
     val returnPeriod = userAnswers.returnPeriod
       .map(month => returnsDateUtils.getReturnMonth(month))
@@ -52,33 +54,54 @@ object CheckYourAnswersViewModel {
     val year = userAnswers.year
       .getOrElse(throw new IllegalStateException("Return year not found in user answers"))
     
-    val nilReturn = isNilReturn(userAnswers)
+    val nilReturn = isNilReturn(userAnswers, dutyRates)
+    
+    val currentPeriodRate = dutyRates.getOrElse(periodKey, throw new IllegalStateException(s"No duty rate found for period $periodKey"))
     
     CheckYourAnswersViewModel(
-      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRate, periodKey),
+      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRates, periodKey),
       dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers, periodKey),
-      dutyDue = dutyDue(userAnswers, dutyRate),
+      dutyDue = dutyDue(userAnswers, dutyRates, periodKey),
       dutyRateParagraph = dutyRateParagraph(nilReturn),
-      dutyCalculationParagraph = dutyCalculationParagraph(dutyRate),
+      dutyCalculationParagraph = dutyCalculationParagraph(currentPeriodRate),
       nilReturn = nilReturn,
       returnPeriod = returnPeriod,
       year = year
     )
   }
 
-  private def isNilReturn(userAnswers: ReturnsUserAnswers): Boolean = {
+  private def isNilReturn(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate]): Boolean = {
     val declareDuty = userAnswers.get(DeclareDutyPage).getOrElse(false)
     val declareSpoilt = userAnswers.get(DeclareSpoiltProductsPage).getOrElse(false)
+    val adjustmentTotal = userAnswers.get(AdjustmentListPage)
+      .map(list => AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).netAdjustment)
+      .getOrElse(BigDecimal(0))
 
-    !declareDuty && !declareSpoilt
+    !declareDuty && !declareSpoilt && adjustmentTotal == 0
   }
 
-  private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate): String = {
-    userAnswers.get(EnterDutyAmountPage) match {
-      case Some(volumeInMl)  => currencyFormat(dutyRate.calculateDuty(volumeInMl))
-      case None              => currencyFormat(BigDecimal(ZERO))
+  private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey): String = {
+    val declareDuty = userAnswers.get(DeclareDutyPage).getOrElse(false)
+    
+    if (declareDuty) {
+      ReturnsSummary.calculateTotalDuty(userAnswers, dutyRates, periodKey) match {
+        case Some(totalDuty) => formatDutyAmount(totalDuty)
+        case None => currencyFormat(BigDecimal(ZERO))
+      }
+    } else {
+      val adjustmentTotal = userAnswers.get(AdjustmentListPage)
+        .map(list => AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).netAdjustment)
+        .getOrElse(BigDecimal(0))
+      formatDutyAmount(adjustmentTotal)
     }
   }
+
+  private def formatDutyAmount(amount: BigDecimal): String =
+    if (amount < 0) {
+      currencyFormat(amount.abs).replace("£", "-£")
+    } else {
+      currencyFormat(amount)
+    }
 
   private def dutyRateParagraph(nilReturn: Boolean)(implicit messages: Messages): HtmlFormat.Appendable = {
     val p = new Paragraph()

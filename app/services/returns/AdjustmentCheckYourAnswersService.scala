@@ -19,9 +19,10 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
+import models.returns.adjustments.{AdjustmentDutyCalculator, AdjustmentList}
 import models.returns.{DutyRate, ReturnsUserAnswers}
-import models.returns.adjustments.AdjustmentList
-import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
+import models.{Mode, NormalMode}
+import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.ReturnsDateUtils
@@ -42,7 +43,8 @@ class AdjustmentCheckYourAnswersService @Inject()(
                       declareAdjustment: Option[Boolean],
                       adjustmentList: Option[AdjustmentList],
                       periodKey: PeriodKey,
-                      vpdId: VpdId
+                      vpdId: VpdId,
+                      mode: Mode = NormalMode
                     )(using HeaderCarrier, Messages): Future[AdjustmentCheckYourAnswersViewModel] = {
     obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
       val dutyRatesMap = getDutyRatesForAdjustments(adjustmentList, obligationDetails)
@@ -52,7 +54,8 @@ class AdjustmentCheckYourAnswersService @Inject()(
         obligationDetails,
         periodKey,
         dutyRatesMap,
-        returnsDateUtils
+        returnsDateUtils,
+        mode
       )
     }
   }
@@ -95,24 +98,50 @@ class AdjustmentCheckYourAnswersService @Inject()(
     else userAnswers.set(AdjustmentListPage, AdjustmentList(updatedAdjustments))
   }
 
+  def isReasonMandatory(
+                         userAnswers: ReturnsUserAnswers,
+                         vpdId: VpdId
+                       )(using HeaderCarrier): Future[Boolean] = {
+    userAnswers.get(AdjustmentListPage) match {
+      case Some(adjustmentList) =>
+        obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
+          val dutyRatesMap = getDutyRatesForAdjustments(Some(adjustmentList), obligationDetails)
+          val totals = AdjustmentDutyCalculator.totals(adjustmentList.adjustments, dutyRatesMap)
+          totals.reasonMandatory
+        }
+      case None =>
+        Future.successful(false)
+    }
+  }
+
+  def shouldRedirectToReasonPage(
+                                  userAnswers: ReturnsUserAnswers,
+                                  adjustmentReasonMandatory: Boolean
+                                ): Boolean = {
+    adjustmentReasonMandatory
+  }
+
+  def cleanupReasonIfNotRequired(
+                                  userAnswers: ReturnsUserAnswers,
+                                  adjustmentReasonMandatory: Boolean
+                                ): scala.util.Try[ReturnsUserAnswers] = {
+    val hasReason = userAnswers.get(AdjustmentReasonPage).isDefined
+
+    if (!adjustmentReasonMandatory && hasReason) {
+      userAnswers.remove(AdjustmentReasonPage)
+    } else {
+      scala.util.Success(userAnswers)
+    }
+  }
+
   private def getDutyRatesForAdjustments(
                                           adjustmentList: Option[AdjustmentList],
                                           obligationDetails: Seq[ObligationDetails]
                                         ): Map[PeriodKey, DutyRate] = {
-
     val uniquePeriods = adjustmentList
       .map(_.adjustments.map(_.period).distinct)
       .getOrElse(Seq.empty)
 
-    uniquePeriods.map { period =>
-      val obligation = obligationDetails.find(_.periodKey == period.toString)
-      val dutyRate = obligation.map { obl =>
-        dutyRateService.getDutyRateForDate(obl.iCFromDate)
-      }.getOrElse(
-        // scalafix:off DisableSyntax.throw
-        throw new RuntimeException(s"No obligation found for period ${period.toString}")
-      )
-      period -> dutyRate
-    }.toMap
+    dutyRateService.getDutyRatesForPeriods(uniquePeriods, obligationDetails)
   }
 }

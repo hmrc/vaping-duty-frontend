@@ -89,18 +89,23 @@ POST       /complete-return/adjustment/declare-adjustments                      
 GET        /complete-return/adjustment/change-declare-adjustments                           controllers.returns.submit.adjustments.DeclareAdjustmentQuestionController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/adjustment/change-declare-adjustments                           controllers.returns.submit.adjustments.DeclareAdjustmentQuestionController.onSubmit(mode: Mode = CheckMode)
 
-GET        /complete-return/adjustment/select-period                                        controllers.returns.submit.adjustments.SelectAdjustmentPeriodController.onPageLoad(year: Option[Int] ?= None)
+GET        /complete-return/adjustment/select-period                                        controllers.returns.submit.adjustments.SelectAdjustmentPeriodController.onPageLoad(mode: Mode = NormalMode, year: Option[Int] ?= None)
+GET        /complete-return/adjustment/change-select-period                                 controllers.returns.submit.adjustments.SelectAdjustmentPeriodController.onPageLoad(mode: Mode = CheckMode, year: Option[Int] ?= None)
 
 GET        /complete-return/adjustment/enter-over-or-under-declaration-amount               controllers.returns.submit.adjustments.AdjustmentVolumeWithTypeController.onPageLoad(mode: Mode = NormalMode)
 POST       /complete-return/adjustment/enter-over-or-under-declaration-amount               controllers.returns.submit.adjustments.AdjustmentVolumeWithTypeController.onSubmit(mode: Mode = NormalMode)
 GET        /complete-return/adjustment/change-enter-over-or-under-declaration-amount        controllers.returns.submit.adjustments.AdjustmentVolumeWithTypeController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/adjustment/change-enter-over-or-under-declaration-amount        controllers.returns.submit.adjustments.AdjustmentVolumeWithTypeController.onSubmit(mode: Mode = CheckMode)
 
-GET        /complete-return/adjustment/check-your-answers                                   controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onPageLoad()
-POST       /complete-return/adjustment/check-your-answers                                   controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onSubmit()
+GET        /complete-return/adjustment/check-your-answers                                   controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/adjustment/check-your-answers                                   controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/adjustment/change-check-your-answers                            controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/adjustment/change-check-your-answers                            controllers.returns.submit.adjustments.AdjustmentCheckYourAnswersController.onSubmit(mode: Mode = CheckMode)
 
-GET        /complete-return/adjustment/remove-adjustment                                    controllers.returns.submit.adjustments.RemoveAdjustmentController.onPageLoad()
-POST       /complete-return/adjustment/remove-adjustment                                    controllers.returns.submit.adjustments.RemoveAdjustmentController.onSubmit()
+GET        /complete-return/adjustment/remove-adjustment                                    controllers.returns.submit.adjustments.RemoveAdjustmentController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/adjustment/remove-adjustment                                    controllers.returns.submit.adjustments.RemoveAdjustmentController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/adjustment/change-remove-adjustment                             controllers.returns.submit.adjustments.RemoveAdjustmentController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/adjustment/change-remove-adjustment                             controllers.returns.submit.adjustments.RemoveAdjustmentController.onSubmit(mode: Mode = CheckMode)
 
 GET        /complete-return/adjustment/reason-for-adjustment                                controllers.returns.submit.AdjustmentReasonController.onPageLoad(mode: Mode = NormalMode)
 POST       /complete-return/adjustment/reason-for-adjustment                                controllers.returns.submit.AdjustmentReasonController.onSubmit(mode: Mode = NormalMode)

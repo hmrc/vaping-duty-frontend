@@ -16,6 +16,7 @@
 
 package viewmodels.returns.submit.adjustments
 
+import models.{Mode, NormalMode}
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.returns.adjustments.AdjustmentList
@@ -39,7 +40,8 @@ object SelectAdjustmentPeriodViewModel {
              selectedYear: Option[Int],
              currentReturnPeriod: PeriodKey,
              adjustmentList: Option[AdjustmentList],
-             returnsDateUtils: ReturnsDateUtils
+             returnsDateUtils: ReturnsDateUtils,
+             mode: Mode = NormalMode
            )(implicit messages: Messages): SelectAdjustmentPeriodViewModel = {
 
     val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
@@ -62,7 +64,7 @@ object SelectAdjustmentPeriodViewModel {
       val month = obligation.iCFromDate.getMonthValue
       val monthKey = returnsDateUtils.getMonthMessageKey(month)
       val periodKey = obligation.periodKey
-      val href = s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(models.NormalMode).url}?period=${currentReturnPeriod.value}&adjustmentPeriod=$periodKey"
+      val href = s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(mode).url}?period=${currentReturnPeriod.value}&adjustmentPeriod=$periodKey"
 
       TaskListItem(
         title = TaskListItemTitle(content = Text(messages(monthKey))),
@@ -71,7 +73,7 @@ object SelectAdjustmentPeriodViewModel {
     }
 
     val paginationItemHrefBuilder = (year: Int) =>
-      s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(Some(year)).url}&period=${currentReturnPeriod.value}"
+      s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(mode, Some(year)).url}&period=${currentReturnPeriod.value}"
 
     val paginationItems = PeriodSelectionHelper.buildPaginationItems(availableYears, currentYear, paginationItemHrefBuilder)
 

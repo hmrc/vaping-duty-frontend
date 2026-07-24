@@ -128,13 +128,13 @@ class ReturnsNavigatorSpec extends SpecBase {
       "must go from DeclareAdjustmentPage to SelectAdjustmentPeriod when there are adjustments to declare" in {
         val ua = returnsUserAnswers.set(DeclareAdjustmentPage, true).success.value
 
-        navigator.nextPage(DeclareAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None).url}?period=$periodKey"
+        navigator.nextPage(DeclareAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(NormalMode, None).url}?period=$periodKey"
       }
 
       "must go from DeclareAdjustmentPage to AdjustmentCheckYourAnswers when there are NO adjustments to declare" in {
         val ua = returnsUserAnswers.set(DeclareAdjustmentPage, false).success.value
 
-        navigator.nextPage(DeclareAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(DeclareAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
       "must go from DeclareAdjustmentPage to JourneyRecovery when there is no value present" in {
@@ -142,16 +142,20 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareAdjustmentPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from AdjustmentListPage to AdjustmentCheckYourAnswers (mini CYA)" in {
+      "must go from AdjustmentListPage to AdjustmentCheckYourAnswers (mini CYA) regardless of adjustmentReasonMandatory flag" in {
         val ua = returnsUserAnswers.set(AdjustmentListPage, adjustmentList).success.value
 
-        navigator.nextPage(AdjustmentListPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(AdjustmentListPage, NormalMode, ua, adjustmentReasonMandatory = false).url mustBe
+          s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode).url}?period=$periodKey"
+        
+        navigator.nextPage(AdjustmentListPage, NormalMode, ua, adjustmentReasonMandatory = true).url mustBe 
+          s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
       "must go from AddAnotherAdjustmentPage to SelectAdjustmentPeriod when user has more adjustments to make" in {
         val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, true).success.value
 
-        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None).url}?period=$periodKey"
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(NormalMode, None).url}?period=$periodKey"
       }
 
       "must go from AddAnotherAdjustmentPage to TaskList when no more adjustments to make" in {
@@ -241,6 +245,29 @@ class ReturnsNavigatorSpec extends SpecBase {
 
       "must go from DeclareSpoiltProductsPage to TaskList" in {
         navigator.nextPage(DeclareSpoiltProductsPage, CheckMode, returnsUserAnswers) mustBe controllers.returns.submit.routes.TaskListController.onPageLoad()
+      }
+
+      "must go from DeclareAdjustmentPage to SelectAdjustmentPeriodPage (mini CYA)" in {
+        navigator.nextPage(DeclareAdjustmentPage, CheckMode, returnsUserAnswers.set(DeclareAdjustmentPage, true).success.value).url mustBe s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(CheckMode).url}?period=$periodKey"
+      }
+
+      "must go from AdjustmentReasonPage to CheckYourAnswers" in {
+        val ua = returnsUserAnswers.set(AdjustmentReasonPage, "test reason").success.value
+        navigator.nextPage(AdjustmentReasonPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to AdjustmentReason when adjustmentReasonMandatory is true in CheckMode" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
+
+        navigator.nextPage(AddAnotherAdjustmentPage, CheckMode, ua, adjustmentReasonMandatory = true)
+          .url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(CheckMode).url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to CheckYourAnswers when adjustmentReasonMandatory is false in CheckMode" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
+
+        navigator.nextPage(AddAnotherAdjustmentPage, CheckMode, ua)
+          .url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
       }
     }
   }

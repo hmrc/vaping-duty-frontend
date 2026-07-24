@@ -63,8 +63,8 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt)))
-      when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(TEN_POUNDS_PER_10ML)
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(spoiltPeriodKey -> TEN_POUNDS_PER_10ML))
 
       val result = service.buildViewModel(
         declareSpoiltProducts = Some(true),
@@ -105,8 +105,11 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt1, obligationForSpoilt2)))
-      when(mockDutyRateService.getDutyRateForDate(any()))
-        .thenReturn(TEN_POUNDS_PER_10ML)
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(
+          spoiltPeriodKey -> TEN_POUNDS_PER_10ML,
+          spoiltPeriodKey2 -> TEN_POUNDS_PER_10ML
+        ))
 
       val result = service.buildViewModel(
         declareSpoiltProducts = Some(true),
@@ -142,6 +145,10 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(obligationDetails))
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map.empty[PeriodKey, DutyRate])
+      when(mockReturnsDateUtils.formatPeriodDisplay(eqTo(nonExistentPeriodKey), eqTo(obligationDetails))(using any()))
+        .thenThrow(new RuntimeException("No obligation found for period 24ZZ"))
 
       val exception = intercept[RuntimeException] {
         service.buildViewModel(

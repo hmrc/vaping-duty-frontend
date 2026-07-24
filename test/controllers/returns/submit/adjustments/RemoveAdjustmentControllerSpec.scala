@@ -19,6 +19,8 @@ package controllers.returns.submit.adjustments
 import base.SpecBase
 import controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController
 import controllers.routes.*
+import forms.returns.adjustments.RemoveAdjustmentFormProvider
+import models.NormalMode
 import models.identifiers.PeriodKey
 import models.returns.{DutyRate, ReturnsUserAnswers}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
@@ -31,6 +33,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService}
+import views.html.returns.submit.adjustments.RemoveAdjustmentView
 
 import scala.concurrent.Future
 
@@ -39,10 +42,10 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
   private val reverseController = new ReverseRemoveAdjustmentController(_prefix = "/vaping-duty")
 
   private def removeAdjustmentGetUrl(periodKey: PeriodKey): String =
-    reverseController.onPageLoad().url + s"?adjustmentPeriod=${periodKey.value}"
+    reverseController.onPageLoad(NormalMode).url + s"?adjustmentPeriod=${periodKey.value}"
 
   private def removeAdjustmentPutUrl(periodKey: PeriodKey) =
-    reverseController.onSubmit().url + s"?adjustmentPeriod=${periodKey.value}"
+    reverseController.onSubmit(NormalMode).url + s"?adjustmentPeriod=${periodKey.value}"
 
   private def stubbedObligationService: ObligationService = {
     val mockObligationService = mock[ObligationService]
@@ -91,7 +94,7 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, reverseController.onPageLoad().url)
+        val request = FakeRequest(GET, reverseController.onPageLoad(NormalMode).url)
 
         val result = route(application, request).value
 
@@ -146,7 +149,7 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad().url)
+        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad(NormalMode).url)
         verify(mockSessionRepository).set(any())(any())
       }
     }
@@ -178,7 +181,7 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad().url)
+        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad(NormalMode).url)
         verify(mockSessionRepository).set(any())(any())
       }
     }
@@ -208,7 +211,7 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad().url)
+        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad(NormalMode).url)
 
         val captor = ArgumentCaptor.forClass(classOf[ReturnsUserAnswers])
         verify(mockSessionRepository).set(captor.capture())(any())
@@ -241,7 +244,7 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad().url)
+        redirectLocation(result).value must include(AdjustmentCheckYourAnswersController.onPageLoad(NormalMode).url)
         verify(mockSessionRepository, never).set(any())(any())
       }
     }
@@ -274,7 +277,7 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, reverseController.onSubmit().url)
+          FakeRequest(POST, reverseController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value

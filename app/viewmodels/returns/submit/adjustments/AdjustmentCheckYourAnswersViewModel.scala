@@ -16,11 +16,11 @@
 
 package viewmodels.returns.submit.adjustments
 
-import models.NormalMode
+import models.{Mode, NormalMode}
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.returns.DutyRate
-import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
+import models.returns.adjustments.{AdjustmentDutyCalculator, AdjustmentEntry, AdjustmentList, AdjustmentType}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
@@ -33,7 +33,8 @@ case class AdjustmentCheckYourAnswersViewModel(
                                                 totalAdjustment: BigDecimal,
                                                 formattedTotalAdjustment: String,
                                                 hasAvailablePeriodsToAdd: Boolean,
-                                                adjustmentReasonMandatory: Boolean
+                                                adjustmentReasonMandatory: Boolean,
+                                                mode: Mode
                                               )
 
 object AdjustmentCheckYourAnswersViewModel {
@@ -44,48 +45,37 @@ object AdjustmentCheckYourAnswersViewModel {
              obligationDetails: Seq[ObligationDetails],
              periodKey: PeriodKey,
              dutyRates: Map[PeriodKey, DutyRate],
-             returnsDateUtils: ReturnsDateUtils
+             returnsDateUtils: ReturnsDateUtils,
+             mode: Mode = NormalMode
            )(implicit messages: Messages): AdjustmentCheckYourAnswersViewModel = {
 
     val adjustments = adjustmentList.map(_.adjustments).getOrElse(Seq.empty)
 
     val summaryCards = declareAdjustment match {
       case Some(false) =>
-        Seq(buildNoAdjustmentCard(periodKey))
+        Seq(buildNoAdjustmentCard(periodKey, mode))
+      case Some(true) if adjustments.isEmpty =>
+        Seq.empty
       case _ =>
         adjustments.reverse.map { adjustment =>
-          buildSummaryCard(adjustment, obligationDetails, periodKey, dutyRates, returnsDateUtils)
+          buildSummaryCard(adjustment, obligationDetails, periodKey, dutyRates, returnsDateUtils, mode)
         }
     }
 
     val hasAvailablePeriodsToAdd = calculateAvailablePeriods(obligationDetails, periodKey, adjustmentList).nonEmpty
 
-    val underDeclaredDutyTotal = totalDutyForType(adjustments, AdjustmentType.UnderDeclared, dutyRates)
-    val overDeclaredDutyTotal = totalDutyForType(adjustments, AdjustmentType.OverDeclared, dutyRates)
-
-    val totalAdjustment = underDeclaredDutyTotal - overDeclaredDutyTotal
-
-    val adjustmentReasonMandatory = underDeclaredDutyTotal >= AdjustmentType.dutyThreshold || overDeclaredDutyTotal >= AdjustmentType.dutyThreshold
+    val totals = AdjustmentDutyCalculator.totals(adjustments, dutyRates)
 
     AdjustmentCheckYourAnswersViewModel(
       summaryCards = summaryCards,
       hasAdjustments = adjustments.nonEmpty,
-      totalAdjustment = totalAdjustment,
-      formattedTotalAdjustment = CurrencyFormatter.currencyFormatWithLeadingSign(totalAdjustment),
+      totalAdjustment = totals.netAdjustment,
+      formattedTotalAdjustment = CurrencyFormatter.currencyFormatWithLeadingSign(totals.netAdjustment),
       hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd,
-      adjustmentReasonMandatory = adjustmentReasonMandatory
+      adjustmentReasonMandatory = totals.reasonMandatory,
+      mode = mode
     )
   }
-
-  private def totalDutyForType(
-                                adjustments: Seq[AdjustmentEntry],
-                                adjustmentType: AdjustmentType,
-                                dutyRates: Map[PeriodKey, DutyRate]
-                              ): BigDecimal =
-    adjustments
-      .filter(_.adjustmentType == adjustmentType)
-      .map(adjustment => dutyRates.get(adjustment.period).map(_.calculateDuty(adjustment.volumeInMl)).getOrElse(BigDecimal(0)))
-      .sum
 
   private def calculateAvailablePeriods(
                                          obligationDetails: Seq[ObligationDetails],
@@ -115,23 +105,24 @@ object AdjustmentCheckYourAnswersViewModel {
                                 obligationDetails: Seq[ObligationDetails],
                                 currentPeriodKey: PeriodKey,
                                 dutyRates: Map[PeriodKey, DutyRate],
-                                returnsDateUtils: ReturnsDateUtils
+                                returnsDateUtils: ReturnsDateUtils,
+                                mode: Mode
                               )(implicit messages: Messages): AdjustmentSummaryCard = {
 
     val periodDisplay = formatPeriod(adjustment.period, obligationDetails, returnsDateUtils)
     val dutyAmount = dutyRates.get(adjustment.period).map(_.calculateDuty(adjustment.volumeInMl)).getOrElse(BigDecimal(0))
 
     val rows = Seq(
-      buildDeclareAdjustmentRow(currentPeriodKey, declaredAdjustment = true),
+      buildDeclareAdjustmentRow(currentPeriodKey, declaredAdjustment = true, mode),
       buildTypeRow(adjustment.adjustmentType),
-      buildVolumeRow(adjustment.volumeInMl, adjustment.period, currentPeriodKey),
+      buildVolumeRow(adjustment.volumeInMl, adjustment.period, currentPeriodKey, mode),
       buildDutyRow(dutyAmount, adjustment.adjustmentType)
     )
 
     val cardActions = Seq(
       ActionItem(
         href = buildAdjustmentUrl(
-          controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onPageLoad().url,
+          controllers.returns.submit.adjustments.routes.RemoveAdjustmentController.onPageLoad(mode).url,
           currentPeriodKey,
           Some(adjustment.period)
         ),
@@ -149,8 +140,8 @@ object AdjustmentCheckYourAnswersViewModel {
     )
   }
 
-  private def buildNoAdjustmentCard(currentPeriodKey: PeriodKey)(implicit messages: Messages): AdjustmentSummaryCard = {
-    val row = buildDeclareAdjustmentRow(currentPeriodKey, declaredAdjustment = false)
+  private def buildNoAdjustmentCard(currentPeriodKey: PeriodKey, mode: Mode)(implicit messages: Messages): AdjustmentSummaryCard = {
+    val row = buildDeclareAdjustmentRow(currentPeriodKey, declaredAdjustment = false, mode)
 
     AdjustmentSummaryCard(
       rows = Seq(row),
@@ -160,14 +151,14 @@ object AdjustmentCheckYourAnswersViewModel {
     )
   }
 
-  private def buildDeclareAdjustmentRow(currentPeriodKey: PeriodKey, declaredAdjustment: Boolean)(implicit messages: Messages): SummaryListRow = {
+  private def buildDeclareAdjustmentRow(currentPeriodKey: PeriodKey, declaredAdjustment: Boolean, mode: Mode)(implicit messages: Messages): SummaryListRow = {
     SummaryListRow(
       key = Key(content = Text(messages("returns.declareAdjustmentQuestion.checkYourAnswersLabel"))),
       value = Value(content = Text(messages(if (declaredAdjustment) "site.yes" else "site.no"))),
       actions = Some(Actions(items = Seq(
         ActionItem(
           href = buildAdjustmentUrl(
-            controllers.returns.submit.adjustments.routes.DeclareAdjustmentQuestionController.onPageLoad(NormalMode).url,
+            controllers.returns.submit.adjustments.routes.DeclareAdjustmentQuestionController.onPageLoad(mode).url,
             currentPeriodKey
           ),
           content = Text(messages("site.change")),
@@ -195,7 +186,8 @@ object AdjustmentCheckYourAnswersViewModel {
   private def buildVolumeRow(
                               volume: BigDecimal,
                               adjustmentPeriod: PeriodKey,
-                              currentPeriodKey: PeriodKey
+                              currentPeriodKey: PeriodKey,
+                              mode: Mode
                             )(implicit messages: Messages): SummaryListRow = {
     SummaryListRow(
       key = Key(content = Text(messages("returns.adjustmentCheckYourAnswers.volume"))),
@@ -203,7 +195,7 @@ object AdjustmentCheckYourAnswersViewModel {
       actions = Some(Actions(items = Seq(
         ActionItem(
           href = buildAdjustmentUrl(
-            controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(NormalMode).url,
+            controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onPageLoad(mode).url,
             currentPeriodKey,
             Some(adjustmentPeriod)
           ),

@@ -19,7 +19,9 @@ package viewmodels.checkAnswers
 import models.CheckMode
 import models.identifiers.PeriodKey
 import models.returns.{DutyRate, ReturnsUserAnswers}
+import models.returns.adjustments.{AdjustmentDutyCalculator, AdjustmentList}
 import pages.returns.{DeclareDutyPage, EnterDutyAmountPage}
+import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
@@ -29,18 +31,34 @@ import viewmodels.implicits.*
 
 object ReturnsSummary extends CurrencyFormatter {
 
+  // scalafix:off DisableSyntax.throw
+  def calculateTotalDuty(
+    answers: ReturnsUserAnswers,
+    dutyRates: Map[PeriodKey, DutyRate],
+    periodKey: PeriodKey
+  ): Option[BigDecimal] =
+    answers.get(EnterDutyAmountPage).map { volumeInMl =>
+      val vapingProductsDuty = dutyRates(periodKey).calculateDuty(volumeInMl)
+      val adjustmentTotal = answers.get(AdjustmentListPage)
+        .map(list => AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).netAdjustment)
+        .getOrElse(BigDecimal(0))
+
+      vapingProductsDuty + adjustmentTotal
+    }
+
   def summaryList(
                    answers: ReturnsUserAnswers,
-                   dutyRate: DutyRate,
+                   dutyRates: Map[PeriodKey, DutyRate],
                    periodKey: PeriodKey
   )(implicit messages: Messages): SummaryList = {
     val rows = Seq(
       buildDeclareDutyRow(answers, periodKey),
-      buildDutyRow(answers, dutyRate, periodKey),
+      buildDutyRow(answers, dutyRates.getOrElse(periodKey, throw new IllegalStateException(s"No duty rate found for period $periodKey")), periodKey),
       //      buildSpoiltRow(answers, periodKey),
-      //      buildOverRow(answers, periodKey),
-      //      buildUnderRow(answers, periodKey),
-      buildTotalDutyRow(answers, dutyRate)
+      buildAdjustmentQuestionRow(answers, periodKey),
+      buildCombinedAdjustmentsRow(answers, dutyRates, periodKey),
+      buildAdjustmentReasonRow(answers, dutyRates, periodKey),
+      buildTotalDutyRow(answers, dutyRates, periodKey)
     ).flatten
 
     SummaryList(rows = rows, classes = CssConstants.marginBottom9)
@@ -93,34 +111,10 @@ object ReturnsSummary extends CurrencyFormatter {
       case _ => None
     }
 
-  private def buildSpoiltRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+  private def buildSpoiltRow(answers: ReturnsUserAnswers, periodKey: PeriodKey)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(DeclareDutyPage).map { answer =>
       SummaryListRowViewModel(
         key = "returns.CheckYourAnswers.dutySummary.spoilt",
-        value = ValueViewModel(""),
-        actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
-            .withVisuallyHiddenText(messages(""))
-        )
-      )
-    }
-
-  private def buildOverRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclareDutyPage).map { answer =>
-      SummaryListRowViewModel(
-        key = "returns.CheckYourAnswers.dutySummary.over",
-        value = ValueViewModel(""),
-        actions = Seq(
-          ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
-            .withVisuallyHiddenText(messages(""))
-        )
-      )
-    }
-
-  private def buildUnderRow(answers: ReturnsUserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclareDutyPage).map { answer =>
-      SummaryListRowViewModel(
-        key = "returns.CheckYourAnswers.dutySummary.under",
         value = ValueViewModel(""),
         actions = Seq(
           ActionItemViewModel("site.change", controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url)
@@ -137,18 +131,100 @@ object ReturnsSummary extends CurrencyFormatter {
     ))
   }
 
+  private def formatTotalDuty(amount: BigDecimal): String =
+    if (amount < 0) {
+      currencyFormat(amount.abs).replace("£", "-£")
+    } else {
+      currencyFormat(amount)
+    }
+
   private def buildTotalDutyRow(
                                  answers: ReturnsUserAnswers,
-                                 dutyRate: DutyRate
-  )(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(DeclareDutyPage) match {
-      case Some(true) =>
-        answers.get(EnterDutyAmountPage) match {
-          case Some(volumeInMl) => 
-            val dutyDue = dutyRate.calculateDuty(volumeInMl)
-            totalDutyRow(currencyFormat(dutyDue))
+                                 dutyRates: Map[PeriodKey, DutyRate],
+                                 periodKey: PeriodKey
+  )(implicit messages: Messages): Option[SummaryListRow] = {
+    val declareDuty = answers.get(DeclareDutyPage).getOrElse(false)
+    val adjustmentTotal = answers.get(AdjustmentListPage)
+      .map(list => AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).netAdjustment)
+      .getOrElse(BigDecimal(0))
+    
+    val hasAdjustments = adjustmentTotal != 0
+    
+    if (declareDuty || hasAdjustments) {
+      if (declareDuty) {
+        calculateTotalDuty(answers, dutyRates, periodKey) match {
+          case Some(totalDuty) => totalDutyRow(formatTotalDuty(totalDuty))
           case None => totalDutyRow(messages("returns.CheckYourAnswers.dutySummary.total.nil"))
         }
-      case _ => None
+      } else {
+        totalDutyRow(formatTotalDuty(adjustmentTotal))
+      }
+    } else {
+      None
     }
+  }
+
+  private def buildAdjustmentQuestionRow(
+    answers: ReturnsUserAnswers,
+    periodKey: PeriodKey
+  )(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(DeclareAdjustmentPage).map { answer =>
+      SummaryListRowViewModel(
+        key = "returns.CheckYourAnswers.adjustments.question",
+        value = ValueViewModel(Text(messages(if (answer) "site.yes" else "site.no"))),
+        actions = Seq(
+          ActionItemViewModel(
+            "site.change",
+            s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+          ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.question.change.hidden"))
+        )
+      )
+    }
+
+  private def buildCombinedAdjustmentsRow(
+    answers: ReturnsUserAnswers,
+    dutyRates: Map[PeriodKey, DutyRate],
+    periodKey: PeriodKey
+  )(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(AdjustmentListPage).flatMap { list =>
+      if (list.adjustments.nonEmpty) {
+        val totals = AdjustmentDutyCalculator.totals(list.adjustments, dutyRates)
+        
+        Some(SummaryListRowViewModel(
+          key = "returns.CheckYourAnswers.adjustments.combined",
+          value = ValueViewModel(Text(currencyFormatWithLeadingSign(totals.netAdjustment))),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+            ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.combined.change.hidden"))
+          )
+        ))
+      } else None
+    }
+
+  private def buildAdjustmentReasonRow(
+    answers: ReturnsUserAnswers,
+    dutyRates: Map[PeriodKey, DutyRate],
+    periodKey: PeriodKey
+  )(implicit messages: Messages): Option[SummaryListRow] = {
+    val shouldShowReason = answers.get(AdjustmentListPage).exists { list =>
+      AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).reasonMandatory
+    }
+
+    if (shouldShowReason) {
+      answers.get(AdjustmentReasonPage).map { reason =>
+        SummaryListRowViewModel(
+          key = "returns.CheckYourAnswers.adjustments.reason",
+          value = ValueViewModel(Text(reason)),
+          actions = Seq(
+            ActionItemViewModel(
+              "site.change",
+              s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
+            ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.adjustments.reason.change.hidden"))
+          )
+        )
+      }
+    } else None
+  }
 }

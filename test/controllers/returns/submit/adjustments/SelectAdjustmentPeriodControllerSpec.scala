@@ -17,6 +17,7 @@
 package controllers.returns.submit.adjustments
 
 import base.SpecBase
+import models.NormalMode
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -30,7 +31,7 @@ import scala.concurrent.Future
 class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val selectAdjustmentPeriodRoute: String =
-    controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(None).url
+    controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(NormalMode, None).url
 
   "SelectAdjustmentPeriod Controller" - {
 
@@ -72,7 +73,7 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(Some(2027)).url)
+        val request = FakeRequest(GET, controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(NormalMode, Some(2027)).url)
 
         val result = route(application, request).value
 

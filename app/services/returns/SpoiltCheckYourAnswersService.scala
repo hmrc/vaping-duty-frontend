@@ -107,18 +107,8 @@ class SpoiltCheckYourAnswersService @Inject()(
                                             spoiltList: Option[List[SpoiltVolumeByPeriod]],
                                             obligationDetails: Seq[ObligationDetails]
                                           ): Map[PeriodKey, DutyRate] = {
-
     val uniquePeriods = spoiltList.getOrElse(List.empty).map(_.periodKey).distinct
 
-    uniquePeriods.map { period =>
-      val obligation = obligationDetails.find(_.periodKey == period.toString)
-      val dutyRate = obligation.map { obl =>
-        dutyRateService.getDutyRateForDate(obl.iCFromDate)
-      }.getOrElse(
-        // scalafix:off DisableSyntax.throw
-        throw new RuntimeException(s"No obligation found for period ${period.toString}")
-      )
-      period -> dutyRate
-    }.toMap
+    dutyRateService.getDutyRatesForPeriods(uniquePeriods, obligationDetails)
   }
 }

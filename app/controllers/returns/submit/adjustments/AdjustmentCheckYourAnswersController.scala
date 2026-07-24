@@ -19,12 +19,12 @@ package controllers.returns.submit.adjustments
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import forms.returns.DeclareDutyFormProvider
-import models.NormalMode
 import models.requests.returns.ReturnsDataRequest
+import models.{Mode, NormalMode}
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.returns.{AdjustmentCheckYourAnswersService, ReturnsUserAnswersService}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -50,64 +50,95 @@ class AdjustmentCheckYourAnswersController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-
-      val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
-      val adjustmentList = request.userAnswers.get(AdjustmentListPage)
-
-      adjustmentCheckYourAnswersService
-        .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId)
-        .map { vm =>
-          val preparedForm = request.userAnswers.get(AddAnotherAdjustmentPage) match {
-            case None => form
-            case Some(value) => form.fill(value)
-          }
-
-          Ok(view(request.periodKey, vm, preparedForm))
+      buildViewModel(request, mode).map { vm =>
+        val preparedForm = request.userAnswers.get(AddAnotherAdjustmentPage) match {
+          case None => form
+          case Some(value) => form.fill(value)
         }
+
+        Ok(view(request.periodKey, vm, preparedForm, mode))
+      }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-
       val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
-      val adjustmentList = request.userAnswers.get(AdjustmentListPage)
 
-      adjustmentCheckYourAnswersService
-        .buildViewModel(declareAdjustment, adjustmentList, request.periodKey, request.enrolmentVpdId)
-        .flatMap { vm =>
-          declareAdjustment match {
-            case Some(false) => redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory)
-            case _ if !vm.hasAvailablePeriodsToAdd => redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory)
-            case _ =>
-              form.bindFromRequest().fold(
-                formWithErrors =>
-                  Future.successful(BadRequest(view(request.periodKey, vm, formWithErrors))),
+      buildViewModel(request, mode).flatMap { vm =>
+        declareAdjustment match {
+          case Some(false) =>
+            redirectToNextPageWithoutAddingAnother(request, mode)
 
-                value =>
-                  for {
-                    updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
-                    _ <- sessionRepository.set(updatedAnswers)
-                  } yield Redirect(navigator.nextPage(
-                    AddAnotherAdjustmentPage,
-                    NormalMode,
+          case _ if !vm.hasAvailablePeriodsToAdd =>
+            redirectToNextPageWithoutAddingAnother(request, mode)
+
+          case _ =>
+            form.bindFromRequest().fold(
+              formWithErrors =>
+                Future.successful(BadRequest(view(request.periodKey, vm, formWithErrors, mode))),
+
+              value =>
+                for {
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
+                  _ <- sessionRepository.set(updatedAnswers)
+                  currentReasonMandatory <- adjustmentCheckYourAnswersService.isReasonMandatory(
                     updatedAnswers,
-                    vm.adjustmentReasonMandatory
-                  ))
-              )
-          }
+                    request.enrolmentVpdId
+                  )
+                } yield Redirect(navigator.nextPage(
+                  AddAnotherAdjustmentPage,
+                  mode,
+                  updatedAnswers,
+                  currentReasonMandatory
+                ))
+            )
         }
+      }
+  }
+
+  private def buildViewModel(request: ReturnsDataRequest[AnyContent], mode: Mode)
+                            (using HeaderCarrier, Messages): Future[viewmodels.returns.submit.adjustments.AdjustmentCheckYourAnswersViewModel] = {
+    val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
+    val adjustmentList = request.userAnswers.get(AdjustmentListPage)
+
+    adjustmentCheckYourAnswersService.buildViewModel(
+      declareAdjustment,
+      adjustmentList,
+      request.periodKey,
+      request.enrolmentVpdId,
+      mode
+    )
   }
 
   private def redirectToNextPageWithoutAddingAnother(
                                                       request: ReturnsDataRequest[AnyContent],
-                                                      adjustmentReasonMandatory: Boolean
+                                                      mode: Mode
                                                     )(using HeaderCarrier): Future[Result] = {
     for {
-      updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, false))
-      _ <- sessionRepository.set(updatedAnswers)
-    } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, updatedAnswers, adjustmentReasonMandatory))
+      currentReasonMandatory <- adjustmentCheckYourAnswersService.isReasonMandatory(
+        request.userAnswers,
+        request.enrolmentVpdId
+      )
+      result <- {
+        if (adjustmentCheckYourAnswersService.shouldRedirectToReasonPage(request.userAnswers, currentReasonMandatory)) {
+          Future.successful(Redirect(
+            s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(mode).url}?period=${request.periodKey.value}"
+          ))
+        } else {
+          val cleanedAnswersTry = adjustmentCheckYourAnswersService.cleanupReasonIfNotRequired(
+            request.userAnswers,
+            currentReasonMandatory
+          )
+          for {
+            cleanedAnswers <- Future.fromTry(cleanedAnswersTry)
+            updatedAnswers <- Future.fromTry(cleanedAnswers.set(AddAnotherAdjustmentPage, false))
+            _ <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, mode, updatedAnswers, currentReasonMandatory))
+        }
+      }
+    } yield result
   }
 
 }
