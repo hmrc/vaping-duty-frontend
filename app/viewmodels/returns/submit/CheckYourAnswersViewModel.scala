@@ -218,7 +218,7 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
           value = Value(content = Text(adjustmentReason.getOrElse(""))),
           actions = Some(Actions(items = Seq(
             ActionItem(
-              href = PLACEHOLDER_URL,
+              href = s"${controllers.returns.submit.adjustments.routes.AdjustmentReasonController.onPageLoad(CheckMode).url}?period=${periodKey.value}",
               content = Text(messages("site.change")),
               visuallyHiddenText = Some(messages("returns.CheckYourAnswers.card.adjustments.reason.change.hidden"))
             )
@@ -229,7 +229,7 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
 
     val cardActions = Some(Seq(
       ActionItem(
-        href = PLACEHOLDER_URL,
+        href = s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode).url}?period=${periodKey.value}",
         content = Text(messages("site.change")),
         visuallyHiddenText = Some(messages("returns.CheckYourAnswers.card.adjustments.change.hidden"))
       )
