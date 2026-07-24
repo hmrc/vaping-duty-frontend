@@ -88,13 +88,13 @@ class ReturnsNavigatorSpec extends SpecBase {
       "must go from DeclareSpoiltProductsPage to SelectSpoiltPeriodPage when there are spoilt products to declare" in {
         val ua = returnsUserAnswers.set(DeclareSpoiltProductsPage, true).success.value
 
-        navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url}?period=$periodKey"
       }
 
       "must go from DeclareSpoiltProductsPage to SpoiltCheckYourAnswers when there are NO spoilt products to declare" in {
         val ua = returnsUserAnswers.set(DeclareSpoiltProductsPage, false).success.value
 
-        navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
       "must go from DeclareSpoiltProductsPage to JourneyRecovery when there is no value present" in {
@@ -105,13 +105,13 @@ class ReturnsNavigatorSpec extends SpecBase {
       "must go from SpoiltVolumeByPeriodPage to SpoiltCheckYourAnswersPage when entering spoilt products" in {
         val ua = returnsUserAnswers.set(SpoiltVolumeByPeriodPage, List(SpoiltVolumeByPeriod(1, periodKey))).success.value
 
-        navigator.nextPage(SpoiltVolumeByPeriodPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(SpoiltVolumeByPeriodPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(NormalMode).url}?period=$periodKey"
       }
 
       "must go from AddSpoiltAdjustmentPage to SelectSpoiltPeriod view when user has more spoilt adjustments to make" in {
         val ua = returnsUserAnswers.set(SpoiltCheckYourAnswersPage, true).success.value
 
-        navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad().url}?period=$periodKey"
+        navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url}?period=$periodKey"
       }
 
       "must go from AddSpoiltAdjustmentPage to TaskList view when no more spoilt adjustments to make" in {
@@ -174,7 +174,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       "must go from AddAnotherAdjustmentPage to TaskList when adjustmentReasonMandatory is false" in {
         val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
 
-        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua, adjustmentReasonMandatory = false)
+        navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua)
           .url mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=$periodKey"
       }
 
@@ -244,7 +244,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from DeclareSpoiltProductsPage to SpoiltCheckYourAnswers in CheckMode" in {
-        navigator.nextPage(DeclareSpoiltProductsPage, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
+        navigator.nextPage(DeclareSpoiltProductsPage, CheckMode, returnsUserAnswers.set(DeclareSpoiltProductsPage, false).success.value).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
       }
 
       "must go from SpoiltVolumeByPeriodPage to SpoiltCheckYourAnswers in CheckMode" in {

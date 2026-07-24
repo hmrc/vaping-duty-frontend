@@ -18,6 +18,7 @@ package controllers.returns.submit.spoilt
 
 import base.SpecBase
 import forms.returns.SpoiltVolumeByPeriodFormProvider
+import models.NormalMode
 import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationStatus}
 import models.returns.SpoiltVolumeByPeriod
@@ -53,10 +54,10 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
   )
 
   lazy val spoiltVolumeByPeriodRoute: String =
-    controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad().url + s"?spoiltPeriod=${spoiltPeriodKey.value}"
+    controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad(NormalMode).url + s"?spoiltPeriod=${spoiltPeriodKey.value}"
 
   lazy val spoiltVolumeByPeriodSubmitRoute: String =
-    controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onSubmit().url + s"?spoiltPeriod=${spoiltPeriodKey.value}"
+    controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onSubmit(NormalMode).url + s"?spoiltPeriod=${spoiltPeriodKey.value}"
 
   "SpoiltVolumeByPeriodController" - {
 
@@ -119,7 +120,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad(NormalMode).url)
 
         val result = route(application, request).value
 
@@ -216,7 +217,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value must include(
-          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url
+          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(NormalMode).url
         )
         redirectLocation(result).value must include(s"period=${periodKey.value}")
       }
@@ -253,7 +254,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onSubmit().url)
+        val request = FakeRequest(POST, controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onSubmit(NormalMode).url)
           .withFormUrlEncodedBody(("value", testVolume.toString))
 
         val result = route(application, request).value

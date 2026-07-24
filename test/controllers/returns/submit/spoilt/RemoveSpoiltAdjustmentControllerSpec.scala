@@ -17,6 +17,7 @@
 package controllers.returns.submit.spoilt
 
 import base.SpecBase
+import models.NormalMode
 import models.identifiers.PeriodKey
 import models.returns.{DutyRate, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import org.mockito.ArgumentCaptor
@@ -37,10 +38,10 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
   val otherSpoiltPeriodKey: PeriodKey = november2027
 
   lazy val removeSpoiltAdjustmentRoute: String =
-    controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onPageLoad().url + s"?spoiltPeriod=${spoiltPeriodKey.value}"
+    controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onPageLoad(NormalMode).url + s"?spoiltPeriod=${spoiltPeriodKey.value}"
 
   lazy val removeSpoiltAdjustmentSubmitRoute: String =
-    controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onSubmit().url + s"?spoiltPeriod=${spoiltPeriodKey.value}"
+    controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onSubmit(NormalMode).url + s"?spoiltPeriod=${spoiltPeriodKey.value}"
 
   private def stubbedObligationService: ObligationService = {
     val mockObligationService = mock[ObligationService]
@@ -89,7 +90,7 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onPageLoad(NormalMode).url)
 
         val result = route(application, request).value
 
@@ -145,7 +146,7 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value must include(
-          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url
+          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(NormalMode).url
         )
         verify(mockSessionRepository).set(any())(any())
       }
@@ -179,7 +180,7 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value must include(
-          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url
+          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(NormalMode).url
         )
         verify(mockSessionRepository).set(any())(any())
       }
@@ -211,7 +212,7 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value must include(
-          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url
+          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(NormalMode).url
         )
 
         val captor = ArgumentCaptor.forClass(classOf[ReturnsUserAnswers])
@@ -246,7 +247,7 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value must include(
-          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url
+          controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(NormalMode).url
         )
         verify(mockSessionRepository, never).set(any())(any())
       }
@@ -280,7 +281,7 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onSubmit().url)
+          FakeRequest(POST, controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onSubmit(NormalMode).url)
             .withFormUrlEncodedBody(("value", "true"))
 
         val result = route(application, request).value
