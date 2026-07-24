@@ -28,7 +28,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
   val dutyRatesMap: Map[PeriodKey, DutyRate] = Map(october2027 -> dutyRate)
 
   "AdjustmentCheckYourAnswersViewModel" - {
-
+    
     "must create view model with correct summary cards for under declared adjustment" in {
       val adjustment = AdjustmentEntry(
         period = october2027,

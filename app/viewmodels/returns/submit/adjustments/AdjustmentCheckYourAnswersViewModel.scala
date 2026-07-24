@@ -54,6 +54,8 @@ object AdjustmentCheckYourAnswersViewModel {
     val summaryCards = declareAdjustment match {
       case Some(false) =>
         Seq(buildNoAdjustmentCard(periodKey, mode))
+      case Some(true) if adjustments.isEmpty =>
+        Seq.empty
       case _ =>
         adjustments.reverse.map { adjustment =>
           buildSummaryCard(adjustment, obligationDetails, periodKey, dutyRates, returnsDateUtils, mode)

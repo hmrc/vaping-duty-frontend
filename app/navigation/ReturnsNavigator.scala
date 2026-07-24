@@ -44,7 +44,7 @@ class ReturnsNavigator @Inject()(
     case SpoiltCheckYourAnswersPage     => ua  => addSpoiltAdjustmentPageRoutes(ua, periodKey)
     case SpoiltVolumeByPeriodPage       => _   => withPeriod(controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareAdjustmentPage          => ua  => declareAdjustmentQuestionPageRoutes(ua, periodKey)
-    case AdjustmentListPage             => ua  => adjustmentListPageRoutes(ua, periodKey, adjustmentReasonMandatory)
+    case AdjustmentListPage             => ua  => adjustmentListPageRoutes(ua, periodKey)
     case AddAnotherAdjustmentPage       => ua  => addAnotherAdjustmentPageRoutes(ua, periodKey, adjustmentReasonMandatory, NormalMode)
     case AdjustmentReasonPage           => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage        => ua  => declareDutySuspensePageRoutes(ua, periodKey)
@@ -53,13 +53,13 @@ class ReturnsNavigator @Inject()(
     case _                              => _   => Call(GET, BtaLink(config))
   }
 
-  private def checkRouteMap(periodKey: String): Page => ReturnsUserAnswers => Call = {
+  private def checkRouteMap(periodKey: String, adjustmentReasonMandatory: Boolean = false): Page => ReturnsUserAnswers => Call = {
     case DeclareDutyPage            => ua => checkDeclareDutyPageRoutes(ua, periodKey)
     case EnterDutyAmountPage        => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareSpoiltProductsPage  => _  => controllers.returns.submit.routes.TaskListController.onPageLoad()
-    case DeclareAdjustmentPage      => _  => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode), periodKey)
+    case DeclareAdjustmentPage      => ua => checkDeclareAdjustmentPageRoutes(ua, periodKey)
     case AdjustmentListPage         => _  => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode), periodKey)
-    case AddAnotherAdjustmentPage   => ua => addAnotherAdjustmentPageRoutes(ua, periodKey, false, CheckMode)
+    case AddAnotherAdjustmentPage   => ua => addAnotherAdjustmentPageRoutes(ua, periodKey, adjustmentReasonMandatory, CheckMode)
     case AdjustmentReasonPage       => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage    => ua => checkDeclareDutySuspensePageRoutes(ua, periodKey)
     case EnterDutySuspensePage      => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
@@ -115,7 +115,14 @@ class ReturnsNavigator @Inject()(
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
-  private def adjustmentListPageRoutes(ua: ReturnsUserAnswers, periodKey: String, adjustmentReasonMandatory: Boolean) = {
+  private def checkDeclareAdjustmentPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
+    ua.get(DeclareAdjustmentPage) match
+      case Some(true)  => withPeriod(controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(CheckMode, None), periodKey)
+      case Some(false) => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode), periodKey)
+      case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
+  }
+
+  private def adjustmentListPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode), periodKey)
   }
 
@@ -143,6 +150,6 @@ class ReturnsNavigator @Inject()(
     case NormalMode =>
       normalRoutes(userAnswers.periodKey, adjustmentReasonMandatory)(page)(userAnswers)
     case CheckMode =>
-      checkRouteMap(userAnswers.periodKey)(page)(userAnswers)
+      checkRouteMap(userAnswers.periodKey, adjustmentReasonMandatory)(page)(userAnswers)
   }
 }

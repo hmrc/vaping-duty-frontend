@@ -69,10 +69,10 @@ class AdjustmentCheckYourAnswersController @Inject()(
       buildViewModel(request, mode).flatMap { vm =>
         declareAdjustment match {
           case Some(false) =>
-            redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory, mode)
+            redirectToNextPageWithoutAddingAnother(request, mode)
 
           case _ if !vm.hasAvailablePeriodsToAdd =>
-            redirectToNextPageWithoutAddingAnother(request, vm.adjustmentReasonMandatory, mode)
+            redirectToNextPageWithoutAddingAnother(request, mode)
 
           case _ =>
             form.bindFromRequest().fold(
@@ -83,11 +83,15 @@ class AdjustmentCheckYourAnswersController @Inject()(
                 for {
                   updatedAnswers <- Future.fromTry(request.userAnswers.set(AddAnotherAdjustmentPage, value))
                   _ <- sessionRepository.set(updatedAnswers)
+                  currentReasonMandatory <- adjustmentCheckYourAnswersService.isReasonMandatory(
+                    updatedAnswers,
+                    request.enrolmentVpdId
+                  )
                 } yield Redirect(navigator.nextPage(
                   AddAnotherAdjustmentPage,
                   mode,
                   updatedAnswers,
-                  vm.adjustmentReasonMandatory
+                  currentReasonMandatory
                 ))
             )
         }
@@ -110,24 +114,31 @@ class AdjustmentCheckYourAnswersController @Inject()(
 
   private def redirectToNextPageWithoutAddingAnother(
                                                       request: ReturnsDataRequest[AnyContent],
-                                                      adjustmentReasonMandatory: Boolean,
                                                       mode: Mode
                                                     )(using HeaderCarrier): Future[Result] = {
-    if (adjustmentCheckYourAnswersService.shouldRedirectToReasonPage(request.userAnswers, adjustmentReasonMandatory)) {
-      Future.successful(Redirect(
-        s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(mode).url}?period=${request.periodKey.value}"
-      ))
-    } else {
-      val cleanedAnswersTry = adjustmentCheckYourAnswersService.cleanupReasonIfNotRequired(
+    for {
+      currentReasonMandatory <- adjustmentCheckYourAnswersService.isReasonMandatory(
         request.userAnswers,
-        adjustmentReasonMandatory
+        request.enrolmentVpdId
       )
-      for {
-        cleanedAnswers <- Future.fromTry(cleanedAnswersTry)
-        updatedAnswers <- Future.fromTry(cleanedAnswers.set(AddAnotherAdjustmentPage, false))
-        _ <- sessionRepository.set(updatedAnswers)
-      } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, mode, updatedAnswers, adjustmentReasonMandatory))
-    }
+      result <- {
+        if (adjustmentCheckYourAnswersService.shouldRedirectToReasonPage(request.userAnswers, currentReasonMandatory)) {
+          Future.successful(Redirect(
+            s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(mode).url}?period=${request.periodKey.value}"
+          ))
+        } else {
+          val cleanedAnswersTry = adjustmentCheckYourAnswersService.cleanupReasonIfNotRequired(
+            request.userAnswers,
+            currentReasonMandatory
+          )
+          for {
+            cleanedAnswers <- Future.fromTry(cleanedAnswersTry)
+            updatedAnswers <- Future.fromTry(cleanedAnswers.set(AddAnotherAdjustmentPage, false))
+            _ <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(AddAnotherAdjustmentPage, mode, updatedAnswers, currentReasonMandatory))
+        }
+      }
+    } yield result
   }
 
 }

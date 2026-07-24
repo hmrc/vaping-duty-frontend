@@ -160,6 +160,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
       when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
+      when(mockService.isReasonMandatory(any(), any())(using any()))
+        .thenReturn(Future.successful(false))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
@@ -204,6 +206,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         .thenReturn(Future.successful(mockViewModel))
       when(mockService.cleanupReasonIfNotRequired(any(), any()))
         .thenReturn(Success(userAnswersWithNoAdjustments))
+      when(mockService.isReasonMandatory(any(), any())(using any()))
+        .thenReturn(Future.successful(false))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
@@ -247,6 +251,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         .thenReturn(Future.successful(mockViewModel))
       when(mockService.cleanupReasonIfNotRequired(any(), any()))
         .thenReturn(Success(userAnswers))
+      when(mockService.isReasonMandatory(any(), any())(using any()))
+        .thenReturn(Future.successful(false))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
@@ -351,6 +357,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
       when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
+      when(mockService.isReasonMandatory(any(), any())(using any()))
+        .thenReturn(Future.successful(true))
       when(mockService.shouldRedirectToReasonPage(any(), any()))
         .thenReturn(true)
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
@@ -370,6 +378,80 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value must include("reason-for-adjustment")
+      }
+    }
+
+    "when declareAdjustment is true but no adjustments have been added yet" - {
+      "must return OK and display the page with a single card on GET" in {
+        val mockService = mock[AdjustmentCheckYourAnswersService]
+        val userAnswers = returnsUserAnswers
+          .set(DeclareAdjustmentPage, true).success.value
+
+        val mockViewModel = AdjustmentCheckYourAnswersViewModel(
+          summaryCards = Seq.empty,
+          hasAdjustments = false,
+          totalAdjustment = BigDecimal(0),
+          formattedTotalAdjustment = "£0.00",
+          hasAvailablePeriodsToAdd = true,
+          adjustmentReasonMandatory = false,
+          mode = NormalMode
+        )
+
+        when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
+          .thenReturn(Future.successful(mockViewModel))
+
+        val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
+          .overrides(
+            bind[AdjustmentCheckYourAnswersService].toInstance(mockService)
+          )
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, adjustmentCheckYourAnswersRoute)
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+        }
+      }
+
+      "must redirect to select adjustment period page on POST" in {
+        val mockSessionRepository = mock[ReturnsUserAnswersService]
+        val mockService = mock[AdjustmentCheckYourAnswersService]
+        val userAnswers = returnsUserAnswers
+          .set(DeclareAdjustmentPage, true).success.value
+
+        val mockViewModel = AdjustmentCheckYourAnswersViewModel(
+          summaryCards = Seq.empty,
+          hasAdjustments = false,
+          totalAdjustment = BigDecimal(0),
+          formattedTotalAdjustment = "£0.00",
+          hasAvailablePeriodsToAdd = true,
+          adjustmentReasonMandatory = false,
+          mode = NormalMode
+        )
+
+        when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
+          .thenReturn(Future.successful(mockViewModel))
+        when(mockService.isReasonMandatory(any(), any())(using any()))
+          .thenReturn(Future.successful(false))
+        when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+        val application =
+          applicationBuilder(returnsUserAnswers = Some(userAnswers))
+            .overrides(
+              bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+              bind[AdjustmentCheckYourAnswersService].toInstance(mockService)
+            )
+            .build()
+
+        running(application) {
+          val request = FakeRequest(POST, adjustmentCheckYourAnswersRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(NormalMode).url}?period=${userAnswers.periodKey}"
+        }
       }
     }
 
@@ -395,6 +477,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
 
       when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
+      when(mockService.isReasonMandatory(any(), any())(using any()))
+        .thenReturn(Future.successful(false))
       when(mockService.shouldRedirectToReasonPage(any(), any()))
         .thenReturn(false)
       when(mockService.cleanupReasonIfNotRequired(any(), any()))

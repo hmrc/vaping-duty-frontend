@@ -247,13 +247,27 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareSpoiltProductsPage, CheckMode, returnsUserAnswers) mustBe controllers.returns.submit.routes.TaskListController.onPageLoad()
       }
 
-      "must go from DeclareAdjustmentPage to AdjustmentCheckYourAnswers (mini CYA)" in {
-        navigator.nextPage(DeclareAdjustmentPage, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
+      "must go from DeclareAdjustmentPage to SelectAdjustmentPeriodPage (mini CYA)" in {
+        navigator.nextPage(DeclareAdjustmentPage, CheckMode, returnsUserAnswers.set(DeclareAdjustmentPage, true).success.value).url mustBe s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(CheckMode).url}?period=$periodKey"
       }
 
       "must go from AdjustmentReasonPage to CheckYourAnswers" in {
         val ua = returnsUserAnswers.set(AdjustmentReasonPage, "test reason").success.value
         navigator.nextPage(AdjustmentReasonPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to AdjustmentReason when adjustmentReasonMandatory is true in CheckMode" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
+
+        navigator.nextPage(AddAnotherAdjustmentPage, CheckMode, ua, adjustmentReasonMandatory = true)
+          .url mustBe s"${controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(CheckMode).url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to CheckYourAnswers when adjustmentReasonMandatory is false in CheckMode" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, false).success.value
+
+        navigator.nextPage(AddAnotherAdjustmentPage, CheckMode, ua)
+          .url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
       }
     }
   }

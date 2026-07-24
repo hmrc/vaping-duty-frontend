@@ -19,7 +19,7 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
-import models.returns.adjustments.AdjustmentList
+import models.returns.adjustments.{AdjustmentDutyCalculator, AdjustmentList}
 import models.returns.{DutyRate, ReturnsUserAnswers}
 import models.{Mode, NormalMode}
 import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
@@ -98,12 +98,27 @@ class AdjustmentCheckYourAnswersService @Inject()(
     else userAnswers.set(AdjustmentListPage, AdjustmentList(updatedAdjustments))
   }
 
+  def isReasonMandatory(
+                         userAnswers: ReturnsUserAnswers,
+                         vpdId: VpdId
+                       )(using HeaderCarrier): Future[Boolean] = {
+    userAnswers.get(AdjustmentListPage) match {
+      case Some(adjustmentList) =>
+        obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
+          val dutyRatesMap = getDutyRatesForAdjustments(Some(adjustmentList), obligationDetails)
+          val totals = AdjustmentDutyCalculator.totals(adjustmentList.adjustments, dutyRatesMap)
+          totals.reasonMandatory
+        }
+      case None =>
+        Future.successful(false)
+    }
+  }
+
   def shouldRedirectToReasonPage(
                                   userAnswers: ReturnsUserAnswers,
                                   adjustmentReasonMandatory: Boolean
                                 ): Boolean = {
-    val hasReason = userAnswers.get(AdjustmentReasonPage).isDefined
-    adjustmentReasonMandatory && !hasReason
+    adjustmentReasonMandatory
   }
 
   def cleanupReasonIfNotRequired(
