@@ -41,9 +41,12 @@
 )) {
 
     @caption(messages("returns.caption", vm.returnPeriod, vm.year))
-    @h1(messages("returns.CheckYourAnswers.heading"))
 
-    @h2(messages("returns.CheckYourAnswers.dutyDue", vm.formattedTotalDuty))
+    @if(vm.nilReturn) {
+        @h1(messages("returns.CheckYourAnswers.nilReturn.heading"))
+    } else {
+        @h1(messages("returns.CheckYourAnswers.heading"))
+    }
 
     @h2(messages("returns.CheckYourAnswers.h2.theAmount"))
 
@@ -90,6 +93,8 @@
         summaryList = vm.dutySuspendedCard._2,
         actions = vm.dutySuspendedCard._3
     )
+
+    @h2(messages("returns.CheckYourAnswers.changing"))
 
     @p(Seq(messages("returns.CheckYourAnswers.p.bySubmitting")))
 

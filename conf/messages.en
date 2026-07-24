@@ -341,8 +341,8 @@ returns.CheckYourAnswers.p.youWillBe = You will be liable for the amount once yo
 returns.CheckYourAnswers.h2.finalDuty = Final duty summary
 returns.CheckYourAnswers.h2.dutySuspended = Duty suspended summary
 returns.CheckYourAnswers.p.theseAnswers = These answers will not affect the total duty due.
-returns.CheckYourAnswers.p.bySubmitting = After you submit your answers, you will not be able to change them until your next return.
-returns.CheckYourAnswers.p.making = If you need to make changes later, use the adjustment options in your next Vaping Products Duty return.
+returns.CheckYourAnswers.p.bySubmitting = After you submit this return, you will not be able to change it until your next Vaping Products Duty return.
+returns.CheckYourAnswers.p.making = If you need to update your answers, use the adjustment options in your next return.
 returns.CheckYourAnswers.button = Confirm and submit
 
 returns.CheckYourAnswers.declareDuty.vaping = Do you need to declare vaping products for duty?
@@ -369,6 +369,8 @@ returns.CheckYourAnswers.dutySuspended.moved = Product moved
 returns.CheckYourAnswers.dutySuspended.total = Total volume
 returns.CheckYourAnswers.dutySuspended.total.nil = 0 ml
 
+returns.CheckYourAnswers.changing = Changing your answers
+
 returns.CheckYourAnswers.card.declareDuty.title = Declare vaping products for duty
 returns.CheckYourAnswers.card.declareDuty.change.hidden = declare vaping products for duty
 returns.CheckYourAnswers.card.declareDuty.question = Do you need to declare vaping products for duty?
@@ -386,7 +388,7 @@ returns.CheckYourAnswers.card.adjustments.total = Adjustments
 returns.CheckYourAnswers.card.adjustments.reason = Adjustment reason
 returns.CheckYourAnswers.card.adjustments.reason.change.hidden = adjustment reason
 
-returns.CheckYourAnswers.card.dutySuspended.title = Report suspended vaping deliveries
+returns.CheckYourAnswers.card.dutySuspended.title = Report duty suspended vaping deliveries
 returns.CheckYourAnswers.card.dutySuspended.change.hidden = duty suspended deliveries
 returns.CheckYourAnswers.card.dutySuspended.question = Have you received or moved any finished vaping products in duty suspense?
 returns.CheckYourAnswers.card.dutySuspended.declared = Duty suspense
