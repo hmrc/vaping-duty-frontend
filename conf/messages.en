@@ -552,12 +552,13 @@ returns.adjustmentReason.error.length = Reason for adjustment must be 250 charac
 
 ### Payments ###
 
-payments.viewPayments.title = Vaping Products Duty payments
-payments.viewPayments.heading = Vaping Products Duty payments
+payments.viewPayments.title = Payment overview
+payments.viewPayments.caption = Vaping Products Duty
+payments.viewPayments.heading = Payment overview
 payments.viewPayments.youOwe = You owe
 payments.viewPayments.outstanding.heading = Outstanding payments
 payments.viewPayments.outstanding.body = Payments take up to 7 working days to show, depending on how you pay. After you complete your return your tax calculation will take up to 2 days to show.
-payments.viewPayments.table.toBePaidBy = Period
+payments.viewPayments.table.toBePaidBy = To be paid by
 payments.viewPayments.table.description = Description
 payments.viewPayments.table.leftToPay = Left to pay
 payments.viewPayments.table.status = Status

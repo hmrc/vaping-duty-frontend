@@ -38,7 +38,7 @@ object ViewPaymentsViewModel {
   private val TAG_STYLE_RED = "govuk-tag--red"
   private val TAG_STYLE_GREEN = "govuk-tag--green"
 
-  private val DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy")
+  private val DATE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
   private val govukTag = GovukTag()
 
