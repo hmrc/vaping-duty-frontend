@@ -17,6 +17,7 @@
 @import components.*
 @import viewmodels.returns.submit.DeclareDutyCheckAnswersViewModel
 @import models.identifiers.PeriodKey
+@import models.Mode
 
 @this(
     layout: templates.ReturnsLayout,
@@ -27,7 +28,7 @@
     summaryCard: SummaryCard
 )
 
-@(periodKey: PeriodKey, vm: DeclareDutyCheckAnswersViewModel)(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, vm: DeclareDutyCheckAnswersViewModel, mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("returns.declareDutyCheckAnswers.title", vm.dutyDue))) {
 
@@ -39,7 +40,7 @@
         summaryList = vm.summaryList
     )
 
-    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onSubmit(mode).url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
         @govukButton(ButtonViewModel(messages("site.saveAndContinue")))
     }
 }

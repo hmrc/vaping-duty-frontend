@@ -39,7 +39,7 @@ class ReturnsNavigator @Inject()(
 
   private def normalRoutes(periodKey: String, adjustmentReasonMandatory: Boolean): Page => ReturnsUserAnswers => Call = {
     case DeclareDutyPage                => ua  => declareDutyPageRoutes(ua, periodKey)
-    case EnterDutyAmountPage            => _   => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(), periodKey)
+    case EnterDutyAmountPage            => _   => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(NormalMode), periodKey)
     case DeclareSpoiltProductsPage      => ua  => declareSpoiltProductsPageRoutes(ua, periodKey)
     case SpoiltCheckYourAnswersPage     => ua  => addSpoiltAdjustmentPageRoutes(ua, periodKey)
     case SpoiltVolumeByPeriodPage       => _   => withPeriod(controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(), periodKey)
@@ -55,7 +55,7 @@ class ReturnsNavigator @Inject()(
 
   private def checkRouteMap(periodKey: String, adjustmentReasonMandatory: Boolean = false): Page => ReturnsUserAnswers => Call = {
     case DeclareDutyPage            => ua => checkDeclareDutyPageRoutes(ua, periodKey)
-    case EnterDutyAmountPage        => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
+    case EnterDutyAmountPage        => _  => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(CheckMode), periodKey)
     case DeclareSpoiltProductsPage  => _  => controllers.returns.submit.routes.TaskListController.onPageLoad()
     case DeclareAdjustmentPage      => ua => checkDeclareAdjustmentPageRoutes(ua, periodKey)
     case AdjustmentListPage         => _  => withPeriod(controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode), periodKey)
@@ -69,7 +69,7 @@ class ReturnsNavigator @Inject()(
   private def declareDutyPageRoutes(ua: ReturnsUserAnswers, periodKey: String) = {
     ua.get(DeclareDutyPage) match
       case Some(true)  => withPeriod(controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(NormalMode), periodKey)
-      case Some(false) => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(), periodKey)
+      case Some(false) => withPeriod(controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(NormalMode), periodKey)
       case _           => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 

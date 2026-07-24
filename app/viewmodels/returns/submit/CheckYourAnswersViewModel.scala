@@ -16,14 +16,12 @@
 
 package viewmodels.returns.submit
 
+import models.CheckMode
 import models.identifiers.PeriodKey
 import models.returns.adjustments.AdjustmentType
 import models.returns.{DutyRate, ReturnsUserAnswers}
 import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
-import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, SpoiltVolumeByPeriodPage}
-import models.returns.adjustments.AdjustmentDutyCalculator
-import pages.returns.{DeclareDutyPage, DeclareSpoiltProductsPage}
-import pages.returns.adjustments.AdjustmentListPage
+import pages.returns.*
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
@@ -150,7 +148,7 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
 
     val cardActions = Some(Seq(
       ActionItem(
-        href = PLACEHOLDER_URL,
+        href = s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(CheckMode).url}?period=${periodKey.value}",
         content = Text(messages("site.change")),
         visuallyHiddenText = Some(messages("returns.CheckYourAnswers.card.declareDuty.change.hidden"))
       )

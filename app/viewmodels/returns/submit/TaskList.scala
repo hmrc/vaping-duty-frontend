@@ -43,7 +43,7 @@ object TaskList {
   private def determineDutyLink(userAnswers: ReturnsUserAnswers): Call = {
     TaskStatusService.declareDutyTaskStatus(userAnswers) match {
       case TaskStatus.Completed =>
-        controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad()
+        controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(NormalMode)
       case _ =>
         controllers.returns.submit.routes.DeclareDutyController.onPageLoad(NormalMode)
     }
