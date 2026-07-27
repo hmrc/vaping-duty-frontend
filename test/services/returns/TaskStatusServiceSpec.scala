@@ -18,7 +18,7 @@ package services.returns
 
 import base.SpecBase
 import models.TaskStatus
-import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
+import models.returns.{AdjustmentsEligibility, DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import pages.returns.*
 import pages.returns.adjustments.*
@@ -176,7 +176,7 @@ class TaskStatusServiceSpec extends SpecBase {
   "allTasksCompleted" - {
 
     "must return false when no tasks are completed" in {
-      val result = TaskStatusService.allTasksCompleted(emptyAnswers)
+      val result = TaskStatusService.allTasksCompleted(emptyAnswers, AdjustmentsEligibility.Eligible)
       result mustBe false
     }
 
@@ -186,7 +186,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.allTasksCompleted(answers)
+      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.Eligible)
       result mustBe false
     }
 
@@ -201,7 +201,18 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.allTasksCompleted(answers)
+      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.Eligible)
+      result mustBe true
+    }
+
+    "must return true when only declare duty and duty suspense completed and adjustments not eligible" in {
+      val answers = emptyAnswers
+        .set(DeclareDutyPage, false)
+        .flatMap(_.set(DeclareDutySuspensePage, false))
+        .success
+        .value
+
+      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.NotEligible)
       result mustBe true
     }
   }
@@ -209,7 +220,7 @@ class TaskStatusServiceSpec extends SpecBase {
   "submitTaskStatus" - {
 
     "must return TasksRemaining when no tasks are completed" in {
-      val result = TaskStatusService.submitTaskStatus(emptyAnswers)
+      val result = TaskStatusService.submitTaskStatus(emptyAnswers, AdjustmentsEligibility.Eligible)
       result mustBe TaskStatus.TasksRemaining
     }
 
@@ -219,7 +230,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.submitTaskStatus(answers)
+      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.Eligible)
       result mustBe TaskStatus.TasksRemaining
     }
 
@@ -234,7 +245,18 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.submitTaskStatus(answers)
+      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.Eligible)
+      result mustBe TaskStatus.NotStarted
+    }
+
+    "must return NotStarted when only declare duty and duty suspense completed and adjustments not eligible" in {
+      val answers = emptyAnswers
+        .set(DeclareDutyPage, false)
+        .flatMap(_.set(DeclareDutySuspensePage, false))
+        .success
+        .value
+
+      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.NotEligible)
       result mustBe TaskStatus.NotStarted
     }
   }
