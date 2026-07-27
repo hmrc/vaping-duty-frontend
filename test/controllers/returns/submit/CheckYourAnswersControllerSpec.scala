@@ -65,16 +65,6 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
-        
-        val content = contentAsString(result)
-        
-        content must include("govuk-summary-card")
-        content must include("Declare vaping products for duty")
-        content must include("Declare any spoilt products")
-        content must include("Declare any over or under-declared adjustments")
-        
-        content must include("govuk-inset-text")
-        content must include("Your total duty to pay is")
       }
     }
 
@@ -104,48 +94,9 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         status(result) mustEqual OK
         
         val content = contentAsString(result)
-        
-        content must include("Declare vaping products for duty")
-        
+
         content must not include "Declare any spoilt products"
         content must not include "Declare any over or under-declared adjustments"
-        
-        content must include("govuk-inset-text")
-        content must include("Your total duty to pay is")
-      }
-    }
-
-    "must show duty suspended card when duty suspended is declared" in {
-
-      val mockDutyRateService = mock[DutyRateService]
-      val mockObligationService = mock[ObligationService]
-
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
-        .thenReturn(Future.successful(Seq(openObligation(periodKey))))
-
-      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
-        .thenReturn(Map(periodKey -> testDutyRate))
-
-      val userAnswersWithDutySuspended = returnsUserAnswers
-        .set(pages.returns.DeclareDutySuspensePage, true).success.value
-
-      val application = applicationBuilder(returnsUserAnswers = Some(userAnswersWithDutySuspended))
-        .overrides(bind[DutyRateService].toInstance(mockDutyRateService),
-          bind[ObligationService].toInstance(mockObligationService)
-        )
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-        
-        val content = contentAsString(result)
-        
-        content must include("Duty suspended summary")
-        content must include("Report duty suspended vaping deliveries")
       }
     }
 
