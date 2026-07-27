@@ -16,36 +16,44 @@
 
 package viewmodels.returns.submit
 
+import models.CheckMode
 import models.identifiers.PeriodKey
-import models.returns.{DutyRate, ReturnsUserAnswers}
-import models.returns.adjustments.AdjustmentDutyCalculator
-import pages.returns.{DeclareDutyPage, DeclareSpoiltProductsPage}
-import pages.returns.adjustments.AdjustmentListPage
+import models.returns.adjustments.AdjustmentType
+import models.returns.{AdjustmentsEligibility, DutyRate, ReturnsUserAnswers}
+import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
+import pages.returns.*
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import utils.ReturnsDateUtils
-import viewmodels.checkAnswers.ReturnsSummary.currencyFormat
-import viewmodels.checkAnswers.{DutySuspenseSummary, ReturnsSummary}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
+import utils.{CurrencyFormatter, ReturnsDateUtils}
+import viewmodels.returns.view.CyaSummaryCard
 import views.html.components.Paragraph
 
 case class CheckYourAnswersViewModel(
-                                      finalDutySummaryList: SummaryList,
-                                      dutySuspendedSummaryList: SummaryList,
-                                      dutyDue: String,
-                                      dutyRateParagraph: HtmlFormat.Appendable,
+                                      declareDutyCard: CyaSummaryCard,
+                                      spoiltProductsCard: Option[CyaSummaryCard],
+                                      adjustmentsCard: Option[CyaSummaryCard],
+                                      dutySuspendedCard: CyaSummaryCard,
+                                      totalDuty: BigDecimal,
+                                      formattedTotalDuty: String,
+                                      hasDutySuspended: Boolean,
                                       dutyCalculationParagraph: HtmlFormat.Appendable,
                                       nilReturn: Boolean,
                                       returnPeriod: String,
                                       year: String
                                     )
 
-object CheckYourAnswersViewModel {
+object CheckYourAnswersViewModel extends CurrencyFormatter {
 
   private val ZERO = "0"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers,
+            dutyRates: Map[PeriodKey, DutyRate],
+            periodKey: PeriodKey,
+            returnsDateUtils: ReturnsDateUtils,
+            adjustmentsEligibility: AdjustmentsEligibility)
+           (implicit messages: Messages): CheckYourAnswersViewModel = {
     // scalafix:off DisableSyntax.throw
     val returnPeriod = userAnswers.returnPeriod
       .map(month => returnsDateUtils.getReturnMonth(month))
@@ -53,64 +61,231 @@ object CheckYourAnswersViewModel {
     
     val year = userAnswers.year
       .getOrElse(throw new IllegalStateException("Return year not found in user answers"))
-    
-    val nilReturn = isNilReturn(userAnswers, dutyRates)
-    
-    val currentPeriodRate = dutyRates.getOrElse(periodKey, throw new IllegalStateException(s"No duty rate found for period $periodKey"))
-    
+
+    val hasDutySuspended = userAnswers.get(DeclareDutySuspensePage).getOrElse(false)
+
+    val declareDutyAmount = calculateDeclareDutyAmount(userAnswers, dutyRates(periodKey))
+    val spoiltAmount = calculateSpoiltAmount(userAnswers, dutyRates)
+    val adjustmentAmount = calculateAdjustmentAmount(userAnswers, dutyRates)
+    val totalDuty = declareDutyAmount + spoiltAmount + adjustmentAmount
+    val nilReturn = totalDuty == BigDecimal(ZERO)
+
     CheckYourAnswersViewModel(
-      finalDutySummaryList = ReturnsSummary.summaryList(userAnswers, dutyRates, periodKey),
-      dutySuspendedSummaryList = DutySuspenseSummary.summaryList(userAnswers, periodKey),
-      dutyDue = dutyDue(userAnswers, dutyRates, periodKey),
-      dutyRateParagraph = dutyRateParagraph(nilReturn),
-      dutyCalculationParagraph = dutyCalculationParagraph(currentPeriodRate),
+      declareDutyCard = buildDeclareDutyCard(userAnswers, declareDutyAmount, periodKey),
+      spoiltProductsCard = if (adjustmentsEligibility == AdjustmentsEligibility.Eligible) {
+        Some(buildSpoiltProductsCard(userAnswers, spoiltAmount, periodKey))
+      } else None,
+      adjustmentsCard = if (adjustmentsEligibility == AdjustmentsEligibility.Eligible) {
+        Some(buildAdjustmentsCard(userAnswers, adjustmentAmount, periodKey))
+      } else None,
+      dutySuspendedCard = buildDutySuspendedCard(userAnswers, periodKey),
+      totalDuty = totalDuty,
+      formattedTotalDuty = currencyFormatWithLeadingSign(totalDuty),
+      hasDutySuspended = hasDutySuspended,
+      dutyCalculationParagraph = dutyCalculationParagraph(dutyRates(periodKey)),
       nilReturn = nilReturn,
       returnPeriod = returnPeriod,
       year = year
     )
   }
 
-  private def isNilReturn(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate]): Boolean = {
+  private def calculateDeclareDutyAmount(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate): BigDecimal = {
+    userAnswers.get(DeclareDutyPage) match {
+      case Some(true) =>
+        userAnswers.get(EnterDutyAmountPage) match {
+          case Some(volumeInMl) => dutyRate.calculateDuty(volumeInMl)
+          case None => BigDecimal(ZERO)
+        }
+      case _ => BigDecimal(ZERO)
+    }
+  }
+
+  private def calculateSpoiltAmount(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate]): BigDecimal = {
+    userAnswers.get(DeclareSpoiltProductsPage) match {
+      case Some(true) =>
+        val spoiltList = userAnswers.get(SpoiltVolumeByPeriodPage).getOrElse(List.empty)
+       
+        -spoiltList.map(entry => dutyRates(entry.periodKey).calculateDuty(entry.volume)).sum
+      case _ => BigDecimal(ZERO)
+    }
+  }
+
+  private def calculateAdjustmentAmount(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate]): BigDecimal = {
+    userAnswers.get(DeclareAdjustmentPage) match {
+      case Some(true) =>
+        val adjustmentList = userAnswers.get(AdjustmentListPage).map(_.adjustments).getOrElse(Seq.empty)
+        val underDeclared = adjustmentList
+          .filter(_.adjustmentType == AdjustmentType.UnderDeclared)
+          .map(adj => dutyRates(adj.period).calculateDuty(adj.volumeInMl))
+          .sum
+        val overDeclared = adjustmentList
+          .filter(_.adjustmentType == AdjustmentType.OverDeclared)
+          .map(adj => dutyRates(adj.period).calculateDuty(adj.volumeInMl))
+          .sum
+        underDeclared - overDeclared
+      case _ => BigDecimal(ZERO)
+    }
+  }
+
+  private def buildDeclareDutyCard(
+                                     userAnswers: ReturnsUserAnswers,
+                                     dutyAmount: BigDecimal,
+                                     periodKey: PeriodKey
+                                   )(implicit messages: Messages): CyaSummaryCard = {
     val declareDuty = userAnswers.get(DeclareDutyPage).getOrElse(false)
+
+    val rows = Seq(
+      Some(SummaryListRow(
+        key = Key(content = Text(messages("returns.CheckYourAnswers.card.declareDuty.question"))),
+        value = Value(content = Text(messages(if (declareDuty) "site.yes" else "site.no"))),
+        actions = None
+      )),
+      if (declareDuty) {
+        Some(SummaryListRow(
+          key = Key(content = Text(messages("returns.CheckYourAnswers.card.declareDuty.duty"))),
+          value = Value(content = Text(currencyFormat(dutyAmount))),
+          actions = None
+        ))
+      } else None
+    ).flatten
+
+    val cardActions = Some(Seq(
+      ActionItem(
+        href = s"${controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(CheckMode).url}?period=${periodKey.value}",
+        content = Text(messages("site.change")),
+        visuallyHiddenText = Some(messages("returns.CheckYourAnswers.card.declareDuty.change.hidden"))
+      )
+    ))
+
+    CyaSummaryCard(
+      title = messages("returns.CheckYourAnswers.card.declareDuty.title"),
+      summaryList = SummaryList(rows = rows),
+      actions = cardActions
+    )
+  }
+
+  private def buildSpoiltProductsCard(
+                                       userAnswers: ReturnsUserAnswers,
+                                       spoiltAmount: BigDecimal,
+                                       periodKey: PeriodKey
+                                     )(implicit messages: Messages): CyaSummaryCard = {
     val declareSpoilt = userAnswers.get(DeclareSpoiltProductsPage).getOrElse(false)
-    val adjustmentTotal = userAnswers.get(AdjustmentListPage)
-      .map(list => AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).netAdjustment)
-      .getOrElse(BigDecimal(0))
 
-    !declareDuty && !declareSpoilt && adjustmentTotal == 0
+    val rows = Seq(
+      Some(SummaryListRow(
+        key = Key(content = Text(messages("returns.CheckYourAnswers.card.spoilt.question"))),
+        value = Value(content = Text(messages(if (declareSpoilt) "site.yes" else "site.no"))),
+        actions = None
+      )),
+      if (declareSpoilt) {
+        Some(SummaryListRow(
+          key = Key(content = Text(messages("returns.CheckYourAnswers.card.spoilt.total"))),
+          value = Value(content = Text(currencyFormatWithLeadingSign(spoiltAmount))),
+          actions = None
+        ))
+      } else None
+    ).flatten
+
+    val cardActions = Some(Seq(
+      ActionItem(
+        href = s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(CheckMode).url}?period=${periodKey.value}",
+        content = Text(messages("site.change")),
+        visuallyHiddenText = Some(messages("returns.CheckYourAnswers.card.spoilt.change.hidden"))
+      )
+    ))
+
+    CyaSummaryCard(
+      title = messages("returns.CheckYourAnswers.card.spoilt.title"),
+      summaryList = SummaryList(rows = rows),
+      actions = cardActions
+    )
   }
 
-  private def dutyDue(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey): String = {
-    val declareDuty = userAnswers.get(DeclareDutyPage).getOrElse(false)
-    
-    if (declareDuty) {
-      ReturnsSummary.calculateTotalDuty(userAnswers, dutyRates, periodKey) match {
-        case Some(totalDuty) => formatDutyAmount(totalDuty)
-        case None => currencyFormat(BigDecimal(ZERO))
-      }
-    } else {
-      val adjustmentTotal = userAnswers.get(AdjustmentListPage)
-        .map(list => AdjustmentDutyCalculator.totals(list.adjustments, dutyRates).netAdjustment)
-        .getOrElse(BigDecimal(0))
-      formatDutyAmount(adjustmentTotal)
-    }
+  private def buildAdjustmentsCard(
+                                     userAnswers: ReturnsUserAnswers,
+                                     adjustmentAmount: BigDecimal,
+                                     periodKey: PeriodKey
+                                   )(implicit messages: Messages): CyaSummaryCard = {
+    val declareAdjustment = userAnswers.get(DeclareAdjustmentPage).getOrElse(false)
+    val adjustmentReason = userAnswers.get(AdjustmentReasonPage)
+
+    val rows = Seq(
+      Some(SummaryListRow(
+        key = Key(content = Text(messages("returns.CheckYourAnswers.card.adjustments.question"))),
+        value = Value(content = Text(messages(if (declareAdjustment) "site.yes" else "site.no"))),
+        actions = None
+      )),
+      if (declareAdjustment) {
+        Some(SummaryListRow(
+          key = Key(content = Text(messages("returns.CheckYourAnswers.card.adjustments.total"))),
+          value = Value(content = Text(currencyFormatWithLeadingSign(adjustmentAmount))),
+          actions = None
+        ))
+      } else None,
+      if (declareAdjustment && adjustmentReason.isDefined) {
+        Some(SummaryListRow(
+          key = Key(content = Text(messages("returns.CheckYourAnswers.card.adjustments.reason"))),
+          value = Value(content = Text(adjustmentReason.getOrElse(""))),
+          actions = Some(Actions(items = Seq(
+            ActionItem(
+              href = s"${controllers.returns.submit.adjustments.routes.AdjustmentReasonController.onPageLoad(CheckMode).url}?period=${periodKey.value}",
+              content = Text(messages("site.change")),
+              visuallyHiddenText = Some(messages("returns.CheckYourAnswers.card.adjustments.reason.change.hidden"))
+            )
+          )))
+        ))
+      } else None
+    ).flatten
+
+    val cardActions = Some(Seq(
+      ActionItem(
+        href = s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode).url}?period=${periodKey.value}",
+        content = Text(messages("site.change")),
+        visuallyHiddenText = Some(messages("returns.CheckYourAnswers.card.adjustments.change.hidden"))
+      )
+    ))
+
+    CyaSummaryCard(
+      title = messages("returns.CheckYourAnswers.card.adjustments.title"),
+      summaryList = SummaryList(rows = rows),
+      actions = cardActions
+    )
   }
 
-  private def formatDutyAmount(amount: BigDecimal): String =
-    if (amount < 0) {
-      currencyFormat(amount.abs).replace("£", "-£")
-    } else {
-      currencyFormat(amount)
-    }
+  private def buildDutySuspendedCard(
+                                       userAnswers: ReturnsUserAnswers,
+                                       periodKey: PeriodKey
+                                     )(implicit messages: Messages): CyaSummaryCard = {
+    val declareDutySuspense = userAnswers.get(DeclareDutySuspensePage).getOrElse(false)
 
-  private def dutyRateParagraph(nilReturn: Boolean)(implicit messages: Messages): HtmlFormat.Appendable = {
-    val p = new Paragraph()
+    val rows = Seq(
+      Some(SummaryListRow(
+        key = Key(content = Text(messages("returns.CheckYourAnswers.card.dutySuspended.question"))),
+        value = Value(content = Text(messages(if (declareDutySuspense) "site.yes" else "site.no"))),
+        actions = None
+      )),
+      if (declareDutySuspense) {
+        Some(SummaryListRow(
+          key = Key(content = Text(messages("returns.CheckYourAnswers.card.dutySuspended.declared"))),
+          value = Value(content = Text(messages("returns.CheckYourAnswers.dutySuspended.declared.value"))),
+          actions = None
+        ))
+      } else None
+    ).flatten
 
-    if (nilReturn) {
-      p(Seq(Text(messages("returns.CheckYourAnswers.nilReturn.paragraph"))))
-    } else {
-      HtmlFormat.empty
-    }
+    val cardActions = Some(Seq(
+      ActionItem(
+        href = s"${controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(CheckMode).url}?period=${periodKey.value}",
+        content = Text(messages("site.change")),
+        visuallyHiddenText = Some(messages("returns.CheckYourAnswers.card.dutySuspended.change.hidden"))
+      )
+    ))
+
+    CyaSummaryCard(
+      title = messages("returns.CheckYourAnswers.card.dutySuspended.title"),
+      summaryList = SummaryList(rows = rows),
+      actions = cardActions
+    )
   }
 
   private def dutyCalculationParagraph(dutyRate: DutyRate)(implicit messages: Messages): HtmlFormat.Appendable = {

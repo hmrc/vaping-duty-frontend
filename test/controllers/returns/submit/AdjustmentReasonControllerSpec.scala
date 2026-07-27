@@ -31,7 +31,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.ReturnsUserAnswersService
-import views.html.returns.submit.AdjustmentReasonView
+import views.html.returns.submit.adjustments.AdjustmentReasonView
 
 import scala.concurrent.Future
 
@@ -44,7 +44,7 @@ class AdjustmentReasonControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
 
-  lazy val adjustmentReasonRoute: String = controllers.returns.submit.routes.AdjustmentReasonController.onPageLoad(NormalMode).url
+  lazy val adjustmentReasonRoute: String = controllers.returns.submit.adjustments.routes.AdjustmentReasonController.onPageLoad(NormalMode).url
 
   "AdjustmentReason Controller" - {
 
@@ -144,7 +144,7 @@ class AdjustmentReasonControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(periodKey, boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result)  mustEqual view(periodKey, boundForm, NormalMode)(request, messages(application)).toString
       }
     }
 

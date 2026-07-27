@@ -20,7 +20,7 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
 import controllers.returns.PeriodKeyExtraction
 import forms.returns.SpoiltVolumeByPeriodFormProvider
-import models.NormalMode
+import models.{Mode, NormalMode}
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
@@ -51,7 +51,7 @@ class SpoiltVolumeByPeriodController @Inject()(
                                                 view: SpoiltVolumeByPeriodView
                                               )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey("spoiltPeriod") { spoiltPeriod =>
         withObligation(spoiltPeriod) { spoiltObligation =>
@@ -67,13 +67,13 @@ class SpoiltVolumeByPeriodController @Inject()(
               case None => form
             }
 
-            Future.successful(Ok(view(vm, preparedForm)))
+            Future.successful(Ok(view(vm, preparedForm, mode)))
           }
         }
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey("spoiltPeriod") { spoiltPeriod =>
         withObligation(spoiltPeriod) { spoiltObligation =>
@@ -82,7 +82,7 @@ class SpoiltVolumeByPeriodController @Inject()(
 
             form.bindFromRequest().fold(
               formWithErrors =>
-                Future.successful(BadRequest(view(vm, formWithErrors))),
+                Future.successful(BadRequest(view(vm, formWithErrors, mode))),
 
               volume =>
                 val existingList = request.userAnswers.get(SpoiltVolumeByPeriodPage).getOrElse(List.empty)
@@ -91,7 +91,7 @@ class SpoiltVolumeByPeriodController @Inject()(
                 for {
                   updatedAnswers  <- Future.fromTry(request.userAnswers.set(SpoiltVolumeByPeriodPage, updatedList))
                   _               <- sessionRepository.set(updatedAnswers)
-                } yield Redirect(navigator.nextPage(SpoiltVolumeByPeriodPage, NormalMode, updatedAnswers))
+                } yield Redirect(navigator.nextPage(SpoiltVolumeByPeriodPage, mode, updatedAnswers))
             )
           }
         }

@@ -17,71 +17,270 @@
 package viewmodels.returns
 
 import base.SpecBase
-import models.returns.DutyRate
+import models.returns.{AdjustmentsEligibility, DutyRate}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
-import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage}
-import pages.returns.adjustments.AdjustmentListPage
-import utils.ReturnsDateUtils
+import models.returns.SpoiltVolumeByPeriod
+import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, SpoiltVolumeByPeriodPage}
+import play.api.i18n.Messages
+import utils.{CurrencyFormatter, ReturnsDateUtils}
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 
-class CheckYourAnswersViewModelSpec extends SpecBase {
+class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
   private val returnsDateUtils = new ReturnsDateUtils(clock)
-
+  implicit val messages: Messages = messages(applicationBuilder(None).build())
+  val dutyRates = Map(periodKey -> testDutyRate)
   "CheckYourAnswersViewModel" - {
 
-    val dutyRates = Map(periodKey -> DutyRate(315))
-    
-    "must create view model with correct duty due" in {
-      val userAnswers = returnsUserAnswers.set(EnterDutyAmountPage, BigDecimal(1000)).success.value
+    "must identify a nil return when total duty calculates is zero" in {
+      val volumeInMl = BigDecimal("1000")
       
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
+      val spoiltVolumes = List(SpoiltVolumeByPeriod(volumeInMl, periodKey))
 
-      vm.dutyDue mustBe "£315"
-      vm.dutyCalculationParagraph.toString must include("£3.15")
-      vm.dutyRateParagraph.toString mustBe ""
-    }
-
-    "must create view model with zero duty when no amount entered" in {
-      val dutyRates = Map(periodKey -> DutyRate(315))
-      val vm = CheckYourAnswersViewModel(returnsUserAnswers, dutyRates, periodKey, returnsDateUtils)
-
-      vm.dutyDue mustBe "£0"
-      vm.dutyCalculationParagraph.toString must include("£3.15")
-      vm.dutyRateParagraph.toString must include("You declared no vaping products had been released for consumption in the UK for this period, so no duty is due.")
-    }
-
-    "must set nilReturn to true when all declaration pages are false" in {
       val userAnswers = returnsUserAnswers
-        .set(DeclareDutyPage, false).success.value
-        .set(DeclareSpoiltProductsPage, false).success.value
-        .set(DeclareDutySuspensePage, false).success.value
+        .set(DeclareDutyPage, true).success.value
+        .set(EnterDutyAmountPage, volumeInMl).success.value
+        .set(DeclareSpoiltProductsPage, true).success.value
+        .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
 
+      vm.totalDuty mustBe BigDecimal(0)
       vm.nilReturn mustBe true
     }
 
-    "must set nilReturn to false when DeclareDutyPage is true" in {
+    "must identify a nil return when adjustments result in zero total" in {
+      val volumeInMl = BigDecimal("1000")
+      val overDeclaredVolume = BigDecimal("1000")
+
+      val adjustmentList = AdjustmentList(Seq(
+        AdjustmentEntry(periodKey, AdjustmentType.OverDeclared, overDeclaredVolume)
+      ))
+
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, true).success.value
-        .set(DeclareSpoiltProductsPage, false).success.value
-        .set(DeclareDutySuspensePage, false).success.value
+        .set(EnterDutyAmountPage, volumeInMl).success.value
+        .set(DeclareAdjustmentPage, true).success.value
+        .set(AdjustmentListPage, adjustmentList).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
 
+      vm.totalDuty mustBe BigDecimal(0)
+      vm.nilReturn mustBe true
+    }
+
+    "must not identify a nil return when total duty is non-zero" in {
+      val volumeInMl = BigDecimal("1000")
+
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, true).success.value
+        .set(EnterDutyAmountPage, volumeInMl).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+
+      vm.totalDuty must be > BigDecimal(0)
       vm.nilReturn mustBe false
     }
 
-    "must set nilReturn to false when DeclareSpoiltProductsPage is true" in {
+    "must identify a nil return when nothing is declared" in {
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, false).success.value
+        .set(DeclareSpoiltProductsPage, false).success.value
+        .set(DeclareAdjustmentPage, false).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+
+      vm.totalDuty mustBe BigDecimal(0)
+      vm.nilReturn mustBe true
+    }
+
+    "must calculate total duty correctly with declare duty only" in {
+      val volumeInMl = BigDecimal("1000")
+      val expectedDuty = dutyRates(periodKey).calculateDuty(volumeInMl)
+
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, true).success.value
+        .set(EnterDutyAmountPage, volumeInMl).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+
+      vm.totalDuty mustBe expectedDuty
+      vm.formattedTotalDuty mustBe currencyFormat(expectedDuty)
+    }
+
+    "must calculate total duty correctly with declare duty and spoilt products" in {
+      val volumeInMl = BigDecimal("1000")
+      val spoiltVolume = BigDecimal("100")
+      val dutyRate = dutyRates
+      val declareDuty = dutyRates(periodKey).calculateDuty(volumeInMl)
+      val spoiltDuty = dutyRate(periodKey).calculateDuty(spoiltVolume)
+      val expectedTotal = declareDuty - spoiltDuty
+
+      val spoiltVolumes = List(SpoiltVolumeByPeriod(spoiltVolume, periodKey))
+
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, true).success.value
+        .set(EnterDutyAmountPage, volumeInMl).success.value
         .set(DeclareSpoiltProductsPage, true).success.value
+        .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+
+      vm.totalDuty mustBe expectedTotal
+      vm.formattedTotalDuty mustBe currencyFormat(expectedTotal)
+    }
+
+    "must calculate total duty correctly with declare duty and adjustments" in {
+      val volumeInMl = BigDecimal("1000")
+      val underDeclaredVolume = BigDecimal("200")
+      val overDeclaredVolume = BigDecimal("50")
+
+      val declareDuty = dutyRates(periodKey).calculateDuty(volumeInMl)
+      val underDeclaredDuty = dutyRates(periodKey).calculateDuty(underDeclaredVolume)
+      val overDeclaredDuty = dutyRates(periodKey).calculateDuty(overDeclaredVolume)
+      val expectedTotal = declareDuty + underDeclaredDuty - overDeclaredDuty
+
+      val adjustmentList = AdjustmentList(Seq(
+        AdjustmentEntry(periodKey, AdjustmentType.UnderDeclared, underDeclaredVolume),
+        AdjustmentEntry(periodKey, AdjustmentType.OverDeclared, overDeclaredVolume)
+      ))
+
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, true).success.value
+        .set(EnterDutyAmountPage, volumeInMl).success.value
+        .set(DeclareAdjustmentPage, true).success.value
+        .set(AdjustmentListPage, adjustmentList).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+
+      vm.totalDuty mustBe expectedTotal
+      vm.formattedTotalDuty mustBe currencyFormat(expectedTotal)
+    }
+
+    "must build declare duty card correctly" in {
+      val volumeInMl = BigDecimal("1000")
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, true).success.value
+        .set(EnterDutyAmountPage, volumeInMl).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+
+      val card = vm.declareDutyCard
+
+      card.title mustBe messages("returns.CheckYourAnswers.card.declareDuty.title")
+      card.summaryList.rows.size mustBe 2
+      card.actions mustBe defined
+      card.actions.get.size mustBe 1
+    }
+
+    "must build spoilt products card correctly when declared" in {
+      val spoiltVolume = BigDecimal("100")
+      val spoiltVolumes = List(SpoiltVolumeByPeriod(spoiltVolume, periodKey))
+
+      val userAnswers = returnsUserAnswers
+        .set(DeclareSpoiltProductsPage, true).success.value
+        .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+
+      val card = vm.spoiltProductsCard.get
+
+      card.title mustBe messages("returns.CheckYourAnswers.card.spoilt.title")
+      card.summaryList.rows.size mustBe 2
+      card.actions mustBe defined
+    }
+
+    "must build adjustments card correctly with reason" in {
+      val adjustmentList = AdjustmentList(Seq(
+        AdjustmentEntry(periodKey, AdjustmentType.UnderDeclared, BigDecimal("200"))
+      ))
+
+      val userAnswers = returnsUserAnswers
+        .set(DeclareAdjustmentPage, true).success.value
+        .set(AdjustmentListPage, adjustmentList).success.value
+        .set(AdjustmentReasonPage, "Test reason").success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+
+      val card = vm.adjustmentsCard.get
+
+      card.title mustBe messages("returns.CheckYourAnswers.card.adjustments.title")
+      card.summaryList.rows.size mustBe 3 // question + total + reason
+      card.actions mustBe defined
+
+      // Verify reason row has its own change link
+      val reasonRow = card.summaryList.rows.last
+      reasonRow.actions mustBe defined
+    }
+
+    "must build duty suspended card when declared" in {
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutySuspensePage, true).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+
+      vm.hasDutySuspended mustBe true
+
+      val card = vm.dutySuspendedCard
+      
+      card.title mustBe messages("returns.CheckYourAnswers.card.dutySuspended.title")
+      card.summaryList.rows.size mustBe 2
+      card.actions mustBe defined
+    }
+
+    "must build duty suspended card with only question row when not declared" in {
+      val userAnswers = returnsUserAnswers
         .set(DeclareDutySuspensePage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
 
-      vm.nilReturn mustBe false
+      vm.hasDutySuspended mustBe false
+      
+      val card = vm.dutySuspendedCard
+      
+      card.title mustBe messages("returns.CheckYourAnswers.card.dutySuspended.title")
+      card.summaryList.rows.size mustBe 1
+      card.actions mustBe defined
+    }
+
+    "must build declare duty card with only question row when not declared" in {
+      val userAnswers = returnsUserAnswers
+        .set(DeclareDutyPage, false).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+
+      val card = vm.declareDutyCard
+      
+      card.title mustBe messages("returns.CheckYourAnswers.card.declareDuty.title")
+      card.summaryList.rows.size mustBe 1
+      card.actions mustBe defined
+    }
+
+    "must build spoilt products card with only question row when not declared" in {
+      val userAnswers = returnsUserAnswers
+        .set(DeclareSpoiltProductsPage, false).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+
+      val card = vm.spoiltProductsCard.get
+      
+      card.title mustBe messages("returns.CheckYourAnswers.card.spoilt.title")
+      card.summaryList.rows.size mustBe 1 // Only question row, no total row
+      card.actions mustBe defined
+    }
+
+    "must build adjustments card with only question row when not declared" in {
+      val userAnswers = returnsUserAnswers
+        .set(DeclareAdjustmentPage, false).success.value
+
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+
+      val card = vm.adjustmentsCard.get
+      
+      card.title mustBe messages("returns.CheckYourAnswers.card.adjustments.title")
+      card.summaryList.rows.size mustBe 1 // Only question row, no total or reason rows
+      card.actions mustBe defined
     }
 
     "must show total due when DeclareDutyPage is false but adjustments exist" in {
@@ -92,16 +291,17 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
           volumeInMl = BigDecimal(500)
         )
       ))
-      
+
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, false).success.value
         .set(DeclareSpoiltProductsPage, false).success.value
         .set(DeclareDutySuspensePage, false).success.value
+        .set(DeclareAdjustmentPage, true).success.value
         .set(AdjustmentListPage, adjustmentList).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
 
-      vm.dutyDue mustBe "£157.50"
+      vm.formattedTotalDuty mustBe "£157.50"
       vm.nilReturn mustBe false
     }
 
@@ -113,25 +313,27 @@ class CheckYourAnswersViewModelSpec extends SpecBase {
           volumeInMl = BigDecimal(500)
         )
       ))
-      
+
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, false).success.value
+        .set(DeclareAdjustmentPage, true).success.value
         .set(AdjustmentListPage, adjustmentList).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
 
-      vm.dutyDue mustBe "-£157.50"
+      vm.formattedTotalDuty mustBe "-£157.50"
     }
 
     "must not show total due row when DeclareDutyPage is false and no adjustments" in {
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, false).success.value
         .set(DeclareSpoiltProductsPage, false).success.value
+        .set(DeclareAdjustmentPage, false).success.value
         .set(DeclareDutySuspensePage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
 
-      vm.dutyDue mustBe "£0"
+      vm.formattedTotalDuty mustBe "£0"
       vm.nilReturn mustBe true
     }
   }

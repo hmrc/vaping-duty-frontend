@@ -18,12 +18,13 @@ package controllers.returns.submit.spoilt
 
 import base.SpecBase
 import forms.returns.AddSpoiltAdjustmentFormProvider
+import models.NormalMode
 import models.returns.SpoiltVolumeByPeriod
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.returns.{SpoiltCheckYourAnswersPage, DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
+import pages.returns.{DeclareSpoiltProductsPage, SpoiltCheckYourAnswersPage, SpoiltVolumeByPeriodPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -42,7 +43,7 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
   val form: Form[Boolean] = formProvider()
 
   lazy val spoiltCheckYourAnswersRoute: String =
-    controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url
+    controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(NormalMode).url
 
   "SpoiltCheckYourAnswers Controller" - {
 
@@ -56,10 +57,11 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
         hasSpoiltProducts = true,
         totalSpoiltDuty = BigDecimal(1000),
         formattedTotalSpoiltDuty = "£1,000.00",
-        hasAvailablePeriodsToAdd = true
+        hasAvailablePeriodsToAdd = true,
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -89,10 +91,11 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
         hasSpoiltProducts = true,
         totalSpoiltDuty = BigDecimal(1000),
         formattedTotalSpoiltDuty = "£1,000.00",
-        hasAvailablePeriodsToAdd = true
+        hasAvailablePeriodsToAdd = true,
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -115,7 +118,7 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
       val testSpoiltList = List(SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = periodKey))
       val userAnswers = returnsUserAnswers.set(SpoiltVolumeByPeriodPage, testSpoiltList).success.value
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
@@ -147,10 +150,11 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
         hasSpoiltProducts = true,
         totalSpoiltDuty = BigDecimal(1000),
         formattedTotalSpoiltDuty = "£1,000.00",
-        hasAvailablePeriodsToAdd = true
+        hasAvailablePeriodsToAdd = true,
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
       when(mockService.hasAvailablePeriodsToAdd(any(), any(), any())(using any()))
         .thenReturn(Future.successful(true))
@@ -189,10 +193,11 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
         hasSpoiltProducts = false,
         totalSpoiltDuty = BigDecimal(0),
         formattedTotalSpoiltDuty = "£0.00",
-        hasAvailablePeriodsToAdd = true
+        hasAvailablePeriodsToAdd = true,
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
@@ -229,10 +234,11 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
         hasSpoiltProducts = true,
         totalSpoiltDuty = BigDecimal(1000),
         formattedTotalSpoiltDuty = "£1,000.00",
-        hasAvailablePeriodsToAdd = false
+        hasAvailablePeriodsToAdd = false,
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
       when(mockService.hasAvailablePeriodsToAdd(any(), any(), any())(using any()))
         .thenReturn(Future.successful(false))
@@ -270,10 +276,11 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
         hasSpoiltProducts = true,
         totalSpoiltDuty = BigDecimal(1000),
         formattedTotalSpoiltDuty = "£1,000.00",
-        hasAvailablePeriodsToAdd = true
+        hasAvailablePeriodsToAdd = true,
+        mode = NormalMode
       )
 
-      when(mockService.buildViewModel(any(), any(), any(), any())(using any(), any()))
+      when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.successful(mockViewModel))
       when(mockService.hasAvailablePeriodsToAdd(any(), any(), any())(using any()))
         .thenReturn(Future.successful(true))

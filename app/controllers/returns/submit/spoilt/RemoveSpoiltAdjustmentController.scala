@@ -20,6 +20,7 @@ import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import controllers.returns.PeriodKeyExtraction
 import forms.returns.RemoveSpoiltAdjustmentFormProvider
+import models.{Mode, NormalMode}
 import models.identifiers.PeriodKey
 import pages.returns.SpoiltVolumeByPeriodPage
 import play.api.data.Form
@@ -47,19 +48,19 @@ class RemoveSpoiltAdjustmentController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey(ReturnsConstants.QUERY_PARAM_SPOILT_PERIOD) { spoiltPeriod =>
         spoiltCheckYourAnswersService
           .buildRemoveViewModel(request.userAnswers.get(SpoiltVolumeByPeriodPage), spoiltPeriod, request.enrolmentVpdId)
           .map {
-            case Some(vm) => Ok(view(request.periodKey, spoiltPeriod, form, vm))
+            case Some(vm) => Ok(view(request.periodKey, spoiltPeriod, form, vm, mode))
             case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           }
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey(ReturnsConstants.QUERY_PARAM_SPOILT_PERIOD) { spoiltPeriod =>
         form.bindFromRequest().fold(
@@ -67,7 +68,7 @@ class RemoveSpoiltAdjustmentController @Inject()(
             spoiltCheckYourAnswersService
               .buildRemoveViewModel(request.userAnswers.get(SpoiltVolumeByPeriodPage), spoiltPeriod, request.enrolmentVpdId)
               .map {
-                case Some(vm) => BadRequest(view(request.periodKey, spoiltPeriod, formWithErrors, vm))
+                case Some(vm) => BadRequest(view(request.periodKey, spoiltPeriod, formWithErrors, vm, mode))
                 case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
               },
 
@@ -76,7 +77,7 @@ class RemoveSpoiltAdjustmentController @Inject()(
               .handleRemoval(request.userAnswers, spoiltPeriod, confirmed)
               .map { _ =>
                 Redirect(withPeriod(
-                  controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad().url,
+                  controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(mode).url,
                   request.periodKey
                 ))
               }

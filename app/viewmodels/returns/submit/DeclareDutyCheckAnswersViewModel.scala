@@ -16,7 +16,7 @@
 
 package viewmodels.returns.submit
 
-import models.NormalMode
+import models.Mode
 import models.identifiers.PeriodKey
 import models.returns.{DutyRate, ReturnsUserAnswers}
 import pages.returns.EnterDutyAmountPage
@@ -38,7 +38,7 @@ object DeclareDutyCheckAnswersViewModel {
 
   private val ML_SUFFIX = " ml"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate, periodKey: PeriodKey)
+  def apply(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate, periodKey: PeriodKey, mode: Mode)
            (implicit messages: Messages): Option[DeclareDutyCheckAnswersViewModel] = {
     
     userAnswers.get(pages.returns.DeclareDutyPage).flatMap { declareDuty =>
@@ -49,7 +49,7 @@ object DeclareDutyCheckAnswersViewModel {
             heading = messages("returns.declareDutyCheckAnswers.heading", ReturnsSummary.currencyFormat(dutyAmount)),
             volumeFormatted = Some(formatVolume(volumeInMl)),
             dutyDue = ReturnsSummary.currencyFormat(dutyAmount),
-            summaryList = buildSummaryListWithDuty(declareDuty, volumeInMl, dutyAmount, periodKey)
+            summaryList = buildSummaryListWithDuty(declareDuty, volumeInMl, dutyAmount, periodKey, mode)
           )
         }
       } else {
@@ -57,7 +57,7 @@ object DeclareDutyCheckAnswersViewModel {
           heading = messages("returns.declareDutyCheckAnswers.noDutyHeading"),
           volumeFormatted = None,
           dutyDue = ReturnsSummary.currencyFormat(BigDecimal(0)),
-          summaryList = buildSummaryListNilReturn(declareDuty, periodKey)
+          summaryList = buildSummaryListNilReturn(declareDuty, periodKey, mode)
         ))
       }
     }
@@ -66,7 +66,7 @@ object DeclareDutyCheckAnswersViewModel {
   private def formatVolume(volumeInMl: BigDecimal): String =
     s"${volumeInMl.toString}$ML_SUFFIX"
 
-  private def buildDeclareDutyRow(declareDuty: Boolean, periodKey: PeriodKey)
+  private def buildDeclareDutyRow(declareDuty: Boolean, periodKey: PeriodKey, mode: Mode)
                                  (implicit messages: Messages): SummaryListRow = {
     val value = if (declareDuty) "site.yes" else "site.no"
 
@@ -76,41 +76,42 @@ object DeclareDutyCheckAnswersViewModel {
       actions = Seq(
         ActionItemViewModel(
           "site.change",
-          s"${controllers.returns.submit.routes.DeclareDutyController.onPageLoad(NormalMode).url}?period=${periodKey.value}"
+          s"${controllers.returns.submit.routes.DeclareDutyController.onPageLoad(mode).url}?period=${periodKey.value}"
         ).withVisuallyHiddenText(messages("returns.declareDutyCheckAnswers.declareDuty.change.hidden"))
       )
     )
   }
 
   private def buildSummaryListWithDuty(declareDuty: Boolean, volumeInMl: BigDecimal,
-                                       dutyAmount: BigDecimal, periodKey: PeriodKey)
+                                       dutyAmount: BigDecimal, periodKey: PeriodKey, mode: Mode)
                                       (implicit messages: Messages): SummaryList = {
     val rows = Seq(
-      buildDeclareDutyRow(declareDuty, periodKey),
-      buildVolumeRow(volumeInMl, periodKey),
+      buildDeclareDutyRow(declareDuty, periodKey, mode),
+      buildVolumeRow(volumeInMl, periodKey, mode),
       buildDutyDueRow(dutyAmount)
     )
 
     SummaryList(rows = rows)
   }
 
-  private def buildSummaryListNilReturn(declareDuty: Boolean, periodKey: PeriodKey)
+  private def buildSummaryListNilReturn(declareDuty: Boolean, periodKey: PeriodKey, mode: Mode)
                                        (implicit messages: Messages): SummaryList = {
     val rows = Seq(
-      buildDeclareDutyRow(declareDuty, periodKey)
+      buildDeclareDutyRow(declareDuty, periodKey, mode)
     )
 
     SummaryList(rows = rows)
   }
 
-  private def buildVolumeRow(volumeInMl: BigDecimal, periodKey: PeriodKey)(implicit messages: Messages): SummaryListRow = {
+  private def buildVolumeRow(volumeInMl: BigDecimal, periodKey: PeriodKey, mode: Mode)
+                            (implicit messages: Messages): SummaryListRow = {
     SummaryListRowViewModel(
       key = "returns.declareDutyCheckAnswers.volume",
       value = ValueViewModel(Text(formatVolume(volumeInMl))),
       actions = Seq(
         ActionItemViewModel(
           "site.change",
-          s"${controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(NormalMode).url}?period=${periodKey.value}"
+          s"${controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(mode).url}?period=${periodKey.value}"
         ).withVisuallyHiddenText(messages("returns.declareDutyCheckAnswers.volume.change.hidden"))
       )
     )

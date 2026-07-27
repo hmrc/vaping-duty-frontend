@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import models.{CheckMode, Mode, NormalMode}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.DutyRateService
@@ -39,18 +40,21 @@ class DeclareDutyCheckAnswersController @Inject()(
                                                    view: DeclareDutyCheckAnswersView
                                                  )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     val pk = request.periodKey
     
     dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
-      DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk) match {
-        case Some(vm) => Ok(view(pk, vm))
+      DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk, mode) match {
+        case Some(vm) => Ok(view(pk, vm, mode))
         case None     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }
   }
 
-  def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
-    Redirect(controllers.returns.submit.routes.TaskListController.onPageLoad().url + s"?period=${request.periodKey.value}")
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
+    mode match {
+      case CheckMode => Redirect(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url + s"?period=${request.periodKey.value}")
+      case NormalMode => Redirect(controllers.returns.submit.routes.TaskListController.onPageLoad().url + s"?period=${request.periodKey.value}")
+    }
   }
 }

@@ -17,6 +17,7 @@
 package controllers.returns.submit.spoilt
 
 import base.SpecBase
+import models.NormalMode
 import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -90,12 +91,12 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None).url)
+        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url)
 
         val result = route(application, request).value
 
         val returnsDateUtils = application.injector.instanceOf[utils.ReturnsDateUtils]
-        val vm = SelectSpoiltPeriodViewModel(obligationDetails, None, periodKey, None, returnsDateUtils)(messages(application))
+        val vm = SelectSpoiltPeriodViewModel(obligationDetails, None, periodKey, None, returnsDateUtils, NormalMode)(messages(application))
         val view = application.injector.instanceOf[SelectSpoiltPeriodView]
 
         status(result) mustEqual OK
@@ -116,12 +117,12 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(specificYear)).url)
+        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(specificYear), NormalMode).url)
 
         val result = route(application, request).value
 
         val returnsDateUtils = application.injector.instanceOf[utils.ReturnsDateUtils]
-        val vm = SelectSpoiltPeriodViewModel(obligationDetails, Some(specificYear), periodKey, None, returnsDateUtils)(messages(application))
+        val vm = SelectSpoiltPeriodViewModel(obligationDetails, Some(specificYear), periodKey, None, returnsDateUtils, NormalMode)(messages(application))
         val view = application.injector.instanceOf[SelectSpoiltPeriodView]
 
         status(result) mustEqual OK
@@ -146,7 +147,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None).url)
+        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url)
 
         val result = route(application, request).value
 
@@ -165,7 +166,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None).url)
+        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url)
 
         val result = route(application, request).value
 
@@ -178,7 +179,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), returnsEnabled = false).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None).url)
+        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url)
 
         val result = route(application, request).value
 

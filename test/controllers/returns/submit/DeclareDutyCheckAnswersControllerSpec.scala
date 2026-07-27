@@ -17,6 +17,7 @@
 package controllers.returns.submit
 
 import base.SpecBase
+import models.NormalMode
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -48,15 +49,15 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(NormalMode).url)
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[DeclareDutyCheckAnswersView]
-        val vm = DeclareDutyCheckAnswersViewModel(ua, testDutyRate, periodKey)(messages(application)).get
+        val vm = DeclareDutyCheckAnswersViewModel(ua, testDutyRate, periodKey, NormalMode)(messages(application)).get
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, vm, NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -72,7 +73,7 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(NormalMode).url)
 
         val result = route(application, request).value
 
@@ -93,7 +94,7 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad().url)
+        val request = FakeRequest(GET, controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(NormalMode).url)
 
         val result = route(application, request).value
 
@@ -113,7 +114,7 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onSubmit().url)
+        val request = FakeRequest(POST, controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onSubmit(NormalMode).url)
 
         val result = route(application, request).value
 

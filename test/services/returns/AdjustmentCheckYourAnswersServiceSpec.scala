@@ -112,12 +112,6 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
   "buildViewModel" - {
 
     "must successfully build view model with adjustments" in {
-      val adjustmentEntry = AdjustmentEntry(
-        period = adjustmentPeriodKey,
-        adjustmentType = AdjustmentType.UnderDeclared,
-        volumeInMl = BigDecimal(1000)
-      )
-      val adjustmentList = AdjustmentList(Seq(adjustmentEntry))
 
       val obligationForAdjustment = openObligation(adjustmentPeriodKey)
 
@@ -160,18 +154,6 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
       
       val obligationForAdjustment1 = openObligation(adjustmentPeriodKey)
       val obligationForAdjustment2 = openObligation(adjustmentPeriodKey2)
-
-      val adjustmentEntry1 = AdjustmentEntry(
-        period = adjustmentPeriodKey,
-        adjustmentType = AdjustmentType.UnderDeclared,
-        volumeInMl = BigDecimal(1000)
-      )
-      val adjustmentEntry2 = AdjustmentEntry(
-        period = adjustmentPeriodKey2,
-        adjustmentType = AdjustmentType.OverDeclared,
-        volumeInMl = BigDecimal(500)
-      )
-      val adjustmentList = AdjustmentList(Seq(adjustmentEntry1, adjustmentEntry2))
 
       when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForAdjustment1, obligationForAdjustment2)))

@@ -18,6 +18,7 @@ package services.returns
 
 import base.SpecBase
 import builders.ObligationsBuilders
+import models.NormalMode
 import models.identifiers.{PeriodKey, VpdId}
 import models.returns.{DutyRate, SpoiltVolumeByPeriod}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -70,7 +71,8 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
         declareSpoiltProducts = Some(true),
         spoiltList = Some(List(spoiltEntry)),
         periodKey = periodKey,
-        vpdId = vpdId
+        vpdId = vpdId,
+        mode = NormalMode
       ).futureValue
 
       result.hasSpoiltProducts mustBe true
@@ -86,7 +88,8 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
         declareSpoiltProducts = Some(false),
         spoiltList = None,
         periodKey = periodKey,
-        vpdId = vpdId
+        vpdId = vpdId,
+        mode = NormalMode
       ).futureValue
 
       result.hasSpoiltProducts mustBe false
@@ -115,7 +118,8 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
         declareSpoiltProducts = Some(true),
         spoiltList = Some(List(spoiltEntry1, spoiltEntry2)),
         periodKey = periodKey,
-        vpdId = vpdId
+        vpdId = vpdId,
+        mode = NormalMode
       ).futureValue
 
       result.hasSpoiltProducts mustBe true
@@ -131,7 +135,8 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
         declareSpoiltProducts = Some(true),
         spoiltList = Some(List.empty),
         periodKey = periodKey,
-        vpdId = vpdId
+        vpdId = vpdId,
+        mode = NormalMode
       ).futureValue
 
       result.hasSpoiltProducts mustBe false
@@ -155,7 +160,8 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
           declareSpoiltProducts = Some(true),
           spoiltList = Some(List(spoiltEntry)),
           periodKey = periodKey,
-          vpdId = vpdId
+          vpdId = vpdId,
+          mode = NormalMode
         ).futureValue
       }
 

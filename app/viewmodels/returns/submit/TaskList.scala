@@ -18,8 +18,8 @@ package viewmodels.returns.submit
 
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import models.{NormalMode, TaskStatus}
-import pages.returns.SpoiltVolumeByPeriodPage
-import pages.returns.adjustments.AdjustmentListPage
+import pages.returns.{DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
+import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import services.returns.TaskStatusService
@@ -36,10 +36,18 @@ object TaskList {
         case AdjustmentsEligibility.NotEligible => None
       },
       Some(dutySuspendedSection(userAnswers, periodKey)),
-      Some(submissionSection(userAnswers, periodKey))
+      Some(submissionSection(userAnswers, periodKey, adjustmentsEligibility))
     ).flatten
   }
 
+  private def determineDutyLink(userAnswers: ReturnsUserAnswers): Call = {
+    TaskStatusService.declareDutyTaskStatus(userAnswers) match {
+      case TaskStatus.Completed =>
+        controllers.returns.submit.routes.DeclareDutyCheckAnswersController.onPageLoad(NormalMode)
+      case _ =>
+        controllers.returns.submit.routes.DeclareDutyController.onPageLoad(NormalMode)
+    }
+  }
 
   private def declareDutySection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
@@ -48,12 +56,36 @@ object TaskList {
         TaskRows(
           id       = "duty-task",
           linkText = messages("returns.taskList.section.declareDuty.task1"),
-          link     = controllers.returns.submit.routes.DeclareDutyController.onPageLoad(NormalMode),
+          link     = determineDutyLink(userAnswers),
           status   = TaskStatusService.declareDutyTaskStatus(userAnswers),
           periodKey = Some(periodKey)
         ).toTaskListItem
       )
     )
+  }
+
+  private def determineAdjustmentLink(userAnswers: ReturnsUserAnswers): Call = {
+    val declareAdjustment = userAnswers.get(DeclareAdjustmentPage)
+    val adjustmentList = userAnswers.get(AdjustmentListPage)
+
+    (adjustmentList, declareAdjustment) match {
+      case (list, declaration) if list.nonEmpty || declaration.nonEmpty =>
+        controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode)
+      case _ =>
+        controllers.returns.submit.adjustments.routes.DeclareAdjustmentQuestionController.onPageLoad(NormalMode)
+    }
+  }
+
+  private def determineSpoiltLink(userAnswers: ReturnsUserAnswers): Call = {
+    val declareSpoilt = userAnswers.get(DeclareSpoiltProductsPage)
+    val spoiltList = userAnswers.get(SpoiltVolumeByPeriodPage)
+
+    (spoiltList, declareSpoilt) match {
+      case (list, declaration) if list.nonEmpty || declaration.nonEmpty =>
+        controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(NormalMode)
+      case _ =>
+        controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode)
+    }
   }
 
   private def declareAdjustmentsSection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
@@ -78,24 +110,14 @@ object TaskList {
     )
   }
 
-  private def determineAdjustmentLink(userAnswers: ReturnsUserAnswers): Call = {
-    userAnswers.get(AdjustmentListPage) match {
-      case Some(list) if list.adjustments.nonEmpty =>
-        controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode)
+  private def determineDutySuspendedLink(userAnswers: ReturnsUserAnswers): Call = {
+    TaskStatusService.dutySuspenseTaskStatus(userAnswers) match {
+      case TaskStatus.Completed =>
+        controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(NormalMode)
       case _ =>
-        controllers.returns.submit.adjustments.routes.DeclareAdjustmentQuestionController.onPageLoad(NormalMode)
+        controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(NormalMode)
     }
   }
-
-  private def determineSpoiltLink(userAnswers: ReturnsUserAnswers): Call = {
-    userAnswers.get(SpoiltVolumeByPeriodPage) match {
-      case Some(list) if list.nonEmpty =>
-        controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad()
-      case _ =>
-        controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode)
-    }
-  }
-
 
   private def dutySuspendedSection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
@@ -104,7 +126,7 @@ object TaskList {
         TaskRows(
           id = "duty-suspended",
           linkText = messages("returns.taskList.section.dutySuspended.task1"),
-          link = controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(NormalMode),
+          link = determineDutySuspendedLink(userAnswers),
           status = TaskStatusService.dutySuspenseTaskStatus(userAnswers),
           periodKey = Some(periodKey)
         ).toTaskListItem
@@ -112,7 +134,7 @@ object TaskList {
     )
   }
 
-  def submissionSection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
+  def submissionSection(userAnswers: ReturnsUserAnswers, periodKey: String, adjustmentsEligibility: AdjustmentsEligibility)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
       headingKey = "returns.taskList.section.submitReturn.heading",
       rows = Seq(
@@ -120,7 +142,7 @@ object TaskList {
           id = "submit",
           linkText = messages("returns.taskList.submitReturn.task1"),
           link = controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(),
-          status = TaskStatusService.submitTaskStatus(userAnswers),
+          status = TaskStatusService.submitTaskStatus(userAnswers, adjustmentsEligibility),
           hint = Some(messages("returns.taskList.submitReturn.task1.hint")),
           periodKey = Some(periodKey)
         ).toTaskListItem

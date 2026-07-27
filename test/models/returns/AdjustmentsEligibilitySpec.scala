@@ -17,41 +17,22 @@
 package models.returns
 
 import base.SpecBase
-import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
+import builders.ObligationsBuilders
 
-import java.time.LocalDate
-
-class AdjustmentsEligibilitySpec extends SpecBase {
-
-  private val testPeriodKey = "24AC"
-  private val testFromDate = LocalDate.of(2024, 10, 1)
-  private val testToDate = LocalDate.of(2024, 10, 31)
-  private val testDueDate = LocalDate.of(2024, 11, 30)
-
-  private def createObligation(status: ObligationStatus): ObligationItem = ObligationItem(
-    identification = None,
-    obligationDetails = ObligationDetails(
-      openOrFulfilledStatus = status.toString,
-      iCFromDate = testFromDate,
-      iCToDate = testToDate,
-      iCDateReceived = None,
-      iCDueDate = testDueDate,
-      periodKey = testPeriodKey
-    )
-  )
+class AdjustmentsEligibilitySpec extends SpecBase with ObligationsBuilders {
 
   "AdjustmentsEligibility.fromObligations" - {
 
     "must return Eligible when obligations contain fulfilled status" in {
-      val obligations = Seq(createObligation(ObligationStatus.F))
+      val testObligations = obligations(Seq(fulfilledObligation(march2024)))
 
-      AdjustmentsEligibility.fromObligations(obligations) mustBe AdjustmentsEligibility.Eligible
+      AdjustmentsEligibility.fromObligations(testObligations) mustBe AdjustmentsEligibility.Eligible
     }
 
     "must return NotEligible when obligations only contain open status" in {
-      val obligations = Seq(createObligation(ObligationStatus.O))
+      val testObligations = obligations(Seq(openObligation(march2024)))
 
-      AdjustmentsEligibility.fromObligations(obligations) mustBe AdjustmentsEligibility.NotEligible
+      AdjustmentsEligibility.fromObligations(testObligations) mustBe AdjustmentsEligibility.NotEligible
     }
 
     "must return NotEligible when obligations list is empty" in {
@@ -59,23 +40,62 @@ class AdjustmentsEligibilitySpec extends SpecBase {
     }
 
     "must return Eligible when at least one obligation is fulfilled among many" in {
-      val obligations = Seq(
-        createObligation(ObligationStatus.O),
-        createObligation(ObligationStatus.F),
-        createObligation(ObligationStatus.O)
-      )
+      val testObligations = obligations(Seq(
+        openObligation(january2024),
+        fulfilledObligation(february2024),
+        openObligation(march2024)
+      ))
 
-      AdjustmentsEligibility.fromObligations(obligations) mustBe AdjustmentsEligibility.Eligible
+      AdjustmentsEligibility.fromObligations(testObligations) mustBe AdjustmentsEligibility.Eligible
     }
 
     "must return NotEligible when multiple obligations are all open" in {
-      val obligations = Seq(
-        createObligation(ObligationStatus.O),
-        createObligation(ObligationStatus.O),
-        createObligation(ObligationStatus.O)
+      val testObligations = obligations(Seq(
+        openObligation(january2024),
+        openObligation(february2024),
+        openObligation(march2024)
+      ))
+
+      AdjustmentsEligibility.fromObligations(testObligations) mustBe AdjustmentsEligibility.NotEligible
+    }
+  }
+
+  "AdjustmentsEligibility.fromObligationDetails" - {
+
+    "must return Eligible when obligation details contain fulfilled status" in {
+      val details = Seq(fulfilledObligation(march2024))
+
+      AdjustmentsEligibility.fromObligationDetails(details) mustBe AdjustmentsEligibility.Eligible
+    }
+
+    "must return NotEligible when obligation details only contain open status" in {
+      val details = Seq(openObligation(march2024))
+
+      AdjustmentsEligibility.fromObligationDetails(details) mustBe AdjustmentsEligibility.NotEligible
+    }
+
+    "must return NotEligible when obligation details list is empty" in {
+      AdjustmentsEligibility.fromObligationDetails(Seq.empty) mustBe AdjustmentsEligibility.NotEligible
+    }
+
+    "must return Eligible when at least one obligation detail is fulfilled among many" in {
+      val details = Seq(
+        openObligation(january2024),
+        fulfilledObligation(february2024),
+        openObligation(march2024)
       )
 
-      AdjustmentsEligibility.fromObligations(obligations) mustBe AdjustmentsEligibility.NotEligible
+      AdjustmentsEligibility.fromObligationDetails(details) mustBe AdjustmentsEligibility.Eligible
+    }
+
+    "must return NotEligible when multiple obligation details are all open" in {
+      val details = Seq(
+        openObligation(january2024),
+        openObligation(february2024),
+        openObligation(march2024)
+      )
+
+      AdjustmentsEligibility.fromObligationDetails(details) mustBe AdjustmentsEligibility.NotEligible
     }
   }
 }

@@ -17,6 +17,7 @@
 package viewmodels.returns.submit.spoilt
 
 import base.SpecBase
+import models.NormalMode
 import models.identifiers.PeriodKey
 import models.returns.{DutyRate, SpoiltVolumeByPeriod}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -38,7 +39,8 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
         obligationDetails,
         periodKey,
         dutyRatesMap,
-        returnsDateUtils
+        returnsDateUtils,
+        mode = NormalMode
       )
 
       vm.hasSpoiltProducts mustBe true
@@ -56,7 +58,8 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
         obligationDetails,
         periodKey,
         dutyRatesMap,
-        returnsDateUtils
+        returnsDateUtils,
+        mode = NormalMode
       )
 
       vm.totalSpoiltDuty mustBe BigDecimal("3000.00")
@@ -73,7 +76,8 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
         obligationDetails,
         periodKey,
         dutyRatesMap,
-        returnsDateUtils
+        returnsDateUtils,
+        mode = NormalMode
       )
 
       val dutyRow = vm.summaryCards.head.rows.find(_.key.content == Text("Duty")).value
@@ -89,7 +93,8 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
         obligationDetails,
         periodKey,
         dutyRatesMap,
-        returnsDateUtils
+        returnsDateUtils,
+        mode = NormalMode
       )
 
       vm.hasSpoiltProducts mustBe false
@@ -107,7 +112,8 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
         obligationDetails,
         periodKey,
         dutyRatesMap,
-        returnsDateUtils
+        returnsDateUtils,
+        mode = NormalMode
       )
 
       vm.hasSpoiltProducts mustBe false

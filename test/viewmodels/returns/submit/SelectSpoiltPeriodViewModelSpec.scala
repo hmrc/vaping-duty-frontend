@@ -17,6 +17,7 @@
 package viewmodels.returns.submit
 
 import base.SpecBase
+import models.NormalMode
 import models.returns.SpoiltVolumeByPeriod
 import utils.ReturnsDateUtils
 
@@ -37,7 +38,8 @@ class SelectSpoiltPeriodViewModelSpec extends SpecBase {
         None,
         periodKey,
         None,
-        returnsDateUtils
+        returnsDateUtils,
+        mode = NormalMode
       )
 
       vm.periods.size mustBe 2
@@ -55,7 +57,8 @@ class SelectSpoiltPeriodViewModelSpec extends SpecBase {
         None,
         periodKey,
         None,
-        returnsDateUtils
+        returnsDateUtils,
+        mode = NormalMode
       )
 
       vm.periods.size mustBe 1
@@ -76,7 +79,8 @@ class SelectSpoiltPeriodViewModelSpec extends SpecBase {
         None,
         periodKey,
         Some(spoiltList),
-        returnsDateUtils
+        returnsDateUtils,
+        mode = NormalMode
       )
 
       vm.periods.size mustBe 1
@@ -91,7 +95,8 @@ class SelectSpoiltPeriodViewModelSpec extends SpecBase {
         None,
         periodKey,
         None,
-        returnsDateUtils
+        returnsDateUtils,
+        mode = NormalMode
       )
 
       vm.periods mustBe empty

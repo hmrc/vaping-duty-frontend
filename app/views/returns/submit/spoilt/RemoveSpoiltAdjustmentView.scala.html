@@ -31,11 +31,11 @@
     h2: Heading2
 )
 
-@(periodKey: PeriodKey, spoiltPeriod: PeriodKey, form: Form[_], vm: RemoveSpoiltAdjustmentViewModel)(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, spoiltPeriod: PeriodKey, form: Form[_], vm: RemoveSpoiltAdjustmentViewModel, mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("returns.removeSpoiltAdjustment.title"))) {
 
-    @formHelper(action = Call("POST", s"${controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onSubmit().url}?period=${periodKey.value}&spoiltPeriod=${spoiltPeriod.value}"), Symbol("autoComplete") -> "off") {
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onSubmit(mode).url}?period=${periodKey.value}&spoiltPeriod=${spoiltPeriod.value}"), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

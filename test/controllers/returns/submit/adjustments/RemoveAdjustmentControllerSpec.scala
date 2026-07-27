@@ -19,11 +19,10 @@ package controllers.returns.submit.adjustments
 import base.SpecBase
 import controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController
 import controllers.routes.*
-import forms.returns.adjustments.RemoveAdjustmentFormProvider
 import models.NormalMode
 import models.identifiers.PeriodKey
-import models.returns.{DutyRate, ReturnsUserAnswers}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
+import models.returns.{DutyRate, ReturnsUserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, verify, when}
@@ -33,7 +32,6 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService}
-import views.html.returns.submit.adjustments.RemoveAdjustmentView
 
 import scala.concurrent.Future
 

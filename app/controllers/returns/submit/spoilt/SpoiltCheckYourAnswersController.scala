@@ -19,10 +19,10 @@ package controllers.returns.submit.spoilt
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import forms.returns.AddSpoiltAdjustmentFormProvider
-import models.NormalMode
 import models.requests.returns.ReturnsDataRequest
+import models.{Mode, NormalMode}
 import navigation.ReturnsNavigator
-import pages.returns.{SpoiltCheckYourAnswersPage, DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
+import pages.returns.{DeclareSpoiltProductsPage, SpoiltCheckYourAnswersPage, SpoiltVolumeByPeriodPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -50,25 +50,25 @@ class SpoiltCheckYourAnswersController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       val declareSpoiltProducts = request.userAnswers.get(DeclareSpoiltProductsPage)
       val spoiltList = request.userAnswers.get(SpoiltVolumeByPeriodPage)
 
       spoiltCheckYourAnswersService
-        .buildViewModel(declareSpoiltProducts, spoiltList, request.periodKey, request.enrolmentVpdId)
+        .buildViewModel(declareSpoiltProducts, spoiltList, request.periodKey, request.enrolmentVpdId, mode)
         .map { vm =>
           val preparedForm = request.userAnswers.get(SpoiltCheckYourAnswersPage) match {
             case None => form
             case Some(value) => form.fill(value)
           }
 
-          Ok(view(request.periodKey, vm, preparedForm))
+          Ok(view(request.periodKey, vm, preparedForm, mode))
         }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       val declareSpoiltProducts = request.userAnswers.get(DeclareSpoiltProductsPage)
@@ -76,36 +76,35 @@ class SpoiltCheckYourAnswersController @Inject()(
 
       declareSpoiltProducts match {
         case Some(false) =>
-          redirectToNextPageWithoutAddingAnother(request)
+          redirectToNextPageWithoutAddingAnother(request, mode)
         case _ =>
           spoiltCheckYourAnswersService
             .hasAvailablePeriodsToAdd(spoiltList, request.periodKey, request.enrolmentVpdId)
             .flatMap {
               case false =>
-                redirectToNextPageWithoutAddingAnother(request)
+                redirectToNextPageWithoutAddingAnother(request, mode)
               case true =>
                 form.bindFromRequest().fold(
                   formWithErrors =>
                     spoiltCheckYourAnswersService
-                      .buildViewModel(declareSpoiltProducts, spoiltList, request.periodKey, request.enrolmentVpdId)
-                      .map(vm => BadRequest(view(request.periodKey, vm, formWithErrors))),
+                      .buildViewModel(declareSpoiltProducts, spoiltList, request.periodKey, request.enrolmentVpdId, mode)
+                      .map(vm => BadRequest(view(request.periodKey, vm, formWithErrors, mode))),
 
                   value =>
                     for {
                       updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltCheckYourAnswersPage, value))
-                      _              <- sessionRepository.set(updatedAnswers)
-                    } yield Redirect(navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, updatedAnswers))
+                      _ <- sessionRepository.set(updatedAnswers)
+                    } yield Redirect(navigator.nextPage(SpoiltCheckYourAnswersPage, mode, updatedAnswers))
                 )
             }
       }
   }
 
-  private def redirectToNextPageWithoutAddingAnother(request: ReturnsDataRequest[AnyContent])
+  private def redirectToNextPageWithoutAddingAnother(request: ReturnsDataRequest[AnyContent], mode: Mode)
                                                     (using HeaderCarrier): Future[Result] = {
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltCheckYourAnswersPage, false))
-      _              <- sessionRepository.set(updatedAnswers)
-    } yield Redirect(navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, updatedAnswers))
+      _ <- sessionRepository.set(updatedAnswers)
+    } yield Redirect(navigator.nextPage(SpoiltCheckYourAnswersPage, mode, updatedAnswers))
   }
-
 }
