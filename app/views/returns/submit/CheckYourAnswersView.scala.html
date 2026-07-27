@@ -53,24 +53,24 @@
     @vm.dutyCalculationParagraph
 
     @summaryCard(
-        title = vm.declareDutyCard._1,
-        summaryList = vm.declareDutyCard._2,
-        actions = vm.declareDutyCard._3
+        title = vm.declareDutyCard.title,
+        summaryList = vm.declareDutyCard.summaryList,
+        actions = vm.declareDutyCard.actions
     )
 
     @vm.spoiltProductsCard.map { card =>
         @summaryCard(
-            title = card._1,
-            summaryList = card._2,
-            actions = card._3
+            title = card.title,
+            summaryList = card.summaryList,
+            actions = card.actions
         )
     }
 
     @vm.adjustmentsCard.map { card =>
         @summaryCard(
-            title = card._1,
-            summaryList = card._2,
-            actions = card._3
+            title = card.title,
+            summaryList = card.summaryList,
+            actions = card.actions
         )
     }
 
@@ -92,9 +92,9 @@
     @p(Seq(messages("returns.CheckYourAnswers.p.theseAnswers")))
 
     @summaryCard(
-        title = vm.dutySuspendedCard._1,
-        summaryList = vm.dutySuspendedCard._2,
-        actions = vm.dutySuspendedCard._3
+        title = vm.dutySuspendedCard.title,
+        summaryList = vm.dutySuspendedCard.summaryList,
+        actions = vm.dutySuspendedCard.actions
     )
 
     @h2(messages("returns.CheckYourAnswers.changing"))

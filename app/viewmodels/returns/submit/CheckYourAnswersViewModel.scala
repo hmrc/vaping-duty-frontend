@@ -27,13 +27,14 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 import utils.{CurrencyFormatter, ReturnsDateUtils}
+import viewmodels.returns.view.CyaSummaryCard
 import views.html.components.Paragraph
 
 case class CheckYourAnswersViewModel(
-                                      declareDutyCard: (String, SummaryList, Option[Seq[ActionItem]]),
-                                      spoiltProductsCard: Option[(String, SummaryList, Option[Seq[ActionItem]])],
-                                      adjustmentsCard: Option[(String, SummaryList, Option[Seq[ActionItem]])],
-                                      dutySuspendedCard: (String, SummaryList, Option[Seq[ActionItem]]),
+                                      declareDutyCard: CyaSummaryCard,
+                                      spoiltProductsCard: Option[CyaSummaryCard],
+                                      adjustmentsCard: Option[CyaSummaryCard],
+                                      dutySuspendedCard: CyaSummaryCard,
                                       totalDuty: BigDecimal,
                                       formattedTotalDuty: String,
                                       hasDutySuspended: Boolean,
@@ -47,7 +48,12 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
 
   private val ZERO = "0"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils, adjustmentsEligibility: AdjustmentsEligibility)(implicit messages: Messages): CheckYourAnswersViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers,
+            dutyRates: Map[PeriodKey, DutyRate],
+            periodKey: PeriodKey,
+            returnsDateUtils: ReturnsDateUtils,
+            adjustmentsEligibility: AdjustmentsEligibility)
+           (implicit messages: Messages): CheckYourAnswersViewModel = {
     // scalafix:off DisableSyntax.throw
     val returnPeriod = userAnswers.returnPeriod
       .map(month => returnsDateUtils.getReturnMonth(month))
@@ -125,7 +131,7 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
                                      userAnswers: ReturnsUserAnswers,
                                      dutyAmount: BigDecimal,
                                      periodKey: PeriodKey
-                                   )(implicit messages: Messages): (String, SummaryList, Option[Seq[ActionItem]]) = {
+                                   )(implicit messages: Messages): CyaSummaryCard = {
     val declareDuty = userAnswers.get(DeclareDutyPage).getOrElse(false)
 
     val rows = Seq(
@@ -151,14 +157,18 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
       )
     ))
 
-    (messages("returns.CheckYourAnswers.card.declareDuty.title"), SummaryList(rows = rows), cardActions)
+    CyaSummaryCard(
+      title = messages("returns.CheckYourAnswers.card.declareDuty.title"),
+      summaryList = SummaryList(rows = rows),
+      actions = cardActions
+    )
   }
 
   private def buildSpoiltProductsCard(
                                        userAnswers: ReturnsUserAnswers,
                                        spoiltAmount: BigDecimal,
                                        periodKey: PeriodKey
-                                     )(implicit messages: Messages): (String, SummaryList, Option[Seq[ActionItem]]) = {
+                                     )(implicit messages: Messages): CyaSummaryCard = {
     val declareSpoilt = userAnswers.get(DeclareSpoiltProductsPage).getOrElse(false)
 
     val rows = Seq(
@@ -184,14 +194,18 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
       )
     ))
 
-    (messages("returns.CheckYourAnswers.card.spoilt.title"), SummaryList(rows = rows), cardActions)
+    CyaSummaryCard(
+      title = messages("returns.CheckYourAnswers.card.spoilt.title"),
+      summaryList = SummaryList(rows = rows),
+      actions = cardActions
+    )
   }
 
   private def buildAdjustmentsCard(
                                      userAnswers: ReturnsUserAnswers,
                                      adjustmentAmount: BigDecimal,
                                      periodKey: PeriodKey
-                                   )(implicit messages: Messages): (String, SummaryList, Option[Seq[ActionItem]]) = {
+                                   )(implicit messages: Messages): CyaSummaryCard = {
     val declareAdjustment = userAnswers.get(DeclareAdjustmentPage).getOrElse(false)
     val adjustmentReason = userAnswers.get(AdjustmentReasonPage)
 
@@ -231,13 +245,17 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
       )
     ))
 
-    (messages("returns.CheckYourAnswers.card.adjustments.title"), SummaryList(rows = rows), cardActions)
+    CyaSummaryCard(
+      title = messages("returns.CheckYourAnswers.card.adjustments.title"),
+      summaryList = SummaryList(rows = rows),
+      actions = cardActions
+    )
   }
 
   private def buildDutySuspendedCard(
                                        userAnswers: ReturnsUserAnswers,
                                        periodKey: PeriodKey
-                                     )(implicit messages: Messages): (String, SummaryList, Option[Seq[ActionItem]]) = {
+                                     )(implicit messages: Messages): CyaSummaryCard = {
     val declareDutySuspense = userAnswers.get(DeclareDutySuspensePage).getOrElse(false)
 
     val rows = Seq(
@@ -263,7 +281,11 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
       )
     ))
 
-    (messages("returns.CheckYourAnswers.card.dutySuspended.title"), SummaryList(rows = rows), cardActions)
+    CyaSummaryCard(
+      title = messages("returns.CheckYourAnswers.card.dutySuspended.title"),
+      summaryList = SummaryList(rows = rows),
+      actions = cardActions
+    )
   }
 
   private def dutyCalculationParagraph(dutyRate: DutyRate)(implicit messages: Messages): HtmlFormat.Appendable = {

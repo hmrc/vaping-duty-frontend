@@ -166,12 +166,12 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
 
-      val (title, summaryList, actions) = vm.declareDutyCard
+      val card = vm.declareDutyCard
 
-      title mustBe messages("returns.CheckYourAnswers.card.declareDuty.title")
-      summaryList.rows.size mustBe 2
-      actions mustBe defined
-      actions.get.size mustBe 1
+      card.title mustBe messages("returns.CheckYourAnswers.card.declareDuty.title")
+      card.summaryList.rows.size mustBe 2
+      card.actions mustBe defined
+      card.actions.get.size mustBe 1
     }
 
     "must build spoilt products card correctly when declared" in {
@@ -184,11 +184,11 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
 
-      val (title, summaryList, actions) = vm.spoiltProductsCard.get
+      val card = vm.spoiltProductsCard.get
 
-      title mustBe messages("returns.CheckYourAnswers.card.spoilt.title")
-      summaryList.rows.size mustBe 2
-      actions mustBe defined
+      card.title mustBe messages("returns.CheckYourAnswers.card.spoilt.title")
+      card.summaryList.rows.size mustBe 2
+      card.actions mustBe defined
     }
 
     "must build adjustments card correctly with reason" in {
@@ -203,14 +203,14 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
 
-      val (title, summaryList, actions) = vm.adjustmentsCard.get
+      val card = vm.adjustmentsCard.get
 
-      title mustBe messages("returns.CheckYourAnswers.card.adjustments.title")
-      summaryList.rows.size mustBe 3 // question + total + reason
-      actions mustBe defined
+      card.title mustBe messages("returns.CheckYourAnswers.card.adjustments.title")
+      card.summaryList.rows.size mustBe 3 // question + total + reason
+      card.actions mustBe defined
 
       // Verify reason row has its own change link
-      val reasonRow = summaryList.rows.last
+      val reasonRow = card.summaryList.rows.last
       reasonRow.actions mustBe defined
     }
 
@@ -222,11 +222,11 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
       vm.hasDutySuspended mustBe true
 
-      val (title, summaryList, actions) = vm.dutySuspendedCard
+      val card = vm.dutySuspendedCard
       
-      title mustBe messages("returns.CheckYourAnswers.card.dutySuspended.title")
-      summaryList.rows.size mustBe 2
-      actions mustBe defined
+      card.title mustBe messages("returns.CheckYourAnswers.card.dutySuspended.title")
+      card.summaryList.rows.size mustBe 2
+      card.actions mustBe defined
     }
 
     "must build duty suspended card with only question row when not declared" in {
@@ -237,11 +237,11 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
       vm.hasDutySuspended mustBe false
       
-      val (title, summaryList, actions) = vm.dutySuspendedCard
+      val card = vm.dutySuspendedCard
       
-      title mustBe messages("returns.CheckYourAnswers.card.dutySuspended.title")
-      summaryList.rows.size mustBe 1
-      actions mustBe defined
+      card.title mustBe messages("returns.CheckYourAnswers.card.dutySuspended.title")
+      card.summaryList.rows.size mustBe 1
+      card.actions mustBe defined
     }
 
     "must build declare duty card with only question row when not declared" in {
@@ -250,11 +250,11 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
 
-      val (title, summaryList, actions) = vm.declareDutyCard
+      val card = vm.declareDutyCard
       
-      title mustBe messages("returns.CheckYourAnswers.card.declareDuty.title")
-      summaryList.rows.size mustBe 1
-      actions mustBe defined
+      card.title mustBe messages("returns.CheckYourAnswers.card.declareDuty.title")
+      card.summaryList.rows.size mustBe 1
+      card.actions mustBe defined
     }
 
     "must build spoilt products card with only question row when not declared" in {
@@ -263,11 +263,11 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
 
-      val (title, summaryList, actions) = vm.spoiltProductsCard.get
+      val card = vm.spoiltProductsCard.get
       
-      title mustBe messages("returns.CheckYourAnswers.card.spoilt.title")
-      summaryList.rows.size mustBe 1 // Only question row, no total row
-      actions mustBe defined
+      card.title mustBe messages("returns.CheckYourAnswers.card.spoilt.title")
+      card.summaryList.rows.size mustBe 1 // Only question row, no total row
+      card.actions mustBe defined
     }
 
     "must build adjustments card with only question row when not declared" in {
@@ -276,11 +276,11 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
       val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
 
-      val (title, summaryList, actions) = vm.adjustmentsCard.get
+      val card = vm.adjustmentsCard.get
       
-      title mustBe messages("returns.CheckYourAnswers.card.adjustments.title")
-      summaryList.rows.size mustBe 1 // Only question row, no total or reason rows
-      actions mustBe defined
+      card.title mustBe messages("returns.CheckYourAnswers.card.adjustments.title")
+      card.summaryList.rows.size mustBe 1 // Only question row, no total or reason rows
+      card.actions mustBe defined
     }
 
     "must show total due when DeclareDutyPage is false but adjustments exist" in {
