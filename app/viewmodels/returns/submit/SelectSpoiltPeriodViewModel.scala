@@ -16,7 +16,7 @@
 
 package viewmodels.returns.submit
 
-import models.{CheckMode, Mode, NormalMode}
+import models.Mode
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.returns.SpoiltVolumeByPeriod

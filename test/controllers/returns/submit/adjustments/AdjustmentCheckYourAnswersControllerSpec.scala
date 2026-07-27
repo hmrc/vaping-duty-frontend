@@ -463,8 +463,6 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
         .set(AdjustmentListPage, testAdjustmentList).success.value
         .set(AdjustmentReasonPage, "old reason").success.value
 
-      val cleanedUserAnswers = userAnswers.remove(AdjustmentReasonPage).success.value
-
       val mockViewModel = AdjustmentCheckYourAnswersViewModel(
         summaryCards = Seq.empty,
         hasAdjustments = true,

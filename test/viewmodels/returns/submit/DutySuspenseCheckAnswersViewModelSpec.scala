@@ -165,17 +165,6 @@ class DutySuspenseCheckAnswersViewModelSpec extends SpecBase {
         val changeLink = declareRow.actions.value.items.head
         changeLink.href must include(controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(CheckMode).url)
       }
-
-      "must have product rows with change links in CheckMode" in {
-        val ua = returnsUserAnswers
-          .set(DeclareDutySuspensePage, true).success.value
-          .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
-        
-        val vm = DutySuspenseCheckAnswersViewModel(ua, periodKey, CheckMode)
-
-        val receivedRow = vm.get.summaryList.rows(1)
-        val movedRow = vm.get.summaryList.rows(2)
-      }
     }
 
     "when user answers NO" - {

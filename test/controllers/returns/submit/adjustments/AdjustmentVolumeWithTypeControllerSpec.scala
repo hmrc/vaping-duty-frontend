@@ -17,9 +17,9 @@
 package controllers.returns.submit.adjustments
 
 import base.SpecBase
+import models.NormalMode
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import models.returns.{DutyRate, MaxVolumeResult}
-import models.{CheckMode, NormalMode}
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
