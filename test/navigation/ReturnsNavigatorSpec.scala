@@ -247,17 +247,62 @@ class ReturnsNavigatorSpec extends SpecBase {
         navigator.nextPage(DeclareSpoiltProductsPage, CheckMode, returnsUserAnswers.set(DeclareSpoiltProductsPage, false).success.value).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
       }
 
+      "must go from DeclareSpoiltProductsPage to SelectSpoiltPeriod when selecting 'Yes' in CheckMode" in {
+        val ua = returnsUserAnswers.set(DeclareSpoiltProductsPage, true).success.value
+        navigator.nextPage(DeclareSpoiltProductsPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, CheckMode).url}?period=$periodKey"
+      }
+
+      "must go from DeclareSpoiltProductsPage to JourneyRecovery when there is no value present in CheckMode" in {
+        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        navigator.nextPage(DeclareSpoiltProductsPage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from SpoiltVolumeByPeriodPage to SpoiltCheckYourAnswers in CheckMode" in {
         navigator.nextPage(SpoiltVolumeByPeriodPage, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
+      }
+
+      "must go from SpoiltCheckYourAnswersPage to SelectSpoiltPeriod when user has more spoilt adjustments to make in CheckMode" in {
+        val ua = returnsUserAnswers.set(SpoiltCheckYourAnswersPage, true).success.value
+        navigator.nextPage(SpoiltCheckYourAnswersPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, CheckMode).url}?period=$periodKey"
+      }
+
+      "must go from SpoiltCheckYourAnswersPage to CheckYourAnswers when no more spoilt adjustments to make in CheckMode" in {
+        val ua = returnsUserAnswers.set(SpoiltCheckYourAnswersPage, false).success.value
+        navigator.nextPage(SpoiltCheckYourAnswersPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from SpoiltCheckYourAnswersPage to JourneyRecovery when there is no value present in CheckMode" in {
+        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        navigator.nextPage(SpoiltCheckYourAnswersPage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from DeclareAdjustmentPage to SelectAdjustmentPeriodPage (mini CYA)" in {
         navigator.nextPage(DeclareAdjustmentPage, CheckMode, returnsUserAnswers.set(DeclareAdjustmentPage, true).success.value).url mustBe s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(CheckMode).url}?period=$periodKey"
       }
 
+      "must go from DeclareAdjustmentPage to AdjustmentCheckYourAnswers when selecting 'No' in CheckMode" in {
+        val ua = returnsUserAnswers.set(DeclareAdjustmentPage, false).success.value
+        navigator.nextPage(DeclareAdjustmentPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
+      }
+
+      "must go from DeclareAdjustmentPage to JourneyRecovery when there is no value present in CheckMode" in {
+        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        navigator.nextPage(DeclareAdjustmentPage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from AdjustmentListPage to AdjustmentCheckYourAnswers in CheckMode" in {
+        val ua = returnsUserAnswers.set(AdjustmentListPage, adjustmentList).success.value
+        navigator.nextPage(AdjustmentListPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(CheckMode).url}?period=$periodKey"
+      }
+
       "must go from AdjustmentReasonPage to CheckYourAnswers" in {
         val ua = returnsUserAnswers.set(AdjustmentReasonPage, "test reason").success.value
         navigator.nextPage(AdjustmentReasonPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to SelectAdjustmentPeriod when user has more adjustments to make in CheckMode" in {
+        val ua = returnsUserAnswers.set(AddAnotherAdjustmentPage, true).success.value
+        navigator.nextPage(AddAnotherAdjustmentPage, CheckMode, ua).url mustBe s"${controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(CheckMode, None).url}?period=$periodKey"
       }
 
       "must go from AddAnotherAdjustmentPage to AdjustmentReason when adjustmentReasonMandatory is true in CheckMode" in {
@@ -272,6 +317,11 @@ class ReturnsNavigatorSpec extends SpecBase {
 
         navigator.nextPage(AddAnotherAdjustmentPage, CheckMode, ua)
           .url mustBe s"${controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url}?period=$periodKey"
+      }
+
+      "must go from AddAnotherAdjustmentPage to JourneyRecovery when there is no value present in CheckMode" in {
+        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        navigator.nextPage(AddAnotherAdjustmentPage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
     }
   }
