@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.*
+import models.returns.AdjustmentsEligibility
 import pages.returns.adjustments.AdjustmentListPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -55,7 +56,8 @@ class CheckYourAnswersController @Inject()(
       obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
       dutyRates = dutyRateService.getDutyRatesForPeriods(allPeriods, obligationDetails)
     } yield {
-      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRates, pk, returnsDateUtils)))
+      val adjustmentsEligibility = AdjustmentsEligibility.fromObligationDetails(obligationDetails)
+      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRates, pk, returnsDateUtils, adjustmentsEligibility)))
     }
   }
 

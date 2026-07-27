@@ -19,7 +19,7 @@ package viewmodels.returns.submit
 import models.CheckMode
 import models.identifiers.PeriodKey
 import models.returns.adjustments.AdjustmentType
-import models.returns.{DutyRate, ReturnsUserAnswers}
+import models.returns.{AdjustmentsEligibility, DutyRate, ReturnsUserAnswers}
 import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import pages.returns.*
 import play.api.i18n.Messages
@@ -31,8 +31,8 @@ import views.html.components.Paragraph
 
 case class CheckYourAnswersViewModel(
                                       declareDutyCard: (String, SummaryList, Option[Seq[ActionItem]]),
-                                      spoiltProductsCard: (String, SummaryList, Option[Seq[ActionItem]]),
-                                      adjustmentsCard: (String, SummaryList, Option[Seq[ActionItem]]),
+                                      spoiltProductsCard: Option[(String, SummaryList, Option[Seq[ActionItem]])],
+                                      adjustmentsCard: Option[(String, SummaryList, Option[Seq[ActionItem]])],
                                       dutySuspendedCard: (String, SummaryList, Option[Seq[ActionItem]]),
                                       totalDuty: BigDecimal,
                                       formattedTotalDuty: String,
@@ -47,7 +47,7 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
 
   private val ZERO = "0"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): CheckYourAnswersViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers, dutyRates: Map[PeriodKey, DutyRate], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils, adjustmentsEligibility: AdjustmentsEligibility)(implicit messages: Messages): CheckYourAnswersViewModel = {
     // scalafix:off DisableSyntax.throw
     val returnPeriod = userAnswers.returnPeriod
       .map(month => returnsDateUtils.getReturnMonth(month))
@@ -66,8 +66,12 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
 
     CheckYourAnswersViewModel(
       declareDutyCard = buildDeclareDutyCard(userAnswers, declareDutyAmount, periodKey),
-      spoiltProductsCard = buildSpoiltProductsCard(userAnswers, spoiltAmount, periodKey),
-      adjustmentsCard = buildAdjustmentsCard(userAnswers, adjustmentAmount, periodKey),
+      spoiltProductsCard = if (adjustmentsEligibility == AdjustmentsEligibility.Eligible) {
+        Some(buildSpoiltProductsCard(userAnswers, spoiltAmount, periodKey))
+      } else None,
+      adjustmentsCard = if (adjustmentsEligibility == AdjustmentsEligibility.Eligible) {
+        Some(buildAdjustmentsCard(userAnswers, adjustmentAmount, periodKey))
+      } else None,
       dutySuspendedCard = buildDutySuspendedCard(userAnswers, periodKey),
       totalDuty = totalDuty,
       formattedTotalDuty = currencyFormatWithLeadingSign(totalDuty),

@@ -58,17 +58,21 @@
         actions = vm.declareDutyCard._3
     )
 
-    @summaryCard(
-        title = vm.spoiltProductsCard._1,
-        summaryList = vm.spoiltProductsCard._2,
-        actions = vm.spoiltProductsCard._3
-    )
+    @vm.spoiltProductsCard.map { card =>
+        @summaryCard(
+            title = card._1,
+            summaryList = card._2,
+            actions = card._3
+        )
+    }
 
-    @summaryCard(
-        title = vm.adjustmentsCard._1,
-        summaryList = vm.adjustmentsCard._2,
-        actions = vm.adjustmentsCard._3
-    )
+    @vm.adjustmentsCard.map { card =>
+        @summaryCard(
+            title = card._1,
+            summaryList = card._2,
+            actions = card._3
+        )
+    }
 
     @govukInsetText(InsetText(
         content = HtmlContent(s"${messages("returns.CheckYourAnswers.inset.totalDuty")} <strong>${vm.formattedTotalDuty}</strong>")

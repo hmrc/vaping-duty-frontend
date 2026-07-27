@@ -17,6 +17,7 @@
 package controllers.returns.submit
 
 import base.SpecBase
+import models.returns.AdjustmentsEligibility
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -34,13 +35,13 @@ class CheckYourAnswersControllerSpec extends SpecBase {
 
   "ReturnsCheckYourAnswers Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET when adjustments are eligible" in {
 
       val mockDutyRateService = mock[DutyRateService]
       val mockObligationService = mock[ObligationService]
 
       when(mockObligationService.getObligationsDirectly(any())(using any()))
-        .thenReturn(Future.successful(Seq.empty))
+        .thenReturn(Future.successful(Seq(fulfilledObligation(periodKey))))
       
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenReturn(Map(periodKey -> testDutyRate))
@@ -60,20 +61,55 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[CheckYourAnswersView]
         val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
         val dutyRates = Map(periodKey -> testDutyRate)
-        val vm = CheckYourAnswersViewModel(returnsUserAnswers, dutyRates, periodKey, returnsDateUtils)(messages(application))
+        val vm = CheckYourAnswersViewModel(returnsUserAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
         
         val content = contentAsString(result)
         
-        // Verify summary cards are present
         content must include("govuk-summary-card")
         content must include("Declare vaping products for duty")
         content must include("Declare any spoilt products")
         content must include("Declare any over or under-declared adjustments")
         
-        // Verify inset text with total duty
+        content must include("govuk-inset-text")
+        content must include("Your total duty to pay is")
+      }
+    }
+
+    "must return OK and hide spoilt and adjustments cards when not eligible (first return)" in {
+
+      val mockDutyRateService = mock[DutyRateService]
+      val mockObligationService = mock[ObligationService]
+
+      when(mockObligationService.getObligationsDirectly(any())(using any()))
+        .thenReturn(Future.successful(Seq(openObligation(periodKey))))
+      
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(periodKey -> testDutyRate))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[services.returns.ObligationService].toInstance(mockObligationService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        
+        val content = contentAsString(result)
+        
+        content must include("Declare vaping products for duty")
+        
+        content must not include "Declare any spoilt products"
+        content must not include "Declare any over or under-declared adjustments"
+        
         content must include("govuk-inset-text")
         content must include("Your total duty to pay is")
       }
@@ -108,7 +144,6 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         
         val content = contentAsString(result)
         
-        // Verify duty suspended section is present
         content must include("Duty suspended summary")
         content must include("Report duty suspended vaping deliveries")
       }
@@ -120,7 +155,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       val mockObligationService = mock[ObligationService]
 
       when(mockObligationService.getObligationsDirectly(any())(using any()))
-        .thenReturn(Future.successful(Seq.empty))
+        .thenReturn(Future.successful(Seq(openObligation(periodKey))))
 
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenReturn(Map(periodKey -> testDutyRate))
@@ -133,8 +168,6 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           bind[DutyRateService].toInstance(mockDutyRateService),
           bind[ObligationService].toInstance(mockObligationService)
         )
-
-
         .build()
 
       running(application) {
@@ -146,9 +179,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         
         val content = contentAsString(result)
         
-        // Verify duty suspended card is present with question
         content must include("Report duty suspended vaping deliveries")
-        // But the detail row should not be present when answer is No
         content must not include "Duty suspended deliveries declared"
       }
     }
