@@ -96,7 +96,7 @@ object SpoiltCheckYourAnswersViewModel {
   private def buildSpoiltUrl(baseUrl: String, currentPeriod: PeriodKey, spoiltPeriod: Option[PeriodKey] = None): String = {
     spoiltPeriod match {
       case Some(period) => s"$baseUrl?period=${currentPeriod.value}&spoiltPeriod=${period.value}"
-      case None => s"$baseUrl?period=${currentPeriod.value}"
+      case None         => s"$baseUrl?period=${currentPeriod.value}"
     }
   }
 
@@ -153,7 +153,7 @@ object SpoiltCheckYourAnswersViewModel {
   private def buildDeclareSpoiltProductsRow(currentPeriodKey: PeriodKey, declared: Boolean, mode: Mode)(implicit messages: Messages): SummaryListRow = {
     val changeMode = mode match {
       case CheckMode => CheckMode
-      case _ => models.NormalMode
+      case _         => NormalMode
     }
     
     SummaryListRow(
@@ -161,7 +161,10 @@ object SpoiltCheckYourAnswersViewModel {
       value = Value(content = Text(messages(if (declared) "site.yes" else "site.no"))),
       actions = Some(Actions(items = Seq(
         ActionItem(
-          href = s"${controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(changeMode).url}?period=${currentPeriodKey.value}",
+          href = buildSpoiltUrl(
+            controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(changeMode).url,
+            currentPeriodKey
+          ),
           content = Text(messages("site.change")),
           visuallyHiddenText = Some(messages("returns.declareSpoiltProducts.change.hidden"))
         )
@@ -180,7 +183,11 @@ object SpoiltCheckYourAnswersViewModel {
       value = Value(content = HtmlContent(s"${volume.toString} ml")),
       actions = Some(Actions(items = Seq(
         ActionItem(
-          href = s"${controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad(mode).url}?period=${currentPeriodKey.value}&spoiltPeriod=${spoiltPeriod.value}",
+          href = buildSpoiltUrl(
+            controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad(mode).url,
+            currentPeriodKey,
+            Some(spoiltPeriod)
+          ),
           content = Text(messages("site.change")),
           visuallyHiddenText = Some(messages("returns.spoiltCheckYourAnswers.volume.change.hidden"))
         )
