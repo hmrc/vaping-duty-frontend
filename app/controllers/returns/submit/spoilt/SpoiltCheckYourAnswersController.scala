@@ -102,14 +102,9 @@ class SpoiltCheckYourAnswersController @Inject()(
 
   private def redirectToNextPageWithoutAddingAnother(request: ReturnsDataRequest[AnyContent], mode: Mode)
                                                     (using HeaderCarrier): Future[Result] = {
-    mode match {
-      case CheckMode =>
-        Future.successful(Redirect(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url + s"?period=${request.periodKey.value}"))
-      case NormalMode =>
-        for {
-          updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltCheckYourAnswersPage, false))
-          _ <- sessionRepository.set(updatedAnswers)
-        } yield Redirect(navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, updatedAnswers))
-    }
+    for {
+      updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltCheckYourAnswersPage, false))
+      _ <- sessionRepository.set(updatedAnswers)
+    } yield Redirect(navigator.nextPage(SpoiltCheckYourAnswersPage, mode, updatedAnswers))
   }
 }
