@@ -151,10 +151,6 @@ object SpoiltCheckYourAnswersViewModel {
   }
 
   private def buildDeclareSpoiltProductsRow(currentPeriodKey: PeriodKey, declared: Boolean, mode: Mode)(implicit messages: Messages): SummaryListRow = {
-    val changeMode = mode match {
-      case CheckMode => CheckMode
-      case _         => NormalMode
-    }
     
     SummaryListRow(
       key = Key(content = Text(messages("returns.declareSpoiltProducts.question"))),
@@ -162,7 +158,7 @@ object SpoiltCheckYourAnswersViewModel {
       actions = Some(Actions(items = Seq(
         ActionItem(
           href = buildSpoiltUrl(
-            controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(changeMode).url,
+            controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(mode).url,
             currentPeriodKey
           ),
           content = Text(messages("site.change")),

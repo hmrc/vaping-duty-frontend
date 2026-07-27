@@ -27,21 +27,21 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.{TaskListItem, TaskLi
 import utils.ReturnsDateUtils
 
 case class SelectSpoiltPeriodViewModel(
-  periods: Seq[TaskListItem],
-  paginationItems: Seq[PaginationItem],
-  currentYear: Int
-)
+                                        periods: Seq[TaskListItem],
+                                        paginationItems: Seq[PaginationItem],
+                                        currentYear: Int
+                                      )
 
 object SelectSpoiltPeriodViewModel {
 
   def apply(
-    obligationDetails: Seq[ObligationDetails],
-    selectedYear: Option[Int],
-    currentReturnPeriod: PeriodKey,
-    spoiltList: Option[List[SpoiltVolumeByPeriod]],
-    returnsDateUtils: ReturnsDateUtils,
-    mode: Mode
-  )(implicit messages: Messages): SelectSpoiltPeriodViewModel = {
+             obligationDetails: Seq[ObligationDetails],
+             selectedYear: Option[Int],
+             currentReturnPeriod: PeriodKey,
+             spoiltList: Option[List[SpoiltVolumeByPeriod]],
+             returnsDateUtils: ReturnsDateUtils,
+             mode: Mode
+           )(implicit messages: Messages): SelectSpoiltPeriodViewModel = {
 
     val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
       .filter(_.periodKey != currentReturnPeriod.toString)
@@ -61,28 +61,24 @@ object SelectSpoiltPeriodViewModel {
       val month = obligation.iCFromDate.getMonthValue
       val monthKey = returnsDateUtils.getMonthMessageKey(month)
       val periodKey = obligation.periodKey
-      val href = mode match {
-        case CheckMode => s"${controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad(CheckMode).url}?period=${currentReturnPeriod.value}&spoiltPeriod=$periodKey"
-        case _ => s"${controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad(NormalMode).url}?period=${currentReturnPeriod.value}&spoiltPeriod=$periodKey"
-      }
-
-      TaskListItem(
-        title = TaskListItemTitle(content = Text(messages(monthKey))),
-        href = Some(href)
-      )
+      val href = s"${controllers.returns.submit.spoilt.routes.SpoiltVolumeByPeriodController.onPageLoad(mode).url}?period=${currentReturnPeriod.value}&spoiltPeriod=$periodKey"
     }
 
-    val paginationItemHrefBuilder = (year: Int) => mode match {
-      case CheckMode => s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(year), CheckMode).url}&period=${currentReturnPeriod.value}"
-      case _ => s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(year), NormalMode).url}&period=${currentReturnPeriod.value}"
-    }
-
-    val paginationItems = PeriodSelectionHelper.buildPaginationItems(availableYears, currentYear, paginationItemHrefBuilder)
-
-    SelectSpoiltPeriodViewModel(
-      periods = taskListItems,
-      paginationItems = paginationItems,
-      currentYear = currentYear
+    TaskListItem(
+      title = TaskListItemTitle(content = Text(messages(monthKey))),
+      href = Some(href)
     )
   }
+
+  private val paginationItemHref: Int => String = (year: Int) => 
+    s"${controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(year), mode).url}&period=${currentReturnPeriod.value}"
+  
+
+  val paginationItems: Seq[PaginationItem] = PeriodSelectionHelper.buildPaginationItems(availableYears, currentYear, paginationItemHref)
+
+  SelectSpoiltPeriodViewModel(
+    periods = taskListItems,
+    paginationItems = paginationItems,
+    currentYear = currentYear
+  )
 }
