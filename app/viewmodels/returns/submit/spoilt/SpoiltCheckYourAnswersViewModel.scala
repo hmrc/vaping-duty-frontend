@@ -93,14 +93,10 @@ object SpoiltCheckYourAnswersViewModel {
       .filterNot(ob => existingSpoiltPeriods.contains(ob.periodKey))
   }
 
-  private def buildSpoiltUrl(baseUrl: String, currentPeriod: PeriodKey, spoiltPeriod: Option[PeriodKey] = None, mode: Mode): String = {
-    val modeParam = mode match {
-      case CheckMode => "&mode=CheckMode"
-      case _ => ""
-    }
+  private def buildSpoiltUrl(baseUrl: String, currentPeriod: PeriodKey, spoiltPeriod: Option[PeriodKey] = None): String = {
     spoiltPeriod match {
-      case Some(period) => s"$baseUrl?period=${currentPeriod.value}&spoiltPeriod=${period.value}$modeParam"
-      case None => s"$baseUrl?period=${currentPeriod.value}$modeParam"
+      case Some(period) => s"$baseUrl?period=${currentPeriod.value}&spoiltPeriod=${period.value}"
+      case None => s"$baseUrl?period=${currentPeriod.value}"
     }
   }
 
@@ -127,8 +123,7 @@ object SpoiltCheckYourAnswersViewModel {
         href = buildSpoiltUrl(
           controllers.returns.submit.spoilt.routes.RemoveSpoiltAdjustmentController.onPageLoad(mode).url,
           currentPeriodKey,
-          Some(entry.periodKey),
-          mode
+          Some(entry.periodKey)
         ),
         content = Text(messages("site.remove")),
         visuallyHiddenText = Some(messages("returns.spoiltCheckYourAnswers.card.remove.hidden", periodDisplay))
