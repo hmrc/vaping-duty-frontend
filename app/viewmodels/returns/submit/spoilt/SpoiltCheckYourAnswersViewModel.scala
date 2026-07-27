@@ -16,7 +16,7 @@
 
 package viewmodels.returns.submit.spoilt
 
-import models.{CheckMode, Mode}
+import models.{NormalMode, CheckMode, Mode}
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.returns.{DutyRate, SpoiltVolumeByPeriod}
