@@ -76,6 +76,11 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         vm.totalOwed mustBe "£330,000"
       }
 
+      "must extract year from cleared payments" in {
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils)
+        vm.clearedPaymentsYear mustBe "2025"
+      }
+
       "must build a table row for each outstanding payment status" in {
         ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, None), returnsDateUtils).outstandingRows must have size 1
         ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils).outstandingRows must have size 1
@@ -104,6 +109,22 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         vm.paymentOnAccountRows must have size 1
         vm.clearedRows must have size 1
       }
+
+      "must build unallocated payment rows with 4 columns (date, description, amount, action)" in {
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils)
+        vm.paymentOnAccountRows.head must have size 4
+      }
+
+      "must build cleared payment rows with 3 columns (period, description, amount)" in {
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils)
+        vm.clearedRows.head must have size 3
+      }
+
+      "must display month-only for cleared payment period" in {
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils)
+        val periodCell = vm.clearedRows.head.head
+        periodCell.content.asHtml.body mustBe "January"
+      }
     }
 
     "when no payments exist" - {
@@ -117,6 +138,11 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         vm.outstandingRows mustBe Seq.empty
         vm.paymentOnAccountRows mustBe Seq.empty
         vm.clearedRows mustBe Seq.empty
+      }
+
+      "must use current year when no cleared payments exist" in {
+        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils)
+        vm.clearedPaymentsYear mustBe LocalDate.now(clock).getYear.toString
       }
     }
 
