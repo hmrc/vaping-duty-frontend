@@ -21,10 +21,9 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Tag, Text}
 import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag
 import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
-import utils.CurrencyFormatter
+import utils.{CurrencyFormatter, ReturnsDateUtils}
 
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 final case class ViewPaymentsViewModel(
   totalOwed: String,
@@ -39,25 +38,23 @@ object ViewPaymentsViewModel {
   private val TAG_STYLE_GREEN = "govuk-tag--green"
   private val NOT_AVAILABLE = "N/A"
 
-  private val DATE_FORMATTER_SHORT = DateTimeFormatter.ofPattern("d MMMM yyyy")
-
   private val govukTag = GovukTag()
 
-  def apply(payments: PaymentsResponse)(implicit messages: Messages): ViewPaymentsViewModel = {
+  def apply(payments: PaymentsResponse, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): ViewPaymentsViewModel = {
     val totalOwed = payments.totalAccountBalance.getOrElse(BigDecimal(0))
 
     ViewPaymentsViewModel(
       totalOwed = CurrencyFormatter.currencyFormat(totalOwed),
-      outstandingRows = payments.outstanding.map(buildOutstandingRow),
-      paymentOnAccountRows = payments.paymentOnAccount.map(buildPaymentOnAccountRow),
-      clearedRows = payments.cleared.map(buildClearedRow)
+      outstandingRows = payments.outstanding.map(buildOutstandingRow(_, returnsDateUtils)),
+      paymentOnAccountRows = payments.paymentOnAccount.map(buildPaymentOnAccountRow(_, returnsDateUtils)),
+      clearedRows = payments.cleared.map(buildClearedRow(_, returnsDateUtils))
     )
   }
 
-  private def buildOutstandingRow(payment: OutstandingPayment)(implicit messages: Messages): Seq[TableRow] =
+  private def buildOutstandingRow(payment: OutstandingPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(formatDateShort(Some(payment.dueDate))),
+        content = Text(formatDateWithTranslatedMonth(Some(payment.dueDate), returnsDateUtils)),
         classes = "govuk-table__header"
       ),
       TableRow(
@@ -84,10 +81,10 @@ object ViewPaymentsViewModel {
       )
     )
 
-  private def buildPaymentOnAccountRow(payment: PaymentOnAccount): Seq[TableRow] =
+  private def buildPaymentOnAccountRow(payment: PaymentOnAccount, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(formatDateShort(payment.paymentDate)),
+        content = Text(formatDateWithTranslatedMonth(payment.paymentDate, returnsDateUtils)),
         classes = "govuk-table__header",
         attributes = Map("scope" -> "row")
       ),
@@ -98,10 +95,10 @@ object ViewPaymentsViewModel {
       )
     )
 
-  private def buildClearedRow(payment: ClearedPayment): Seq[TableRow] =
+  private def buildClearedRow(payment: ClearedPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(formatDateShort(payment.clearedDate)),
+        content = Text(formatDateWithTranslatedMonth(payment.clearedDate, returnsDateUtils)),
         classes = "govuk-table__header",
         attributes = Map("scope" -> "row")
       ),
@@ -112,9 +109,15 @@ object ViewPaymentsViewModel {
       )
     )
 
-  private def formatDateShort(dateOpt: Option[LocalDate]): String =
-    dateOpt.map(_.format(DATE_FORMATTER_SHORT)).getOrElse(NOT_AVAILABLE)
-  
+  private def formatDateWithTranslatedMonth(date: LocalDate, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String = {
+    val month = date.getMonth
+    val monthName = returnsDateUtils.getMonthMessage(month)
+    s"${date.getDayOfMonth} $monthName ${date.getYear}"
+  }
+
+  private def formatDateWithTranslatedMonth(dateOpt: Option[LocalDate], returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String =
+    dateOpt.map(date => formatDateWithTranslatedMonth(date, returnsDateUtils)).getOrElse(NOT_AVAILABLE)
+
   private def statusMessageKey(status: PaymentStatus): String = status match {
     case PaymentStatus.Due => "payments.viewPayments.status.due"
     case PaymentStatus.Overdue => "payments.viewPayments.status.overdue"

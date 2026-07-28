@@ -25,6 +25,7 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.payments.FinancialDataService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import viewmodels.payments.ViewPaymentsViewModel
 import views.html.payments.ViewPaymentsView
 
@@ -36,6 +37,7 @@ class ViewPaymentsController @Inject()(
   returnsEnabled: ReturnsEnabledAction,
   identify: ApprovedVapingManufacturerAuthAction,
   service: FinancialDataService,
+  returnsDateUtils: ReturnsDateUtils,
   val controllerComponents: MessagesControllerComponents,
   view: ViewPaymentsView
 )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
@@ -43,7 +45,7 @@ class ViewPaymentsController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled).async { implicit request =>
     service.getPayments(request.enrolmentVpdId)
       .map { payments =>
-        val vm = ViewPaymentsViewModel(payments)
+        val vm = ViewPaymentsViewModel(payments, returnsDateUtils)
         Ok(view(vm))
       }
       .recover { case e: Exception =>

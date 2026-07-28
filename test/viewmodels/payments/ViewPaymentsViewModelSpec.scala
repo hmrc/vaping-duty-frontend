@@ -19,10 +19,13 @@ package viewmodels.payments
 import base.SpecBase
 import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse}
 import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
+import utils.ReturnsDateUtils
 
 import java.time.LocalDate
 
 class ViewPaymentsViewModelSpec extends SpecBase {
+
+  private val returnsDateUtils = new ReturnsDateUtils(clock)
 
   private val testPaymentDue = OutstandingPayment(
     chargeReference = "XA123456789012",
@@ -69,34 +72,34 @@ class ViewPaymentsViewModelSpec extends SpecBase {
   "ViewPaymentsViewModel" - {
     "when payments exist" - {
       "must format total owed correctly from outstanding payments only" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, Some(BigDecimal("330000.00"))))
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, Some(BigDecimal("330000.00"))), returnsDateUtils)
         vm.totalOwed mustBe "£330,000"
       }
 
       "must build a table row for each outstanding payment status" in {
-        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, None)).outstandingRows must have size 1
-        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None)).outstandingRows must have size 1
-        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentNothingToPay), Seq.empty, Seq.empty, None)).outstandingRows must have size 1
+        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, None), returnsDateUtils).outstandingRows must have size 1
+        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils).outstandingRows must have size 1
+        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentNothingToPay), Seq.empty, Seq.empty, None), returnsDateUtils).outstandingRows must have size 1
       }
 
       "must sum multiple outstanding payments correctly" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue, testPaymentOverdue), Seq.empty, Seq.empty, Some(BigDecimal("497000.80"))))
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue, testPaymentOverdue), Seq.empty, Seq.empty, Some(BigDecimal("497000.80"))), returnsDateUtils)
         vm.totalOwed mustBe "£497,000.80"
         vm.outstandingRows must have size 2
       }
 
       "must build a table row for each payment on account" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq.empty, Seq(testUnallocatedPayment), Seq.empty, None))
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq.empty, Seq(testUnallocatedPayment), Seq.empty, None), returnsDateUtils)
         vm.paymentOnAccountRows must have size 1
       }
 
       "must build a table row for each cleared payment" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq.empty, Seq.empty, Seq(testClearedPayment), None))
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq.empty, Seq.empty, Seq(testClearedPayment), None), returnsDateUtils)
         vm.clearedRows must have size 1
       }
 
       "must build rows for all three sections independently when all are populated" in {
-        val vm = ViewPaymentsViewModel(testPaymentsResponse)
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils)
         vm.outstandingRows must have size 1
         vm.paymentOnAccountRows must have size 1
         vm.clearedRows must have size 1
@@ -105,12 +108,12 @@ class ViewPaymentsViewModelSpec extends SpecBase {
 
     "when no payments exist" - {
       "must show £0 as total owed" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse.empty)
+        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils)
         vm.totalOwed mustBe "£0"
       }
 
       "must have no rows in any section" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse.empty)
+        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils)
         vm.outstandingRows mustBe Seq.empty
         vm.paymentOnAccountRows mustBe Seq.empty
         vm.clearedRows mustBe Seq.empty
@@ -119,7 +122,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
 
     "when only some sections have data" - {
       "must independently reflect emptiness per section" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq(testClearedPayment), None))
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq(testClearedPayment), None), returnsDateUtils)
         vm.outstandingRows must have size 1
         vm.paymentOnAccountRows mustBe Seq.empty
         vm.clearedRows must have size 1
