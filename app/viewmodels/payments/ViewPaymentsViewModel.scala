@@ -88,21 +88,30 @@ object ViewPaymentsViewModel {
         classes = "govuk-table__header",
         attributes = Map("scope" -> "row")
       ),
-      TableRow(content = Text(payment.paymentReference.getOrElse(NOT_AVAILABLE))),
+      TableRow(content = Text(messages("payments.viewPayments.unallocated.description.placeholder"))),
       TableRow(
         content = Text(CurrencyFormatter.currencyFormat(payment.amount)),
         classes = "govuk-table__cell--numeric"
+      ),
+      TableRow(
+        content = HtmlContent(
+          s"""<a href="#" class="govuk-link">${messages("payments.viewPayments.unallocated.action.claimRepayment")}</a>"""
+        )
       )
     )
 
   private def buildClearedRow(payment: ClearedPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(formatDateWithTranslatedMonth(payment.clearedDate, returnsDateUtils)),
+        content = Text(formatMonthOnly(payment.clearedDate, returnsDateUtils)),
         classes = "govuk-table__header",
         attributes = Map("scope" -> "row")
       ),
-      TableRow(content = Text(payment.chargeReference)),
+      TableRow(
+        content = HtmlContent(
+          s"""${messages("payments.viewPayments.cleared.description.text")}<br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference}"""
+        )
+      ),
       TableRow(
         content = Text(CurrencyFormatter.currencyFormat(payment.amountPaid)),
         classes = "govuk-table__cell--numeric"
@@ -117,6 +126,14 @@ object ViewPaymentsViewModel {
 
   private def formatDateWithTranslatedMonth(dateOpt: Option[LocalDate], returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String =
     dateOpt.map(date => formatDateWithTranslatedMonth(date, returnsDateUtils)).getOrElse(NOT_AVAILABLE)
+
+  private def formatMonthOnly(date: LocalDate, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String = {
+    val month = date.getMonth
+    returnsDateUtils.getMonthMessage(month)
+  }
+
+  private def formatMonthOnly(dateOpt: Option[LocalDate], returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String =
+    dateOpt.map(date => formatMonthOnly(date, returnsDateUtils)).getOrElse(NOT_AVAILABLE)
 
   private def statusMessageKey(status: PaymentStatus): String = status match {
     case PaymentStatus.Due => "payments.viewPayments.status.due"

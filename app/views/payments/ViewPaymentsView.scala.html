@@ -62,8 +62,9 @@
         @govukTable(Table(
             head = Some(Seq(
                 HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.paymentDate"))),
-                HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.paymentReference"))),
-                HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.amount")), classes = "govuk-table__header")
+                HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.description"))),
+                HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.amount")), classes = "govuk-table__header--numeric"),
+                HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.action")))
             )),
             rows = vm.paymentOnAccountRows,
             classes = "govuk-table"
@@ -77,9 +78,9 @@
     @if(vm.clearedRows.nonEmpty) {
         @govukTable(Table(
             head = Some(Seq(
-                HeadCell(content = Text(messages("payments.viewPayments.cleared.table.clearedDate"))),
-                HeadCell(content = Text(messages("payments.viewPayments.cleared.table.chargeReference"))),
-                HeadCell(content = Text(messages("payments.viewPayments.cleared.table.amountPaid")), classes = "govuk-table__header")
+                HeadCell(content = Text(messages("payments.viewPayments.cleared.table.period"))),
+                HeadCell(content = Text(messages("payments.viewPayments.cleared.table.description"))),
+                HeadCell(content = Text(messages("payments.viewPayments.cleared.table.amount")), classes = "govuk-table__header--numeric")
             )),
             rows = vm.clearedRows,
             classes = "govuk-table"
