@@ -21,7 +21,6 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.LocalDate
 
 final case class PaymentOnAccount(
-  paymentReference: Option[String],
   amount: BigDecimal,
   paymentDate: Option[LocalDate]
 )

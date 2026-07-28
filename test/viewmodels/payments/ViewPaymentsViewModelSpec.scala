@@ -49,15 +49,12 @@ class ViewPaymentsViewModelSpec extends SpecBase {
   )
 
   private val testUnallocatedPayment = PaymentOnAccount(
-    paymentReference = Some("PAY123456"),
     amount = BigDecimal("5000.00"),
     paymentDate = Some(LocalDate.of(2025, 1, 15))
   )
 
   private val testClearedPayment = ClearedPayment(
     chargeReference = "XD123456789012",
-    periodFromDate = Some(LocalDate.of(2024, 12, 1)),
-    periodToDate = Some(LocalDate.of(2024, 12, 31)),
     amountPaid = BigDecimal("10000.00"),
     clearedDate = Some(LocalDate.of(2025, 1, 10))
   )

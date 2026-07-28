@@ -391,14 +391,11 @@ trait TestData extends ObligationsBuilders {
 
   val testClearedPayment: ClearedPayment = ClearedPayment(
     chargeReference = "VPD38270541980",
-    periodFromDate = Some(LocalDate.parse("2026-09-01")),
-    periodToDate = Some(LocalDate.parse("2026-09-30")),
     amountPaid = BigDecimal("750.00"),
     clearedDate = Some(LocalDate.parse("2026-10-09"))
   )
 
   val testPaymentOnAccount: PaymentOnAccount = PaymentOnAccount(
-    paymentReference = Some("3000000000001"),
     amount = BigDecimal("150.00"),
     paymentDate = Some(LocalDate.parse("2026-10-18"))
   )

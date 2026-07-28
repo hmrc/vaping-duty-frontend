@@ -24,13 +24,11 @@ import java.time.LocalDate
 class PaymentOnAccountSpec extends SpecBase {
 
   override val testPaymentOnAccount = PaymentOnAccount(
-    paymentReference = Some("3000000000001"),
     amount = BigDecimal("150.00"),
     paymentDate = Some(LocalDate.parse("2026-10-18"))
   )
 
   val testPaymentOnAccountJson = Json.obj(
-    "paymentReference" -> "3000000000001",
     "amount" -> 150.00,
     "paymentDate" -> "2026-10-18"
   )
@@ -51,7 +49,6 @@ class PaymentOnAccountSpec extends SpecBase {
 
     "must handle None values correctly" in {
       val paymentWithNones = PaymentOnAccount(
-        paymentReference = None,
         amount = BigDecimal("100.00"),
         paymentDate = None
       )
