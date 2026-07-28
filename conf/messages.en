@@ -605,7 +605,7 @@ payments.viewPayments.status.overdue = Overdue
 payments.viewPayments.status.nothingToPay = Nothing to pay
 
 payments.viewPayments.unallocated.heading = Unallocated payments
-payments.viewPayments.unallocated.body = An unallocated payment is when you have overpaid or made a payment without a reference so it hasn't been allocated to a specific return. Unallocated payments will be used to pay any due or overdue payments.
+payments.viewPayments.unallocated.body = An unallocated payment is when you have overpaid or made a payment without a reference so it hasn’t been allocated to a specific return. Unallocated payments will be used to pay any due or overdue payments.
 payments.viewPayments.unallocated.designPlaceholder = Design not here yet
 payments.viewPayments.unallocated.table.paymentDate = Payment date
 payments.viewPayments.unallocated.table.description = Description
