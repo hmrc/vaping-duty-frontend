@@ -605,6 +605,7 @@ payments.viewPayments.status.overdue = Overdue
 payments.viewPayments.status.nothingToPay = Nothing to pay
 
 payments.viewPayments.unallocated.heading = Unallocated payments
+payments.viewPayments.unallocated.body = An unallocated payment is when you have overpaid or made a payment without a reference so it hasn't been allocated to a specific return. Unallocated payments will be used to pay any due or overdue payments.
 payments.viewPayments.unallocated.designPlaceholder = Design not here yet
 payments.viewPayments.unallocated.table.paymentDate = Payment date
 payments.viewPayments.unallocated.table.description = Description
@@ -613,7 +614,8 @@ payments.viewPayments.unallocated.table.action = Action
 payments.viewPayments.unallocated.description.placeholder = Description detail
 payments.viewPayments.unallocated.action.claimRepayment = Claim repayment
 
-payments.viewPayments.cleared.heading = Cleared payments
+payments.viewPayments.cleared.heading = Cleared payments in {0}
+payments.viewPayments.cleared.body = Cleared payments are those where monies have been received by HMRC or an existing credit balance has been used to pay any applicable duty.
 payments.viewPayments.cleared.designPlaceholder = Design not here yet
 payments.viewPayments.cleared.table.period = Period
 payments.viewPayments.cleared.table.description = Description

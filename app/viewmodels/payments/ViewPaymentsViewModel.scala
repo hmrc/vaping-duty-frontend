@@ -29,7 +29,8 @@ final case class ViewPaymentsViewModel(
   totalOwed: String,
   outstandingRows: Seq[Seq[TableRow]],
   paymentOnAccountRows: Seq[Seq[TableRow]],
-  clearedRows: Seq[Seq[TableRow]]
+  clearedRows: Seq[Seq[TableRow]],
+  clearedPaymentsYear: String
 )
 
 object ViewPaymentsViewModel {
@@ -42,14 +43,23 @@ object ViewPaymentsViewModel {
 
   def apply(payments: PaymentsResponse, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): ViewPaymentsViewModel = {
     val totalOwed = payments.totalAccountBalance.getOrElse(BigDecimal(0))
+    val clearedYear = extractYearFromClearedPayments(payments.cleared)
 
     ViewPaymentsViewModel(
       totalOwed = CurrencyFormatter.currencyFormat(totalOwed),
       outstandingRows = payments.outstanding.map(buildOutstandingRow(_, returnsDateUtils)),
       paymentOnAccountRows = payments.paymentOnAccount.map(buildPaymentOnAccountRow(_, returnsDateUtils)),
-      clearedRows = payments.cleared.map(buildClearedRow(_, returnsDateUtils))
+      clearedRows = payments.cleared.map(buildClearedRow(_, returnsDateUtils)),
+      clearedPaymentsYear = clearedYear
     )
   }
+
+  private def extractYearFromClearedPayments(clearedPayments: Seq[ClearedPayment]): String =
+    clearedPayments
+      .flatMap(_.clearedDate)
+      .headOption
+      .map(_.getYear.toString)
+      .getOrElse(LocalDate.now().getYear.toString)
 
   private def buildOutstandingRow(payment: OutstandingPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
     Seq(

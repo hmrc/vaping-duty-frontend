@@ -57,6 +57,7 @@
     }
 
     @h2(messages("payments.viewPayments.unallocated.heading"))
+    @p(Seq(messages("payments.viewPayments.unallocated.body")))
 
     @if(vm.paymentOnAccountRows.nonEmpty) {
         @govukTable(Table(
@@ -73,7 +74,8 @@
         @p(Seq(messages("payments.viewPayments.unallocated.designPlaceholder")))
     }
 
-    @h2(messages("payments.viewPayments.cleared.heading"))
+    @h2(messages("payments.viewPayments.cleared.heading", vm.clearedPaymentsYear))
+    @p(Seq(messages("payments.viewPayments.cleared.body")))
 
     @if(vm.clearedRows.nonEmpty) {
         @govukTable(Table(
