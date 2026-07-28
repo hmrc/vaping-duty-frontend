@@ -17,6 +17,7 @@
 package controllers.payments
 
 import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.returns.ReturnsEnabledAction
 import controllers.routes
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -24,6 +25,7 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.payments.FinancialDataService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import viewmodels.payments.ViewPaymentsViewModel
 import views.html.payments.ViewPaymentsView
 
@@ -32,20 +34,22 @@ import scala.concurrent.ExecutionContext
 
 class ViewPaymentsController @Inject()(
   override val messagesApi: MessagesApi,
+  returnsEnabled: ReturnsEnabledAction,
   identify: ApprovedVapingManufacturerAuthAction,
   service: FinancialDataService,
+  returnsDateUtils: ReturnsDateUtils,
   val controllerComponents: MessagesControllerComponents,
   view: ViewPaymentsView
 )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
-  def onPageLoad: Action[AnyContent] = identify.async { implicit request =>
-    service.getOutstandingPayments(request.enrolmentVpdId)
+  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled).async { implicit request =>
+    service.getPayments(request.enrolmentVpdId)
       .map { payments =>
-        val viewModel = ViewPaymentsViewModel(payments)
-        Ok(view(viewModel))
+        val vm = ViewPaymentsViewModel(payments, returnsDateUtils)
+        Ok(view(vm))
       }
       .recover { case e: Exception =>
-        logger.warn(s"Error retrieving outstanding payments: ${e.getMessage}")
+        logger.warn(s"Error retrieving payments: ${e.getMessage}")
         Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
   }

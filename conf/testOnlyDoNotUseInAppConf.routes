@@ -15,5 +15,11 @@ GET    /vaping-duty/test-only/obligations/:vpdId/clear                 controlle
 GET    /vaping-duty/test-only/obligations/clear-all                    controllers.testonly.TestObligationsController.clearAllObligations()
 POST   /vaping-duty/test-only/obligations/:vpdId/custom                controllers.testonly.TestObligationsController.setCustomObligations(vpdId: String)
 
+# Test-only financial data management endpoints
+GET    /vaping-duty/test-only/financial-data/:vpdId/scenario/:scenario    controllers.testonly.TestFinancialDataController.setScenario(vpdId: String, scenario: String)
+GET    /vaping-duty/test-only/financial-data/:vpdId/clear                 controllers.testonly.TestFinancialDataController.clearVpdIdFinancialData(vpdId: String)
+GET    /vaping-duty/test-only/financial-data/clear-all                    controllers.testonly.TestFinancialDataController.clearAllFinancialData()
+POST   /vaping-duty/test-only/financial-data/:vpdId/custom                controllers.testonly.TestFinancialDataController.setCustomFinancialData(vpdId: String)
+
 # Add all the application routes to the prod.routes file
 ->         /                         prod.Routes

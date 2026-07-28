@@ -31,7 +31,7 @@
     hmrcStandardPage: HmrcStandardPage
 )
 
-@(pageTitle: String, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
+@(pageTitle: String, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false, fullWidth: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
 
 @head = {
 
@@ -62,7 +62,8 @@
 @hmrcStandardPage(HmrcStandardPageParams(
     pageTitle = Some(pageTitle),
     templateOverrides = TemplateOverrides(
-        additionalHeadBlock = Some(head)
+        additionalHeadBlock = Some(head),
+        mainContentLayout = if(fullWidth) Some(_ => content) else None
     ),
     serviceURLs = ServiceURLs(
         serviceUrl = Some(BtaLink(appConfig)),

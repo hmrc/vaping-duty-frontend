@@ -16,44 +16,46 @@
 
 package viewmodels.payments
 
-import models.payments.OutstandingPayment
+import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Tag, Text}
 import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag
 import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
-import utils.CurrencyFormatter
+import utils.{CurrencyFormatter, ReturnsDateUtils}
 
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 final case class ViewPaymentsViewModel(
   totalOwed: String,
-  paymentRows: Seq[Seq[TableRow]]
+  outstandingRows: Seq[Seq[TableRow]],
+  paymentOnAccountRows: Seq[Seq[TableRow]],
+  clearedRows: Seq[Seq[TableRow]]
 )
 
 object ViewPaymentsViewModel {
   private val TAG_STYLE_LIGHT_BLUE = "govuk-tag--light-blue"
   private val TAG_STYLE_RED = "govuk-tag--red"
   private val TAG_STYLE_GREEN = "govuk-tag--green"
-
-  private val DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy")
+  private val NOT_AVAILABLE = "N/A"
 
   private val govukTag = GovukTag()
 
-  def apply(paymentOption: Seq[OutstandingPayment])(implicit messages: Messages): ViewPaymentsViewModel = {
-    val totalOwed = CurrencyFormatter.currencyFormat(paymentOption.map(_.amountDue).sum)
+  def apply(payments: PaymentsResponse, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): ViewPaymentsViewModel = {
+    val totalOwed = payments.totalAccountBalance.getOrElse(BigDecimal(0))
 
-    val paymentRows = paymentOption.map(buildTableRow)
-
-    ViewPaymentsViewModel(totalOwed, paymentRows)
+    ViewPaymentsViewModel(
+      totalOwed = CurrencyFormatter.currencyFormat(totalOwed),
+      outstandingRows = payments.outstanding.map(buildOutstandingRow(_, returnsDateUtils)),
+      paymentOnAccountRows = payments.paymentOnAccount.map(buildPaymentOnAccountRow(_, returnsDateUtils)),
+      clearedRows = payments.cleared.map(buildClearedRow(_, returnsDateUtils))
+    )
   }
 
-  private def buildTableRow(payment: OutstandingPayment)(implicit messages: Messages): Seq[TableRow] =
+  private def buildOutstandingRow(payment: OutstandingPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(formatDate(payment.dueDate)),
-        classes = "govuk-table__header",
-        attributes = Map("scope" -> "row")
+        content = Text(formatDateWithTranslatedMonth(Some(payment.dueDate), returnsDateUtils)),
+        classes = "govuk-table__header"
       ),
       TableRow(
         content = HtmlContent(
@@ -79,14 +81,42 @@ object ViewPaymentsViewModel {
       )
     )
 
-  private def formatDate(dateString: String): String = {
-    try {
-      val date = LocalDate.parse(dateString)
-      date.format(DATE_FORMATTER)
-    } catch {
-      case _: Exception => dateString
-    }
+  private def buildPaymentOnAccountRow(payment: PaymentOnAccount, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
+    Seq(
+      TableRow(
+        content = Text(formatDateWithTranslatedMonth(payment.paymentDate, returnsDateUtils)),
+        classes = "govuk-table__header",
+        attributes = Map("scope" -> "row")
+      ),
+      TableRow(content = Text(payment.paymentReference.getOrElse(NOT_AVAILABLE))),
+      TableRow(
+        content = Text(CurrencyFormatter.currencyFormat(payment.amount)),
+        classes = "govuk-table__cell--numeric"
+      )
+    )
+
+  private def buildClearedRow(payment: ClearedPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
+    Seq(
+      TableRow(
+        content = Text(formatDateWithTranslatedMonth(payment.clearedDate, returnsDateUtils)),
+        classes = "govuk-table__header",
+        attributes = Map("scope" -> "row")
+      ),
+      TableRow(content = Text(payment.chargeReference)),
+      TableRow(
+        content = Text(CurrencyFormatter.currencyFormat(payment.amountPaid)),
+        classes = "govuk-table__cell--numeric"
+      )
+    )
+
+  private def formatDateWithTranslatedMonth(date: LocalDate, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String = {
+    val month = date.getMonth
+    val monthName = returnsDateUtils.getMonthMessage(month)
+    s"${date.getDayOfMonth} $monthName ${date.getYear}"
   }
+
+  private def formatDateWithTranslatedMonth(dateOpt: Option[LocalDate], returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String =
+    dateOpt.map(date => formatDateWithTranslatedMonth(date, returnsDateUtils)).getOrElse(NOT_AVAILABLE)
 
   private def statusMessageKey(status: PaymentStatus): String = status match {
     case PaymentStatus.Due => "payments.viewPayments.status.due"

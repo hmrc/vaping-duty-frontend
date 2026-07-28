@@ -18,7 +18,7 @@ package services.payments
 
 import connectors.payments.FinancialDataConnector
 import models.identifiers.VpdId
-import models.payments.OutstandingPayment
+import models.payments.PaymentsResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
@@ -28,6 +28,6 @@ class FinancialDataService @Inject()(
   connector: FinancialDataConnector
 ) {
 
-  def getOutstandingPayments(vpdId: VpdId)(using HeaderCarrier): Future[Seq[OutstandingPayment]] =
-    connector.getOutstandingPayments(vpdId)
+  def getPayments(vpdId: VpdId)(using HeaderCarrier): Future[PaymentsResponse] =
+    connector.getPayments(vpdId)
 }

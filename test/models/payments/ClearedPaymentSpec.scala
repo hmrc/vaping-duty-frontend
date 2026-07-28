@@ -17,37 +17,30 @@
 package models.payments
 
 import base.SpecBase
-import play.api.libs.json.{JsSuccess, Json}
-import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
+import play.api.libs.json.{JsObject, JsSuccess, Json}
 
-class OutstandingPaymentSpec extends SpecBase {
+class ClearedPaymentSpec extends SpecBase {
 
-  val testPayment = OutstandingPayment(
-    chargeReference = "VPD38270541977",
-    amountDue = BigDecimal("330000.00"),
-    dueDate = java.time.LocalDate.parse("2026-12-15"),
-    status = PaymentStatus.Due
+  val testClearedPaymentJson: JsObject = Json.obj(
+    "chargeReference" -> "VPD38270541980",
+    "periodFromDate" -> "2026-09-01",
+    "periodToDate" -> "2026-09-30",
+    "amountPaid" -> 750.00,
+    "clearedDate" -> "2026-10-09"
   )
 
-  val testPaymentJson = Json.obj(
-    "chargeReference" -> "VPD38270541977",
-    "amountDue" -> 330000.00,
-    "dueDate" -> "2026-12-15",
-    "status" -> "Due"
-  )
-
-  "OutstandingPayment" - {
+  "ClearedPayment" - {
     "must serialize to JSON correctly" in {
-      Json.toJson(testPayment) mustBe testPaymentJson
+      Json.toJson(testClearedPayment) mustBe testClearedPaymentJson
     }
 
     "must deserialize from JSON correctly" in {
-      testPaymentJson.validate[OutstandingPayment] mustBe JsSuccess(testPayment)
+      testClearedPaymentJson.validate[ClearedPayment] mustBe JsSuccess(testClearedPayment)
     }
 
     "must handle round-trip serialization" in {
-      val json = Json.toJson(testPayment)
-      json.as[OutstandingPayment] mustBe testPayment
+      val json = Json.toJson(testClearedPayment)
+      json.as[ClearedPayment] mustBe testClearedPayment
     }
   }
 }

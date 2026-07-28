@@ -17,17 +17,16 @@
 package models.payments
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
 
-import java.time.LocalDate
-
-final case class OutstandingPayment(
-  chargeReference: String,
-  amountDue: BigDecimal,
-  dueDate: LocalDate,
-  status: PaymentStatus
+final case class PaymentsResponse(
+                                   outstanding: Seq[OutstandingPayment],
+                                   paymentOnAccount: Seq[PaymentOnAccount],
+                                   cleared: Seq[ClearedPayment],
+                                   totalAccountBalance: Option[BigDecimal]
 )
 
-object OutstandingPayment {
-  implicit val format: OFormat[OutstandingPayment] = Json.format[OutstandingPayment]
+object PaymentsResponse {
+  val empty: PaymentsResponse = PaymentsResponse(Seq.empty, Seq.empty, Seq.empty, None)
+
+  implicit val format: OFormat[PaymentsResponse] = Json.format[PaymentsResponse]
 }

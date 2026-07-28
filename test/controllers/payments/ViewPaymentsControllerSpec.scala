@@ -17,7 +17,6 @@
 package controllers.payments
 
 import base.SpecBase
-import models.payments.OutstandingPayment
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -25,26 +24,17 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.payments.FinancialDataService
-import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
 
 import scala.concurrent.Future
 
 class ViewPaymentsControllerSpec extends SpecBase {
 
-  val testPayment = OutstandingPayment(
-    chargeReference = "VPD38270541977",
-    period = "December 2026",
-    amountDue = BigDecimal("330000.00"),
-    dueDate = "2026-12-15",
-    status = PaymentStatus.Due
-  )
-
   "ViewPaymentsController" - {
     "onPageLoad" - {
       "must return OK and load the page when we get a successful response" in {
         val mockService = mock[FinancialDataService]
-        when(mockService.getOutstandingPayments(eqTo(vpdId))(using any()))
-          .thenReturn(Future.successful(Seq(testPayment)))
+        when(mockService.getPayments(eqTo(vpdId))(using any()))
+          .thenReturn(Future.successful(testPaymentsResponse))
 
         val application = applicationBuilder()
           .overrides(bind[FinancialDataService].toInstance(mockService))
@@ -60,7 +50,7 @@ class ViewPaymentsControllerSpec extends SpecBase {
 
       "must redirect to journey recovery when service returns an error" in {
         val mockService = mock[FinancialDataService]
-        when(mockService.getOutstandingPayments(eqTo(vpdId))(using any()))
+        when(mockService.getPayments(eqTo(vpdId))(using any()))
           .thenReturn(Future.failed(new RuntimeException("Service error")))
 
         val application = applicationBuilder()
