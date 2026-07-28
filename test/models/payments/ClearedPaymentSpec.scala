@@ -17,13 +17,14 @@
 package models.payments
 
 import base.SpecBase
-import play.api.libs.json.{JsSuccess, Json}
+import play.api.libs.json.{JsObject, JsSuccess, Json}
 
 class ClearedPaymentSpec extends SpecBase {
 
-  val testClearedPaymentJson = Json.obj(
+  val testClearedPaymentJson: JsObject = Json.obj(
     "chargeReference" -> "VPD38270541980",
-    "period" -> "September 2026",
+    "periodFromDate" -> "2026-09-01",
+    "periodToDate" -> "2026-09-30",
     "amountPaid" -> 750.00,
     "clearedDate" -> "2026-10-09"
   )

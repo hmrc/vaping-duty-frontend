@@ -16,7 +16,7 @@
 
 package viewmodels.payments
 
-import models.payments.{ClearedPayment, OutstandingPayment, PaymentsResponse, UnallocatedPayment}
+import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Tag, Text}
 import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag
@@ -29,7 +29,7 @@ import java.time.format.DateTimeFormatter
 final case class ViewPaymentsViewModel(
   totalOwed: String,
   outstandingRows: Seq[Seq[TableRow]],
-  unallocatedRows: Seq[Seq[TableRow]],
+  paymentOnAccountRows: Seq[Seq[TableRow]],
   clearedRows: Seq[Seq[TableRow]]
 )
 
@@ -37,18 +37,19 @@ object ViewPaymentsViewModel {
   private val TAG_STYLE_LIGHT_BLUE = "govuk-tag--light-blue"
   private val TAG_STYLE_RED = "govuk-tag--red"
   private val TAG_STYLE_GREEN = "govuk-tag--green"
+  private val NOT_AVAILABLE = "N/A"
 
-  private val DATE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private val DATE_FORMATTER_SHORT = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
   private val govukTag = GovukTag()
 
   def apply(payments: PaymentsResponse)(implicit messages: Messages): ViewPaymentsViewModel = {
-    val totalOwed = CurrencyFormatter.currencyFormat(payments.outstanding.map(_.amountDue).sum)
+    val totalOwed = payments.totalAccountBalance.getOrElse(BigDecimal(0))
 
     ViewPaymentsViewModel(
-      totalOwed = totalOwed,
+      totalOwed = CurrencyFormatter.currencyFormat(totalOwed),
       outstandingRows = payments.outstanding.map(buildOutstandingRow),
-      unallocatedRows = payments.unallocated.map(buildUnallocatedRow),
+      paymentOnAccountRows = payments.paymentOnAccount.map(buildPaymentOnAccountRow),
       clearedRows = payments.cleared.map(buildClearedRow)
     )
   }
@@ -56,9 +57,8 @@ object ViewPaymentsViewModel {
   private def buildOutstandingRow(payment: OutstandingPayment)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(formatDate(payment.dueDate)),
-        classes = "govuk-table__header",
-        attributes = Map("scope" -> "row")
+        content = Text(formatDateShort(Some(payment.dueDate))),
+        classes = "govuk-table__header"
       ),
       TableRow(
         content = HtmlContent(
@@ -84,14 +84,14 @@ object ViewPaymentsViewModel {
       )
     )
 
-  private def buildUnallocatedRow(payment: UnallocatedPayment): Seq[TableRow] =
+  private def buildPaymentOnAccountRow(payment: PaymentOnAccount): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(formatDate(payment.paymentDate)),
+        content = Text(formatDateShort(payment.paymentDate)),
         classes = "govuk-table__header",
         attributes = Map("scope" -> "row")
       ),
-      TableRow(content = Text(payment.paymentReference)),
+      TableRow(content = Text(payment.paymentReference.getOrElse(NOT_AVAILABLE))),
       TableRow(
         content = Text(CurrencyFormatter.currencyFormat(payment.amount)),
         classes = "govuk-table__cell--numeric"
@@ -101,7 +101,7 @@ object ViewPaymentsViewModel {
   private def buildClearedRow(payment: ClearedPayment): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(formatDate(payment.clearedDate)),
+        content = Text(formatDateShort(payment.clearedDate)),
         classes = "govuk-table__header",
         attributes = Map("scope" -> "row")
       ),
@@ -112,15 +112,9 @@ object ViewPaymentsViewModel {
       )
     )
 
-  private def formatDate(dateString: String): String = {
-    try {
-      val date = LocalDate.parse(dateString)
-      date.format(DATE_FORMATTER)
-    } catch {
-      case _: Exception => dateString
-    }
-  }
-
+  private def formatDateShort(dateOpt: Option[LocalDate]): String =
+    dateOpt.map(_.format(DATE_FORMATTER_SHORT)).getOrElse(NOT_AVAILABLE)
+  
   private def statusMessageKey(status: PaymentStatus): String = status match {
     case PaymentStatus.Due => "payments.viewPayments.status.due"
     case PaymentStatus.Overdue => "payments.viewPayments.status.overdue"

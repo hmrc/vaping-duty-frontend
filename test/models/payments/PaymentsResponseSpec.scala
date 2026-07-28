@@ -34,7 +34,7 @@ class PaymentsResponseSpec extends SpecBase {
 
     "empty must have empty sequences for all three sections" in {
       PaymentsResponse.empty.outstanding mustBe Seq.empty
-      PaymentsResponse.empty.unallocated mustBe Seq.empty
+      PaymentsResponse.empty.paymentOnAccount mustBe Seq.empty
       PaymentsResponse.empty.cleared mustBe Seq.empty
     }
   }

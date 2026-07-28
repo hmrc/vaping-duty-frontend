@@ -19,13 +19,14 @@ package models.payments
 import play.api.libs.json.{Json, OFormat}
 
 final case class PaymentsResponse(
-  outstanding: Seq[OutstandingPayment],
-  unallocated: Seq[UnallocatedPayment],
-  cleared: Seq[ClearedPayment]
+                                   outstanding: Seq[OutstandingPayment],
+                                   paymentOnAccount: Seq[PaymentOnAccount],
+                                   cleared: Seq[ClearedPayment],
+                                   totalAccountBalance: Option[BigDecimal]
 )
 
 object PaymentsResponse {
-  val empty: PaymentsResponse = PaymentsResponse(Seq.empty, Seq.empty, Seq.empty)
+  val empty: PaymentsResponse = PaymentsResponse(Seq.empty, Seq.empty, Seq.empty, None)
 
   implicit val format: OFormat[PaymentsResponse] = Json.format[PaymentsResponse]
 }

@@ -58,14 +58,14 @@
 
     @h2(messages("payments.viewPayments.unallocated.heading"))
 
-    @if(vm.unallocatedRows.nonEmpty) {
+    @if(vm.paymentOnAccountRows.nonEmpty) {
         @govukTable(Table(
             head = Some(Seq(
                 HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.paymentDate"))),
                 HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.paymentReference"))),
                 HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.amount")), classes = "govuk-table__header")
             )),
-            rows = vm.unallocatedRows,
+            rows = vm.paymentOnAccountRows,
             classes = "govuk-table"
         ))
     } else {

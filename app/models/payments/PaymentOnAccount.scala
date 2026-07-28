@@ -18,12 +18,14 @@ package models.payments
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class UnallocatedPayment(
-  paymentReference: String,
+import java.time.LocalDate
+
+final case class PaymentOnAccount(
+  paymentReference: Option[String],
   amount: BigDecimal,
-  paymentDate: String
+  paymentDate: Option[LocalDate]
 )
 
-object UnallocatedPayment {
-  implicit val format: OFormat[UnallocatedPayment] = Json.format[UnallocatedPayment]
+object PaymentOnAccount {
+  implicit val format: OFormat[PaymentOnAccount] = Json.format[PaymentOnAccount]
 }

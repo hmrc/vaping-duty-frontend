@@ -24,15 +24,13 @@ class OutstandingPaymentSpec extends SpecBase {
 
   val testPayment = OutstandingPayment(
     chargeReference = "VPD38270541977",
-    period = "December 2026",
     amountDue = BigDecimal("330000.00"),
-    dueDate = "2026-12-15",
+    dueDate = java.time.LocalDate.parse("2026-12-15"),
     status = PaymentStatus.Due
   )
 
   val testPaymentJson = Json.obj(
     "chargeReference" -> "VPD38270541977",
-    "period" -> "December 2026",
     "amountDue" -> 330000.00,
     "dueDate" -> "2026-12-15",
     "status" -> "Due"

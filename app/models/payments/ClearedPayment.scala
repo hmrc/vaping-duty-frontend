@@ -18,11 +18,14 @@ package models.payments
 
 import play.api.libs.json.{Json, OFormat}
 
+import java.time.LocalDate
+
 final case class ClearedPayment(
   chargeReference: String,
-  period: String,
+  periodFromDate: Option[LocalDate],
+  periodToDate: Option[LocalDate],
   amountPaid: BigDecimal,
-  clearedDate: String
+  clearedDate: Option[LocalDate]
 )
 
 object ClearedPayment {

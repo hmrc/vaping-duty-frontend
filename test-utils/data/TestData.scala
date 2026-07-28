@@ -21,7 +21,7 @@ import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, Use
 import models.emailverification.*
 import models.identifiers.*
 import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse}
-import models.payments.{ClearedPayment, OutstandingPayment, PaymentsResponse, UnallocatedPayment}
+import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
 import models.returns.{DeclarationDetails, DutyRate, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
@@ -262,48 +262,7 @@ trait TestData extends ObligationsBuilders {
     )
   }
 
-  val testPaymentDue = OutstandingPayment(
-    chargeReference = "VPD38270541977",
-    period = "December 2026",
-    amountDue = BigDecimal("330000.00"),
-    dueDate = "2026-12-15",
-    status = PaymentStatus.Due
-  )
-
-  val testPaymentOverdue = OutstandingPayment(
-    chargeReference = "VPD38270541978",
-    period = "November 2026",
-    amountDue = BigDecimal("167000.80"),
-    dueDate = "2026-11-15",
-    status = PaymentStatus.Overdue
-  )
-
-  val testPaymentNothingToPay = OutstandingPayment(
-    chargeReference = "VPD38270541979",
-    period = "October 2026",
-    amountDue = BigDecimal("0.00"),
-    dueDate = "2026-10-15",
-    status = PaymentStatus.NothingToPay
-  )
-
-  val testUnallocatedPayment = UnallocatedPayment(
-    paymentReference = "3000000000001",
-    amount = BigDecimal("150.00"),
-    paymentDate = "2026-10-18"
-  )
-
-  val testClearedPayment = ClearedPayment(
-    chargeReference = "VPD38270541980",
-    period = "September 2026",
-    amountPaid = BigDecimal("750.00"),
-    clearedDate = "2026-10-09"
-  )
-
-  val testPaymentsResponse = PaymentsResponse(
-    outstanding = Seq(testPaymentDue),
-    unallocated = Seq(testUnallocatedPayment),
-    cleared = Seq(testClearedPayment)
-  )
+  val testTotalAccountBalance: Option[BigDecimal] = Some(BigDecimal("496850.80"))
 
   def createMockObligations(): Seq[ObligationItem] = {
     obligations(
@@ -422,4 +381,32 @@ trait TestData extends ObligationsBuilders {
       )
     )
   }
+
+  val testOutstandingPayment: OutstandingPayment = OutstandingPayment(
+    chargeReference = "VPD38270541980",
+    amountDue = BigDecimal("500.00"),
+    dueDate = LocalDate.parse("2026-10-25"),
+    status = PaymentStatus.Due
+  )
+
+  val testClearedPayment: ClearedPayment = ClearedPayment(
+    chargeReference = "VPD38270541980",
+    periodFromDate = Some(LocalDate.parse("2026-09-01")),
+    periodToDate = Some(LocalDate.parse("2026-09-30")),
+    amountPaid = BigDecimal("750.00"),
+    clearedDate = Some(LocalDate.parse("2026-10-09"))
+  )
+
+  val testPaymentOnAccount: PaymentOnAccount = PaymentOnAccount(
+    paymentReference = Some("3000000000001"),
+    amount = BigDecimal("150.00"),
+    paymentDate = Some(LocalDate.parse("2026-10-18"))
+  )
+
+  val testPaymentsResponse: PaymentsResponse = PaymentsResponse(
+    outstanding = Seq(testOutstandingPayment),
+    paymentOnAccount = Seq(testPaymentOnAccount),
+    cleared = Seq(testClearedPayment),
+    totalAccountBalance = testTotalAccountBalance
+  )
 }

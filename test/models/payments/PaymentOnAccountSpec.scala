@@ -19,26 +19,44 @@ package models.payments
 import base.SpecBase
 import play.api.libs.json.{JsSuccess, Json}
 
-class UnallocatedPaymentSpec extends SpecBase {
+import java.time.LocalDate
 
-  val testUnallocatedPaymentJson = Json.obj(
+class PaymentOnAccountSpec extends SpecBase {
+
+  override val testPaymentOnAccount = PaymentOnAccount(
+    paymentReference = Some("3000000000001"),
+    amount = BigDecimal("150.00"),
+    paymentDate = Some(LocalDate.parse("2026-10-18"))
+  )
+
+  val testPaymentOnAccountJson = Json.obj(
     "paymentReference" -> "3000000000001",
     "amount" -> 150.00,
     "paymentDate" -> "2026-10-18"
   )
 
-  "UnallocatedPayment" - {
+  "PaymentOnAccountMainTransaction" - {
     "must serialize to JSON correctly" in {
-      Json.toJson(testUnallocatedPayment) mustBe testUnallocatedPaymentJson
+      Json.toJson(testPaymentOnAccount) mustBe testPaymentOnAccountJson
     }
 
     "must deserialize from JSON correctly" in {
-      testUnallocatedPaymentJson.validate[UnallocatedPayment] mustBe JsSuccess(testUnallocatedPayment)
+      testPaymentOnAccountJson.validate[PaymentOnAccount] mustBe JsSuccess(testPaymentOnAccount)
     }
 
     "must handle round-trip serialization" in {
-      val json = Json.toJson(testUnallocatedPayment)
-      json.as[UnallocatedPayment] mustBe testUnallocatedPayment
+      val json = Json.toJson(testPaymentOnAccount)
+      json.as[PaymentOnAccount] mustBe testPaymentOnAccount
+    }
+
+    "must handle None values correctly" in {
+      val paymentWithNones = PaymentOnAccount(
+        paymentReference = None,
+        amount = BigDecimal("100.00"),
+        paymentDate = None
+      )
+      val json = Json.toJson(paymentWithNones)
+      json.as[PaymentOnAccount] mustBe paymentWithNones
     }
   }
 }
