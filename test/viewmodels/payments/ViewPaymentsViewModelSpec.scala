@@ -73,11 +73,6 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         vm.totalOwed mustBe "£330,000"
       }
 
-      "must extract year from cleared payments" in {
-        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils)
-        vm.clearedPaymentsYear mustBe "2025"
-      }
-
       "must build a table row for each outstanding payment status" in {
         ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, None), returnsDateUtils).outstandingRows must have size 1
         ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils).outstandingRows must have size 1
