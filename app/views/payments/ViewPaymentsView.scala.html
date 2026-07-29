@@ -35,7 +35,7 @@
     @h1(messages("payments.viewPayments.heading"))
 
     @caption(messages("payments.viewPayments.youOwe"))
-    @h1(vm.totalOwed)
+    @h1(vm.totalOwed, classes = "govuk-heading-xl")
 
     @h2(messages("payments.viewPayments.outstanding.heading"))
     @p(Seq(messages("payments.viewPayments.outstanding.body")))
@@ -75,9 +75,11 @@
     }
 
     @h2(messages("payments.viewPayments.cleared.heading", vm.clearedPaymentsYear))
-    @p(Seq(messages("payments.viewPayments.cleared.body")))
 
     @if(vm.clearedRows.nonEmpty) {
+
+        @p(Seq(messages("payments.viewPayments.cleared.body")))
+
         @govukTable(Table(
             head = Some(Seq(
                 HeadCell(content = Text(messages("payments.viewPayments.cleared.table.period"))),
