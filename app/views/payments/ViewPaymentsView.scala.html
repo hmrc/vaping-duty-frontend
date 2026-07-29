@@ -37,8 +37,12 @@
     @caption(messages("payments.viewPayments.youOwe"))
     @h1(vm.totalOwed, classes = "govuk-heading-xl")
 
-    @h2(messages("payments.viewPayments.outstanding.heading"))
-    @p(Seq(messages("payments.viewPayments.outstanding.body")))
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            @h2(messages("payments.viewPayments.outstanding.heading"))
+            @p(Seq(messages("payments.viewPayments.outstanding.body")))
+        </div>
+    </div>
 
     @govukTable(Table(
         head = Some(Seq(
@@ -56,8 +60,12 @@
         @p(Seq(messages("payments.viewPayments.noPayments")))
     }
 
-    @h2(messages("payments.viewPayments.unallocated.heading"))
-    @p(Seq(messages("payments.viewPayments.unallocated.body")))
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            @h2(messages("payments.viewPayments.unallocated.heading"))
+            @p(Seq(messages("payments.viewPayments.unallocated.body")))
+        </div>
+    </div>
 
     @if(vm.paymentOnAccountRows.nonEmpty) {
         @govukTable(Table(
@@ -74,11 +82,17 @@
         @p(Seq(messages("payments.viewPayments.unallocated.designPlaceholder")))
     }
 
-    @h2(messages("payments.viewPayments.cleared.heading", vm.clearedPaymentsYear))
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            @h2(messages("payments.viewPayments.cleared.heading", vm.clearedPaymentsYear))
+
+            @if(vm.clearedRows.nonEmpty) {
+                @p(Seq(messages("payments.viewPayments.cleared.body")))
+            }
+        </div>
+    </div>
 
     @if(vm.clearedRows.nonEmpty) {
-
-        @p(Seq(messages("payments.viewPayments.cleared.body")))
 
         @govukTable(Table(
             head = Some(Seq(

@@ -74,7 +74,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""<a href="#" class="${CssConstants.linkNoWrap}">${messages("payments.viewPayments.table.payNow")}</a>"""
+          s"""<a href="#" class="${CssConstants.link}">${messages("payments.viewPayments.table.payNow")}</a>"""
         )
       )
     )
