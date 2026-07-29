@@ -43,7 +43,7 @@ object ViewPaymentsViewModel {
 
   def apply(payments: PaymentsResponse, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): ViewPaymentsViewModel = {
     val totalOwed = payments.totalAccountBalance.getOrElse(BigDecimal(0))
-    val clearedYear = extractYearFromClearedPayments(payments.cleared, returnsDateUtils)
+    val clearedYear = returnsDateUtils.getYear.toString
 
     ViewPaymentsViewModel(
       totalOwed = CurrencyFormatter.currencyFormat(totalOwed),
@@ -53,11 +53,6 @@ object ViewPaymentsViewModel {
       clearedPaymentsYear = clearedYear
     )
   }
-
-  private def extractYearFromClearedPayments(clearedPayments: Seq[ClearedPayment], returnsDateUtils: ReturnsDateUtils): String =
-    clearedPayments
-      .flatMap(_.clearedDate)
-      .headOption.fold(returnsDateUtils.getYear.toString)(_.getYear.toString)
 
   private def buildOutstandingRow(payment: OutstandingPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
     Seq(
@@ -93,8 +88,7 @@ object ViewPaymentsViewModel {
     Seq(
       TableRow(
         content = Text(formatDateWithTranslatedMonth(payment.paymentDate, returnsDateUtils)),
-        classes = "govuk-table__header",
-        attributes = Map("scope" -> "row")
+        classes = "govuk-table__header"
       ),
       TableRow(content = Text(messages("payments.viewPayments.unallocated.description.placeholder"))),
       TableRow(
@@ -112,8 +106,7 @@ object ViewPaymentsViewModel {
     Seq(
       TableRow(
         content = Text(formatMonthOnly(payment.clearedDate, returnsDateUtils)),
-        classes = "govuk-table__header",
-        attributes = Map("scope" -> "row")
+        classes = "govuk-table__header"
       ),
       TableRow(
         content = HtmlContent(
