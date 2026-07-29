@@ -621,3 +621,4 @@ payments.viewPayments.cleared.table.period = Period
 payments.viewPayments.cleared.table.description = Description
 payments.viewPayments.cleared.table.amount = Amount
 payments.viewPayments.cleared.description.text = Cleared Vaping Products Duty payments
+payments.viewPayments.notAvailable = N/A

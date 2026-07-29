@@ -21,7 +21,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Tag, Text}
 import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag
 import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
-import utils.{CurrencyFormatter, ReturnsDateUtils}
+import utils.{CssConstants, CurrencyFormatter, ReturnsDateUtils}
 
 import java.time.LocalDate
 
@@ -34,11 +34,6 @@ final case class ViewPaymentsViewModel(
 )
 
 object ViewPaymentsViewModel {
-  private val TAG_STYLE_LIGHT_BLUE = "govuk-tag--light-blue"
-  private val TAG_STYLE_RED = "govuk-tag--red"
-  private val TAG_STYLE_GREEN = "govuk-tag--green"
-  private val NOT_AVAILABLE = "N/A"
-
   private val govukTag = GovukTag()
 
   def apply(payments: PaymentsResponse, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): ViewPaymentsViewModel = {
@@ -58,7 +53,7 @@ object ViewPaymentsViewModel {
     Seq(
       TableRow(
         content = Text(formatDateWithTranslatedMonth(Some(payment.dueDate), returnsDateUtils)),
-        classes = "govuk-table__header"
+        classes = CssConstants.tableHeader
       ),
       TableRow(
         content = HtmlContent(
@@ -67,7 +62,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = Text(CurrencyFormatter.currencyFormat(payment.amountDue)),
-        classes = "govuk-table__cell--numeric"
+        classes = CssConstants.tableCellNumeric
       ),
       TableRow(
         content = HtmlContent(
@@ -79,7 +74,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""<a href="#" class="govuk-link no-wrap-link">${messages("payments.viewPayments.table.payNow")}</a>"""
+          s"""<a href="#" class="${CssConstants.linkNoWrap}">${messages("payments.viewPayments.table.payNow")}</a>"""
         )
       )
     )
@@ -88,16 +83,16 @@ object ViewPaymentsViewModel {
     Seq(
       TableRow(
         content = Text(formatDateWithTranslatedMonth(payment.paymentDate, returnsDateUtils)),
-        classes = "govuk-table__header"
+        classes = CssConstants.tableHeader
       ),
       TableRow(content = Text(messages("payments.viewPayments.unallocated.description.placeholder"))),
       TableRow(
         content = Text(CurrencyFormatter.currencyFormat(payment.amount)),
-        classes = "govuk-table__cell--numeric"
+        classes = CssConstants.tableCellNumeric
       ),
       TableRow(
         content = HtmlContent(
-          s"""<a href="#" class="govuk-link">${messages("payments.viewPayments.unallocated.action.claimRepayment")}</a>"""
+          s"""<a href="#" class="${CssConstants.link}">${messages("payments.viewPayments.unallocated.action.claimRepayment")}</a>"""
         )
       )
     )
@@ -106,7 +101,7 @@ object ViewPaymentsViewModel {
     Seq(
       TableRow(
         content = Text(formatMonthOnly(payment.clearedDate, returnsDateUtils)),
-        classes = "govuk-table__header"
+        classes = CssConstants.tableHeader
       ),
       TableRow(
         content = HtmlContent(
@@ -115,26 +110,20 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = Text(CurrencyFormatter.currencyFormat(payment.amountPaid)),
-        classes = "govuk-table__cell--numeric"
+        classes = CssConstants.tableCellNumeric
       )
     )
 
-  private def formatDateWithTranslatedMonth(date: LocalDate, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String = {
-    val month = date.getMonth
-    val monthName = returnsDateUtils.getMonthMessage(month)
-    s"${date.getDayOfMonth} $monthName ${date.getYear}"
-  }
-
   private def formatDateWithTranslatedMonth(dateOpt: Option[LocalDate], returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String =
-    dateOpt.map(date => formatDateWithTranslatedMonth(date, returnsDateUtils)).getOrElse(NOT_AVAILABLE)
-
-  private def formatMonthOnly(date: LocalDate, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String = {
-    val month = date.getMonth
-    returnsDateUtils.getMonthMessage(month)
-  }
+    dateOpt.fold(messages("payments.viewPayments.notAvailable")) { date =>
+      val monthName = returnsDateUtils.getMonthMessage(date.getMonth)
+      s"${date.getDayOfMonth} $monthName ${date.getYear}"
+    }
 
   private def formatMonthOnly(dateOpt: Option[LocalDate], returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String =
-    dateOpt.map(date => formatMonthOnly(date, returnsDateUtils)).getOrElse(NOT_AVAILABLE)
+    dateOpt.fold(messages("payments.viewPayments.notAvailable")) { date =>
+      returnsDateUtils.getMonthMessage(date.getMonth)
+    }
 
   private def statusMessageKey(status: PaymentStatus): String = status match {
     case PaymentStatus.Due => "payments.viewPayments.status.due"
@@ -143,8 +132,8 @@ object ViewPaymentsViewModel {
   }
 
   private def statusTagStyle(status: PaymentStatus): String = status match {
-    case PaymentStatus.Due => TAG_STYLE_LIGHT_BLUE
-    case PaymentStatus.Overdue => TAG_STYLE_RED
-    case PaymentStatus.NothingToPay => TAG_STYLE_GREEN
+    case PaymentStatus.Due => CssConstants.tagLightBlue
+    case PaymentStatus.Overdue => CssConstants.tagRed
+    case PaymentStatus.NothingToPay => CssConstants.tagGreen
   }
 }
