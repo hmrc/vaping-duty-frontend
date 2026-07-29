@@ -49,15 +49,12 @@ class ViewPaymentsViewModelSpec extends SpecBase {
   )
 
   private val testUnallocatedPayment = PaymentOnAccount(
-    paymentReference = Some("PAY123456"),
     amount = BigDecimal("5000.00"),
     paymentDate = Some(LocalDate.of(2025, 1, 15))
   )
 
   private val testClearedPayment = ClearedPayment(
     chargeReference = "XD123456789012",
-    periodFromDate = Some(LocalDate.of(2024, 12, 1)),
-    periodToDate = Some(LocalDate.of(2024, 12, 31)),
     amountPaid = BigDecimal("10000.00"),
     clearedDate = Some(LocalDate.of(2025, 1, 10))
   )
@@ -104,6 +101,22 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         vm.paymentOnAccountRows must have size 1
         vm.clearedRows must have size 1
       }
+
+      "must build unallocated payment rows with 4 columns (date, description, amount, action)" in {
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils)
+        vm.paymentOnAccountRows.head must have size 4
+      }
+
+      "must build cleared payment rows with 3 columns (period, description, amount)" in {
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils)
+        vm.clearedRows.head must have size 3
+      }
+
+      "must display month-only for cleared payment period" in {
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils)
+        val periodCell = vm.clearedRows.head.head
+        periodCell.content.asHtml.body mustBe "January"
+      }
     }
 
     "when no payments exist" - {
@@ -117,6 +130,11 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         vm.outstandingRows mustBe Seq.empty
         vm.paymentOnAccountRows mustBe Seq.empty
         vm.clearedRows mustBe Seq.empty
+      }
+
+      "must use current year when no cleared payments exist" in {
+        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils)
+        vm.clearedPaymentsYear mustBe LocalDate.now(clock).getYear.toString
       }
     }
 

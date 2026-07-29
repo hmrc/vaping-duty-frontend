@@ -23,8 +23,6 @@ class ClearedPaymentSpec extends SpecBase {
 
   val testClearedPaymentJson: JsObject = Json.obj(
     "chargeReference" -> "VPD38270541980",
-    "periodFromDate" -> "2026-09-01",
-    "periodToDate" -> "2026-09-30",
     "amountPaid" -> 750.00,
     "clearedDate" -> "2026-10-09"
   )

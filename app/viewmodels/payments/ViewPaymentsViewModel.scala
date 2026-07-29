@@ -21,7 +21,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Tag, Text}
 import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag
 import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
-import utils.{CurrencyFormatter, ReturnsDateUtils}
+import utils.{CssConstants, CurrencyFormatter, ReturnsDateUtils}
 
 import java.time.LocalDate
 
@@ -29,25 +29,23 @@ final case class ViewPaymentsViewModel(
   totalOwed: String,
   outstandingRows: Seq[Seq[TableRow]],
   paymentOnAccountRows: Seq[Seq[TableRow]],
-  clearedRows: Seq[Seq[TableRow]]
+  clearedRows: Seq[Seq[TableRow]],
+  clearedPaymentsYear: String
 )
 
 object ViewPaymentsViewModel {
-  private val TAG_STYLE_LIGHT_BLUE = "govuk-tag--light-blue"
-  private val TAG_STYLE_RED = "govuk-tag--red"
-  private val TAG_STYLE_GREEN = "govuk-tag--green"
-  private val NOT_AVAILABLE = "N/A"
-
   private val govukTag = GovukTag()
 
   def apply(payments: PaymentsResponse, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): ViewPaymentsViewModel = {
     val totalOwed = payments.totalAccountBalance.getOrElse(BigDecimal(0))
+    val clearedYear = returnsDateUtils.getYear.toString
 
     ViewPaymentsViewModel(
       totalOwed = CurrencyFormatter.currencyFormat(totalOwed),
       outstandingRows = payments.outstanding.map(buildOutstandingRow(_, returnsDateUtils)),
       paymentOnAccountRows = payments.paymentOnAccount.map(buildPaymentOnAccountRow(_, returnsDateUtils)),
-      clearedRows = payments.cleared.map(buildClearedRow(_, returnsDateUtils))
+      clearedRows = payments.cleared.map(buildClearedRow(_, returnsDateUtils)),
+      clearedPaymentsYear = clearedYear
     )
   }
 
@@ -55,7 +53,7 @@ object ViewPaymentsViewModel {
     Seq(
       TableRow(
         content = Text(formatDateWithTranslatedMonth(Some(payment.dueDate), returnsDateUtils)),
-        classes = "govuk-table__header"
+        classes = CssConstants.tableHeader
       ),
       TableRow(
         content = HtmlContent(
@@ -64,7 +62,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = Text(CurrencyFormatter.currencyFormat(payment.amountDue)),
-        classes = "govuk-table__cell--numeric"
+        classes = CssConstants.tableCellNumeric
       ),
       TableRow(
         content = HtmlContent(
@@ -76,7 +74,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""<a href="#" class="govuk-link no-wrap-link">${messages("payments.viewPayments.table.payNow")}</a>"""
+          s"""<a href="#" class="${CssConstants.link}">${messages("payments.viewPayments.table.payNow")}</a>"""
         )
       )
     )
@@ -85,38 +83,47 @@ object ViewPaymentsViewModel {
     Seq(
       TableRow(
         content = Text(formatDateWithTranslatedMonth(payment.paymentDate, returnsDateUtils)),
-        classes = "govuk-table__header",
-        attributes = Map("scope" -> "row")
+        classes = CssConstants.tableHeader
       ),
-      TableRow(content = Text(payment.paymentReference.getOrElse(NOT_AVAILABLE))),
+      TableRow(content = Text(messages("payments.viewPayments.unallocated.description.placeholder"))),
       TableRow(
         content = Text(CurrencyFormatter.currencyFormat(payment.amount)),
-        classes = "govuk-table__cell--numeric"
+        classes = CssConstants.tableCellNumeric
+      ),
+      TableRow(
+        content = HtmlContent(
+          s"""<a href="#" class="${CssConstants.link}">${messages("payments.viewPayments.unallocated.action.claimRepayment")}</a>"""
+        )
       )
     )
 
   private def buildClearedRow(payment: ClearedPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(formatDateWithTranslatedMonth(payment.clearedDate, returnsDateUtils)),
-        classes = "govuk-table__header",
-        attributes = Map("scope" -> "row")
+        content = Text(formatMonthOnly(payment.clearedDate, returnsDateUtils)),
+        classes = CssConstants.tableHeader
       ),
-      TableRow(content = Text(payment.chargeReference)),
+      TableRow(
+        content = HtmlContent(
+          s"""${messages("payments.viewPayments.cleared.description.text")}<br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference}"""
+        )
+      ),
       TableRow(
         content = Text(CurrencyFormatter.currencyFormat(payment.amountPaid)),
-        classes = "govuk-table__cell--numeric"
+        classes = CssConstants.tableCellNumeric
       )
     )
 
-  private def formatDateWithTranslatedMonth(date: LocalDate, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String = {
-    val month = date.getMonth
-    val monthName = returnsDateUtils.getMonthMessage(month)
-    s"${date.getDayOfMonth} $monthName ${date.getYear}"
-  }
-
   private def formatDateWithTranslatedMonth(dateOpt: Option[LocalDate], returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String =
-    dateOpt.map(date => formatDateWithTranslatedMonth(date, returnsDateUtils)).getOrElse(NOT_AVAILABLE)
+    dateOpt.fold(messages("payments.viewPayments.notAvailable")) { date =>
+      val monthName = returnsDateUtils.getMonthMessage(date.getMonth)
+      s"${date.getDayOfMonth} $monthName ${date.getYear}"
+    }
+
+  private def formatMonthOnly(dateOpt: Option[LocalDate], returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String =
+    dateOpt.fold(messages("payments.viewPayments.notAvailable")) { date =>
+      returnsDateUtils.getMonthMessage(date.getMonth)
+    }
 
   private def statusMessageKey(status: PaymentStatus): String = status match {
     case PaymentStatus.Due => "payments.viewPayments.status.due"
@@ -125,8 +132,8 @@ object ViewPaymentsViewModel {
   }
 
   private def statusTagStyle(status: PaymentStatus): String = status match {
-    case PaymentStatus.Due => TAG_STYLE_LIGHT_BLUE
-    case PaymentStatus.Overdue => TAG_STYLE_RED
-    case PaymentStatus.NothingToPay => TAG_STYLE_GREEN
+    case PaymentStatus.Due => CssConstants.tagLightBlue
+    case PaymentStatus.Overdue => CssConstants.tagRed
+    case PaymentStatus.NothingToPay => CssConstants.tagGreen
   }
 }

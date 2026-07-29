@@ -21,4 +21,17 @@ object CssConstants {
   val boldFontWeight = "govuk-!-font-weight-bold"
   
   val marginBottom9 = "govuk-!-margin-bottom-9"
+  
+  // Table styling
+  val tableHeader = "govuk-table__header"
+  val tableCellNumeric = "govuk-table__cell--numeric"
+  
+  // Link styling
+  val linkNoWrap = "govuk-link no-wrap-link"
+  val link = "govuk-link"
+  
+  // Tag styling
+  val tagLightBlue = "govuk-tag--light-blue"
+  val tagRed = "govuk-tag--red"
+  val tagGreen = "govuk-tag--green"
 }
