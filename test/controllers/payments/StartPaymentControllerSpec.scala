@@ -17,9 +17,7 @@
 package controllers.payments
 
 import base.SpecBase
-import config.FrontendAppConfig
 import controllers.routes
-import controllers.payments.StartPaymentController
 import models.payments.StartPaymentResponse
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
