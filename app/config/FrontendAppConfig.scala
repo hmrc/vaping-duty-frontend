@@ -101,9 +101,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def submitReturnUrl(vpdId: VpdId, periodKey: PeriodKey)                         = s"$returnsBaseUrl/vpd-return/$vpdId/$periodKey"
   def getReturnUrl(vpdReference: VpdId, periodKey: PeriodKey): String             = s"$returnsBaseUrl/vpd-return/$periodKey/$vpdReference"
 
-  private val financeBaseUrl                                      = s"$financeHost/vaping-duty-finance"
+  private val financeBaseUrl                                     = s"$financeHost/vaping-duty-finance"
   def getPaymentsUrl(vpdId: VpdId): String                       = s"$financeBaseUrl/financial-data/payments"
-  def startPaymentUrl: String                                    = s"$financeBaseUrl/start-payment"
+  def startPaymentUrl: String                                    = s"$financeBaseUrl/payments/start-payment"
 
   val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/confirm-email-address"
   val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"
