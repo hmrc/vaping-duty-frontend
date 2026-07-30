@@ -16,33 +16,16 @@
 
 package models.payments
 
-import play.api.libs.json.{Format, JsError, JsNumber, JsResult, JsString, JsSuccess, JsValue, Json, OFormat}
+import play.api.libs.json.*
 
 final case class StartPaymentRequest(
   vapingDutyReference: String,
-  amountInPence: BigInt,
+  amountInPence: Long,
   chargeReferenceNumber: String,
   returnUrl: String,
   backUrl: String
 )
 
 object StartPaymentRequest {
-
-  implicit val bigIntFormats: Format[BigInt] = new Format[BigInt] {
-
-    private val error = JsError("Unable to read value as a BigInt")
-
-    override def reads(json: JsValue): JsResult[BigInt] = json match {
-      case JsString(value) =>
-        try JsSuccess(scala.math.BigInt(value))
-        catch { case _: Throwable => error }
-
-      case JsNumber(value) => JsSuccess(value.toBigInt)
-      case _               => error
-    }
-
-    override def writes(bigInt: BigInt): JsValue = JsNumber(BigDecimal(bigInt))
-  }
-
   implicit val format: OFormat[StartPaymentRequest] = Json.format[StartPaymentRequest]
 }

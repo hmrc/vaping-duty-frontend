@@ -410,7 +410,7 @@ trait TestData extends ObligationsBuilders {
 
   val testStartPaymentRequest: StartPaymentRequest = StartPaymentRequest(
     vapingDutyReference = vpdId.value,
-    amountInPence = BigInt(50000),
+    amountInPence = 50000L,
     chargeReferenceNumber = "XVC123456789012",
     returnUrl = s"$host/vaping-duty/payments/view-payments",
     backUrl = s"$host/vaping-duty/payments/view-payments"
