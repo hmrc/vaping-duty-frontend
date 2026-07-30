@@ -17,16 +17,14 @@
 package base
 
 import config.FrontendAppConfig
+import connectors.SubscriptionConnector
 import connectors.contactPreference.{EmailVerificationConnector, SubmitPreferencesConnector}
 import connectors.returns.GetReturnsConnector
-import connectors.SubscriptionConnector
 import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeDataRetrievalAction}
-import controllers.actions.returns.{FakeReturnsDataRetrievalAction, ReturnsDataRetrievalAction}
 import controllers.actions.enrolment.*
+import controllers.actions.returns.{FakeReturnsDataRetrievalAction, ReturnsDataRetrievalAction}
 import data.TestData
-import play.api.mvc.{BodyParsers, ControllerComponents}
-import play.api.test.Helpers.stubControllerComponents
 import models.contactPreference.PreferenceUserAnswers
 import models.enrolment.EnrolmentUserAnswers
 import models.returns.ReturnsUserAnswers
@@ -40,6 +38,7 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
+import play.api.test.Helpers.stubControllerComponents
 import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.ReturnsDateUtils
