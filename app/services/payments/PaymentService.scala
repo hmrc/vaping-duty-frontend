@@ -22,28 +22,31 @@ import models.payments.{StartPaymentRequest, StartPaymentResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PaymentService @Inject()(
-  connector: PaymentConnector
-) {
+  connector: PaymentConnector,
+  financialDataService: FinancialDataService
+)(using ExecutionContext) {
 
   def startPayment(
     vpdId: VpdId,
     chargeReference: String,
-    amountInPence: Long,
     returnUrl: String,
     backUrl: String
   )(using HeaderCarrier): Future[StartPaymentResponse] = {
 
-    val request = StartPaymentRequest(
-      vapingDutyReference = vpdId.value,
-      amountInPence = amountInPence,
-      chargeReferenceNumber = chargeReference,
-      returnUrl = returnUrl,
-      backUrl = backUrl
-    )
-
-    connector.startPayment(request)
+    for {
+      payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
+      amountInPence = (payment.amountDue * 100).toLong
+      request = StartPaymentRequest(
+        vapingDutyReference = vpdId.value,
+        amountInPence = amountInPence,
+        chargeReferenceNumber = chargeReference,
+        returnUrl = returnUrl,
+        backUrl = backUrl
+      )
+      response <- connector.startPayment(request)
+    } yield response
   }
 }
