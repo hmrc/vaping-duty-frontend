@@ -44,17 +44,17 @@ class PaymentConnector @Inject()(
       .withBody(Json.toJson(request))
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .recoverWith { case e: Exception =>
-        logger.warn(s"Exception while starting payment: ${e.getMessage}")
+        logger.warn(s"Exception while starting payment for charge reference ${request.chargeReferenceNumber}: ${e.getMessage}")
         Future.failed(InternalServerException("Failed to start payment"))
       }
-      .flatMap(getResponse)
+      .flatMap(getResponse(request))
       .flatMap(parseJson)
 
-  private def getResponse(response: Either[UpstreamErrorResponse, HttpResponse]): Future[HttpResponse] = {
+  private def getResponse(request: StartPaymentRequest)(response: Either[UpstreamErrorResponse, HttpResponse]): Future[HttpResponse] = {
     response match {
       case Right(response) => Future.successful(response)
       case Left(error) =>
-        logger.warn(s"Unexpected response from start payment API. Status: ${error.statusCode}")
+        logger.warn(s"Unexpected response from start payment API for charge reference ${request.chargeReferenceNumber}. Status: ${error.statusCode}")
         Future.failed(InternalServerException("Failed to start payment"))
     }
   }
