@@ -19,11 +19,11 @@ package controllers.payments
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
+import controllers.payments.StartPaymentController
 import models.payments.StartPaymentResponse
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.payments.PaymentService
@@ -45,9 +45,8 @@ class StartPaymentControllerSpec extends SpecBase {
 
     "redirect to payment provider URL when service returns successfully" in {
       val mockService = mock[PaymentService]
-      val mockConfig = mock[FrontendAppConfig]
       
-      when(mockConfig.host).thenReturn("http://localhost:9000")
+      when(mockAppConfig.host).thenReturn("http://localhost:9000")
       when(mockService.startPayment(
         eqTo(vpdId),
         eqTo(chargeReference),
@@ -57,75 +56,66 @@ class StartPaymentControllerSpec extends SpecBase {
       )(using any()))
         .thenReturn(Future.successful(paymentResponse))
 
-      val application = applicationBuilder()
-        .overrides(
-          bind[PaymentService].toInstance(mockService),
-          bind[FrontendAppConfig].toInstance(mockConfig)
-        )
-        .build()
+      val controller = new StartPaymentController(
+        fakeApprovedVapingManufacturerAuthAction,
+        mockService,
+        mockAppConfig,
+        stubMessagesControllerComponents()
+      )
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.payments.routes.StartPaymentController.startPayment(chargeReference, amountInPence).url)
-        val result = route(application, request).value
+      val request = FakeRequest(GET, controllers.payments.routes.StartPaymentController.startPayment(chargeReference, amountInPence).url)
+      val result = controller.startPayment(chargeReference, amountInPence)(request)
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some("https://payment-provider.example.com/pay")
-      }
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("https://payment-provider.example.com/pay")
     }
 
     "redirect to journey recovery when service fails" in {
       val mockService = mock[PaymentService]
-      val mockConfig = mock[FrontendAppConfig]
       
-      when(mockConfig.host).thenReturn("http://localhost:9000")
+      when(mockAppConfig.host).thenReturn("http://localhost:9000")
       when(mockService.startPayment(any(), any(), any(), any(), any())(using any()))
         .thenReturn(Future.failed(new RuntimeException("Service error")))
 
-      val application = applicationBuilder()
-        .overrides(
-          bind[PaymentService].toInstance(mockService),
-          bind[FrontendAppConfig].toInstance(mockConfig)
-        )
-        .build()
+      val controller = new StartPaymentController(
+        fakeApprovedVapingManufacturerAuthAction,
+        mockService,
+        mockAppConfig,
+        stubMessagesControllerComponents()
+      )
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.payments.routes.StartPaymentController.startPayment(chargeReference, amountInPence).url)
-        val result = route(application, request).value
+      val request = FakeRequest(GET, controllers.payments.routes.StartPaymentController.startPayment(chargeReference, amountInPence).url)
+      val result = controller.startPayment(chargeReference, amountInPence)(request)
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.JourneyRecoveryController.onPageLoad().url)
-      }
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.JourneyRecoveryController.onPageLoad().url)
     }
 
     "redirect to journey recovery when connector throws InternalServerException" in {
       val mockService = mock[PaymentService]
-      val mockConfig = mock[FrontendAppConfig]
       
-      when(mockConfig.host).thenReturn("http://localhost:9000")
+      when(mockAppConfig.host).thenReturn("http://localhost:9000")
       when(mockService.startPayment(any(), any(), any(), any(), any())(using any()))
         .thenReturn(Future.failed(InternalServerException("Failed to start payment")))
 
-      val application = applicationBuilder()
-        .overrides(
-          bind[PaymentService].toInstance(mockService),
-          bind[FrontendAppConfig].toInstance(mockConfig)
-        )
-        .build()
+      val controller = new StartPaymentController(
+        fakeApprovedVapingManufacturerAuthAction,
+        mockService,
+        mockAppConfig,
+        stubMessagesControllerComponents()
+      )
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.payments.routes.StartPaymentController.startPayment(chargeReference, amountInPence).url)
-        val result = route(application, request).value
+      val request = FakeRequest(GET, controllers.payments.routes.StartPaymentController.startPayment(chargeReference, amountInPence).url)
+      val result = controller.startPayment(chargeReference, amountInPence)(request)
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.JourneyRecoveryController.onPageLoad().url)
-      }
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.JourneyRecoveryController.onPageLoad().url)
     }
 
     "pass correct parameters to service" in {
       val mockService = mock[PaymentService]
-      val mockConfig = mock[FrontendAppConfig]
       
-      when(mockConfig.host).thenReturn("http://localhost:9000")
+      when(mockAppConfig.host).thenReturn("http://localhost:9000")
       when(mockService.startPayment(
         eqTo(vpdId),
         eqTo(chargeReference),
@@ -135,26 +125,24 @@ class StartPaymentControllerSpec extends SpecBase {
       )(using any()))
         .thenReturn(Future.successful(paymentResponse))
 
-      val application = applicationBuilder()
-        .overrides(
-          bind[PaymentService].toInstance(mockService),
-          bind[FrontendAppConfig].toInstance(mockConfig)
-        )
-        .build()
+      val controller = new StartPaymentController(
+        fakeApprovedVapingManufacturerAuthAction,
+        mockService,
+        mockAppConfig,
+        stubMessagesControllerComponents()
+      )
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.payments.routes.StartPaymentController.startPayment(chargeReference, amountInPence).url)
-        val result = route(application, request).value
+      val request = FakeRequest(GET, controllers.payments.routes.StartPaymentController.startPayment(chargeReference, amountInPence).url)
+      val result = controller.startPayment(chargeReference, amountInPence)(request)
 
-        status(result) mustBe SEE_OTHER
-        verify(mockService).startPayment(
-          eqTo(vpdId),
-          eqTo(chargeReference),
-          eqTo(amountInPence),
-          eqTo("http://localhost:9000/vaping-duty/view-payments"),
-          eqTo("http://localhost:9000/vaping-duty/view-payments")
-        )(using any())
-      }
+      status(result) mustBe SEE_OTHER
+      verify(mockService).startPayment(
+        eqTo(vpdId),
+        eqTo(chargeReference),
+        eqTo(amountInPence),
+        eqTo("http://localhost:9000/vaping-duty/view-payments"),
+        eqTo("http://localhost:9000/vaping-duty/view-payments")
+      )(using any())
     }
   }
 }

@@ -25,6 +25,8 @@ import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredAc
 import controllers.actions.returns.{FakeReturnsDataRetrievalAction, ReturnsDataRetrievalAction}
 import controllers.actions.enrolment.*
 import data.TestData
+import play.api.mvc.{BodyParsers, ControllerComponents}
+import play.api.test.Helpers.stubControllerComponents
 import models.contactPreference.PreferenceUserAnswers
 import models.enrolment.EnrolmentUserAnswers
 import models.returns.ReturnsUserAnswers
@@ -79,6 +81,9 @@ trait SpecBase
   given Messages = messages(app)
 
   private lazy val app: Application = applicationBuilder().build()
+  
+  val fakeApprovedVapingManufacturerAuthAction: FakeApprovedVapingManufacturerAuthAction = 
+    new FakeApprovedVapingManufacturerAuthAction(stubControllerComponents().parsers)
   
   // Common mocks for config and connectors
   val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
