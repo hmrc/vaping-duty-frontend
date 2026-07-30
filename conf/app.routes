@@ -145,4 +145,4 @@ GET        /view-your-returns/:periodKey                                        
 
 # Payments
 GET        /view-payments                                                                   controllers.payments.ViewPaymentsController.onPageLoad()
-GET        /start-payment/:chargeReference                                                  controllers.payments.StartPaymentController.startPayment(chargeReference: String, amountInPence: Long)
+GET        /start-payment/:chargeReference                                                  controllers.payments.StartPaymentController.startPayment(chargeReference: String)

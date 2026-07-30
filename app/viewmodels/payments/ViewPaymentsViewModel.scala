@@ -75,7 +75,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""<a href="${routes.StartPaymentController.startPayment(payment.chargeReference, (payment.amountDue * 100).toLong)}" class="${CssConstants.link}">${messages("payments.viewPayments.table.payNow")}</a>"""
+          s"""<a href="${routes.StartPaymentController.startPayment(payment.chargeReference)}" class="${CssConstants.link}">${messages("payments.viewPayments.table.payNow")}</a>"""
         )
       )
     )
