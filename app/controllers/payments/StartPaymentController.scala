@@ -18,6 +18,7 @@ package controllers.payments
 
 import config.FrontendAppConfig
 import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.returns.ReturnsEnabledAction
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.payments.PaymentService
@@ -28,13 +29,14 @@ import scala.concurrent.ExecutionContext
 
 class StartPaymentController @Inject()(
   identify: ApprovedVapingManufacturerAuthAction,
+  returnsEnabled: ReturnsEnabledAction,
   paymentService: PaymentService,
   config: FrontendAppConfig,
   val controllerComponents: MessagesControllerComponents
 )(using ExecutionContext) extends FrontendBaseController with Logging {
 
   def startPayment(chargeReference: String): Action[AnyContent] =
-    identify.async { implicit request =>
+    (identify andThen returnsEnabled).async { implicit request =>
       // This route is the same right now but when we add the ability to start a payment from other parts of the app
       // this will need to be more dynamic
       val returnBackUrl = s"${config.host}${controllers.payments.routes.ViewPaymentsController.onPageLoad().url}"
