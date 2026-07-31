@@ -35,14 +35,15 @@ class StartPaymentController @Inject()(
 
   def startPayment(chargeReference: String): Action[AnyContent] =
     identify.async { implicit request =>
-      val returnUrl = s"${config.host}${controllers.payments.routes.ViewPaymentsController.onPageLoad().url}"
-      val backUrl = s"${config.host}${controllers.payments.routes.ViewPaymentsController.onPageLoad().url}"
+      // This route is the same right now but when we add the ability to start a payment from other parts of the app
+      // this will need to be more dynamic
+      val returnBackUrl = s"${config.host}${controllers.payments.routes.ViewPaymentsController.onPageLoad().url}"
 
       paymentService.startPayment(
         request.enrolmentVpdId,
         chargeReference,
-        returnUrl,
-        backUrl
+        returnBackUrl,
+        returnBackUrl
       ).map { response =>
         Redirect(response.nextUrl)
       }.recover {
