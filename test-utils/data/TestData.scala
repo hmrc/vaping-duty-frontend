@@ -21,7 +21,7 @@ import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, Use
 import models.emailverification.*
 import models.identifiers.*
 import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse}
-import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse}
+import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse, StartPaymentRequest, StartPaymentResponse}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
 import models.returns.{DeclarationDetails, DutyRate, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
@@ -35,6 +35,7 @@ import java.time.*
 trait TestData extends ObligationsBuilders {
   val vpdId: VpdId = VpdId(id = "VPPAID01")
   val vpdRef: Option[String] = Some("VPDREF123")
+  val host = "http://localhost:8140"
   val btaLink = "http://localhost:9020/business-account?useServiceNavigation"
   val groupId: GroupId = GroupId(id = "groupid")
   val periodKey = PeriodKey("26AF")
@@ -405,5 +406,18 @@ trait TestData extends ObligationsBuilders {
     paymentOnAccount = Seq(testPaymentOnAccount),
     cleared = Seq(testClearedPayment),
     totalAccountBalance = testTotalAccountBalance
+  )
+
+  val testStartPaymentRequest: StartPaymentRequest = StartPaymentRequest(
+    vapingDutyReference = vpdId.value,
+    amountInPence = 50000L,
+    chargeReferenceNumber = "XVC123456789012",
+    returnUrl = s"$host/vaping-duty/payments/view-payments",
+    backUrl = s"$host/vaping-duty/payments/view-payments"
+  )
+
+  val testStartPaymentResponse: StartPaymentResponse = StartPaymentResponse(
+    journeyId = "journey-123",
+    nextUrl = "http://localhost:9057/pay/journey-123"
   )
 }

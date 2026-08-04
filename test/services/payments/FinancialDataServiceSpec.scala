@@ -64,4 +64,61 @@ class FinancialDataServiceSpec extends SpecBase {
       }
     }
   }
+
+  "getOutstandingPayment" - {
+    "must return the outstanding payment when charge reference exists" in {
+      val mockConnector = mock[FinancialDataConnector]
+      val service = new FinancialDataService(mockConnector)
+      val chargeReference = "VPD38270541980"
+      
+      when(mockConnector.getPayments(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(testPaymentsResponse))
+
+      whenReady(service.getOutstandingPayment(vpdId, chargeReference)) { result =>
+        result.chargeReference mustBe chargeReference
+        result.amountDue mustBe BigDecimal("500.00")
+      }
+    }
+
+    "must throw NoSuchElementException when charge reference does not exist" in {
+      val mockConnector = mock[FinancialDataConnector]
+      val service = new FinancialDataService(mockConnector)
+      val nonExistentReference = "DOES_NOT_EXIST"
+
+      when(mockConnector.getPayments(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(testPaymentsResponse))
+
+      whenReady(service.getOutstandingPayment(vpdId, nonExistentReference).failed) { exception =>
+        exception mustBe a[NoSuchElementException]
+        exception.getMessage must include(nonExistentReference)
+      }
+    }
+
+    "must throw NoSuchElementException when there are no outstanding payments" in {
+      val mockConnector = mock[FinancialDataConnector]
+      val service = new FinancialDataService(mockConnector)
+      val chargeReference = "XYZ123"
+
+      when(mockConnector.getPayments(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(PaymentsResponse.empty))
+
+      whenReady(service.getOutstandingPayment(vpdId, chargeReference).failed) { exception =>
+        exception mustBe a[NoSuchElementException]
+        exception.getMessage must include(chargeReference)
+      }
+    }
+
+    "must propagate errors from the connector" in {
+      val mockConnector = mock[FinancialDataConnector]
+      val service = new FinancialDataService(mockConnector)
+      val chargeReference = "XYZ123"
+
+      when(mockConnector.getPayments(eqTo(vpdId))(using any()))
+        .thenReturn(Future.failed(new RuntimeException("Connector error")))
+
+      whenReady(service.getOutstandingPayment(vpdId, chargeReference).failed) { exception =>
+        exception.getMessage mustBe "Connector error"
+      }
+    }
+  }
 }

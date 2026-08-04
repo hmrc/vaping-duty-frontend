@@ -16,6 +16,7 @@
 
 package viewmodels.payments
 
+import controllers.payments.routes
 import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Tag, Text}
@@ -74,7 +75,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""<a href="#" class="${CssConstants.link}">${messages("payments.viewPayments.table.payNow")}</a>"""
+          s"""<a href="${routes.StartPaymentController.startPayment(payment.chargeReference)}" class="${CssConstants.link}">${messages("payments.viewPayments.table.payNow")}</a>"""
         )
       )
     )
