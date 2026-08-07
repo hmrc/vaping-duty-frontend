@@ -129,16 +129,16 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         periodCell.content.asHtml.body mustBe "January"
       }
 
-      "must show a 'Late payment interest' heading for an outstanding payment with mainTransaction 4061" in {
+      "must show a bold 'Late payment interest' heading for an outstanding payment with mainTransaction 4061" in {
         val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdueInterest), Seq.empty, Seq.empty, None), returnsDateUtils)
         val descriptionCell = vm.outstandingRows.head(1)
-        descriptionCell.content.asHtml.body must include("Late payment interest")
+        descriptionCell.content.asHtml.body must include("<strong>Late payment interest</strong>")
       }
 
-      "must show the normal payment heading for an outstanding payment without the interest mainTransaction" in {
+      "must show the normal bold payment heading for an outstanding payment without the interest mainTransaction" in {
         val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils)
         val descriptionCell = vm.outstandingRows.head(1)
-        descriptionCell.content.asHtml.body must include("Payment for Vaping Products Duty return")
+        descriptionCell.content.asHtml.body must include("<strong>Payment</strong>")
         descriptionCell.content.asHtml.body must not include "Late payment interest"
       }
     }

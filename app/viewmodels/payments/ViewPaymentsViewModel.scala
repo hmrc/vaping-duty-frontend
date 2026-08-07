@@ -58,7 +58,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""${messages(descriptionMessageKey(payment))}<br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference}"""
+          s"""<strong>${messages(descriptionMessageKey(payment))}</strong><br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference}"""
         )
       ),
       TableRow(
