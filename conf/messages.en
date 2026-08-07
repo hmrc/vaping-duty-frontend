@@ -597,6 +597,7 @@ payments.viewPayments.table.leftToPay = Left to pay
 payments.viewPayments.table.status = Status
 payments.viewPayments.table.action = Action
 payments.viewPayments.table.description.text = Payment for Vaping Products Duty return
+payments.viewPayments.table.description.interest = Late payment interest
 payments.viewPayments.table.chargeReference = Charge reference
 payments.viewPayments.table.payNow = Pay now
 payments.viewPayments.noPayments = You have no outstanding payments.

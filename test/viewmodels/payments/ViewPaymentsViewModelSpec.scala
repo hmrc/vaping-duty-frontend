@@ -31,21 +31,32 @@ class ViewPaymentsViewModelSpec extends SpecBase {
     chargeReference = "XA123456789012",
     amountDue = BigDecimal("330000.00"),
     dueDate = LocalDate.of(2025, 3, 25),
-    status = PaymentStatus.Due
+    status = PaymentStatus.Due,
+    mainTransaction = Some("4060")
   )
 
   private val testPaymentOverdue = OutstandingPayment(
     chargeReference = "XB123456789012",
     amountDue = BigDecimal("167000.80"),
     dueDate = LocalDate.of(2025, 2, 25),
-    status = PaymentStatus.Overdue
+    status = PaymentStatus.Overdue,
+    mainTransaction = Some("4060")
   )
 
   private val testPaymentNothingToPay = OutstandingPayment(
     chargeReference = "XC123456789012",
     amountDue = BigDecimal("0.00"),
     dueDate = LocalDate.of(2025, 4, 25),
-    status = PaymentStatus.NothingToPay
+    status = PaymentStatus.NothingToPay,
+    mainTransaction = None
+  )
+
+  private val testPaymentOverdueInterest = OutstandingPayment(
+    chargeReference = "XE123456789012",
+    amountDue = BigDecimal("123.45"),
+    dueDate = LocalDate.of(2025, 2, 25),
+    status = PaymentStatus.Overdue,
+    mainTransaction = Some("4061")
   )
 
   private val testUnallocatedPayment = PaymentOnAccount(
@@ -116,6 +127,19 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils)
         val periodCell = vm.clearedRows.head.head
         periodCell.content.asHtml.body mustBe "January"
+      }
+
+      "must show a 'Late payment interest' heading for an outstanding payment with mainTransaction 4061" in {
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdueInterest), Seq.empty, Seq.empty, None), returnsDateUtils)
+        val descriptionCell = vm.outstandingRows.head(1)
+        descriptionCell.content.asHtml.body must include("Late payment interest")
+      }
+
+      "must show the normal payment heading for an outstanding payment without the interest mainTransaction" in {
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils)
+        val descriptionCell = vm.outstandingRows.head(1)
+        descriptionCell.content.asHtml.body must include("Payment for Vaping Products Duty return")
+        descriptionCell.content.asHtml.body must not include "Late payment interest"
       }
     }
 
