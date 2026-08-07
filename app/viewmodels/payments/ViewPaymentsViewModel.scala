@@ -36,6 +36,7 @@ final case class ViewPaymentsViewModel(
 
 object ViewPaymentsViewModel {
   private val govukTag = GovukTag()
+  private val InterestMainTransactionCode = "4061"
 
   def apply(payments: PaymentsResponse, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): ViewPaymentsViewModel = {
     val totalOwed = payments.totalAccountBalance.getOrElse(BigDecimal(0))
@@ -53,12 +54,11 @@ object ViewPaymentsViewModel {
   private def buildOutstandingRow(payment: OutstandingPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(formatDateWithTranslatedMonth(Some(payment.dueDate), returnsDateUtils)),
-        classes = CssConstants.tableHeader
+        content = Text(formatDateWithTranslatedMonth(Some(payment.dueDate), returnsDateUtils))
       ),
       TableRow(
         content = HtmlContent(
-          s"""${messages("payments.viewPayments.table.description.text")}<br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference}"""
+          s"""<strong>${messages(descriptionMessageKey(payment))}</strong><br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference}"""
         )
       ),
       TableRow(
@@ -125,6 +125,12 @@ object ViewPaymentsViewModel {
     dateOpt.fold(messages("payments.viewPayments.notAvailable")) { date =>
       returnsDateUtils.getMonthMessage(date.getMonth)
     }
+
+  private def descriptionMessageKey(payment: OutstandingPayment): String =
+    if (payment.mainTransaction.contains(InterestMainTransactionCode))
+      "payments.viewPayments.table.description.interest"
+    else
+      "payments.viewPayments.table.description.text"
 
   private def statusMessageKey(status: PaymentStatus): String = status match {
     case PaymentStatus.Due => "payments.viewPayments.status.due"

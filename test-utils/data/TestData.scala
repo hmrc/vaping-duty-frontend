@@ -387,7 +387,8 @@ trait TestData extends ObligationsBuilders {
     chargeReference = "VPD38270541980",
     amountDue = BigDecimal("500.00"),
     dueDate = LocalDate.parse("2026-10-25"),
-    status = PaymentStatus.Due
+    status = PaymentStatus.Due,
+    mainTransaction = Some("4060")
   )
 
   val testClearedPayment: ClearedPayment = ClearedPayment(

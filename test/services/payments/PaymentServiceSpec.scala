@@ -44,7 +44,8 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
     chargeReference = chargeReference,
     amountDue = amountDue,
     dueDate = LocalDate.of(2026, 8, 25),
-    status = PaymentStatus.Due
+    status = PaymentStatus.Due,
+    mainTransaction = Some("4060")
   )
 
   private val expectedRequest = StartPaymentRequest(
