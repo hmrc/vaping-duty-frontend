@@ -43,14 +43,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val enrolmentIdentifierKey: String        = configuration.get[String]("enrolment.identifierKey")
 
   val loginUrl: String                       = configuration.get[String]("urls.login")
-  val loginContinueUrl: String               = configuration.get[String]("urls.loginContinue")
   val loginContinueEnrolment: String         = configuration.get[String]("urls.loginContinueEnrolment")
   val signOutUrl: String                     = configuration.get[String]("urls.signOut")
 
   val organisationAcctGuidanceUrl: String    = configuration.get[String]("urls.organisationAcctGuidance")
   val applyForVpdIdGuidanceUrl: String       = configuration.get[String]("urls.applyForVpdIdGuidanceUrl")
   val changeAddressGuidanceUrl: String       = configuration.get[String]("urls.addressChangeGuidance")
-  val claimDutyBackGuidance: String       = configuration.get[String]("urls.claimDutyBackGuidance")
+  val claimDutyBackGuidance: String          = configuration.get[String]("urls.claimDutyBackGuidance")
   val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount") + "?useServiceNavigation"
   val accessibilityStatementUrl: String = configuration.get[String]("accessibility-statement.host") ++
     configuration.get[String]("accessibility-statement.url")
