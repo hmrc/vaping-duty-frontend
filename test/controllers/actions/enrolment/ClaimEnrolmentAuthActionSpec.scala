@@ -80,7 +80,7 @@ import scala.concurrent.{ExecutionContext, Future}
     when(appConfig.enrolmentServiceName).thenReturn("HMRC-VPD-ORG")
     when(appConfig.enrolmentIdentifierKey).thenReturn("ZVPD")
     when(appConfig.loginUrl).thenReturn("login-url")
-    when(appConfig.loginContinueUrl).thenReturn("login-continue-url")
+    when(appConfig.loginContinueEnrolment).thenReturn("login-continue-url")
 
     val HMRC_VPD_ORG_ENROLMENT_NAME  = appConfig.enrolmentServiceName
     val VPD_ORG_IDENT_KEY            = appConfig.enrolmentIdentifierKey
