@@ -122,9 +122,16 @@ object ConfirmationViewModel extends CurrencyFormatter {
       link(id = "bta-link", href = btaLink, text = messages("returns.confirmation.bullet.bta.linkText"))
     )
 
+    val directDebitBulletWithLink = link(
+      id = "direct-debit-link",
+      href = controllers.payments.routes.StartDirectDebitController.startDirectDebit().url,
+      text = messages("returns.confirmation.bullet.directDebit.linkText")
+    )
+
     val bulletList = list(Seq(
       payNowBulletWithLink,
-      Html(messages("returns.confirmation.bullet.interest", paymentDueDate))
+      Html(messages("returns.confirmation.bullet.interest", paymentDueDate)),
+      directDebitBulletWithLink
     ), classes = "govuk-list govuk-list--bullet")
 
     HtmlFormat.fill(Seq(warningSection, directDebitParagraph, whatNextHeading, bulletList))

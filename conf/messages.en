@@ -407,6 +407,7 @@ returns.confirmation.h2.whatNext = What you can do next
 returns.confirmation.bullet.bta.prefix = you can pay your duty now or later from your
 returns.confirmation.bullet.bta.linkText = business tax account
 returns.confirmation.bullet.interest = interest will be charged if you do not pay by {0}
+returns.confirmation.bullet.directDebit.linkText = direct debit
 returns.confirmation.h2.keep = Keep a copy for your records
 
 returns.confirmation.inset.youHave = You have nothing to pay for this return period.
