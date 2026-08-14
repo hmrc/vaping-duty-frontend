@@ -117,24 +117,22 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
     val whatNextHeading = h2(Text(messages("returns.confirmation.h2.whatNext")))
 
-    val payNowBulletWithLink = Html(
-      messages("returns.confirmation.bullet.bta.prefix") + " " +
-      link(id = "bta-link", href = btaLink, text = messages("returns.confirmation.bullet.bta.linkText"))
+    val businessTaxAccountLink = link(
+      id = "bta-link", href = btaLink, text = messages("returns.confirmation.bullet.bta.linkText")
     )
-
-    val directDebitBulletWithLink = link(
+    
+    val directDebitLink = link(
       id = "direct-debit-link",
       href = controllers.payments.routes.StartDirectDebitController.startDirectDebit().url,
       text = messages("returns.confirmation.bullet.directDebit.linkText")
     )
 
-    val bulletList = list(Seq(
-      payNowBulletWithLink,
-      Html(messages("returns.confirmation.bullet.interest", paymentDueDate)),
-      directDebitBulletWithLink
-    ), classes = "govuk-list govuk-list--bullet")
+    val paymentLinkList = list(Seq(
+      businessTaxAccountLink,
+      directDebitLink
+    ))
 
-    HtmlFormat.fill(Seq(warningSection, directDebitParagraph, whatNextHeading, bulletList))
+    HtmlFormat.fill(Seq(warningSection, directDebitParagraph, whatNextHeading, paymentLinkList))
   }
 
   private def getNegativeContent(dutyDue: BigDecimal)(implicit messages: Messages): Html = {
