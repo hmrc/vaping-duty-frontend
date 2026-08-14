@@ -16,7 +16,7 @@
 
 package controllers.returns.submit
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import forms.returns.DeclarationFormProvider
 import models.NormalMode
@@ -40,6 +40,7 @@ class DeclarationController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        sessionRepository: ReturnsUserAnswersService,
                                        identify: ApprovedVapingManufacturerAuthAction,
+                                       checkInsolvency: CheckInsolvencyAction,
                                        getData: ReturnsDataRetrievalAction,
                                        requireData: ReturnsDataRequiredAction,
                                        returnsEnabled: ReturnsEnabledAction,
@@ -55,7 +56,7 @@ class DeclarationController @Inject()(
 
   val form: Form[DeclarationDetails] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligations =>
         val preparedForm = request.userAnswers.get(DeclarationPage) match {
@@ -69,7 +70,7 @@ class DeclarationController @Inject()(
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap { obligations =>
         val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)

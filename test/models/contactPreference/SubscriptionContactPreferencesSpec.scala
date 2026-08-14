@@ -24,7 +24,7 @@ class SubscriptionContactPreferencesSpec extends SpecBase {
   "SubscriptionContactPreferences" - {
 
     val json = """{"paperlessPreference":"1","emailAddress":"john.doe@example.com"}"""
-    val underTest = SubscriptionContactPreferences(true, Some(emailAddress))
+    val underTest = SubscriptionContactPreferences(true, Some(emailAddress), Some("N"))
 
     "must serialise to JSON" in {
       Json.toJson(underTest).toString mustBe json

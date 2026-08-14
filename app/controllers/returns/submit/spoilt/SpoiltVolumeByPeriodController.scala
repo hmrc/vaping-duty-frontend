@@ -16,7 +16,7 @@
 
 package controllers.returns.submit.spoilt
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import controllers.returns.PeriodKeyExtraction
 import forms.returns.SpoiltVolumeByPeriodFormProvider
@@ -41,6 +41,7 @@ class SpoiltVolumeByPeriodController @Inject()(
                                                 override val messagesApi: MessagesApi,
                                                 sessionRepository: ReturnsUserAnswersService,
                                                 identify: ApprovedVapingManufacturerAuthAction,
+                                                checkInsolvency: CheckInsolvencyAction,
                                                 getData: ReturnsDataRetrievalAction,
                                                 requireData: ReturnsDataRequiredAction,
                                                 formProvider: SpoiltVolumeByPeriodFormProvider,
@@ -51,7 +52,7 @@ class SpoiltVolumeByPeriodController @Inject()(
                                                 view: SpoiltVolumeByPeriodView
                                               )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
 
-  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey("spoiltPeriod") { spoiltPeriod =>
         withObligation(spoiltPeriod) { spoiltObligation =>
@@ -73,7 +74,7 @@ class SpoiltVolumeByPeriodController @Inject()(
       }
   }
 
-  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey("spoiltPeriod") { spoiltPeriod =>
         withObligation(spoiltPeriod) { spoiltObligation =>
@@ -89,8 +90,8 @@ class SpoiltVolumeByPeriodController @Inject()(
                 val updatedList = existingList.filterNot(_.periodKey == spoiltPeriod) :+ SpoiltVolumeByPeriod(volume, spoiltPeriod)
 
                 for {
-                  updatedAnswers  <- Future.fromTry(request.userAnswers.set(SpoiltVolumeByPeriodPage, updatedList))
-                  _               <- sessionRepository.set(updatedAnswers)
+                  updatedAnswers <- Future.fromTry(request.userAnswers.set(SpoiltVolumeByPeriodPage, updatedList))
+                  _ <- sessionRepository.set(updatedAnswers)
                 } yield Redirect(navigator.nextPage(SpoiltVolumeByPeriodPage, mode, updatedAnswers))
             )
           }

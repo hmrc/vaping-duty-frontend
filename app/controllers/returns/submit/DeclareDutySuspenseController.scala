@@ -16,7 +16,7 @@
 
 package controllers.returns.submit
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import forms.returns.DeclareDutySuspenseFormProvider
 import models.Mode
@@ -37,6 +37,7 @@ class DeclareDutySuspenseController @Inject()(
                                          sessionRepository: ReturnsUserAnswersService,
                                          navigator: ReturnsNavigator,
                                          identify: ApprovedVapingManufacturerAuthAction,
+                                         checkInsolvency: CheckInsolvencyAction,
                                          getData: ReturnsDataRetrievalAction,
                                          requireData: ReturnsDataRequiredAction,
                                          formProvider: DeclareDutySuspenseFormProvider,
@@ -47,7 +48,7 @@ class DeclareDutySuspenseController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
       val preparedForm = request.userAnswers.get(DeclareDutySuspensePage)
         .fold(form)(form.fill)

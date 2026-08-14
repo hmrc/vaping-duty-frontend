@@ -21,7 +21,8 @@ import models.emailverification.JsonHelpers._
 
 final case class SubscriptionContactPreferences(
                                                  paperlessPreference: Boolean,
-                                                 emailAddress: Option[String]
+                                                 emailAddress: Option[String],
+                                                 insolvencyStatus: Option[String]
                                                )
 
 object SubscriptionContactPreferences {

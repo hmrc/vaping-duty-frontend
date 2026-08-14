@@ -17,7 +17,7 @@
 package controllers.returns.submit.spoilt
 
 import config.FrontendAppConfig
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import forms.returns.DeclareSpoiltProductsFormProvider
 import models.Mode
@@ -38,6 +38,7 @@ class DeclareSpoiltProductsController @Inject()(
                                          sessionRepository: ReturnsUserAnswersService,
                                          navigator: ReturnsNavigator,
                                          identify: ApprovedVapingManufacturerAuthAction,
+                                         checkInsolvency: CheckInsolvencyAction,
                                          getData: ReturnsDataRetrievalAction,
                                          requireData: ReturnsDataRequiredAction,
                                          formProvider: DeclareSpoiltProductsFormProvider,
@@ -49,7 +50,7 @@ class DeclareSpoiltProductsController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
       val preparedForm = request.userAnswers.get(DeclareSpoiltProductsPage)
         .fold(form)(form.fill)
@@ -57,7 +58,7 @@ class DeclareSpoiltProductsController @Inject()(
       Ok(view(request.periodKey, preparedForm, mode, config.claimDutyBackGuidance))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(

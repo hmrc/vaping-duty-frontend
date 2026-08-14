@@ -16,7 +16,7 @@
 
 package controllers.returns.submit
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import models.{CheckMode, Mode, NormalMode}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -30,6 +30,7 @@ import javax.inject.Inject
 class DutySuspenseCheckAnswersController @Inject()(
                                                     override val messagesApi: MessagesApi,
                                                     identify: ApprovedVapingManufacturerAuthAction,
+                                                    checkInsolvency: CheckInsolvencyAction,
                                                     getData: ReturnsDataRetrievalAction,
                                                     requireData: ReturnsDataRequiredAction,
                                                     returnsEnabled: ReturnsEnabledAction,
@@ -37,7 +38,7 @@ class DutySuspenseCheckAnswersController @Inject()(
                                                     view: DutySuspenseCheckAnswersView
                                                   ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) {
     implicit request =>
       val pk = request.periodKey
 
@@ -47,7 +48,7 @@ class DutySuspenseCheckAnswersController @Inject()(
       }
   }
 
-  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) {
     implicit request =>
       mode match {
         case CheckMode => Redirect(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url + s"?period=${request.periodKey.value}")

@@ -38,6 +38,7 @@ class ViewMultipleReturnsController @Inject()(
                                                override val messagesApi: MessagesApi,
                                                clock: Clock,
                                                identify: ApprovedVapingManufacturerAuthAction,
+                                               checkInsolvency: CheckInsolvencyAction,
                                                returnsEnabledAction: ReturnsEnabledAction,
                                                obligationService: ObligationService,
                                                val controllerComponents: MessagesControllerComponents,
@@ -46,7 +47,7 @@ class ViewMultipleReturnsController @Inject()(
                                                returnsDateUtils: ReturnsDateUtils
                                              )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(year: Option[Int] = None): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
+  def onPageLoad(year: Option[Int] = None): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData).async {
     implicit request =>
 
       renderView(request, year)

@@ -71,7 +71,18 @@ trait TestData extends ObligationsBuilders {
     emailVerification = Some(true),
     bouncedEmail = Some(false),
     correspondenceAddress = correspondenceAddress,
-    countryCode = Some(countryCode)
+    countryCode = Some(countryCode),
+    insolvencyStatus = None
+  )
+
+  val subscriptionSummaryNonInsolvent: SubscriptionSummary = SubscriptionSummary(
+    paperlessPreference = true,
+    emailAddress = Some(emailAddress),
+    emailVerification = Some(true),
+    bouncedEmail = Some(false),
+    correspondenceAddress = correspondenceAddress,
+    countryCode = Some(countryCode),
+    insolvencyStatus = Some("N")
   )
 
   val testDeclarationDetails: DeclarationDetails = DeclarationDetails(
@@ -98,7 +109,8 @@ trait TestData extends ObligationsBuilders {
     emailVerification = None,
     bouncedEmail = None,
     correspondenceAddress = correspondenceAddress,
-    countryCode = Some(countryCode)
+    countryCode = Some(countryCode),
+    insolvencyStatus = None
   )
 
   val userAnswers: PreferenceUserAnswers = PreferenceUserAnswers(

@@ -16,7 +16,7 @@
 
 package controllers.returns.submit.spoilt
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import forms.returns.AddSpoiltAdjustmentFormProvider
 import models.requests.returns.ReturnsDataRequest
@@ -39,6 +39,7 @@ class SpoiltCheckYourAnswersController @Inject()(
                                                   sessionRepository: ReturnsUserAnswersService,
                                                   navigator: ReturnsNavigator,
                                                   identify: ApprovedVapingManufacturerAuthAction,
+                                                  checkInsolvency: CheckInsolvencyAction,
                                                   getData: ReturnsDataRetrievalAction,
                                                   requireData: ReturnsDataRequiredAction,
                                                   formProvider: AddSpoiltAdjustmentFormProvider,
@@ -50,7 +51,7 @@ class SpoiltCheckYourAnswersController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       val declareSpoiltProducts = request.userAnswers.get(DeclareSpoiltProductsPage)
@@ -68,7 +69,7 @@ class SpoiltCheckYourAnswersController @Inject()(
         }
   }
 
-  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       val declareSpoiltProducts = request.userAnswers.get(DeclareSpoiltProductsPage)

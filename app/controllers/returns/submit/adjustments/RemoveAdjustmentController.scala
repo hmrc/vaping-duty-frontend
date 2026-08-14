@@ -16,7 +16,7 @@
 
 package controllers.returns.submit.adjustments
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import controllers.returns.PeriodKeyExtraction
 import forms.returns.adjustments.RemoveAdjustmentFormProvider
@@ -37,6 +37,7 @@ import scala.concurrent.ExecutionContext
 class RemoveAdjustmentController @Inject()(
                                             override val messagesApi: MessagesApi,
                                             identify: ApprovedVapingManufacturerAuthAction,
+                                            checkInsolvency: CheckInsolvencyAction,
                                             getData: ReturnsDataRetrievalAction,
                                             requireData: ReturnsDataRequiredAction,
                                             formProvider: RemoveAdjustmentFormProvider,
@@ -48,7 +49,7 @@ class RemoveAdjustmentController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriod =>
         adjustmentCheckYourAnswersService
@@ -60,7 +61,7 @@ class RemoveAdjustmentController @Inject()(
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriod =>
         form.bindFromRequest().fold(
