@@ -64,8 +64,8 @@ trait SpecBase
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[ApprovedVapingManufacturerAuthAction].to[FakeApprovedVapingManufacturerAuthAction],
-        bind[EnrolmentClaimAuthAction].to[FakeClaimEnrolmentAuthAction],
         bind[CheckSignedInAction].to[FakeCheckSignedInAction],
+        bind[CheckInsolvencyAction].to[FakeCheckInsolvencyAction],
         bind[EnrolmentClaimAuthAction].to[FakeClaimEnrolmentAuthAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
         bind[EnrolmentDataRetrievalAction].toInstance(new FakeEnrolmentDataRetrievalAction(enrolmentUserAnswers)),
@@ -83,6 +83,9 @@ trait SpecBase
   
   val fakeApprovedVapingManufacturerAuthAction: FakeApprovedVapingManufacturerAuthAction = 
     new FakeApprovedVapingManufacturerAuthAction(stubControllerComponents().parsers)
+  
+  val fakeCheckInsolvencyAction: FakeCheckInsolvencyAction =
+    new FakeCheckInsolvencyAction(stubControllerComponents().parsers)
   
   // Common mocks for config and connectors
   val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
