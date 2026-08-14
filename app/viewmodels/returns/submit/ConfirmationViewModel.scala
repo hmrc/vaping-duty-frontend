@@ -26,7 +26,7 @@ import uk.gov.hmrc.govukfrontend.views.html.components.{GovukInsetText, GovukWar
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 import uk.gov.hmrc.govukfrontend.views.viewmodels.warningtext.WarningText
-import utils.CurrencyFormatter
+import utils.{CssConstants, CurrencyFormatter}
 import views.html.components.{Heading2, Link, ListWithLinks, Paragraph}
 
 import java.time.{LocalDate, ZoneId}
@@ -117,19 +117,25 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
     val whatNextHeading = h2(Text(messages("returns.confirmation.h2.whatNext")))
 
-    val businessTaxAccountLink = link(
-      id = "bta-link", href = btaLink, text = messages("returns.confirmation.bullet.bta.linkText")
-    )
-    
-    val directDebitLink = link(
-      id = "direct-debit-link",
-      href = controllers.payments.routes.StartDirectDebitController.startDirectDebit().url,
-      text = messages("returns.confirmation.bullet.directDebit.linkText")
-    )
+    val businessTaxAccountLink = p(Seq(
+      HtmlContent(
+        s"${messages("returns.confirmation.bullet.bta.prefix")} ${link(id = "bta-link", href = btaLink, text = messages("returns.confirmation.bullet.bta.linkText"))}"
+      )
+    ), classes = s"govuk-body ${CssConstants.paddingBottom2}")
+
+    val directDebitLink = p(Seq(
+      HtmlContent(
+        link(
+          id = "direct-debit-link",
+          href = controllers.payments.routes.StartDirectDebitController.startDirectDebit().url,
+          text = messages("returns.confirmation.bullet.directDebit.linkText")
+        )
+      )
+    ))
 
     val paymentLinkList = list(Seq(
-      businessTaxAccountLink,
-      directDebitLink
+      directDebitLink,
+      businessTaxAccountLink
     ))
 
     HtmlFormat.fill(Seq(warningSection, directDebitParagraph, whatNextHeading, paymentLinkList))

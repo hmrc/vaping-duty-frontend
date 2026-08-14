@@ -21,6 +21,7 @@ object CssConstants {
   val boldFontWeight = "govuk-!-font-weight-bold"
   
   val marginBottom9 = "govuk-!-margin-bottom-9"
+  val paddingBottom2 = "govuk-!-padding-bottom-2"
   
   // Table styling
   val tableHeader = "govuk-table__header"
