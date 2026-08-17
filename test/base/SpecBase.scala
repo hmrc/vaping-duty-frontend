@@ -85,7 +85,7 @@ trait SpecBase
     new FakeApprovedVapingManufacturerAuthAction(stubControllerComponents().parsers)
   
   val fakeCheckInsolvencyAction: FakeCheckInsolvencyAction =
-    new FakeCheckInsolvencyAction(stubControllerComponents().parsers)
+    new FakeCheckInsolvencyAction
   
   // Common mocks for config and connectors
   val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]

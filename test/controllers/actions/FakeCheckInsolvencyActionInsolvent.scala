@@ -21,10 +21,9 @@ import models.requests.IdentifierRequest
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeCheckInsolvencyActionInsolvent @Inject()(bodyParsers: PlayBodyParsers) extends CheckInsolvencyAction with TestData {
+class FakeCheckInsolvencyActionInsolvent extends CheckInsolvencyAction with TestData {
 
   override protected def refine[A](request: IdentifierRequest[A]): Future[Either[Result, IdentifierRequest[A]]] =
     Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
