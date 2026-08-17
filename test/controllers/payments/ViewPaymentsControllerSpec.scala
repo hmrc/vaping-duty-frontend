@@ -17,7 +17,6 @@
 package controllers.payments
 
 import base.SpecBase
-import connectors.SubscriptionConnector
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar.mock

@@ -39,7 +39,7 @@ class SubscriptionConnectorISpec extends ISpecBase with WireMockHelper with Test
   private lazy val connector = application.injector.instanceOf[SubscriptionConnector]
 
   "SubscriptionConnector must" - {
-    val summary = SubscriptionContactPreferences(toValue(PaperlessPreference.Email), Some(emailAddress))
+    val summary = SubscriptionContactPreferences(toValue(PaperlessPreference.Email), Some(emailAddress), Some("N"))
     "successfully submit contact preferences" in {
       server.stubFor(
         get(url).willReturn(aResponse().withStatus(OK).withBody(

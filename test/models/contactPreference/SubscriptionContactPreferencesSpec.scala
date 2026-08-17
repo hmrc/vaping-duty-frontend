@@ -23,7 +23,7 @@ class SubscriptionContactPreferencesSpec extends SpecBase {
 
   "SubscriptionContactPreferences" - {
 
-    val json = """{"paperlessPreference":"1","emailAddress":"john.doe@example.com"}"""
+    val json = """{"paperlessPreference":"1","emailAddress":"john.doe@example.com","insolvencyStatus":"N"}"""
     val underTest = SubscriptionContactPreferences(true, Some(emailAddress), Some("N"))
 
     "must serialise to JSON" in {
@@ -37,7 +37,7 @@ class SubscriptionContactPreferencesSpec extends SpecBase {
 
     "must serialise from JSON with no email" in {
       val result = Json.parse("""{"paperlessPreference":"1"}""").validate[SubscriptionContactPreferences]
-      result mustBe JsSuccess(underTest.copy(emailAddress = None))
+      result mustBe JsSuccess(underTest.copy(emailAddress = None, insolvencyStatus = None))
     }
   }
 }
