@@ -105,6 +105,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
       vm.content.toString must include("£150.50")
       vm.content.toString must include("repayment")
       vm.content.toString must include("This amount will be credited to your next Vaping Duty return")
+      vm.content.toString must not include "direct-debit-link"
     }
 
     "must generate correct content for positive duty amount (user owes money)" in {
@@ -113,6 +114,8 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
       vm.totalDutyAmount must be > BigDecimal(0)
       vm.content.toString must include("You must pay")
       vm.content.toString must include("business tax account")
+      vm.content.toString must include("direct-debit-link")
+      vm.content.toString must include(controllers.payments.routes.StartDirectDebitController.startDirectDebit().url)
     }
 
     "must generate correct content for zero duty amount" in {
@@ -127,6 +130,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
 
       vm.totalDutyAmount mustBe zeroAmount
       vm.content.toString must include("You have nothing to pay for this return period")
+      vm.content.toString must not include "direct-debit-link"
     }
   }
 }

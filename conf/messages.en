@@ -404,9 +404,10 @@ returns.confirmation.h2.whatYou = What you must do next
 returns.confirmation.warning.youMust = You must pay {0} by {1}.
 returns.confirmation.p.directDebit = As you have set up a Direct Debit, payment will be collected automatically on {0}.
 returns.confirmation.h2.whatNext = What you can do next
-returns.confirmation.bullet.bta.prefix = you can pay your duty now or later from your
+returns.confirmation.bullet.bta.prefix = Pay you duty now or later from your
 returns.confirmation.bullet.bta.linkText = business tax account
 returns.confirmation.bullet.interest = interest will be charged if you do not pay by {0}
+returns.confirmation.bullet.directDebit.linkText = Pay now by Direct Debit
 returns.confirmation.h2.keep = Keep a copy for your records
 
 returns.confirmation.inset.youHave = You have nothing to pay for this return period.

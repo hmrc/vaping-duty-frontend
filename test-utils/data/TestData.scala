@@ -21,7 +21,7 @@ import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, Use
 import models.emailverification.*
 import models.identifiers.*
 import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse}
-import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse, StartPaymentRequest, StartPaymentResponse}
+import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse, StartDirectDebitRequest, StartDirectDebitResponse, StartPaymentRequest, StartPaymentResponse}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
 import models.returns.{DeclarationDetails, DutyRate, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
@@ -420,5 +420,14 @@ trait TestData extends ObligationsBuilders {
   val testStartPaymentResponse: StartPaymentResponse = StartPaymentResponse(
     journeyId = "journey-123",
     nextUrl = "http://localhost:9057/pay/journey-123"
+  )
+
+  val testStartDirectDebitRequest: StartDirectDebitRequest = StartDirectDebitRequest(
+    returnUrl = btaLink,
+    backUrl = s"$host/complete-return/return-submitted"
+  )
+
+  val testStartDirectDebitResponse: StartDirectDebitResponse = StartDirectDebitResponse(
+    nextUrl = "http://localhost:9066/direct-debit/start/journey"
   )
 }

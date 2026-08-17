@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,15 @@
  * limitations under the License.
  */
 
-package utils
+package models.payments
 
-object CssConstants {
+import play.api.libs.json.*
 
-  val boldFontWeight = "govuk-!-font-weight-bold"
-  
-  val marginBottom9 = "govuk-!-margin-bottom-9"
-  val paddingBottom2 = "govuk-!-padding-bottom-2"
-  
-  // Table styling
-  val tableHeader = "govuk-table__header"
-  val tableCellNumeric = "govuk-table__cell--numeric"
-  
-  // Link styling
-  val linkNoWrap = "govuk-link no-wrap-link"
-  val link = "govuk-link"
-  
-  // Tag styling
-  val tagLightBlue = "govuk-tag--light-blue"
-  val tagRed = "govuk-tag--red"
-  val tagGreen = "govuk-tag--green"
+final case class StartDirectDebitRequest(
+  returnUrl: String,
+  backUrl: String
+)
+
+object StartDirectDebitRequest {
+  implicit val format: OFormat[StartDirectDebitRequest] = Json.format[StartDirectDebitRequest]
 }
