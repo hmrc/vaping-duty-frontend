@@ -50,6 +50,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
   private val MONTH_YEAR_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy")
   private val PAYMENT_DUE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
   private val ZONE_ID = ZoneId.of("Europe/London")
+  private val CHAPS_PAYMENT_THRESHOLD = BigDecimal(20000000)
 
   def apply(
     returnsResponse: ReturnDisplayResponse,
@@ -108,37 +109,66 @@ object ConfirmationViewModel extends CurrencyFormatter {
     val list = ListWithLinks()
     val link = Link()
 
+    val isChapsRequired = dutyDue >= CHAPS_PAYMENT_THRESHOLD
+
     val warningSection = warning(WarningText(
       iconFallbackText = Some(messages("site.warning")),
       content = Text(messages("returns.confirmation.warning.youMust", currencyFormat(dutyDue), paymentDueDate))
     ))
 
-    val directDebitParagraph = p(Seq(Text(messages("returns.confirmation.p.directDebit", paymentDueDate))))
+    val chargeReferenceParagraph = p(Seq(Text(messages("returns.confirmation.p.chargeReferenceReminder"))))
+
+    val topSection: Seq[Html] = if (isChapsRequired) {
+      Seq(
+        warningSection,
+        h2(Text(messages("returns.confirmation.chaps.h2.title"))),
+        p(Seq(Text(messages("returns.confirmation.chaps.p.cannotCollect")))),
+        p(Seq(Text(messages("returns.confirmation.chaps.p.mustPayByChaps", paymentDueDate)))),
+        chargeReferenceParagraph
+      )
+    } else {
+      Seq(
+        warningSection,
+        chargeReferenceParagraph,
+        p(Seq(Text(messages("returns.confirmation.p.interest", paymentDueDate))))
+      )
+    }
 
     val whatNextHeading = h2(Text(messages("returns.confirmation.h2.whatNext")))
 
-    val businessTaxAccountLink = p(Seq(
-      HtmlContent(
-        s"${messages("returns.confirmation.bullet.bta.prefix")} ${link(id = "bta-link", href = btaLink, text = messages("returns.confirmation.bullet.bta.linkText"))}"
-      )
-    ), classes = s"govuk-body ${CssConstants.paddingBottom2}")
+    val businessTaxAccountLinkPrefixKey =
+      if (isChapsRequired) "returns.confirmation.chaps.bullet.bta.prefix"
+      else "returns.confirmation.bullet.bta.prefix"
 
-    val directDebitLink = p(Seq(
-      HtmlContent(
+    val businessTaxAccountLink = p(
+      Seq(HtmlContent(
+        s"${messages(businessTaxAccountLinkPrefixKey)} ${link(id = "bta-link", href = btaLink, text = messages("returns.confirmation.bullet.bta.linkText"))}."
+      )),
+      classes = s"govuk-body ${CssConstants.paddingBottom2}"
+    )
+
+    val firstBulletItem = if (isChapsRequired) {
+      p(Seq(HtmlContent(
+        link(
+          id = "chaps-payment-link",
+          href = "https://www.gov.uk/guidance/hmrc-bank-account-details",
+          text = messages("returns.confirmation.chaps.bullet.linkText"),
+          newTabText = Some(messages("site.newTab"))
+        )
+      )))
+    } else {
+      p(Seq(HtmlContent(
         link(
           id = "direct-debit-link",
           href = controllers.payments.routes.StartDirectDebitController.startDirectDebit().url,
           text = messages("returns.confirmation.bullet.directDebit.linkText")
         )
-      )
-    ))
+      )))
+    }
 
-    val paymentLinkList = list(Seq(
-      directDebitLink,
-      businessTaxAccountLink
-    ))
+    val paymentLinkList = list(Seq(firstBulletItem, businessTaxAccountLink))
 
-    HtmlFormat.fill(Seq(warningSection, directDebitParagraph, whatNextHeading, paymentLinkList))
+    HtmlFormat.fill(topSection ++ Seq(whatNextHeading, paymentLinkList))
   }
 
   private def getNegativeContent(dutyDue: BigDecimal)(implicit messages: Messages): Html = {
