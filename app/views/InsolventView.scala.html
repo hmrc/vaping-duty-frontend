@@ -26,10 +26,7 @@
 
 @(insolvencyGuidanceUrl: String, contactHmrcUrl: String)(implicit request: Request[_], messages: Messages)
 
-@layout(
-    pageTitle = titleNoForm(messages("insolvent.title")),
-    timeout   = false
-) {
+@layout(pageTitle = titleNoForm(messages("insolvent.title"))) {
 
     @h1(messages("insolvent.heading"))
 
