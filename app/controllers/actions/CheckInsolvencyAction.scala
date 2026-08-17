@@ -44,8 +44,7 @@ class CheckInsolvencyActionImpl @Inject()(
         subscription.insolvencyStatus match {
           case Some(INSOLVENCY_STATUS_INSOLVENT) =>
             logger.info(s"User with VpdId ${request.enrolmentVpdId.value} is insolvent, redirecting")
-            // TODO: Replace with actual insolvency page route when created
-            Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+            Left(Redirect(controllers.routes.InsolventController.onPageLoad()))
           case _ =>
             Right(request)
         }

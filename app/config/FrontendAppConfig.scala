@@ -50,8 +50,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val applyForVpdIdGuidanceUrl: String       = configuration.get[String]("urls.applyForVpdIdGuidanceUrl")
   val changeAddressGuidanceUrl: String       = configuration.get[String]("urls.addressChangeGuidance")
   val claimDutyBackGuidance: String          = configuration.get[String]("urls.claimDutyBackGuidance")
+  val insolvencyGuidanceUrl: String          = configuration.get[String]("urls.insolvencyGuidance")
+  val contactHmrcUrl: String                 = configuration.get[String]("urls.contactHmrc")
   val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount") + "?useServiceNavigation"
-  val accessibilityStatementUrl: String = configuration.get[String]("accessibility-statement.host") ++
+  val accessibilityStatementUrl: String      = configuration.get[String]("accessibility-statement.host") ++
     configuration.get[String]("accessibility-statement.url")
 
   private val exitSurveyBaseUrl: String      = configuration.get[String]("urls.feedback-frontend-base-url")
@@ -90,13 +92,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def getSubscriptionUrl(vpdId: VpdId): String                    = s"$contactPreferenceBaseUrl/get-preferences/$vpdId"
 
 
-  private val returnsBaseUrl                                                   = s"$returnsHost/vaping-duty"
+  private val returnsBaseUrl                                                      = s"$returnsHost/vaping-duty"
   def returnsUserAnswersGetUrl(vpdId: VpdId, periodKey: PeriodKey): String        = s"$returnsBaseUrl/user-answers/$vpdId/$periodKey"
-  def returnsUserAnswersUrl: String                                            = s"$returnsBaseUrl/user-answers"
+  def returnsUserAnswersUrl: String                                               = s"$returnsBaseUrl/user-answers"
   def returnsUserAnswersKeepAliveUrl(vpdId: VpdId, periodKey: PeriodKey): String  = s"$returnsBaseUrl/user-answers/keep-alive/$vpdId/$periodKey"
   def returnsUserAnswersClearUrl(vpdId: VpdId, periodKey: PeriodKey): String      = s"$returnsBaseUrl/user-answers/clear/$vpdId/$periodKey"
 
-  def getObligationsUrl(vpdId: VpdId): String                                  = s"$returnsBaseUrl/obligations/$vpdId"
+  def getObligationsUrl(vpdId: VpdId): String                                     = s"$returnsBaseUrl/obligations/$vpdId"
 
   def submitReturnUrl(vpdId: VpdId, periodKey: PeriodKey)                         = s"$returnsBaseUrl/vpd-return/$vpdId/$periodKey"
   def getReturnUrl(vpdReference: VpdId, periodKey: PeriodKey): String             = s"$returnsBaseUrl/vpd-return/$periodKey/$vpdReference"
