@@ -121,6 +121,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
       vm.content.toString must include("direct-debit-link")
       vm.content.toString must include(controllers.payments.routes.StartDirectDebitController.startDirectDebit().url)
       vm.content.toString must not include "You must pay by CHAPS"
+      vm.content.toString must include("15 February 2026")
     }
 
     "must generate CHAPS content for duty amount of exactly £20 million" in {
@@ -144,6 +145,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
       vm.content.toString must include("Go to your")
       vm.content.toString must include("business tax account")
       vm.content.toString must not include "direct-debit-link"
+      vm.content.toString must include("15 February 2026")
     }
 
     "must generate CHAPS content for duty amount above £20 million" in {

@@ -75,7 +75,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
     ).format(SUBMISSION_DATE_FORMATTER)
 
     val periodMonthYearFormatted = obligation.iCFromDate.format(MONTH_YEAR_FORMATTER)
-    val paymentDueDateFormatted = obligation.iCDueDate.format(PAYMENT_DUE_FORMATTER)
+    val paymentDueDateFormatted = obligation.iCDueDate.withDayOfMonth(15).format(PAYMENT_DUE_FORMATTER)
 
     new ConfirmationViewModel(
       submissionDate = submissionDateFormatted,
