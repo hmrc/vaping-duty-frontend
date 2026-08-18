@@ -17,6 +17,7 @@
 package connectors
 
 import config.FrontendAppConfig
+import models.SubscriptionInsolvencyStatus
 import models.contactPreference.SubscriptionContactPreferences
 import models.identifiers.VpdId
 import org.apache.pekko.actor.ActorSystem
@@ -30,12 +31,12 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class SubscriptionConnector @Inject() (
-                                        config: FrontendAppConfig,
-                                        implicit val system: ActorSystem,
-                                        implicit val httpClient: HttpClientV2
-                                      )
-                                      (implicit ec: ExecutionContext) extends HttpReadsInstances with Logging {
+class SubscriptionConnector @Inject()(
+                                       config: FrontendAppConfig,
+                                       implicit val system: ActorSystem,
+                                       implicit val httpClient: HttpClientV2
+                                     )
+                                     (implicit ec: ExecutionContext) extends HttpReadsInstances with Logging {
 
   def getSubscriptionContactPreferences(vpdId: VpdId)
                                        (implicit hc: HeaderCarrier): Future[Either[ErrorResponse, SubscriptionContactPreferences]] =
@@ -49,12 +50,35 @@ class SubscriptionConnector @Inject() (
             Try {
               response.json.as[SubscriptionContactPreferences]
             } match {
-              case Success(doc)   =>
+              case Success(doc) =>
                 Future.successful(Right(doc))
               case Failure(error) =>
                 Future.successful(Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Unable to parse subscription summary success")))
             }
-          case _  =>
+          case _ =>
+            Future.successful(Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Unexpected response")))
+        }
+      }
+
+
+  def getInsolvencyStatus(vpdId: VpdId)
+                         (implicit hc: HeaderCarrier): Future[Either[ErrorResponse, SubscriptionInsolvencyStatus]] =
+
+    httpClient
+      .get(url"${config.getSubscriptionUrl(vpdId)}")
+      .execute[HttpResponse]
+      .flatMap { response =>
+        response.status match {
+          case OK =>
+            Try {
+              response.json.as[SubscriptionInsolvencyStatus]
+            } match {
+              case Success(doc) =>
+                Future.successful(Right(doc))
+              case Failure(error) =>
+                Future.successful(Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Unable to parse subscription summary success")))
+            }
+          case _ =>
             Future.successful(Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Unexpected response")))
         }
       }

@@ -38,10 +38,10 @@ class CheckInsolvencyActionImpl @Inject()(
   override protected def refine[A](request: IdentifierRequest[A]): Future[Either[Result, IdentifierRequest[A]]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).map {
+    subscriptionConnector.getInsolvencyStatus(request.enrolmentVpdId).map {
       case Right(subscription) =>
         subscription.insolvencyStatus match {
-          case Some(InsolvencyStatus.Solvent) =>
+          case InsolvencyStatus.Solvent =>
             Right(request)
           case _ =>
             logger.info(s"User with VpdId ${request.enrolmentVpdId.value} is insolvent, redirecting")
