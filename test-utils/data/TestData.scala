@@ -17,6 +17,7 @@
 package data
 
 import builders.ObligationsBuilders
+import models.{InsolvencyStatus, SubscriptionInsolvencyStatus}
 import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, UserDetails}
 import models.emailverification.*
 import models.identifiers.*
@@ -430,4 +431,10 @@ trait TestData extends ObligationsBuilders {
   val testStartDirectDebitResponse: StartDirectDebitResponse = StartDirectDebitResponse(
     nextUrl = "http://localhost:9066/direct-debit/start/journey"
   )
+
+  val subscriptionInsolvencyStatusSolvent: SubscriptionInsolvencyStatus =
+    SubscriptionInsolvencyStatus(InsolvencyStatus.Solvent)
+
+  val subscriptionInsolvencyStatusInsolvent: SubscriptionInsolvencyStatus =
+    SubscriptionInsolvencyStatus(InsolvencyStatus.Insolvent)
 }
