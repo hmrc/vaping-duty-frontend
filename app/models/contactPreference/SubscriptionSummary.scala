@@ -24,8 +24,7 @@ case class SubscriptionSummary(
                                 emailVerification: Option[Boolean],
                                 bouncedEmail: Option[Boolean],
                                 correspondenceAddress: String,
-                                countryCode: Option[String],
-                                insolvencyStatus: Option[String] = None
+                                countryCode: Option[String]
                               )
 
 object SubscriptionSummary {
