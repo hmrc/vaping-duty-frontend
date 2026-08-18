@@ -41,11 +41,11 @@ class CheckInsolvencyActionImpl @Inject()(
     subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).map {
       case Right(subscription) =>
         subscription.insolvencyStatus match {
-          case Some(InsolvencyStatus.Insolvent) =>
+          case Some(InsolvencyStatus.Solvent) =>
+            Right(request)
+          case _ =>
             logger.info(s"User with VpdId ${request.enrolmentVpdId.value} is insolvent, redirecting")
             Left(Redirect(controllers.routes.InsolventController.onPageLoad()))
-          case _ =>
-            Right(request)
         }
       case Left(error) =>
         logger.warn(s"Failed to fetch subscription data for VpdId ${request.enrolmentVpdId.value}: ${error.statusCode} - ${error.message}")
