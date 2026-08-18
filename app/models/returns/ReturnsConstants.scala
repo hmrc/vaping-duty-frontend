@@ -24,5 +24,5 @@ object ReturnsConstants {
   val ADJUSTMENT_TYPE_FIELD: String = "adjustmentType"
   val UNDER_DECLARED_VOLUME_FIELD: String = "underDeclaredVolume"
   val OVER_DECLARED_VOLUME_FIELD: String = "overDeclaredVolume"
-  val CHAPS_PAYMENT_THRESHOLD = BigDecimal(20000000)
+  val MAX_DIRECT_DEBIT_THRESHOLD = BigDecimal(20000000)
 }

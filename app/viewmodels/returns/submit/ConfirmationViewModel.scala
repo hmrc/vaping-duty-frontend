@@ -110,7 +110,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
   private def getPositiveContent(dutyDue: BigDecimal, paymentDueDate: String, btaLink: String)
                                 (implicit messages: Messages): Html = {
-    val isChapsRequired = dutyDue >= ReturnsConstants.CHAPS_PAYMENT_THRESHOLD
+    val isChapsRequired = dutyDue >= ReturnsConstants.MAX_DIRECT_DEBIT_THRESHOLD
 
     HtmlFormat.fill(
       topSection(dutyDue, paymentDueDate, isChapsRequired) ++ 
