@@ -17,6 +17,7 @@
 package controllers.actions
 
 import connectors.SubscriptionConnector
+import models.InsolvencyStatus
 import models.requests.IdentifierRequest
 import play.api.Logging
 import play.api.mvc.Results.Redirect
@@ -34,15 +35,13 @@ class CheckInsolvencyActionImpl @Inject()(
                                          )(implicit val executionContext: ExecutionContext)
   extends CheckInsolvencyAction with Logging {
 
-  private val INSOLVENCY_STATUS_INSOLVENT = "Y"
-
   override protected def refine[A](request: IdentifierRequest[A]): Future[Either[Result, IdentifierRequest[A]]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).map {
       case Right(subscription) =>
         subscription.insolvencyStatus match {
-          case Some(INSOLVENCY_STATUS_INSOLVENT) =>
+          case Some(InsolvencyStatus.Insolvent) =>
             logger.info(s"User with VpdId ${request.enrolmentVpdId.value} is insolvent, redirecting")
             Left(Redirect(controllers.routes.InsolventController.onPageLoad()))
           case _ =>

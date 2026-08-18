@@ -21,11 +21,11 @@ import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, Use
 import models.emailverification.*
 import models.identifiers.*
 import models.obligations.{ObligationDetails, ObligationItem, ObligationsResponse}
-import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse, StartDirectDebitRequest, StartDirectDebitResponse, StartPaymentRequest, StartPaymentResponse}
+import models.payments.*
+import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
-import models.returns.{DeclarationDetails, DutyRate, ReturnsUserAnswers, TotalDutyDue, VapingProductsProduced}
-import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
+import models.returns.*
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
@@ -71,18 +71,7 @@ trait TestData extends ObligationsBuilders {
     emailVerification = Some(true),
     bouncedEmail = Some(false),
     correspondenceAddress = correspondenceAddress,
-    countryCode = Some(countryCode),
-    insolvencyStatus = None
-  )
-
-  val subscriptionSummaryNonInsolvent: SubscriptionSummary = SubscriptionSummary(
-    paperlessPreference = true,
-    emailAddress = Some(emailAddress),
-    emailVerification = Some(true),
-    bouncedEmail = Some(false),
-    correspondenceAddress = correspondenceAddress,
-    countryCode = Some(countryCode),
-    insolvencyStatus = Some("N")
+    countryCode = Some(countryCode)
   )
 
   val testDeclarationDetails: DeclarationDetails = DeclarationDetails(
@@ -109,8 +98,7 @@ trait TestData extends ObligationsBuilders {
     emailVerification = None,
     bouncedEmail = None,
     correspondenceAddress = correspondenceAddress,
-    countryCode = Some(countryCode),
-    insolvencyStatus = None
+    countryCode = Some(countryCode)
   )
 
   val userAnswers: PreferenceUserAnswers = PreferenceUserAnswers(

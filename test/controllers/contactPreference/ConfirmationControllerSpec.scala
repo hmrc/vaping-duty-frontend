@@ -19,6 +19,7 @@ package controllers.contactPreference
 import base.SpecBase
 import connectors.SubscriptionConnector
 import models.BtaLink
+import models.InsolvencyStatus.Solvent
 import models.contactPreference.SubscriptionContactPreferences
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
@@ -43,7 +44,7 @@ class ConfirmationControllerSpec extends SpecBase with BeforeAndAfterEach {
       when(mockAppConfig.continueToBta).thenReturn(btaLink)
 
       when(mockSubscriptionConnector.getSubscriptionContactPreferences(any())(any()))
-        .thenReturn(Future.successful(Right(SubscriptionContactPreferences(true, Some(emailAddress), Some("N")))))
+        .thenReturn(Future.successful(Right(SubscriptionContactPreferences(true, Some(emailAddress), Some(Solvent)))))
 
       val application = applicationBuilder()
         .overrides(bind[SubscriptionConnector].toInstance(mockSubscriptionConnector))

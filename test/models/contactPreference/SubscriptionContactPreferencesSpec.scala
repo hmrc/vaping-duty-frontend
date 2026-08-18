@@ -17,6 +17,7 @@
 package models.contactPreference
 
 import base.SpecBase
+import models.InsolvencyStatus
 import play.api.libs.json.{JsSuccess, Json}
 
 class SubscriptionContactPreferencesSpec extends SpecBase {
@@ -24,7 +25,7 @@ class SubscriptionContactPreferencesSpec extends SpecBase {
   "SubscriptionContactPreferences" - {
 
     val json = """{"paperlessPreference":"1","emailAddress":"john.doe@example.com","insolvencyStatus":"N"}"""
-    val underTest = SubscriptionContactPreferences(true, Some(emailAddress), Some("N"))
+    val underTest = SubscriptionContactPreferences(true, Some(emailAddress), Some(InsolvencyStatus.Solvent))
 
     "must serialise to JSON" in {
       Json.toJson(underTest).toString mustBe json
