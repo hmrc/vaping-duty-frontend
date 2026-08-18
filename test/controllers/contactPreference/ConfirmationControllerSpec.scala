@@ -44,7 +44,7 @@ class ConfirmationControllerSpec extends SpecBase with BeforeAndAfterEach {
       when(mockAppConfig.continueToBta).thenReturn(btaLink)
 
       when(mockSubscriptionConnector.getSubscriptionContactPreferences(any())(any()))
-        .thenReturn(Future.successful(Right(SubscriptionContactPreferences(true, Some(emailAddress), Some(Solvent)))))
+        .thenReturn(Future.successful(Right(SubscriptionContactPreferences(true, Some(emailAddress)))))
 
       val application = applicationBuilder()
         .overrides(bind[SubscriptionConnector].toInstance(mockSubscriptionConnector))
@@ -67,7 +67,7 @@ class ConfirmationControllerSpec extends SpecBase with BeforeAndAfterEach {
       when(mockAppConfig.continueToBta).thenReturn(btaLink)
 
       when(mockSubscriptionConnector.getSubscriptionContactPreferences(any())(any()))
-        .thenReturn(Future.successful(Right(SubscriptionContactPreferences(false, None, None))))
+        .thenReturn(Future.successful(Right(SubscriptionContactPreferences(false, None))))
 
       val application = applicationBuilder()
         .overrides(bind[SubscriptionConnector].toInstance(mockSubscriptionConnector))

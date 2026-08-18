@@ -16,14 +16,12 @@
 
 package models.contactPreference
 
+import models.emailverification.JsonHelpers.*
 import play.api.libs.json.*
-import models.emailverification.JsonHelpers._
-import models.InsolvencyStatus
 
 final case class SubscriptionContactPreferences(
                                                  paperlessPreference: Boolean,
-                                                 emailAddress: Option[String],
-                                                 insolvencyStatus: Option[InsolvencyStatus]
+                                                 emailAddress: Option[String]
                                                )
 
 object SubscriptionContactPreferences {

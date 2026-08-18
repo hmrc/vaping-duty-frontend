@@ -20,7 +20,7 @@ import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import connectors.SubscriptionConnector
 import data.TestData
-import models.{InsolvencyStatus, SubscriptionInsolvencyStatus}
+import models.SubscriptionInsolvencyStatus
 import models.contactPreference.PaperlessPreference.toValue
 import models.contactPreference.{PaperlessPreference, SubscriptionContactPreferences}
 import play.api.Application
@@ -41,7 +41,7 @@ class SubscriptionConnectorISpec extends ISpecBase with WireMockHelper with Test
 
   "SubscriptionConnector must" - {
     "getSubscriptionContactPreferences" - {
-      val summary = SubscriptionContactPreferences(toValue(PaperlessPreference.Email), Some(emailAddress), Some(InsolvencyStatus.Solvent))
+      val summary = SubscriptionContactPreferences(toValue(PaperlessPreference.Email), Some(emailAddress))
       
       "successfully submit contact preferences" in {
         server.stubFor(
