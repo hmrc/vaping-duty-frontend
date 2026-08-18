@@ -16,13 +16,12 @@
 
 package controllers.actions
 
-import data.TestData
 import models.requests.IdentifierRequest
 import play.api.mvc.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeCheckInsolvencyAction extends CheckInsolvencyAction with TestData {
+class FakeCheckInsolvencyAction extends CheckInsolvencyAction {
 
   override protected def refine[A](request: IdentifierRequest[A]): Future[Either[Result, IdentifierRequest[A]]] =
     Future.successful(Right(request))
