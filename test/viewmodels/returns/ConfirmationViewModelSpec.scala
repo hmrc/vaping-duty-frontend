@@ -113,9 +113,57 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
 
       vm.totalDutyAmount must be > BigDecimal(0)
       vm.content.toString must include("You must pay")
+      vm.content.toString must include("Pay now by Direct Debit")
+      vm.content.toString must include("Pay your duty now or later from your")
       vm.content.toString must include("business tax account")
       vm.content.toString must include("direct-debit-link")
       vm.content.toString must include(controllers.payments.routes.StartDirectDebitController.startDirectDebit().url)
+      vm.content.toString must not include "You must pay by CHAPS"
+      vm.content.toString must include("15 February 2026")
+    }
+
+    "must generate CHAPS content for duty amount of exactly £20 million" in {
+      val chapsAmount = BigDecimal(20000000)
+      val responseWithChapsAmount = returnsResponse.copy(
+        success = returnsResponse.success.copy(
+          totalDutyDue = Some(returnsResponse.success.totalDutyDue.get.copy(totalDue = chapsAmount))
+        )
+      )
+
+      val vm = ConfirmationViewModel(responseWithChapsAmount, obligation, btaLink)
+
+      vm.totalDutyAmount mustBe chapsAmount
+      vm.content.toString must include("You must pay")
+      vm.content.toString must include("You must pay by CHAPS")
+    }
+
+    "must generate CHAPS content for duty amount above £20 million" in {
+      val chapsAmount = BigDecimal(25000000)
+      val responseWithChapsAmount = returnsResponse.copy(
+        success = returnsResponse.success.copy(
+          totalDutyDue = Some(returnsResponse.success.totalDutyDue.get.copy(totalDue = chapsAmount))
+        )
+      )
+
+      val vm = ConfirmationViewModel(responseWithChapsAmount, obligation, btaLink)
+
+      vm.content.toString must include("You must pay by CHAPS")
+      vm.content.toString must not include "direct-debit-link"
+    }
+
+    "must generate original Direct Debit content for duty amount just below £20 million" in {
+      val belowChapsAmount = BigDecimal(19999999.99)
+      val responseWithBelowChapsAmount = returnsResponse.copy(
+        success = returnsResponse.success.copy(
+          totalDutyDue = Some(returnsResponse.success.totalDutyDue.get.copy(totalDue = belowChapsAmount))
+        )
+      )
+
+      val vm = ConfirmationViewModel(responseWithBelowChapsAmount, obligation, btaLink)
+
+      vm.content.toString must not include "You must pay by CHAPS"
+      vm.content.toString must include("direct-debit-link")
+      vm.content.toString must include("Pay your duty now or later from your")
     }
 
     "must generate correct content for zero duty amount" in {

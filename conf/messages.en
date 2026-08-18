@@ -402,13 +402,20 @@ returns.confirmation.panel.chargeReference = Your charge reference number is
 returns.confirmation.p.submitted = You submitted your Vaping Products Duty return on {0} for {1}.
 returns.confirmation.h2.whatYou = What you must do next
 returns.confirmation.warning.youMust = You must pay {0} by {1}.
-returns.confirmation.p.directDebit = As you have set up a Direct Debit, payment will be collected automatically on {0}.
 returns.confirmation.h2.whatNext = What you can do next
-returns.confirmation.bullet.bta.prefix = Pay you duty now or later from your
+returns.confirmation.bullet.bta.prefix = Pay your duty now or later from your
 returns.confirmation.bullet.bta.linkText = business tax account
 returns.confirmation.bullet.interest = interest will be charged if you do not pay by {0}
 returns.confirmation.bullet.directDebit.linkText = Pay now by Direct Debit
 returns.confirmation.h2.keep = Keep a copy for your records
+returns.confirmation.p.chargeReferenceReminder = Your charge reference number must be used as a payment reference when you pay this return.
+returns.confirmation.p.interest = Interest will be charged if you do not pay by {0}.
+
+returns.confirmation.chaps.h2.title = You must pay by CHAPS
+returns.confirmation.chaps.p.cannotCollect = As your total duty amount is over £20 million, we cannot collect payment by Direct Debit.
+returns.confirmation.chaps.p.mustPayByChaps = You must pay by CHAPS so the payment reaches HMRC by {0}. Interest will be charged if payment is not received by this date.
+returns.confirmation.chaps.bullet.linkText = Pay your duty by CHAPS
+returns.confirmation.chaps.bullet.bta.prefix = Go to your
 
 returns.confirmation.inset.youHave = You have nothing to pay for this return period.
 returns.confirmation.inset.negative.prefix = You are owed {0}. This amount will be credited to your next Vaping Duty return unless you claim a

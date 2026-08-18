@@ -18,6 +18,7 @@ package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
+import models.returns.ReturnsConstants
 import models.returns.view.ReturnDisplayResponse
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
@@ -74,7 +75,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
     ).format(SUBMISSION_DATE_FORMATTER)
 
     val periodMonthYearFormatted = obligation.iCFromDate.format(MONTH_YEAR_FORMATTER)
-    val paymentDueDateFormatted = obligation.iCDueDate.format(PAYMENT_DUE_FORMATTER)
+    val paymentDueDateFormatted = obligation.iCDueDate.withDayOfMonth(15).format(PAYMENT_DUE_FORMATTER)
 
     new ConfirmationViewModel(
       submissionDate = submissionDateFormatted,
@@ -100,51 +101,100 @@ object ConfirmationViewModel extends CurrencyFormatter {
     }
   }
 
+  private val warning = GovukWarningText()
+  private val p = Paragraph()
+  private val h2 = Heading2()
+  private val list = ListWithLinks()
+  private val link = Link()
+  private val govukInsetText = GovukInsetText()
+
   private def getPositiveContent(dutyDue: BigDecimal, paymentDueDate: String, btaLink: String)
                                 (implicit messages: Messages): Html = {
-    val warning = GovukWarningText()
-    val p = Paragraph()
-    val h2 = Heading2()
-    val list = ListWithLinks()
-    val link = Link()
+    val isChapsRequired = dutyDue >= ReturnsConstants.MAX_DIRECT_DEBIT_THRESHOLD
 
-    val warningSection = warning(WarningText(
+    HtmlFormat.fill(
+      topSection(dutyDue, paymentDueDate, isChapsRequired) ++ 
+      whatsNext(btaLink, isChapsRequired))
+  }
+
+  private def topSection(dutyDue: BigDecimal, paymentDueDate: String, isChapsRequired: Boolean)(implicit messages: Messages): Seq[HtmlFormat.Appendable] = {
+    if (isChapsRequired) {
+      Seq(
+        warningSection(dutyDue, paymentDueDate),
+        h2(Text(messages("returns.confirmation.chaps.h2.title"))),
+        p(Seq(Text(messages("returns.confirmation.chaps.p.cannotCollect")))),
+        p(Seq(Text(messages("returns.confirmation.chaps.p.mustPayByChaps", paymentDueDate)))),
+        chargeReferenceParagraph()
+      )
+    } else {
+      Seq(
+        warningSection(dutyDue, paymentDueDate),
+        chargeReferenceParagraph(),
+        p(Seq(Text(messages("returns.confirmation.p.interest", paymentDueDate))))
+      )
+    }
+  }
+
+  private def warningSection(dutyDue: BigDecimal, paymentDueDate: String)(implicit messages: Messages) =
+    warning(WarningText(
       iconFallbackText = Some(messages("site.warning")),
       content = Text(messages("returns.confirmation.warning.youMust", currencyFormat(dutyDue), paymentDueDate))
     ))
 
-    val directDebitParagraph = p(Seq(Text(messages("returns.confirmation.p.directDebit", paymentDueDate))))
+  private def chargeReferenceParagraph()(implicit messages: Messages) =
+    p(Seq(Text(messages("returns.confirmation.p.chargeReferenceReminder"))))
 
-    val whatNextHeading = h2(Text(messages("returns.confirmation.h2.whatNext")))
+  private def whatsNext(btaLink: String, isChapsRequired: Boolean)(implicit messages: Messages) =
+    Seq(
+      whatsNextHeading(),
+      paymentLinkList(btaLink, isChapsRequired)
+    )
 
-    val businessTaxAccountLink = p(Seq(
-      HtmlContent(
-        s"${messages("returns.confirmation.bullet.bta.prefix")} ${link(id = "bta-link", href = btaLink, text = messages("returns.confirmation.bullet.bta.linkText"))}"
-      )
-    ), classes = s"govuk-body ${CssConstants.paddingBottom2}")
+  private def whatsNextHeading()(implicit messages: Messages) =
+    h2(Text(messages("returns.confirmation.h2.whatNext")))
 
-    val directDebitLink = p(Seq(
-      HtmlContent(
+  private def paymentLinkList(btaLink: String, isChapsRequired: Boolean)(implicit messages: Messages) =
+    list(Seq(
+      paymentLink(isChapsRequired),
+      businessTaxAccountLink(btaLink, isChapsRequired))
+    )
+
+  private def paymentLink(isChapsRequired: Boolean)(implicit messages: Messages) = {
+    if (isChapsRequired) {
+      p(Seq(HtmlContent(
+        link(
+          id = "chaps-payment-link",
+          href = "https://www.gov.uk/guidance/hmrc-bank-account-details", //TODO replace with actual link when available
+          text = messages("returns.confirmation.chaps.bullet.linkText"),
+          newTabText = Some(messages("site.newTab"))
+        )
+      )))
+    } else {
+      p(Seq(HtmlContent(
         link(
           id = "direct-debit-link",
           href = controllers.payments.routes.StartDirectDebitController.startDirectDebit().url,
           text = messages("returns.confirmation.bullet.directDebit.linkText")
         )
-      )
-    ))
+      )))
+    }
+  }
 
-    val paymentLinkList = list(Seq(
-      directDebitLink,
-      businessTaxAccountLink
-    ))
+  private def businessTaxAccountLink(btaLink: String, isChapsRequired: Boolean)(implicit messages: Messages) = {
+    val businessTaxAccountLinkPrefixKey =
+      if (isChapsRequired) "returns.confirmation.chaps.bullet.bta.prefix"
+      else "returns.confirmation.bullet.bta.prefix"
 
-    HtmlFormat.fill(Seq(warningSection, directDebitParagraph, whatNextHeading, paymentLinkList))
+    val businessTaxAccountLink = Paragraph()(
+      Seq(HtmlContent(
+        s"${messages(businessTaxAccountLinkPrefixKey)} ${link(id = "bta-link", href = btaLink, text = messages("returns.confirmation.bullet.bta.linkText"))}."
+      )),
+      classes = s"govuk-body ${CssConstants.paddingBottom2}"
+    )
+    businessTaxAccountLink
   }
 
   private def getNegativeContent(dutyDue: BigDecimal)(implicit messages: Messages): Html = {
-    val govukInsetText = GovukInsetText()
-    val link = Link()
-
     val prefix = messages("returns.confirmation.inset.negative.prefix", currencyFormat(dutyDue.abs))
     val repaymentLink = link(
       id = "repayment-link",
@@ -163,8 +213,6 @@ object ConfirmationViewModel extends CurrencyFormatter {
   }
 
   private def getZeroContent()(implicit messages: Messages): Html = {
-    val govukInsetText = GovukInsetText()
-
     val insetSection = govukInsetText(InsetText(
       content = Text(messages("returns.confirmation.inset.youHave"))
     ))
