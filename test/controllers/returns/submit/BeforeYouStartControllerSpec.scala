@@ -18,7 +18,7 @@ package controllers.returns.submit
 
 import base.SpecBase
 import models.identifiers.PeriodKey
-import models.obligations.ObligationsResponse
+import models.obligations.ObligationDetails
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -35,9 +35,11 @@ import scala.concurrent.Future
 
 class BeforeYouStartControllerSpec extends SpecBase {
 
-  private val testObligations = createMockObligationsResponse().obligation
-
-  private val testObligationsResponse = ObligationsResponse(testObligations)
+  private val obligations: Seq[ObligationDetails] = Seq(
+    openObligation(december2027),
+    openObligation(november2027),
+    fulfilledObligation(october2027)
+  )
 
   "BeforeYouStart Controller" - {
 
@@ -55,10 +57,10 @@ class BeforeYouStartControllerSpec extends SpecBase {
         .build()
 
       val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
-      val vm = BeforeYouStartViewModel(testObligations, validPeriodKey, returnsDateUtils)(messages(application)).get
+      val vm = BeforeYouStartViewModel(obligations, validPeriodKey, returnsDateUtils)(messages(application)).get
 
       when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
-      when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(testObligationsResponse))
+      when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(obligations))
 
       running(application) {
         val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${validPeriodKey.value}")
@@ -86,10 +88,10 @@ class BeforeYouStartControllerSpec extends SpecBase {
         .build()
 
       val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
-      val vm = BeforeYouStartViewModel(testObligations, validPeriodKey, returnsDateUtils)(messages(application)).get
+      val vm = BeforeYouStartViewModel(obligations, validPeriodKey, returnsDateUtils)(messages(application)).get
 
       when(mockService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
-      when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(testObligationsResponse))
+      when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(obligations))
 
       running(application) {
         val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${validPeriodKey.value}")
@@ -116,7 +118,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
         .build()
 
       when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(testObligationsResponse))
+        .thenReturn(Future.successful(obligations))
 
       running(application) {
         val request = FakeRequest(GET, s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${invalidPeriodKey.value}")

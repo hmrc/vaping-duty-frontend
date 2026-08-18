@@ -19,7 +19,7 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import connectors.returns.ObligationsConnector
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.{ObligationDetails, ObligationsResponse}
+import models.obligations.ObligationDetails
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,15 +28,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class ObligationService @Inject()(obligationsConnector: ObligationsConnector)
                                  (using ExecutionContext) {
 
-  def getObligationsDirectly(vpdId: VpdId)(using HeaderCarrier): Future[Seq[ObligationDetails]] =
+  def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[Seq[ObligationDetails]] =
     obligationsConnector.getObligations(vpdId).map { response =>
       response.obligation
         .map(_.obligationDetails)
     }
 
-  def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[ObligationsResponse] =
-    obligationsConnector.getObligations(vpdId)
-  
   def getObligationByPeriodKey(vpdId: VpdId, periodKey: PeriodKey)
                               (using HeaderCarrier): Future[Option[ObligationDetails]] =
     obligationsConnector.getObligations(vpdId).map { response =>

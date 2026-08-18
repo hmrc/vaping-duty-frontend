@@ -16,7 +16,7 @@
 
 package models.returns
 
-import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
+import models.obligations.{ObligationDetails, ObligationStatus}
 
 sealed trait AdjustmentsEligibility
 
@@ -29,8 +29,8 @@ object AdjustmentsEligibility {
     val isEligible: Boolean = false
   }
 
-  def fromObligations(obligations: Seq[ObligationItem]): AdjustmentsEligibility = {
-    val hasFulfilledReturns = obligations.exists(_.obligationDetails.openOrFulfilledStatus == ObligationStatus.F.toString)
+  def fromObligations(obligations: Seq[ObligationDetails]): AdjustmentsEligibility = {
+    val hasFulfilledReturns = obligations.exists(_.openOrFulfilledStatus == ObligationStatus.F.toString)
     if (hasFulfilledReturns) Eligible else NotEligible
   }
 

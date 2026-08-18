@@ -17,12 +17,12 @@
 package viewmodels.returns.view
 
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationStatus, ObligationsResponse}
+import models.obligations.{ObligationDetails, ObligationStatus}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.PaginationItem
-import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.*
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.tag.Tag
+import uk.gov.hmrc.govukfrontend.views.viewmodels.tasklist.*
 import utils.ReturnsDateUtils
 
 import java.time.{LocalDate, Month}
@@ -39,16 +39,16 @@ object ViewMultipleReturnsViewModel {
   private val TAG_CLASS_BLUE = "govuk-tag--blue"
   private val TAG_CLASS_RED = "govuk-tag--red"
 
-  def apply(obligationsResponse: ObligationsResponse, currentYear: Int, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
+  def apply(obligationsResponse: Seq[ObligationDetails], currentYear: Int, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
            (implicit messages: Messages): ViewMultipleReturnsViewModel = {
 
     val (outstandingObligations, fulfilledObligations) =
-      obligationsResponse.obligation.partition(_.obligationDetails.openOrFulfilledStatus == ObligationStatus.O.toString)
+      obligationsResponse.partition(_.openOrFulfilledStatus == ObligationStatus.O.toString)
 
     val outstandingItems =
       outstandingObligations
-        .sortBy(_.obligationDetails.iCFromDate)(Ordering[LocalDate].reverse)
-        .map(item => createOutstandingTaskListItem(item.obligationDetails, now, returnsDateUtils))
+        .sortBy(_.iCFromDate)(Ordering[LocalDate].reverse)
+        .map(item => createOutstandingTaskListItem(item, now, returnsDateUtils))
 
     val outstandingSection = OutstandingReturnsSection(
       items = outstandingItems,
@@ -58,7 +58,6 @@ object ViewMultipleReturnsViewModel {
 
     val completedByYear: Map[Int, Seq[ObligationDetails]] =
       fulfilledObligations
-        .map(_.obligationDetails)
         .groupBy(_.iCFromDate.getYear)
 
     val allYears = completedByYear.keys.toSeq.sorted.reverse

@@ -84,7 +84,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
       val obligationsResponse = createMultiYearObligationsResponse()
       val obligationDetails = obligationsResponse.obligation.map(_.obligationDetails)
 
-      when(mockService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(obligationDetails))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationDetails))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].to(mockService))
@@ -110,7 +110,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
       val obligationDetails = obligationsResponse.obligation.map(_.obligationDetails)
       val specificYear = 2026
 
-      when(mockService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(obligationDetails))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationDetails))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].to(mockService))
@@ -136,7 +136,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
       val obligationDetails = obligationsResponse.obligation.map(_.obligationDetails)
       val alreadyDeclaredPeriod = models.identifiers.PeriodKey("26AJ")
 
-      when(mockService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(obligationDetails))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationDetails))
 
       val userAnswers = returnsUserAnswers
         .set(pages.returns.SpoiltVolumeByPeriodPage, List(models.returns.SpoiltVolumeByPeriod(BigDecimal(100), alreadyDeclaredPeriod)))
@@ -159,7 +159,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
     "must redirect to JourneyRecovery when the service fails" in {
       val mockService = mock[ObligationService]
 
-      when(mockService.getObligationsDirectly(any())(using any())).thenReturn(Future.failed(InternalServerException("")))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.failed(InternalServerException("")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].to(mockService))

@@ -60,7 +60,7 @@ class CheckYourAnswersController @Inject()(
     val allPeriods = (adjustmentPeriods ++ spoiltPeriods :+ pk).distinct
 
     for {
-      obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
+      obligationDetails <- obligationService.getObligations(request.enrolmentVpdId)
       dutyRates = dutyRateService.getDutyRatesForPeriods(allPeriods, obligationDetails)
     } yield {
       val adjustmentsEligibility = AdjustmentsEligibility.fromObligationDetails(obligationDetails)

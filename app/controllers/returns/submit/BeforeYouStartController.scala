@@ -56,7 +56,7 @@ class BeforeYouStartController @Inject()(
       }
 
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-        BeforeYouStartViewModel(obligations.obligation, periodKey, returnsDateUtils) match {
+        BeforeYouStartViewModel(obligations, periodKey, returnsDateUtils) match {
           case Some(vm) =>
             sessionRepository.set(ua).map(_ => Ok(view(periodKey, vm)))
           case None =>

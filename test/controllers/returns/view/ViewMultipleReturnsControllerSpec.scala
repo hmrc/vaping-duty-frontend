@@ -37,6 +37,12 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
   
   private val returnsDateUtils = new ReturnsDateUtils(clock)
 
+  private val obligations = Seq(
+    openObligation(december2027),
+    openObligation(november2027),
+    fulfilledObligation(october2027)
+  )
+
   "ViewMultipleReturns Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -46,10 +52,10 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
         .overrides(bind[ObligationService].to(mockService))
         .build()
 
-      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(createMockObligationsResponse()))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligations))
 
       val now = LocalDate.now(clock)
-      val vm = ViewMultipleReturnsViewModel(createMockObligationsResponse(), 2027, now, returnsDateUtils)(messages(application))
+      val vm = ViewMultipleReturnsViewModel(obligations, 2027, now, returnsDateUtils)(messages(application))
 
       running(application) {
         val request = FakeRequest(GET, controllers.returns.view.routes.ViewMultipleReturnsController.onPageLoad().url)
@@ -70,7 +76,7 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
         .overrides(bind[ObligationService].to(mockService))
         .build()
 
-      val emptyObligationResponse = createMockObligationsResponse().copy(obligation = Seq.empty)
+      val emptyObligationResponse = Seq.empty
 
       when(mockService.getObligations(any())(using any())).thenReturn(
         Future.successful(emptyObligationResponse)

@@ -17,7 +17,7 @@
 package viewmodels.returns.view
 
 import base.SpecBase
-import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
+import models.obligations.ObligationDetails
 
 import java.time.{Clock, LocalDate}
 
@@ -25,53 +25,13 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
 
   given Clock = clock
 
-  private val periodKey2024 = "24AA"
-  private val periodKey2023 = "23AL"
-  private val openStatus = ObligationStatus.O.toString
-  private val fulfilledStatus = ObligationStatus.F.toString
   private val now = LocalDate.now(clock)
   private val returnsDateUtils = new utils.ReturnsDateUtils(clock)
   
-  private val outstandingObligation = ObligationItem(
-    identification = None,
-    obligationDetails = ObligationDetails(
-      openOrFulfilledStatus = openStatus,
-      iCFromDate = LocalDate.of(2024, 1, 1),
-      iCToDate = LocalDate.of(2024, 1, 31),
-      iCDateReceived = None,
-      iCDueDate = LocalDate.of(2024, 3, 7),
-      periodKey = periodKey2024
-    )
-  )
-
-  private val completedObligation2024 = ObligationItem(
-    identification = None,
-    obligationDetails = ObligationDetails(
-      openOrFulfilledStatus = fulfilledStatus,
-      iCFromDate = LocalDate.of(2024, 2, 1),
-      iCToDate = LocalDate.of(2024, 2, 29),
-      iCDateReceived = Some(LocalDate.of(2024, 4, 5)),
-      iCDueDate = LocalDate.of(2024, 4, 7),
-      periodKey = "24AB"
-    )
-  )
-
-  private val completedObligation2023 = ObligationItem(
-    identification = None,
-    obligationDetails = ObligationDetails(
-      openOrFulfilledStatus = fulfilledStatus,
-      iCFromDate = LocalDate.of(2023, 12, 1),
-      iCToDate = LocalDate.of(2023, 12, 31),
-      iCDateReceived = Some(LocalDate.of(2024, 2, 5)),
-      iCDueDate = LocalDate.of(2024, 2, 7),
-      periodKey = periodKey2023
-    )
-  )
-
   "ViewMultipleReturnsViewModel" - {
 
     "must create view model with outstanding and completed returns for current year" in {
-      val obligationsResponse = ObligationsResponse(Seq(outstandingObligation, completedObligation2024))
+      val obligationsResponse = Seq(openObligation(january2024), fulfilledObligation(february2024))
 
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2024, now, returnsDateUtils)
 
@@ -84,7 +44,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
     }
 
     "must create view model with only outstanding returns" in {
-      val obligationsResponse = ObligationsResponse(Seq(outstandingObligation))
+      val obligationsResponse = Seq(openObligation(january2024))
 
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2024, now, returnsDateUtils)
 
@@ -94,7 +54,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
     }
 
     "must create view model with only completed returns for specified year" in {
-      val obligationsResponse = ObligationsResponse(Seq(completedObligation2023))
+      val obligationsResponse = Seq(fulfilledObligation(december2023))
 
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2023, now, returnsDateUtils)
 
@@ -105,7 +65,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
     }
 
     "must create view model with no returns" in {
-      val obligationsResponse = ObligationsResponse(Seq.empty)
+      val obligationsResponse = Seq.empty
 
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2024, now, returnsDateUtils)
 
@@ -115,7 +75,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
     }
 
     "must show pagination when multiple years of completed returns exist" in {
-      val obligationsResponse = ObligationsResponse(Seq(completedObligation2024, completedObligation2023))
+      val obligationsResponse = Seq(fulfilledObligation(february2024), fulfilledObligation(december2023))
 
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2024, now, returnsDateUtils)
 
@@ -128,7 +88,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
     }
 
     "must not show pagination when only one year of completed returns exists" in {
-      val obligationsResponse = ObligationsResponse(Seq(completedObligation2024))
+      val obligationsResponse = Seq(fulfilledObligation(february2024))
 
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2024, now, returnsDateUtils)
 
@@ -136,19 +96,10 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
     }
 
     "must show correct pagination items for middle year" in {
-      val completedObligation2022 = ObligationItem(
-        identification = None,
-        obligationDetails = ObligationDetails(
-          openOrFulfilledStatus = fulfilledStatus,
-          iCFromDate = LocalDate.of(2022, 12, 1),
-          iCToDate = LocalDate.of(2022, 12, 31),
-          iCDateReceived = Some(LocalDate.of(2023, 2, 5)),
-          iCDueDate = LocalDate.of(2023, 2, 7),
-          periodKey = "22AL"
-        )
-      )
-
-      val obligationsResponse = ObligationsResponse(Seq(completedObligation2024, completedObligation2023, completedObligation2022))
+      val obligationsResponse = Seq(
+        fulfilledObligation(february2024),
+        fulfilledObligation(december2023),
+        fulfilledObligation(december2022))
 
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2023, now, returnsDateUtils)
 
@@ -163,7 +114,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
     }
 
     "must show empty message for completed returns when year has no completed returns" in {
-      val obligationsResponse = ObligationsResponse(Seq(completedObligation2023))
+      val obligationsResponse = Seq(fulfilledObligation(december2023))
 
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2024, now, returnsDateUtils)
 
@@ -172,7 +123,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
     }
 
     "must format outstanding returns with month and year" in {
-      val obligationsResponse = ObligationsResponse(Seq(outstandingObligation))
+      val obligationsResponse = Seq(openObligation(january2024))
 
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2024, now, returnsDateUtils)
 
@@ -181,7 +132,7 @@ class ViewMultipleReturnsViewModelSpec extends SpecBase {
     }
 
     "must format completed returns with month only" in {
-      val obligationsResponse = ObligationsResponse(Seq(completedObligation2024))
+      val obligationsResponse = Seq(fulfilledObligation(february2024))
 
       val result = ViewMultipleReturnsViewModel(obligationsResponse, 2024, now, returnsDateUtils)
 

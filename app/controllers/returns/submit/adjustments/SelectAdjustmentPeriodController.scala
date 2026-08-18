@@ -47,7 +47,7 @@ class SelectAdjustmentPeriodController @Inject()(
   def onPageLoad(mode: Mode, year: Option[Int]): Action[AnyContent] =
     (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async { implicit request =>
 
-      obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligationDetails =>
+      obligationService.getObligations(request.enrolmentVpdId).map { obligationDetails =>
         val adjustmentList = request.userAnswers.get(AdjustmentListPage)
         val vm = SelectAdjustmentPeriodViewModel(
           obligationDetails,

@@ -45,7 +45,7 @@ class SpoiltCheckYourAnswersService @Inject()(
                       vpdId: VpdId,
                       mode: Mode
                     )(using HeaderCarrier, Messages): Future[SpoiltCheckYourAnswersViewModel] = {
-    obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
+    obligationService.getObligations(vpdId).map { obligationDetails =>
       val dutyRatesMap = getDutyRatesForSpoiltEntries(spoiltList, obligationDetails)
       SpoiltCheckYourAnswersViewModel(
         declareSpoiltProducts,
@@ -64,7 +64,7 @@ class SpoiltCheckYourAnswersService @Inject()(
                             spoiltPeriod: PeriodKey,
                             vpdId: VpdId
                           )(using HeaderCarrier, Messages): Future[Option[RemoveSpoiltAdjustmentViewModel]] =
-    obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
+    obligationService.getObligations(vpdId).map { obligationDetails =>
       for {
         entry      <- spoiltList.getOrElse(List.empty).find(_.periodKey == spoiltPeriod)
         obligation <- obligationDetails.find(_.periodKey == spoiltPeriod.toString)
@@ -102,7 +102,7 @@ class SpoiltCheckYourAnswersService @Inject()(
                                 periodKey: PeriodKey,
                                 vpdId: VpdId
                               )(using HeaderCarrier): Future[Boolean] =
-    obligationService.getObligationsDirectly(vpdId).map { obligationDetails =>
+    obligationService.getObligations(vpdId).map { obligationDetails =>
       SpoiltCheckYourAnswersViewModel.hasAvailablePeriodsToAdd(obligationDetails, periodKey, spoiltList)
     }
 

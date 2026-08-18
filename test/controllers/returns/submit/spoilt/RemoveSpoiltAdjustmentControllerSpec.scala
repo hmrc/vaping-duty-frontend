@@ -45,7 +45,7 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
   private def stubbedObligationService: ObligationService = {
     val mockObligationService = mock[ObligationService]
-    when(mockObligationService.getObligationsDirectly(any())(using any()))
+    when(mockObligationService.getObligations(any())(using any()))
       .thenReturn(Future.successful(Seq(fulfilledObligation(spoiltPeriodKey), fulfilledObligation(otherSpoiltPeriodKey))))
     mockObligationService
   }
@@ -58,7 +58,7 @@ class RemoveSpoiltAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
   private def obligationServiceWithNoMatchingObligation: ObligationService = {
     val mockObligationService = mock[ObligationService]
-    when(mockObligationService.getObligationsDirectly(any())(using any()))
+    when(mockObligationService.getObligations(any())(using any()))
       .thenReturn(Future.successful(Seq.empty))
     mockObligationService
   }

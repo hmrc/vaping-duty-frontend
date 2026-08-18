@@ -62,7 +62,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
       val spoiltEntry = SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = spoiltPeriodKey)
       val obligationForSpoilt = openObligation(spoiltPeriodKey)
 
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt)))
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenReturn(Map(spoiltPeriodKey -> TEN_POUNDS_PER_10ML))
@@ -81,7 +81,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
     }
 
     "must successfully build view model with no spoilt products when declareSpoiltProducts is false" in {
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(obligationDetails))
 
       val result = service.buildViewModel(
@@ -106,7 +106,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
       val spoiltEntry1 = SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = spoiltPeriodKey)
       val spoiltEntry2 = SpoiltVolumeByPeriod(volume = BigDecimal(500), periodKey = spoiltPeriodKey2)
 
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt1, obligationForSpoilt2)))
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenReturn(Map(
@@ -128,7 +128,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
     }
 
     "must handle empty spoilt list" in {
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(obligationDetails))
 
       val result = service.buildViewModel(
@@ -148,7 +148,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
       val nonExistentPeriodKey = PeriodKey("24ZZ")
       val spoiltEntry = SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = nonExistentPeriodKey)
 
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(obligationDetails))
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenReturn(Map.empty[PeriodKey, DutyRate])
@@ -175,7 +175,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
       val spoiltEntry = SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = spoiltPeriodKey)
       val obligationForSpoilt = openObligation(spoiltPeriodKey)
 
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForSpoilt)))
       when(mockDutyRateService.getDutyRateForDate(any()))
         .thenReturn(TEN_POUNDS_PER_10ML)
@@ -192,7 +192,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
     }
 
     "must return None when the entry is not in the spoilt list" in {
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(obligationDetails))
 
       val result = service.buildRemoveViewModel(
@@ -207,7 +207,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
     "must return None when no obligation exists for the entry's period" in {
       val spoiltEntry = SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = spoiltPeriodKey)
 
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq.empty))
 
       val result = service.buildRemoveViewModel(
@@ -223,7 +223,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
   "hasAvailablePeriodsToAdd" - {
 
     "must return true when a fulfilled period has not yet been declared as spoilt" in {
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(fulfilledObligation(spoiltPeriodKey))))
 
       val result = service.hasAvailablePeriodsToAdd(
@@ -236,7 +236,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
     }
 
     "must return false when every fulfilled period has already been declared as spoilt" in {
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(fulfilledObligation(spoiltPeriodKey))))
 
       val result = service.hasAvailablePeriodsToAdd(

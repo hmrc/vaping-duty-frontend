@@ -42,7 +42,7 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
         fulfilledObligation(december2027)
       )).map(_.obligationDetails)
 
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
+      when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
@@ -65,7 +65,7 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
         fulfilledObligation(december2027)
       )).map(_.obligationDetails)
 
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
+      when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
@@ -84,7 +84,7 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Journey Recovery when obligation service fails" in {
       val mockObligationService = mock[ObligationService]
 
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
+      when(mockObligationService.getObligations(any())(using any()))
          .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))

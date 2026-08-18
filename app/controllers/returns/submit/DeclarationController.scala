@@ -58,7 +58,7 @@ class DeclarationController @Inject()(
 
   def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
-      obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligations =>
+      obligationService.getObligations(request.enrolmentVpdId).map { obligations =>
         val preparedForm = request.userAnswers.get(DeclarationPage) match {
           case None => form
           case Some(value) => form.fill(value)
@@ -72,7 +72,7 @@ class DeclarationController @Inject()(
 
   def onSubmit(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
-      obligationService.getObligationsDirectly(request.enrolmentVpdId).flatMap { obligations =>
+      obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
         val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
         
         form.bindFromRequest().fold(
