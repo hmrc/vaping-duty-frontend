@@ -24,10 +24,10 @@ enum InsolvencyStatus(val value: String):
 
 object InsolvencyStatus:
   given reads: Reads[InsolvencyStatus] = Reads {
-    case JsString("Y") => JsSuccess(Insolvent)
-    case JsString("N") => JsSuccess(Solvent)
-    case JsString(other) => JsError(s"Unknown insolvency status: $other")
-    case _ => JsError("Expected string value for insolvency status")
+    case JsString("Y")    => JsSuccess(Insolvent)
+    case JsString("N")    => JsSuccess(Solvent)
+    case JsString(other)  => JsError(s"Unknown insolvency status: $other")
+    case _                => JsError("Expected string value for insolvency status")
   }
 
   given writes: Writes[InsolvencyStatus] = Writes { status =>
