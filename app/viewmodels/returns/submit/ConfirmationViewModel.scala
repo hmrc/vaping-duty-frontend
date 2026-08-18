@@ -18,6 +18,7 @@ package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
+import models.returns.ReturnsConstants
 import models.returns.view.ReturnDisplayResponse
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
@@ -50,7 +51,6 @@ object ConfirmationViewModel extends CurrencyFormatter {
   private val MONTH_YEAR_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy")
   private val PAYMENT_DUE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
   private val ZONE_ID = ZoneId.of("Europe/London")
-  private val CHAPS_PAYMENT_THRESHOLD = BigDecimal(20000000)
 
   def apply(
     returnsResponse: ReturnDisplayResponse,
@@ -109,7 +109,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
     val list = ListWithLinks()
     val link = Link()
 
-    val isChapsRequired = dutyDue >= CHAPS_PAYMENT_THRESHOLD
+    val isChapsRequired = dutyDue >= ReturnsConstants.CHAPS_PAYMENT_THRESHOLD
 
     val warningSection = warning(WarningText(
       iconFallbackText = Some(messages("site.warning")),
@@ -151,7 +151,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
       p(Seq(HtmlContent(
         link(
           id = "chaps-payment-link",
-          href = "https://www.gov.uk/guidance/hmrc-bank-account-details",
+          href = "https://www.gov.uk/guidance/hmrc-bank-account-details", //TODO replace with actual link when available
           text = messages("returns.confirmation.chaps.bullet.linkText"),
           newTabText = Some(messages("site.newTab"))
         )
