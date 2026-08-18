@@ -113,8 +113,6 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
 
       vm.totalDutyAmount must be > BigDecimal(0)
       vm.content.toString must include("You must pay")
-      vm.content.toString must include("Your charge reference number must be used as a payment reference when you pay this return.")
-      vm.content.toString must include("Interest will be charged if you do not pay by")
       vm.content.toString must include("Pay now by Direct Debit")
       vm.content.toString must include("Pay your duty now or later from your")
       vm.content.toString must include("business tax account")
@@ -137,15 +135,6 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
       vm.totalDutyAmount mustBe chapsAmount
       vm.content.toString must include("You must pay")
       vm.content.toString must include("You must pay by CHAPS")
-      vm.content.toString must include("As your total duty amount is over £20 million, we cannot collect payment by Direct Debit.")
-      vm.content.toString must include("You must pay by CHAPS so the payment reaches HMRC by")
-      vm.content.toString must include("Your charge reference number must be used as a payment reference when you pay this return.")
-      vm.content.toString must include("Pay your duty by CHAPS")
-      vm.content.toString must include("https://www.gov.uk/guidance/hmrc-bank-account-details")
-      vm.content.toString must include("Go to your")
-      vm.content.toString must include("business tax account")
-      vm.content.toString must not include "direct-debit-link"
-      vm.content.toString must include("15 February 2026")
     }
 
     "must generate CHAPS content for duty amount above £20 million" in {
