@@ -16,7 +16,7 @@
 
 package controllers.returns.submit.adjustments
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import forms.returns.AdjustmentReasonFormProvider
 import models.Mode
@@ -37,6 +37,7 @@ class AdjustmentReasonController @Inject()(
   sessionRepository: ReturnsUserAnswersService,
   navigator: ReturnsNavigator,
   identify: ApprovedVapingManufacturerAuthAction,
+  checkInsolvency: CheckInsolvencyAction,
   getData: ReturnsDataRetrievalAction,
   requireData: ReturnsDataRequiredAction,
   formProvider: AdjustmentReasonFormProvider,
@@ -47,7 +48,7 @@ class AdjustmentReasonController @Inject()(
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
       val preparedForm = request.userAnswers.get(AdjustmentReasonPage) match {
         case Some(value) => form.fill(value)
@@ -56,7 +57,7 @@ class AdjustmentReasonController @Inject()(
       Ok(view(request.periodKey, preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors =>

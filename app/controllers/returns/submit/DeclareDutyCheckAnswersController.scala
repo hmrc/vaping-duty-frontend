@@ -16,7 +16,7 @@
 
 package controllers.returns.submit
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import models.{CheckMode, Mode, NormalMode}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -32,6 +32,7 @@ import scala.concurrent.ExecutionContext
 class DeclareDutyCheckAnswersController @Inject()(
                                                    override val messagesApi: MessagesApi,
                                                    identify: ApprovedVapingManufacturerAuthAction,
+                                                   checkInsolvency: CheckInsolvencyAction,
                                                    getData: ReturnsDataRetrievalAction,
                                                    requireData: ReturnsDataRequiredAction,
                                                    returnsEnabled: ReturnsEnabledAction,
@@ -40,18 +41,18 @@ class DeclareDutyCheckAnswersController @Inject()(
                                                    view: DeclareDutyCheckAnswersView
                                                  )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     val pk = request.periodKey
-    
+
     dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
       DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk, mode) match {
         case Some(vm) => Ok(view(pk, vm, mode))
-        case None     => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }
   }
 
-  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
     mode match {
       case CheckMode => Redirect(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url + s"?period=${request.periodKey.value}")
       case NormalMode => Redirect(controllers.returns.submit.routes.TaskListController.onPageLoad().url + s"?period=${request.periodKey.value}")

@@ -16,7 +16,7 @@
 
 package controllers.returns.submit.adjustments
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import forms.returns.DeclareDutyFormProvider
 import models.requests.returns.ReturnsDataRequest
@@ -39,6 +39,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
                                                       sessionRepository: ReturnsUserAnswersService,
                                                       navigator: ReturnsNavigator,
                                                       identify: ApprovedVapingManufacturerAuthAction,
+                                                      checkInsolvency: CheckInsolvencyAction,
                                                       getData: ReturnsDataRetrievalAction,
                                                       requireData: ReturnsDataRequiredAction,
                                                       formProvider: DeclareDutyFormProvider,
@@ -50,7 +51,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       buildViewModel(request, mode).map { vm =>
         val preparedForm = request.userAnswers.get(AddAnotherAdjustmentPage) match {
@@ -62,7 +63,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
       }
   }
 
-  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
 

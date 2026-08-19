@@ -17,11 +17,13 @@
 package connectors
 
 import config.FrontendAppConfig
+import models.SubscriptionInsolvencyStatus
 import models.contactPreference.SubscriptionContactPreferences
 import models.identifiers.VpdId
 import org.apache.pekko.actor.ActorSystem
 import play.api.Logging
 import play.api.http.Status.*
+import play.api.libs.json.Reads
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.http.ErrorResponse
@@ -30,16 +32,15 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class SubscriptionConnector @Inject() (
-                                        config: FrontendAppConfig,
-                                        implicit val system: ActorSystem,
-                                        implicit val httpClient: HttpClientV2
-                                      )
-                                      (implicit ec: ExecutionContext) extends HttpReadsInstances with Logging {
+class SubscriptionConnector @Inject()(
+                                       config: FrontendAppConfig,
+                                       implicit val system: ActorSystem,
+                                       implicit val httpClient: HttpClientV2
+                                     )
+                                     (implicit ec: ExecutionContext) extends HttpReadsInstances with Logging {
 
-  def getSubscriptionContactPreferences(vpdId: VpdId)
-                                       (implicit hc: HeaderCarrier): Future[Either[ErrorResponse, SubscriptionContactPreferences]] =
-
+  private def fetchSubscriptionData[T](vpdId: VpdId, dataType: String)
+                                      (implicit hc: HeaderCarrier, reads: Reads[T]): Future[Either[ErrorResponse, T]] =
     httpClient
       .get(url"${config.getSubscriptionUrl(vpdId)}")
       .execute[HttpResponse]
@@ -47,15 +48,23 @@ class SubscriptionConnector @Inject() (
         response.status match {
           case OK =>
             Try {
-              response.json.as[SubscriptionContactPreferences]
+              response.json.as[T]
             } match {
-              case Success(doc)   =>
+              case Success(doc) =>
                 Future.successful(Right(doc))
               case Failure(error) =>
-                Future.successful(Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Unable to parse subscription summary success")))
+                Future.successful(Left(ErrorResponse(INTERNAL_SERVER_ERROR, s"Unable to parse $dataType")))
             }
-          case _  =>
+          case _ =>
             Future.successful(Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Unexpected response")))
         }
       }
+
+  def getSubscriptionContactPreferences(vpdId: VpdId)
+                                       (implicit hc: HeaderCarrier): Future[Either[ErrorResponse, SubscriptionContactPreferences]] =
+    fetchSubscriptionData[SubscriptionContactPreferences](vpdId, "subscription contact preferences")
+
+  def getInsolvencyStatus(vpdId: VpdId)
+                         (implicit hc: HeaderCarrier): Future[Either[ErrorResponse, SubscriptionInsolvencyStatus]] =
+    fetchSubscriptionData[SubscriptionInsolvencyStatus](vpdId, "insolvency status")
 }

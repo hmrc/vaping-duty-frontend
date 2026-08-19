@@ -19,6 +19,7 @@ package controllers.contactPreference
 import base.SpecBase
 import connectors.SubscriptionConnector
 import models.BtaLink
+import models.InsolvencyStatus.Solvent
 import models.contactPreference.SubscriptionContactPreferences
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}

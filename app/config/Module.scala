@@ -34,6 +34,7 @@ class Module extends AbstractModule {
     bind(classOf[ReturnsDataRequiredAction]).to(classOf[ReturnsDataRequiredActionImpl]).asEagerSingleton()
     bind(classOf[EnrolmentDataRetrievalAction]).to(classOf[EnrolmentDataRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[ApprovedVapingManufacturerAuthAction]).to(classOf[ApprovedVapingManufacturerAuthActionImpl]).asEagerSingleton()
+    bind(classOf[CheckInsolvencyAction]).to(classOf[CheckInsolvencyActionImpl]).asEagerSingleton()
     bind(classOf[EnrolmentClaimAuthAction]).to(classOf[EnrolmentClaimAuthActionImpl]).asEagerSingleton()
     bind(classOf[NoEnrolmentAction]).to(classOf[NoEnrolmentActionImpl]).asEagerSingleton()
     bind(classOf[CheckSignedInAction]).to(classOf[CheckSignedInActionImpl]).asEagerSingleton()

@@ -16,7 +16,7 @@
 
 package controllers.returns.submit.spoilt
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import models.{Mode, NormalMode}
 import pages.returns.SpoiltVolumeByPeriodPage
@@ -32,19 +32,20 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class SelectSpoiltPeriodController @Inject()(
-  override val messagesApi: MessagesApi,
-  identify: ApprovedVapingManufacturerAuthAction,
-  returnsEnabledAction: ReturnsEnabledAction,
-  getData: ReturnsDataRetrievalAction,
-  requireData: ReturnsDataRequiredAction,
-  obligationService: ObligationService,
-  returnsDateUtils: ReturnsDateUtils,
-  val controllerComponents: MessagesControllerComponents,
-  view: SelectSpoiltPeriodView
-)(using ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                              override val messagesApi: MessagesApi,
+                                              identify: ApprovedVapingManufacturerAuthAction,
+                                              checkInsolvency: CheckInsolvencyAction,
+                                              returnsEnabledAction: ReturnsEnabledAction,
+                                              getData: ReturnsDataRetrievalAction,
+                                              requireData: ReturnsDataRequiredAction,
+                                              obligationService: ObligationService,
+                                              returnsDateUtils: ReturnsDateUtils,
+                                              val controllerComponents: MessagesControllerComponents,
+                                              view: SelectSpoiltPeriodView
+                                            )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(year: Option[Int], mode: Mode = NormalMode): Action[AnyContent] =
-    (identify andThen returnsEnabledAction andThen getData andThen requireData).async { implicit request =>
+    (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async { implicit request =>
 
       obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligationDetails =>
         val spoiltList = request.userAnswers.get(SpoiltVolumeByPeriodPage)

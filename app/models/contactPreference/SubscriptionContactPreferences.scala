@@ -16,8 +16,8 @@
 
 package models.contactPreference
 
+import models.emailverification.JsonHelpers.*
 import play.api.libs.json.*
-import models.emailverification.JsonHelpers._
 
 final case class SubscriptionContactPreferences(
                                                  paperlessPreference: Boolean,

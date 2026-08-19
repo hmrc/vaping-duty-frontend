@@ -54,6 +54,23 @@ unauthorised.toUse = To use this service, you need to be:
 unauthorised.approved = A UK approved vaping products manufacturer
 unauthorised.enrolled = Enrolled in the service
 
+insolvent.title = You cannot access this service at the moment
+insolvent.heading = You cannot access this service at the moment
+insolvent.p1 = You cannot currently use the Vaping Products Duty service through your business tax account.
+insolvent.h2.why = Why you are seeing this message
+insolvent.p2 = Our records indicate that your business may no longer be eligible to use this service.
+insolvent.p3 = <strong>This may be because the business has entered an insolvency process or its circumstances have changed.</strong>
+insolvent.p4 = We understand this information may be unexpected. If you were not aware of a change to your business status, you may wish to speak to someone responsible for your tax or business affairs.
+insolvent.h2.whatNext = What happens next
+insolvent.p5 = If your business is subject to an insolvency process, responsibility for dealing with tax matters may have changed.
+insolvent.p6 = The person managing the insolvency process may need to contact HMRC regarding any Vaping Products Duty obligations.
+insolvent.h2.help = Get help and guidance
+insolvent.p7 = You can find more information about insolvency and your tax responsibilities in HMRC guidance.
+insolvent.link.insolvencyGuidance = Read HMRC guidance about insolvency and tax obligations
+insolvent.h3.incorrect = If you think this is incorrect
+insolvent.p8 = If you believe you should still have access to this service, contact HMRC for assistance.
+insolvent.link.contactHmrc = Contact HMRC
+
 enrolment.organisationSignIn.heading = You need to be an organisation account administrator to enrol
 enrolment.organisationSignIn.onlyUsers = Only users with organisation account administrator details can enrol to use this service.
 enrolment.organisationSignIn.toContinue = To continue, sign out and then either create an organisation account, or sign in with your organisation account administrator details using

@@ -16,7 +16,7 @@
 
 package controllers.returns.submit
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import forms.returns.EnterDutySuspenseFormProvider
 import models.Mode
@@ -32,30 +32,31 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class EnterDutySuspenseController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: ReturnsUserAnswersService,
-                                        navigator: ReturnsNavigator,
-                                        identify: ApprovedVapingManufacturerAuthAction,
-                                        getData: ReturnsDataRetrievalAction,
-                                        requireData: ReturnsDataRequiredAction,
-                                        formProvider: EnterDutySuspenseFormProvider,
-                                        returnsEnabledAction: ReturnsEnabledAction,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: EnterDutySuspenseView
-                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                             override val messagesApi: MessagesApi,
+                                             sessionRepository: ReturnsUserAnswersService,
+                                             navigator: ReturnsNavigator,
+                                             identify: ApprovedVapingManufacturerAuthAction,
+                                             checkInsolvency: CheckInsolvencyAction,
+                                             getData: ReturnsDataRetrievalAction,
+                                             requireData: ReturnsDataRequiredAction,
+                                             formProvider: EnterDutySuspenseFormProvider,
+                                             returnsEnabledAction: ReturnsEnabledAction,
+                                             val controllerComponents: MessagesControllerComponents,
+                                             view: EnterDutySuspenseView
+                                           )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       formProvider(request.periodKey, request.enrolmentVpdId).map { form =>
         val preparedForm = request.userAnswers.get(EnterDutySuspensePage) match {
-          case None        => form
+          case None => form
           case Some(value) => form.fill(value)
         }
         Ok(view(request.periodKey, preparedForm, mode))
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       formProvider(request.periodKey, request.enrolmentVpdId).flatMap { form =>
         form.bindFromRequest().fold(
@@ -65,7 +66,7 @@ class EnterDutySuspenseController @Inject()(
           value =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(EnterDutySuspensePage, value))
-              _              <- sessionRepository.set(updatedAnswers)
+              _ <- sessionRepository.set(updatedAnswers)
             } yield Redirect(navigator.nextPage(EnterDutySuspensePage, mode, updatedAnswers))
         )
       }

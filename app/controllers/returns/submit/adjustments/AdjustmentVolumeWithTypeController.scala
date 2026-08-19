@@ -16,7 +16,7 @@
 
 package controllers.returns.submit.adjustments
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import controllers.returns.PeriodKeyExtraction
 import forms.returns.adjustments.AdjustmentVolumeWithTypeFormProvider
@@ -40,6 +40,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
                                                     sessionRepository: ReturnsUserAnswersService,
                                                     navigator: ReturnsNavigator,
                                                     identify: ApprovedVapingManufacturerAuthAction,
+                                                    checkInsolvency: CheckInsolvencyAction,
                                                     getData: ReturnsDataRetrievalAction,
                                                     requireData: ReturnsDataRequiredAction,
                                                     formProvider: AdjustmentVolumeWithTypeFormProvider,
@@ -51,13 +52,13 @@ class AdjustmentVolumeWithTypeController @Inject()(
                                                     view: AdjustmentVolumeWithTypeView
                                                   )(using ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
         for {
           obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
-          form              <- formProvider(request.periodKey, request.enrolmentVpdId)
+          form <- formProvider(request.periodKey, request.enrolmentVpdId)
         } yield {
           val existingAdjustment = adjustmentVolumeService.findExistingAdjustment(
             request.userAnswers,
@@ -70,14 +71,14 @@ class AdjustmentVolumeWithTypeController @Inject()(
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
         for {
           obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
-          form              <- formProvider(request.periodKey, request.enrolmentVpdId)
-          result            <- {
+          form <- formProvider(request.periodKey, request.enrolmentVpdId)
+          result <- {
             val rawData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
             val cleanedData = adjustmentVolumeService.cleanFormData(rawData)
 

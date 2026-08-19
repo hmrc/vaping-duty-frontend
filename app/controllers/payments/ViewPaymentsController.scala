@@ -16,7 +16,7 @@
 
 package controllers.payments
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.ReturnsEnabledAction
 import controllers.routes
 import play.api.Logging
@@ -36,13 +36,14 @@ class ViewPaymentsController @Inject()(
   override val messagesApi: MessagesApi,
   returnsEnabled: ReturnsEnabledAction,
   identify: ApprovedVapingManufacturerAuthAction,
+  checkInsolvency: CheckInsolvencyAction,                          
   service: FinancialDataService,
   returnsDateUtils: ReturnsDateUtils,
   val controllerComponents: MessagesControllerComponents,
   view: ViewPaymentsView
 )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled).async { implicit request =>
+  def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled).async { implicit request =>
     service.getPayments(request.enrolmentVpdId)
       .map { payments =>
         val vm = ViewPaymentsViewModel(payments, returnsDateUtils)

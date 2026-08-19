@@ -16,7 +16,7 @@
 
 package controllers.returns.submit
 
-import controllers.actions.*
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.{ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
@@ -34,6 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class BeforeYouStartController @Inject()(
                                           override val messagesApi: MessagesApi,
                                           identify: ApprovedVapingManufacturerAuthAction,
+                                          checkInsolvency: CheckInsolvencyAction,
                                           sessionRepository: ReturnsUserAnswersService,
                                           returnsEnabledAction: ReturnsEnabledAction,
                                           obligationService: ObligationService,
@@ -41,9 +42,9 @@ class BeforeYouStartController @Inject()(
                                           val controllerComponents: MessagesControllerComponents,
                                           view: BeforeYouStartView,
                                           getData: ReturnsDataRetrievalAction
-                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                        )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabledAction andThen getData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData).async {
     implicit request =>
       val periodKey = PeriodKey(request.getQueryString("period").getOrElse(""))
 

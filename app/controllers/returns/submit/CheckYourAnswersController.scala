@@ -16,7 +16,7 @@
 
 package controllers.returns.submit
 
-import controllers.actions.ApprovedVapingManufacturerAuthAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import models.returns.AdjustmentsEligibility
 import pages.returns.adjustments.AdjustmentListPage
@@ -35,6 +35,7 @@ import scala.concurrent.ExecutionContext
 class CheckYourAnswersController @Inject()(
                                             override val messagesApi: MessagesApi,
                                             identify: ApprovedVapingManufacturerAuthAction,
+                                            checkInsolvency: CheckInsolvencyAction,
                                             getData: ReturnsDataRetrievalAction,
                                             requireData: ReturnsDataRequiredAction,
                                             returnsEnabled: ReturnsEnabledAction,
@@ -45,19 +46,19 @@ class CheckYourAnswersController @Inject()(
                                             returnsDateUtils: ReturnsDateUtils
                                           )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
+  def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     val pk = request.periodKey
-    
+
     val adjustmentPeriods = request.userAnswers.get(AdjustmentListPage)
       .map(_.adjustments.map(_.period))
       .getOrElse(Seq.empty)
-    
+
     val spoiltPeriods = request.userAnswers.get(SpoiltVolumeByPeriodPage)
       .map(_.map(_.periodKey))
       .getOrElse(List.empty)
-    
+
     val allPeriods = (adjustmentPeriods ++ spoiltPeriods :+ pk).distinct
-    
+
     for {
       obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
       dutyRates = dutyRateService.getDutyRatesForPeriods(allPeriods, obligationDetails)
@@ -67,7 +68,7 @@ class CheckYourAnswersController @Inject()(
     }
   }
 
-  def onSubmit: Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
-      Redirect(s"${controllers.returns.submit.routes.DeclarationController.onPageLoad().url}?period=${request.periodKey}")
+  def onSubmit: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
+    Redirect(s"${controllers.returns.submit.routes.DeclarationController.onPageLoad().url}?period=${request.periodKey}")
   }
 }
