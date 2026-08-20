@@ -86,7 +86,7 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
                         periodKey: PeriodKey,
                         obligations: ObligationsResponse
                       )(implicit messages: Messages): PeriodDisplay = {
-    val obligationDetails = obligations.obligation.map(_.obligationDetails)
+    val obligationDetails = obligations.obligation.flatMap(_.obligationDetails)
     getPeriodDisplay(periodKey, obligationDetails)
   }
 

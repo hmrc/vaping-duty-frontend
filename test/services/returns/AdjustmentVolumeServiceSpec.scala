@@ -166,7 +166,7 @@ class AdjustmentVolumeServiceSpec extends SpecBase with MockitoSugar with Mappin
   }
 
   "updateAdjustmentList" - {
-    val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+    val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
     "must add new adjustment to empty list" in {
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))

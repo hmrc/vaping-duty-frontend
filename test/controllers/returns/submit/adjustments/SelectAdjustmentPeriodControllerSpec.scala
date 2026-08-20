@@ -40,7 +40,7 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
       val obligationDetails = obligations(Seq(
         fulfilledObligation(october2027),
         fulfilledObligation(december2027)
-      )).map(_.obligationDetails)
+      )).flatMap(_.obligationDetails)
 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
@@ -63,7 +63,7 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
       val obligationDetails = obligations(Seq(
         fulfilledObligation(october2027),
         fulfilledObligation(december2027)
-      )).map(_.obligationDetails)
+      )).flatMap(_.obligationDetails)
 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))

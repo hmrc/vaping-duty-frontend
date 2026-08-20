@@ -28,7 +28,7 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
   "AdjustmentVolumeWithTypeViewModel" - {
 
     "must return the formatted month and year when a matching obligation is found" in {
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
       val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, october2027, dateUtils)
 
       vm.periodDisplay mustBe "October 2027"
@@ -36,7 +36,7 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
 
     "must throw IllegalStateException when no matching obligation is found" in {
       val unknownPeriodKey = PeriodKey("99ZZ")
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
 
       val exception = intercept[IllegalStateException] {
         AdjustmentVolumeWithTypeViewModel(obligationDetails, unknownPeriodKey, dateUtils)
@@ -74,7 +74,7 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
       )
 
       allMonthPeriodKeys.foreach { case (key, expectedDisplay) =>
-        val obligationDetails = obligations(Seq(fulfilledObligation(key))).map(_.obligationDetails)
+        val obligationDetails = obligations(Seq(fulfilledObligation(key))).flatMap(_.obligationDetails)
         val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, key, dateUtils)
         vm.periodDisplay mustBe expectedDisplay
       }

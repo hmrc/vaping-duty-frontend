@@ -42,36 +42,36 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
       obligation = createMockObligationsResponse().obligation ++ Seq(
         ObligationItem(
           identification = None,
-          obligationDetails = ObligationDetails(
+          obligationDetails = Seq(ObligationDetails(
             openOrFulfilledStatus = ObligationStatus.F.toString,
             iCFromDate = LocalDate.of(2027, 11, 1),
             iCToDate = LocalDate.of(2027, 11, 30),
             iCDateReceived = Some(currentDate),
             iCDueDate = currentDate.plusDays(10),
             periodKey = "27AK"
-          )
+          ))
         ),
         ObligationItem(
           identification = None,
-          obligationDetails = ObligationDetails(
+          obligationDetails = Seq(ObligationDetails(
             openOrFulfilledStatus = ObligationStatus.F.toString,
             iCFromDate = LocalDate.of(2026, 10, 1),
             iCToDate = LocalDate.of(2026, 10, 31),
             iCDateReceived = Some(currentDate.minusMonths(1)),
             iCDueDate = currentDate.minusMonths(1),
             periodKey = "26AJ"
-          )
+          ))
         ),
         ObligationItem(
           identification = None,
-          obligationDetails = ObligationDetails(
+          obligationDetails = Seq(ObligationDetails(
             openOrFulfilledStatus = ObligationStatus.F.toString,
             iCFromDate = LocalDate.of(2025, 9, 1),
             iCToDate = LocalDate.of(2025, 9, 30),
             iCDateReceived = Some(currentDate.minusMonths(2)),
             iCDueDate = currentDate.minusMonths(2),
             periodKey = "25AI"
-          )
+          ))
         )
       )
     )
@@ -82,7 +82,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
     "must return OK and the correct view when no year parameter is provided" in {
       val mockService = mock[ObligationService]
       val obligationsResponse = createMultiYearObligationsResponse()
-      val obligationDetails = obligationsResponse.obligation.map(_.obligationDetails)
+      val obligationDetails = obligationsResponse.obligation.flatMap(_.obligationDetails)
 
       when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationDetails))
 
@@ -107,7 +107,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
     "must return OK and the correct view when a specific year is provided" in {
       val mockService = mock[ObligationService]
       val obligationsResponse = createMultiYearObligationsResponse()
-      val obligationDetails = obligationsResponse.obligation.map(_.obligationDetails)
+      val obligationDetails = obligationsResponse.obligation.flatMap(_.obligationDetails)
       val specificYear = 2026
 
       when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationDetails))
@@ -133,7 +133,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
     "must exclude periods that already have spoilt data entered" in {
       val mockService = mock[ObligationService]
       val obligationsResponse = createMultiYearObligationsResponse()
-      val obligationDetails = obligationsResponse.obligation.map(_.obligationDetails)
+      val obligationDetails = obligationsResponse.obligation.flatMap(_.obligationDetails)
       val alreadyDeclaredPeriod = models.identifiers.PeriodKey("26AJ")
 
       when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationDetails))

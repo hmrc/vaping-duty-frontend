@@ -50,12 +50,13 @@ trait ObligationsBuilders {
   def outstandingReturn(periodKey: PeriodKey): ObligationDetails = openObligation(periodKey)
 
   def obligations(obligations: Seq[ObligationDetails]): Seq[ObligationItem] = {
-    obligations.map(obligationDetails =>
-      ObligationItem(
+    
+      Seq(ObligationItem(
         identification = None,
-        obligationDetails = obligationDetails)
-    )
+        obligationDetails = obligations
+      ))
   }
+  
   def fulfilledObligation(periodKey: PeriodKey): ObligationDetails = obligationDetails(periodKey, ObligationStatus.F)
   def openObligation(periodKey: PeriodKey): ObligationDetails      = obligationDetails(periodKey, ObligationStatus.O)
 

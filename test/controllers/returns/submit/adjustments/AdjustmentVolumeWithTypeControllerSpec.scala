@@ -69,7 +69,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
       val mockVolumePrecisionService = mock[VolumePrecisionService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
@@ -96,7 +96,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
       val mockVolumePrecisionService = mock[VolumePrecisionService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
@@ -132,7 +132,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
       val mockDutyRateService = mock[DutyRateService]
       val mockVolumePrecisionService = mock[VolumePrecisionService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
@@ -170,7 +170,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
       val mockDutyRateService = mock[DutyRateService]
       val mockVolumePrecisionService = mock[VolumePrecisionService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
@@ -208,7 +208,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
       val mockDutyRateService = mock[DutyRateService]
       val mockVolumePrecisionService = mock[VolumePrecisionService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
@@ -245,7 +245,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
       val mockVolumePrecisionService = mock[VolumePrecisionService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
@@ -274,7 +274,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val mockObligationService = mock[ObligationService]
       val mockDutyRateService = mock[DutyRateService]
       val mockVolumePrecisionService = mock[VolumePrecisionService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
@@ -312,7 +312,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
       val mockDutyRateService = mock[DutyRateService]
       val mockVolumePrecisionService = mock[VolumePrecisionService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
@@ -362,7 +362,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
         val mockObligationService = mock[ObligationService]
         val mockDutyRateService = mock[DutyRateService]
         val mockVolumePrecisionService = mock[VolumePrecisionService]
-        val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+        val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
         when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetails))
@@ -398,7 +398,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
         val mockObligationService = mock[ObligationService]
         val mockDutyRateService = mock[DutyRateService]
         val mockVolumePrecisionService = mock[VolumePrecisionService]
-        val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+        val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
         when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetails))
@@ -434,7 +434,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
         val mockObligationService = mock[ObligationService]
         val mockDutyRateService = mock[DutyRateService]
         val mockVolumePrecisionService = mock[VolumePrecisionService]
-        val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+        val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
         when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetails))
@@ -470,7 +470,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
         val mockObligationService = mock[ObligationService]
         val mockDutyRateService = mock[DutyRateService]
         val mockVolumePrecisionService = mock[VolumePrecisionService]
-        val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+        val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
         when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetails))
@@ -509,7 +509,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
       val mockDutyRateService = mock[DutyRateService]
       val mockVolumePrecisionService = mock[VolumePrecisionService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
       val existingAdjustment = AdjustmentEntry(
         period = adjustmentPeriodKey,
@@ -560,7 +560,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
       val mockDutyRateService = mock[DutyRateService]
       val mockVolumePrecisionService = mock[VolumePrecisionService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
 
       val existingAdjustment = AdjustmentEntry(
         period = adjustmentPeriodKey,
@@ -611,7 +611,8 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
       val mockDutyRateService = mock[DutyRateService]
       val mockVolumePrecisionService = mock[VolumePrecisionService]
-      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey), fulfilledObligation(november2027))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey), fulfilledObligation(november2027)))
+        .flatMap(_.obligationDetails)
       
       val existingAdjustment = AdjustmentEntry(
         period = november2027,

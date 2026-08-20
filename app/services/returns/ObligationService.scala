@@ -31,14 +31,14 @@ class ObligationService @Inject()(obligationsConnector: ObligationsConnector)
   def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[Seq[ObligationDetails]] =
     obligationsConnector.getObligations(vpdId).map { response =>
       response.obligation
-        .map(_.obligationDetails)
+        .flatMap(_.obligationDetails)
     }
 
   def getObligationByPeriodKey(vpdId: VpdId, periodKey: PeriodKey)
                               (using HeaderCarrier): Future[Option[ObligationDetails]] =
     obligationsConnector.getObligations(vpdId).map { response =>
       response.obligation
-        .map(_.obligationDetails)
+        .flatMap(_.obligationDetails)
         .find(_.periodKey == periodKey.toString)
     }
 }

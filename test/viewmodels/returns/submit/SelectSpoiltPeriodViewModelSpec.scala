@@ -31,7 +31,7 @@ class SelectSpoiltPeriodViewModelSpec extends SpecBase {
       val obligationDetails = obligations(Seq(
         fulfilledObligation(october2027),
         fulfilledObligation(december2027)
-      )).map(_.obligationDetails)
+      )).flatMap(_.obligationDetails)
 
       val vm = SelectSpoiltPeriodViewModel(
         obligationDetails,
@@ -50,7 +50,7 @@ class SelectSpoiltPeriodViewModelSpec extends SpecBase {
       val obligationDetails = obligations(Seq(
         fulfilledObligation(periodKey),
         fulfilledObligation(october2027)
-      )).map(_.obligationDetails)
+      )).flatMap(_.obligationDetails)
 
       val vm = SelectSpoiltPeriodViewModel(
         obligationDetails,
@@ -72,7 +72,7 @@ class SelectSpoiltPeriodViewModelSpec extends SpecBase {
       val obligationDetails = obligations(Seq(
         fulfilledObligation(october2027),
         fulfilledObligation(december2027)
-      )).map(_.obligationDetails)
+      )).flatMap(_.obligationDetails)
 
       val vm = SelectSpoiltPeriodViewModel(
         obligationDetails,

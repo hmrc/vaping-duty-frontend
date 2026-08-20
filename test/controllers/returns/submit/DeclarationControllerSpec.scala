@@ -53,7 +53,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
   )
 
   private val obligationDetailsSingleOpen: Seq[ObligationDetails] =
-    obligationDataSingleOpen.obligation.map(_.obligationDetails)
+    obligationDataSingleOpen.obligation.flatMap(_.obligationDetails)
 
   "DeclarationController" - {
 
