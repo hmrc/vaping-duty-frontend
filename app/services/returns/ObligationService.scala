@@ -17,6 +17,7 @@
 package services.returns
 
 import com.google.inject.{Inject, Singleton}
+import config.FrontendAppConfig
 import connectors.returns.ObligationsConnector
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.{ObligationDetails, ObligationItem}
@@ -25,10 +26,10 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ObligationService @Inject()(obligationsConnector: ObligationsConnector)
-                                 (using ExecutionContext) {
-
-  private val REFERENCE_TYPE_ZVPD = "ZVPD"
+class ObligationService @Inject()(
+                                   obligationsConnector: ObligationsConnector,
+                                   appConfig: FrontendAppConfig
+                                 )(using ExecutionContext) {
 
   def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[Seq[ObligationDetails]] =
     obligationsConnector.getObligations(vpdId).map { response =>
@@ -48,7 +49,7 @@ class ObligationService @Inject()(obligationsConnector: ObligationsConnector)
                                       ): Seq[ObligationDetails] =
     obligations
       .filter(_.identification.exists(id =>
-        id.referenceType == REFERENCE_TYPE_ZVPD &&
+        id.referenceType == appConfig.enrolmentIdentifierKey &&
           id.referenceNumber == vpdId.value
       ))
       .flatMap(_.obligationDetails)

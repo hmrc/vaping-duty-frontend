@@ -54,12 +54,14 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
 
   "ObligationService" - {
 
+    when(mockAppConfig.enrolmentIdentifierKey).thenReturn("ZVPD")
+    
     "getObligations" - {
       "must return the obligations response" in {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(mockObligationsResponse))
 
-        val service = new ObligationService(mockObligationsConnector)
+        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
 
         val result = service.getObligations(vpdId).futureValue
 
@@ -70,7 +72,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(mockObligationsResponseWithNonMatchingId))
 
-        val service = new ObligationService(mockObligationsConnector)
+        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
 
         val result = service.getObligations(vpdId).futureValue
 
@@ -81,7 +83,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(mockObligationsResponseWithNonMatchingType))
 
-        val service = new ObligationService(mockObligationsConnector)
+        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
 
         val result = service.getObligations(vpdId).futureValue
 
@@ -95,7 +97,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(mockObligationsResponse))
 
-        val service = new ObligationService(mockObligationsConnector)
+        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
 
         val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26AB")).futureValue
 
@@ -106,7 +108,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(mockObligationsResponseWithNonMatchingId))
 
-        val service = new ObligationService(mockObligationsConnector)
+        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
 
         val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26AB")).futureValue
 
@@ -117,7 +119,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(mockObligationsResponse))
 
-        val service = new ObligationService(mockObligationsConnector)
+        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
 
         val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26XX")).futureValue
 
@@ -130,7 +132,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(emptyResponse))
 
-        val service = new ObligationService(mockObligationsConnector)
+        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
 
         val result = service.getObligationByPeriodKey(vpdId, periodKey).futureValue
 
