@@ -16,8 +16,8 @@
 
 package builders
 
-import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
+import models.identifiers.{PeriodKey, VpdId}
+import models.obligations.{Identification, ObligationDetails, ObligationItem, ObligationStatus}
 
 import java.time.LocalDate
 
@@ -44,6 +44,8 @@ trait ObligationsBuilders {
   val november2027 = PeriodKey("27AK")
   val december2027 = PeriodKey("27AL")
 
+  val id: VpdId = VpdId(id = "VPPAID01")
+  
   // Synonyms for obligations in terms of returns
   def returns(returns: Seq[ObligationDetails]): Seq[ObligationItem] = obligations(returns)
   def completedReturn(periodKey: PeriodKey): ObligationDetails = fulfilledObligation(periodKey)
@@ -52,7 +54,7 @@ trait ObligationsBuilders {
   def obligations(obligations: Seq[ObligationDetails]): Seq[ObligationItem] = {
     
       Seq(ObligationItem(
-        identification = None,
+        identification = Some(Identification(referenceType = "ZVPD", referenceNumber = id.value, None)),
         obligationDetails = obligations
       ))
   }

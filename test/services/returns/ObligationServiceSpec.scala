@@ -19,7 +19,7 @@ package services.returns
 import base.SpecBase
 import connectors.returns.ObligationsConnector
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationsResponse}
+import models.obligations.{Identification, ObligationDetails, ObligationItem, ObligationsResponse}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -29,7 +29,7 @@ import scala.concurrent.Future
 class ObligationServiceSpec extends SpecBase with MockitoSugar {
 
   private val mockObligationsConnector: ObligationsConnector = mock[ObligationsConnector]
-  
+
   private val obligations: Seq[ObligationDetails] = Seq(
     openObligation(january2026),
     openObligation(february2026),
@@ -38,17 +38,53 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
 
   private val mockObligationsResponse = ObligationsResponse(obligations(obligations))
 
+  private val mockObligationsResponseWithNonMatchingId = mockObligationsResponse.copy(
+    obligation = Seq(ObligationItem(
+      identification = Some(Identification(referenceType = "ZVPD", referenceNumber = "NonMatchingId", incomeSourceType = None)),
+      obligationDetails = Seq(fulfilledObligation(october2027)))
+    ) ++ obligations(obligations)
+  )
+
+  private val mockObligationsResponseWithNonMatchingType = mockObligationsResponse.copy(
+    obligation = Seq(ObligationItem(
+      identification = Some(Identification(referenceType = "OTHER_REGIME", referenceNumber = vpdId.value, incomeSourceType = None)),
+      obligationDetails = Seq(fulfilledObligation(october2027)))
+    ) ++ obligations(obligations)
+  )
+
   "ObligationService" - {
 
     "getObligations" - {
       "must return the obligations response" in {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(mockObligationsResponse))
-        
+
         val service = new ObligationService(mockObligationsConnector)
-        
+
         val result = service.getObligations(vpdId).futureValue
-        
+
+        result mustBe obligations
+      }
+
+      "must filter out obligation items without matching referenceNumber" in {
+        when(mockObligationsConnector.getObligations(any())(using any()))
+          .thenReturn(Future.successful(mockObligationsResponseWithNonMatchingId))
+
+        val service = new ObligationService(mockObligationsConnector)
+
+        val result = service.getObligations(vpdId).futureValue
+
+        result mustBe obligations
+      }
+
+      "must filter out obligation items without matching referenceType" in {
+        when(mockObligationsConnector.getObligations(any())(using any()))
+          .thenReturn(Future.successful(mockObligationsResponseWithNonMatchingType))
+
+        val service = new ObligationService(mockObligationsConnector)
+
+        val result = service.getObligations(vpdId).futureValue
+
         result mustBe obligations
       }
     }
@@ -58,35 +94,46 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
       "must return the correct obligation when periodKey exists" in {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(mockObligationsResponse))
-        
+
         val service = new ObligationService(mockObligationsConnector)
-        
+
         val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26AB")).futureValue
-        
+
+        result mustBe Some(openObligation(february2026))
+      }
+
+      "must filter out obligation items without matching vpdids" in {
+        when(mockObligationsConnector.getObligations(any())(using any()))
+          .thenReturn(Future.successful(mockObligationsResponseWithNonMatchingId))
+
+        val service = new ObligationService(mockObligationsConnector)
+
+        val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26AB")).futureValue
+
         result mustBe Some(openObligation(february2026))
       }
 
       "must return None when periodKey does not exist" in {
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(mockObligationsResponse))
-        
+
         val service = new ObligationService(mockObligationsConnector)
-        
+
         val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26XX")).futureValue
-        
+
         result mustBe None
       }
 
       "must return None when obligations response is empty" in {
         val emptyResponse = ObligationsResponse(obligation = Seq.empty)
-        
+
         when(mockObligationsConnector.getObligations(any())(using any()))
           .thenReturn(Future.successful(emptyResponse))
-        
+
         val service = new ObligationService(mockObligationsConnector)
-        
+
         val result = service.getObligationByPeriodKey(vpdId, periodKey).futureValue
-        
+
         result mustBe None
       }
     }

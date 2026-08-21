@@ -19,7 +19,7 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import connectors.returns.ObligationsConnector
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.ObligationDetails
+import models.obligations.{ObligationDetails, ObligationItem}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,17 +28,28 @@ import scala.concurrent.{ExecutionContext, Future}
 class ObligationService @Inject()(obligationsConnector: ObligationsConnector)
                                  (using ExecutionContext) {
 
+  private val REFERENCE_TYPE_ZVPD = "ZVPD"
+
   def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[Seq[ObligationDetails]] =
     obligationsConnector.getObligations(vpdId).map { response =>
-      response.obligation
-        .flatMap(_.obligationDetails)
+      filterObligationsByVpdId(response.obligation, vpdId)
     }
 
   def getObligationByPeriodKey(vpdId: VpdId, periodKey: PeriodKey)
                               (using HeaderCarrier): Future[Option[ObligationDetails]] =
     obligationsConnector.getObligations(vpdId).map { response =>
-      response.obligation
-        .flatMap(_.obligationDetails)
+      filterObligationsByVpdId(response.obligation, vpdId)
         .find(_.periodKey == periodKey.toString)
     }
+
+  private def filterObligationsByVpdId(
+                                        obligations: Seq[ObligationItem],
+                                        vpdId: VpdId
+                                      ): Seq[ObligationDetails] =
+    obligations
+      .filter(_.identification.exists(id =>
+        id.referenceType == REFERENCE_TYPE_ZVPD &&
+          id.referenceNumber == vpdId.value
+      ))
+      .flatMap(_.obligationDetails)
 }
