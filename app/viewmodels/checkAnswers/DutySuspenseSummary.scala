@@ -49,7 +49,7 @@ object DutySuspenseSummary {
           ActionItemViewModel(
             "site.change",
             s"${controllers.returns.submit.routes.DeclareDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
-          ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.declareDutySuspense.question"))
+          ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.declareDutySuspense.question.change.hidden"))
         )
       )
     }
@@ -67,7 +67,7 @@ object DutySuspenseSummary {
             ActionItemViewModel(
               "site.change",
               s"${controllers.returns.submit.routes.EnterDutySuspenseController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
-            ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.dutySuspended.declared"))
+            ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.dutySuspended.declared.change.hidden"))
           )
         ))
       case _ => None

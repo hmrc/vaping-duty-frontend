@@ -198,7 +198,7 @@ returns.declareDuty.title = Do you need to declare vaping products for duty?
 returns.declareDuty.heading = Do you need to declare vaping products for duty?
 returns.declareDuty.checkYourAnswersLabel = declareDuty
 returns.declareDuty.caption.text = Declare vaping duty
-returns.declareDuty.change.hidden = DeclareDuty
+returns.declareDuty.change.hidden = whether you need to declare vaping products for duty
 
 returns.enterDutyAmount.title = Amount of vaping products released
 returns.enterDutyAmount.heading = Amount of vaping products released
@@ -223,7 +223,7 @@ returns.enterDutyAmount.error.invalidDecimalPlaces.wholeOnly = Enter whole milli
 returns.enterDutyAmount.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
 returns.enterDutyAmount.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
 returns.enterDutyAmount.error.mustBeGreaterThanZero = You must enter a number greater than zero
-returns.enterDutyAmount.change.hidden = EnterDutyAmount
+returns.enterDutyAmount.change.hidden = vaping products volume
 
 returns.declareDutyCheckAnswers.title = Your duty is {0}
 returns.declareDutyCheckAnswers.caption = Declare vaping duty
@@ -304,7 +304,7 @@ returns.declareDutySuspense.details.content.p3 = Vaping Products Duty must be pa
 returns.declareDutySuspense.question = Have you received or moved any finished vaping products in duty suspense?
 returns.declareDutySuspense.error.required = Select yes if you have received or moved any finished vaping products in duty suspense
 returns.declareDutySuspense.checkYourAnswersLabel = Declare duty suspense
-returns.declareDutySuspense.change.hidden = declare duty suspense
+returns.declareDutySuspense.change.hidden = whether you have received or moved duty suspended products
 
 returns.enterDutySuspense.title = Volume of vaping liquid received or moved under duty suspension
 returns.enterDutySuspense.heading = Volume of vaping liquid received or moved under duty suspension
@@ -328,7 +328,7 @@ returns.enterDutySuspense.error.bothZero = You must enter a number greater than 
 
 returns.enterDutySuspense.ml = ml
 returns.enterDutySuspense.checkYourAnswersLabel = Enter duty suspense
-returns.enterDutySuspense.change.hidden = enter duty suspense
+returns.enterDutySuspense.change.hidden = duty suspense volumes
 
 returns.dutySuspenseCheckAnswers.title = Check your answers
 returns.dutySuspenseCheckAnswers.heading = Check your answers
@@ -373,6 +373,10 @@ returns.CheckYourAnswers.dutySummary.nothing = Nothing to declare
 
 returns.CheckYourAnswers.adjustments.question = Do you have any vaping products you need to over or under declare?
 returns.CheckYourAnswers.adjustments.question.change.hidden = adjustment declaration
+returns.CheckYourAnswers.declareDutySuspense.question.change.hidden = whether you have received or moved duty suspended products
+returns.CheckYourAnswers.dutySuspended.declared.change.hidden = duty suspense volumes
+returns.CheckYourAnswers.declareDuty.vaping.change.hidden = whether you need to declare vaping products for duty
+returns.CheckYourAnswers.dutySummary.vaping.change.hidden = vaping duty amount
 returns.CheckYourAnswers.adjustments.combined = Adjustments
 returns.CheckYourAnswers.adjustments.combined.change.hidden = adjustments
 returns.CheckYourAnswers.adjustments.reason = Adjustment reason
@@ -625,6 +629,7 @@ payments.viewPayments.table.description.text = Payment
 payments.viewPayments.table.description.interest = Late payment interest
 payments.viewPayments.table.chargeReference = Charge reference
 payments.viewPayments.table.payNow = Pay now
+payments.viewPayments.table.payNow.hidden = Pay now amount of £{0} due {1}
 payments.viewPayments.noPayments = You do not currently have any payments due.
 payments.viewPayments.status.due = Due
 payments.viewPayments.status.overdue = Overdue
@@ -645,6 +650,7 @@ payments.viewPayments.unallocated.table.amount = Amount
 payments.viewPayments.unallocated.table.action = Action
 payments.viewPayments.unallocated.description.placeholder = Payment
 payments.viewPayments.unallocated.action.claimRepayment = Claim repayment
+payments.viewPayments.unallocated.action.claimRepayment.hidden = Claim repayment of £{0} from {1}
 
 payments.viewPayments.cleared.heading = Cleared payments in {0}
 payments.viewPayments.cleared.body = This includes payments we have received and charges paid using an existing credit balance.
