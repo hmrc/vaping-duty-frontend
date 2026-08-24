@@ -601,7 +601,9 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
       val mockDutyRateService = mock[DutyRateService]
       val mockVolumePrecisionService = mock[VolumePrecisionService]
-      
+
+      val obligationDetails = Seq(fulfilledObligation(adjustmentPeriodKey), fulfilledObligation(november2027))
+
       val existingAdjustment = AdjustmentEntry(
         period = november2027,
         adjustmentType = AdjustmentType.UnderDeclared,
@@ -612,7 +614,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
         .set(AdjustmentReasonPage, "existing reason").success.value
 
       when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(fulfilledObligationDetails))
+        .thenReturn(Future.successful(obligationDetails))
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
       when(mockDutyRateService.getDutyRate(eqTo(vpdId), eqTo(periodKey))(using any(), any()))
         .thenReturn(Future.successful(testDutyRate))
