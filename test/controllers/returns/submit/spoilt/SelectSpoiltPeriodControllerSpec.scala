@@ -35,16 +35,16 @@ import scala.concurrent.Future
 
 class SelectSpoiltPeriodControllerSpec extends SpecBase {
 
-  private val obligationDetails: Seq[ObligationDetails] = {
-    Seq(fulfilledObligation(november2027), fulfilledObligation(october2026), fulfilledObligation(PeriodKey("25AI")))
+  private val obligationsSpanning3Years: Seq[ObligationDetails] = {
+    Seq(fulfilledObligation(november2027), fulfilledObligation(october2026), fulfilledObligation(september2025))
   }
-  
+
   "SelectSpoiltPeriodController" - {
 
     "must return OK and the correct view when no year parameter is provided" in {
       val mockService = mock[ObligationService]
 
-      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationDetails))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationsSpanning3Years))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].to(mockService))
@@ -60,7 +60,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         val returnsDateUtils = application.injector.instanceOf[utils.ReturnsDateUtils]
 
         val vm = SelectSpoiltPeriodViewModel(
-          obligationDetails,
+          obligationsSpanning3Years,
           None,
           periodKey,
           None,
@@ -79,7 +79,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
       val mockService = mock[ObligationService]
       val specificYear = 2026
 
-      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationDetails))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationsSpanning3Years))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].to(mockService))
@@ -95,7 +95,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         val returnsDateUtils = application.injector.instanceOf[utils.ReturnsDateUtils]
 
         val vm = SelectSpoiltPeriodViewModel(
-          obligationDetails,
+          obligationsSpanning3Years,
           Some(specificYear),
           periodKey,
           None,
@@ -114,7 +114,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
       val mockService = mock[ObligationService]
       val alreadyDeclaredPeriod = PeriodKey("26AJ")
 
-      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationDetails))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationsSpanning3Years))
 
       val userAnswers = returnsUserAnswers
         .set(pages.returns.SpoiltVolumeByPeriodPage, List(models.returns.SpoiltVolumeByPeriod(BigDecimal(100), alreadyDeclaredPeriod)))
