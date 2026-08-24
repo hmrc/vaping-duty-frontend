@@ -18,6 +18,7 @@ package controllers.returns.submit.adjustments
 
 import base.SpecBase
 import models.NormalMode
+import models.obligations.ObligationDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -33,14 +34,15 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
   lazy val selectAdjustmentPeriodRoute: String =
     controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(NormalMode, None).url
 
+  private val obligationDetails: Seq[ObligationDetails] = Seq(
+    fulfilledObligation(october2027),
+    fulfilledObligation(december2027)
+  )
+
   "SelectAdjustmentPeriod Controller" - {
 
     "must return OK and the correct view for a GET" in {
       val mockObligationService = mock[ObligationService]
-      val obligationDetails = obligations(Seq(
-        fulfilledObligation(october2027),
-        fulfilledObligation(december2027)
-      )).flatMap(_.obligationDetails)
 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
@@ -60,10 +62,6 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET with year filter" in {
       val mockObligationService = mock[ObligationService]
-      val obligationDetails = obligations(Seq(
-        fulfilledObligation(october2027),
-        fulfilledObligation(december2027)
-      )).flatMap(_.obligationDetails)
 
       when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(obligationDetails))
