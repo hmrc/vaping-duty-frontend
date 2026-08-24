@@ -20,6 +20,7 @@
 @this(
     layout: templates.Layout,
     govukTable: GovukTable,
+    govukDetails: GovukDetails,
     caption: Caption,
     h1: Heading,
     h2: Heading2,
@@ -28,46 +29,65 @@
 
 @(vm: ViewPaymentsViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("payments.viewPayments.title")), fullWidth = true) {
+@unallocatedDetailsContent = {
+    @p(Seq(messages("payments.viewPayments.unallocated.details.intro")))
+    @p(Seq(messages("payments.viewPayments.unallocated.details.includes")))
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("payments.viewPayments.unallocated.details.bullet1")</li>
+        <li>@messages("payments.viewPayments.unallocated.details.bullet2")</li>
+    </ul>
+    @p(Seq(messages("payments.viewPayments.unallocated.details.notEnoughInfo")))
+    @p(Seq(messages("payments.viewPayments.unallocated.details.autoUse")))
+    @p(Seq(messages("payments.viewPayments.unallocated.details.contactUs")))
+}
 
-    @caption(content = messages("payments.viewPayments.caption"))
+@layout(pageTitle = titleNoForm(messages("payments.viewPayments.title")), fullWidth = true) {
 
     @h1(messages("payments.viewPayments.heading"))
 
-    @caption(messages("payments.viewPayments.youOwe"))
-    @h1(vm.totalOwed, classes = "govuk-heading-xl")
-
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            @h2(messages("payments.viewPayments.outstanding.heading"))
-            @p(Seq(messages("payments.viewPayments.outstanding.body")))
-        </div>
-    </div>
-
-    @govukTable(Table(
-        head = Some(Seq(
-            HeadCell(content = Text(messages("payments.viewPayments.table.toBePaidBy"))),
-            HeadCell(content = Text(messages("payments.viewPayments.table.description"))),
-            HeadCell(content = Text(messages("payments.viewPayments.table.leftToPay")), classes = "govuk-table__header--numeric"),
-            HeadCell(content = Text(messages("payments.viewPayments.table.status"))),
-            HeadCell(content = Text(messages("payments.viewPayments.table.action")))
-        )),
-        rows = vm.outstandingRows,
-        classes = "govuk-table"
-    ))
-
-    @if(vm.outstandingRows.isEmpty) {
-        @p(Seq(messages("payments.viewPayments.noPayments")))
+    @if(vm.hasOutstandingBalance) {
+        @p(Seq(messages("payments.viewPayments.youOwe")), classes = "govuk-heading-m govuk-!-margin-bottom-0")
+        @h1(vm.totalOwed, classes = "govuk-heading-xl")
     }
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            @h2(messages("payments.viewPayments.unallocated.heading"))
-            @p(Seq(messages("payments.viewPayments.unallocated.body")))
+            @h2(messages("payments.viewPayments.outstanding.heading"))
+
+            @if(vm.outstandingRows.isEmpty) {
+                @p(Seq(messages("payments.viewPayments.noPayments")))
+            }
+
+            @p(Seq(messages("payments.viewPayments.outstanding.body")))
         </div>
     </div>
 
+    @if(vm.outstandingRows.nonEmpty) {
+        @govukTable(Table(
+            head = Some(Seq(
+                HeadCell(content = Text(messages("payments.viewPayments.table.toBePaidBy"))),
+                HeadCell(content = Text(messages("payments.viewPayments.table.description"))),
+                HeadCell(content = Text(messages("payments.viewPayments.table.leftToPay")), classes = "govuk-table__header--numeric"),
+                HeadCell(content = Text(messages("payments.viewPayments.table.status"))),
+                HeadCell(content = Text(messages("payments.viewPayments.table.action")))
+            )),
+            rows = vm.outstandingRows,
+            classes = "govuk-table"
+        ))
+    }
+
     @if(vm.paymentOnAccountRows.nonEmpty) {
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                @h2(messages("payments.viewPayments.unallocated.heading"))
+
+                @govukDetails(Details(
+                    summary = Text(messages("payments.viewPayments.unallocated.details.summary")),
+                    content = HtmlContent(unallocatedDetailsContent)
+                ))
+            </div>
+        </div>
+
         @govukTable(Table(
             head = Some(Seq(
                 HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.paymentDate"))),
@@ -78,22 +98,21 @@
             rows = vm.paymentOnAccountRows,
             classes = "govuk-table"
         ))
-    } else {
-        @p(Seq(messages("payments.viewPayments.unallocated.designPlaceholder")))
     }
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             @h2(messages("payments.viewPayments.cleared.heading", vm.clearedPaymentsYear))
 
-            @if(vm.clearedRows.nonEmpty) {
+            @if(vm.clearedRows.isEmpty) {
+                @p(Seq(messages("payments.viewPayments.cleared.designPlaceholder", vm.clearedPaymentsYear)))
+            } else {
                 @p(Seq(messages("payments.viewPayments.cleared.body")))
             }
         </div>
     </div>
 
     @if(vm.clearedRows.nonEmpty) {
-
         @govukTable(Table(
             head = Some(Seq(
                 HeadCell(content = Text(messages("payments.viewPayments.cleared.table.period"))),
@@ -103,7 +122,5 @@
             rows = vm.clearedRows,
             classes = "govuk-table"
         ))
-    } else {
-        @p(Seq(messages("payments.viewPayments.cleared.designPlaceholder")))
     }
 }
