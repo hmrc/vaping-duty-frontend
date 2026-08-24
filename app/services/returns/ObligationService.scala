@@ -38,10 +38,7 @@ class ObligationService @Inject()(
 
   def getObligationByPeriodKey(vpdId: VpdId, periodKey: PeriodKey)
                               (using HeaderCarrier): Future[Option[ObligationDetails]] =
-    obligationsConnector.getObligations(vpdId).map { response =>
-      filterObligationsByVpdId(response.obligation, vpdId)
-        .find(_.periodKey == periodKey.toString)
-    }
+    getObligations(vpdId).map(_.find(_.periodKey == periodKey.toString))
 
   private def filterObligationsByVpdId(
                                         obligations: Seq[ObligationItem],
