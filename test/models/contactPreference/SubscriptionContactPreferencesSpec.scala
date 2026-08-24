@@ -17,7 +17,6 @@
 package models.contactPreference
 
 import base.SpecBase
-import models.InsolvencyStatus
 import play.api.libs.json.{JsSuccess, Json}
 
 class SubscriptionContactPreferencesSpec extends SpecBase {
