@@ -58,7 +58,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
       .map(_.dutyRate)
 
     val dutyRateFormatted = dutyRateValue
-      .map(currencyFormatTwoDp)
+      .map(currencyFormatInTable)
 
     val chargeRef = success.chargeDetails
       .flatMap(_.chargeReference)
@@ -71,14 +71,14 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val (amountProduced, dutyDueAmount) = vapingProducts match {
       case Some(vp) if vp.returns.nonEmpty =>
         val regularReturn = vp.returns.head
-        (Some(milliliterFormat(ConvertToMl(regularReturn.amountProducedLiquid).toMl)), Some(currencyFormatTwoDp(regularReturn.dutyDue)))
+        (Some(milliliterFormat(ConvertToMl(regularReturn.amountProducedLiquid).toMl)), Some(currencyFormatInTable(regularReturn.dutyDue)))
       case _ =>
         (None, None)
     }
 
     val totalDutySpoiltProducts = success.totalDutyDue
-      .fold(currencyFormatTwoDp(zeroValue)) { td =>
-        val formatted = currencyFormatTwoDp(td.totalDutySpoiltProduct)
+      .fold(currencyFormatInTable(zeroValue)) { td =>
+        val formatted = currencyFormatInTable(td.totalDutySpoiltProduct)
         if (td.totalDutySpoiltProduct == zeroValue) formatted
         else formatted.replace("£", "-£")
       }

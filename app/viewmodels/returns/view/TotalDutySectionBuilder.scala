@@ -32,32 +32,32 @@ final case class TotalDutySectionBuilder(totalDutyDue: Option[TotalDutyDue]) ext
         val rows = Seq(
           SummaryListRow(
             key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyDueVapingProducts")), classes = CssConstants.boldFontWeight),
-            value = Value(content = Text(currencyFormatTwoDp(tdd.totalDutyDueVapingProducts)))
+            value = Value(content = Text(currencyFormatInTable(tdd.totalDutyDueVapingProducts)))
           ),
           SummaryListRow(
             key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutySpoiltProduct")), classes = CssConstants.boldFontWeight),
             value = Value(content = Text(
-              if (tdd.totalDutySpoiltProduct == zeroValue) currencyFormatTwoDp(tdd.totalDutySpoiltProduct)
-              else currencyFormatTwoDp(tdd.totalDutySpoiltProduct.abs).replace("£", "-£")
+              if (tdd.totalDutySpoiltProduct == zeroValue) currencyFormatInTable(tdd.totalDutySpoiltProduct)
+              else currencyFormatInTable(tdd.totalDutySpoiltProduct.abs).replace("£", "-£")
             ))
           ),
           SummaryListRow(
             key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyUnderDeclaration")), classes = CssConstants.boldFontWeight),
-            value = Value(content = Text(currencyFormatTwoDp(tdd.totalDutyUnderDeclaration)))
+            value = Value(content = Text(currencyFormatInTable(tdd.totalDutyUnderDeclaration)))
           ),
           SummaryListRow(
             key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyOverDeclaration")), classes = CssConstants.boldFontWeight),
             value = Value(content = Text(
-              if (tdd.totalDutyOverDeclaration == zeroValue) currencyFormatTwoDp(tdd.totalDutyOverDeclaration)
-              else currencyFormatTwoDp(tdd.totalDutyOverDeclaration.abs).replace("£", "-£")
+              if (tdd.totalDutyOverDeclaration == zeroValue) currencyFormatInTable(tdd.totalDutyOverDeclaration)
+              else currencyFormatInTable(tdd.totalDutyOverDeclaration.abs).replace("£", "-£")
             ))
           ),
           SummaryListRow(
             key = Key(content = Text(messages("viewIndividualReturn.totals.totalDue")), classes = CssConstants.boldFontWeight),
             value = Value(
               content = Text(
-                if (tdd.totalDue < zeroValue) currencyFormatTwoDp(tdd.totalDue.abs).replace("£", "-£")
-                else currencyFormatTwoDp(tdd.totalDue)
+                if (tdd.totalDue < zeroValue) currencyFormatInTable(tdd.totalDue.abs).replace("£", "-£")
+                else currencyFormatInTable(tdd.totalDue)
               ),
               classes = CssConstants.boldFontWeight
             )

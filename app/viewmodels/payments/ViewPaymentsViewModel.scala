@@ -64,7 +64,7 @@ object ViewPaymentsViewModel {
         )
       ),
       TableRow(
-        content = Text(CurrencyFormatter.currencyFormatTwoDp(payment.amountDue)),
+        content = Text(CurrencyFormatter.currencyFormatInTable(payment.amountDue)),
         classes = CssConstants.tableCellNumeric
       ),
       TableRow(
@@ -89,7 +89,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(content = Text(messages("payments.viewPayments.unallocated.description.placeholder"))),
       TableRow(
-        content = Text(CurrencyFormatter.currencyFormatTwoDp(payment.amount)),
+        content = Text(CurrencyFormatter.currencyFormatInTable(payment.amount)),
         classes = CssConstants.tableCellNumeric
       ),
       TableRow(
@@ -110,7 +110,7 @@ object ViewPaymentsViewModel {
         )
       ),
       TableRow(
-        content = Text(CurrencyFormatter.currencyFormatTwoDp(payment.amountPaid)),
+        content = Text(CurrencyFormatter.currencyFormatInTable(payment.amountPaid)),
         classes = CssConstants.tableCellNumeric
       )
     )
