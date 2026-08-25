@@ -53,7 +53,7 @@ final case class SpoiltProductSectionBuilder(
           } else {
             // First list includes question + first item
             val firstItem = items.head
-            val firstDutyDue = currencyFormat(firstItem.dutyDue.abs).replace("£", "-£")
+            val firstDutyDue = currencyFormatTwoDp(firstItem.dutyDue.abs).replace("£", "-£")
             val firstList = SummaryList(rows = Seq(
               questionRow,
               SummaryListRow(
@@ -72,7 +72,7 @@ final case class SpoiltProductSectionBuilder(
             
             // Remaining items get their own lists
             val remainingLists = items.tail.map { item =>
-              val dutyDue = currencyFormat(item.dutyDue.abs).replace("£", "-£")
+              val dutyDue = currencyFormatTwoDp(item.dutyDue.abs).replace("£", "-£")
               SummaryList(rows = Seq(
                 SummaryListRow(
                   key = Key(content = Text(messages("viewIndividualReturn.spoiltProducts.month"))),

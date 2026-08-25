@@ -104,8 +104,8 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
       result.chargeReference mustBe Some("XVC123456789012")
       result.hasVapingProductsDeclaration mustBe true
       result.amountProducedLiquid mustBe Some("1,000,000.00")
-      result.dutyDue mustBe Some("£3,150")
-      result.totalDutySpoiltProducts mustBe "-£100"
+      result.dutyDue mustBe Some("£3,150.00")
+      result.totalDutySpoiltProducts mustBe "-£100.00"
       result.monthYear mustBe "June 2026"
       result.submittedOn must include("February 2026")
       result.dutyRate mustBe Some("£3.15")
@@ -138,7 +138,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     "must default to £0.00 when totalDutyDue is missing" in {
       val result = ViewIndividualReturnViewModel(returnResponseNoTotalDuty, Seq(obligationDetails), returnsDateUtils)
 
-      result.totalDutySpoiltProducts mustBe "£0"
+      result.totalDutySpoiltProducts mustBe "£0.00"
     }
 
     "must correctly identify when vaping products declaration exists" in {
@@ -164,7 +164,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
 
       result.hasVapingProductsDeclaration mustBe true
       result.amountProducedLiquid mustBe Some("2,000,000.00")
-      result.dutyDue mustBe Some("£1,000")
+      result.dutyDue mustBe Some("£1,000.00")
     }
   }
 

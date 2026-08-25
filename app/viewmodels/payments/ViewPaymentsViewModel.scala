@@ -44,7 +44,7 @@ object ViewPaymentsViewModel {
     val clearedYear = returnsDateUtils.getYear.toString
 
     ViewPaymentsViewModel(
-      totalOwed = CurrencyFormatter.currencyFormat(totalOwed),
+      totalOwed = CurrencyFormatter.currencyFormatTwoDp(totalOwed),
       hasOutstandingBalance = totalOwed > 0,
       outstandingRows = payments.outstanding.map(buildOutstandingRow(_, returnsDateUtils)),
       paymentOnAccountRows = payments.paymentOnAccount.map(buildPaymentOnAccountRow(_, returnsDateUtils)),
@@ -64,7 +64,7 @@ object ViewPaymentsViewModel {
         )
       ),
       TableRow(
-        content = Text(CurrencyFormatter.currencyFormat(payment.amountDue)),
+        content = Text(CurrencyFormatter.currencyFormatTwoDp(payment.amountDue)),
         classes = CssConstants.tableCellNumeric
       ),
       TableRow(
@@ -89,7 +89,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(content = Text(messages("payments.viewPayments.unallocated.description.placeholder"))),
       TableRow(
-        content = Text(CurrencyFormatter.currencyFormat(payment.amount)),
+        content = Text(CurrencyFormatter.currencyFormatTwoDp(payment.amount)),
         classes = CssConstants.tableCellNumeric
       ),
       TableRow(
@@ -110,7 +110,7 @@ object ViewPaymentsViewModel {
         )
       ),
       TableRow(
-        content = Text(CurrencyFormatter.currencyFormat(payment.amountPaid)),
+        content = Text(CurrencyFormatter.currencyFormatTwoDp(payment.amountPaid)),
         classes = CssConstants.tableCellNumeric
       )
     )

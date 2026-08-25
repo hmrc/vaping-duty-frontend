@@ -21,7 +21,9 @@ import scala.math.BigDecimal.RoundingMode
 
 trait CurrencyFormatter {
   def currencyFormat(amt: BigDecimal): String = f"£$amt%,1.2f".replace(".00","")
-  
+
+  def currencyFormatTwoDp(amt: BigDecimal): String = f"£$amt%,1.2f"
+
   def currencyFormatWithLeadingSign(amt: BigDecimal): String = {
     val isNegative = amt < 0
     val absoluteAmount = amt.abs

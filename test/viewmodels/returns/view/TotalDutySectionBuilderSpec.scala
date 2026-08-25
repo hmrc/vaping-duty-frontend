@@ -56,7 +56,7 @@ class TotalDutySectionBuilderSpec extends SpecBase {
         val result = builder.build()
 
         result.rows.head.key.content.asHtml.toString must include(messages("viewIndividualReturn.totals.totalDutyDueVapingProducts"))
-        result.rows.head.value.content.asHtml.toString must include("£1,000")
+        result.rows.head.value.content.asHtml.toString must include("£1,000.00")
       }
 
       "format totalDutySpoiltProduct with minus when negative" in {
@@ -64,7 +64,7 @@ class TotalDutySectionBuilderSpec extends SpecBase {
         val result = builder.build()
 
         result.rows(1).key.content.asHtml.toString must include(messages("viewIndividualReturn.totals.totalDutySpoiltProduct"))
-        result.rows(1).value.content.asHtml.toString must include("-£100")
+        result.rows(1).value.content.asHtml.toString must include("-£100.00")
       }
 
       "format totalDutySpoiltProduct without minus when zero" in {
@@ -72,8 +72,8 @@ class TotalDutySectionBuilderSpec extends SpecBase {
         val builder = TotalDutySectionBuilder(Some(totalDutyDueZeroSpoilt))
         val result = builder.build()
 
-        result.rows(1).value.content.asHtml.toString must include("£0")
-        result.rows(1).value.content.asHtml.toString mustNot include("-£0")
+        result.rows(1).value.content.asHtml.toString must include("£0.00")
+        result.rows(1).value.content.asHtml.toString mustNot include("-£0.00")
       }
 
       "format totalDutyUnderDeclaration correctly" in {
@@ -81,7 +81,7 @@ class TotalDutySectionBuilderSpec extends SpecBase {
         val result = builder.build()
 
         result.rows(2).key.content.asHtml.toString must include(messages("viewIndividualReturn.totals.totalDutyUnderDeclaration"))
-        result.rows(2).value.content.asHtml.toString must include("£50")
+        result.rows(2).value.content.asHtml.toString must include("£50.00")
       }
 
       "format totalDutyOverDeclaration with minus when negative" in {
@@ -89,7 +89,7 @@ class TotalDutySectionBuilderSpec extends SpecBase {
         val result = builder.build()
 
         result.rows(3).key.content.asHtml.toString must include(messages("viewIndividualReturn.totals.totalDutyOverDeclaration"))
-        result.rows(3).value.content.asHtml.toString must include("-£25")
+        result.rows(3).value.content.asHtml.toString must include("-£25.00")
       }
 
       "format totalDutyOverDeclaration without minus when zero" in {
@@ -97,8 +97,8 @@ class TotalDutySectionBuilderSpec extends SpecBase {
         val builder = TotalDutySectionBuilder(Some(totalDutyDueZeroOver))
         val result = builder.build()
 
-        result.rows(3).value.content.asHtml.toString must include("£0")
-        result.rows(3).value.content.asHtml.toString mustNot include("-£0")
+        result.rows(3).value.content.asHtml.toString must include("£0.00")
+        result.rows(3).value.content.asHtml.toString mustNot include("-£0.00")
       }
 
       "format totalDue with minus when negative" in {
@@ -107,15 +107,15 @@ class TotalDutySectionBuilderSpec extends SpecBase {
         val result = builder.build()
 
         result.rows(4).key.content.asHtml.toString must include(messages("viewIndividualReturn.totals.totalDue"))
-        result.rows(4).value.content.asHtml.toString must include("-£500")
+        result.rows(4).value.content.asHtml.toString must include("-£500.00")
       }
 
       "format totalDue without minus when positive" in {
         val builder = TotalDutySectionBuilder(Some(totalDutyDue))
         val result = builder.build()
 
-        result.rows(4).value.content.asHtml.toString must include("£925")
-        result.rows(4).value.content.asHtml.toString mustNot include("-£925")
+        result.rows(4).value.content.asHtml.toString must include("£925.00")
+        result.rows(4).value.content.asHtml.toString mustNot include("-£925.00")
       }
 
       "apply bold formatting to all keys" in {

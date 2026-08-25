@@ -64,6 +64,20 @@ class CurrencyFormatterSpec extends UnitSpec with CurrencyFormatter {
     }
   }
 
+  "currencyFormatTwoDp" - {
+    "must retain trailing zeros for whole-pound amounts" in {
+      currencyFormatTwoDp(BigDecimal("15.00")) mustBe "£15.00"
+    }
+
+    "must format zero with two decimal places" in {
+      currencyFormatTwoDp(BigDecimal("0.00")) mustBe "£0.00"
+    }
+
+    "must format with two decimal places" in {
+      currencyFormatTwoDp(BigDecimal("100.12")) mustBe "£100.12"
+    }
+  }
+
   "milliliterFormat" - {
     "must format amounts with two decimal places" in {
       milliliterFormat(BigDecimal("1234.567")) mustBe "1,234.56"

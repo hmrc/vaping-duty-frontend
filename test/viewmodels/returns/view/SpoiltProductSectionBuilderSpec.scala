@@ -134,7 +134,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         )
         val result = builder.build()
 
-        result.head.rows(3).value.content.asHtml.toString must include("-£100")
+        result.head.rows(3).value.content.asHtml.toString must include("-£100.00")
       }
 
       "format millilitres correctly" in {
