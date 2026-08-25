@@ -53,7 +53,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
   )
 
   private val obligationDetailsSingleOpen: Seq[ObligationDetails] =
-    obligationDataSingleOpen.obligation.map(_.obligationDetails)
+    obligationDataSingleOpen.obligation.flatMap(_.obligationDetails)
 
   "DeclarationController" - {
 
@@ -62,7 +62,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
       "must return OK and the correct view for a GET" in {
 
         val mockObligationService = mock[ObligationService]
-        when(mockObligationService.getObligationsDirectly(any())(using any()))
+        when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
@@ -86,7 +86,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         val userAnswers = returnsUserAnswers.set(DeclarationPage, validDeclaration).success.value
 
         val mockObligationService = mock[ObligationService]
-        when(mockObligationService.getObligationsDirectly(any())(using any()))
+        when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application = applicationBuilder(returnsUserAnswers = Some(userAnswers.copy(periodKey = june2026.value)))
@@ -132,7 +132,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockSubmitReturnService.submit(any())(any())) thenReturn Future.successful(testReturnSubmissionResponse)
         when(mockSessionRepository.clear(any(), any())(any()))
           .thenReturn(Future.successful(Right(())))
-        when(mockObligationService.getObligationsDirectly(any())(using any()))
+        when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application =
@@ -167,7 +167,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
       "must return a Bad Request and errors when invalid data is submitted" in {
 
         val mockObligationService = mock[ObligationService]
-        when(mockObligationService.getObligationsDirectly(any())(using any()))
+        when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
@@ -193,7 +193,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
       "must return a Bad Request and errors when invalid email is submitted" in {
 
         val mockObligationService = mock[ObligationService]
-        when(mockObligationService.getObligationsDirectly(any())(using any()))
+        when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
@@ -251,7 +251,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
         when(mockService.submit(any())(any())).thenReturn(Future.successful(Left(ErrorModel(BAD_GATEWAY, "Bad gateway"))))
         when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
-        when(mockObligationService.getObligationsDirectly(any())(using any()))
+        when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))

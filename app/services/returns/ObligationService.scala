@@ -17,31 +17,37 @@
 package services.returns
 
 import com.google.inject.{Inject, Singleton}
+import config.FrontendAppConfig
 import connectors.returns.ObligationsConnector
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.{ObligationDetails, ObligationsResponse}
+import models.obligations.{ObligationDetails, ObligationItem}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ObligationService @Inject()(obligationsConnector: ObligationsConnector)
-                                 (using ExecutionContext) {
+class ObligationService @Inject()(
+                                   obligationsConnector: ObligationsConnector,
+                                   appConfig: FrontendAppConfig
+                                 )(using ExecutionContext) {
 
-  def getObligationsDirectly(vpdId: VpdId)(using HeaderCarrier): Future[Seq[ObligationDetails]] =
+  def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[Seq[ObligationDetails]] =
     obligationsConnector.getObligations(vpdId).map { response =>
-      response.obligation
-        .map(_.obligationDetails)
+      filterObligationsByVpdId(response.obligation, vpdId)
     }
 
-  def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[ObligationsResponse] =
-    obligationsConnector.getObligations(vpdId)
-  
   def getObligationByPeriodKey(vpdId: VpdId, periodKey: PeriodKey)
                               (using HeaderCarrier): Future[Option[ObligationDetails]] =
-    obligationsConnector.getObligations(vpdId).map { response =>
-      response.obligation
-        .map(_.obligationDetails)
-        .find(_.periodKey == periodKey.toString)
-    }
+    getObligations(vpdId).map(_.find(_.periodKey == periodKey.toString))
+
+  private def filterObligationsByVpdId(
+                                        obligations: Seq[ObligationItem],
+                                        vpdId: VpdId
+                                      ): Seq[ObligationDetails] =
+    obligations
+      .filter(_.identification.exists(id =>
+        id.referenceType == appConfig.enrolmentIdentifierKey &&
+          id.referenceNumber == vpdId.value
+      ))
+      .flatMap(_.obligationDetails)
 }

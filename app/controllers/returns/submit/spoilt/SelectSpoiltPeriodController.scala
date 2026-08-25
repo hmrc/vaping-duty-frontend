@@ -47,7 +47,7 @@ class SelectSpoiltPeriodController @Inject()(
   def onPageLoad(year: Option[Int], mode: Mode = NormalMode): Action[AnyContent] =
     (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async { implicit request =>
 
-      obligationService.getObligationsDirectly(request.enrolmentVpdId).map { obligationDetails =>
+      obligationService.getObligations(request.enrolmentVpdId).map { obligationDetails =>
         val spoiltList = request.userAnswers.get(SpoiltVolumeByPeriodPage)
         val viewModel = SelectSpoiltPeriodViewModel(obligationDetails, year, request.periodKey, spoiltList, returnsDateUtils, mode)
         Ok(view(viewModel))

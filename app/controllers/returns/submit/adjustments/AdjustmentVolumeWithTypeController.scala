@@ -57,8 +57,8 @@ class AdjustmentVolumeWithTypeController @Inject()(
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
         for {
-          obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
-          form <- formProvider(request.periodKey, request.enrolmentVpdId)
+          obligationDetails <- obligationService.getObligations(request.enrolmentVpdId)
+          form              <- formProvider(request.periodKey, request.enrolmentVpdId)
         } yield {
           val existingAdjustment = adjustmentVolumeService.findExistingAdjustment(
             request.userAnswers,
@@ -76,9 +76,9 @@ class AdjustmentVolumeWithTypeController @Inject()(
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
         for {
-          obligationDetails <- obligationService.getObligationsDirectly(request.enrolmentVpdId)
-          form <- formProvider(request.periodKey, request.enrolmentVpdId)
-          result <- {
+          obligationDetails <- obligationService.getObligations(request.enrolmentVpdId)
+          form              <- formProvider(request.periodKey, request.enrolmentVpdId)
+          result            <- {
             val rawData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
             val cleanedData = adjustmentVolumeService.cleanFormData(rawData)
 

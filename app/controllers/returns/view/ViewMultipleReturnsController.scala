@@ -61,10 +61,10 @@ class ViewMultipleReturnsController @Inject()(
     
     val now = LocalDate.now(clock)
     
-    obligationService.getObligations(request.enrolmentVpdId).map { obligationResponse =>
-      val completedYears = obligationResponse.obligation
-        .filter(_.obligationDetails.openOrFulfilledStatus == ObligationStatus.F.toString)
-        .map(_.obligationDetails.iCFromDate.getYear)
+    obligationService.getObligations(request.enrolmentVpdId).map { obligations =>
+      val completedYears = obligations
+        .filter(_.openOrFulfilledStatus == ObligationStatus.F.toString)
+        .map(_.iCFromDate.getYear)
         .distinct
         .sorted
         .reverse
@@ -73,7 +73,7 @@ class ViewMultipleReturnsController @Inject()(
         completedYears.headOption.getOrElse(now.getYear)
       )
 
-      Ok(view(ViewMultipleReturnsViewModel(obligationResponse, currentYear, now, returnsDateUtils)))
+      Ok(view(ViewMultipleReturnsViewModel(obligations, currentYear, now, returnsDateUtils)))
     }
   }
 }

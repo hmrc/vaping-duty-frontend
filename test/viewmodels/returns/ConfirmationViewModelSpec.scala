@@ -17,6 +17,7 @@
 package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
+import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
 import viewmodels.returns.submit.ConfirmationViewModel
 
@@ -28,21 +29,23 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
   private def createObligation(): ObligationItem = {
     ObligationItem(
       identification = None,
-      obligationDetails = ObligationDetails(
+      obligationDetails = Seq(ObligationDetails(
         openOrFulfilledStatus = ObligationStatus.F.toString,
-        iCFromDate = LocalDate.of(2026, 1, 1),
-        iCToDate = LocalDate.of(2026, 1, 31),
-        iCDateReceived = Some(LocalDate.of(2026, 2, 1)),
-        iCDueDate = LocalDate.of(2026, 2, 7),
-        periodKey = periodKey.value
-      )
+        iCFromDate = obligationDetailsJuly.iCFromDate,
+        iCToDate = obligationDetailsJuly.iCToDate,
+        iCDateReceived = obligationDetailsJuly.iCDateReceived,
+        iCDueDate = obligationDetailsJuly.iCDueDate,
+        periodKey = obligationDetailsJuly.periodKey
+      ))
     )
   }
+
+  private val obligationDetailsJuly = fulfilledObligation(PeriodKey("24AG"))
 
   "ConfirmationViewModel" - {
 
     val returnsResponse = createReturnDisplayResponse()
-    val obligation = createObligation().obligationDetails
+    val obligation = createObligation().obligationDetails.head
     
     "must extract and format submission date correctly" in {
       val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink)
@@ -119,7 +122,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
       vm.content.toString must include("direct-debit-link")
       vm.content.toString must include(controllers.payments.routes.StartDirectDebitController.startDirectDebit().url)
       vm.content.toString must not include "You must pay by CHAPS"
-      vm.content.toString must include("15 February 2026")
+      vm.content.toString must include("15 August 2024")
     }
 
     "must generate CHAPS content for duty amount of exactly £20 million" in {

@@ -115,7 +115,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
 
       val obligationForAdjustment = openObligation(adjustmentPeriodKey)
 
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForAdjustment)))
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenReturn(Map(adjustmentPeriodKey -> TEN_POUNDS_PER_10ML))
@@ -155,7 +155,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
       val obligationForAdjustment1 = openObligation(adjustmentPeriodKey)
       val obligationForAdjustment2 = openObligation(adjustmentPeriodKey2)
 
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq(obligationForAdjustment1, obligationForAdjustment2)))
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenReturn(Map(
@@ -202,7 +202,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
       )
       val adjustmentList = AdjustmentList(Seq(adjustmentEntry))
 
-      when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+      when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(Seq.empty))
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenThrow(new RuntimeException("No obligation found for period 24ZZ"))
@@ -263,7 +263,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
   }
 
   private def stubObligations(allObligations: Seq[ObligationDetails]): Unit =
-    when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+    when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
       .thenReturn(Future.successful(allObligations))
 
   private def stubDutyRate(dutyRate: DutyRate): Unit =

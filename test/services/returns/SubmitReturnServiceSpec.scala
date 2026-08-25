@@ -149,7 +149,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
-        when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+        when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
           .thenReturn(Future.successful(Seq()))
 
         val exception = service.submit(userAnswers).failed.futureValue
@@ -163,7 +163,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
   }
 
   private def stubManufacturersObligations(vpdId: VpdId, obligations: Seq[ObligationDetails]) = {
-    when(mockObligationService.getObligationsDirectly(eqTo(vpdId))(using any()))
+    when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
       .thenReturn(Future.successful(obligations))
   }
 

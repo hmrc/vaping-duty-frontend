@@ -40,7 +40,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       val mockDutyRateService = mock[DutyRateService]
       val mockObligationService = mock[ObligationService]
 
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
+      when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(Seq(fulfilledObligation(periodKey))))
       
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
@@ -73,7 +73,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       val mockDutyRateService = mock[DutyRateService]
       val mockObligationService = mock[ObligationService]
 
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
+      when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(Seq(openObligation(periodKey))))
       
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
@@ -105,7 +105,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       val mockDutyRateService = mock[DutyRateService]
       val mockObligationService = mock[ObligationService]
 
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
+      when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.successful(Seq(openObligation(periodKey))))
 
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
@@ -140,7 +140,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       val mockDutyRateService = mock[DutyRateService]
       val mockObligationService = mock[ObligationService]
 
-      when(mockObligationService.getObligationsDirectly(any())(using any()))
+      when(mockObligationService.getObligations(any())(using any()))
         .thenReturn(Future.failed(RuntimeException("Obligation service failed")))
       
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))

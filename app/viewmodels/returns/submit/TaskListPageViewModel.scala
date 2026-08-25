@@ -17,7 +17,7 @@
 package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
-import models.obligations.ObligationItem
+import models.obligations.ObligationDetails
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import play.api.i18n.Messages
 import utils.ReturnsDateUtils
@@ -33,20 +33,20 @@ case class TaskListPageViewModel(
 
 object TaskListPageViewModel {
 
-  def apply(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationItem], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): TaskListPageViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): TaskListPageViewModel = {
     
     val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations)
 
     val currentObligation = obligations
-      .find(obligation => obligation.obligationDetails.periodKey == periodKey.toString)
+      .find(obligation => obligation.periodKey == periodKey.toString)
       // scalafix:off DisableSyntax.throw
       .getOrElse(throw new IllegalStateException(s"No obligation found for period key: ${periodKey.toString}."))
 
-    val monthOfObligation = currentObligation.obligationDetails.iCFromDate.getMonth
-    val dayDue            = currentObligation.obligationDetails.iCDueDate.getDayOfMonth.toString
-    val monthDue          = currentObligation.obligationDetails.iCDueDate.getMonth
-    val yearOfObligation  = currentObligation.obligationDetails.iCFromDate.getYear.toString
-    val yearDue           = currentObligation.obligationDetails.iCDueDate.getYear.toString
+    val monthOfObligation = currentObligation.iCFromDate.getMonth
+    val dayDue            = currentObligation.iCDueDate.getDayOfMonth.toString
+    val monthDue          = currentObligation.iCDueDate.getMonth
+    val yearOfObligation  = currentObligation.iCFromDate.getYear.toString
+    val yearDue           = currentObligation.iCDueDate.getYear.toString
 
     TaskListPageViewModel(
       sections     = TaskList.sections(userAnswers, adjustmentsEligibility),

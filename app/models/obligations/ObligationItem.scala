@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 final case class ObligationItem(
   identification: Option[Identification],
-  obligationDetails: ObligationDetails
+  obligationDetails: Seq[ObligationDetails]
 )
 
 object ObligationItem {

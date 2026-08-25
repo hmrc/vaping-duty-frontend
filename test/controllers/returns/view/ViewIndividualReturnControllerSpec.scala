@@ -48,7 +48,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         createReturnDisplayResponse()
       ))
 
-      when(mockObligationService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(
+      when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(
         obligationDetails
       ))
 
@@ -92,7 +92,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         returnDataWithoutRegularReturn
       ))
 
-      when(mockObligationService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(
+      when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(
         obligationDetails
       ))
 

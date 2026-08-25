@@ -28,13 +28,12 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
   "BeforeYouStartViewModel" - {
 
     "when user has fulfilled returns" - {
-      val obligationsWithFulfilled = obligations(
-        Seq(
+      val obligationsWithFulfilled = Seq(
           openObligation(december2027),
           openObligation(november2027),
           fulfilledObligation(october2027)
         )
-      )
+
       val vm = BeforeYouStartViewModel(obligationsWithFulfilled, november2027, returnsDateUtils).get
 
       "return the correct year of the return" in {
@@ -59,9 +58,8 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
     }
 
     "when user has no fulfilled returns" - {
-      val obligationsWithoutFulfilled = obligations(
-        Seq(openObligation(december2027))
-      )
+      val obligationsWithoutFulfilled = Seq(openObligation(december2027))
+
       val vm = BeforeYouStartViewModel(obligationsWithoutFulfilled, december2027, returnsDateUtils).get
 
       "return the correct month due" in {
@@ -81,9 +79,8 @@ class BeforeYouStartViewModelSpec extends SpecBase with UnitSpec {
       val nonExistentPeriodKey = PeriodKey("99ZZ")
 
       "return None" in {
-        val anyOldObligations = obligations(
-          Seq(openObligation(december2027))
-        )
+        val anyOldObligations = Seq(openObligation(december2027))
+
         val result = BeforeYouStartViewModel(anyOldObligations, nonExistentPeriodKey, returnsDateUtils)
         
         result mustBe None

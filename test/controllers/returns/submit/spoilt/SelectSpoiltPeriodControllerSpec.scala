@@ -18,7 +18,8 @@ package controllers.returns.submit.spoilt
 
 import base.SpecBase
 import models.NormalMode
-import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus, ObligationsResponse}
+import models.identifiers.PeriodKey
+import models.obligations.ObligationDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -30,73 +31,43 @@ import uk.gov.hmrc.http.InternalServerException
 import viewmodels.returns.submit.SelectSpoiltPeriodViewModel
 import views.html.returns.submit.spoilt.SelectSpoiltPeriodView
 
-import java.time.LocalDate
 import scala.concurrent.Future
 
 class SelectSpoiltPeriodControllerSpec extends SpecBase {
 
-  private def createMultiYearObligationsResponse(): ObligationsResponse = {
-    val currentDate = LocalDate.now()
-
-    createMockObligationsResponse().copy(
-      obligation = createMockObligationsResponse().obligation ++ Seq(
-        ObligationItem(
-          identification = None,
-          obligationDetails = ObligationDetails(
-            openOrFulfilledStatus = ObligationStatus.F.toString,
-            iCFromDate = LocalDate.of(2027, 11, 1),
-            iCToDate = LocalDate.of(2027, 11, 30),
-            iCDateReceived = Some(currentDate),
-            iCDueDate = currentDate.plusDays(10),
-            periodKey = "27AK"
-          )
-        ),
-        ObligationItem(
-          identification = None,
-          obligationDetails = ObligationDetails(
-            openOrFulfilledStatus = ObligationStatus.F.toString,
-            iCFromDate = LocalDate.of(2026, 10, 1),
-            iCToDate = LocalDate.of(2026, 10, 31),
-            iCDateReceived = Some(currentDate.minusMonths(1)),
-            iCDueDate = currentDate.minusMonths(1),
-            periodKey = "26AJ"
-          )
-        ),
-        ObligationItem(
-          identification = None,
-          obligationDetails = ObligationDetails(
-            openOrFulfilledStatus = ObligationStatus.F.toString,
-            iCFromDate = LocalDate.of(2025, 9, 1),
-            iCToDate = LocalDate.of(2025, 9, 30),
-            iCDateReceived = Some(currentDate.minusMonths(2)),
-            iCDueDate = currentDate.minusMonths(2),
-            periodKey = "25AI"
-          )
-        )
-      )
-    )
+  private val obligationsSpanning3Years: Seq[ObligationDetails] = {
+    Seq(fulfilledObligation(november2027), fulfilledObligation(october2026), fulfilledObligation(september2025))
   }
 
   "SelectSpoiltPeriodController" - {
 
     "must return OK and the correct view when no year parameter is provided" in {
       val mockService = mock[ObligationService]
-      val obligationsResponse = createMultiYearObligationsResponse()
-      val obligationDetails = obligationsResponse.obligation.map(_.obligationDetails)
 
-      when(mockService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(obligationDetails))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationsSpanning3Years))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].to(mockService))
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url)
+        val request = FakeRequest(
+          GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url
+        )
 
         val result = route(application, request).value
 
         val returnsDateUtils = application.injector.instanceOf[utils.ReturnsDateUtils]
-        val vm = SelectSpoiltPeriodViewModel(obligationDetails, None, periodKey, None, returnsDateUtils, NormalMode)(messages(application))
+
+        val vm = SelectSpoiltPeriodViewModel(
+          obligationsSpanning3Years,
+          None,
+          periodKey,
+          None,
+          returnsDateUtils,
+          NormalMode
+        )(messages(application))
+
         val view = application.injector.instanceOf[SelectSpoiltPeriodView]
 
         status(result) mustEqual OK
@@ -106,23 +77,32 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
 
     "must return OK and the correct view when a specific year is provided" in {
       val mockService = mock[ObligationService]
-      val obligationsResponse = createMultiYearObligationsResponse()
-      val obligationDetails = obligationsResponse.obligation.map(_.obligationDetails)
       val specificYear = 2026
 
-      when(mockService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(obligationDetails))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationsSpanning3Years))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].to(mockService))
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(specificYear), NormalMode).url)
+        val request = FakeRequest(
+          GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(Some(specificYear), NormalMode).url
+        )
 
         val result = route(application, request).value
 
         val returnsDateUtils = application.injector.instanceOf[utils.ReturnsDateUtils]
-        val vm = SelectSpoiltPeriodViewModel(obligationDetails, Some(specificYear), periodKey, None, returnsDateUtils, NormalMode)(messages(application))
+
+        val vm = SelectSpoiltPeriodViewModel(
+          obligationsSpanning3Years,
+          Some(specificYear),
+          periodKey,
+          None,
+          returnsDateUtils,
+          NormalMode
+        )(messages(application))
+
         val view = application.injector.instanceOf[SelectSpoiltPeriodView]
 
         status(result) mustEqual OK
@@ -132,11 +112,9 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
 
     "must exclude periods that already have spoilt data entered" in {
       val mockService = mock[ObligationService]
-      val obligationsResponse = createMultiYearObligationsResponse()
-      val obligationDetails = obligationsResponse.obligation.map(_.obligationDetails)
-      val alreadyDeclaredPeriod = models.identifiers.PeriodKey("26AJ")
+      val alreadyDeclaredPeriod = PeriodKey("26AJ")
 
-      when(mockService.getObligationsDirectly(any())(using any())).thenReturn(Future.successful(obligationDetails))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationsSpanning3Years))
 
       val userAnswers = returnsUserAnswers
         .set(pages.returns.SpoiltVolumeByPeriodPage, List(models.returns.SpoiltVolumeByPeriod(BigDecimal(100), alreadyDeclaredPeriod)))
@@ -147,7 +125,9 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url)
+        val request = FakeRequest(
+          GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url
+        )
 
         val result = route(application, request).value
 
@@ -159,14 +139,16 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
     "must redirect to JourneyRecovery when the service fails" in {
       val mockService = mock[ObligationService]
 
-      when(mockService.getObligationsDirectly(any())(using any())).thenReturn(Future.failed(InternalServerException("")))
+      when(mockService.getObligations(any())(using any())).thenReturn(Future.failed(InternalServerException("")))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].to(mockService))
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url)
+        val request = FakeRequest(
+          GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url
+        )
 
         val result = route(application, request).value
 
@@ -179,7 +161,9 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), returnsEnabled = false).build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url)
+        val request = FakeRequest(
+          GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url
+        )
 
         val result = route(application, request).value
 

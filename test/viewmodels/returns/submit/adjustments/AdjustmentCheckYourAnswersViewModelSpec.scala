@@ -36,7 +36,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         volumeInMl = BigDecimal("100.0")
       )
       val adjustmentList = AdjustmentList(Seq(adjustment))
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
 
       val vm = AdjustmentCheckYourAnswersViewModel(
         Some(true),
@@ -59,7 +59,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         volumeInMl = BigDecimal("100.0")
       )
       val adjustmentList = AdjustmentList(Seq(adjustment))
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
 
       val vm = AdjustmentCheckYourAnswersViewModel(
         Some(true),
@@ -84,7 +84,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         volumeInMl = BigDecimal("1000.0")
       )
       val adjustmentList = AdjustmentList(Seq(adjustment))
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
 
       val vm = AdjustmentCheckYourAnswersViewModel(
         Some(true),
@@ -106,7 +106,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         volumeInMl = BigDecimal("1000.0")
       )
       val adjustmentList = AdjustmentList(Seq(adjustment))
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
 
       val vm = AdjustmentCheckYourAnswersViewModel(
         Some(true),
@@ -122,7 +122,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
     }
 
     "must handle empty adjustment list" in {
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
 
       val vm = AdjustmentCheckYourAnswersViewModel(
         Some(false),
@@ -146,7 +146,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.UnderDeclared, volumeInMl = BigDecimal("1000")),
         AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.OverDeclared, volumeInMl = BigDecimal("500"))
       ))
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
 
       val vm = AdjustmentCheckYourAnswersViewModel(
         Some(true),
@@ -166,7 +166,7 @@ class AdjustmentCheckYourAnswersViewModelSpec extends SpecBase {
         AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.UnderDeclared, volumeInMl = BigDecimal("800")),
         AdjustmentEntry(period = october2027, adjustmentType = AdjustmentType.OverDeclared, volumeInMl = BigDecimal("800"))
       ))
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).map(_.obligationDetails)
+      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
 
       val vm = AdjustmentCheckYourAnswersViewModel(
         Some(true),

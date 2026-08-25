@@ -47,15 +47,15 @@ class TaskListController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-        val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations.obligation)
+        val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations)
 
         preparationService.prepareUserAnswers(
           request.userAnswers,
           adjustmentsEligibility,
-          obligations.obligation,
+          obligations,
           request.periodKey
         ).map { updatedAnswers =>
-          Ok(view(TaskListPageViewModel(updatedAnswers, obligations.obligation, request.periodKey, returnsDateUtils)))
+          Ok(view(TaskListPageViewModel(updatedAnswers, obligations, request.periodKey, returnsDateUtils)))
         }
       }
   }

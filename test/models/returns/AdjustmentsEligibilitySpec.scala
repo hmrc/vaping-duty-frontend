@@ -24,13 +24,13 @@ class AdjustmentsEligibilitySpec extends SpecBase with ObligationsBuilders {
   "AdjustmentsEligibility.fromObligations" - {
 
     "must return Eligible when obligations contain fulfilled status" in {
-      val testObligations = obligations(Seq(fulfilledObligation(march2024)))
+      val testObligations = Seq(fulfilledObligation(march2024))
 
       AdjustmentsEligibility.fromObligations(testObligations) mustBe AdjustmentsEligibility.Eligible
     }
 
     "must return NotEligible when obligations only contain open status" in {
-      val testObligations = obligations(Seq(openObligation(march2024)))
+      val testObligations = Seq(openObligation(march2024))
 
       AdjustmentsEligibility.fromObligations(testObligations) mustBe AdjustmentsEligibility.NotEligible
     }
@@ -40,21 +40,21 @@ class AdjustmentsEligibilitySpec extends SpecBase with ObligationsBuilders {
     }
 
     "must return Eligible when at least one obligation is fulfilled among many" in {
-      val testObligations = obligations(Seq(
+      val testObligations = Seq(
         openObligation(january2024),
         fulfilledObligation(february2024),
         openObligation(march2024)
-      ))
+      )
 
       AdjustmentsEligibility.fromObligations(testObligations) mustBe AdjustmentsEligibility.Eligible
     }
 
     "must return NotEligible when multiple obligations are all open" in {
-      val testObligations = obligations(Seq(
+      val testObligations = Seq(
         openObligation(january2024),
         openObligation(february2024),
         openObligation(march2024)
-      ))
+      )
 
       AdjustmentsEligibility.fromObligations(testObligations) mustBe AdjustmentsEligibility.NotEligible
     }

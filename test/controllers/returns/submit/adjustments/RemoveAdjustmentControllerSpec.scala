@@ -47,7 +47,7 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
   private def stubbedObligationService: ObligationService = {
     val mockObligationService = mock[ObligationService]
-    when(mockObligationService.getObligationsDirectly(any())(using any()))
+    when(mockObligationService.getObligations(any())(using any()))
       .thenReturn(Future.successful(Seq(fulfilledObligation(october2027), fulfilledObligation(november2027))))
     mockObligationService
   }
@@ -60,7 +60,7 @@ class RemoveAdjustmentControllerSpec extends SpecBase with MockitoSugar {
 
   private def obligationServiceWithNoMatchingObligation: ObligationService = {
     val mockObligationService = mock[ObligationService]
-    when(mockObligationService.getObligationsDirectly(any())(using any()))
+    when(mockObligationService.getObligations(any())(using any()))
       .thenReturn(Future.successful(Seq.empty))
     mockObligationService
   }

@@ -16,35 +16,51 @@
 
 package builders
 
-import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
+import models.identifiers.{PeriodKey, VpdId}
+import models.obligations.{Identification, ObligationDetails, ObligationItem, ObligationStatus}
 
 import java.time.LocalDate
 
 trait ObligationsBuilders {
 
+  val december2022  = PeriodKey("22AL")
+
+  val december2023  = PeriodKey("23AL")
+
   val january2024  = PeriodKey("24AA")
   val february2024 = PeriodKey("24AB")
   val march2024    = PeriodKey("24AC")
+  
+  val september2025 = PeriodKey("25AI")
+  
+  val january2026  = PeriodKey("26AA")
+  val february2026 = PeriodKey("26AB")
+  val march2026    = PeriodKey("26AC")
+  val june2026     = PeriodKey("26AF")
+  val july2026     = PeriodKey("26AG")
   val october2026  = PeriodKey("26AJ")
   val november2026 = PeriodKey("26AK")
   val december2026 = PeriodKey("26AL")
+
   val october2027  = PeriodKey("27AJ")
   val november2027 = PeriodKey("27AK")
   val december2027 = PeriodKey("27AL")
 
+  val id: VpdId = VpdId(id = "VPPAID01")
+  
   // Synonyms for obligations in terms of returns
   def returns(returns: Seq[ObligationDetails]): Seq[ObligationItem] = obligations(returns)
   def completedReturn(periodKey: PeriodKey): ObligationDetails = fulfilledObligation(periodKey)
   def outstandingReturn(periodKey: PeriodKey): ObligationDetails = openObligation(periodKey)
 
   def obligations(obligations: Seq[ObligationDetails]): Seq[ObligationItem] = {
-    obligations.map(obligationDetails =>
-      ObligationItem(
-        identification = None,
-        obligationDetails = obligationDetails)
-    )
+    
+      Seq(ObligationItem(
+        identification = Some(Identification(referenceType = "ZVPD", referenceNumber = id.value, None)),
+        obligationDetails = obligations
+      ))
   }
+  
   def fulfilledObligation(periodKey: PeriodKey): ObligationDetails = obligationDetails(periodKey, ObligationStatus.F)
   def openObligation(periodKey: PeriodKey): ObligationDetails      = obligationDetails(periodKey, ObligationStatus.O)
 
