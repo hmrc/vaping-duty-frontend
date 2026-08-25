@@ -127,7 +127,7 @@ object AdjustmentCheckYourAnswersViewModel {
           Some(adjustment.period)
         ),
         content = Text(messages("site.remove")),
-        visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.card.remove.hidden", periodDisplay))
+        visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.card.remove.hidden"))
       )
     )
 
