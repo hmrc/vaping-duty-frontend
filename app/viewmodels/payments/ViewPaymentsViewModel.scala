@@ -28,6 +28,7 @@ import java.time.LocalDate
 
 final case class ViewPaymentsViewModel(
   totalOwed: String,
+  hasOutstandingBalance: Boolean,
   outstandingRows: Seq[Seq[TableRow]],
   paymentOnAccountRows: Seq[Seq[TableRow]],
   clearedRows: Seq[Seq[TableRow]],
@@ -44,6 +45,7 @@ object ViewPaymentsViewModel {
 
     ViewPaymentsViewModel(
       totalOwed = CurrencyFormatter.currencyFormat(totalOwed),
+      hasOutstandingBalance = totalOwed > 0,
       outstandingRows = payments.outstanding.map(buildOutstandingRow(_, returnsDateUtils)),
       paymentOnAccountRows = payments.paymentOnAccount.map(buildPaymentOnAccountRow(_, returnsDateUtils)),
       clearedRows = payments.cleared.map(buildClearedRow(_, returnsDateUtils)),
@@ -62,7 +64,7 @@ object ViewPaymentsViewModel {
         )
       ),
       TableRow(
-        content = Text(CurrencyFormatter.currencyFormat(payment.amountDue)),
+        content = Text(CurrencyFormatter.currencyFormatInTable(payment.amountDue)),
         classes = CssConstants.tableCellNumeric
       ),
       TableRow(
@@ -83,12 +85,11 @@ object ViewPaymentsViewModel {
   private def buildPaymentOnAccountRow(payment: PaymentOnAccount, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(formatDateWithTranslatedMonth(payment.paymentDate, returnsDateUtils)),
-        classes = CssConstants.tableHeader
+        content = Text(formatDateWithTranslatedMonth(payment.paymentDate, returnsDateUtils))
       ),
       TableRow(content = Text(messages("payments.viewPayments.unallocated.description.placeholder"))),
       TableRow(
-        content = Text(CurrencyFormatter.currencyFormat(payment.amount)),
+        content = Text(CurrencyFormatter.currencyFormatInTable(payment.amount)),
         classes = CssConstants.tableCellNumeric
       ),
       TableRow(
@@ -101,16 +102,15 @@ object ViewPaymentsViewModel {
   private def buildClearedRow(payment: ClearedPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
-        content = Text(formatMonthOnly(payment.clearedDate, returnsDateUtils)),
-        classes = CssConstants.tableHeader
+        content = Text(formatDateWithTranslatedMonth(payment.clearedDate, returnsDateUtils))
       ),
       TableRow(
         content = HtmlContent(
-          s"""${messages("payments.viewPayments.cleared.description.text")}<br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference}"""
+          s"""<strong>${messages("payments.viewPayments.cleared.description.text")}</strong><br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference}"""
         )
       ),
       TableRow(
-        content = Text(CurrencyFormatter.currencyFormat(payment.amountPaid)),
+        content = Text(CurrencyFormatter.currencyFormatInTable(payment.amountPaid)),
         classes = CssConstants.tableCellNumeric
       )
     )
@@ -119,11 +119,6 @@ object ViewPaymentsViewModel {
     dateOpt.fold(messages("payments.viewPayments.notAvailable")) { date =>
       val monthName = returnsDateUtils.getMonthMessage(date.getMonth)
       s"${date.getDayOfMonth} $monthName ${date.getYear}"
-    }
-
-  private def formatMonthOnly(dateOpt: Option[LocalDate], returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String =
-    dateOpt.fold(messages("payments.viewPayments.notAvailable")) { date =>
-      returnsDateUtils.getMonthMessage(date.getMonth)
     }
 
   private def descriptionMessageKey(payment: OutstandingPayment): String =

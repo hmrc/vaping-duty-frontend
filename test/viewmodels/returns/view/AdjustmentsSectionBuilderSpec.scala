@@ -147,8 +147,8 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         )
         val result = builder.build()
 
-        result.head.rows(3).value.content.asHtml.toString must include("£100")
-        result.head.rows(3).value.content.asHtml.toString mustNot include("-£100")
+        result.head.rows(3).value.content.asHtml.toString must include("£100.00")
+        result.head.rows(3).value.content.asHtml.toString mustNot include("-£100.00")
       }
 
       "format duty due with minus for over declarations" in {
@@ -165,7 +165,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         )
         val result = builder.build()
 
-        result.head.rows(3).value.content.asHtml.toString must include("-£50")
+        result.head.rows(3).value.content.asHtml.toString must include("-£50.00")
       }
 
       "format millilitres correctly" in {

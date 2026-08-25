@@ -123,10 +123,21 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         vm.clearedRows.head must have size 3
       }
 
-      "must display month-only for cleared payment period" in {
+      "must display the full date for cleared payment period" in {
         val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils)
         val periodCell = vm.clearedRows.head.head
-        periodCell.content.asHtml.body mustBe "January"
+        periodCell.content.asHtml.body mustBe "10 January 2025"
+      }
+
+      "must show a bold 'Cleared payment' heading for a cleared payment" in {
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils)
+        val descriptionCell = vm.clearedRows.head(1)
+        descriptionCell.content.asHtml.body must include("<strong>Cleared payment</strong>")
+      }
+
+      "must indicate an outstanding balance when totalAccountBalance is positive" in {
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, Some(BigDecimal("330000.00"))), returnsDateUtils)
+        vm.hasOutstandingBalance mustBe true
       }
 
       "must show a bold 'Late payment interest' heading for an outstanding payment with mainTransaction 4061" in {
@@ -147,6 +158,11 @@ class ViewPaymentsViewModelSpec extends SpecBase {
       "must show £0 as total owed" in {
         val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils)
         vm.totalOwed mustBe "£0"
+      }
+
+      "must indicate no outstanding balance" in {
+        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils)
+        vm.hasOutstandingBalance mustBe false
       }
 
       "must have no rows in any section" in {

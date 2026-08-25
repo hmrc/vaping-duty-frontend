@@ -76,12 +76,12 @@ final case class AdjustmentsSectionBuilder(
             ),
             SummaryListRow(
               key = Key(content = Text(messages("viewIndividualReturn.adjustments.dutyDue"))),
-              value = Value(content = Text(currencyFormat(firstItem.dutyDue)), classes = CssConstants.boldFontWeight)
+              value = Value(content = Text(currencyFormatInTable(firstItem.dutyDue)), classes = CssConstants.boldFontWeight)
             )
           ))
         } else {
           val firstItem = overDeclarationItems.head
-          val dutyDueFormatted = currencyFormat(firstItem.dutyDue.abs).replace("£", "-£")
+          val dutyDueFormatted = currencyFormatInTable(firstItem.dutyDue.abs).replace("£", "-£")
           SummaryList(rows = Seq(
             questionRow,
             SummaryListRow(
@@ -113,7 +113,7 @@ final case class AdjustmentsSectionBuilder(
               ),
               SummaryListRow(
                 key = Key(content = Text(messages("viewIndividualReturn.adjustments.dutyDue"))),
-                value = Value(content = Text(currencyFormat(item.dutyDue)), classes = CssConstants.boldFontWeight)
+                value = Value(content = Text(currencyFormatInTable(item.dutyDue)), classes = CssConstants.boldFontWeight)
               )
             ))
           }
@@ -124,7 +124,7 @@ final case class AdjustmentsSectionBuilder(
         // All over declarations (or remaining if first was over)
         val overLists = if (underDeclarationItems.isEmpty) {
           overDeclarationItems.tail.map { item =>
-            val dutyDueFormatted = currencyFormat(item.dutyDue.abs).replace("£", "-£")
+            val dutyDueFormatted = currencyFormatInTable(item.dutyDue.abs).replace("£", "-£")
             SummaryList(rows = Seq(
               SummaryListRow(
                 key = Key(content = Text(messages("viewIndividualReturn.adjustments.returnPeriodAffected"))),
@@ -142,7 +142,7 @@ final case class AdjustmentsSectionBuilder(
           }
         } else {
           overDeclarationItems.map { item =>
-            val dutyDueFormatted = currencyFormat(item.dutyDue.abs).replace("£", "-£")
+            val dutyDueFormatted = currencyFormatInTable(item.dutyDue.abs).replace("£", "-£")
             SummaryList(rows = Seq(
               SummaryListRow(
                 key = Key(content = Text(messages("viewIndividualReturn.adjustments.returnPeriodAffected"))),

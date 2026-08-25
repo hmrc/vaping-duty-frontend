@@ -20,8 +20,13 @@ package utils
 import scala.math.BigDecimal.RoundingMode
 
 trait CurrencyFormatter {
-  def currencyFormat(amt: BigDecimal): String = f"£$amt%,1.2f".replace(".00","")
-  
+  private def simpleCurrencyFormat(amt: BigDecimal): String = f"£$amt%,1.2f"
+
+  def currencyFormat(amt: BigDecimal): String = simpleCurrencyFormat(amt).replace(".00","")
+
+  // This formatter is only used for amounts displayed in tables, to improve readability for users
+  def currencyFormatInTable(amt: BigDecimal): String = simpleCurrencyFormat(amt)
+
   def currencyFormatWithLeadingSign(amt: BigDecimal): String = {
     val isNegative = amt < 0
     val absoluteAmount = amt.abs
