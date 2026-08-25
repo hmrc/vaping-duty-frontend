@@ -198,7 +198,7 @@ returns.declareDuty.title = Do you need to declare vaping products for duty?
 returns.declareDuty.heading = Do you need to declare vaping products for duty?
 returns.declareDuty.checkYourAnswersLabel = declareDuty
 returns.declareDuty.caption.text = Declare vaping duty
-returns.declareDuty.change.hidden = whether you need to declare vaping products for duty
+returns.declareDuty.change.hidden = do you need to declare vaping products for duty?
 
 returns.enterDutyAmount.title = Amount of vaping products released
 returns.enterDutyAmount.heading = Amount of vaping products released
@@ -223,7 +223,7 @@ returns.enterDutyAmount.error.invalidDecimalPlaces.wholeOnly = Enter whole milli
 returns.enterDutyAmount.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
 returns.enterDutyAmount.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
 returns.enterDutyAmount.error.mustBeGreaterThanZero = You must enter a number greater than zero
-returns.enterDutyAmount.change.hidden = vaping products volume
+returns.enterDutyAmount.change.hidden = how much vaping products released do you need to declare?
 
 returns.declareDutyCheckAnswers.title = Your duty is {0}
 returns.declareDutyCheckAnswers.caption = Declare vaping duty
@@ -231,10 +231,10 @@ returns.declareDutyCheckAnswers.heading = Your duty is {0}
 returns.declareDutyCheckAnswers.noDutyHeading = You have no vaping duty to declare
 returns.declareDutyCheckAnswers.entryDetails = Summary
 returns.declareDutyCheckAnswers.declareDuty = Do you need to declare vaping products for duty?
-returns.declareDutyCheckAnswers.declareDuty.change.hidden = vaping products for duty
+returns.declareDutyCheckAnswers.declareDuty.change.hidden = do you need to declare vaping products for duty?
 returns.declareDutyCheckAnswers.volume = Volume
 returns.declareDutyCheckAnswers.dutyDue = Duty due
-returns.declareDutyCheckAnswers.volume.change.hidden = vaping products volume
+returns.declareDutyCheckAnswers.volume.change.hidden = volume
 
 returns.declareSpoiltProducts.title = Declare spoilt products from an earlier return
 returns.declareSpoiltProducts.heading = Declare spoilt products from an earlier return
@@ -256,7 +256,7 @@ returns.declareSpoiltProducts.details.content.p6.text = If you intend to destroy
 returns.declareSpoiltProducts.details.content.p6.link = claim the duty back under the excise duty drawback scheme
 returns.declareSpoiltProducts.question = Do you have any spoilt vaping products to declare?
 returns.declareSpoiltProducts.checkYourAnswersLabel = Declare spoilt products
-returns.declareSpoiltProducts.change.hidden = declare spoilt products
+returns.declareSpoiltProducts.change.hidden = do you have any spoilt vaping products to declare?
 
 returns.selectSpoiltPeriod.title = When did you release the products?
 returns.selectSpoiltPeriod.heading = When did you release the products?
@@ -283,8 +283,8 @@ returns.spoiltCheckYourAnswers.noSpoiltProducts.heading = You have no spoilt pro
 returns.spoiltCheckYourAnswers.addAnother = Add another month?
 returns.spoiltCheckYourAnswers.volume = Volume
 returns.spoiltCheckYourAnswers.duty = Duty
-returns.spoiltCheckYourAnswers.card.remove.hidden = spoilt products for {0}
-returns.spoiltCheckYourAnswers.volume.change.hidden = spoilt products volume
+returns.spoiltCheckYourAnswers.card.remove.hidden = spoilt products for
+returns.spoiltCheckYourAnswers.volume.change.hidden = volume
 
 returns.removeSpoiltAdjustment.title = Remove spoilt product
 returns.removeSpoiltAdjustment.heading = Remove spoilt product
@@ -304,7 +304,7 @@ returns.declareDutySuspense.details.content.p3 = Vaping Products Duty must be pa
 returns.declareDutySuspense.question = Have you received or moved any finished vaping products in duty suspense?
 returns.declareDutySuspense.error.required = Select yes if you have received or moved any finished vaping products in duty suspense
 returns.declareDutySuspense.checkYourAnswersLabel = Declare duty suspense
-returns.declareDutySuspense.change.hidden = whether you have received or moved duty suspended products
+returns.declareDutySuspense.change.hidden = have you received or moved any finished vaping products in duty suspense?
 
 returns.enterDutySuspense.title = Volume of vaping liquid received or moved under duty suspension
 returns.enterDutySuspense.heading = Volume of vaping liquid received or moved under duty suspension
@@ -328,7 +328,7 @@ returns.enterDutySuspense.error.bothZero = You must enter a number greater than 
 
 returns.enterDutySuspense.ml = ml
 returns.enterDutySuspense.checkYourAnswersLabel = Enter duty suspense
-returns.enterDutySuspense.change.hidden = duty suspense volumes
+returns.enterDutySuspense.change.hidden = volume received and volume moved
 
 returns.dutySuspenseCheckAnswers.title = Check your answers
 returns.dutySuspenseCheckAnswers.heading = Check your answers
@@ -337,11 +337,11 @@ returns.dutySuspenseCheckAnswers.caption = Report duty suspended vaping products
 returns.dutySuspenseCheckAnswers.p = These answers will not affect the total duty due.
 returns.dutySuspenseCheckAnswers.cardTitle = Duty suspense
 returns.dutySuspenseCheckAnswers.declareDutySuspense = Have you received or moved any finished vaping products in duty suspense?
-returns.dutySuspenseCheckAnswers.declareDutySuspense.change.hidden = duty suspense declaration
+returns.dutySuspenseCheckAnswers.declareDutySuspense.change.hidden = have you received or moved any finished vaping products in duty suspense?
 returns.dutySuspenseCheckAnswers.productReceived = Volume received
 returns.dutySuspenseCheckAnswers.productMoved = Volume moved
-returns.dutySuspenseCheckAnswers.cardActions.change.hidden = duty suspense details
-returns.dutySuspenseCheckAnswers.change.hidden = product received into duty suspension
+returns.dutySuspenseCheckAnswers.cardActions.change.hidden = volume received and volume moved
+returns.dutySuspenseCheckAnswers.change.hidden = volume received and volume moved
 
 returns.CheckYourAnswers.title = Check your answers
 returns.CheckYourAnswers.caption = Check your answers for {0} {1} return
@@ -372,11 +372,11 @@ returns.CheckYourAnswers.dutySummary.total.nil = £0
 returns.CheckYourAnswers.dutySummary.nothing = Nothing to declare
 
 returns.CheckYourAnswers.adjustments.question = Do you have any vaping products you need to over or under declare?
-returns.CheckYourAnswers.adjustments.question.change.hidden = adjustment declaration
-returns.CheckYourAnswers.declareDutySuspense.question.change.hidden = whether you have received or moved duty suspended products
-returns.CheckYourAnswers.dutySuspended.declared.change.hidden = duty suspense volumes
-returns.CheckYourAnswers.declareDuty.vaping.change.hidden = whether you need to declare vaping products for duty
-returns.CheckYourAnswers.dutySummary.vaping.change.hidden = vaping duty amount
+returns.CheckYourAnswers.adjustments.question.change.hidden = do you have any vaping products you need to over or under declare?
+returns.CheckYourAnswers.declareDutySuspense.question.change.hidden = have you received or moved any finished vaping products in duty suspense?
+returns.CheckYourAnswers.dutySuspended.declared.change.hidden = duty suspense
+returns.CheckYourAnswers.declareDuty.vaping.change.hidden = do you need to declare vaping products for duty?
+returns.CheckYourAnswers.dutySummary.vaping.change.hidden = vaping duty
 returns.CheckYourAnswers.adjustments.combined = Adjustments
 returns.CheckYourAnswers.adjustments.combined.change.hidden = adjustments
 returns.CheckYourAnswers.adjustments.reason = Adjustment reason
@@ -398,19 +398,19 @@ returns.CheckYourAnswers.card.declareDuty.question = Do you need to declare vapi
 returns.CheckYourAnswers.card.declareDuty.duty = Vaping duty
 
 returns.CheckYourAnswers.card.spoilt.title = Declare any spoilt products
-returns.CheckYourAnswers.card.spoilt.change.hidden = spoilt products
+returns.CheckYourAnswers.card.spoilt.change.hidden = declare any spoilt products
 returns.CheckYourAnswers.card.spoilt.question = Do you have any spoilt vaping products to declare?
 returns.CheckYourAnswers.card.spoilt.total = Spoilt products
 
 returns.CheckYourAnswers.card.adjustments.title = Declare any over or under-declared adjustments
-returns.CheckYourAnswers.card.adjustments.change.hidden = adjustments
+returns.CheckYourAnswers.card.adjustments.change.hidden = declare any over or under-declared adjustments
 returns.CheckYourAnswers.card.adjustments.question = Do you have any vaping products you need to over or under declare?
 returns.CheckYourAnswers.card.adjustments.total = Adjustments
 returns.CheckYourAnswers.card.adjustments.reason = Adjustment reason
 returns.CheckYourAnswers.card.adjustments.reason.change.hidden = adjustment reason
 
 returns.CheckYourAnswers.card.dutySuspended.title = Report duty suspended vaping deliveries
-returns.CheckYourAnswers.card.dutySuspended.change.hidden = duty suspended deliveries
+returns.CheckYourAnswers.card.dutySuspended.change.hidden = report duty suspended vaping deliveries
 returns.CheckYourAnswers.card.dutySuspended.question = Have you received or moved any finished vaping products in duty suspense?
 returns.CheckYourAnswers.card.dutySuspended.declared = Duty suspense
 
@@ -535,7 +535,7 @@ returns.declareAdjustmentQuestion.title = Declare adjustments from earlier retur
 returns.declareAdjustmentQuestion.heading = Declare adjustments from earlier returns
 returns.declareAdjustmentQuestion.caption = Over or under-declared adjustments
 returns.declareAdjustmentQuestion.checkYourAnswersLabel = Do you have any vaping products you need to over or under declare?
-returns.declareAdjustmentQuestion.change.hidden = whether you need to declare adjustments
+returns.declareAdjustmentQuestion.change.hidden = do you have any vaping products you need to over or under declare?
 returns.declareAdjustmentQuestion.p1 = Tell us about any vaping products that were over or under-declared in previous returns.
 returns.declareAdjustmentQuestion.p2 = You may be required to explain why these were over or under-declared.
 returns.declareAdjustmentQuestion.details.summary = What ‘over-declared’ and ‘under-declared’ mean
@@ -581,18 +581,18 @@ returns.adjustmentCheckYourAnswers.caption = Over or under-declared adjustments
 returns.adjustmentCheckYourAnswers.noAdjustments.heading = You have no adjustments to declare
 returns.adjustmentCheckYourAnswers.addAnother = Do you need to add another adjustment?
 returns.adjustmentCheckYourAnswers.question = Do you have any vaping products you need to over or under declare?
-returns.adjustmentCheckYourAnswers.question.change.hidden = adjustment declaration
+returns.adjustmentCheckYourAnswers.question.change.hidden = do you have any vaping products you need to over or under declare?
 returns.adjustmentCheckYourAnswers.type = Type
 returns.adjustmentCheckYourAnswers.type.underDeclared = Under declared
 returns.adjustmentCheckYourAnswers.type.overDeclared = Over declared
 returns.adjustmentCheckYourAnswers.volume = Volume
 returns.adjustmentCheckYourAnswers.duty = Duty
 returns.adjustmentCheckYourAnswers.card.change.hidden = adjustment for {0}
-returns.adjustmentCheckYourAnswers.card.remove.hidden = adjustment for {0}
+returns.adjustmentCheckYourAnswers.card.remove.hidden = adjustment for
 returns.adjustmentCheckYourAnswers.change.hidden = adjustment for {0}
 returns.adjustmentCheckYourAnswers.remove.hidden = adjustment for {0}
 returns.adjustmentCheckYourAnswers.type.change.hidden = adjustment type
-returns.adjustmentCheckYourAnswers.volume.change.hidden = adjustment volume
+returns.adjustmentCheckYourAnswers.volume.change.hidden = volume
 
 returns.removeAdjustment.title = Remove adjustment
 returns.removeAdjustment.heading = Remove adjustment
