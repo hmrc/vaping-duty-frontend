@@ -44,7 +44,7 @@ object ViewPaymentsViewModel {
     val clearedYear = returnsDateUtils.getYear.toString
 
     ViewPaymentsViewModel(
-      totalOwed = CurrencyFormatter.currencyFormatTwoDp(totalOwed),
+      totalOwed = CurrencyFormatter.currencyFormat(totalOwed),
       hasOutstandingBalance = totalOwed > 0,
       outstandingRows = payments.outstanding.map(buildOutstandingRow(_, returnsDateUtils)),
       paymentOnAccountRows = payments.paymentOnAccount.map(buildPaymentOnAccountRow(_, returnsDateUtils)),

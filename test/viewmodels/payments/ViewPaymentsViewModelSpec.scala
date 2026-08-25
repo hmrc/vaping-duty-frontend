@@ -81,7 +81,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
     "when payments exist" - {
       "must format total owed correctly from outstanding payments only" in {
         val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, Some(BigDecimal("330000.00"))), returnsDateUtils)
-        vm.totalOwed mustBe "£330,000.00"
+        vm.totalOwed mustBe "£330,000"
       }
 
       "must build a table row for each outstanding payment status" in {
@@ -157,7 +157,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
     "when no payments exist" - {
       "must show £0 as total owed" in {
         val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils)
-        vm.totalOwed mustBe "£0.00"
+        vm.totalOwed mustBe "£0"
       }
 
       "must indicate no outstanding balance" in {
