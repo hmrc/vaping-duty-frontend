@@ -19,7 +19,7 @@ package viewmodels.payments
 import controllers.payments.routes
 import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse}
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.Aliases.{ActionItem, HtmlContent, TableRow, Tag, Text}
+import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Tag, Text}
 import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag
 import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
 import utils.{CssConstants, CurrencyFormatter, ReturnsDateUtils}
@@ -27,13 +27,13 @@ import utils.{CssConstants, CurrencyFormatter, ReturnsDateUtils}
 import java.time.LocalDate
 
 final case class ViewPaymentsViewModel(
-  totalOwed: String,
-  hasOutstandingBalance: Boolean,
-  outstandingRows: Seq[Seq[TableRow]],
-  paymentOnAccountRows: Seq[Seq[TableRow]],
-  clearedRows: Seq[Seq[TableRow]],
-  clearedPaymentsYear: String
-)
+                                        totalOwed: String,
+                                        hasOutstandingBalance: Boolean,
+                                        outstandingRows: Seq[Seq[TableRow]],
+                                        paymentOnAccountRows: Seq[Seq[TableRow]],
+                                        clearedRows: Seq[Seq[TableRow]],
+                                        clearedPaymentsYear: String
+                                      )
 
 object ViewPaymentsViewModel {
   private val govukTag = GovukTag()
@@ -77,15 +77,16 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          ActionItem(
-            href = routes.StartPaymentController.startPayment(payment.chargeReference).url,
-            content = Text(messages("payments.viewPayments.table.payNow")),
-            visuallyHiddenText = Some(messages(
-              "payments.viewPayments.table.payNow.hidden",
-              CurrencyFormatter.currencyFormat(payment.amountDue),
-              formatDateWithTranslatedMonth(Some(payment.dueDate), returnsDateUtils)
-            ))
-          ).toString
+          s"""<a href="${routes.StartPaymentController.startPayment(payment.chargeReference).url}" class="govuk-link">
+             |${messages("payments.viewPayments.table.payNow")}
+             |<span class="govuk-visually-hidden">
+             | ${messages(
+               "payments.viewPayments.table.payNow.hidden",
+               CurrencyFormatter.currencyFormat(payment.amountDue),
+               formatDateWithTranslatedMonth(Some(payment.dueDate), returnsDateUtils)
+             )}
+             |</span>
+             |</a>""".stripMargin
         )
       )
     )
@@ -102,15 +103,16 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          ActionItem(
-            href = "#",
-            content = Text(messages("payments.viewPayments.unallocated.action.claimRepayment")),
-            visuallyHiddenText = Some(messages(
-              "payments.viewPayments.unallocated.action.claimRepayment.hidden",
-              CurrencyFormatter.currencyFormat(payment.amount),
-              formatDateWithTranslatedMonth(payment.paymentDate, returnsDateUtils)
-            ))
-          ).toString
+          s"""<a href="#" class="govuk-link">
+             |${messages("payments.viewPayments.unallocated.action.claimRepayment")}
+             |<span class="govuk-visually-hidden">
+             | ${messages(
+               "payments.viewPayments.unallocated.action.claimRepayment.hidden",
+               CurrencyFormatter.currencyFormat(payment.amount),
+               formatDateWithTranslatedMonth(payment.paymentDate, returnsDateUtils)
+             )}
+             |</span>
+             |</a>""".stripMargin
         )
       )
     )

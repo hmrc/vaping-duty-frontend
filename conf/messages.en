@@ -629,7 +629,7 @@ payments.viewPayments.table.description.text = Payment
 payments.viewPayments.table.description.interest = Late payment interest
 payments.viewPayments.table.chargeReference = Charge reference
 payments.viewPayments.table.payNow = Pay now
-payments.viewPayments.table.payNow.hidden = Pay now amount of £{0} due {1}
+payments.viewPayments.table.payNow.hidden = amount of {0} due {1}
 payments.viewPayments.noPayments = You do not currently have any payments due.
 payments.viewPayments.status.due = Due
 payments.viewPayments.status.overdue = Overdue
@@ -650,7 +650,7 @@ payments.viewPayments.unallocated.table.amount = Amount
 payments.viewPayments.unallocated.table.action = Action
 payments.viewPayments.unallocated.description.placeholder = Payment
 payments.viewPayments.unallocated.action.claimRepayment = Claim repayment
-payments.viewPayments.unallocated.action.claimRepayment.hidden = Claim repayment of £{0} from {1}
+payments.viewPayments.unallocated.action.claimRepayment.hidden = of {0} from {1}
 
 payments.viewPayments.cleared.heading = Cleared payments in {0}
 payments.viewPayments.cleared.body = This includes payments we have received and charges paid using an existing credit balance.
