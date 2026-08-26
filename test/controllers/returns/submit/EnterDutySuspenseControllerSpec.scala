@@ -26,8 +26,9 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.EnterDutySuspensePage
-import play.api.data.Form
+import play.api.data.{Form, Mapping}
 import play.api.data.Forms.{bigDecimal, mapping}
+import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -212,6 +213,47 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("volumeReceived", "abc"), ("volumeMoved", "xyz"))
 
         val boundForm = testForm.bind(Map("volumeReceived" -> "abc", "volumeMoved" -> "xyz"))
+
+        val view = application.injector.instanceOf[EnterDutySuspenseView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(periodKey, boundForm, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must return a Bad Request and errors when both values are zero" in {
+      val bothZeroConstraint: Constraint[DutySuspenseVolumes] = Constraint { data =>
+        if (data.volumeReceived == 0 && data.volumeMoved == 0) {
+          Invalid("returns.enterDutySuspense.error.bothZero")
+        } else {
+          Valid
+        }
+      }
+
+      val baseMapping: Mapping[DutySuspenseVolumes] = mapping(
+        "volumeReceived" -> bigDecimal,
+        "volumeMoved"    -> bigDecimal
+      )(DutySuspenseVolumes.apply)(o => Some((o.volumeReceived, o.volumeMoved)))
+      
+      val formWithBothZeroValidation = Form(
+        baseMapping.verifying(bothZeroConstraint)
+      )
+
+      when(mockFormProvider.apply(any(), any())(any(), any()))
+        .thenReturn(Future.successful(formWithBothZeroValidation))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
+        .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, enterDutySuspenseRoute)
+            .withFormUrlEncodedBody(("volumeReceived", "0"), ("volumeMoved", "0"))
+
+        val boundForm = formWithBothZeroValidation.bind(Map("volumeReceived" -> "0", "volumeMoved" -> "0"))
 
         val view = application.injector.instanceOf[EnterDutySuspenseView]
 
