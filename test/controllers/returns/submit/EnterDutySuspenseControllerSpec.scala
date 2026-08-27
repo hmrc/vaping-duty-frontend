@@ -39,7 +39,6 @@ import scala.concurrent.Future
 
 class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
 
-  private val mockFormProvider = mock[EnterDutySuspenseFormProvider]
   private val testForm: Form[DutySuspenseVolumes] = Form(
     mapping(
       "volumeReceived" -> bigDecimal,
@@ -56,11 +55,8 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
   "EnterDutySuspense Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      when(mockFormProvider.apply(any(), any())(any(), any()))
-        .thenReturn(Future.successful(testForm))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
         .build()
 
       running(application) {
@@ -76,13 +72,10 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-      when(mockFormProvider.apply(any(), any())(any(), any()))
-        .thenReturn(Future.successful(testForm))
 
       val userAnswers = returnsUserAnswers.set(EnterDutySuspensePage, validAnswer).success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
-        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
         .build()
 
       running(application) {
@@ -98,8 +91,6 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when valid data is submitted" in {
-      when(mockFormProvider.apply(any(), any())(any(), any()))
-        .thenReturn(Future.successful(testForm))
 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
 
@@ -110,7 +101,6 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-            bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider)
           )
           .build()
 
@@ -127,11 +117,8 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted (empty volumeReceived)" in {
-      when(mockFormProvider.apply(any(), any())(any(), any()))
-        .thenReturn(Future.successful(testForm))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
         .build()
 
       running(application) {
@@ -139,7 +126,9 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
           FakeRequest(POST, enterDutySuspenseRoute)
             .withFormUrlEncodedBody(("volumeReceived", ""), ("volumeMoved", "2000"))
 
-        val boundForm = testForm.bind(Map("volumeReceived" -> "", "volumeMoved" -> "2000"))
+        val formProvider = application.injector.instanceOf[EnterDutySuspenseFormProvider]
+        val form = formProvider(periodKey, vpdId)
+        val boundForm = form.bind(Map("volumeReceived" -> "", "volumeMoved" -> "2000"))
 
         val view = application.injector.instanceOf[EnterDutySuspenseView]
 
@@ -151,11 +140,8 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted (empty volumeMoved)" in {
-      when(mockFormProvider.apply(any(), any())(any(), any()))
-        .thenReturn(Future.successful(testForm))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
         .build()
 
       running(application) {
@@ -163,7 +149,9 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
           FakeRequest(POST, enterDutySuspenseRoute)
             .withFormUrlEncodedBody(("volumeReceived", "1000"), ("volumeMoved", ""))
 
-        val boundForm = testForm.bind(Map("volumeReceived" -> "1000", "volumeMoved" -> ""))
+        val formProvider = application.injector.instanceOf[EnterDutySuspenseFormProvider]
+        val form = formProvider(periodKey, vpdId)
+        val boundForm = form.bind(Map("volumeReceived" -> "1000", "volumeMoved" -> ""))
 
         val view = application.injector.instanceOf[EnterDutySuspenseView]
 
@@ -175,11 +163,8 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted (both empty)" in {
-      when(mockFormProvider.apply(any(), any())(any(), any()))
-        .thenReturn(Future.successful(testForm))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
         .build()
 
       running(application) {
@@ -187,7 +172,9 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
           FakeRequest(POST, enterDutySuspenseRoute)
             .withFormUrlEncodedBody(("volumeReceived", ""), ("volumeMoved", ""))
 
-        val boundForm = testForm.bind(Map("volumeReceived" -> "", "volumeMoved" -> ""))
+        val formProvider = application.injector.instanceOf[EnterDutySuspenseFormProvider]
+        val form = formProvider(periodKey, vpdId)
+        val boundForm = form.bind(Map("volumeReceived" -> "", "volumeMoved" -> ""))
 
         val view = application.injector.instanceOf[EnterDutySuspenseView]
 
@@ -199,11 +186,8 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when non-numeric data is submitted" in {
-      when(mockFormProvider.apply(any(), any())(any(), any()))
-        .thenReturn(Future.successful(testForm))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
         .build()
 
       running(application) {
@@ -211,7 +195,9 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
           FakeRequest(POST, enterDutySuspenseRoute)
             .withFormUrlEncodedBody(("volumeReceived", "abc"), ("volumeMoved", "xyz"))
 
-        val boundForm = testForm.bind(Map("volumeReceived" -> "abc", "volumeMoved" -> "xyz"))
+        val formProvider = application.injector.instanceOf[EnterDutySuspenseFormProvider]
+        val form = formProvider(periodKey, vpdId)
+        val boundForm = form.bind(Map("volumeReceived" -> "abc", "volumeMoved" -> "xyz"))
 
         val view = application.injector.instanceOf[EnterDutySuspenseView]
 
@@ -223,8 +209,6 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to the next page when both values are zero" in {
-      when(mockFormProvider.apply(any(), any())(any(), any()))
-        .thenReturn(Future.successful(testForm))
 
       val mockSessionRepository = mock[ReturnsUserAnswersService]
 
@@ -235,7 +219,6 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-            bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider)
           )
           .build()
 
