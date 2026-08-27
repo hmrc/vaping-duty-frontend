@@ -44,35 +44,29 @@
         @caption(messages("returns.enterDutySuspense.caption.text"))
         @h1(messages("returns.enterDutySuspense.heading"))
 
-        @defining(form.errors.find(_.key == "")) { formLevelError =>
-            @govukInput(
-                InputViewModel(
-                    field = formLevelError.fold(form("volumeReceived"))(err =>
-                        form("volumeReceived").copy(errors = form("volumeReceived").errors :+ err)
-                    ),
-                    label = LabelViewModel(messages("returns.enterDutySuspense.volumeReceived.label")).withCssClass(LegendSize.Medium.toString)
-                )
-                .asNumeric()
-                .withWidth(Fixed10)
-                .withSuffix(PrefixOrSuffix(
-                  content = messages("returns.enterDutySuspense.ml")
-                ))
+        @govukInput(
+            InputViewModel(
+                field = form("volumeReceived"),
+                label = LabelViewModel(messages("returns.enterDutySuspense.volumeReceived.label")).withCssClass(LegendSize.Medium.toString)
             )
+            .asNumeric()
+            .withWidth(Fixed10)
+            .withSuffix(PrefixOrSuffix(
+              content = messages("returns.enterDutySuspense.ml")
+            ))
+        )
 
-            @govukInput(
-                InputViewModel(
-                    field = formLevelError.fold(form("volumeMoved"))(err =>
-                        form("volumeMoved").copy(errors = form("volumeMoved").errors :+ err)
-                    ),
-                    label = LabelViewModel(messages("returns.enterDutySuspense.volumeMoved.label")).withCssClass(LegendSize.Medium.toString)
-                )
-                .asNumeric()
-                .withWidth(Fixed10)
-                .withSuffix(PrefixOrSuffix(
-                  content = messages("returns.enterDutySuspense.ml")
-                ))
+        @govukInput(
+            InputViewModel(
+                field = form("volumeMoved"),
+                label = LabelViewModel(messages("returns.enterDutySuspense.volumeMoved.label")).withCssClass(LegendSize.Medium.toString)
             )
-        }
+            .asNumeric()
+            .withWidth(Fixed10)
+            .withSuffix(PrefixOrSuffix(
+              content = messages("returns.enterDutySuspense.ml")
+            ))
+        )
 
         @govukButton(
             ButtonViewModel(messages("site.saveAndContinue"))

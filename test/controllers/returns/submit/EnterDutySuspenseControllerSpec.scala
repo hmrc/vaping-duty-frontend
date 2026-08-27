@@ -26,9 +26,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.EnterDutySuspensePage
-import play.api.data.{Form, Mapping}
+import play.api.data.Form
 import play.api.data.Forms.{bigDecimal, mapping}
-import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -223,50 +222,32 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return a Bad Request and errors when both values are zero" in {
-      val bothZeroConstraint: Constraint[DutySuspenseVolumes] = Constraint { data =>
-        if (data.volumeReceived == 0 && data.volumeMoved == 0) {
-          Invalid("returns.enterDutySuspense.error.bothZero")
-        } else {
-          Valid
-        }
-      }
-
-      val baseMapping: Mapping[DutySuspenseVolumes] = mapping(
-        "volumeReceived" -> bigDecimal,
-        "volumeMoved"    -> bigDecimal
-      )(DutySuspenseVolumes.apply)(o => Some((o.volumeReceived, o.volumeMoved)))
-      
-      val formWithBothZeroValidation = Form(
-        baseMapping.verifying(bothZeroConstraint)
-      )
-
+    "must redirect to the next page when both values are zero" in {
       when(mockFormProvider.apply(any(), any())(any(), any()))
-        .thenReturn(Future.successful(formWithBothZeroValidation))
+        .thenReturn(Future.successful(testForm))
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
-        .overrides(bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider))
-        .build()
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val application =
+        applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+          .overrides(
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[EnterDutySuspenseFormProvider].toInstance(mockFormProvider)
+          )
+          .build()
 
       running(application) {
         val request =
           FakeRequest(POST, enterDutySuspenseRoute)
             .withFormUrlEncodedBody(("volumeReceived", "0"), ("volumeMoved", "0"))
 
-        val boundForm = formWithBothZeroValidation.bind(Map("volumeReceived" -> "0", "volumeMoved" -> "0"))
-
-        val view = application.injector.instanceOf[EnterDutySuspenseView]
-
         val result = route(application, request).value
 
-        status(result) mustEqual BAD_REQUEST
-
-        val content: String = contentAsString(result)
-
-        content mustEqual view(periodKey, boundForm, NormalMode)(request, messages(application)).toString
-
-        content must include ("volumeReceived-error")
-        content must include ("volumeMoved-error")
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 

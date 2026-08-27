@@ -278,11 +278,11 @@ class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must fail when both fields are zero" in {
+      "must bind when both fields are zero" in {
         setupMocks()
         whenReady(formProvider(testPeriodKey, testVpdId)) { form =>
           val result = form.bind(Map("volumeReceived" -> "0", "volumeMoved" -> "0"))
-          result.errors mustEqual Seq(FormError("", "returns.enterDutySuspense.error.bothZero"))
+          result.value.value mustEqual DutySuspenseVolumes(BigDecimal("0"), BigDecimal("0"))
         }
       }
 
