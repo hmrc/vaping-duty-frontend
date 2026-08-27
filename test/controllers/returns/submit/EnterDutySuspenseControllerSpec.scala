@@ -260,7 +260,13 @@ class EnterDutySuspenseControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(periodKey, boundForm, NormalMode)(request, messages(application)).toString
+
+        val content: String = contentAsString(result)
+
+        content mustEqual view(periodKey, boundForm, NormalMode)(request, messages(application)).toString
+
+        content must include ("volumeReceived-error")
+        content must include ("volumeMoved-error")
       }
     }
 
