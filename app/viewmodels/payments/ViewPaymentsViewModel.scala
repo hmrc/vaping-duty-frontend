@@ -27,13 +27,13 @@ import utils.{CssConstants, CurrencyFormatter, ReturnsDateUtils}
 import java.time.LocalDate
 
 final case class ViewPaymentsViewModel(
-  totalOwed: String,
-  hasOutstandingBalance: Boolean,
-  outstandingRows: Seq[Seq[TableRow]],
-  paymentOnAccountRows: Seq[Seq[TableRow]],
-  clearedRows: Seq[Seq[TableRow]],
-  clearedPaymentsYear: String
-)
+                                        totalOwed: String,
+                                        hasOutstandingBalance: Boolean,
+                                        outstandingRows: Seq[Seq[TableRow]],
+                                        paymentOnAccountRows: Seq[Seq[TableRow]],
+                                        clearedRows: Seq[Seq[TableRow]],
+                                        clearedPaymentsYear: String
+                                      )
 
 object ViewPaymentsViewModel {
   private val govukTag = GovukTag()
@@ -77,7 +77,16 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""<a href="${routes.StartPaymentController.startPayment(payment.chargeReference)}" class="${CssConstants.link}">${messages("payments.viewPayments.table.payNow")}</a>"""
+          s"""<a href="${routes.StartPaymentController.startPayment(payment.chargeReference).url}" class="govuk-link">
+             |${messages("payments.viewPayments.table.payNow")}
+             |<span class="govuk-visually-hidden">
+             | ${messages(
+               "payments.viewPayments.table.payNow.hidden",
+               CurrencyFormatter.currencyFormat(payment.amountDue),
+               formatDateWithTranslatedMonth(Some(payment.dueDate), returnsDateUtils)
+             )}
+             |</span>
+             |</a>""".stripMargin
         )
       )
     )
@@ -94,7 +103,16 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""<a href="#" class="${CssConstants.link}">${messages("payments.viewPayments.unallocated.action.claimRepayment")}</a>"""
+          s"""<a href="#" class="govuk-link">
+             |${messages("payments.viewPayments.unallocated.action.claimRepayment")}
+             |<span class="govuk-visually-hidden">
+             | ${messages(
+               "payments.viewPayments.unallocated.action.claimRepayment.hidden",
+               CurrencyFormatter.currencyFormat(payment.amount),
+               formatDateWithTranslatedMonth(payment.paymentDate, returnsDateUtils)
+             )}
+             |</span>
+             |</a>""".stripMargin
         )
       )
     )

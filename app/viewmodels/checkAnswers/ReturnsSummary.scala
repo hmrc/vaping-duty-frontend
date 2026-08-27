@@ -76,7 +76,7 @@ object ReturnsSummary extends CurrencyFormatter {
           ActionItemViewModel(
             "site.change",
             s"${controllers.returns.submit.routes.DeclareDutyController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
-          ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.declareDuty.vaping"))
+          ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.declareDuty.vaping.change.hidden"))
         )
       )
     }
@@ -89,7 +89,7 @@ object ReturnsSummary extends CurrencyFormatter {
         ActionItemViewModel(
           "site.change", 
           s"${controllers.returns.submit.routes.EnterDutyAmountController.onPageLoad(CheckMode).url}?period=${periodKey.value}"
-        ).withVisuallyHiddenText(messages(""))
+        ).withVisuallyHiddenText(messages("returns.CheckYourAnswers.dutySummary.vaping.change.hidden"))
       )
     ))
   }
