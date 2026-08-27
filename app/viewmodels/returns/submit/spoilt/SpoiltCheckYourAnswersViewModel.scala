@@ -126,7 +126,7 @@ object SpoiltCheckYourAnswersViewModel {
           Some(entry.periodKey)
         ),
         content = Text(messages("site.remove")),
-        visuallyHiddenText = Some(messages("returns.spoiltCheckYourAnswers.card.remove.hidden"))
+        visuallyHiddenText = Some("")
       )
     )
 

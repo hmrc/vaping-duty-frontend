@@ -283,7 +283,6 @@ returns.spoiltCheckYourAnswers.noSpoiltProducts.heading = You have no spoilt pro
 returns.spoiltCheckYourAnswers.addAnother = Add another month?
 returns.spoiltCheckYourAnswers.volume = Volume
 returns.spoiltCheckYourAnswers.duty = Duty
-returns.spoiltCheckYourAnswers.card.remove.hidden = spoilt products for
 returns.spoiltCheckYourAnswers.volume.change.hidden = volume
 
 returns.removeSpoiltAdjustment.title = Remove spoilt product
@@ -587,10 +586,6 @@ returns.adjustmentCheckYourAnswers.type.underDeclared = Under declared
 returns.adjustmentCheckYourAnswers.type.overDeclared = Over declared
 returns.adjustmentCheckYourAnswers.volume = Volume
 returns.adjustmentCheckYourAnswers.duty = Duty
-returns.adjustmentCheckYourAnswers.card.change.hidden = adjustment for {0}
-returns.adjustmentCheckYourAnswers.card.remove.hidden = adjustment for
-returns.adjustmentCheckYourAnswers.change.hidden = adjustment for {0}
-returns.adjustmentCheckYourAnswers.remove.hidden = adjustment for {0}
 returns.adjustmentCheckYourAnswers.type.change.hidden = adjustment type
 returns.adjustmentCheckYourAnswers.volume.change.hidden = volume
 
