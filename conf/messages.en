@@ -310,20 +310,18 @@ returns.enterDutySuspense.heading = Volume of vaping liquid received or moved un
 returns.enterDutySuspense.caption.text = Report duty suspended vaping products
 
 returns.enterDutySuspense.volumeReceived.label = Amount received
-returns.enterDutySuspense.volumeReceived.error.required = You must enter a number greater than zero
-returns.enterDutySuspense.volumeReceived.error.nonNumeric = You must enter a number greater than zero
-returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
-returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
-returns.enterDutySuspense.volumeReceived.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
+returns.enterDutySuspense.volumeReceived.error.required = Enter the amount of vaping liquid received
+returns.enterDutySuspense.volumeReceived.error.nonNumeric = Amount received must be zero or more
+returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for received amounts of 1,000 ml or more
+returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for received amounts less than 1,000 ml. For example 999.9
+returns.enterDutySuspense.volumeReceived.error.exceedsMaxDuty = Enter an amount received of 999,999,999,999 or less
 
 returns.enterDutySuspense.volumeMoved.label = Amount moved
-returns.enterDutySuspense.volumeMoved.error.required = You must enter a number greater than zero
-returns.enterDutySuspense.volumeMoved.error.nonNumeric = You must enter a number greater than zero
-returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for amounts of 1,000 ml or more
-returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for amounts less than 1,000 ml. For example 999.9
-returns.enterDutySuspense.volumeMoved.error.exceedsMaxDuty = The volume you entered would result in a duty amount that exceeds the maximum allowed. Enter a volume of {0} or less
-
-returns.enterDutySuspense.error.bothZero = You must enter a number greater than zero
+returns.enterDutySuspense.volumeMoved.error.required = Enter the amount of vaping liquid moved
+returns.enterDutySuspense.volumeMoved.error.nonNumeric = Amount moved must be zero or more
+returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly = Enter whole millilitres for moved amounts of 1,000 ml or more
+returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne = Enter no more than 1 decimal place for moved amounts less than 1,000 ml. For example 999.9
+returns.enterDutySuspense.volumeMoved.error.exceedsMaxDuty = Enter an amount moved of 999,999,999,999 or less
 
 returns.enterDutySuspense.ml = ml
 returns.enterDutySuspense.checkYourAnswersLabel = Enter duty suspense

@@ -45,30 +45,33 @@ class EnterDutySuspenseController @Inject()(
                                              view: EnterDutySuspenseView
                                            )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData) {
     implicit request =>
-      formProvider(request.periodKey, request.enrolmentVpdId).map { form =>
-        val preparedForm = request.userAnswers.get(EnterDutySuspensePage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
-        Ok(view(request.periodKey, preparedForm, mode))
+      val form = formProvider(request.periodKey, request.enrolmentVpdId)
+
+      val preparedForm = request.userAnswers.get(EnterDutySuspensePage) match {
+        case None => form
+        case Some(value) => form.fill(value)
       }
+
+      Ok(view(request.periodKey, preparedForm, mode))
   }
+
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-      formProvider(request.periodKey, request.enrolmentVpdId).flatMap { form =>
-        form.bindFromRequest().fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
+      val form = formProvider(request.periodKey, request.enrolmentVpdId)
 
-          value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(EnterDutySuspensePage, value))
-              _ <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(EnterDutySuspensePage, mode, updatedAnswers))
-        )
-      }
+      form.bindFromRequest().fold(
+        formWithErrors =>
+          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
+
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(EnterDutySuspensePage, value))
+            _ <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(EnterDutySuspensePage, mode, updatedAnswers))
+      )
   }
 }

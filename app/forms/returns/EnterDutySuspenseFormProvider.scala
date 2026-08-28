@@ -22,54 +22,52 @@ import models.returns.DutySuspenseVolumes
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import services.returns.{DutyRateService, VolumePrecisionService}
+import uk.gov.hmrc.hmrcfrontend.views.Utils
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.CurrencyFormatter
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class EnterDutySuspenseFormProvider @Inject()(
-  dutyRateService: DutyRateService,
-  volumePrecisionService: VolumePrecisionService
-) extends Mappings {
+                                               dutyRateService: DutyRateService,
+                                               volumePrecisionService: VolumePrecisionService
+                                             ) extends Mappings {
 
   private val VOLUME_RECEIVED_FIELD = "volumeReceived"
   private val VOLUME_MOVED_FIELD = "volumeMoved"
 
   def apply(periodKey: PeriodKey, vpdId: VpdId)
-           (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Form[DutySuspenseVolumes]] = {
+           (implicit hc: HeaderCarrier, ec: ExecutionContext): Form[DutySuspenseVolumes] = {
 
-    dutyRateService.getDutyRate(vpdId, periodKey).map { dutyRate =>
-      val maxVolumeResult = volumePrecisionService.calculateMaxVolume(dutyRate)
+    
+    val maxVolumeResult = BigDecimal("999999999999")
 
-      Form(
-        mapping(
-          VOLUME_RECEIVED_FIELD -> volume(
-            "returns.enterDutySuspense.volumeReceived.error.required",
-            "returns.enterDutySuspense.volumeReceived.error.nonNumeric",
-            "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.wholeOnly",
-            "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.maxOne")
-              .verifying(inRange(
-                BigDecimal(0),
-                maxVolumeResult.maxVolumeInMl,
-                "returns.enterDutySuspense.volumeReceived.error.exceedsMaxDuty",
-                maxVolumeResult.formattedForDisplay
-              )),
+    Form(
+      mapping(
+        VOLUME_RECEIVED_FIELD -> volume(
+          "returns.enterDutySuspense.volumeReceived.error.required",
+          "returns.enterDutySuspense.volumeReceived.error.nonNumeric",
+          "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.wholeOnly",
+          "returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.maxOne")
+          .verifying(inRange(
+            BigDecimal(0),
+            maxVolumeResult,
+            "returns.enterDutySuspense.volumeReceived.error.exceedsMaxDuty"
+          )),
 
-          VOLUME_MOVED_FIELD -> volume(
-            "returns.enterDutySuspense.volumeMoved.error.required",
-            "returns.enterDutySuspense.volumeMoved.error.nonNumeric",
-            "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly",
-            "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne")
-              .verifying(inRange(
-                BigDecimal(0),
-                maxVolumeResult.maxVolumeInMl,
-                "returns.enterDutySuspense.volumeMoved.error.exceedsMaxDuty",
-                maxVolumeResult.formattedForDisplay
-              ))
-        )((received, moved) => DutySuspenseVolumes(received, moved))(o => Some((o.volumeReceived, o.volumeMoved)))
-          .verifying("returns.enterDutySuspense.error.bothZero", data =>
-            !(data.volumeReceived == 0 && data.volumeMoved == 0))
-      )
-    }
+        VOLUME_MOVED_FIELD -> volume(
+          "returns.enterDutySuspense.volumeMoved.error.required",
+          "returns.enterDutySuspense.volumeMoved.error.nonNumeric",
+          "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly",
+          "returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne")
+          .verifying(inRange(
+            BigDecimal(0),
+            maxVolumeResult,
+            "returns.enterDutySuspense.volumeMoved.error.exceedsMaxDuty"
+          ))
+      )((received, moved) => DutySuspenseVolumes(received, moved))(o => Some((o.volumeReceived, o.volumeMoved)))
+    )
+
   }
 }
