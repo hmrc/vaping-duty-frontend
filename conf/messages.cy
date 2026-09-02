@@ -14,7 +14,7 @@ site.govuk = GOV.UK
 site.newTab = (yn agor tab newydd)
 site.backToBta = Ewch yn ôl i’ch cyfrif treth busnes
 site.getAccess = Darganfyddwch sut i gael mynediad at wasanaeth ar-lein y Doll Cynhyrchion Fepio
-site.warning =
+site.warning = Rhybudd
 site.print = Argraffwch y dudalen hon
 site.yesNo.error.required = Mae’n rhaid i chi ddewis ‘Iawn’ neu ‘Na’
 
