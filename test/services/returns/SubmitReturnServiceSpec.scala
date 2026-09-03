@@ -34,6 +34,7 @@ import play.api.libs.json.JsObject
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import services.contactPreference.AuditService
+import services.email.ReturnSubmittedEmailService
 
 import java.time.{Instant, LocalDate}
 import scala.concurrent.Future
@@ -45,13 +46,15 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
   private val mockObligationService = mock[ObligationService]
   private val mockBuildReturnSubmissionService: BuildReturnSubmissionService = mock[BuildReturnSubmissionService]
   private val mockAuditService = mock[AuditService]
+  private val mockReturnSubmittedEmailService = mock[ReturnSubmittedEmailService]
 
   private val service = new SubmitReturnService(
     mockSubmitReturnConnector,
     mockDutyRateService,
     mockObligationService,
     mockBuildReturnSubmissionService,
-    mockAuditService
+    mockAuditService,
+    mockReturnSubmittedEmailService
   )
 
   private val vpdId = VpdId("GBWK1234567WK")
@@ -96,6 +99,9 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
       .thenReturn(Map(PeriodKey(obligation.periodKey) -> DutyRate(1050)))
     reset(mockAuditService)
     reset(mockSubmitReturnConnector)
+    reset(mockReturnSubmittedEmailService)
+    when(mockReturnSubmittedEmailService.sendReturnSubmittedEmail(any(), any(), any())(using any()))
+      .thenReturn(Future.successful(()))
   }
 
   private val yes = "1"
@@ -141,6 +147,8 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         result mustBe submittedResponse
         verify(mockSubmitReturnConnector).submitReturn(eqTo(nonNilReturnCreatedRequest), eqTo(vpdId))(any())
         verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
+        verify(mockReturnSubmittedEmailService)
+          .sendReturnSubmittedEmail(eqTo(nonNilReturnCreatedRequest), eqTo(submittedResponse), eqTo(obligation))(using any())
       }
 
       "fail when no obligation found" in {
