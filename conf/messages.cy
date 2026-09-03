@@ -333,6 +333,7 @@ returns.CheckYourAnswers.dutySummary.over = Wedi’i orddatgan
 returns.CheckYourAnswers.dutySummary.under = Wedi’i danddatgan
 returns.CheckYourAnswers.dutySummary.total = Cyfanswm y doll
 returns.CheckYourAnswers.dutySummary.nothing = Dim byd i’w ddatgan
+returns.CheckYourAnswers.dutySummary.total.nil = £0
 returns.CheckYourAnswers.adjustments.question = A oes gennych unrhyw gynhyrchion fepio y mae angen i chi eu gor-ddatgan neu eu tan-ddatgan?
 returns.CheckYourAnswers.adjustments.question.change.hidden = datganiad addasiad
 returns.CheckYourAnswers.adjustments.combined = Addasiadau
@@ -382,6 +383,13 @@ returns.confirmation.bullet.bta.linkText = cyfrif treth busnes
 returns.confirmation.bullet.interest = codir llog os na fyddwch yn talu erbyn {0}
 returns.confirmation.bullet.directDebit.linkText = Talu nawr drwy Ddebyd Uniongyrchol
 returns.confirmation.h2.keep = Cadwch gopi ar gyfer eich cofnodion eich hun
+
+returns.confirmation.chaps.h2.title = Mae'n rhaid i chi dalu drwy CHAPS
+returns.confirmation.chaps.p.cannotCollect = Gan fod cyfanswm eich tollau dros £20 miliwn, ni allwn gasglu taliad drwy Ddebyd Uniongyrchol.
+returns.confirmation.chaps.p.mustPayByChaps = Mae'n rhaid i chi dalu drwy CHAPS fel bod y taliad yn cyrraedd CThEF erbyn {0}. Codir llog os na ddaeth taliad i law erbyn y dyddiad hwn.
+returns.confirmation.chaps.bullet.linkText = Talu'ch tollau drwy CHAPS
+returns.confirmation.chaps.bullet.bta.prefix = Ewch i'ch
+
 returns.confirmation.inset.youHave = Does dim byd gennych i’w dalu ar gyfer cyfnod y datganiad hwn.
 returns.confirmation.inset.negative.prefix = Mae {0} arnoch. Bydd y swm hwn yn cael ei ychwanegu fel credyd at eich datganiad Toll Fepio oni bai eich bod yn hawlio
 returns.confirmation.inset.negative.linkText = ad-daliad
