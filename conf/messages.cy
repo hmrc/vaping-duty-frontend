@@ -165,11 +165,13 @@ month.sep = Medi
 month.oct = Hydref
 month.nov = Tachwedd
 month.dec = Rhagfyr
+
 returns.declareDuty.title = A oes angen i chi ddatgan cynhyrchion fepio ar gyfer toll?
 returns.declareDuty.heading = A oes angen i chi ddatgan cynhyrchion fepio ar gyfer toll?
 returns.declareDuty.checkYourAnswersLabel = datganToll
 returns.declareDuty.caption.text = Datgan toll fepio
 returns.declareDuty.change.hidden = DatganToll
+
 returns.enterDutyAmount.title = Swm y cynhyrchion fepio sydd wedi’u rhyddhau
 returns.enterDutyAmount.heading = Swm y cynhyrchion fepio sydd wedi’u rhyddhau
 returns.enterDutyAmount.checkYourAnswersLabel = NodwchSwmyToll
@@ -193,16 +195,18 @@ returns.enterDutyAmount.error.invalidDecimalPlaces.maxOne = Peidiwch â nodi mwy
 returns.enterDutyAmount.error.exceedsMaxDuty = Byddai’r cyfaint a nodoch yn arwain at swm tollau sy’n fwy na’r uchafswm a ganiateir. Nodwch gyfaint o {0} neu lai
 returns.enterDutyAmount.error.mustBeGreaterThanZero = Mae’n rhaid i chi nodi rhif sy’n fwy na sero
 returns.enterDutyAmount.change.hidden = NodwchSwmyToll
+
 returns.declareDutyCheckAnswers.title = Eich toll yw {0}
 returns.declareDutyCheckAnswers.caption = Datgan toll fepio
 returns.declareDutyCheckAnswers.heading = Eich toll yw {0}
 returns.declareDutyCheckAnswers.noDutyHeading = Nid oes gennych doll fepio i’w datgan
 returns.declareDutyCheckAnswers.entryDetails = Crynodeb
 returns.declareDutyCheckAnswers.declareDuty = A oes angen i chi ddatgan cynhyrchion fepio ar gyfer toll?
-returns.declareDutyCheckAnswers.declareDuty.change.hidden = cynhyrchion fepio ar gyfer tollau
+returns.declareDutyCheckAnswers.declareDuty.change.hidden = a oes angen i chi ddatgan cynhyrchion fepio ar gyfer toll?
 returns.declareDutyCheckAnswers.volume = Cyfaint
 returns.declareDutyCheckAnswers.dutyDue = Toll sy’n ddyledus
-returns.declareDutyCheckAnswers.volume.change.hidden = cyfaint cynhyrchion fepio
+returns.declareDutyCheckAnswers.volume.change.hidden = cyfaint
+
 returns.declareSpoiltProducts.title = Datgan cynhyrchion sydd wedi’u difetha o ddatganiad cynharach
 returns.declareSpoiltProducts.heading = Datgan cynhyrchion sydd wedi’u difetha o ddatganiad cynharach
 returns.declareSpoiltProducts.caption.text = Cynhyrchion sydd wedi’u difetha
@@ -223,12 +227,14 @@ returns.declareSpoiltProducts.details.content.p6.text = Os ydych yn bwriadu dini
 returns.declareSpoiltProducts.details.content.p6.link = hawlio’r doll yn ôl o dan y cynllun ad-daliadau tollau ecséis
 returns.declareSpoiltProducts.question = A oes gennych unrhyw gynhyrchion fepio sydd wedi’u difetha i’w datgan?
 returns.declareSpoiltProducts.checkYourAnswersLabel = Datgan cynhyrchion sydd wedi’u difetha
-returns.declareSpoiltProducts.change.hidden = datgan cynhyrchion sydd wedi’u difetha
+returns.declareSpoiltProducts.change.hidden = a oes gennych unrhyw gynhyrchion fepio sydd wedi’u difetha i’w datgan?
+
 returns.selectSpoiltPeriod.title = Pryd wnaethoch ryddhau’r cynhyrchion?
 returns.selectSpoiltPeriod.heading = Pryd wnaethoch ryddhau’r cynhyrchion?
 returns.selectSpoiltPeriod.caption = Cynhyrchion sydd wedi’u difetha
 returns.selectSpoiltPeriod.p1 = Rhowch wybod i ni pa fis y gwnaethoch ryddhau’r cynhyrchion fepio sydd bellach wedi’u difetha, fel y gallwn gyfrifo’r dollau a dalwyd.
 returns.selectSpoiltPeriod.p2 = Ni fyddwch yn gallu hawlio mwy o dollau yn ôl nag a dalwyd gennych ar y cynhyrchion hyn.
+
 returns.spoiltVolumeByPeriod.title = Rhoi gwybod i ni am eich cynhyrchion fepio sydd wedi’u difetha
 returns.spoiltVolumeByPeriod.heading = Rhoi gwybod i ni am eich cynhyrchion fepio sydd wedi’u difetha
 returns.spoiltVolumeByPeriod.caption = Cynhyrchion sydd wedi’u difetha
@@ -240,6 +246,7 @@ returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.wholeOnly = Nodwch filil
 returns.spoiltVolumeByPeriod.error.invalidDecimalPlaces.maxOne = Peidiwch â nodi mwy nag 1 lle degol ar gyfer symiau llai na 1,000 ml. Er enghraifft, 999.9
 returns.spoiltVolumeByPeriod.error.exceedsMaxDuty = Byddai’r cyfaint a nodoch yn arwain at swm tollau sy’n fwy na’r uchafswm a ganiateir. Nodwch gyfaint o {0} neu lai
 returns.spoiltVolumeByPeriod.error.mustBeGreaterThanZero = Mae’n rhaid i chi nodi rhif sy’n fwy na sero
+
 returns.spoiltCheckYourAnswers.title = Swm eich cynhyrchion sydd wedi’u difetha yw {0}
 returns.spoiltCheckYourAnswers.heading = Swm eich cynhyrchion sydd wedi’u difetha yw {0}
 returns.spoiltCheckYourAnswers.caption = Cynhyrchion sydd wedi’u difetha
@@ -247,13 +254,15 @@ returns.spoiltCheckYourAnswers.noSpoiltProducts.heading = Nid oes gennych unrhyw
 returns.spoiltCheckYourAnswers.addAnother = Ychwanegu mis arall?
 returns.spoiltCheckYourAnswers.volume = Cyfaint
 returns.spoiltCheckYourAnswers.duty = Toll
-returns.spoiltCheckYourAnswers.volume.change.hidden = cyfaint cynhyrchion sydd wedi’u difetha
+returns.spoiltCheckYourAnswers.volume.change.hidden = cyfaint
+
 returns.removeSpoiltAdjustment.title = Tynnu cynnyrch sydd wedi’i ddifetha
 returns.removeSpoiltAdjustment.heading = Tynnu cynnyrch sydd wedi’i ddifetha
 returns.removeSpoiltAdjustment.caption = Cynhyrchion sydd wedi’u difetha
 returns.removeSpoiltAdjustment.question = A ydych am gael gwared ar y cynnyrch hwn sydd wedi’i ddifetha?
 returns.removeSpoiltAdjustment.detailsHeading = Manylion cynhyrchion sydd wedi’u difetha
 returns.removeSpoiltAdjustment.month = Mis
+
 returns.declareDutySuspense.title = Cynhyrchion fepio gorffenedig a ddaeth i law neu a symudwyd o dan ohiriad tollau
 returns.declareDutySuspense.heading = Cynhyrchion fepio gorffenedig a ddaeth i law neu a symudwyd o dan ohiriad tollau
 returns.declareDutySuspense.caption.text = Rhoi gwybod am gynhyrchion fepio sydd â tholl wedi’i gohirio arnyn nhw
@@ -266,24 +275,26 @@ returns.declareDutySuspense.question = A ydych wedi cael neu symud unrhyw gynhyr
 returns.declareDutySuspense.error.required = Dewiswch ‘Iawn’ os ydych wedi cael neu symud unrhyw gynhyrchion fepio gorffenedig o dan ohiriad tollau
 returns.declareDutySuspense.checkYourAnswersLabel = Datgan tollau sydd wedi’u gohirio
 returns.declareDutySuspense.change.hidden = datgan tollau sydd wedi’u gohirio
+
 returns.enterDutySuspense.title = Cyfaint yr hylif fepio a ddaeth i law neu a symudwyd o dan ohiriad tollau
 returns.enterDutySuspense.heading = Cyfaint yr hylif fepio a ddaeth i law neu a symudwyd o dan ohiriad tollau
 returns.enterDutySuspense.caption.text = Rhoi gwybod am gynhyrchion fepio sydd â tholl wedi’i gohirio arnyn nhw
 returns.enterDutySuspense.volumeReceived.label = Y swm a gafwyd
-returns.enterDutySuspense.volumeReceived.error.required = Mae’n rhaid i chi nodi rhif sy’n fwy na sero
-returns.enterDutySuspense.volumeReceived.error.nonNumeric = Mae’n rhaid i chi nodi rhif sy’n fwy na sero
-returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.wholeOnly = Nodwch fililitrau cyfan ar gyfer symiau o 1,000 ml neu fwy
-returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.maxOne = Peidiwch â nodi mwy nag 1 lle degol ar gyfer symiau llai na 1,000 ml. Er enghraifft, 999.9
-returns.enterDutySuspense.volumeReceived.error.exceedsMaxDuty = Byddai’r cyfaint a nodoch yn arwain at swm tollau sy’n fwy na’r uchafswm a ganiateir. Nodwch gyfaint o {0} neu lai
+returns.enterDutySuspense.volumeReceived.error.required = Nodwch faint o hylif anweddu a dderbyniwyd
+returns.enterDutySuspense.volumeReceived.error.nonNumeric = Rhaid i'r swm a dderbyniwyd fod yn sero neu fwy
+returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.wholeOnly = Nodwch fililitrau cyfan ar gyfer symiau a dderbyniwyd o 1,000 ml neu fwy
+returns.enterDutySuspense.volumeReceived.error.invalidDecimalPlaces.maxOne = Rhowch ddim mwy nag 1 lle degol ar gyfer symiau a dderbyniwyd sy'n llai na 1,000 ml. Er enghraifft 999.9
+returns.enterDutySuspense.volumeReceived.error.exceedsMaxDuty = Nodwch swm a dderbyniwyd o 999,999,999,999 neu lai
 returns.enterDutySuspense.volumeMoved.label = Faint a symudwyd
-returns.enterDutySuspense.volumeMoved.error.required = Mae’n rhaid i chi nodi rhif sy’n fwy na sero
-returns.enterDutySuspense.volumeMoved.error.nonNumeric = Mae’n rhaid i chi nodi rhif sy’n fwy na sero
-returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly = Nodwch fililitrau cyfan ar gyfer symiau o 1,000 ml neu fwy
-returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne = Peidiwch â nodi mwy nag 1 lle degol ar gyfer symiau llai na 1,000 ml. Er enghraifft, 999.9
-returns.enterDutySuspense.volumeMoved.error.exceedsMaxDuty = Byddai’r cyfaint a nodoch yn arwain at swm tollau sy’n fwy na’r uchafswm a ganiateir. Nodwch gyfaint o {0} neu lai
+returns.enterDutySuspense.volumeMoved.error.required = Nodwch faint o hylif anweddu a symudwyd
+returns.enterDutySuspense.volumeMoved.error.nonNumeric = Rhaid i'r swm a symudwyd fod yn sero neu fwy
+returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.wholeOnly = Nodwch fililitrau cyfan ar gyfer symiau a symudwyd o 1,000 ml neu fwy
+returns.enterDutySuspense.volumeMoved.error.invalidDecimalPlaces.maxOne = Rhowch ddim mwy nag 1 lle degol ar gyfer symiau a symudwyd sy'n llai na 1,000 ml. Er enghraifft 999.9
+returns.enterDutySuspense.volumeMoved.error.exceedsMaxDuty = Nodwch swm a symudwyd o 999,999,999,999 neu lai
 returns.enterDutySuspense.ml = ml
 returns.enterDutySuspense.checkYourAnswersLabel = Nodwch y dollau sydd wedi’u gohirio
 returns.enterDutySuspense.change.hidden = nodwch y dollau sydd wedi’u gohirio
+
 returns.dutySuspenseCheckAnswers.title = Gwiriwch eich atebion
 returns.dutySuspenseCheckAnswers.heading = Gwiriwch eich atebion
 returns.dutySuspenseCheckAnswers.noDutyHeading = Nid oes gennych unrhyw ohiriad tollau i’w ddatgan
@@ -291,11 +302,12 @@ returns.dutySuspenseCheckAnswers.caption = Rhoi gwybod am gynhyrchion fepio sydd
 returns.dutySuspenseCheckAnswers.p = Ni fydd yr atebion hyn yn effeithio ar gyfanswm y doll sy’n ddyledus.
 returns.dutySuspenseCheckAnswers.cardTitle = Gohiriad tollau
 returns.dutySuspenseCheckAnswers.declareDutySuspense = A ydych wedi cael neu symud unrhyw gynhyrchion fepio gorffenedig o dan ohiriad tollau?
-returns.dutySuspenseCheckAnswers.declareDutySuspense.change.hidden = datganiad gohiriad tollau
+returns.dutySuspenseCheckAnswers.declareDutySuspense.change.hidden = a ydych wedi cael neu symud unrhyw gynhyrchion fepio gorffenedig o dan ohiriad tollau?
 returns.dutySuspenseCheckAnswers.productReceived = Cyfaint a ddaeth i law
 returns.dutySuspenseCheckAnswers.productMoved = Cyfaint a symudwyd
-returns.dutySuspenseCheckAnswers.cardActions.change.hidden = Manylion yr ohiriad tollau
+returns.dutySuspenseCheckAnswers.cardActions.change.hidden = cyfaint a dderbyniwyd a chyfaint a symudwyd
 returns.dutySuspenseCheckAnswers.change.hidden = cynnyrch a ddaeth i law dan ohiriad tollau
+
 returns.CheckYourAnswers.title = Gwiriwch eich atebion
 returns.CheckYourAnswers.caption = Gwiriwch eich atebion ar gyfer datganiad {0} {1}
 returns.CheckYourAnswers.heading = Gwiriwch eich atebion
@@ -354,6 +366,7 @@ returns.CheckYourAnswers.card.dutySuspended.change.hidden = dosbarthiadau y gohi
 returns.CheckYourAnswers.card.dutySuspended.question = A ydych wedi cael neu symud unrhyw gynhyrchion fepio gorffenedig o dan ohiriad tollau?
 returns.CheckYourAnswers.card.dutySuspended.declared = Gohiriad tollau
 returns.CheckYourAnswers.inset.totalDuty = Cyfanswm eich toll i dalu yw
+
 returns.confirmation.title = Datganiad wedi’i gyflwyno
 returns.confirmation.panel.title = Datganiad wedi’i gyflwyno
 returns.confirmation.panel.yourReturn = Cyfeirnod eich datganiad yw
@@ -373,6 +386,7 @@ returns.confirmation.inset.youHave = Does dim byd gennych i’w dalu ar gyfer cy
 returns.confirmation.inset.negative.prefix = Mae {0} arnoch. Bydd y swm hwn yn cael ei ychwanegu fel credyd at eich datganiad Toll Fepio oni bai eich bod yn hawlio
 returns.confirmation.inset.negative.linkText = ad-daliad
 returns.confirmation.inset.negative.suffix = .
+
 returns.declaration.title = Datganiad
 returns.declaration.heading = Datganiad
 returns.declaration.authorised = Rwyf wedi fy awdurdodi i gyflwyno’r datganiad hwn.
@@ -390,6 +404,7 @@ returns.declaration.capacity.error.length = Mae’n rhaid i’r capasiti fod yn 
 returns.declaration.emailAddress.error.required = Nodwch gyfeiriad e-bost eich busnes
 returns.declaration.emailAddress.error.length = Mae’n rhaid i’r cyfeiriad e-bost fod yn 132 o gymeriadau neu lai
 returns.declaration.emailAddress.error.format = Nodwch gyfeiriad e-bost yn y fformat cywir, fel enw@enghraifft.com
+
 returns.overview.title = Eich datganiadau Toll Cynhyrchion Fepio
 returns.overview.heading = Eich datganiadau Toll Cynhyrchion Fepio
 returns.overview.outstanding.heading = Datganiadau sydd heb eu cyflwyno
@@ -403,6 +418,7 @@ returns.overview.completed.heading = Datganiadau wedi’u cwblhau ar gyfer {0}
 returns.overview.completed.status = Wedi’u cwblhau
 returns.overview.completed.empty = Nid oes gennych unrhyw ddatganiadau wedi’u cyflwyno ar gyfer y flwyddyn hon.
 returns.overview.outstanding.empty = Nid oes gennych unrhyw ddatganiadau sydd heb eu talu.
+
 viewIndividualReturn.caption = datganiad Toll Cynhyrchion Fepio
 viewIndividualReturn.chargeDetails.chargeReference = Cyfeirnod y tâl:
 viewIndividualReturn.chargeDetails.submittedOn = Cyflwynwyd ar {0}
@@ -454,11 +470,12 @@ viewIndividualReturn.totals.totalDutySpoiltProduct = Cyfanswm y doll cynnyrch sy
 viewIndividualReturn.totals.totalDutyUnderDeclaration = Cyfanswm y doll a ddatganwyd
 viewIndividualReturn.totals.totalDutyOverDeclaration = Cyfanswm y doll a orddatganwyd
 viewIndividualReturn.totals.totalDue = Cyfanswm sy’n ddyledus
+
 returns.declareAdjustmentQuestion.title = Datgan addasiadau o Ddatganiadau cynharach
 returns.declareAdjustmentQuestion.heading = Datgan addasiadau o Ddatganiadau cynharach
 returns.declareAdjustmentQuestion.caption = Addasiadau wedi’u gor-ddatgan neu wedi’u tan-ddatgan
 returns.declareAdjustmentQuestion.checkYourAnswersLabel = A oes gennych unrhyw gynhyrchion fepio y mae angen i chi eu gor-ddatgan neu eu tan-ddatgan?
-returns.declareAdjustmentQuestion.change.hidden = a oes angen i chi ddatgan addasiadau
+returns.declareAdjustmentQuestion.change.hidden = a oes gennych unrhyw gynhyrchion fepio y mae angen i chi eu gor-ddatgan neu eu tan-ddatgan?
 returns.declareAdjustmentQuestion.p1 = Rhowch wybod i ni am unrhyw gynhyrchion fepio a oedd wedi’u gor-ddatgan neu eu tan-ddatgan mewn datganiadau blaenorol.
 returns.declareAdjustmentQuestion.p2 = Efallai y bydd angen i chi egluro pam cafodd y rhain eu tanddatgan neu eu gorddatgan.
 returns.declareAdjustmentQuestion.details.summary = Beth mae ‘gor-ddatgan’ a ‘than-ddatgan’ yn ei olygu
@@ -467,10 +484,12 @@ returns.declareAdjustmentQuestion.details.content.p2 = Er enghraifft, fe wnaetho
 returns.declareAdjustmentQuestion.details.content.p3 = Mae dan-ddatgan yn golygu eich bod wedi datgan llai yn gadael y safle nag sydd wedi’i ryddhau.
 returns.declareAdjustmentQuestion.details.content.p4 = Er enghraifft, fe golloch anfoniad o’r cofnod cyfrifyddu.
 returns.declareAdjustmentQuestion.question = A oes gennych unrhyw gynhyrchion fepio y mae angen i chi eu gor-ddatgan neu eu tan-ddatgan?
+
 returns.selectAdjustmentPeriod.title = Pryd mae angen i chi wneud yr addasiad hwn?
 returns.selectAdjustmentPeriod.heading = Pryd mae angen i chi wneud yr addasiad hwn?
 returns.selectAdjustmentPeriod.caption = Addasiadau wedi’u gor-ddatgan neu wedi’u tan-ddatgan
 returns.selectAdjustmentPeriod.p1 = Dewiswch y mis y mae angen i chi wneud addasiad ar ei gyfer.
+
 returns.adjustmentVolumeWithType.title = Gorddatganiadau neu thanddatganiadau
 returns.adjustmentVolumeWithType.heading = Gorddatganiadau neu thanddatganiadau
 returns.adjustmentVolumeWithType.caption = Addasiadau wedi’u gor-ddatgan neu wedi’u tan-ddatgan
@@ -495,6 +514,7 @@ returns.adjustmentVolumeWithType.overDeclared.error.mustBeGreaterThanZero = Mae�
 returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.wholeOnly = Nodwch fililitrau cyfan ar gyfer symiau o 1,000 ml neu fwy
 returns.adjustmentVolumeWithType.overDeclared.error.invalidDecimalPlaces.maxOne = Peidiwch â nodi mwy nag 1 lle degol ar gyfer symiau llai na 1,000 ml. Er enghraifft, 999.9
 returns.adjustmentVolumeWithType.error.exceedsMaxDuty = Byddai’r cyfaint a nodoch yn arwain at swm tollau sy’n fwy na’r uchafswm a ganiateir. Nodwch gyfaint o {0} neu lai
+
 returns.adjustmentCheckYourAnswers.title = Eich addasiad yw {0}
 returns.adjustmentCheckYourAnswers.heading = Eich addasiad yw {0}
 returns.adjustmentCheckYourAnswers.caption = Addasiadau wedi’u gor-ddatgan neu wedi’u tan-ddatgan
@@ -508,13 +528,15 @@ returns.adjustmentCheckYourAnswers.type.overDeclared = Wedi’i orddatgan
 returns.adjustmentCheckYourAnswers.volume = Cyfaint
 returns.adjustmentCheckYourAnswers.duty = Toll
 returns.adjustmentCheckYourAnswers.type.change.hidden = math o addasiad
-returns.adjustmentCheckYourAnswers.volume.change.hidden = cyfaint yr addasiad
+returns.adjustmentCheckYourAnswers.volume.change.hidden = cyfaint
+
 returns.removeAdjustment.title = Tynnu addasiad
 returns.removeAdjustment.heading = Tynnu addasiad
 returns.removeAdjustment.caption = Addasiadau wedi’u gor-ddatgan neu wedi’u tan-ddatgan
 returns.removeAdjustment.question = A ydych am dynnu’r addasiad hwn?
 returns.removeAdjustment.detailsHeading = Manylion yr addasiad
 returns.removeAdjustment.month = Mis
+
 returns.adjustmentReason.title = Pam wnaethoch chi wneud yr addasiadau hyn?
 returns.adjustmentReason.heading = Pam wnaethoch chi wneud yr addasiadau hyn?
 returns.adjustmentReason.caption = Addasiadau wedi’u gor-ddatgan neu wedi’u tan-ddatgan
@@ -525,6 +547,7 @@ returns.adjustmentReason.list3 = mae cyfaint yr hylif fepio a gynhyrchwyd neu a 
 returns.adjustmentReason.label = Rhoi gwybod i ni am eich rhesymau dros addasu
 returns.adjustmentReason.error.required = Rhowch reswm dros eich addasiad
 returns.adjustmentReason.error.length = Mae’n rhaid i’r rheswm dros yr addasiad fod yn 250 o gymeriadau neu lai
+
 payments.viewPayments.title = Trosolwg o’r taliad
 payments.viewPayments.caption = Toll Cynhyrchion Fepio
 payments.viewPayments.heading = Trosolwg o’r taliad
