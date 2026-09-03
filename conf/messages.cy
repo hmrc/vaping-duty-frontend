@@ -563,6 +563,7 @@ payments.viewPayments.table.description.text = Taliad
 payments.viewPayments.table.description.interest = Llog am dalu’n hwyr
 payments.viewPayments.table.chargeReference = Cyfeirnod y tâl
 payments.viewPayments.table.payNow = Talu nawr
+payments.viewPayments.table.payNow.hidden = swm o {0} yn ddyledus {1}
 payments.viewPayments.noPayments = Nid oes gennych daliadau sydd heb eu talu.
 payments.viewPayments.status.due = Yn ddyledus
 payments.viewPayments.status.overdue = Yn hwyr
@@ -582,6 +583,8 @@ payments.viewPayments.unallocated.table.amount = Swm
 payments.viewPayments.unallocated.table.action = Camau
 payments.viewPayments.unallocated.description.placeholder = Manylion y disgrifiad
 payments.viewPayments.unallocated.action.claimRepayment = Hawlio ad-daliad
+payments.viewPayments.unallocated.action.claimRepayment.hidden = o {0} o {1}
+
 payments.viewPayments.cleared.heading = Taliadau wedi’u clirio yn ystod {0}
 payments.viewPayments.cleared.body = Mae ‘Taliadau wedi’u clirio’ yn golygu achosion pan fo arian wedi dod i law CThEF, neu pan fo balans credyd presennol wedi’i ddefnyddio i dalu unrhyw doll berthnasol.
 payments.viewPayments.cleared.designPlaceholder = Nid oes gennych unrhyw daliadau datganiadau wedi’u clirio.
