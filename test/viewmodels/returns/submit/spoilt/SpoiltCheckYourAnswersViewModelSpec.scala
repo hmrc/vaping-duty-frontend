@@ -80,7 +80,7 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
         mode = NormalMode
       )
 
-      val dutyRow = vm.summaryCards.head.rows.find(_.key.content == Text("Duty")).value
+      val dutyRow = vm.summaryCards.head.rows.find(_.key.content == Text("Duty due")).value
       dutyRow.value.content mustBe Text("-£3,000")
     }
 
