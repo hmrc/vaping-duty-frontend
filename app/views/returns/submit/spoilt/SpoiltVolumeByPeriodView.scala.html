@@ -16,7 +16,6 @@
 
 @import viewmodels.InputWidth.*
 @import components.{Caption, Heading}
-@import viewmodels.LegendSize
 @import viewmodels.returns.submit.SpoiltVolumeByPeriodViewModel
 @import play.api.mvc.Call
 @import models.Mode
@@ -47,13 +46,10 @@
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("returns.spoiltVolumeByPeriod.label")).withCssClass(LegendSize.Medium.toString)
+                label = LabelViewModel(messages("returns.spoiltVolumeByPeriod.label"))
             )
             .asNumeric()
             .withWidth(Fixed10)
-            .withHint(Hint(
-              content = messages("returns.spoiltVolumeByPeriod.hint")
-            ))
             .withSuffix(PrefixOrSuffix(
               content = messages("returns.enterDutyAmount.q.ml")
             ))

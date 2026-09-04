@@ -23,12 +23,14 @@ import pages.returns.EnterDutyAmountPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
+import utils.ReturnsDateUtils
 import viewmodels.checkAnswers.ReturnsSummary
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
 case class DeclareDutyCheckAnswersViewModel(
   heading: String,
+  periodDisplay: String,
   volumeFormatted: Option[String],
   dutyDue: String,
   summaryList: SummaryList
@@ -38,15 +40,18 @@ object DeclareDutyCheckAnswersViewModel {
 
   private val ML_SUFFIX = " ml"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate, periodKey: PeriodKey, mode: Mode)
+  def apply(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate, periodKey: PeriodKey, mode: Mode, returnsDateUtils: ReturnsDateUtils)
            (implicit messages: Messages): Option[DeclareDutyCheckAnswersViewModel] = {
-    
+
+    val periodDisplay = formatPeriodDisplay(userAnswers, returnsDateUtils)
+
     userAnswers.get(pages.returns.DeclareDutyPage).flatMap { declareDuty =>
       if (declareDuty) {
         userAnswers.get(EnterDutyAmountPage).map { volumeInMl =>
           val dutyAmount = dutyRate.calculateDuty(volumeInMl)
           DeclareDutyCheckAnswersViewModel(
             heading = messages("returns.declareDutyCheckAnswers.heading", ReturnsSummary.currencyFormat(dutyAmount)),
+            periodDisplay = periodDisplay,
             volumeFormatted = Some(formatVolume(volumeInMl)),
             dutyDue = ReturnsSummary.currencyFormat(dutyAmount),
             summaryList = buildSummaryListWithDuty(declareDuty, volumeInMl, dutyAmount, periodKey, mode)
@@ -55,12 +60,20 @@ object DeclareDutyCheckAnswersViewModel {
       } else {
         Some(DeclareDutyCheckAnswersViewModel(
           heading = messages("returns.declareDutyCheckAnswers.noDutyHeading"),
+          periodDisplay = periodDisplay,
           volumeFormatted = None,
           dutyDue = ReturnsSummary.currencyFormat(BigDecimal(0)),
           summaryList = buildSummaryListNilReturn(declareDuty, periodKey, mode)
         ))
       }
     }
+  }
+
+  private def formatPeriodDisplay(userAnswers: ReturnsUserAnswers, returnsDateUtils: ReturnsDateUtils)
+                                  (implicit messages: Messages): String = {
+    val month = userAnswers.returnPeriod.map(returnsDateUtils.getReturnMonth).getOrElse("")
+    val year = userAnswers.year.getOrElse("")
+    s"$month $year"
   }
 
   private def formatVolume(volumeInMl: BigDecimal): String =
