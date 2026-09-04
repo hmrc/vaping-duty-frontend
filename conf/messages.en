@@ -607,7 +607,7 @@ returns.adjustmentReason.error.length = Reason for adjustment must be 250 charac
 
 ### Payments ###
 
-payments.viewPayments.title = Payment overview
+payments.viewPayments.title = Your Vaping Products Duty payments
 payments.viewPayments.caption = Vaping Products Duty
 payments.viewPayments.heading = Your Vaping Products Duty payments
 payments.viewPayments.youOwe = You owe

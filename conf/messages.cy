@@ -573,9 +573,9 @@ returns.adjustmentReason.label = Rhoi gwybod i ni am eich rhesymau dros addasu
 returns.adjustmentReason.error.required = Rhowch reswm dros eich addasiad
 returns.adjustmentReason.error.length = Mae’n rhaid i’r rheswm dros yr addasiad fod yn 250 o gymeriadau neu lai
 
-payments.viewPayments.title = Trosolwg o’r taliad
+payments.viewPayments.title = Eich taliadau Dyletswydd Cynhyrchion Anweddu
 payments.viewPayments.caption = Toll Cynhyrchion Fepio
-payments.viewPayments.heading = Trosolwg o’r taliad
+payments.viewPayments.heading = Eich taliadau Dyletswydd Cynhyrchion Anweddu
 payments.viewPayments.youOwe = Mae arnoch
 payments.viewPayments.outstanding.heading = Taliadau sy’n ddyledus
 payments.viewPayments.outstanding.body = Bydd yn cymryd hyd at 7 diwrnod gwaith i daliadau ymddangos, yn dibynnu ar sut rydych yn talu. Ar ôl i chi gwblhau’ch Datganiad, bydd eich cyfrifiad treth yn cymryd hyd at 2 ddiwrnod i ddangos.
