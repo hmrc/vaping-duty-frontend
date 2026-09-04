@@ -90,7 +90,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val receiptDate = success.chargeDetails.fold(Instant.now())(_.receiptDate)
     val submittedOn = LocalDateTime.ofInstant(receiptDate, ZoneId.systemDefault())
     val submittedOnDay = submittedOn.getDayOfMonth
-    val submittedOnMonth = PeriodKeys.toDisplayName(submittedOn.getMonth)
+    val submittedOnMonth = returnsDateUtils.getMonthMessage(submittedOn.getMonth)
 
     val monthYearString = s"${returnsDateUtils.getMonthMessage(monthFromLocalDate)} $year"
     val submittedOnString = s"$submittedOnDay $submittedOnMonth $year"
