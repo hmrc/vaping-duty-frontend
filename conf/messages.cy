@@ -47,11 +47,28 @@ journeyRecovery.startAgain.guidance = Rhowch gynnig arall arni yn nes ymlaen.
 signedOut.title = Er eich diogelwch, gwnaethom eich allgofnodi
 signedOut.heading = Er eich diogelwch, gwnaethom eich allgofnodi
 
-unauthorised.title = Nid oes modd i chi gael mynediad at y gwasanaeth hwn gyda’r cyfrif hwn
+unauthorised.title = Nid oes modd i chi gael mynediad at y gwasanaeth hwn gydaYour Vaping Products Duty paymentsr cyfrif hwn
 unauthorised.heading = Nid oes modd i chi gael mynediad at y gwasanaeth hwn gyda’r cyfrif hwn
 unauthorised.toUse = I ddefnyddio’r gwasanaeth hwn, mae angen i chi fod yn un o’r canlynol:
 unauthorised.approved = Gweithgynhyrchydd fepio yn y DU sydd wedi’i awdurdodi
 unauthorised.enrolled = Wedi ymrestru â’r gwasanaeth
+
+insolvent.title = Ni allwch gael mynediad at y gwasanaeth hwn ar hyn o bryd
+insolvent.heading = Ni allwch gael mynediad at y gwasanaeth hwn ar hyn o bryd
+insolvent.p1 = Ni allwch ddefnyddio’r gwasanaeth Toll Cynhyrchion Fepio drwy’ch cyfrif treth busnes ar hyn o bryd.
+insolvent.h2.why = Pam rydych yn gweld y neges hon
+insolvent.p2 = Mae ein cofnodion yn dangos nad yw eich busnes o bosibl yn gymwys i ddefnyddio’r gwasanaeth hwn mwyach.
+insolvent.p3 = <strong>Gallai hyn fod oherwydd bod y busnes wedi mynd i broses ansolfedd neu fod ei amgylchiadau wedi newid.</strong>
+insolvent.p4 = Rydym yn deall y gallai’r wybodaeth hon fod yn annisgwyl. Os nad oeddech yn ymwybodol o newid i statws eich busnes, efallai yr hoffech siarad â rhywun sy’n gyfrifol am eich materion treth neu fusnes.
+insolvent.h2.whatNext = Beth sy’n digwydd nesaf
+insolvent.p5 = Os yw’ch busnes yn destun proses ansolfedd, efallai bod y cyfrifoldeb dros ddelio â materion treth wedi newid.
+insolvent.p6 = Mae’n bosibl y bydd angen i’r person sy’n rheoli’r broses ansolfedd gysylltu â CThEF ynghylch unrhyw rwymedigaethau Toll Cynhyrchion Fepio.
+insolvent.h2.help = Cael help ac arweiniad
+insolvent.p7 = Gallwch ddod o hyd i ragor o wybodaeth am ansolfedd a’ch cyfrifoldebau treth yn arweiniad CThEF.
+insolvent.link.insolvencyGuidance = Darllenwch arweiniad CThEF ynghylch ansolfedd a rhwymedigaethau treth
+insolvent.h3.incorrect = Os ydych yn credu bod hyn yn anghywir
+insolvent.p8 = Os ydych yn credu y dylech gael mynediad at y gwasanaeth hwn o hyd, cysylltwch â CThEF am gymorth.
+insolvent.link.contactHmrc = Cysylltwch â CThEF
 
 enrolment.organisationSignIn.heading = Er mwyn cofrestru, mae angen i chi fod yn weinyddwr cyfrif ar gyfer y sefydliad
 enrolment.organisationSignIn.onlyUsers = Defnyddwyr â manylion gweinyddwr cyfrif ar gyfer y sefydliad yn unig sy’n gallu cofrestru i ddefnyddio’r gwasanaeth hwn.
