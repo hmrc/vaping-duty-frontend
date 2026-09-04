@@ -89,13 +89,15 @@ class ReturnSubmittedEmailService @Inject()(emailConnector: EmailConnector)(usin
   private def sendEmail(email: Email, emailType: String)(using HeaderCarrier): Future[Unit] =
     emailConnector
       .postEmail(email)
-      .map {
-        case HttpResponse(ACCEPTED, _, _)    => ()
-          logger.warn(s" HMRC email service: sent $emailType confirmation email")
-        case HttpResponse(BAD_REQUEST, _, _) =>
-          logger.warn(s"Error from HMRC email service: status=400 sending $emailType confirmation email")
-        case HttpResponse(status, _, _) =>
-          logger.warn(s"Unexpected response from HMRC email service: status=$status sending $emailType confirmation email")
+      .map { response =>
+        response.status match {
+          case ACCEPTED =>
+            logger.warn(s" HMRC email service: sent $emailType confirmation email")
+          case BAD_REQUEST =>
+            logger.warn(s"Error from HMRC email service: status=400 sending $emailType confirmation email")
+          case status =>
+            logger.warn(s"Unexpected response from HMRC email service: status=$status sending $emailType confirmation email")
+        }
       }
       .recover { case NonFatal(e) =>
         logger.warn(s"Unable to send $emailType confirmation email: ${e.getClass.getSimpleName}")
