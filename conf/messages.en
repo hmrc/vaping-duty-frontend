@@ -231,7 +231,7 @@ returns.declareDutyCheckAnswers.heading = Check your answers
 returns.declareDutyCheckAnswers.noDutyHeading = Check your answers
 returns.declareDutyCheckAnswers.declareDuty = Do you need to declare vaping products for duty?
 returns.declareDutyCheckAnswers.declareDuty.change.hidden = do you need to declare vaping products for duty?
-returns.declareDutyCheckAnswers.volume = Total millilitres of declared vaping products
+returns.declareDutyCheckAnswers.volume = Total millilitres of declared vaping liquid
 returns.declareDutyCheckAnswers.dutyDue = Duty due
 returns.declareDutyCheckAnswers.volume.change.hidden = volume
 
