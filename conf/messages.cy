@@ -607,7 +607,7 @@ payments.viewPayments.unallocated.table.paymentDate = Dyddiad derbyn taliad gan 
 payments.viewPayments.unallocated.table.description = Math o daliad
 payments.viewPayments.unallocated.table.amount = Swm
 payments.viewPayments.unallocated.table.action = Camau
-payments.viewPayments.unallocated.description.placeholder = Manylion y disgrifiad
+payments.viewPayments.unallocated.description.placeholder = Taliad
 payments.viewPayments.unallocated.action.claimRepayment = Hawlio ad-daliad
 payments.viewPayments.unallocated.action.claimRepayment.hidden = o {0} o {1}
 
