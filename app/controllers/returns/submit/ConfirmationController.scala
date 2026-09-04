@@ -28,6 +28,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
 import services.returns.ObligationService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.ConfirmationViewModel
 import views.html.returns.submit.ConfirmationEmailView
 
@@ -43,7 +44,8 @@ class ConfirmationController @Inject()(
                                         view: ConfirmationEmailView,
                                         getReturnsConnector: GetReturnsConnector,
                                         obligationService: ObligationService,
-                                        config: FrontendAppConfig
+                                        config: FrontendAppConfig,
+                                        returnsDateUtils: ReturnsDateUtils
                                       )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled).async { implicit request =>
@@ -58,7 +60,7 @@ class ConfirmationController @Inject()(
       returnsResponse <- getReturnsConnector.getReturn(periodKey, request.enrolmentVpdId)
       obligation      <- getObligation(periodKey)
     } yield {
-      val viewModel = ConfirmationViewModel(returnsResponse, obligation, BtaLink(config))
+      val viewModel = ConfirmationViewModel(returnsResponse, obligation, BtaLink(config), returnsDateUtils)
       Ok(view(viewModel))
     }
 
