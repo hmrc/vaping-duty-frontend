@@ -18,6 +18,7 @@ site.getAccess = Find out how to get access to the Vaping Products Duty online s
 site.warning = Warning
 site.print = Print this page
 site.yesNo.error.required = You must select Yes or No
+site.summary = Summary
 
 date.day = Day
 date.month = Month
