@@ -569,7 +569,7 @@ returns.adjustmentReason.p = Mae’n rhaid i chi restru pob mis y gwnaethoch or-
 returns.adjustmentReason.example = Er enghraifft:
 returns.adjustmentReason.example1 = Tachwedd 2026 - Cyfrifiadau toll anghywir, wedi’u tanddatgan.
 returns.adjustmentReason.example2 = Ionawr 2027 - Wedi’u gorddatgan Mae cyfaint yr hylif fepio a gynhyrchwyd neu a ryddhawyd o’r warws yn anghywir.
-returns.adjustmentReason.label = Rhoi gwybod i ni am eich rhesymau dros addasu
+returns.adjustmentReason.label = Rhesymau dros eich addasiadau
 returns.adjustmentReason.error.required = Rhowch reswm dros eich addasiad
 returns.adjustmentReason.error.length = Mae’n rhaid i’r rheswm dros yr addasiad fod yn 250 o gymeriadau neu lai
 
