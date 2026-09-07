@@ -20,19 +20,16 @@ import connectors.email.EmailConnector
 import models.email.*
 import models.obligations.ObligationDetails
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
-import play.api.Logging
-import play.api.http.Status.{ACCEPTED, BAD_REQUEST}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.CurrencyFormatter
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, ZoneId}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
 
 class ReturnSubmittedEmailService @Inject()(emailConnector: EmailConnector)(using ExecutionContext)
-  extends Logging with CurrencyFormatter {
+  extends CurrencyFormatter {
 
   private val RETURN_PERIOD_FORMATTER   = DateTimeFormatter.ofPattern("MMMM yyyy")
   private val SUBMISSION_DATE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
@@ -83,23 +80,6 @@ class ReturnSubmittedEmailService @Inject()(emailConnector: EmailConnector)(usin
         )
       }
 
-    sendEmail(email, emailType = "return submitted")
+    emailConnector.postEmail(email, emailType = "return submitted")
   }
-
-  private def sendEmail(email: Email, emailType: String)(using HeaderCarrier): Future[Unit] =
-    emailConnector
-      .postEmail(email)
-      .map { response =>
-        response.status match {
-          case ACCEPTED =>
-            logger.warn(s" HMRC email service: sent $emailType confirmation email")
-          case BAD_REQUEST =>
-            logger.warn(s"Error from HMRC email service: status=400 sending $emailType confirmation email")
-          case status =>
-            logger.warn(s"Unexpected response from HMRC email service: status=$status sending $emailType confirmation email")
-        }
-      }
-      .recover { case NonFatal(e) =>
-        logger.warn(s"Unable to send $emailType confirmation email: ${e.getClass.getSimpleName}")
-      }
 }

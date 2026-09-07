@@ -18,6 +18,8 @@ package connectors.email
 
 import config.FrontendAppConfig
 import models.email.Email
+import play.api.Logging
+import play.api.http.Status.{ACCEPTED, BAD_REQUEST}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -26,12 +28,27 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
-class EmailConnector @Inject()(config: FrontendAppConfig, httpClient: HttpClientV2)(using ExecutionContext) {
+class EmailConnector @Inject()(config: FrontendAppConfig, httpClient: HttpClientV2)(using ExecutionContext)
+  extends Logging {
 
-  def postEmail(email: Email)(using HeaderCarrier): Future[HttpResponse] =
+  def postEmail(email: Email, emailType: String)(using HeaderCarrier): Future[Unit] =
     httpClient
       .post(url"${config.sendEmailUrl}")
       .withBody(Json.toJson(email))
       .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case ACCEPTED =>
+            logger.info(s" HMRC email service: sent $emailType confirmation email")
+          case BAD_REQUEST =>
+            logger.warn(s"Non critical - Error from HMRC email service: status=400 sending $emailType confirmation email")
+          case status =>
+            logger.warn(s"Non critical - Unexpected response from HMRC email service: status=$status sending $emailType confirmation email")
+        }
+      }
+      .recover { case NonFatal(e) =>
+        logger.warn(s"Unable to send $emailType confirmation email: ${e.getClass.getSimpleName}")
+      }
 }

@@ -48,27 +48,28 @@ class EmailConnectorISpec extends ISpecBase with WireMockHelper {
 
   "postEmail must" - {
 
-    "post the request body to /hmrc/email and return the HttpResponse on success" in {
+    "post the request body to /hmrc/email and resolve successfully when the email service responds with ACCEPTED" in {
       server.stubFor(
         post(urlEqualTo(url))
           .withRequestBody(equalToJson(Json.toJson(testEmail).toString))
           .willReturn(aResponse().withStatus(ACCEPTED))
       )
 
-      val result = connector.postEmail(testEmail).futureValue
+      noException must be thrownBy connector.postEmail(testEmail, emailType = "return submitted").futureValue
 
-      result.status mustBe ACCEPTED
+      server.verify(
+        postRequestedFor(urlEqualTo(url))
+          .withRequestBody(equalToJson(Json.toJson(testEmail).toString))
+      )
     }
 
-    "return the HttpResponse without throwing when a non-2xx status is returned" in {
+    "resolve successfully without throwing when a non-2xx status is returned" in {
       server.stubFor(
         post(urlEqualTo(url))
           .willReturn(aResponse().withStatus(BAD_REQUEST))
       )
 
-      val result = connector.postEmail(testEmail).futureValue
-
-      result.status mustBe BAD_REQUEST
+      noException must be thrownBy connector.postEmail(testEmail, emailType = "return submitted").futureValue
     }
   }
 }

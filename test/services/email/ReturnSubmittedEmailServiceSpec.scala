@@ -27,8 +27,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.http.Status.{ACCEPTED, BAD_REQUEST}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.{Instant, LocalDate}
 import scala.concurrent.Future
@@ -124,19 +123,6 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
       )
     }
 
-    "must resolve successfully even when the connector returns a non-2xx response" in new SetUp {
-      when(mockEmailConnector.postEmail(any())(using any()))
-        .thenReturn(Future.successful(HttpResponse(status = BAD_REQUEST, body = "")))
-
-      noException must be thrownBy service.sendReturnSubmittedEmail(submission(220.00), response(220.00), obligation).futureValue
-    }
-
-    "must resolve successfully even when the connector call fails" in new SetUp {
-      when(mockEmailConnector.postEmail(any())(using any()))
-        .thenReturn(Future.failed(new RuntimeException("connection refused")))
-
-      noException must be thrownBy service.sendReturnSubmittedEmail(submission(220.00), response(220.00), obligation).futureValue
-    }
   }
 
   class SetUp {
@@ -144,12 +130,12 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
     val service = new ReturnSubmittedEmailService(mockEmailConnector)
 
     def stubSuccessfulPost(): Unit =
-      when(mockEmailConnector.postEmail(any())(using any()))
-        .thenReturn(Future.successful(HttpResponse(status = ACCEPTED, body = "")))
+      when(mockEmailConnector.postEmail(any(), any())(using any()))
+        .thenReturn(Future.unit)
 
     def captureEmail(): Email = {
       val captor = ArgumentCaptor.forClass(classOf[Email])
-      verify(mockEmailConnector).postEmail(captor.capture())(using any())
+      verify(mockEmailConnector).postEmail(captor.capture(), any())(using any())
       captor.getValue
     }
   }
