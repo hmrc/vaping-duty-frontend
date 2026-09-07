@@ -601,7 +601,7 @@ returns.adjustmentReason.p = You must list each month you over or under-declared
 returns.adjustmentReason.example = For example:
 returns.adjustmentReason.example1 = November 2026 - Under-declared. Inaccurate duty calculations.
 returns.adjustmentReason.example2 = January 2027 - Over-declared. Volume of vaping liquid manufactured or released from warehouse is incorrect.
-returns.adjustmentReason.label = Tell us your reasons for adjusting
+returns.adjustmentReason.label = Reasons for your adjustments
 returns.adjustmentReason.error.required = Enter a reason for your adjustment
 returns.adjustmentReason.error.length = Reason for adjustment must be 250 characters or fewer
 
