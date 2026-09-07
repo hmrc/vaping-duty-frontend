@@ -65,7 +65,7 @@ class DeclareDutyCheckAnswersViewModelSpec extends SpecBase {
 
       vm mustBe defined
       val volumeRow = vm.get.summaryList.rows(1)
-      volumeRow.key.content.asHtml.toString must include("Total millilitres of declared vaping products")
+      volumeRow.key.content.asHtml.toString must include("Total millilitres of declared vaping liquid")
       volumeRow.value.content.asHtml.toString must include("1000 ml")
       volumeRow.actions.value.items.size mustBe 1
       
