@@ -59,7 +59,8 @@ trait SpecBase
   protected def applicationBuilder(userAnswers: Option[PreferenceUserAnswers] = None,
                                    enrolmentUserAnswers: Option[EnrolmentUserAnswers] = None,
                                    returnsUserAnswers: Option[ReturnsUserAnswers] = None,
-                                   returnsEnabled: Boolean = true): GuiceApplicationBuilder =
+                                   returnsEnabled: Boolean = true,
+                                   returnSubmittedEmailEnabled: Boolean = true): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
@@ -72,7 +73,8 @@ trait SpecBase
         bind[ReturnsDataRetrievalAction].toInstance(new FakeReturnsDataRetrievalAction(returnsUserAnswers))
       )
       .configure(
-        "features.returnsEnabled" -> returnsEnabled
+        "features.returnsEnabled" -> returnsEnabled,
+        "features.returnSubmittedEmailEnabled" -> returnSubmittedEmailEnabled
       )
   
   given hc: HeaderCarrier = HeaderCarrier()

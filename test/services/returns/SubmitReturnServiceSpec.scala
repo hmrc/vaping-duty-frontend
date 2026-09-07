@@ -18,6 +18,7 @@ package services.returns
 
 import base.SpecBase
 import builders.ObligationsBuilders
+import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
@@ -47,6 +48,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
   private val mockBuildReturnSubmissionService: BuildReturnSubmissionService = mock[BuildReturnSubmissionService]
   private val mockAuditService = mock[AuditService]
   private val mockReturnSubmittedEmailService = mock[ReturnSubmittedEmailService]
+  private val mockConfig = mock[FrontendAppConfig]
 
   private val service = new SubmitReturnService(
     mockSubmitReturnConnector,
@@ -54,7 +56,8 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     mockObligationService,
     mockBuildReturnSubmissionService,
     mockAuditService,
-    mockReturnSubmittedEmailService
+    mockReturnSubmittedEmailService,
+    mockConfig
   )
 
   private val vpdId = VpdId("GBWK1234567WK")
@@ -102,6 +105,8 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     reset(mockReturnSubmittedEmailService)
     when(mockReturnSubmittedEmailService.sendReturnSubmittedEmail(any(), any(), any())(using any()))
       .thenReturn(Future.successful(()))
+    reset(mockConfig)
+    when(mockConfig.returnSubmittedEmailEnabled).thenReturn(true)
   }
 
   private val yes = "1"
@@ -149,6 +154,29 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
         verify(mockReturnSubmittedEmailService)
           .sendReturnSubmittedEmail(eqTo(nonNilReturnCreatedRequest), eqTo(submittedResponse), eqTo(obligation))(using any())
+      }
+
+      "must not send a confirmation email when returnSubmittedEmailEnabled is false" in {
+        when(mockConfig.returnSubmittedEmailEnabled).thenReturn(false)
+
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+          .set(DeclareDutyPage, true).success.value
+          .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
+          .set(DeclarationPage, declaration).success.value
+
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
+
+        stubManufacturersObligations(vpdId, Seq(obligation))
+        when(mockBuildReturnSubmissionService.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(1050))))
+          .thenReturn(nonNilReturnCreatedRequest)
+        when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
+          .thenReturn(Future.successful(submittedResponse))
+
+        val result = service.submit(userAnswers).futureValue
+
+        result mustBe submittedResponse
+        verify(mockReturnSubmittedEmailService, never())
+          .sendReturnSubmittedEmail(any(), any(), any())(using any())
       }
 
       "fail when no obligation found" in {

@@ -16,6 +16,7 @@
 
 package services.returns
 
+import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
@@ -36,6 +37,7 @@ class SubmitReturnService @Inject()(
   buildReturnSubmissionService: BuildReturnSubmissionService,
   auditService: AuditService,
   returnSubmittedEmailService: ReturnSubmittedEmailService,
+  appConfig: FrontendAppConfig,
 )(using ExecutionContext) {
 
   def submit(ua: ReturnsUserAnswers)(implicit request: ReturnsDataRequest[?]): Future[ReturnSubmittedResponse] = {
@@ -56,7 +58,9 @@ class SubmitReturnService @Inject()(
       auditService.auditReturnSubmitted(
         SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, result, request.identifiers, obligations))
 
-      returnSubmittedEmailService.sendReturnSubmittedEmail(submission, result, obligation)
+      if (appConfig.returnSubmittedEmailEnabled) {
+        returnSubmittedEmailService.sendReturnSubmittedEmail(submission, result, obligation)
+      }
 
       result
     }
