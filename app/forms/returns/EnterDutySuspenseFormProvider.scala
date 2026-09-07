@@ -22,12 +22,10 @@ import models.returns.DutySuspenseVolumes
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import services.returns.{DutyRateService, VolumePrecisionService}
-import uk.gov.hmrc.hmrcfrontend.views.Utils
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.CurrencyFormatter
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class EnterDutySuspenseFormProvider @Inject()(
                                                dutyRateService: DutyRateService,

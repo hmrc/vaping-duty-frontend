@@ -27,11 +27,10 @@ import uk.gov.hmrc.govukfrontend.views.html.components.{GovukInsetText, GovukWar
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 import uk.gov.hmrc.govukfrontend.views.viewmodels.warningtext.WarningText
-import utils.{CssConstants, CurrencyFormatter}
+import utils.{CssConstants, CurrencyFormatter, ReturnsDateUtils}
 import views.html.components.{Heading2, Link, ListWithLinks, Paragraph}
 
 import java.time.{LocalDate, ZoneId}
-import java.time.format.DateTimeFormatter
 
 case class ConfirmationViewModel(
   submissionDate: String,
@@ -47,15 +46,13 @@ case class ConfirmationViewModel(
 
 object ConfirmationViewModel extends CurrencyFormatter {
 
-  private val SUBMISSION_DATE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
-  private val MONTH_YEAR_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy")
-  private val PAYMENT_DUE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
   private val ZONE_ID = ZoneId.of("Europe/London")
 
   def apply(
     returnsResponse: ReturnDisplayResponse,
     obligation: ObligationDetails,
-    btaLink: String
+    btaLink: String,
+    returnsDateUtils: ReturnsDateUtils
   )(implicit messages: Messages): ConfirmationViewModel = {
 
     val totalDutyDue = returnsResponse.success.totalDutyDue
@@ -69,13 +66,16 @@ object ConfirmationViewModel extends CurrencyFormatter {
       .flatMap(_.chargeReference)
       .map(_.toUpperCase)
 
-    val submissionDateFormatted = LocalDate.ofInstant(
+    val submissionDate = LocalDate.ofInstant(
       returnsResponse.success.processingDate,
       ZONE_ID
-    ).format(SUBMISSION_DATE_FORMATTER)
+    )
+    val submissionDateFormatted = s"${submissionDate.getDayOfMonth} ${returnsDateUtils.getMonthMessage(submissionDate.getMonth)} ${submissionDate.getYear}"
 
-    val periodMonthYearFormatted = obligation.iCFromDate.format(MONTH_YEAR_FORMATTER)
-    val paymentDueDateFormatted = obligation.iCDueDate.withDayOfMonth(15).format(PAYMENT_DUE_FORMATTER)
+    val periodMonthYearFormatted = s"${returnsDateUtils.getMonthMessage(obligation.iCFromDate.getMonth)} ${obligation.iCFromDate.getYear}"
+
+    val paymentDueDate = obligation.iCDueDate.withDayOfMonth(15)
+    val paymentDueDateFormatted = s"${paymentDueDate.getDayOfMonth} ${returnsDateUtils.getMonthMessage(paymentDueDate.getMonth)} ${paymentDueDate.getYear}"
 
     new ConfirmationViewModel(
       submissionDate = submissionDateFormatted,

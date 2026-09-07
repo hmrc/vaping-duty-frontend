@@ -145,7 +145,7 @@ object SpoiltCheckYourAnswersViewModel {
     SpoiltSummaryCard(
       rows = Seq(row),
       card = Card(
-        title = Some(CardTitle(content = Text("Summary")))
+        title = Some(CardTitle(content = Text(messages("site.summary"))))
       )
     )
   }

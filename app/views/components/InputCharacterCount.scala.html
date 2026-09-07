@@ -14,9 +14,10 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components.CharacterCount
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcCharacterCount
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.charactercount.CharacterCount
 
-@this(govukCharacterCount: GovukCharacterCount)
+@this(hmrcCharacterCount: HmrcCharacterCount)
 
 @(
   field: Field,
@@ -26,7 +27,7 @@
   labelClasses: String = "govuk-label--m"
 )(implicit messages: Messages)
 
-@govukCharacterCount(CharacterCount(
+@hmrcCharacterCount(CharacterCount(
   id = field.id,
   name = field.name,
   maxLength = Some(maxLength),
