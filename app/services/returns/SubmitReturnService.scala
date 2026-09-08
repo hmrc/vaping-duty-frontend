@@ -16,12 +16,14 @@
 
 package services.returns
 
+import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
 import models.returns.submit.ReturnSubmittedResponse
 import services.contactPreference.AuditService
+import services.email.ReturnSubmittedEmailService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -34,6 +36,8 @@ class SubmitReturnService @Inject()(
   obligationService: ObligationService,
   buildReturnSubmissionService: BuildReturnSubmissionService,
   auditService: AuditService,
+  returnSubmittedEmailService: ReturnSubmittedEmailService,
+  appConfig: FrontendAppConfig,
 )(using ExecutionContext) {
 
   def submit(ua: ReturnsUserAnswers)(implicit request: ReturnsDataRequest[?]): Future[ReturnSubmittedResponse] = {
@@ -53,7 +57,11 @@ class SubmitReturnService @Inject()(
     } yield {
       auditService.auditReturnSubmitted(
         SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, result, request.identifiers, obligations))
- 
+
+      if (appConfig.returnSubmittedEmailEnabled) {
+        returnSubmittedEmailService.sendReturnSubmittedEmail(submission, result, obligation)
+      }
+
       result
     }
   }
