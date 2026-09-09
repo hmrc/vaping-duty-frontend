@@ -45,14 +45,11 @@
 
         @p(Seq(messages("returns.adjustmentReason.p")))
 
-        @list(
-            Seq(
-                messages("returns.adjustmentReason.list1"),
-                messages("returns.adjustmentReason.list2"),
-                messages("returns.adjustmentReason.list3")
-            ),
-            classes = "govuk-list govuk-list--bullet"
-        )
+        @p(Seq(messages("returns.adjustmentReason.example")))
+
+        @p(Seq(messages("returns.adjustmentReason.example1")))
+        @p(Seq(messages("returns.adjustmentReason.example2")))
+
 
         @inputCharacterCount(
             field = form("adjustmentReason"),
