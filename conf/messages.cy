@@ -272,12 +272,14 @@ returns.spoiltCheckYourAnswers.volume = Cyfanswm mililitrau o gynhyrchion fepio 
 returns.spoiltCheckYourAnswers.duty = Toll sy’n ddyledus
 returns.spoiltCheckYourAnswers.volume.change.hidden = cyfaint
 
+
 returns.removeSpoiltAdjustment.title = Tynnu cynnyrch sydd wedi’i ddifetha
 returns.removeSpoiltAdjustment.heading = Tynnu cynnyrch sydd wedi’i ddifetha
 returns.removeSpoiltAdjustment.caption = Cynhyrchion sydd wedi’u difetha
 returns.removeSpoiltAdjustment.question = A ydych am gael gwared ar y cynnyrch hwn sydd wedi’i ddifetha?
 returns.removeSpoiltAdjustment.detailsHeading = Manylion cynhyrchion sydd wedi’u difetha
 returns.removeSpoiltAdjustment.month = Mis
+returns.spoiltVolumeByPeriod.hint = Cyfanswm mililitrau o gynhyrchion fepio sydd wedi’u difetha
 
 returns.declareDutySuspense.title = Cynhyrchion fepio gorffenedig a ddaeth i law neu a symudwyd o dan ohiriad tollau
 returns.declareDutySuspense.heading = Cynhyrchion fepio gorffenedig a ddaeth i law neu a symudwyd o dan ohiriad tollau
