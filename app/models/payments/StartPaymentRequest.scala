@@ -21,7 +21,7 @@ import play.api.libs.json.*
 final case class StartPaymentRequest(
   vapingDutyReference: String,
   amountInPence: Long,
-  chargeReferenceNumber: String,
+  chargeReferenceNumber: Option[String],
   returnUrl: String,
   backUrl: String
 )
