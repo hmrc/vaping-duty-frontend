@@ -21,7 +21,7 @@ import models.returns.ConvertToMl
 import models.returns.view.*
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
-import utils.{CurrencyFormatter, PeriodKeys, ReturnsDateUtils}
+import utils.{CurrencyFormatter, ReturnsDateUtils}
 
 import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 

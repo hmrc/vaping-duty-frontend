@@ -18,14 +18,10 @@ package forms.returns
 
 import base.SpecBase
 import models.identifiers.{PeriodKey, VpdId}
-import models.returns.{DutyRate, DutySuspenseVolumes, MaxVolumeResult}
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.when
+import models.returns.DutySuspenseVolumes
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.FormError
 import services.returns.{DutyRateService, VolumePrecisionService}
-
-import scala.concurrent.Future
 
 class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
 
@@ -35,10 +31,7 @@ class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
 
   private val testPeriodKey = PeriodKey("24KA")
   private val testVpdId = VpdId("VPDID123")
-  private val testDutyRate = DutyRate(337)
-  private val testMaxVolume = BigDecimal("29000000000")
-
-
+  
   "EnterDutySuspenseFormProvider" - {
 
     "volumeReceived field" - {
