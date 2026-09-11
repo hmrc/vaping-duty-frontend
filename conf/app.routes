@@ -149,3 +149,4 @@ GET        /view-your-returns/:periodKey                                        
 GET        /view-payments                                                                   controllers.payments.ViewPaymentsController.onPageLoad()
 GET        /start-payment/:chargeReference                                                  controllers.payments.StartPaymentController.startPayment(chargeReference: String)
 GET        /start-direct-debit                                                              controllers.payments.StartDirectDebitController.startDirectDebit()
+GET        /start-bta-direct-debit                                                          controllers.payments.StartBtaDirectDebitController.startDirectDebit()

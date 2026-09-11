@@ -33,6 +33,7 @@ class DirectDebitConnectorISpec extends ISpecBase with WireMockHelper with TestD
     ).build()
 
   private val url            = "/vaping-duty-finance/direct-debit/vpd-confirmation/start"
+  private val btaUrl         = "/vaping-duty-finance/direct-debit/bta/start"
   private lazy val connector = application.injector.instanceOf[DirectDebitConnector]
 
   "startDirectDebit must" - {
@@ -101,6 +102,80 @@ class DirectDebitConnectorISpec extends ISpecBase with WireMockHelper with TestD
       )
 
       val result = connector.startDirectDebit(testStartDirectDebitRequest)
+
+      whenReady(result.failed) { exception =>
+        exception mustBe an[InternalServerException]
+        exception.getMessage must include("Failed to start direct debit journey")
+      }
+    }
+  }
+
+  "startBtaDirectDebit must" - {
+
+    "successfully return a StartDirectDebitResponse when valid response is received" in {
+      server.stubFor(
+        post(urlEqualTo(btaUrl))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(testStartDirectDebitResponse).toString)
+          )
+      )
+
+      val result = connector.startBtaDirectDebit(testStartDirectDebitRequest.copy(returnUrl = btaLink, backUrl = btaLink)).futureValue
+
+      result mustBe testStartDirectDebitResponse
+    }
+
+    "return an error when invalid JSON is returned" in {
+      server.stubFor(
+        post(urlEqualTo(btaUrl))
+          .willReturn(aResponse().withStatus(OK).withBody("invalid json"))
+      )
+
+      val result = connector.startBtaDirectDebit(testStartDirectDebitRequest.copy(returnUrl = btaLink, backUrl = btaLink))
+
+      whenReady(result.failed) { exception =>
+        exception mustBe an[InternalServerException]
+        exception.getMessage must include("Parsing failed for start direct debit response")
+      }
+    }
+
+    "return an error when http client returns BAD_REQUEST" in {
+      server.stubFor(
+        post(urlEqualTo(btaUrl))
+          .willReturn(aResponse().withStatus(BAD_REQUEST))
+      )
+
+      val result = connector.startBtaDirectDebit(testStartDirectDebitRequest.copy(returnUrl = btaLink, backUrl = btaLink))
+
+      whenReady(result.failed) { exception =>
+        exception mustBe an[InternalServerException]
+        exception.getMessage must include("Failed to start direct debit journey")
+      }
+    }
+
+    "return an error when http client returns INTERNAL_SERVER_ERROR" in {
+      server.stubFor(
+        post(urlEqualTo(btaUrl))
+          .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
+      )
+
+      val result = connector.startBtaDirectDebit(testStartDirectDebitRequest.copy(returnUrl = btaLink, backUrl = btaLink))
+
+      whenReady(result.failed) { exception =>
+        exception mustBe an[InternalServerException]
+        exception.getMessage must include("Failed to start direct debit journey")
+      }
+    }
+
+    "return an error when http client returns SERVICE_UNAVAILABLE" in {
+      server.stubFor(
+        post(urlEqualTo(btaUrl))
+          .willReturn(aResponse().withStatus(SERVICE_UNAVAILABLE))
+      )
+
+      val result = connector.startBtaDirectDebit(testStartDirectDebitRequest.copy(returnUrl = btaLink, backUrl = btaLink))
 
       whenReady(result.failed) { exception =>
         exception mustBe an[InternalServerException]
