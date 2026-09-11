@@ -42,7 +42,30 @@ class PaymentService @Inject()(
       request = StartPaymentRequest(
         vapingDutyReference = vpdId.value,
         amountInPence = amountInPence,
-        chargeReferenceNumber = chargeReference,
+        chargeReferenceNumber = Some(chargeReference),
+        returnUrl = returnUrl,
+        backUrl = backUrl
+      )
+      response <- connector.startPayment(request)
+    } yield response
+  }
+
+  def startBtaPayment(
+    vpdId: VpdId,
+    returnUrl: String,
+    backUrl: String
+  )(using HeaderCarrier): Future[StartPaymentResponse] = {
+
+    for {
+      payments <- financialDataService.getPayments(vpdId)
+      amount = payments.totalAccountBalance.filter(_ > 0).getOrElse(
+        // scalafix:off DisableSyntax.throw
+        throw new NoSuchElementException(s"No positive outstanding balance for VpdId: ${vpdId.value}")
+      )
+      request = StartPaymentRequest(
+        vapingDutyReference = vpdId.value,
+        amountInPence = (amount * 100).toLong,
+        chargeReferenceNumber = None,
         returnUrl = returnUrl,
         backUrl = backUrl
       )
