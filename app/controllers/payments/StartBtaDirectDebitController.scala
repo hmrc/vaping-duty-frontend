@@ -28,25 +28,25 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class StartDirectDebitController @Inject()(
-  identify: ApprovedVapingManufacturerAuthAction,
-  returnsEnabled: ReturnsEnabledAction,
-  checkInsolvencyAction: CheckInsolvencyAction,
-  connector: DirectDebitConnector,
-  config: FrontendAppConfig,
-  val controllerComponents: MessagesControllerComponents
-)(using ExecutionContext) extends FrontendBaseController with Logging {
+class StartBtaDirectDebitController @Inject()(
+                                               identify: ApprovedVapingManufacturerAuthAction,
+                                               returnsEnabled: ReturnsEnabledAction,
+                                               checkInsolvencyAction: CheckInsolvencyAction,
+                                               connector: DirectDebitConnector,
+                                               config: FrontendAppConfig,
+                                               val controllerComponents: MessagesControllerComponents
+                                             )(using ExecutionContext) extends FrontendBaseController with Logging {
 
   def startDirectDebit(): Action[AnyContent] =
     (identify andThen checkInsolvencyAction andThen returnsEnabled).async { implicit request =>
-      val backUrl = s"${config.host}${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}"
-      val startRequest = StartDirectDebitRequest(returnUrl = config.continueToBta, backUrl = backUrl)
+      val urls = s"${config.continueToBta}"
+      val startRequest = StartDirectDebitRequest(returnUrl = urls, backUrl = urls)
 
-      connector.startDirectDebit(startRequest).map { response =>
+      connector.startBtaDirectDebit(startRequest).map { response =>
         Redirect(response.nextUrl)
       }.recover {
         case e: Exception =>
-          logger.warn(s"Error starting direct debit journey: ${e.getMessage}")
+          logger.warn(s"Error starting direct debit journey for BTA: ${e.getMessage}")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }

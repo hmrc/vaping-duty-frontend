@@ -37,6 +37,9 @@ class DirectDebitConnector @Inject()(
 
   private val parsingError = "Parsing failed for start direct debit response"
 
+  private val vpdJourney = "vpd"
+  private val btaJourney = "bta"
+
   def startDirectDebit(request: StartDirectDebitRequest)
                       (using HeaderCarrier): Future[StartDirectDebitResponse] =
     httpClient
@@ -47,15 +50,28 @@ class DirectDebitConnector @Inject()(
         logger.warn(s"Exception while starting direct debit journey: ${e.getMessage}")
         Future.failed(InternalServerException("Failed to start direct debit journey"))
       }
-      .flatMap(getResponse)
+      .flatMap(getResponse(_, vpdJourney))
       .flatMap(parseJson)
 
-  private def getResponse(response: Either[UpstreamErrorResponse, HttpResponse]): Future[HttpResponse] = {
+  def startBtaDirectDebit(request: StartDirectDebitRequest)
+                      (using HeaderCarrier): Future[StartDirectDebitResponse] =
+    httpClient
+      .post(url"${config.startBtaDirectDebitUrl}")
+      .withBody(Json.toJson(request))
+      .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      .recoverWith { case e: Exception =>
+        logger.warn(s"Exception while starting bta direct debit journey: ${e.getMessage}")
+        Future.failed(InternalServerException("Failed to start bta direct debit journey"))
+      }
+      .flatMap(getResponse(_, btaJourney))
+      .flatMap(parseJson)
+
+  private def getResponse(response: Either[UpstreamErrorResponse, HttpResponse], journeyType: String): Future[HttpResponse] = {
     response match {
       case Right(response) => Future.successful(response)
       case Left(error) =>
-        logger.warn(s"Unexpected response from start direct debit API. Status: ${error.statusCode}")
-        Future.failed(InternalServerException("Failed to start direct debit journey"))
+        logger.warn(s"Unexpected response from start $journeyType direct debit API. Status: ${error.statusCode}")
+        Future.failed(InternalServerException(s"Failed to start $journeyType direct debit journey"))
     }
   }
 

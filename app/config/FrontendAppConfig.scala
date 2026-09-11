@@ -108,6 +108,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def getPaymentsUrl(vpdId: VpdId): String                       = s"$financeBaseUrl/financial-data/payments"
   def startPaymentUrl: String                                    = s"$financeBaseUrl/payments/start-payment"
   def startDirectDebitUrl: String                                = s"$financeBaseUrl/direct-debit/vpd-confirmation/start"
+  def startBtaDirectDebitUrl: String                             = s"$financeBaseUrl/direct-debit/bta/start"
 
   def sendEmailUrl: String                                       = s"$emailHost/hmrc/email"
 
