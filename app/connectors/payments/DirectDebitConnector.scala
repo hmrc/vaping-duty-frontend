@@ -60,10 +60,19 @@ class DirectDebitConnector @Inject()(
         logger.warn(s"Exception while starting bta direct debit journey: ${e.getMessage}")
         Future.failed(InternalServerException("Failed to start bta direct debit journey"))
       }
-      .flatMap(getResponse)
+      .flatMap(getBtaResponse)
       .flatMap(parseJson)
 
   private def getResponse(response: Either[UpstreamErrorResponse, HttpResponse]): Future[HttpResponse] = {
+    response match {
+      case Right(response) => Future.successful(response)
+      case Left(error) =>
+        logger.warn(s"Unexpected response from start direct debit API. Status: ${error.statusCode}")
+        Future.failed(InternalServerException("Failed to start direct debit journey"))
+    }
+  }
+
+  private def getBtaResponse(response: Either[UpstreamErrorResponse, HttpResponse]): Future[HttpResponse] = {
     response match {
       case Right(response) => Future.successful(response)
       case Left(error) =>

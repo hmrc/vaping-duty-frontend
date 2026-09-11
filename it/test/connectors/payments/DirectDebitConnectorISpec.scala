@@ -151,7 +151,7 @@ class DirectDebitConnectorISpec extends ISpecBase with WireMockHelper with TestD
 
       whenReady(result.failed) { exception =>
         exception mustBe an[InternalServerException]
-        exception.getMessage must include("Failed to start direct debit journey")
+        exception.getMessage must include("Failed to start bta direct debit journey")
       }
     }
 
@@ -165,7 +165,7 @@ class DirectDebitConnectorISpec extends ISpecBase with WireMockHelper with TestD
 
       whenReady(result.failed) { exception =>
         exception mustBe an[InternalServerException]
-        exception.getMessage must include("Failed to start direct debit journey")
+        exception.getMessage must include("Failed to start bta direct debit journey")
       }
     }
 
@@ -179,7 +179,7 @@ class DirectDebitConnectorISpec extends ISpecBase with WireMockHelper with TestD
 
       whenReady(result.failed) { exception =>
         exception mustBe an[InternalServerException]
-        exception.getMessage must include("Failed to start direct debit journey")
+        exception.getMessage must include("Failed to start bta direct debit journey")
       }
     }
   }
