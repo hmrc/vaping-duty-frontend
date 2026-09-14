@@ -52,12 +52,12 @@ class PaymentService @Inject()(
 
   def startBtaPayment(
                        vpdId: VpdId,
-                       chargeReference: Option[String],
+                       chargeReferenceOpt: Option[String],
                        returnUrl: String,
                        backUrl: String
                      )(using HeaderCarrier): Future[StartPaymentResponse] =
 
-    chargeReference.fold(btaMultipleCharges(vpdId, amountInPenceForMultipleCharges(vpdId), returnUrl, backUrl))
+    chargeReferenceOpt.fold(btaMultipleCharges(vpdId, amountInPenceForMultipleCharges(vpdId), returnUrl, backUrl))
       (chargeReference => btaPaymentWithChargeReference(vpdId, chargeReference, amountInPenceForChargeRef(vpdId, chargeReference), returnUrl, backUrl))
 
   private def btaMultipleCharges(vpdId: VpdId, amountInPence: Future[Long], returnUrl: String, backUrl: String)(using HeaderCarrier) = {
