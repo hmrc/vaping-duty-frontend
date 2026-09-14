@@ -61,9 +61,7 @@ class PaymentService @Inject()(
       (chargeReference => btaPaymentWithChargeReference(vpdId, chargeReference, amountInPenceForChargeRef(vpdId, chargeReference), returnUrl, backUrl))
 
   private def btaMultipleCharges(vpdId: VpdId, amountInPence: Future[Long], returnUrl: String, backUrl: String)(using HeaderCarrier) = {
-    val chargeRef: Option[String] = None
-
-    startBtaPayment(vpdId, chargeRef, amountInPence, returnUrl, backUrl)
+    startBtaPayment(vpdId, None, amountInPence, returnUrl, backUrl)
   }
 
   private def amountInPenceForMultipleCharges(vpdId: VpdId)(using HeaderCarrier) = {
@@ -79,9 +77,7 @@ class PaymentService @Inject()(
   }
 
   private def btaPaymentWithChargeReference(vpdId: VpdId, chargeReference: String, amountInPence: Future[Long], returnUrl: String, backUrl: String)(using HeaderCarrier) = {
-    val chargeRef: Option[String] = Some(chargeReference)
-
-    startBtaPayment(vpdId, chargeRef, amountInPence, returnUrl, backUrl)
+    startBtaPayment(vpdId, Some(chargeReference), amountInPence, returnUrl, backUrl)
   }
 
   private def startBtaPayment(vpdId: VpdId,
