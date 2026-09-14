@@ -62,16 +62,7 @@ class PaymentService @Inject()(
 
 
   private def btaMultipleCharges(vpdId: VpdId, returnUrl: String, backUrl: String)(using HeaderCarrier) = {
-    val amountInPenceFuture =
-      for {
-        payments <- financialDataService.getPayments(vpdId)
-        amount = payments.totalAccountBalance.filter(_ > 0).getOrElse(
-          // scalafix:off DisableSyntax.throw
-          throw new NoSuchElementException(s"No positive outstanding balance for VpdId: ${vpdId.value}")
-        )
-        amountInPence = (amount * 100).toLong
-      }
-      yield amountInPence
+    val amountInPenceFuture = amountInPenceForMultipleCharges(vpdId)
 
     for {
       amountInPence <- amountInPenceFuture
@@ -87,13 +78,21 @@ class PaymentService @Inject()(
 
   }
 
+  private def amountInPenceForMultipleCharges(vpdId: VpdId)(using HeaderCarrier) = {
+    for {
+      payments <- financialDataService.getPayments(vpdId)
+      amount = payments.totalAccountBalance.filter(_ > 0).getOrElse(
+        // scalafix:off DisableSyntax.throw
+        throw new NoSuchElementException(s"No positive outstanding balance for VpdId: ${vpdId.value}")
+      )
+      amountInPence = (amount * 100).toLong
+    }
+    yield amountInPence
+  }
+
   private def btaPaymentWithChargeReference(vpdId: VpdId, chargeReference: String, returnUrl: String, backUrl: String)
                                            (using HeaderCarrier) = {
-    val amountInPenceFuture = 
-    for {
-      payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
-      amountInPence = (payment.amountDue * 100).toLong
-    } yield amountInPence
+    val amountInPenceFuture = amountInPenceForChargeRef(vpdId, chargeReference)
 
     for {
       amountInPence <- amountInPenceFuture
@@ -106,5 +105,12 @@ class PaymentService @Inject()(
       )
       response <- connector.startBtaPayment(request)
     } yield response
+  }
+
+  private def amountInPenceForChargeRef(vpdId: VpdId, chargeReference: String)(using HeaderCarrier) = {
+    for {
+      payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
+      amountInPence = (payment.amountDue * 100).toLong
+    } yield amountInPence
   }
 }
