@@ -68,10 +68,11 @@ class PaymentService @Inject()(
         // scalafix:off DisableSyntax.throw
         throw new NoSuchElementException(s"No positive outstanding balance for VpdId: ${vpdId.value}")
       )
+      amountInPence = (amount * 100).toLong
 
       request = StartPaymentRequest(
         vapingDutyReference = vpdId.value,
-        amountInPence = (amount * 100).toLong,
+        amountInPence = amountInPence,
         chargeReferenceNumber = None,
         returnUrl = returnUrl,
         backUrl = backUrl
