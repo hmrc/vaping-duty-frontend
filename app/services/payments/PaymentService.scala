@@ -63,13 +63,14 @@ class PaymentService @Inject()(
 
   private def btaMultipleCharges(vpdId: VpdId, returnUrl: String, backUrl: String)(using HeaderCarrier) = {
     val amountInPenceFuture = amountInPenceForMultipleCharges(vpdId)
+    val chargeRef: Option[String] = None
 
     for {
       amountInPence <- amountInPenceFuture
       request = StartPaymentRequest(
         vapingDutyReference = vpdId.value,
         amountInPence = amountInPence,
-        chargeReferenceNumber = None,
+        chargeReferenceNumber = chargeRef,
         returnUrl = returnUrl,
         backUrl = backUrl
       )
@@ -93,13 +94,14 @@ class PaymentService @Inject()(
   private def btaPaymentWithChargeReference(vpdId: VpdId, chargeReference: String, returnUrl: String, backUrl: String)
                                            (using HeaderCarrier) = {
     val amountInPenceFuture = amountInPenceForChargeRef(vpdId, chargeReference)
+    val chargeRef: Option[String] = Some(chargeReference)
 
     for {
       amountInPence <- amountInPenceFuture
       request = StartPaymentRequest(
         vapingDutyReference = vpdId.value,
         amountInPence = amountInPence,
-        chargeReferenceNumber = Some(chargeReference),
+        chargeReferenceNumber = chargeRef,
         returnUrl = returnUrl,
         backUrl = backUrl
       )
