@@ -25,16 +25,16 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class PaymentService @Inject()(
-  connector: PaymentConnector,
-  financialDataService: FinancialDataService
-)(using ExecutionContext) {
+                                connector: PaymentConnector,
+                                financialDataService: FinancialDataService
+                              )(using ExecutionContext) {
 
   def startPayment(
-    vpdId: VpdId,
-    chargeReference: String,
-    returnUrl: String,
-    backUrl: String
-  )(using HeaderCarrier): Future[StartPaymentResponse] = {
+                    vpdId: VpdId,
+                    chargeReference: String,
+                    returnUrl: String,
+                    backUrl: String
+                  )(using HeaderCarrier): Future[StartPaymentResponse] = {
 
     for {
       payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
@@ -51,17 +51,24 @@ class PaymentService @Inject()(
   }
 
   def startBtaPayment(
-    vpdId: VpdId,
-    returnUrl: String,
-    backUrl: String
-  )(using HeaderCarrier): Future[StartPaymentResponse] = {
+                       vpdId: VpdId,
+                       chargeReference: Option[String],
+                       returnUrl: String,
+                       backUrl: String
+                     )(using HeaderCarrier): Future[StartPaymentResponse] =
 
+    chargeReference.fold(btaMultipleCharges(vpdId, returnUrl, backUrl))
+      (chargeReference => btaPaymentWithChargeReference(vpdId, chargeReference, returnUrl, backUrl))
+
+
+  private def btaMultipleCharges(vpdId: VpdId, returnUrl: String, backUrl: String)(using HeaderCarrier) = {
     for {
       payments <- financialDataService.getPayments(vpdId)
       amount = payments.totalAccountBalance.filter(_ > 0).getOrElse(
         // scalafix:off DisableSyntax.throw
         throw new NoSuchElementException(s"No positive outstanding balance for VpdId: ${vpdId.value}")
       )
+
       request = StartPaymentRequest(
         vapingDutyReference = vpdId.value,
         amountInPence = (amount * 100).toLong,
@@ -69,7 +76,24 @@ class PaymentService @Inject()(
         returnUrl = returnUrl,
         backUrl = backUrl
       )
-      response <- connector.startPayment(request)
+      response <- connector.startBtaPayment(request)
+    } yield response
+
+  }
+
+  private def btaPaymentWithChargeReference(vpdId: VpdId, chargeReference: String, returnUrl: String, backUrl: String)
+                                           (using HeaderCarrier) = {
+    for {
+      payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
+      amountInPence = (payment.amountDue * 100).toLong
+      request = StartPaymentRequest(
+        vapingDutyReference = vpdId.value,
+        amountInPence = amountInPence,
+        chargeReferenceNumber = Some(chargeReference),
+        returnUrl = returnUrl,
+        backUrl = backUrl
+      )
+      response <- connector.startBtaPayment(request)
     } yield response
   }
 }

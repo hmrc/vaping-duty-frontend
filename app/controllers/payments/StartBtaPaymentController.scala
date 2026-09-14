@@ -36,20 +36,9 @@ class StartBtaPaymentController @Inject()(
                                            val controllerComponents: MessagesControllerComponents
                                          )(using ExecutionContext) extends FrontendBaseController with Logging {
 
-  def startBtaPayment(): Action[AnyContent] =
+  def startPayment(chargeReference: Option[String]): Action[AnyContent] =
     (identify andThen checkInsolvencyAction andThen returnsEnabled).async { implicit request =>
-      paymentService.startBtaPayment(request.enrolmentVpdId, config.startPaymentBtaReturnUrl, config.startPaymentBtaBackUrl).map { response =>
-        Redirect(response.nextUrl)
-      }.recover {
-        case e: Exception =>
-          logger.warn(s"Error starting BTA payment: ${e.getMessage}")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      }
-    }
-
-  def startBtaPaymentForCharge(chargeReference: String): Action[AnyContent] =
-    (identify andThen checkInsolvencyAction andThen returnsEnabled).async { implicit request =>
-      paymentService.startPayment(request.enrolmentVpdId, chargeReference, config.startPaymentBtaReturnUrl, config.startPaymentBtaBackUrl).map { response =>
+      paymentService.startBtaPayment(request.enrolmentVpdId, chargeReference, config.startPaymentBtaReturnUrl, config.startPaymentBtaBackUrl).map { response =>
         Redirect(response.nextUrl)
       }.recover {
         case e: Exception =>

@@ -44,7 +44,7 @@ class StartBtaPaymentControllerSpec extends SpecBase {
     "redirect to payment provider URL when service returns successfully" in {
       val mockPaymentService = mock[PaymentService]
 
-      when(mockPaymentService.startBtaPayment(eqTo(vpdId), any(), any())(using any()))
+      when(mockPaymentService.startBtaPayment(eqTo(vpdId), any(), any(), any())(using any()))
         .thenReturn(Future.successful(paymentResponse))
 
       val application = applicationBuilder()
@@ -52,20 +52,20 @@ class StartBtaPaymentControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startBtaPayment().url)
+        val request = FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startPayment().url)
         val result = route(application, request).value
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some("https://payment-provider.example.com/pay")
 
-        verify(mockPaymentService).startBtaPayment(eqTo(vpdId), any(), any())(using any())
+        verify(mockPaymentService).startBtaPayment(eqTo(vpdId), any(), any(), any())(using any())
       }
     }
 
     "redirect to journey recovery when payment service fails" in {
       val mockPaymentService = mock[PaymentService]
 
-      when(mockPaymentService.startBtaPayment(any(), any(), any())(using any()))
+      when(mockPaymentService.startBtaPayment(any(), any(), any(), any())(using any()))
         .thenReturn(Future.failed(new RuntimeException("Payment service error")))
 
       val application = applicationBuilder()
@@ -73,7 +73,7 @@ class StartBtaPaymentControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startBtaPayment().url)
+        val request = FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startPayment().url)
         val result = route(application, request).value
 
         status(result) mustBe SEE_OTHER
@@ -84,7 +84,7 @@ class StartBtaPaymentControllerSpec extends SpecBase {
     "redirect to journey recovery when there is no positive outstanding balance" in {
       val mockPaymentService = mock[PaymentService]
 
-      when(mockPaymentService.startBtaPayment(any(), any(), any())(using any()))
+      when(mockPaymentService.startBtaPayment(any(), any(), any(), any())(using any()))
         .thenReturn(Future.failed(new NoSuchElementException("No positive outstanding balance")))
 
       val application = applicationBuilder()
@@ -92,7 +92,7 @@ class StartBtaPaymentControllerSpec extends SpecBase {
         .build()
 
       running(application) {
-        val request = FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startBtaPayment().url)
+        val request = FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startPayment().url)
         val result = route(application, request).value
 
         status(result) mustBe SEE_OTHER
@@ -101,12 +101,12 @@ class StartBtaPaymentControllerSpec extends SpecBase {
     }
   }
 
-  "startBtaPaymentForCharge must" - {
+  "startBtaPayment with a charge reference must" - {
 
     "redirect to payment provider URL when service returns successfully" in {
       val mockPaymentService = mock[PaymentService]
 
-      when(mockPaymentService.startPayment(eqTo(vpdId), eqTo(chargeReference), any(), any())(using any()))
+      when(mockPaymentService.startBtaPayment(eqTo(vpdId), eqTo(Some(chargeReference)), any(), any())(using any()))
         .thenReturn(Future.successful(paymentResponse))
 
       val application = applicationBuilder()
@@ -115,20 +115,20 @@ class StartBtaPaymentControllerSpec extends SpecBase {
 
       running(application) {
         val request =
-          FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startBtaPaymentForCharge(chargeReference).url)
+          FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startPayment(Some(chargeReference)).url)
         val result = route(application, request).value
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some("https://payment-provider.example.com/pay")
 
-        verify(mockPaymentService).startPayment(eqTo(vpdId), eqTo(chargeReference), any(), any())(using any())
+        verify(mockPaymentService).startBtaPayment(eqTo(vpdId), eqTo(Some(chargeReference)), any(), any())(using any())
       }
     }
 
     "redirect to journey recovery when payment service fails" in {
       val mockPaymentService = mock[PaymentService]
 
-      when(mockPaymentService.startPayment(any(), any(), any(), any())(using any()))
+      when(mockPaymentService.startBtaPayment(any(), any(), any(), any())(using any()))
         .thenReturn(Future.failed(new RuntimeException("Payment service error")))
 
       val application = applicationBuilder()
@@ -137,7 +137,7 @@ class StartBtaPaymentControllerSpec extends SpecBase {
 
       running(application) {
         val request =
-          FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startBtaPaymentForCharge(chargeReference).url)
+          FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startPayment(Some(chargeReference)).url)
         val result = route(application, request).value
 
         status(result) mustBe SEE_OTHER
@@ -148,7 +148,7 @@ class StartBtaPaymentControllerSpec extends SpecBase {
     "redirect to journey recovery when payment not found" in {
       val mockPaymentService = mock[PaymentService]
 
-      when(mockPaymentService.startPayment(any(), any(), any(), any())(using any()))
+      when(mockPaymentService.startBtaPayment(any(), any(), any(), any())(using any()))
         .thenReturn(Future.failed(new NoSuchElementException(s"No outstanding payment found for charge reference: $chargeReference")))
 
       val application = applicationBuilder()
@@ -157,7 +157,7 @@ class StartBtaPaymentControllerSpec extends SpecBase {
 
       running(application) {
         val request =
-          FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startBtaPaymentForCharge(chargeReference).url)
+          FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startPayment(Some(chargeReference)).url)
         val result = route(application, request).value
 
         status(result) mustBe SEE_OTHER
@@ -168,7 +168,7 @@ class StartBtaPaymentControllerSpec extends SpecBase {
     "redirect to journey recovery when connector throws InternalServerException" in {
       val mockPaymentService = mock[PaymentService]
 
-      when(mockPaymentService.startPayment(any(), any(), any(), any())(using any()))
+      when(mockPaymentService.startBtaPayment(any(), any(), any(), any())(using any()))
         .thenReturn(Future.failed(InternalServerException("Failed to start payment")))
 
       val application = applicationBuilder()
@@ -177,7 +177,7 @@ class StartBtaPaymentControllerSpec extends SpecBase {
 
       running(application) {
         val request =
-          FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startBtaPaymentForCharge(chargeReference).url)
+          FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startPayment(Some(chargeReference)).url)
         val result = route(application, request).value
 
         status(result) mustBe SEE_OTHER
