@@ -33,6 +33,7 @@ class PaymentConnectorISpec extends ISpecBase with WireMockHelper with TestData 
     ).build()
 
   private val url            = "/vaping-duty-finance/payments/start-payment"
+  private val btaUrl         = "/vaping-duty-finance/payments/start-bta-payment"
   private lazy val connector = application.injector.instanceOf[PaymentConnector]
 
   "startPayment must" - {
@@ -76,7 +77,7 @@ class PaymentConnectorISpec extends ISpecBase with WireMockHelper with TestData 
 
       whenReady(result.failed) { exception =>
         exception mustBe an[InternalServerException]
-        exception.getMessage must include("Failed to start payment")
+        exception.getMessage must include("Failed to start vpd payment journey")
       }
     }
 
@@ -90,7 +91,7 @@ class PaymentConnectorISpec extends ISpecBase with WireMockHelper with TestData 
 
       whenReady(result.failed) { exception =>
         exception mustBe an[InternalServerException]
-        exception.getMessage must include("Failed to start payment")
+        exception.getMessage must include("Failed to start vpd payment journey")
       }
     }
 
@@ -104,7 +105,7 @@ class PaymentConnectorISpec extends ISpecBase with WireMockHelper with TestData 
 
       whenReady(result.failed) { exception =>
         exception mustBe an[InternalServerException]
-        exception.getMessage must include("Failed to start payment")
+        exception.getMessage must include("Failed to start vpd payment journey")
       }
     }
 
@@ -118,7 +119,109 @@ class PaymentConnectorISpec extends ISpecBase with WireMockHelper with TestData 
 
       whenReady(result.failed) { exception =>
         exception mustBe an[InternalServerException]
-        exception.getMessage must include("Failed to start payment")
+        exception.getMessage must include("Failed to start vpd payment journey")
+      }
+    }
+  }
+
+  "startBtaPayment must" - {
+
+    "successfully return a StartPaymentResponse when valid response is received" in {
+      server.stubFor(
+        post(urlEqualTo(btaUrl))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(testStartPaymentResponse).toString)
+          )
+      )
+
+      val result = connector.startBtaPayment(testStartPaymentRequest.copy(returnUrl = btaLink, backUrl = btaLink)).futureValue
+
+      result mustBe testStartPaymentResponse
+    }
+
+    "return an error when invalid JSON is returned" in {
+      server.stubFor(
+        post(urlEqualTo(btaUrl))
+          .willReturn(aResponse().withStatus(OK).withBody("invalid json"))
+      )
+
+      val result = connector.startBtaPayment(testStartPaymentRequest.copy(returnUrl = btaLink, backUrl = btaLink))
+
+      whenReady(result.failed) { exception =>
+        exception mustBe an[InternalServerException]
+        exception.getMessage must include("Parsing failed for start payment response")
+      }
+    }
+
+    "return an error when http client returns BAD_REQUEST" in {
+      server.stubFor(
+        post(urlEqualTo(btaUrl))
+          .willReturn(aResponse().withStatus(BAD_REQUEST))
+      )
+
+      val result = connector.startBtaPayment(testStartPaymentRequest.copy(returnUrl = btaLink, backUrl = btaLink))
+
+      whenReady(result.failed) { exception =>
+        exception mustBe an[InternalServerException]
+        exception.getMessage must include("Failed to start bta payment journey")
+      }
+    }
+
+    "return an error when http client returns NOT_FOUND" in {
+      server.stubFor(
+        post(urlEqualTo(btaUrl))
+          .willReturn(aResponse().withStatus(NOT_FOUND))
+      )
+
+      val result = connector.startBtaPayment(testStartPaymentRequest.copy(returnUrl = btaLink, backUrl = btaLink))
+
+      whenReady(result.failed) { exception =>
+        exception mustBe an[InternalServerException]
+        exception.getMessage must include("Failed to start bta payment journey")
+      }
+    }
+
+    "return an error when http client returns UNPROCESSABLE_ENTITY" in {
+      server.stubFor(
+        post(urlEqualTo(btaUrl))
+          .willReturn(aResponse().withStatus(UNPROCESSABLE_ENTITY))
+      )
+
+      val result = connector.startBtaPayment(testStartPaymentRequest.copy(returnUrl = btaLink, backUrl = btaLink))
+
+      whenReady(result.failed) { exception =>
+        exception mustBe an[InternalServerException]
+        exception.getMessage must include("Failed to start bta payment journey")
+      }
+    }
+
+    "return an error when http client returns INTERNAL_SERVER_ERROR" in {
+      server.stubFor(
+        post(urlEqualTo(btaUrl))
+          .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
+      )
+
+      val result = connector.startBtaPayment(testStartPaymentRequest.copy(returnUrl = btaLink, backUrl = btaLink))
+
+      whenReady(result.failed) { exception =>
+        exception mustBe an[InternalServerException]
+        exception.getMessage must include("Failed to start bta payment journey")
+      }
+    }
+
+    "return an error when http client returns SERVICE_UNAVAILABLE" in {
+      server.stubFor(
+        post(urlEqualTo(btaUrl))
+          .willReturn(aResponse().withStatus(SERVICE_UNAVAILABLE))
+      )
+
+      val result = connector.startBtaPayment(testStartPaymentRequest.copy(returnUrl = btaLink, backUrl = btaLink))
+
+      whenReady(result.failed) { exception =>
+        exception mustBe an[InternalServerException]
+        exception.getMessage must include("Failed to start bta payment journey")
       }
     }
   }

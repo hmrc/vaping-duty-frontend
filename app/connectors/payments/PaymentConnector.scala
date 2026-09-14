@@ -37,6 +37,9 @@ class PaymentConnector @Inject()(
 
   private val parsingError = "Parsing failed for start payment response"
 
+  private val vpdJourney = "vpd"
+  private val btaJourney = "bta"
+
   def startPayment(request: StartPaymentRequest)
                   (using HeaderCarrier): Future[StartPaymentResponse] =
     httpClient
@@ -44,18 +47,31 @@ class PaymentConnector @Inject()(
       .withBody(Json.toJson(request))
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .recoverWith { case e: Exception =>
-        logger.warn(s"Exception while starting payment for charge reference ${request.chargeReferenceNumber}: ${e.getMessage}")
-        Future.failed(InternalServerException("Failed to start payment"))
+        logger.warn(s"Exception while starting vpd payment journey: ${e.getMessage}")
+        Future.failed(InternalServerException("Failed to start vpd payment journey"))
       }
-      .flatMap(getResponse(request))
+      .flatMap(getResponse(_, vpdJourney))
       .flatMap(parseJson)
 
-  private def getResponse(request: StartPaymentRequest)(response: Either[UpstreamErrorResponse, HttpResponse]): Future[HttpResponse] = {
+  def startBtaPayment(request: StartPaymentRequest)
+                  (using HeaderCarrier): Future[StartPaymentResponse] =
+    httpClient
+      .post(url"${config.startBtaPaymentUrl}")
+      .withBody(Json.toJson(request))
+      .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      .recoverWith { case e: Exception =>
+        logger.warn(s"Exception while starting bta payment journey: ${e.getMessage}")
+        Future.failed(InternalServerException("Failed to start bta payment journey"))
+      }
+      .flatMap(getResponse(_, btaJourney))
+      .flatMap(parseJson)    
+
+  private def getResponse(response: Either[UpstreamErrorResponse, HttpResponse], journeyType: String): Future[HttpResponse] = {
     response match {
       case Right(response) => Future.successful(response)
       case Left(error) =>
-        logger.warn(s"Unexpected response from start payment API for charge reference ${request.chargeReferenceNumber}. Status: ${error.statusCode}")
-        Future.failed(InternalServerException("Failed to start payment"))
+        logger.warn(s"Unexpected response from start $journeyType payment API. Status: ${error.statusCode}")
+        Future.failed(InternalServerException(s"Failed to start $journeyType payment journey"))
     }
   }
 
