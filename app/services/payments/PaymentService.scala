@@ -36,9 +36,9 @@ class PaymentService @Inject()(
                     backUrl: String
                   )(using HeaderCarrier): Future[StartPaymentResponse] = {
 
-    for {
-      payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
-      amountInPence = (payment.amountDue * 100).toLong
+      for {
+        payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
+        amountInPence = (payment.amountDue * 100).toLong
       request = StartPaymentRequest(
         vapingDutyReference = vpdId.value,
         amountInPence = amountInPence,
@@ -62,14 +62,19 @@ class PaymentService @Inject()(
 
 
   private def btaMultipleCharges(vpdId: VpdId, returnUrl: String, backUrl: String)(using HeaderCarrier) = {
-    for {
-      payments <- financialDataService.getPayments(vpdId)
-      amount = payments.totalAccountBalance.filter(_ > 0).getOrElse(
-        // scalafix:off DisableSyntax.throw
-        throw new NoSuchElementException(s"No positive outstanding balance for VpdId: ${vpdId.value}")
-      )
-      amountInPence = (amount * 100).toLong
+    val amountInPenceFuture =
+      for {
+        payments <- financialDataService.getPayments(vpdId)
+        amount = payments.totalAccountBalance.filter(_ > 0).getOrElse(
+          // scalafix:off DisableSyntax.throw
+          throw new NoSuchElementException(s"No positive outstanding balance for VpdId: ${vpdId.value}")
+        )
+        amountInPence = (amount * 100).toLong
+      }
+      yield amountInPence
 
+    for {
+      amountInPence <- amountInPenceFuture
       request = StartPaymentRequest(
         vapingDutyReference = vpdId.value,
         amountInPence = amountInPence,
@@ -84,9 +89,14 @@ class PaymentService @Inject()(
 
   private def btaPaymentWithChargeReference(vpdId: VpdId, chargeReference: String, returnUrl: String, backUrl: String)
                                            (using HeaderCarrier) = {
+    val amountInPenceFuture = 
     for {
       payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
       amountInPence = (payment.amountDue * 100).toLong
+    } yield amountInPence
+
+    for {
+      amountInPence <- amountInPenceFuture
       request = StartPaymentRequest(
         vapingDutyReference = vpdId.value,
         amountInPence = amountInPence,
