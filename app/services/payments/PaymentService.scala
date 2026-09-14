@@ -35,10 +35,9 @@ class PaymentService @Inject()(
                     returnUrl: String,
                     backUrl: String
                   )(using HeaderCarrier): Future[StartPaymentResponse] = {
-
-      for {
-        payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
-        amountInPence = (payment.amountDue * 100).toLong
+    for {
+      payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
+      amountInPence = (payment.amountDue * 100).toLong
       request = StartPaymentRequest(
         vapingDutyReference = vpdId.value,
         amountInPence = amountInPence,
