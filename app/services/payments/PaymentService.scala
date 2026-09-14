@@ -75,6 +75,13 @@ class PaymentService @Inject()(
     yield amountInPence
   }
 
+  private def amountInPenceForChargeRef(vpdId: VpdId, chargeReference: String)(using HeaderCarrier) = {
+    for {
+      payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
+      amountInPence = (payment.amountDue * 100).toLong
+    } yield amountInPence
+  }
+
   private def startBtaPayment(vpdId: VpdId,
                               chargeRef: Option[String],
                               amountInPenceFuture: Future[Long],
@@ -91,12 +98,5 @@ class PaymentService @Inject()(
       )
       response <- connector.startBtaPayment(request)
     } yield response
-  }
-
-  private def amountInPenceForChargeRef(vpdId: VpdId, chargeReference: String)(using HeaderCarrier) = {
-    for {
-      payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
-      amountInPence = (payment.amountDue * 100).toLong
-    } yield amountInPence
   }
 }
