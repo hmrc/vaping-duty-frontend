@@ -63,7 +63,7 @@ class PaymentService @Inject()(
       amountInPenceForMultipleCharges(vpdId))
       (chargeReference => amountInPenceForChargeRef(vpdId, chargeReference))
 
-  private def amountInPenceForMultipleCharges(vpdId: VpdId)(using HeaderCarrier) = {
+  private def amountInPenceForMultipleCharges(vpdId: VpdId)(using HeaderCarrier) =
     for {
       payments <- financialDataService.getPayments(vpdId)
       amount = payments.totalAccountBalance.filter(_ > 0).getOrElse(
@@ -73,14 +73,12 @@ class PaymentService @Inject()(
       amountInPence = (amount * 100).toLong
     }
     yield amountInPence
-  }
 
-  private def amountInPenceForChargeRef(vpdId: VpdId, chargeReference: String)(using HeaderCarrier) = {
+  private def amountInPenceForChargeRef(vpdId: VpdId, chargeReference: String)(using HeaderCarrier) =
     for {
       payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
       amountInPence = (payment.amountDue * 100).toLong
     } yield amountInPence
-  }
 
   private def startBtaPayment(vpdId: VpdId,
                               chargeRef: Option[String],
