@@ -18,7 +18,7 @@ package services.payments
 
 import base.SpecBase
 import connectors.payments.PaymentConnector
-import models.payments.{OutstandingPayment, StartPaymentRequest, StartPaymentResponse}
+import models.payments.{OutstandingPayment, PaymentsResponse, StartPaymentRequest, StartPaymentResponse}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
@@ -51,7 +51,7 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
   private val expectedRequest = StartPaymentRequest(
     vapingDutyReference = vpdId.value,
     amountInPence = amountInPence,
-    chargeReferenceNumber = chargeReference,
+    chargeReferenceNumber = Some(chargeReference),
     returnUrl = returnUrl,
     backUrl = backUrl
   )
@@ -138,6 +138,64 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
       whenReady(result.failed) { exception =>
         exception mustBe a[NoSuchElementException]
         exception.getMessage must include("Payment not found")
+      }
+    }
+  }
+
+  "startBtaPayment must" - {
+
+    val totalBalance = BigDecimal("4574.84")
+
+    val expectedBtaRequest = StartPaymentRequest(
+      vapingDutyReference = vpdId.value,
+      amountInPence = 457484L,
+      chargeReferenceNumber = None,
+      returnUrl = returnUrl,
+      backUrl = backUrl
+    )
+
+    "build correct StartPaymentRequest for the total balance and call connector" in {
+      val payments = PaymentsResponse(Seq.empty, Seq.empty, Seq.empty, Some(totalBalance))
+
+      when(mockFinancialDataService.getPayments(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(payments))
+      when(mockConnector.startPayment(eqTo(expectedBtaRequest))(using any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = service.startBtaPayment(vpdId, returnUrl, backUrl)
+
+      whenReady(result) { response =>
+        response mustBe expectedResponse
+        verify(mockConnector).startPayment(eqTo(expectedBtaRequest))(using any())
+      }
+    }
+
+    "fail when there is no positive outstanding balance" in {
+      val payments = PaymentsResponse(Seq.empty, Seq.empty, Seq.empty, None)
+
+      when(mockFinancialDataService.getPayments(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(payments))
+
+      val result = service.startBtaPayment(vpdId, returnUrl, backUrl)
+
+      whenReady(result.failed) { exception =>
+        exception mustBe a[NoSuchElementException]
+      }
+    }
+
+    "propagate connector failures" in {
+      val payments = PaymentsResponse(Seq.empty, Seq.empty, Seq.empty, Some(totalBalance))
+      val expectedException = new RuntimeException("Connector error")
+
+      when(mockFinancialDataService.getPayments(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(payments))
+      when(mockConnector.startPayment(any())(using any()))
+        .thenReturn(Future.failed(expectedException))
+
+      val result = service.startBtaPayment(vpdId, returnUrl, backUrl)
+
+      whenReady(result.failed) { exception =>
+        exception mustBe expectedException
       }
     }
   }
