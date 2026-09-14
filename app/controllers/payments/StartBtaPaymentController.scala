@@ -38,7 +38,7 @@ class StartBtaPaymentController @Inject()(
 
   def startBtaPayment(): Action[AnyContent] =
     (identify andThen checkInsolvencyAction andThen returnsEnabled).async { implicit request =>
-      paymentService.startBtaPayment(request.enrolmentVpdId, config.continueToBta, config.continueToBta).map { response =>
+      paymentService.startBtaPayment(request.enrolmentVpdId, config.startPaymentBtaReturnUrl, config.startPaymentBtaBackUrl).map { response =>
         Redirect(response.nextUrl)
       }.recover {
         case e: Exception =>
@@ -49,7 +49,7 @@ class StartBtaPaymentController @Inject()(
 
   def startBtaPaymentForCharge(chargeReference: String): Action[AnyContent] =
     (identify andThen checkInsolvencyAction andThen returnsEnabled).async { implicit request =>
-      paymentService.startPayment(request.enrolmentVpdId, chargeReference, config.continueToBta, config.continueToBta).map { response =>
+      paymentService.startPayment(request.enrolmentVpdId, chargeReference, config.startPaymentBtaReturnUrl, config.startPaymentBtaBackUrl).map { response =>
         Redirect(response.nextUrl)
       }.recover {
         case e: Exception =>
