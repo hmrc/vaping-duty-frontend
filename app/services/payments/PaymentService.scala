@@ -55,10 +55,10 @@ class PaymentService @Inject()(
                        chargeReferenceOpt: Option[String],
                        returnUrl: String,
                        backUrl: String
-                     )(using HeaderCarrier): Future[StartPaymentResponse] =
-
-    chargeReferenceOpt.fold(startBtaPayment(vpdId, chargeReferenceOpt, amountInPenceForMultipleCharges(vpdId), returnUrl, backUrl))
-      (chargeReference => startBtaPayment(vpdId, chargeReferenceOpt, amountInPenceForChargeRef(vpdId, chargeReference), returnUrl, backUrl))
+                     )(using HeaderCarrier): Future[StartPaymentResponse] = {
+    val amountInPence = chargeReferenceOpt.fold(amountInPenceForMultipleCharges(vpdId))(chargeReference => amountInPenceForChargeRef(vpdId, chargeReference))
+    startBtaPayment(vpdId, chargeReferenceOpt, amountInPence, returnUrl, backUrl)
+  }
 
   private def amountInPenceForMultipleCharges(vpdId: VpdId)(using HeaderCarrier) = {
     for {
