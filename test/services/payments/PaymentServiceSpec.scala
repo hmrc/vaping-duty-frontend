@@ -159,14 +159,34 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
 
       when(mockFinancialDataService.getPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(payments))
-      when(mockConnector.startPayment(eqTo(expectedBtaRequest))(using any()))
+      when(mockConnector.startBtaPayment(eqTo(expectedBtaRequest))(using any()))
         .thenReturn(Future.successful(expectedResponse))
 
-      val result = service.startBtaPayment(vpdId, returnUrl, backUrl)
+      val result = service.startBtaPayment(vpdId, None, returnUrl, backUrl)
 
       whenReady(result) { response =>
         response mustBe expectedResponse
-        verify(mockConnector).startPayment(eqTo(expectedBtaRequest))(using any())
+        verify(mockConnector).startBtaPayment(eqTo(expectedBtaRequest))(using any())
+      }
+    }
+
+    "build correct StartPaymentRequest for a single charge and call connector" in {
+      val request = expectedBtaRequest.copy(
+        vapingDutyReference = vpdId.value,
+        amountInPence = (outstandingPayment.amountDue * 100).toLong,
+        chargeReferenceNumber = Some(outstandingPayment.chargeReference)
+      )
+
+      when(mockFinancialDataService.getOutstandingPayment(eqTo(vpdId), eqTo(outstandingPayment.chargeReference))(using any()))
+        .thenReturn(Future.successful(outstandingPayment))
+      when(mockConnector.startBtaPayment(eqTo(request))(using any()))
+        .thenReturn(Future.successful(expectedResponse))
+
+      val result = service.startBtaPayment(vpdId, Some(outstandingPayment.chargeReference), returnUrl, backUrl)
+
+      whenReady(result) { response =>
+        response mustBe expectedResponse
+        verify(mockConnector).startBtaPayment(eqTo(request))(using any())
       }
     }
 
@@ -176,7 +196,7 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
       when(mockFinancialDataService.getPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(payments))
 
-      val result = service.startBtaPayment(vpdId, returnUrl, backUrl)
+      val result = service.startBtaPayment(vpdId, None, returnUrl, backUrl)
 
       whenReady(result.failed) { exception =>
         exception mustBe a[NoSuchElementException]
@@ -189,10 +209,10 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
 
       when(mockFinancialDataService.getPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(payments))
-      when(mockConnector.startPayment(any())(using any()))
+      when(mockConnector.startBtaPayment(any())(using any()))
         .thenReturn(Future.failed(expectedException))
 
-      val result = service.startBtaPayment(vpdId, returnUrl, backUrl)
+      val result = service.startBtaPayment(vpdId, None, returnUrl, backUrl)
 
       whenReady(result.failed) { exception =>
         exception mustBe expectedException

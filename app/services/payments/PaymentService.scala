@@ -25,17 +25,16 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class PaymentService @Inject()(
-  connector: PaymentConnector,
-  financialDataService: FinancialDataService
-)(using ExecutionContext) {
+                                connector: PaymentConnector,
+                                financialDataService: FinancialDataService
+                              )(using ExecutionContext) {
 
   def startPayment(
-    vpdId: VpdId,
-    chargeReference: String,
-    returnUrl: String,
-    backUrl: String
-  )(using HeaderCarrier): Future[StartPaymentResponse] = {
-
+                    vpdId: VpdId,
+                    chargeReference: String,
+                    returnUrl: String,
+                    backUrl: String
+                  )(using HeaderCarrier): Future[StartPaymentResponse] = {
     for {
       payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
       amountInPence = (payment.amountDue * 100).toLong
@@ -51,25 +50,50 @@ class PaymentService @Inject()(
   }
 
   def startBtaPayment(
-    vpdId: VpdId,
-    returnUrl: String,
-    backUrl: String
-  )(using HeaderCarrier): Future[StartPaymentResponse] = {
+                       vpdId: VpdId,
+                       chargeReference: Option[String],
+                       returnUrl: String,
+                       backUrl: String
+                     )(using HeaderCarrier): Future[StartPaymentResponse] =
+    startBtaPayment(vpdId, chargeReference, amountInPence(vpdId, chargeReference), returnUrl, backUrl)
 
+  private def amountInPence(vpdId: VpdId, chargeReference: Option[String])(using HeaderCarrier) =
+    chargeReference.fold(
+      amountInPenceForMultipleCharges(vpdId))
+      (chargeReference => amountInPenceForChargeRef(vpdId, chargeReference))
+
+  private def amountInPenceForMultipleCharges(vpdId: VpdId)(using HeaderCarrier) =
     for {
       payments <- financialDataService.getPayments(vpdId)
       amount = payments.totalAccountBalance.filter(_ > 0).getOrElse(
         // scalafix:off DisableSyntax.throw
         throw new NoSuchElementException(s"No positive outstanding balance for VpdId: ${vpdId.value}")
       )
+      amountInPence = (amount * 100).toLong
+    }
+    yield amountInPence
+
+  private def amountInPenceForChargeRef(vpdId: VpdId, chargeReference: String)(using HeaderCarrier) =
+    for {
+      payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
+      amountInPence = (payment.amountDue * 100).toLong
+    } yield amountInPence
+
+  private def startBtaPayment(vpdId: VpdId,
+                              chargeRef: Option[String],
+                              amountInPenceFuture: Future[Long],
+                              returnUrl: String,
+                              backUrl: String)(using HeaderCarrier) = {
+    for {
+      amountInPence <- amountInPenceFuture
       request = StartPaymentRequest(
         vapingDutyReference = vpdId.value,
-        amountInPence = (amount * 100).toLong,
-        chargeReferenceNumber = None,
+        amountInPence = amountInPence,
+        chargeReferenceNumber = chargeRef,
         returnUrl = returnUrl,
         backUrl = backUrl
       )
-      response <- connector.startPayment(request)
+      response <- connector.startBtaPayment(request)
     } yield response
   }
 }
