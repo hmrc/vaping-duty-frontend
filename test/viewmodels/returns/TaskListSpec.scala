@@ -250,14 +250,30 @@ class TaskListSpec extends UnitSpec with SpecBase {
           )
           val adjustmentList = AdjustmentList(Seq(adjustmentEntry))
           val userAnswers = returnsUserAnswers
+            .set(DeclareAdjustmentPage, true).success.value
             .set(AdjustmentListPage, adjustmentList).success.value
-          
+
           val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
-          
+
           val adjustmentsSection = sections(1)
           val adjustmentsTask = adjustmentsSection.rows(1)
-          
+
           adjustmentsTask.href.get must include("/check-your-answers")
+        }
+      }
+
+      "must link back to DeclareAdjustmentQuestionController when adjustment declared but no list exists yet" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          val userAnswers = returnsUserAnswers
+            .set(DeclareAdjustmentPage, true).success.value
+
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+
+          val adjustmentsSection = sections(1)
+          val adjustmentsTask = adjustmentsSection.rows(1)
+
+          adjustmentsTask.href.get must include("/declare-adjustments")
         }
       }
 
@@ -296,6 +312,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
         running(application) {
           val spoiltList = List(SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = PeriodKey("24AI")))
           val userAnswers = returnsUserAnswers
+            .set(DeclareSpoiltProductsPage, true).success.value
             .set(SpoiltVolumeByPeriodPage, spoiltList).success.value
 
           val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
@@ -304,6 +321,21 @@ class TaskListSpec extends UnitSpec with SpecBase {
           val spoiltTask = adjustmentsSection.rows(0)
 
           spoiltTask.href.get must include("/check-your-spoilt-products-answers")
+        }
+      }
+
+      "must link back to DeclareSpoiltProductsController when spoilt declared but no volume exists yet" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          val userAnswers = returnsUserAnswers
+            .set(DeclareSpoiltProductsPage, true).success.value
+
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+
+          val adjustmentsSection = sections(1)
+          val spoiltTask = adjustmentsSection.rows(0)
+
+          spoiltTask.href.get must include("/declare-spoilt-products")
         }
       }
 

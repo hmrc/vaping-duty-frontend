@@ -18,8 +18,6 @@ package viewmodels.returns.submit
 
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import models.{NormalMode, TaskStatus}
-import pages.returns.{DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
-import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import services.returns.TaskStatusService
@@ -65,11 +63,8 @@ object TaskList {
   }
 
   private def determineAdjustmentLink(userAnswers: ReturnsUserAnswers): Call = {
-    val declareAdjustment = userAnswers.get(DeclareAdjustmentPage)
-    val adjustmentList = userAnswers.get(AdjustmentListPage)
-
-    (adjustmentList, declareAdjustment) match {
-      case (list, declaration) if list.nonEmpty || declaration.nonEmpty =>
+    TaskStatusService.declareAdjustmentsTaskStatus(userAnswers) match {
+      case TaskStatus.Completed =>
         controllers.returns.submit.adjustments.routes.AdjustmentCheckYourAnswersController.onPageLoad(NormalMode)
       case _ =>
         controllers.returns.submit.adjustments.routes.DeclareAdjustmentQuestionController.onPageLoad(NormalMode)
@@ -77,11 +72,8 @@ object TaskList {
   }
 
   private def determineSpoiltLink(userAnswers: ReturnsUserAnswers): Call = {
-    val declareSpoilt = userAnswers.get(DeclareSpoiltProductsPage)
-    val spoiltList = userAnswers.get(SpoiltVolumeByPeriodPage)
-
-    (spoiltList, declareSpoilt) match {
-      case (list, declaration) if list.nonEmpty || declaration.nonEmpty =>
+    TaskStatusService.declareSpoiltProductsTaskStatus(userAnswers) match {
+      case TaskStatus.Completed =>
         controllers.returns.submit.spoilt.routes.SpoiltCheckYourAnswersController.onPageLoad(NormalMode)
       case _ =>
         controllers.returns.submit.spoilt.routes.DeclareSpoiltProductsController.onPageLoad(NormalMode)
