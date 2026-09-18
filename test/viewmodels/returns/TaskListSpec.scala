@@ -27,7 +27,7 @@ import viewmodels.returns.submit.{TaskList, TaskRows}
 import models.identifiers.PeriodKey
 
 class TaskListSpec extends UnitSpec with SpecBase {
-  
+
   "TaskListViewModel.sections" - {
 
     "returns four sections in the correct order when adjustments are eligible" in {
@@ -52,7 +52,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
         sections(0).headingKey mustBe "returns.taskList.section.declareDuty.heading"
         sections(1).headingKey mustBe "returns.taskList.section.dutySuspended.heading"
         sections(2).headingKey mustBe "returns.taskList.section.submitReturn.heading"
-        
+
         // Verify adjustments section is NOT present
         sections.map(_.headingKey) must not contain "returns.taskList.section.declareAdjustments.heading"
       }
@@ -232,10 +232,10 @@ class TaskListSpec extends UnitSpec with SpecBase {
         val application = applicationBuilder().build()
         running(application) {
           val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.Eligible)
-          
+
           val adjustmentsSection = sections(1)
           val adjustmentsTask = adjustmentsSection.rows(1)
-          
+
           adjustmentsTask.href.get must include("/declare-adjustments")
         }
       }
@@ -267,6 +267,26 @@ class TaskListSpec extends UnitSpec with SpecBase {
         running(application) {
           val userAnswers = returnsUserAnswers
             .set(DeclareAdjustmentPage, true).success.value
+            .remove(AdjustmentListPage).success.value
+
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+
+          val adjustmentsSection = sections(1)
+          val adjustmentsTask = adjustmentsSection.rows(1)
+
+          adjustmentsTask.href.get must include("/declare-adjustments")
+        }
+      }
+
+      "must link back to DeclareAdjustmentQuestionController when adjustments declared but with an empty list" in {
+        // This occurs when a user chooses 'Yes' to the DeclareAdjustmentQuestionController,
+        // navigates back to the task list and clicks to resume the declare over/under adjustments journey, 
+        // but has not yet entered any volume data.
+        val application = applicationBuilder().build()
+        running(application) {
+          val userAnswers = returnsUserAnswers
+            .set(DeclareAdjustmentPage, true).success.value
+            .set(AdjustmentListPage, AdjustmentList(Seq.empty)).success.value
 
           val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
 
@@ -325,10 +345,30 @@ class TaskListSpec extends UnitSpec with SpecBase {
       }
 
       "must link back to DeclareSpoiltProductsController when spoilt declared but no volume exists yet" in {
+        // This occurs when a user chooses 'Yes' to the DeclareSpoiltProductsPage,
+        // navigates back to the task list and clicks to resume the declare spoilt products journey, 
+        // but has not yet entered any volume data.
         val application = applicationBuilder().build()
         running(application) {
           val userAnswers = returnsUserAnswers
             .set(DeclareSpoiltProductsPage, true).success.value
+            .remove(SpoiltVolumeByPeriodPage).success.value
+
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+
+          val adjustmentsSection = sections(1)
+          val spoiltTask = adjustmentsSection.rows(0)
+
+          spoiltTask.href.get must include("/declare-spoilt-products")
+        }
+      }
+
+      "must link back to DeclareSpoiltProductsController when spoilt has been declared but with an empty list" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          val userAnswers = returnsUserAnswers
+            .set(DeclareSpoiltProductsPage, true).success.value
+            .set(SpoiltVolumeByPeriodPage, List.empty).success.value
 
           val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
 

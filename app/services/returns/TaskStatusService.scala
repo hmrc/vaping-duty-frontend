@@ -46,17 +46,18 @@ object TaskStatusService {
       case (None, _)             => TaskStatus.NotStarted
       case (Some(false), _)      => TaskStatus.Completed
       case (Some(true), None)    => TaskStatus.InProgress
+      case (Some(true), Some(list)) if list.isEmpty => TaskStatus.InProgress
       case (Some(true), Some(_)) => TaskStatus.Completed
     }
   }
 
   def declareAdjustmentsTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
     (answers.get(DeclareAdjustmentPage), answers.get(AdjustmentListPage)) match {
-      case (None, _) => TaskStatus.NotStarted
-      case (Some(false), _) => TaskStatus.Completed
-      case (Some(true), None) => TaskStatus.InProgress
-      case (Some(true), Some(list)) if list.adjustments.nonEmpty => TaskStatus.Completed
-      case (Some(true), _) => TaskStatus.InProgress
+      case (None, _)             => TaskStatus.NotStarted
+      case (Some(false), _)      => TaskStatus.Completed
+      case (Some(true), None)    => TaskStatus.InProgress
+      case (Some(true), Some(list)) if list.adjustments.isEmpty => TaskStatus.InProgress
+      case (Some(true), Some(_)) => TaskStatus.Completed
     }
   }
 
