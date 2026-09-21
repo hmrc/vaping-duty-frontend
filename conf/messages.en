@@ -234,7 +234,7 @@ returns.declareDutyCheckAnswers.declareDuty = Do you need to declare vaping prod
 returns.declareDutyCheckAnswers.declareDuty.change.hidden = do you need to declare vaping products for duty?
 returns.declareDutyCheckAnswers.volume = Total millilitres of declared vaping liquid
 returns.declareDutyCheckAnswers.dutyDue = Duty due
-returns.declareDutyCheckAnswers.volume.change.hidden = volume
+returns.declareDutyCheckAnswers.volume.change.hidden = total millilitres of declared vaping liquid
 
 returns.declareSpoiltProducts.title = Declare spoilt products from an earlier return
 returns.declareSpoiltProducts.heading = Declare spoilt products from an earlier return
@@ -283,7 +283,7 @@ returns.spoiltCheckYourAnswers.noSpoiltProducts.heading = Check your answers
 returns.spoiltCheckYourAnswers.addAnother = Do you need to add another month?
 returns.spoiltCheckYourAnswers.volume = Total millilitres of declared vaping products
 returns.spoiltCheckYourAnswers.duty = Duty due
-returns.spoiltCheckYourAnswers.volume.change.hidden = volume
+returns.spoiltCheckYourAnswers.volume.change.hidden = total millilitres of declared vaping products
 
 returns.removeSpoiltAdjustment.title = Remove spoilt product
 returns.removeSpoiltAdjustment.heading = Remove spoilt product
@@ -337,8 +337,8 @@ returns.dutySuspenseCheckAnswers.declareDutySuspense = Have you received or move
 returns.dutySuspenseCheckAnswers.declareDutySuspense.change.hidden = have you received or moved any finished vaping products in duty suspense?
 returns.dutySuspenseCheckAnswers.productReceived = Amount received
 returns.dutySuspenseCheckAnswers.productMoved = Amount moved
-returns.dutySuspenseCheckAnswers.cardActions.change.hidden = volume received and volume moved
-returns.dutySuspenseCheckAnswers.change.hidden = volume received and volume moved
+returns.dutySuspenseCheckAnswers.cardActions.change.hidden = amount received and amount moved
+returns.dutySuspenseCheckAnswers.change.hidden = amount received and amount moved
 
 returns.CheckYourAnswers.title = Check your answers
 returns.CheckYourAnswers.caption = Check your answers for {0} {1} return
@@ -587,6 +587,8 @@ returns.adjustmentCheckYourAnswers.volume.overDeclared = Total millilitres of ov
 returns.adjustmentCheckYourAnswers.duty = Duty due
 returns.adjustmentCheckYourAnswers.type.change.hidden = adjustment type
 returns.adjustmentCheckYourAnswers.volume.change.hidden = volume
+returns.adjustmentCheckYourAnswers.volume.change.hidden.underDeclared = total millilitres of under-declared products
+returns.adjustmentCheckYourAnswers.volume.change.hidden.overDeclared = total millilitres of over-declared products
 
 returns.removeAdjustment.title = Remove adjustment
 returns.removeAdjustment.heading = Remove adjustment

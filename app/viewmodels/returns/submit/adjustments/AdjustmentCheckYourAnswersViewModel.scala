@@ -194,6 +194,10 @@ object AdjustmentCheckYourAnswersViewModel {
       case AdjustmentType.UnderDeclared => messages("returns.adjustmentCheckYourAnswers.volume.underDeclared")
       case AdjustmentType.OverDeclared => messages("returns.adjustmentCheckYourAnswers.volume.overDeclared")
     }
+    val volumeKeyHidden = adjustmentType match {
+      case AdjustmentType.UnderDeclared => messages("returns.adjustmentCheckYourAnswers.volume.change.hidden.underDeclared")
+      case AdjustmentType.OverDeclared => messages("returns.adjustmentCheckYourAnswers.volume.change.hidden.overDeclared")
+    }
 
     SummaryListRow(
       key = Key(content = Text(volumeKey)),
@@ -206,7 +210,7 @@ object AdjustmentCheckYourAnswersViewModel {
             Some(adjustmentPeriod)
           ),
           content = Text(messages("site.change")),
-          visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.volume.change.hidden"))
+          visuallyHiddenText = Some(volumeKeyHidden)
         )
       )))
     )

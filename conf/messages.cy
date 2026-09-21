@@ -222,7 +222,7 @@ returns.declareDutyCheckAnswers.declareDuty = A oes angen i chi ddatgan cynhyrch
 returns.declareDutyCheckAnswers.declareDuty.change.hidden = a oes angen i chi ddatgan cynhyrchion fepio ar gyfer toll?
 returns.declareDutyCheckAnswers.volume = Cyfanswm mililitrau o hylif fepio datganedig
 returns.declareDutyCheckAnswers.dutyDue = Toll sy’n ddyledus
-returns.declareDutyCheckAnswers.volume.change.hidden = cyfaint
+returns.declareDutyCheckAnswers.volume.change.hidden = cyfanswm mililitrau o hylif fepio datganedig
 
 returns.declareSpoiltProducts.title = Datgan cynhyrchion sydd wedi’u difetha o ddatganiad cynharach
 returns.declareSpoiltProducts.heading = Datgan cynhyrchion sydd wedi’u difetha o ddatganiad cynharach
@@ -270,7 +270,7 @@ returns.spoiltCheckYourAnswers.noSpoiltProducts.heading = Gwiriwch eich atebion
 returns.spoiltCheckYourAnswers.addAnother = A oes angen i chi ychwanegu mis arall?
 returns.spoiltCheckYourAnswers.volume = Cyfanswm mililitrau o gynhyrchion fepio datganedig
 returns.spoiltCheckYourAnswers.duty = Toll sy’n ddyledus
-returns.spoiltCheckYourAnswers.volume.change.hidden = cyfaint
+returns.spoiltCheckYourAnswers.volume.change.hidden = cyfanswm mililitrau o gynhyrchion fepio datganedig
 
 
 returns.removeSpoiltAdjustment.title = Tynnu cynnyrch sydd wedi’i ddifetha
@@ -323,7 +323,7 @@ returns.dutySuspenseCheckAnswers.declareDutySuspense = A ydych wedi cael neu sym
 returns.dutySuspenseCheckAnswers.declareDutySuspense.change.hidden = a ydych wedi cael neu symud unrhyw gynhyrchion fepio gorffenedig o dan ohiriad tollau?
 returns.dutySuspenseCheckAnswers.productReceived = Y swm a gafwyd
 returns.dutySuspenseCheckAnswers.productMoved = Faint a symudwyd
-returns.dutySuspenseCheckAnswers.cardActions.change.hidden = cyfaint a dderbyniwyd a chyfaint a symudwyd
+returns.dutySuspenseCheckAnswers.cardActions.change.hidden = y swm a gafwyd ac faint a symudwyd
 returns.dutySuspenseCheckAnswers.change.hidden = cynnyrch a ddaeth i law dan ohiriad tollau
 
 returns.CheckYourAnswers.title = Gwiriwch eich atebion
