@@ -586,7 +586,6 @@ returns.adjustmentCheckYourAnswers.volume.underDeclared = Total millilitres of u
 returns.adjustmentCheckYourAnswers.volume.overDeclared = Total millilitres of over-declared products
 returns.adjustmentCheckYourAnswers.duty = Duty due
 returns.adjustmentCheckYourAnswers.type.change.hidden = adjustment type
-returns.adjustmentCheckYourAnswers.volume.change.hidden = volume
 returns.adjustmentCheckYourAnswers.volume.change.hidden.underDeclared = total millilitres of under-declared products
 returns.adjustmentCheckYourAnswers.volume.change.hidden.overDeclared = total millilitres of over-declared products
 

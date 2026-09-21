@@ -555,7 +555,8 @@ returns.adjustmentCheckYourAnswers.volume.overDeclared = Cyfanswm mililitrau o g
 returns.adjustmentCheckYourAnswers.volume.underDeclared = Cyfanswm mililitrau o gynhyrchion sydd wedi’u tanddatgan
 returns.adjustmentCheckYourAnswers.duty = Toll sy’n ddyledus
 returns.adjustmentCheckYourAnswers.type.change.hidden = math o addasiad
-returns.adjustmentCheckYourAnswers.volume.change.hidden = cyfaint
+returns.adjustmentCheckYourAnswers.volume.change.hidden.underDeclared = cyfanswm mililitrau o gynhyrchion sydd wedi’u gorddatgan
+returns.adjustmentCheckYourAnswers.volume.change.hidden.overDeclared = cyfanswm mililitrau o gynhyrchion sydd wedi’u tanddatgan
 
 returns.removeAdjustment.title = Tynnu addasiad
 returns.removeAdjustment.heading = Tynnu addasiad
