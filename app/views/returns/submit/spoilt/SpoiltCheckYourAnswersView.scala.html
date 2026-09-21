@@ -33,7 +33,7 @@
 
 @layout(pageTitle = title(form,
     if(viewModel.hasSpoiltProducts)
-        messages("returns.spoiltCheckYourAnswers.title", viewModel.formattedTotalSpoiltDuty)
+        messages("returns.spoiltCheckYourAnswers.heading", viewModel.formattedTotalSpoiltDuty)
     else
         messages("returns.spoiltCheckYourAnswers.noSpoiltProducts.heading")
 )) {

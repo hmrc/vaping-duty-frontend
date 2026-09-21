@@ -30,13 +30,13 @@
 
 @(periodKey: PeriodKey, vm: DeclareDutyCheckAnswersViewModel, mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("returns.declareDutyCheckAnswers.title", vm.dutyDue))) {
+@layout(pageTitle = titleNoForm(vm.heading)) {
 
     @caption(messages("returns.declareDutyCheckAnswers.caption"))
     @h1(vm.heading)
 
     @summaryCard(
-        title = messages("returns.declareDutyCheckAnswers.entryDetails"),
+        title = vm.periodDisplay,
         summaryList = vm.summaryList
     )
 

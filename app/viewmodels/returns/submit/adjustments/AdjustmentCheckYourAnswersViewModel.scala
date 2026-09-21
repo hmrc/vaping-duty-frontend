@@ -115,7 +115,7 @@ object AdjustmentCheckYourAnswersViewModel {
     val rows = Seq(
       buildDeclareAdjustmentRow(currentPeriodKey, declaredAdjustment = true, mode),
       buildTypeRow(adjustment.adjustmentType),
-      buildVolumeRow(adjustment.volumeInMl, adjustment.period, currentPeriodKey, mode),
+      buildVolumeRow(adjustment.volumeInMl, adjustment.adjustmentType, adjustment.period, currentPeriodKey, mode),
       buildDutyRow(dutyAmount, adjustment.adjustmentType)
     )
 
@@ -185,12 +185,22 @@ object AdjustmentCheckYourAnswersViewModel {
 
   private def buildVolumeRow(
                               volume: BigDecimal,
+                              adjustmentType: AdjustmentType,
                               adjustmentPeriod: PeriodKey,
                               currentPeriodKey: PeriodKey,
                               mode: Mode
                             )(implicit messages: Messages): SummaryListRow = {
+    val volumeKey = adjustmentType match {
+      case AdjustmentType.UnderDeclared => messages("returns.adjustmentCheckYourAnswers.volume.underDeclared")
+      case AdjustmentType.OverDeclared => messages("returns.adjustmentCheckYourAnswers.volume.overDeclared")
+    }
+    val volumeKeyHidden = adjustmentType match {
+      case AdjustmentType.UnderDeclared => messages("returns.adjustmentCheckYourAnswers.volume.change.hidden.underDeclared")
+      case AdjustmentType.OverDeclared => messages("returns.adjustmentCheckYourAnswers.volume.change.hidden.overDeclared")
+    }
+
     SummaryListRow(
-      key = Key(content = Text(messages("returns.adjustmentCheckYourAnswers.volume"))),
+      key = Key(content = Text(volumeKey)),
       value = Value(content = HtmlContent(s"${volume.toString} ml")),
       actions = Some(Actions(items = Seq(
         ActionItem(
@@ -200,7 +210,7 @@ object AdjustmentCheckYourAnswersViewModel {
             Some(adjustmentPeriod)
           ),
           content = Text(messages("site.change")),
-          visuallyHiddenText = Some(messages("returns.adjustmentCheckYourAnswers.volume.change.hidden"))
+          visuallyHiddenText = Some(volumeKeyHidden)
         )
       )))
     )

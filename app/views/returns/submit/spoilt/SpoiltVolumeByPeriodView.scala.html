@@ -15,8 +15,8 @@
  *@
 
 @import viewmodels.InputWidth.*
-@import components.{Caption, Heading}
-@import viewmodels.LegendSize
+@import views.html.components.Caption
+@import viewmodels.LabelSize
 @import viewmodels.returns.submit.SpoiltVolumeByPeriodViewModel
 @import play.api.mvc.Call
 @import models.Mode
@@ -27,8 +27,7 @@
     govukErrorSummary: GovukErrorSummary,
     govukInput: GovukInput,
     govukButton: GovukButton,
-    caption: Caption,
-    h1: Heading
+    caption: Caption
 )
 
 @(vm: SpoiltVolumeByPeriodViewModel, form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
@@ -42,18 +41,14 @@
         }
 
         @caption(messages("returns.spoiltVolumeByPeriod.caption", vm.monthName, vm.year))
-        @h1(messages("returns.spoiltVolumeByPeriod.heading"))
 
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("returns.spoiltVolumeByPeriod.label")).withCssClass(LegendSize.Medium.toString)
+                label = LabelViewModel(messages("returns.spoiltVolumeByPeriod.heading")).asPageHeading(LabelSize.Large)
             )
             .asNumeric()
             .withWidth(Fixed10)
-            .withHint(Hint(
-              content = messages("returns.spoiltVolumeByPeriod.hint")
-            ))
             .withSuffix(PrefixOrSuffix(
               content = messages("returns.enterDutyAmount.q.ml")
             ))

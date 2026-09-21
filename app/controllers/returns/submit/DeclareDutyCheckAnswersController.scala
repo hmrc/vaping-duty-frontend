@@ -23,6 +23,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.DutyRateService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import viewmodels.returns.submit.DeclareDutyCheckAnswersViewModel
 import views.html.returns.submit.DeclareDutyCheckAnswersView
 
@@ -38,14 +39,15 @@ class DeclareDutyCheckAnswersController @Inject()(
                                                    returnsEnabled: ReturnsEnabledAction,
                                                    dutyRateService: DutyRateService,
                                                    val controllerComponents: MessagesControllerComponents,
-                                                   view: DeclareDutyCheckAnswersView
+                                                   view: DeclareDutyCheckAnswersView,
+                                                   returnsDateUtils: ReturnsDateUtils
                                                  )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     val pk = request.periodKey
 
     dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
-      DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk, mode) match {
+      DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk, mode, returnsDateUtils) match {
         case Some(vm) => Ok(view(pk, vm, mode))
         case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
