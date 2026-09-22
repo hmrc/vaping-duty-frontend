@@ -70,7 +70,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(vm, btaLink)(request, messages(application)).toString
       }
     }
 
@@ -114,7 +114,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(vm, btaLink)(request, messages(application)).toString
       }
     }
   }
