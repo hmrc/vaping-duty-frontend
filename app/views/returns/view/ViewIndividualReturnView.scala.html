@@ -32,7 +32,7 @@
         list: List
 )
 
-@(vm: ViewIndividualReturnViewModel)(implicit request: Request[_], messages: Messages)
+@(vm: ViewIndividualReturnViewModel, btaLink: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(vm.monthYear)) {
 
@@ -100,6 +100,9 @@
     @h2(messages("viewIndividualReturn.h2.totals"), classes = "govuk-heading-m govuk-!-padding-top-6")
     @govukSummaryList(vm.totalDutySummaryList)
 
-    @govukButton(ButtonViewModel(messages("viewIndividualReturn.goToBta")))
+    @govukButton(
+        ButtonViewModel(messages("viewIndividualReturn.goToBta"))
+            .asLink(btaLink)
+    )
 
 }

@@ -16,9 +16,11 @@
 
 package controllers.returns.view
 
+import config.FrontendAppConfig
 import connectors.returns.GetReturnsConnector
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
+import models.BtaLink
 import models.identifiers.PeriodKey
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -41,7 +43,8 @@ class ViewIndividualReturnController @Inject()(
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ViewIndividualReturnView,
                                        returnsEnabled: ReturnsEnabledAction,
-                                       returnsDateUtils: ReturnsDateUtils
+                                       returnsDateUtils: ReturnsDateUtils,
+                                       config: FrontendAppConfig
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(periodKey: PeriodKey): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled).async {
@@ -50,7 +53,7 @@ class ViewIndividualReturnController @Inject()(
         returnData <- connector.getReturn(periodKey, request.enrolmentVpdId)
         obligationDetails <- obligationService.getObligations(request.enrolmentVpdId)
       } yield {
-        Ok(view(ViewIndividualReturnViewModel(returnData, obligationDetails, returnsDateUtils)))
+        Ok(view(ViewIndividualReturnViewModel(returnData, obligationDetails, returnsDateUtils), BtaLink(config)))
       }
   }
 }
