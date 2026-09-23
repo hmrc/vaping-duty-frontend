@@ -23,7 +23,7 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar.mock
-import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
+import uk.gov.hmrc.vapingdutyfinance.models.{MainTransactionType, PaymentStatus}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -45,7 +45,7 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
     amountDue = amountDue,
     dueDate = LocalDate.of(2026, 8, 25),
     status = PaymentStatus.Due,
-    mainTransaction = Some("4060")
+    mainTransaction = MainTransactionType.Return
   )
 
   private val expectedRequest = StartPaymentRequest(
