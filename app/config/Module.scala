@@ -39,6 +39,7 @@ class Module extends AbstractModule {
     bind(classOf[NoEnrolmentAction]).to(classOf[NoEnrolmentActionImpl]).asEagerSingleton()
     bind(classOf[CheckSignedInAction]).to(classOf[CheckSignedInActionImpl]).asEagerSingleton()
     bind(classOf[ReturnsEnabledAction]).to(classOf[ReturnsEnabledActionImpl]).asEagerSingleton()
+    bind(classOf[DirectDebitEnabledAction]).to(classOf[DirectDebitEnabledActionImpl]).asEagerSingleton()
     bind(classOf[DutyRateConfig]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))

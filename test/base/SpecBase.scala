@@ -60,7 +60,7 @@ trait SpecBase
                                    enrolmentUserAnswers: Option[EnrolmentUserAnswers] = None,
                                    returnsUserAnswers: Option[ReturnsUserAnswers] = None,
                                    returnsEnabled: Boolean = true,
-                                   returnSubmittedEmailEnabled: Boolean = true): GuiceApplicationBuilder =
+                                   directDebitEnabled: Boolean = true): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
@@ -74,7 +74,7 @@ trait SpecBase
       )
       .configure(
         "features.returnsEnabled" -> returnsEnabled,
-        "features.returnSubmittedEmailEnabled" -> returnSubmittedEmailEnabled
+        "features.directDebitEnabled" -> directDebitEnabled
       )
   
   given hc: HeaderCarrier = HeaderCarrier()
@@ -88,6 +88,9 @@ trait SpecBase
   
   val fakeCheckInsolvencyAction: FakeCheckInsolvencyAction =
     new FakeCheckInsolvencyAction
+
+  val fakeDirectDebitEnabledAction: FakeDirectDebitEnabledAction =
+    new FakeDirectDebitEnabledAction
   
   // Common mocks for config and connectors
   val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
