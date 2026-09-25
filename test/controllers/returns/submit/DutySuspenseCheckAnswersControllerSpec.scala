@@ -72,7 +72,7 @@ class DutySuspenseCheckAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to journey recovery when EnterDutySuspensePage is not answered" in {
+    "must redirect to return submission recovery when EnterDutySuspensePage is not answered" in {
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
@@ -82,7 +82,7 @@ class DutySuspenseCheckAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${periodKey.value}"
       }
     }
 

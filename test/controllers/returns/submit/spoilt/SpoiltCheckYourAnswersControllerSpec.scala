@@ -113,6 +113,26 @@ class SpoiltCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to return submission recovery when declared true but no spoilt volumes are recorded" in {
+      val mockService = mock[SpoiltCheckYourAnswersService]
+      val userAnswers = returnsUserAnswers.set(DeclareSpoiltProductsPage, true).success.value
+
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
+        .overrides(
+          bind[SpoiltCheckYourAnswersService].toInstance(mockService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, spoiltCheckYourAnswersRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${periodKey.value}"
+      }
+    }
+
     "must propagate exception when service fails on GET" in {
       val mockService = mock[SpoiltCheckYourAnswersService]
       val testSpoiltList = List(SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = periodKey))

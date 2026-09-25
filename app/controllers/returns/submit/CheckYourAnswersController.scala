@@ -23,7 +23,7 @@ import pages.returns.adjustments.AdjustmentListPage
 import pages.returns.SpoiltVolumeByPeriodPage
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{DutyRateService, ObligationService}
+import services.returns.{DutyRateService, ObligationService, TaskStatusService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.CheckYourAnswersViewModel
@@ -64,7 +64,11 @@ class CheckYourAnswersController @Inject()(
       dutyRates = dutyRateService.getDutyRatesForPeriods(allPeriods, obligationDetails)
     } yield {
       val adjustmentsEligibility = AdjustmentsEligibility.fromObligationDetails(obligationDetails)
-      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRates, pk, returnsDateUtils, adjustmentsEligibility)))
+      if (TaskStatusService.allTasksCompleted(request.userAnswers, adjustmentsEligibility)) {
+        Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRates, pk, returnsDateUtils, adjustmentsEligibility)))
+      } else {
+        Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${pk.value}")
+      }
     }
   }
 

@@ -46,6 +46,11 @@ journeyRecovery.startAgain.title = Sorry, there is a problem with the service
 journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
 journeyRecovery.startAgain.guidance = Try again later.
 
+returnSubmissionRecovery.title = There is a problem with your return
+returnSubmissionRecovery.heading = There is a problem with your return
+returnSubmissionRecovery.guidance = You have an issue with your data, please resume this task.
+returnSubmissionRecovery.taskList.linkText = Go to task list
+
 signedOut.title = For your security, we signed you out
 signedOut.heading = For your security, we signed you out
 
