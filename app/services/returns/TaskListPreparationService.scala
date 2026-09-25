@@ -33,18 +33,9 @@ class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService
                           obligations: Seq[ObligationDetails],
                           periodKey: PeriodKey
                         )(using HeaderCarrier): Future[ReturnsUserAnswers] = {
-
-    val currentObligation = obligations
-      .find(_.periodKey == periodKey.toString)
-      // scalafix:off DisableSyntax.throw
-      .getOrElse(throw new IllegalStateException(s"No obligation found for period key: ${periodKey.toString}"))
-
-    val month = currentObligation.iCFromDate.getMonth
-    val year = currentObligation.iCFromDate.getYear.toString
-
+    
     val updatedUa = TaskListPreparationService
       .updateUserAnswers(userAnswers, adjustmentsEligibility)
-      .copy(returnPeriod = Some(month), year = Some(year))
 
     storeUserAnswersIfChanged(userAnswers, updatedUa)
   }
