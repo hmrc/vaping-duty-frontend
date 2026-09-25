@@ -20,13 +20,13 @@ import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvenc
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import forms.returns.DeclareDutyFormProvider
 import models.requests.returns.ReturnsDataRequest
-import models.{Mode, NormalMode}
+import models.{Mode, NormalMode, TaskStatus}
 import navigation.ReturnsNavigator
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, DeclareAdjustmentPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.returns.{AdjustmentCheckYourAnswersService, ReturnsUserAnswersService}
+import services.returns.{AdjustmentCheckYourAnswersService, ReturnsUserAnswersService, TaskStatusService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.adjustments.AdjustmentCheckYourAnswersView
@@ -53,13 +53,17 @@ class AdjustmentCheckYourAnswersController @Inject()(
 
   def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
-      buildViewModel(request, mode).map { vm =>
-        val preparedForm = request.userAnswers.get(AddAnotherAdjustmentPage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
+      if (TaskStatusService.declareAdjustmentsTaskStatus(request.userAnswers) != TaskStatus.Completed) {
+        Future.successful(Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${request.periodKey.value}"))
+      } else {
+        buildViewModel(request, mode).map { vm =>
+          val preparedForm = request.userAnswers.get(AddAnotherAdjustmentPage) match {
+            case None => form
+            case Some(value) => form.fill(value)
+          }
 
-        Ok(view(request.periodKey, vm, preparedForm, mode))
+          Ok(view(request.periodKey, vm, preparedForm, mode))
+        }
       }
   }
 
