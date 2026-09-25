@@ -17,20 +17,18 @@
 package viewmodels.returns
 
 import base.SpecBase
-import models.returns.{AdjustmentsEligibility, DutyRate}
+import models.returns.{AdjustmentsEligibility, DutyRate, PeriodDisplay, SpoiltVolumeByPeriod}
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
-import models.returns.SpoiltVolumeByPeriod
 import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, SpoiltVolumeByPeriodPage}
 import play.api.i18n.Messages
-import utils.{CurrencyFormatter, ReturnsDateUtils}
+import utils.CurrencyFormatter
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 
 class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
 
-  private val returnsDateUtils = new ReturnsDateUtils(clock)
   implicit val messages: Messages = messages(applicationBuilder(None).build())
-  val dutyRates = Map(periodKey -> testDutyRate)
+  private val dutyRates = Map(periodKey -> testDutyRate)
   "CheckYourAnswersViewModel" - {
 
     "must identify a nil return when total duty calculates is zero" in {
@@ -44,7 +42,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareSpoiltProductsPage, true).success.value
         .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       vm.totalDuty mustBe BigDecimal(0)
       vm.nilReturn mustBe true
@@ -64,7 +62,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareAdjustmentPage, true).success.value
         .set(AdjustmentListPage, adjustmentList).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       vm.totalDuty mustBe BigDecimal(0)
       vm.nilReturn mustBe true
@@ -77,7 +75,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareDutyPage, true).success.value
         .set(EnterDutyAmountPage, volumeInMl).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       vm.totalDuty must be > BigDecimal(0)
       vm.nilReturn mustBe false
@@ -89,7 +87,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareSpoiltProductsPage, false).success.value
         .set(DeclareAdjustmentPage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       vm.totalDuty mustBe BigDecimal(0)
       vm.nilReturn mustBe true
@@ -103,7 +101,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareDutyPage, true).success.value
         .set(EnterDutyAmountPage, volumeInMl).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       vm.totalDuty mustBe expectedDuty
       vm.formattedTotalDuty mustBe currencyFormat(expectedDuty)
@@ -125,7 +123,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareSpoiltProductsPage, true).success.value
         .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       vm.totalDuty mustBe expectedTotal
       vm.formattedTotalDuty mustBe currencyFormat(expectedTotal)
@@ -152,7 +150,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareAdjustmentPage, true).success.value
         .set(AdjustmentListPage, adjustmentList).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       vm.totalDuty mustBe expectedTotal
       vm.formattedTotalDuty mustBe currencyFormat(expectedTotal)
@@ -164,7 +162,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareDutyPage, true).success.value
         .set(EnterDutyAmountPage, volumeInMl).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       val card = vm.declareDutyCard
 
@@ -182,7 +180,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareSpoiltProductsPage, true).success.value
         .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       val card = vm.spoiltProductsCard.get
 
@@ -201,7 +199,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(AdjustmentListPage, adjustmentList).success.value
         .set(AdjustmentReasonPage, "Test reason").success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       val card = vm.adjustmentsCard.get
 
@@ -218,7 +216,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val userAnswers = returnsUserAnswers
         .set(DeclareDutySuspensePage, true).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       vm.hasDutySuspended mustBe true
 
@@ -233,7 +231,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val userAnswers = returnsUserAnswers
         .set(DeclareDutySuspensePage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       vm.hasDutySuspended mustBe false
       
@@ -248,7 +246,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val userAnswers = returnsUserAnswers
         .set(DeclareDutyPage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       val card = vm.declareDutyCard
       
@@ -261,7 +259,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val userAnswers = returnsUserAnswers
         .set(DeclareSpoiltProductsPage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       val card = vm.spoiltProductsCard.get
       
@@ -274,7 +272,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
       val userAnswers = returnsUserAnswers
         .set(DeclareAdjustmentPage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       val card = vm.adjustmentsCard.get
       
@@ -299,7 +297,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareAdjustmentPage, true).success.value
         .set(AdjustmentListPage, adjustmentList).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       vm.formattedTotalDuty mustBe "£157.50"
       vm.nilReturn mustBe false
@@ -319,7 +317,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareAdjustmentPage, true).success.value
         .set(AdjustmentListPage, adjustmentList).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       vm.formattedTotalDuty mustBe "-£157.50"
     }
@@ -331,7 +329,7 @@ class CheckYourAnswersViewModelSpec extends SpecBase with CurrencyFormatter {
         .set(DeclareAdjustmentPage, false).success.value
         .set(DeclareDutySuspensePage, false).success.value
 
-      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)
+      val vm = CheckYourAnswersViewModel(userAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))
 
       vm.formattedTotalDuty mustBe "£0"
       vm.nilReturn mustBe true

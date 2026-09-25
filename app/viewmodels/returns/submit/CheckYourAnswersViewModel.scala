@@ -19,14 +19,14 @@ package viewmodels.returns.submit
 import models.CheckMode
 import models.identifiers.PeriodKey
 import models.returns.adjustments.AdjustmentType
-import models.returns.{AdjustmentsEligibility, DutyRate, ReturnsUserAnswers}
+import models.returns.{AdjustmentsEligibility, DutyRate, PeriodDisplay, ReturnsUserAnswers}
 import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
 import pages.returns.*
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
-import utils.{CurrencyFormatter, ReturnsDateUtils}
+import utils.CurrencyFormatter
 import viewmodels.returns.view.CyaSummaryCard
 import views.html.components.Paragraph
 
@@ -51,16 +51,9 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
   def apply(userAnswers: ReturnsUserAnswers,
             dutyRates: Map[PeriodKey, DutyRate],
             periodKey: PeriodKey,
-            returnsDateUtils: ReturnsDateUtils,
-            adjustmentsEligibility: AdjustmentsEligibility)
+            adjustmentsEligibility: AdjustmentsEligibility,
+            displayableReturnPeriod: PeriodDisplay)
            (implicit messages: Messages): CheckYourAnswersViewModel = {
-    // scalafix:off DisableSyntax.throw
-    val returnPeriod = userAnswers.returnPeriod
-      .map(month => returnsDateUtils.getReturnMonth(month))
-      .getOrElse(throw new IllegalStateException("Return period not found in user answers"))
-    
-    val year = userAnswers.year
-      .getOrElse(throw new IllegalStateException("Return year not found in user answers"))
 
     val hasDutySuspended = userAnswers.get(DeclareDutySuspensePage).getOrElse(false)
 
@@ -84,8 +77,8 @@ object CheckYourAnswersViewModel extends CurrencyFormatter {
       hasDutySuspended = hasDutySuspended,
       dutyCalculationParagraph = dutyCalculationParagraph(dutyRates(periodKey)),
       nilReturn = nilReturn,
-      returnPeriod = returnPeriod,
-      year = year
+      returnPeriod = displayableReturnPeriod.month,
+      year = displayableReturnPeriod.year
     )
   }
 
