@@ -166,8 +166,6 @@ trait TestData extends ObligationsBuilders {
   val returnsUserAnswers: ReturnsUserAnswers = ReturnsUserAnswers(
     vpdId = vpdId.value,
     periodKey = periodKey.value,
-    returnPeriod = Some(Month.JUNE),
-    year = Some("2027"),
     data = JsObject.empty,
     startedTime = Instant.now(clock),
     lastUpdated = Instant.now(clock)

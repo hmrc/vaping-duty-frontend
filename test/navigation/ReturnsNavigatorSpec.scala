@@ -26,7 +26,7 @@ import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, 
 import play.api.libs.json.Json
 import play.api.mvc.Call
 
-import java.time.{Instant, Month}
+import java.time.Instant
 
 class ReturnsNavigatorSpec extends SpecBase {
 
@@ -51,7 +51,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from DeclareDuty to JourneyRecovery when there is no value present" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(DeclareDutyPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -75,7 +75,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from DeclareDutySuspense to JourneyRecovery when there is no value present" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(DeclareDutySuspensePage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -98,7 +98,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from DeclareSpoiltProductsPage to JourneyRecovery when there is no value present" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(DeclareSpoiltProductsPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -121,7 +121,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from AddSpoiltAdjustmentPage to JourneyRecovery when there is no value present" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(SpoiltCheckYourAnswersPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -138,7 +138,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from DeclareAdjustmentPage to JourneyRecovery when there is no value present" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(DeclareAdjustmentPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -185,7 +185,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from AddAnotherAdjustmentPage to JourneyRecovery when there is no value present" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(AddAnotherAdjustmentPage, NormalMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -219,7 +219,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from DeclareDutyPage to JourneyRecovery when there is no value present" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(DeclareDutyPage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -239,7 +239,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from DeclareDutySuspensePage to JourneyRecovery when there is no value present" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(DeclareDutySuspensePage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -253,7 +253,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from DeclareSpoiltProductsPage to JourneyRecovery when there is no value present in CheckMode" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(DeclareSpoiltProductsPage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -272,7 +272,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from SpoiltCheckYourAnswersPage to JourneyRecovery when there is no value present in CheckMode" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(SpoiltCheckYourAnswersPage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -286,7 +286,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from DeclareAdjustmentPage to JourneyRecovery when there is no value present in CheckMode" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(DeclareAdjustmentPage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -320,7 +320,7 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
 
       "must go from AddAnotherAdjustmentPage to JourneyRecovery when there is no value present in CheckMode" in {
-        val ua = ReturnsUserAnswers("id", periodKey.value, Some(Month.JUNE), Some("2027"), Json.obj(), Instant.now(), Instant.now())
+        val ua = ReturnsUserAnswers("id", periodKey.value, Json.obj(), Instant.now(), Instant.now())
         navigator.nextPage(AddAnotherAdjustmentPage, CheckMode, ua) mustBe controllers.routes.JourneyRecoveryController.onPageLoad()
       }
     }
