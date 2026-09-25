@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationService: ObligationService) {
 
-  def getDutyRateForDate(date: LocalDate) =
+  def getDutyRateForDate(date: LocalDate): DutyRate =
     DutyRate(
       dutyRateConfig.rates
         .find(_.isValidFor(date))
