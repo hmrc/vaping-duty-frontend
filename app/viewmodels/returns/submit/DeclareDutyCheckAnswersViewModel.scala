@@ -18,12 +18,11 @@ package viewmodels.returns.submit
 
 import models.Mode
 import models.identifiers.PeriodKey
-import models.returns.{DutyRate, ReturnsUserAnswers}
+import models.returns.{DutyRate, PeriodDisplay, ReturnsUserAnswers}
 import pages.returns.EnterDutyAmountPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
-import utils.ReturnsDateUtils
 import viewmodels.checkAnswers.ReturnsSummary
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -40,10 +39,14 @@ object DeclareDutyCheckAnswersViewModel {
 
   private val ML_SUFFIX = " ml"
 
-  def apply(userAnswers: ReturnsUserAnswers, dutyRate: DutyRate, periodKey: PeriodKey, mode: Mode, returnsDateUtils: ReturnsDateUtils)
+  def apply(userAnswers: ReturnsUserAnswers,
+            dutyRate: DutyRate,
+            periodKey: PeriodKey,
+            mode: Mode,
+            returnPeriod: PeriodDisplay)
            (implicit messages: Messages): Option[DeclareDutyCheckAnswersViewModel] = {
 
-    val periodDisplay = formatPeriodDisplay(userAnswers, returnsDateUtils)
+    val periodDisplay = returnPeriod.formatted
 
     userAnswers.get(pages.returns.DeclareDutyPage).flatMap { declareDuty =>
       if (declareDuty) {
@@ -67,13 +70,6 @@ object DeclareDutyCheckAnswersViewModel {
         ))
       }
     }
-  }
-
-  private def formatPeriodDisplay(userAnswers: ReturnsUserAnswers, returnsDateUtils: ReturnsDateUtils)
-                                  (implicit messages: Messages): String = {
-    val month = userAnswers.returnPeriod.map(returnsDateUtils.getReturnMonth).getOrElse("")
-    val year = userAnswers.year.getOrElse("")
-    s"$month $year"
   }
 
   private def formatVolume(volumeInMl: BigDecimal): String =

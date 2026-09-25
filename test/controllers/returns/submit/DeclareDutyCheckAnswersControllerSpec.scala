@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import base.SpecBase
 import models.NormalMode
+import models.returns.PeriodDisplay
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -41,11 +42,16 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
 
       val mockDutyRateService = mock[DutyRateService]
 
-      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
-        .thenReturn(Future.successful(testDutyRate))
+      when(mockDutyRateService.getDutyRateForDate(openObligation(june2026).iCFromDate))
+        .thenReturn(testDutyRate)
+
+      val mockObligationsService = mock[ObligationService]
+      when(mockObligationsService.getObligationByPeriodKey(any(), any())(using any()))
+        .thenReturn(Future(Some(openObligation(june2026))))
 
       val application = applicationBuilder(returnsUserAnswers = Some(ua))
         .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
+        .overrides(bind[ObligationService].toInstance(mockObligationsService))
         .build()
 
       running(application) {
@@ -54,8 +60,7 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[DeclareDutyCheckAnswersView]
-        val returnsDateUtils = application.injector.instanceOf[utils.ReturnsDateUtils]
-        val vm = DeclareDutyCheckAnswersViewModel(ua, testDutyRate, periodKey, NormalMode, returnsDateUtils)(messages(application)).get
+        val vm = DeclareDutyCheckAnswersViewModel(ua, testDutyRate, periodKey, NormalMode, PeriodDisplay("June", "2026"))(messages(application)).get
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm, NormalMode)(request, messages(application)).toString
@@ -66,11 +71,16 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
 
       val mockDutyRateService = mock[DutyRateService]
 
-      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
-        .thenReturn(Future.successful(testDutyRate))
+      when(mockDutyRateService.getDutyRateForDate(openObligation(june2026).iCFromDate))
+        .thenReturn(testDutyRate)
+
+      val mockObligationsService = mock[ObligationService]
+      when(mockObligationsService.getObligationByPeriodKey(any(), any())(using any()))
+        .thenReturn(Future(Some(openObligation(june2026))))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
+        .overrides(bind[ObligationService].toInstance(mockObligationsService))
         .build()
 
       running(application) {
@@ -89,11 +99,16 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
 
       val mockDutyRateService = mock[DutyRateService]
 
-      when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
-        .thenReturn(Future.failed(RuntimeException("No duty rate found")))
+      when(mockDutyRateService.getDutyRateForDate(openObligation(june2026).iCFromDate))
+        .thenReturn(testDutyRate)
+
+      val mockObligationsService = mock[ObligationService]
+      when(mockObligationsService.getObligationByPeriodKey(any(), any())(using any()))
+        .thenReturn(Future(None))
 
       val application = applicationBuilder(returnsUserAnswers = Some(ua))
         .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
+        .overrides(bind[ObligationService].toInstance(mockObligationsService))
         .build()
 
       running(application) {
@@ -102,8 +117,8 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         whenReady(result.failed) { exception =>
-          exception mustBe a[RuntimeException]
-          exception.getMessage mustBe "No duty rate found"
+          exception mustBe a[Exception]
+          exception.getMessage mustBe s"Failed to find obligation for ${periodKey.value}"
         }
       }
     }
