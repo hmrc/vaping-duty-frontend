@@ -130,6 +130,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val returnsEnabled: Boolean = configuration.get[Boolean]("features.returnsEnabled")
   val returnSubmittedEmailEnabled: Boolean = configuration.get[Boolean]("features.returnSubmittedEmailEnabled")
+  val directDebitEnabled: Boolean = configuration.get[Boolean]("features.directDebitEnabled")
 
   // Test-only endpoints for obligations management
   private lazy val stubsHost: String = servicesConfig.baseUrl("vaping-duty-stubs")

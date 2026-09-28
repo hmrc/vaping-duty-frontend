@@ -38,41 +38,63 @@ class StartBtaDirectDebitControllerSpec extends SpecBase {
 
   "startBtaDirectDebit must" - {
 
-    "redirect to direct debit provider URL when connector returns successfully" in {
-      val mockConnector = mock[DirectDebitConnector]
+    "when direct debit is enabled" - {
 
-      when(mockConnector.startBtaDirectDebit(any())(using any()))
-        .thenReturn(Future.successful(directDebitResponse))
+      "redirect to direct debit provider URL when connector returns successfully" in {
+        val mockConnector = mock[DirectDebitConnector]
 
-      val application = applicationBuilder()
-        .overrides(bind[DirectDebitConnector].toInstance(mockConnector))
-        .build()
+        when(mockConnector.startBtaDirectDebit(any())(using any()))
+          .thenReturn(Future.successful(directDebitResponse))
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.payments.routes.StartBtaDirectDebitController.startDirectDebit().url)
-        val result = route(application, request).value
+        val application = applicationBuilder()
+          .overrides(bind[DirectDebitConnector].toInstance(mockConnector))
+          .build()
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some("https://direct-debit.example.com/start/journey")
+        running(application) {
+          val request = FakeRequest(GET, controllers.payments.routes.StartBtaDirectDebitController.startDirectDebit().url)
+          val result = route(application, request).value
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("https://direct-debit.example.com/start/journey")
+        }
+      }
+
+      "redirect to journey recovery when connector fails" in {
+        val mockConnector = mock[DirectDebitConnector]
+
+        when(mockConnector.startBtaDirectDebit(any())(using any()))
+          .thenReturn(Future.failed(InternalServerException("Failed to start direct debit journey")))
+
+        val application = applicationBuilder()
+          .overrides(bind[DirectDebitConnector].toInstance(mockConnector))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, controllers.payments.routes.StartBtaDirectDebitController.startDirectDebit().url)
+          val result = route(application, request).value
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+        }
       }
     }
 
-    "redirect to journey recovery when connector fails" in {
-      val mockConnector = mock[DirectDebitConnector]
+    "when direct debit is disabled" - {
 
-      when(mockConnector.startBtaDirectDebit(any())(using any()))
-        .thenReturn(Future.failed(InternalServerException("Failed to start direct debit journey")))
+      "redirect to journey recovery" in {
+        val mockConnector = mock[DirectDebitConnector]
 
-      val application = applicationBuilder()
-        .overrides(bind[DirectDebitConnector].toInstance(mockConnector))
-        .build()
+        val application = applicationBuilder(directDebitEnabled = false)
+          .overrides(bind[DirectDebitConnector].toInstance(mockConnector))
+          .build()
 
-      running(application) {
-        val request = FakeRequest(GET, controllers.payments.routes.StartBtaDirectDebitController.startDirectDebit().url)
-        val result = route(application, request).value
+        running(application) {
+          val request = FakeRequest(GET, controllers.payments.routes.StartBtaDirectDebitController.startDirectDebit().url)
+          val result = route(application, request).value
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+        }
       }
     }
   }

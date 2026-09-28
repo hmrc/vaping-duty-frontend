@@ -18,8 +18,7 @@ package controllers.payments
 
 import config.FrontendAppConfig
 import connectors.payments.DirectDebitConnector
-import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
-import controllers.actions.returns.ReturnsEnabledAction
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction, DirectDebitEnabledAction}
 import models.payments.StartDirectDebitRequest
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -30,7 +29,7 @@ import scala.concurrent.ExecutionContext
 
 class StartBtaDirectDebitController @Inject()(
                                                identify: ApprovedVapingManufacturerAuthAction,
-                                               returnsEnabled: ReturnsEnabledAction,
+                                               directDebitEnabled: DirectDebitEnabledAction,
                                                checkInsolvencyAction: CheckInsolvencyAction,
                                                connector: DirectDebitConnector,
                                                config: FrontendAppConfig,
@@ -38,7 +37,7 @@ class StartBtaDirectDebitController @Inject()(
                                              )(using ExecutionContext) extends FrontendBaseController with Logging {
 
   def startDirectDebit(): Action[AnyContent] =
-    (identify andThen checkInsolvencyAction andThen returnsEnabled).async { implicit request =>
+    (identify andThen checkInsolvencyAction andThen directDebitEnabled).async { implicit request =>
       val urls = s"${config.continueToBta}"
       val startRequest = StartDirectDebitRequest(returnUrl = urls, backUrl = urls)
 

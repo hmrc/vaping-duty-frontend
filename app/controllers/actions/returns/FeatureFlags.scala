@@ -27,9 +27,18 @@ import scala.concurrent.Future
 class FeatureFlags @Inject ()(config: FrontendAppConfig) {
 
   private val RETURNS_FLAG = config.returnsEnabled
+  private val DIRECT_DEBIT_FLAG = config.directDebitEnabled
   
   def returnsJourney[A](request: IdentifierRequest[A]): Future[Either[Result, IdentifierRequest[A]]] = {
     if (RETURNS_FLAG) {
+      Future.successful(Right(IdentifierRequest(request, request.enrolmentVpdId, request.groupId, request.internalId, request.credId)))
+    } else {
+      Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
+    }
+  }
+
+  def directDebitJourney[A](request: IdentifierRequest[A]): Future[Either[Result, IdentifierRequest[A]]] = {
+    if (DIRECT_DEBIT_FLAG) {
       Future.successful(Right(IdentifierRequest(request, request.enrolmentVpdId, request.groupId, request.internalId, request.credId)))
     } else {
       Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
