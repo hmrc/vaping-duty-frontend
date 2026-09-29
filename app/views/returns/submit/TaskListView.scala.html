@@ -47,6 +47,6 @@
     @govukButton(
         ButtonViewModel(messages("returns.taskList.button.clearReturn"))
         .withCssClass("govuk-button--secondary")
-        .asLink("")
+        .asLink(s"${controllers.returns.submit.routes.ClearReturnAreYouSureController.onPageLoad().url}?period=${vm.periodKey.value}")
     )
 }

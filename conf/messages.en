@@ -189,7 +189,12 @@ returns.taskList.section.submitReturn.heading = Submit return
 returns.taskList.submitReturn.task1 = Check your answers and submit return
 returns.taskList.submitReturn.task1.hint = All tasks must be completed before submitting
 
-returns.taskList.button.clearReturn = Clear return
+returns.taskList.button.clearReturn = Clear return and start again
+
+clearReturnAreYouSure.title = Are you sure you want to clear this return?
+clearReturnAreYouSure.heading = Are you sure you want to clear this return?
+clearReturnAreYouSure.warning = This will delete all the information you have entered for this return. You cannot undo this action.
+clearReturnAreYouSure.error.required = Select yes if you want to clear your return
 
 month.jan = January
 month.feb = February

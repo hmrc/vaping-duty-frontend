@@ -142,6 +142,9 @@ POST       /complete-return/check-your-answers                                  
 
 GET        /complete-return/return-submission-recovery                                      controllers.returns.submit.ReturnSubmissionRecoveryController.onPageLoad()
 
+GET        /complete-return/clear-return-are-you-sure                                       controllers.returns.submit.ClearReturnAreYouSureController.onPageLoad()
+POST       /complete-return/clear-return-are-you-sure                                       controllers.returns.submit.ClearReturnAreYouSureController.onSubmit()
+
 GET        /complete-return/return-declaration                                              controllers.returns.submit.DeclarationController.onPageLoad()
 POST       /complete-return/return-declaration                                              controllers.returns.submit.DeclarationController.onSubmit()
 
