@@ -51,7 +51,7 @@ returnSubmissionRecovery.heading = There is a problem
 returnSubmissionRecovery.guidance = Select Continue to return to the Tasks page.
 returnSubmissionRecovery.youCan = You can:
 returnSubmissionRecovery.bullet1 = complete any tasks that are marked: In progress
-returnSubmissionRecovery.bullet2 = Clear all your information
+returnSubmissionRecovery.bullet2 = clear all your information
 
 signedOut.title = For your security, we signed you out
 signedOut.heading = For your security, we signed you out
