@@ -14,14 +14,15 @@
  * limitations under the License.
  *@
 
-@import components.{Heading, Paragraph}
+@import components.{Heading, Paragraph, List}
 @import models.identifiers.PeriodKey
 
 @this(
         layout: templates.ReturnsLayout,
         govukButton: GovukButton,
         h1: Heading,
-        p: Paragraph
+        p: Paragraph,
+        list: List
 )
 
 @(periodKey: PeriodKey)(implicit request: Request[_], messages: Messages)
@@ -32,8 +33,15 @@
 
     @p(Seq(messages("returnSubmissionRecovery.guidance")))
 
+    @p(Seq(messages("returnSubmissionRecovery.youCan")))
+
+    @list(Seq(
+        messages("returnSubmissionRecovery.bullet1"),
+        messages("returnSubmissionRecovery.bullet2")
+    ), classes = "govuk-list govuk-list--bullet")
+
     @govukButton(
-        ButtonViewModel(messages("returnSubmissionRecovery.taskList.linkText"))
+        ButtonViewModel(messages("site.continue"))
             .asLink(s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=${periodKey.value}")
     )
 }
