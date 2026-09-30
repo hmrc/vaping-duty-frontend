@@ -17,7 +17,7 @@
 package controllers.returns.submit
 
 import base.SpecBase
-import models.returns.AdjustmentsEligibility
+import models.returns.{AdjustmentsEligibility, PeriodDisplay}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -25,7 +25,6 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.{DutyRateService, ObligationService}
-import utils.ReturnsDateUtils
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
 
@@ -59,9 +58,8 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[CheckYourAnswersView]
-        val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
         val dutyRates = Map(periodKey -> testDutyRate)
-        val vm = CheckYourAnswersViewModel(returnsUserAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)(messages(application))
+        val vm = CheckYourAnswersViewModel(returnsUserAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString

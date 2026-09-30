@@ -62,9 +62,10 @@ class CheckYourAnswersController @Inject()(
     for {
       obligationDetails <- obligationService.getObligations(request.enrolmentVpdId)
       dutyRates = dutyRateService.getDutyRatesForPeriods(allPeriods, obligationDetails)
+      returnPeriod = returnsDateUtils.getPeriodDisplay(pk, obligationDetails)
     } yield {
       val adjustmentsEligibility = AdjustmentsEligibility.fromObligationDetails(obligationDetails)
-      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRates, pk, returnsDateUtils, adjustmentsEligibility)))
+      Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRates, pk, adjustmentsEligibility, returnPeriod)))
     }
   }
 

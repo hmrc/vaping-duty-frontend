@@ -96,12 +96,7 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
                       )(implicit messages: Messages): PeriodDisplay = {
     obligationDetails
       .find(_.periodKey == periodKey.toString)
-      .map { obligation =>
-        val month = obligation.iCFromDate.getMonthValue
-        val year = obligation.iCFromDate.getYear
-        val monthKey = getMonthMessageKey(month)
-        PeriodDisplay(messages(monthKey), year.toString)
-      }
+      .map(obligation => getPeriodDisplay(obligation))
       .getOrElse {
         val availableKeys = if (obligationDetails.isEmpty) {
           "none"
@@ -115,6 +110,14 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
       }
   }
 
+  def getPeriodDisplay(obligation: ObligationDetails)(implicit messages: Messages) = {
+    val month = obligation.iCFromDate.getMonthValue
+    val year = obligation.iCFromDate.getYear
+    val monthKey = getMonthMessageKey(month)
+    PeriodDisplay(messages(monthKey), year.toString)
+  }
+
+  // Unused
   def formatPeriodDisplay(
                            periodKey: PeriodKey,
                            obligations: ObligationsResponse

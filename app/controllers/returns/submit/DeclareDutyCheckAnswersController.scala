@@ -21,14 +21,14 @@ import controllers.actions.returns.*
 import models.{CheckMode, Mode, NormalMode}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.DutyRateService
+import services.returns.{DutyRateService, ObligationService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.DeclareDutyCheckAnswersViewModel
 import views.html.returns.submit.DeclareDutyCheckAnswersView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class DeclareDutyCheckAnswersController @Inject()(
                                                    override val messagesApi: MessagesApi,
@@ -37,6 +37,7 @@ class DeclareDutyCheckAnswersController @Inject()(
                                                    getData: ReturnsDataRetrievalAction,
                                                    requireData: ReturnsDataRequiredAction,
                                                    returnsEnabled: ReturnsEnabledAction,
+                                                   obligationService: ObligationService,
                                                    dutyRateService: DutyRateService,
                                                    val controllerComponents: MessagesControllerComponents,
                                                    view: DeclareDutyCheckAnswersView,
@@ -46,8 +47,16 @@ class DeclareDutyCheckAnswersController @Inject()(
   def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
     val pk = request.periodKey
 
-    dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
-      DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk, mode, returnsDateUtils) match {
+    for {
+      obligationOpt <- obligationService.getObligationByPeriodKey(request.enrolmentVpdId, pk)
+      obligation <- obligationOpt match {
+        case Some(obligation) => Future.successful(obligation)
+        case None             => Future.failed(Exception(s"Failed to find obligation for $pk"))
+      }
+      dutyRate = dutyRateService.getDutyRateForDate(obligation.iCFromDate)
+    }
+    yield {
+      DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk, mode, returnsDateUtils.getPeriodDisplay(obligation)) match {
         case Some(vm) => Ok(view(pk, vm, mode))
         case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
