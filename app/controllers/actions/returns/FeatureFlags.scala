@@ -18,22 +18,41 @@ package controllers.actions.returns
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
+import connectors.UserAllowListConnector
 import models.requests.IdentifierRequest
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class FeatureFlags @Inject ()(config: FrontendAppConfig) {
+class FeatureFlags @Inject ()(
+  config: FrontendAppConfig,
+  userAllowListConnector: UserAllowListConnector
+)(implicit ec: ExecutionContext) {
 
   private val RETURNS_FLAG = config.returnsEnabled
+  private val RETURNS_ALLOW_LIST_FLAG = config.returnsAllowListEnabled
   private val DIRECT_DEBIT_FLAG = config.directDebitEnabled
   
   def returnsJourney[A](request: IdentifierRequest[A]): Future[Either[Result, IdentifierRequest[A]]] = {
-    if (RETURNS_FLAG) {
+    if (!RETURNS_FLAG) {
+      Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
+    } else if (!RETURNS_ALLOW_LIST_FLAG) {
+      // Allow list disabled - grant access to everyone
       Future.successful(Right(IdentifierRequest(request, request.enrolmentVpdId, request.groupId, request.internalId, request.credId)))
     } else {
-      Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
+      // Allow list enabled - check if user is on the list
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+      userAllowListConnector.check(request.enrolmentVpdId.value).map {
+        case true  => Right(IdentifierRequest(request, request.enrolmentVpdId, request.groupId, request.internalId, request.credId))
+        case false => Left(Redirect(controllers.returns.routes.ReturnsAccessDeniedController.onPageLoad()))
+      }.recover {
+        case _: UserAllowListConnector.UnexpectedResponseException =>
+          // On error, fail closed - deny access
+          Left(Redirect(controllers.returns.routes.ReturnsAccessDeniedController.onPageLoad()))
+      }
     }
   }
 

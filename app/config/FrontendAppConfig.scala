@@ -129,8 +129,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     configuration.get[String]("microservice.services.email-verification-frontend.prefix")
 
   val returnsEnabled: Boolean = configuration.get[Boolean]("features.returnsEnabled")
+  val returnsAllowListEnabled: Boolean = configuration.get[Boolean]("features.returnsAllowListEnabled")
   val returnSubmittedEmailEnabled: Boolean = configuration.get[Boolean]("features.returnSubmittedEmailEnabled")
   val directDebitEnabled: Boolean = configuration.get[Boolean]("features.directDebitEnabled")
+
+  private lazy val userAllowListHost: String = servicesConfig.baseUrl("user-allow-list")
+  def userAllowListUrl(vpdId: String): String = 
+    s"$userAllowListHost/user-allow-list/vaping-duty-frontend/check/$vpdId"
 
   // Test-only endpoints for obligations management
   private lazy val stubsHost: String = servicesConfig.baseUrl("vaping-duty-stubs")

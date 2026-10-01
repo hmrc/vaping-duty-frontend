@@ -60,7 +60,8 @@ trait SpecBase
                                    enrolmentUserAnswers: Option[EnrolmentUserAnswers] = None,
                                    returnsUserAnswers: Option[ReturnsUserAnswers] = None,
                                    returnsEnabled: Boolean = true,
-                                   directDebitEnabled: Boolean = true): GuiceApplicationBuilder =
+                                   directDebitEnabled: Boolean = true,
+                                   userAllowListEnabled: Boolean = false): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
@@ -74,7 +75,8 @@ trait SpecBase
       )
       .configure(
         "features.returnsEnabled" -> returnsEnabled,
-        "features.directDebitEnabled" -> directDebitEnabled
+        "features.directDebitEnabled" -> directDebitEnabled,
+        "features.returnsAllowListEnabled" -> userAllowListEnabled
       )
   
   given hc: HeaderCarrier = HeaderCarrier()
