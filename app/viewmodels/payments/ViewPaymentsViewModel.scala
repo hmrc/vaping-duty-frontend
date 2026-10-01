@@ -21,7 +21,7 @@ import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, Pa
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{HtmlContent, TableRow, Tag, Text}
 import uk.gov.hmrc.govukfrontend.views.html.components.GovukTag
-import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
+import uk.gov.hmrc.vapingdutyfinance.models.{MainTransactionType, PaymentStatus}
 import utils.{CssConstants, CurrencyFormatter, ReturnsDateUtils}
 
 import java.time.LocalDate
@@ -37,7 +37,6 @@ final case class ViewPaymentsViewModel(
 
 object ViewPaymentsViewModel {
   private val govukTag = GovukTag()
-  private val InterestMainTransactionCode = "4061"
 
   def apply(payments: PaymentsResponse, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): ViewPaymentsViewModel = {
     val totalOwed = payments.totalAccountBalance.getOrElse(BigDecimal(0))
@@ -139,11 +138,11 @@ object ViewPaymentsViewModel {
       s"${date.getDayOfMonth} $monthName ${date.getYear}"
     }
 
-  private def descriptionMessageKey(payment: OutstandingPayment): String =
-    if (payment.mainTransaction.contains(InterestMainTransactionCode))
-      "payments.viewPayments.table.description.interest"
-    else
-      "payments.viewPayments.table.description.text"
+  private def descriptionMessageKey(payment: OutstandingPayment): String = payment.mainTransaction match {
+    case MainTransactionType.Return              => "payments.viewPayments.table.description.text"
+    case MainTransactionType.LatePaymentInterest => "payments.viewPayments.table.description.interest"
+    case MainTransactionType.PaymentOnAccount    => "payments.viewPayments.table.description.text"
+  }
 
   private def statusMessageKey(status: PaymentStatus): String = status match {
     case PaymentStatus.Due => "payments.viewPayments.status.due"

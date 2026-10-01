@@ -29,7 +29,7 @@ import models.returns.view.*
 import models.returns.*
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
+import uk.gov.hmrc.vapingdutyfinance.models.{MainTransactionType, PaymentStatus}
 
 import java.time.*
 
@@ -389,7 +389,7 @@ trait TestData extends ObligationsBuilders {
     amountDue = BigDecimal("500.00"),
     dueDate = LocalDate.parse("2026-10-25"),
     status = PaymentStatus.Due,
-    mainTransaction = Some("4060")
+    mainTransaction = MainTransactionType.Return
   )
 
   val testClearedPayment: ClearedPayment = ClearedPayment(

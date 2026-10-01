@@ -18,7 +18,7 @@ package viewmodels.payments
 
 import base.SpecBase
 import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse}
-import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
+import uk.gov.hmrc.vapingdutyfinance.models.{MainTransactionType, PaymentStatus}
 import utils.ReturnsDateUtils
 
 import java.time.LocalDate
@@ -32,7 +32,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
     amountDue = BigDecimal("330000.00"),
     dueDate = LocalDate.of(2025, 3, 25),
     status = PaymentStatus.Due,
-    mainTransaction = Some("4060")
+    mainTransaction = MainTransactionType.Return
   )
 
   private val testPaymentOverdue = OutstandingPayment(
@@ -40,7 +40,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
     amountDue = BigDecimal("167000.80"),
     dueDate = LocalDate.of(2025, 2, 25),
     status = PaymentStatus.Overdue,
-    mainTransaction = Some("4060")
+    mainTransaction = MainTransactionType.Return
   )
 
   private val testPaymentNothingToPay = OutstandingPayment(
@@ -48,7 +48,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
     amountDue = BigDecimal("0.00"),
     dueDate = LocalDate.of(2025, 4, 25),
     status = PaymentStatus.NothingToPay,
-    mainTransaction = None
+    mainTransaction = MainTransactionType.Return
   )
 
   private val testPaymentOverdueInterest = OutstandingPayment(
@@ -56,7 +56,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
     amountDue = BigDecimal("123.45"),
     dueDate = LocalDate.of(2025, 2, 25),
     status = PaymentStatus.Overdue,
-    mainTransaction = Some("4061")
+    mainTransaction = MainTransactionType.LatePaymentInterest
   )
 
   private val testUnallocatedPayment = PaymentOnAccount(
@@ -140,13 +140,13 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         vm.hasOutstandingBalance mustBe true
       }
 
-      "must show a bold 'Late payment interest' heading for an outstanding payment with mainTransaction 4061" in {
+      "must show a bold 'Late payment interest' heading for an outstanding payment with MainTransactionType.LatePaymentInterest" in {
         val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdueInterest), Seq.empty, Seq.empty, None), returnsDateUtils)
         val descriptionCell = vm.outstandingRows.head(1)
         descriptionCell.content.asHtml.body must include("<strong>Late payment interest</strong>")
       }
 
-      "must show the normal bold payment heading for an outstanding payment without the interest mainTransaction" in {
+      "must show the normal bold payment heading for an outstanding payment with MainTransactionType.Return" in {
         val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils)
         val descriptionCell = vm.outstandingRows.head(1)
         descriptionCell.content.asHtml.body must include("<strong>Payment</strong>")

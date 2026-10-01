@@ -17,7 +17,7 @@
 package models.payments
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.vapingdutyfinance.models.PaymentStatus
+import uk.gov.hmrc.vapingdutyfinance.models.{MainTransactionType, PaymentStatus}
 
 import java.time.LocalDate
 
@@ -26,7 +26,7 @@ final case class OutstandingPayment(
   amountDue: BigDecimal,
   dueDate: LocalDate,
   status: PaymentStatus,
-  mainTransaction: Option[String]
+  mainTransaction: MainTransactionType
 )
 
 object OutstandingPayment {
