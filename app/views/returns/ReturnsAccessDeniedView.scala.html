@@ -1,0 +1,88 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import components.*
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import config.FrontendAppConfig
+@import models.BtaLink
+@import models.identifiers.VpdId
+
+@this(
+    layout: templates.Layout,
+    h1: Heading,
+    p: Paragraph,
+    link: Link,
+    list: List,
+    listWithLinks: ListWithLinks,
+    govukInsetText: GovukInsetText,
+    appConfig: FrontendAppConfig
+)
+
+@(vpdId: VpdId)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("returnsAccessDenied.title")), showBackLink = false) {
+
+    @h1(messages("returnsAccessDenied.heading"))
+
+    @p(Seq(HtmlContent(messages("returnsAccessDenied.p1"))))
+
+    @p(Seq(HtmlContent(messages("returnsAccessDenied.p2"))))
+
+    @p(Seq(HtmlContent(messages("returnsAccessDenied.youMust.heading"))))
+
+    @defining("vapingenquiries@hmrc.gov.uk") { email =>
+        @listWithLinks(
+            items = Seq(
+                Html(s"""send an email to: ${link(
+                    id = "email-link",
+                    text = email,
+                    href = s"mailto:$email"
+                )}"""),
+                Html(messages("returnsAccessDenied.youMust.bullet2")),
+                Html(messages("returnsAccessDenied.youMust.bullet3")),
+                Html(messages("returnsAccessDenied.youMust.bullet4"))
+            ),
+            classes = "govuk-list govuk-list--number"
+        )
+    }
+
+    @govukInsetText(InsetText(
+        content = HtmlContent(
+            p(Seq(HtmlContent(messages("returnsAccessDenied.emailTemplate.greeting")))).toString +
+            p(Seq(HtmlContent(messages("returnsAccessDenied.emailTemplate.body")))).toString +
+            p(Seq(HtmlContent(messages("returnsAccessDenied.emailTemplate.vpdId", vpdId.value)))).toString +
+            p(Seq(HtmlContent(messages("returnsAccessDenied.emailTemplate.thankYou")))).toString +
+            p(Seq(HtmlContent(
+                s"""${messages("returnsAccessDenied.emailTemplate.name")}<br>
+                   |${messages("returnsAccessDenied.emailTemplate.role")}<br>
+                   |${messages("returnsAccessDenied.emailTemplate.businessName")}""".stripMargin
+            ))).toString
+        )
+    ))
+
+    @p(Seq(HtmlContent(messages("returnsAccessDenied.p3"))))
+
+    @p(Seq(HtmlContent(messages("returnsAccessDenied.p4"))))
+
+    @p(Seq(HtmlContent(
+        link(
+            id = "return-to-account",
+            text = messages("site.goToBta"),
+            href = BtaLink(appConfig)
+        )
+    )))
+
+}

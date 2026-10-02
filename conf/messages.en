@@ -14,6 +14,7 @@ site.signIn = Sign in
 site.govuk = GOV.UK
 site.newTab = (opens in new tab)
 site.backToBta = Go back to your business tax account
+site.goToBta = Go to your business tax account
 site.getAccess = Find out how to get access to the Vaping Products Duty online service
 site.warning = Warning
 site.print = Print this page
@@ -655,3 +656,26 @@ payments.viewPayments.cleared.table.description = Payment type
 payments.viewPayments.cleared.table.amount = Amount
 payments.viewPayments.cleared.description.text = Cleared payment
 payments.viewPayments.notAvailable = N/A
+
+returnsAccessDenied.title = We are managing access to this service
+returnsAccessDenied.heading = We are managing access to this service
+
+returnsAccessDenied.p1 = You must request access using your registered business email address, before you can submit a Vaping Products Duty return.
+returnsAccessDenied.p2 = You only need to do this once.
+
+returnsAccessDenied.youMust.heading = You must:
+returnsAccessDenied.youMust.bullet1 = send an email to: vapingenquiries@hmrc.gov.uk
+returnsAccessDenied.youMust.bullet2 = use the subject: VPD access
+returnsAccessDenied.youMust.bullet3 = copy and paste the following message
+returnsAccessDenied.youMust.bullet4 = add your details to the message
+
+returnsAccessDenied.emailTemplate.greeting = Hello,
+returnsAccessDenied.emailTemplate.body = I would like to access the Vaping Products Duty service.
+returnsAccessDenied.emailTemplate.vpdId = Vaping Products Duty (VPD) ID: {0}
+returnsAccessDenied.emailTemplate.thankYou = Thank you,
+returnsAccessDenied.emailTemplate.name = Name [add your details]
+returnsAccessDenied.emailTemplate.role = Role [add your details]
+returnsAccessDenied.emailTemplate.businessName = Business name [add details]
+
+returnsAccessDenied.p3 = We will reply to your email to let you know when you can access the service.
+returnsAccessDenied.p4 = You will be able to access the service before the return submission deadline of 7 November 2026.
