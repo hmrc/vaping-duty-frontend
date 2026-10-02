@@ -14,11 +14,11 @@
  * limitations under the License.
  *@
 
-@import components.Heading3
+@import components.Heading2
 
 @this(
     govukSummaryList: GovukSummaryList,
-    h3: Heading3
+    h2: Heading2
 )
 
 @(
@@ -30,7 +30,7 @@
 
 <div class="govuk-summary-card @classes">
     <div class="govuk-summary-card__title-wrapper">
-        @h3(Text(title), classes = "govuk-summary-card__title")
+        @h2(Text(title), classes = "govuk-summary-card__title")
         @actions.map { actionItems =>
             <ul class="govuk-summary-card__actions">
             @actionItems.map { action =>
