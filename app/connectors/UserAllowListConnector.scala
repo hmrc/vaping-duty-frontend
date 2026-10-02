@@ -16,63 +16,52 @@
 
 package connectors
 
-import config.FrontendAppConfig
-import play.api.Logging
-import play.api.http.Status.NOT_FOUND
-import uk.gov.hmrc.http.*
+import com.google.inject.Inject
+import config.Service
+import connectors.UserAllowListConnector.UnexpectedResponseException
+import models.identifiers.VpdId
+import models.requests.CheckRequest
+import play.api.http.Status.{NOT_FOUND, OK}
+import play.api.libs.json.Json
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import play.api.{Configuration, Logging}
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NoStackTrace
 
 class UserAllowListConnector @Inject()(
-  config: FrontendAppConfig,
-  httpClient: HttpClientV2
-)(implicit ec: ExecutionContext) extends HttpReadsInstances with Logging {
+                                        configuration: Configuration,
+                                        httpClient: HttpClientV2
+                                      )(implicit ec: ExecutionContext) extends Logging {
 
-  private val SERVICE_NAME = "vaping-duty-frontend"
+  private val userAllowListService: Service = configuration.get[Service]("microservice.services.user-allow-list")
+  private val internalAuthToken: String = configuration.get[String]("internal-auth.token")
 
-  def check(vpdId: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    val url = config.userAllowListUrl(vpdId)
-    
+  def check(feature: String, vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Boolean] =
     httpClient
-      .get(url"$url")
-      .execute[Either[UpstreamErrorResponse, HttpResponse]]
-      .flatMap {
-        case Right(response) =>
-          parseResponse(response)
-        case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) =>
-          logger.info(s"VPD ID $vpdId not found in user allow list - returning false")
-          Future.successful(false)
-        case Left(error) =>
-          logger.warn(s"Unexpected response from user-allow-list service for VPD ID $vpdId. Status: ${error.statusCode}")
-          Future.failed(UserAllowListConnector.UnexpectedResponseException(
-            s"User allow list check failed with status ${error.statusCode}"
-          ))
+      .post(url"$userAllowListService/user-allow-list/vaping-duty-frontend/$feature/check")
+      .setHeader("Authorization" -> internalAuthToken)
+      .withBody(Json.toJson(CheckRequest(vpdId.value)))
+      .execute[HttpResponse]
+      .flatMap { response =>
+        response.status match {
+          case OK => Future.successful(true)
+          case NOT_FOUND =>
+            logger.info(s"VPD ID $vpdId not found in user allow list - returning false")
+            Future.successful(false)
+          case status =>
+            logger.info(s"Unexpected response from user-allow-list service for VPD ID $vpdId. Status: $status")
+            Future.failed(UnexpectedResponseException(status))
+        }
       }
-      .recoverWith {
-        case e: Exception if !e.isInstanceOf[UserAllowListConnector.UnexpectedResponseException] =>
-          logger.warn(s"Exception while checking user allow list for VPD ID $vpdId: ${e.getMessage}")
-          Future.failed(UserAllowListConnector.UnexpectedResponseException(
-            s"User allow list check failed: ${e.getMessage}"
-          ))
-      }
-  }
-
-  private def parseResponse(response: HttpResponse): Future[Boolean] = {
-    try {
-      val result = response.json.as[Boolean]
-      Future.successful(result)
-    } catch {
-      case e: Exception =>
-        logger.warn(s"Failed to parse user allow list response: ${e.getMessage}")
-        Future.failed(UserAllowListConnector.UnexpectedResponseException(
-          "Failed to parse user allow list response"
-        ))
-    }
-  }
 }
 
 object UserAllowListConnector {
-  case class UnexpectedResponseException(message: String) extends Exception(message)
+
+  final case class UnexpectedResponseException(status: Int) extends Exception with NoStackTrace {
+    override def getMessage: String = s"Unexpected status: $status"
+  }
 }

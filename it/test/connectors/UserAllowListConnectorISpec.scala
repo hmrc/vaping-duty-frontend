@@ -20,128 +20,148 @@ import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.http.Fault
 import connectors.UserAllowListConnector.UnexpectedResponseException
+import models.requests.CheckRequest
 import play.api.Application
 import play.api.http.Status.*
+import play.api.libs.json.Json
 import util.WireMockHelper
 
 class UserAllowListConnectorISpec extends ISpecBase with WireMockHelper {
+
+  private val FEATURE = "vpd-private-beta"
+  private val INTERNAL_AUTH_TOKEN = "test-token"
 
   override def fakeApplication(): Application = applicationBuilder()
     .configure(
       "microservice.services.user-allow-list.protocol" -> "http",
       "microservice.services.user-allow-list.host" -> "localhost",
       "microservice.services.user-allow-list.port" -> server.port(),
+      "internal-auth.token" -> INTERNAL_AUTH_TOKEN,
       "features.returnsAllowListEnabled" -> true
     )
     .build()
 
   private lazy val connector = app.injector.instanceOf[UserAllowListConnector]
+  private val url = s"/user-allow-list/vaping-duty-frontend/$FEATURE/check"
+  private val expectedRequestBody = Json.toJson(CheckRequest(vpdId.value)).toString
 
-  "UserAllowListConnector must" - {
+  "UserAllowListConnector.check must" - {
 
-    "return true when the service returns 200 with true" in {
+    "return true when the service returns 200 OK" in {
       server.stubFor(
-        get(urlEqualTo(s"/user-allow-list/vaping-duty-frontend/check/${vpdId.value}"))
-          .willReturn(aResponse().withStatus(OK).withBody("true"))
+        post(urlEqualTo(url))
+          .withRequestBody(equalToJson(expectedRequestBody))
+          .withHeader("Authorization", equalTo(INTERNAL_AUTH_TOKEN))
+          .willReturn(aResponse().withStatus(OK))
       )
 
-      whenReady(connector.check(vpdId.value)) { result =>
+      whenReady(connector.check(FEATURE, vpdId)) { result =>
         result mustBe true
       }
-    }
 
-    "return false when the service returns 200 with false" in {
-      server.stubFor(
-        get(urlEqualTo(s"/user-allow-list/vaping-duty-frontend/check/${vpdId.value}"))
-          .willReturn(aResponse().withStatus(OK).withBody("false"))
+      server.verify(
+        postRequestedFor(urlEqualTo(url))
+          .withRequestBody(equalToJson(expectedRequestBody))
+          .withHeader("Authorization", equalTo(INTERNAL_AUTH_TOKEN))
       )
-
-      whenReady(connector.check(vpdId.value)) { result =>
-        result mustBe false
-      }
     }
 
-    "return false when the service returns 404" in {
+    "return false when the service returns 404 NOT_FOUND" in {
       server.stubFor(
-        get(urlEqualTo(s"/user-allow-list/vaping-duty-frontend/check/${vpdId.value}"))
+        post(urlEqualTo(url))
+          .withRequestBody(equalToJson(expectedRequestBody))
+          .withHeader("Authorization", equalTo(INTERNAL_AUTH_TOKEN))
           .willReturn(aResponse().withStatus(NOT_FOUND))
       )
 
-      whenReady(connector.check(vpdId.value)) { result =>
+      whenReady(connector.check(FEATURE, vpdId)) { result =>
         result mustBe false
       }
+
+      server.verify(
+        postRequestedFor(urlEqualTo(url))
+          .withRequestBody(equalToJson(expectedRequestBody))
+          .withHeader("Authorization", equalTo(INTERNAL_AUTH_TOKEN))
+      )
     }
 
-    "throw UnexpectedResponseException when the service returns 400" in {
+    "throw UnexpectedResponseException when the service returns 400 BAD_REQUEST" in {
       server.stubFor(
-        get(urlEqualTo(s"/user-allow-list/vaping-duty-frontend/check/${vpdId.value}"))
+        post(urlEqualTo(url))
+          .withRequestBody(equalToJson(expectedRequestBody))
+          .withHeader("Authorization", equalTo(INTERNAL_AUTH_TOKEN))
           .willReturn(aResponse().withStatus(BAD_REQUEST))
       )
 
-      whenReady(connector.check(vpdId.value).failed) { exception =>
+      whenReady(connector.check(FEATURE, vpdId).failed) { exception =>
         exception mustBe a[UnexpectedResponseException]
-        exception.getMessage must include("User allow list check failed with status 400")
+        exception.getMessage mustBe "Unexpected status: 400"
       }
+
+      server.verify(
+        postRequestedFor(urlEqualTo(url))
+          .withRequestBody(equalToJson(expectedRequestBody))
+          .withHeader("Authorization", equalTo(INTERNAL_AUTH_TOKEN))
+      )
     }
 
-    "throw UnexpectedResponseException when the service returns 500" in {
+    "throw UnexpectedResponseException when the service returns 500 INTERNAL_SERVER_ERROR" in {
       server.stubFor(
-        get(urlEqualTo(s"/user-allow-list/vaping-duty-frontend/check/${vpdId.value}"))
+        post(urlEqualTo(url))
+          .withRequestBody(equalToJson(expectedRequestBody))
+          .withHeader("Authorization", equalTo(INTERNAL_AUTH_TOKEN))
           .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
       )
 
-      whenReady(connector.check(vpdId.value).failed) { exception =>
+      whenReady(connector.check(FEATURE, vpdId).failed) { exception =>
         exception mustBe a[UnexpectedResponseException]
-        exception.getMessage must include("User allow list check failed with status 500")
+        exception.getMessage mustBe "Unexpected status: 500"
       }
+
+      server.verify(
+        postRequestedFor(urlEqualTo(url))
+          .withRequestBody(equalToJson(expectedRequestBody))
+          .withHeader("Authorization", equalTo(INTERNAL_AUTH_TOKEN))
+      )
     }
 
-    "throw UnexpectedResponseException when the service returns 503" in {
+    "throw UnexpectedResponseException when the service returns 503 SERVICE_UNAVAILABLE" in {
       server.stubFor(
-        get(urlEqualTo(s"/user-allow-list/vaping-duty-frontend/check/${vpdId.value}"))
+        post(urlEqualTo(url))
+          .withRequestBody(equalToJson(expectedRequestBody))
+          .withHeader("Authorization", equalTo(INTERNAL_AUTH_TOKEN))
           .willReturn(aResponse().withStatus(SERVICE_UNAVAILABLE))
       )
 
-      whenReady(connector.check(vpdId.value).failed) { exception =>
+      whenReady(connector.check(FEATURE, vpdId).failed) { exception =>
         exception mustBe a[UnexpectedResponseException]
-        exception.getMessage must include("User allow list check failed with status 503")
+        exception.getMessage mustBe "Unexpected status: 503"
       }
+
+      server.verify(
+        postRequestedFor(urlEqualTo(url))
+          .withRequestBody(equalToJson(expectedRequestBody))
+          .withHeader("Authorization", equalTo(INTERNAL_AUTH_TOKEN))
+      )
     }
 
-    "throw UnexpectedResponseException when a network fault occurs" in {
+    "throw an exception when a network fault occurs" in {
       server.stubFor(
-        get(urlEqualTo(s"/user-allow-list/vaping-duty-frontend/check/${vpdId.value}"))
+        post(urlEqualTo(url))
+          .withRequestBody(equalToJson(expectedRequestBody))
+          .withHeader("Authorization", equalTo(INTERNAL_AUTH_TOKEN))
           .willReturn(aResponse().withFault(Fault.EMPTY_RESPONSE))
       )
 
-      whenReady(connector.check(vpdId.value).failed) { exception =>
-        exception mustBe a[UnexpectedResponseException]
-        exception.getMessage must include("User allow list check failed")
+      whenReady(connector.check(FEATURE, vpdId).failed) { exception =>
+        exception mustBe a[Exception]
       }
-    }
 
-    "throw UnexpectedResponseException when the response body cannot be parsed" in {
-      server.stubFor(
-        get(urlEqualTo(s"/user-allow-list/vaping-duty-frontend/check/${vpdId.value}"))
-          .willReturn(aResponse().withStatus(OK).withBody("invalid-json"))
+      server.verify(
+        postRequestedFor(urlEqualTo(url))
+          .withRequestBody(equalToJson(expectedRequestBody))
+          .withHeader("Authorization", equalTo(INTERNAL_AUTH_TOKEN))
       )
-
-      whenReady(connector.check(vpdId.value).failed) { exception =>
-        exception mustBe a[UnexpectedResponseException]
-        exception.getMessage must include("Failed to parse user allow list response")
-      }
-    }
-
-    "throw UnexpectedResponseException when the response is 200 but body is not a boolean" in {
-      server.stubFor(
-        get(urlEqualTo(s"/user-allow-list/vaping-duty-frontend/check/${vpdId.value}"))
-          .willReturn(aResponse().withStatus(OK).withBody("""{"key": "value"}"""))
-      )
-
-      whenReady(connector.check(vpdId.value).failed) { exception =>
-        exception mustBe a[UnexpectedResponseException]
-        exception.getMessage must include("Failed to parse user allow list response")
-      }
     }
   }
 }

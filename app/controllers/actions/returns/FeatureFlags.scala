@@ -45,7 +45,7 @@ class FeatureFlags @Inject ()(
     } else {
       // Allow list enabled - check if user is on the list
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-      userAllowListConnector.check(request.enrolmentVpdId.value).map {
+      userAllowListConnector.check("vpd-private-beta", request.enrolmentVpdId).map {
         case true  => Right(IdentifierRequest(request, request.enrolmentVpdId, request.groupId, request.internalId, request.credId))
         case false => Left(Redirect(controllers.returns.routes.ReturnsAccessDeniedController.onPageLoad()))
       }.recover {
