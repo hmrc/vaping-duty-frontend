@@ -35,7 +35,7 @@
 
     @if(vm.outstandingReturnsSection.shouldShowSection) {
         @h2(messages("returns.overview.outstanding.heading"))
-        @govukTaskList(TaskList(items = vm.outstandingReturnsSection.items))
+        @govukTaskList(TaskList(items = vm.outstandingReturnsSection.items, idPrefix = "outstanding-returns"))
     }
 
     @h2(messages("returns.overview.completed.heading", vm.completedReturnsSection.year))
@@ -43,7 +43,7 @@
     @if(vm.completedReturnsSection.showEmptyMessage) {
         @p(Seq(messages("returns.overview.completed.empty")))
     } else {
-        @govukTaskList(TaskList(items = vm.completedReturnsSection.items))
+        @govukTaskList(TaskList(items = vm.completedReturnsSection.items,  idPrefix = "completed-returns"))
     }
 
     @if(vm.shouldShowPagination) {
