@@ -51,7 +51,9 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
     "must return OK and the correct view for a GET" in {
       val mockService = mock[AdjustmentCheckYourAnswersService]
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
-      val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
+      val userAnswers = returnsUserAnswers
+        .set(DeclareAdjustmentPage, true).success.value
+        .set(AdjustmentListPage, testAdjustmentList).success.value
 
       val mockViewModel = AdjustmentCheckYourAnswersViewModel(
         summaryCards = Seq.empty,
@@ -85,6 +87,7 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
       val mockService = mock[AdjustmentCheckYourAnswersService]
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
       val userAnswers = returnsUserAnswers
+        .set(DeclareAdjustmentPage, true).success.value
         .set(AdjustmentListPage, testAdjustmentList).success.value
         .set(AddAnotherAdjustmentPage, true).success.value
 
@@ -119,7 +122,9 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
     "must propagate exception when service fails on GET" in {
       val mockService = mock[AdjustmentCheckYourAnswersService]
       val testAdjustmentList = AdjustmentList(adjustments = Seq(adjustmentEntry.copy(period = october2027)))
-      val userAnswers = returnsUserAnswers.set(AdjustmentListPage, testAdjustmentList).success.value
+      val userAnswers = returnsUserAnswers
+        .set(DeclareAdjustmentPage, true).success.value
+        .set(AdjustmentListPage, testAdjustmentList).success.value
 
       when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
         .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
@@ -382,23 +387,10 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
     }
 
     "when declareAdjustment is true but no adjustments have been added yet" - {
-      "must return OK and display the page with a single card on GET" in {
+      "must redirect to return submission recovery on GET, since the adjustments task is not yet complete" in {
         val mockService = mock[AdjustmentCheckYourAnswersService]
         val userAnswers = returnsUserAnswers
           .set(DeclareAdjustmentPage, true).success.value
-
-        val mockViewModel = AdjustmentCheckYourAnswersViewModel(
-          summaryCards = Seq.empty,
-          hasAdjustments = false,
-          totalAdjustment = BigDecimal(0),
-          formattedTotalAdjustment = "£0.00",
-          hasAvailablePeriodsToAdd = true,
-          adjustmentReasonMandatory = false,
-          mode = NormalMode
-        )
-
-        when(mockService.buildViewModel(any(), any(), any(), any(), any())(using any(), any()))
-          .thenReturn(Future.successful(mockViewModel))
 
         val application = applicationBuilder(returnsUserAnswers = Some(userAnswers))
           .overrides(
@@ -410,7 +402,8 @@ class AdjustmentCheckYourAnswersControllerSpec extends SpecBase with MockitoSuga
           val request = FakeRequest(GET, adjustmentCheckYourAnswersRoute)
           val result = route(application, request).value
 
-          status(result) mustEqual OK
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${periodKey.value}"
         }
       }
 

@@ -28,7 +28,8 @@ case class TaskListPageViewModel(
                                   year: String,
                                   dueYear: String,
                                   dueDate: String,
-                                  dayDue: String
+                                  dayDue: String,
+                                  periodKey: PeriodKey
                                 )
 
 object TaskListPageViewModel {
@@ -54,7 +55,8 @@ object TaskListPageViewModel {
       year         = yearOfObligation,
       dueYear      = yearDue,
       dueDate      = returnsDateUtils.getDueDate(monthDue),
-      dayDue       = dayDue
+      dayDue       = dayDue,
+      periodKey    = periodKey
     )
   }
 }

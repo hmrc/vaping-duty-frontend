@@ -46,7 +46,13 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenReturn(Map(periodKey -> testDutyRate))
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+      val completedAnswers = returnsUserAnswers
+        .set(pages.returns.DeclareDutyPage, false).success.value
+        .set(pages.returns.DeclareDutySuspensePage, false).success.value
+        .set(pages.returns.DeclareSpoiltProductsPage, false).success.value
+        .set(pages.returns.adjustments.DeclareAdjustmentPage, false).success.value
+
+      val application = applicationBuilder(returnsUserAnswers = Some(completedAnswers))
         .overrides(
           bind[DutyRateService].toInstance(mockDutyRateService),
           bind[services.returns.ObligationService].toInstance(mockObligationService)
@@ -61,7 +67,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[CheckYourAnswersView]
         val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
         val dutyRates = Map(periodKey -> testDutyRate)
-        val vm = CheckYourAnswersViewModel(returnsUserAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)(messages(application))
+        val vm = CheckYourAnswersViewModel(completedAnswers, dutyRates, periodKey, returnsDateUtils, AdjustmentsEligibility.Eligible)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
@@ -79,7 +85,11 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
         .thenReturn(Map(periodKey -> testDutyRate))
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+      val notEligibleAnswers = returnsUserAnswers
+        .set(pages.returns.DeclareDutyPage, false).success.value
+        .set(pages.returns.DeclareDutySuspensePage, false).success.value
+
+      val application = applicationBuilder(returnsUserAnswers = Some(notEligibleAnswers))
         .overrides(
           bind[DutyRateService].toInstance(mockDutyRateService),
           bind[services.returns.ObligationService].toInstance(mockObligationService)
@@ -92,7 +102,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        
+
         val content = contentAsString(result)
 
         content must not include "Declare any spoilt products"
@@ -112,6 +122,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         .thenReturn(Map(periodKey -> testDutyRate))
 
       val userAnswersWithoutDutySuspended = returnsUserAnswers
+        .set(pages.returns.DeclareDutyPage, false).success.value
         .set(pages.returns.DeclareDutySuspensePage, false).success.value
 
       val application = applicationBuilder(returnsUserAnswers = Some(userAnswersWithoutDutySuspended))
@@ -132,6 +143,37 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         
         content must include("Report duty suspended vaping deliveries")
         content must not include "Duty suspended deliveries declared"
+      }
+    }
+
+    "must redirect to return submission recovery when a task is not yet complete" in {
+
+      val mockDutyRateService = mock[DutyRateService]
+      val mockObligationService = mock[ObligationService]
+
+      when(mockObligationService.getObligations(any())(using any()))
+        .thenReturn(Future.successful(Seq(openObligation(periodKey))))
+
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
+        .thenReturn(Map(periodKey -> testDutyRate))
+
+      val incompleteAnswers = returnsUserAnswers
+        .set(pages.returns.DeclareDutyPage, true).success.value
+
+      val application = applicationBuilder(returnsUserAnswers = Some(incompleteAnswers))
+        .overrides(
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[services.returns.ObligationService].toInstance(mockObligationService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${periodKey.value}"
       }
     }
 

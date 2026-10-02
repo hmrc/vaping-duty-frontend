@@ -43,4 +43,10 @@
         <h2 class="govuk-heading-m">@section.heading</h2>
         @govukTaskList(TaskList(section.rows))
     }
+
+    @govukButton(
+        ButtonViewModel(messages("returns.taskList.button.clearReturn"))
+        .withCssClass("govuk-button--secondary")
+        .asLink(s"${controllers.returns.submit.routes.ClearReturnAreYouSureController.onPageLoad().url}?period=${vm.periodKey.value}")
+    )
 }

@@ -46,6 +46,13 @@ journeyRecovery.startAgain.title = Sorry, there is a problem with the service
 journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
 journeyRecovery.startAgain.guidance = Try again later.
 
+returnSubmissionRecovery.title = There is a problem
+returnSubmissionRecovery.heading = There is a problem
+returnSubmissionRecovery.guidance = Select Continue to return to the Tasks page.
+returnSubmissionRecovery.youCan = You can:
+returnSubmissionRecovery.bullet1 = complete any tasks that are marked: In progress
+returnSubmissionRecovery.bullet2 = clear all your information
+
 signedOut.title = For your security, we signed you out
 signedOut.heading = For your security, we signed you out
 
@@ -181,6 +188,13 @@ returns.taskList.section.dutySuspended.task1 = Tell us if you have received or m
 returns.taskList.section.submitReturn.heading = Submit return
 returns.taskList.submitReturn.task1 = Check your answers and submit return
 returns.taskList.submitReturn.task1.hint = All tasks must be completed before submitting
+
+returns.taskList.button.clearReturn = Clear return and start again
+
+clearReturnAreYouSure.title = Are you sure you want to clear your return?
+clearReturnAreYouSure.heading = Are you sure you want to clear your return?
+clearReturnAreYouSure.warning = This will delete all the information you have entered for this return.
+clearReturnAreYouSure.error.required = Select yes if you want to clear your return
 
 month.jan = January
 month.feb = February
