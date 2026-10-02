@@ -36,16 +36,43 @@ class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
 
   def submitReturn(returnsSubmission: ReturnCreateRequest,
                    vpdId: VpdId)
-                  (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] =
-    httpClient
+                  (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] = {
+
+    // Start with the base request
+    val baseRequest = httpClient
       .post(url"${config.submitReturnUrl(vpdId, PeriodKey(returnsSubmission.periodKey))}")
       .withBody(Json.toJson(returnsSubmission))
+
+    // Headers that should NOT be forwarded as they're set by the HTTP client or would corrupt the request
+    val headersToExclude = Set(
+      "content-type",
+      "content-length",
+      "host",
+      "connection",
+      "timeout-access",
+      "raw-request-uri",
+      "tls-session-info",
+      "path"
+    )
+
+    // Filter out HTTP-level headers, keep only application/business headers for NRS
+    val safeHeaders = hc.otherHeaders.filterNot { case (name, _) =>
+      headersToExclude.contains(name.toLowerCase)
+    }
+
+    // Chain the safe headers
+    val requestWithHeaders = safeHeaders.foldLeft(baseRequest) { case (req, (name, value)) =>
+      req.setHeader(name -> value)
+    }
+
+    requestWithHeaders
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .flatMap(response => submitReturnsParser(response))
       .recoverWith { case _: Exception =>
         logger.warn("An exception was returned while trying to submit return")
         Future.failed(InternalServerException("Failed to submit return"))
       }
+  }
 
   private def submitReturnsParser(response: Either[UpstreamErrorResponse, HttpResponse]): Future[ReturnSubmittedResponse] = {
     response match {
