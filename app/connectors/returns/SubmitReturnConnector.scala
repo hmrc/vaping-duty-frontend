@@ -23,7 +23,7 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, InternalServerException, StringContextOps, UpstreamErrorResponse}
 
 import javax.inject.Inject
@@ -38,7 +38,21 @@ class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
                    vpdId: VpdId)
                   (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] = {
 
-    // Start with the base request
+    val requestWithHeaders: RequestBuilder = prepareHeaders(returnsSubmission, vpdId)
+
+    requestWithHeaders
+      .execute[Either[UpstreamErrorResponse, HttpResponse]]
+      .flatMap(response => submitReturnsParser(response))
+      .recoverWith { case _: Exception =>
+        logger.warn("An exception was returned while trying to submit return")
+        Future.failed(InternalServerException("Failed to submit return"))
+      }
+  }
+
+  // Prepare the headers elements needed for NRS submission as HttpClientV2 removes/writes over some of the needed data
+  private def prepareHeaders(returnsSubmission: ReturnCreateRequest, vpdId: VpdId)
+                            (using hc: HeaderCarrier): RequestBuilder = {
+
     val baseRequest = httpClient
       .post(url"${config.submitReturnUrl(vpdId, PeriodKey(returnsSubmission.periodKey))}")
       .withBody(Json.toJson(returnsSubmission))
@@ -61,17 +75,10 @@ class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
     }
 
     // Chain the safe headers
-    val requestWithHeaders = safeHeaders.foldLeft(baseRequest) { case (req, (name, value)) =>
+    val requestWithHeaders = safeHeaders.foldLeft(baseRequest) { case (req: RequestBuilder, (name, value)) =>
       req.setHeader(name -> value)
     }
-
     requestWithHeaders
-      .execute[Either[UpstreamErrorResponse, HttpResponse]]
-      .flatMap(response => submitReturnsParser(response))
-      .recoverWith { case _: Exception =>
-        logger.warn("An exception was returned while trying to submit return")
-        Future.failed(InternalServerException("Failed to submit return"))
-      }
   }
 
   private def submitReturnsParser(response: Either[UpstreamErrorResponse, HttpResponse]): Future[ReturnSubmittedResponse] = {
