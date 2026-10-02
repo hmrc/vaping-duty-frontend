@@ -133,9 +133,11 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val returnSubmittedEmailEnabled: Boolean = configuration.get[Boolean]("features.returnSubmittedEmailEnabled")
   val directDebitEnabled: Boolean = configuration.get[Boolean]("features.directDebitEnabled")
 
+  val internalAuthToken: String = configuration.get[String]("internal-auth.token")
+
   private lazy val userAllowListHost: String = servicesConfig.baseUrl("user-allow-list")
-  def userAllowListUrl(service: String, feature: String): String =
-    s"$userAllowListHost/user-allow-list/vaping-duty-frontend/vpd-private-beta/check"
+  def userAllowListUrl(feature: String): String =
+    s"$userAllowListHost/user-allow-list/$appName/$feature/check"
 
   // Test-only endpoints for obligations management
   private lazy val stubsHost: String = servicesConfig.baseUrl("vaping-duty-stubs")

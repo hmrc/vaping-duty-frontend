@@ -17,14 +17,14 @@
 package connectors
 
 import com.google.inject.Inject
-import config.Service
+import config.FrontendAppConfig
 import connectors.UserAllowListConnector.UnexpectedResponseException
 import models.identifiers.VpdId
 import models.requests.CheckRequest
+import play.api.Logging
 import play.api.http.Status.{NOT_FOUND, OK}
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import play.api.{Configuration, Logging}
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
@@ -33,16 +33,15 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 class UserAllowListConnector @Inject()(
-                                        configuration: Configuration,
+                                        config: FrontendAppConfig,
                                         httpClient: HttpClientV2
                                       )(implicit ec: ExecutionContext) extends Logging {
 
-  private val userAllowListService: Service = configuration.get[Service]("microservice.services.user-allow-list")
-  private val internalAuthToken: String = configuration.get[String]("internal-auth.token")
+  private val internalAuthToken: String = config.internalAuthToken
 
   def check(feature: String, vpdId: VpdId)(implicit hc: HeaderCarrier): Future[Boolean] =
     httpClient
-      .post(url"$userAllowListService/user-allow-list/vaping-duty-frontend/$feature/check")
+      .post(url"${config.userAllowListUrl(feature)}")
       .setHeader("Authorization" -> internalAuthToken)
       .withBody(Json.toJson(CheckRequest(vpdId.value)))
       .execute[HttpResponse]
