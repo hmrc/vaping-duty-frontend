@@ -35,6 +35,10 @@
   text-wrap: nowrap;
 }
 
+.govuk-table-wrapper {
+  overflow-x: auto;
+}
+
 .no-wrap-link {
   margin-left: auto;
   align-self: center;
