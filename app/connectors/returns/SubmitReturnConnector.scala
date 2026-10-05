@@ -37,48 +37,16 @@ class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
   def submitReturn(returnsSubmission: ReturnCreateRequest,
                    vpdId: VpdId)
                   (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] = {
-
-    val requestWithHeaders: RequestBuilder = prepareHeaders(returnsSubmission, vpdId)
-
-    requestWithHeaders
+    httpClient
+      .post(url"${config.submitReturnUrl(vpdId, PeriodKey(returnsSubmission.periodKey))}")
+      .withBody(Json.toJson(returnsSubmission))
+      .injectNrsHeaders
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .flatMap(response => submitReturnsParser(response))
       .recoverWith { case _: Exception =>
         logger.warn("An exception was returned while trying to submit return")
         Future.failed(InternalServerException("Failed to submit return"))
       }
-  }
-
-  // Prepare the headers elements needed for NRS submission as HttpClientV2 removes/writes over some of the needed data
-  private def prepareHeaders(returnsSubmission: ReturnCreateRequest, vpdId: VpdId)
-                            (using hc: HeaderCarrier): RequestBuilder = {
-
-    val baseRequest = httpClient
-      .post(url"${config.submitReturnUrl(vpdId, PeriodKey(returnsSubmission.periodKey))}")
-      .withBody(Json.toJson(returnsSubmission))
-
-    // Headers that should NOT be forwarded as they're set by the HTTP client or would corrupt the request
-    val headersToExclude = Set(
-      "content-type",
-      "content-length",
-      "host",
-      "connection",
-      "timeout-access",
-      "raw-request-uri",
-      "tls-session-info",
-      "path"
-    )
-
-    // Filter out HTTP-level headers, keep only application/business headers for NRS
-    val safeHeaders = hc.otherHeaders.filterNot { case (name, _) =>
-      headersToExclude.contains(name.toLowerCase)
-    }
-
-    // Chain the safe headers
-    val requestWithHeaders = safeHeaders.foldLeft(baseRequest) { case (req: RequestBuilder, (name, value)) =>
-      req.setHeader(name -> value)
-    }
-    requestWithHeaders
   }
 
   private def submitReturnsParser(response: Either[UpstreamErrorResponse, HttpResponse]): Future[ReturnSubmittedResponse] = {
@@ -99,3 +67,29 @@ class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
     }
   }
 }
+
+extension (baseRequest: RequestBuilder)
+  // Prepare the headers elements needed for NRS submission as HttpClientV2 removes/writes over some of the needed data
+  def injectNrsHeaders(using hc: HeaderCarrier): RequestBuilder = {
+    // Headers that should NOT be forwarded as they're set by the HTTP client or would corrupt the request
+    val headersToExclude = Set(
+      "content-type",
+      "content-length",
+      "host",
+      "connection",
+      "timeout-access",
+      "raw-request-uri",
+      "tls-session-info",
+      "path"
+    )
+
+    // Filter out HTTP-level headers, keep only application/business headers for NRS
+    val safeHeaders = hc.otherHeaders.filterNot { case (name, _) =>
+      headersToExclude.contains(name.toLowerCase)
+    }
+
+    // Chain the safe headers
+    safeHeaders.foldLeft(baseRequest) { case (req, (name, value)) =>
+      req.setHeader(name -> value)
+    }
+  }
