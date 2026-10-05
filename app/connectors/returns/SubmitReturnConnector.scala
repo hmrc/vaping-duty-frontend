@@ -23,7 +23,7 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReadsInstances, HttpResponse, InternalServerException, StringContextOps, UpstreamErrorResponse}
 
 import javax.inject.Inject
@@ -36,16 +36,18 @@ class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
 
   def submitReturn(returnsSubmission: ReturnCreateRequest,
                    vpdId: VpdId)
-                  (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] =
+                  (implicit hc: HeaderCarrier): Future[ReturnSubmittedResponse] = {
     httpClient
       .post(url"${config.submitReturnUrl(vpdId, PeriodKey(returnsSubmission.periodKey))}")
       .withBody(Json.toJson(returnsSubmission))
+      .injectNrsHeaders
       .execute[Either[UpstreamErrorResponse, HttpResponse]]
       .flatMap(response => submitReturnsParser(response))
       .recoverWith { case _: Exception =>
         logger.warn("An exception was returned while trying to submit return")
         Future.failed(InternalServerException("Failed to submit return"))
       }
+  }
 
   private def submitReturnsParser(response: Either[UpstreamErrorResponse, HttpResponse]): Future[ReturnSubmittedResponse] = {
     response match {
@@ -65,3 +67,29 @@ class SubmitReturnConnector @Inject()(config: FrontendAppConfig,
     }
   }
 }
+
+extension (baseRequest: RequestBuilder)
+  // Prepare the headers elements needed for NRS submission as HttpClientV2 removes/writes over some of the needed data
+  def injectNrsHeaders(using hc: HeaderCarrier): RequestBuilder = {
+    // Headers that should NOT be forwarded as they're set by the HTTP client or would corrupt the request
+    val headersToExclude = Set(
+      "content-type",
+      "content-length",
+      "host",
+      "connection",
+      "timeout-access",
+      "raw-request-uri",
+      "tls-session-info",
+      "path"
+    )
+
+    // Filter out HTTP-level headers, keep only application/business headers for NRS
+    val safeHeaders = hc.otherHeaders.filterNot { case (name, _) =>
+      headersToExclude.contains(name.toLowerCase)
+    }
+
+    // Chain the safe headers
+    safeHeaders.foldLeft(baseRequest) { case (req, (name, value)) =>
+      req.setHeader(name -> value)
+    }
+  }
