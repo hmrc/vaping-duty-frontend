@@ -37,11 +37,14 @@
 
 .govuk-table-wrapper {
   overflow-x: auto;
+  width: 100%;
   max-width: 100%;
 }
 
 html,
-body {
+body,
+.govuk-width-container,
+.govuk-main-wrapper {
   overflow-x: hidden;
 }
 
