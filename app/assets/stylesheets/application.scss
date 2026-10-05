@@ -37,6 +37,12 @@
 
 .govuk-table-wrapper {
   overflow-x: auto;
+  max-width: 100%;
+}
+
+html,
+body {
+  overflow-x: hidden;
 }
 
 .no-wrap-link {
