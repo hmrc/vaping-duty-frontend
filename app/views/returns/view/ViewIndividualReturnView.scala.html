@@ -27,6 +27,7 @@
         caption: Caption,
         h1: Heading,
         h2: Heading2,
+        h3: Heading3,
         p: Paragraph,
         printLink: PrintLink,
         list: List
@@ -79,17 +80,20 @@
     )))
 
     @h2(messages("viewIndividualReturn.h2.dutySummary"))
+    @h3(messages("viewIndividualReturn.h3.declareDutySummary"), classes = "govuk-heading-s")
 
     @vm.dutyDeclarationSummaryList.map { summaryList =>
         @govukSummaryList(summaryList)
     }
 
+    @h3(messages("viewIndividualReturn.spoiltProducts.h3"), classes = "govuk-heading-s")
     @vm.spoiltSummaryLists.zipWithIndex.map { case (summaryList, index) =>
-        @govukSummaryList(summaryList.copy(classes = if(index == 0) "govuk-!-margin-top-8" else ""))
+        @govukSummaryList(summaryList)
     }
 
+    @h3(messages("viewIndividualReturn.adjustments.h3"), classes = "govuk-heading-s")
     @vm.adjustmentsSummaryLists.zipWithIndex.map { case (summaryList, index) =>
-        @govukSummaryList(summaryList.copy(classes = if(index == 0) "govuk-!-margin-top-8" else ""))
+        @govukSummaryList(summaryList)
     }
 
     @vm.dutySuspenseSummaryList.map { summaryList =>
