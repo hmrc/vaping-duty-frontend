@@ -16,16 +16,44 @@
 
 package controllers.actions.returns
 
+import config.FrontendAppConfig
+import connectors.UserAllowListConnector
 import models.requests.IdentifierRequest
+import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReturnsEnabledActionImpl @Inject()(implicit val executionContext: ExecutionContext, featureFlags: FeatureFlags) extends ReturnsEnabledAction {
+class ReturnsEnabledActionImpl @Inject()(
+                                          implicit val executionContext: ExecutionContext,
+                                          config: FrontendAppConfig,
+                                          userAllowListConnector: UserAllowListConnector
+                                        ) extends ReturnsEnabledAction {
+
+
+  private val FEATURE = "vpd-private-beta"
 
   override protected def refine[A](request: IdentifierRequest[A]): Future[Either[Result, IdentifierRequest[A]]] = {
-    featureFlags.returnsJourney(request)
+    if (!config.returnsEnabled) {
+      Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
+    } else if (!config.returnsAllowListEnabled) {
+      // Allow list disabled - grant access to everyone
+      Future.successful(Right(IdentifierRequest(request, request.enrolmentVpdId, request.groupId, request.internalId, request.credId)))
+    } else {
+      // Allow list enabled - check if user is on the list
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+      userAllowListConnector.check(FEATURE, request.enrolmentVpdId).map {
+        case true => Right(IdentifierRequest(request, request.enrolmentVpdId, request.groupId, request.internalId, request.credId))
+        case false => Left(Redirect(controllers.returns.routes.ReturnsAccessDeniedController.onPageLoad()))
+      }.recover {
+        case _: UserAllowListConnector.UnexpectedResponseException =>
+          // On error, fail closed - deny access
+          Left(Redirect(controllers.returns.routes.ReturnsAccessDeniedController.onPageLoad()))
+      }
+    }
   }
 }
 
