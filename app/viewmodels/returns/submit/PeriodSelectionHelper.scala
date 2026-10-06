@@ -71,9 +71,10 @@ object PeriodSelectionHelper {
 
     paginationYears.map { year =>
       PaginationItem(
+        href = hrefBuilder(year),
         number = Some(year.toString),
-        current = Some(year == currentYear),
-        href = hrefBuilder(year)
+        visuallyHiddenText = Some(s"Page - year $year"),
+        current = Some(year == currentYear)
       )
     }
   }

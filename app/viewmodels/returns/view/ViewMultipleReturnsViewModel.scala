@@ -67,7 +67,8 @@ object ViewMultipleReturnsViewModel {
         PaginationItem(
           number = Some(year.toString),
           href = controllers.returns.view.routes.ViewMultipleReturnsController.onPageLoad(Some(year)).url,
-          current = Some(year == currentYear)
+          current = Some(year == currentYear),
+          visuallyHiddenText =  Some(s"Page - year $year")
         )
       }
       Some(PaginationViewModel(paginationItems))
