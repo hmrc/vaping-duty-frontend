@@ -187,7 +187,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
     val businessTaxAccountLink = Paragraph()(
       Seq(HtmlContent(
-        s"${messages(businessTaxAccountLinkPrefixKey)} ${link(id = "bta-link", href = btaLink, text = messages("returns.confirmation.bullet.bta.linkText"))}."
+        link(id = "bta-link", href = btaLink, text = s"${messages(businessTaxAccountLinkPrefixKey)} ${messages("returns.confirmation.bullet.bta.linkText")}")
       )),
       classes = s"govuk-body ${CssConstants.paddingBottom2}"
     )
