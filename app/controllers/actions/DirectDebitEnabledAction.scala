@@ -16,17 +16,23 @@
 
 package controllers.actions
 
-import controllers.actions.returns.FeatureFlags
+import config.FrontendAppConfig
 import models.requests.IdentifierRequest
+import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DirectDebitEnabledActionImpl @Inject()(implicit val executionContext: ExecutionContext, featureFlags: FeatureFlags) extends DirectDebitEnabledAction {
+class DirectDebitEnabledActionImpl @Inject()(implicit val executionContext: ExecutionContext, config: FrontendAppConfig)
+  extends DirectDebitEnabledAction {
 
   override protected def refine[A](request: IdentifierRequest[A]): Future[Either[Result, IdentifierRequest[A]]] = {
-    featureFlags.directDebitJourney(request)
+    if (config.directDebitEnabled) {
+      Future.successful(Right(IdentifierRequest(request, request.enrolmentVpdId, request.groupId, request.internalId, request.credId)))
+    } else {
+      Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
+    }
   }
 }
 
