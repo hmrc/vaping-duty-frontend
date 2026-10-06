@@ -20,13 +20,13 @@ import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvenc
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import forms.returns.AddSpoiltAdjustmentFormProvider
 import models.requests.returns.ReturnsDataRequest
-import models.{Mode, NormalMode}
+import models.{Mode, NormalMode, TaskStatus}
 import navigation.ReturnsNavigator
 import pages.returns.{DeclareSpoiltProductsPage, SpoiltCheckYourAnswersPage, SpoiltVolumeByPeriodPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.returns.{ReturnsUserAnswersService, SpoiltCheckYourAnswersService}
+import services.returns.{ReturnsUserAnswersService, SpoiltCheckYourAnswersService, TaskStatusService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.spoilt.SpoiltCheckYourAnswersView
@@ -54,19 +54,23 @@ class SpoiltCheckYourAnswersController @Inject()(
   def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
     implicit request =>
 
-      val declareSpoiltProducts = request.userAnswers.get(DeclareSpoiltProductsPage)
-      val spoiltList = request.userAnswers.get(SpoiltVolumeByPeriodPage)
+      if (TaskStatusService.declareSpoiltProductsTaskStatus(request.userAnswers) != TaskStatus.Completed) {
+        Future.successful(Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${request.periodKey.value}"))
+      } else {
+        val declareSpoiltProducts = request.userAnswers.get(DeclareSpoiltProductsPage)
+        val spoiltList = request.userAnswers.get(SpoiltVolumeByPeriodPage)
 
-      spoiltCheckYourAnswersService
-        .buildViewModel(declareSpoiltProducts, spoiltList, request.periodKey, request.enrolmentVpdId, mode)
-        .map { vm =>
-          val preparedForm = request.userAnswers.get(SpoiltCheckYourAnswersPage) match {
-            case None => form
-            case Some(value) => form.fill(value)
+        spoiltCheckYourAnswersService
+          .buildViewModel(declareSpoiltProducts, spoiltList, request.periodKey, request.enrolmentVpdId, mode)
+          .map { vm =>
+            val preparedForm = request.userAnswers.get(SpoiltCheckYourAnswersPage) match {
+              case None => form
+              case Some(value) => form.fill(value)
+            }
+
+            Ok(view(request.periodKey, vm, preparedForm, mode))
           }
-
-          Ok(view(request.periodKey, vm, preparedForm, mode))
-        }
+      }
   }
 
   def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {

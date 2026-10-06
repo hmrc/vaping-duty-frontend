@@ -62,7 +62,7 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to journey recovery when EnterDutyAmountPage is not answered" in {
+    "must redirect to return submission recovery when EnterDutyAmountPage is not answered" in {
 
       val mockDutyRateService = mock[DutyRateService]
 
@@ -79,18 +79,20 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${periodKey.value}"
       }
     }
 
     "must fail when obligation service returns None" in {
+
+      val ua = returnsUserAnswers.set(EnterDutyAmountPage, BigDecimal(100)).success.value
 
       val mockDutyRateService = mock[DutyRateService]
 
       when(mockDutyRateService.getDutyRate(any(), any())(using any(), any()))
         .thenReturn(Future.failed(RuntimeException("No duty rate found")))
 
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+      val application = applicationBuilder(returnsUserAnswers = Some(ua))
         .overrides(bind[DutyRateService].toInstance(mockDutyRateService))
         .build()
 

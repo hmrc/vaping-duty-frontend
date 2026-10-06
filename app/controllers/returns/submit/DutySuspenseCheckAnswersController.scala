@@ -18,9 +18,10 @@ package controllers.returns.submit
 
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
-import models.{CheckMode, Mode, NormalMode}
+import models.{CheckMode, Mode, NormalMode, TaskStatus}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.TaskStatusService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.submit.DutySuspenseCheckAnswersViewModel
 import views.html.returns.submit.DutySuspenseCheckAnswersView
@@ -42,9 +43,13 @@ class DutySuspenseCheckAnswersController @Inject()(
     implicit request =>
       val pk = request.periodKey
 
-      DutySuspenseCheckAnswersViewModel(request.userAnswers, pk, mode) match {
-        case Some(vm) => Ok(view(pk, vm, mode))
-        case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      if (TaskStatusService.dutySuspenseTaskStatus(request.userAnswers) != TaskStatus.Completed) {
+        Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${pk.value}")
+      } else {
+        DutySuspenseCheckAnswersViewModel(request.userAnswers, pk, mode) match {
+          case Some(vm) => Ok(view(pk, vm, mode))
+          case None => Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${pk.value}")
+        }
       }
   }
 

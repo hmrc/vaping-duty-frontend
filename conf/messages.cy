@@ -171,6 +171,14 @@ returns.taskList.section.dutySuspended.task1 = Rhowch wybod i ni os ydych wedi c
 returns.taskList.section.submitReturn.heading = Cyflwyno Datganiad
 returns.taskList.submitReturn.task1 = Gwiriwch eich atebion a chyflwynwch eich datganiad
 returns.taskList.submitReturn.task1.hint = Mae’n rhaid cwblhau pob tasg cyn ei chyflwyno
+
+returns.taskList.button.clearReturn = Dileu cynnwys y datganiad a dechrau eto
+
+clearReturnAreYouSure.title = A ydych yn siŵr eich bod am ddileu cynnwys eich Datganiad?
+clearReturnAreYouSure.heading = A ydych yn siŵr eich bod am ddileu cynnwys eich Datganiad?
+clearReturnAreYouSure.warning = Bydd gwneud hyn yn dileu’r holl wybodaeth yr ydych wedi’i nodi yn y Datganiad hwn.
+clearReturnAreYouSure.error.required = Dewiswch ‘Iawn’ os hoffech glirio’ch Datganiad
+
 month.jan = Ionawr
 month.feb = Chwefror
 month.mar = Mawrth
