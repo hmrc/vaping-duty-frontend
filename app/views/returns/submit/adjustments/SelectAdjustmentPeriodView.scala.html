@@ -29,7 +29,7 @@
 
 @(vm: SelectAdjustmentPeriodViewModel, periodKey: PeriodKey)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = messages("returns.selectAdjustmentPeriod.title")) {
+@layout(pageTitle = titleNoForm(messages("returns.selectAdjustmentPeriod.title"))) {
 
     @caption(messages("returns.selectAdjustmentPeriod.caption"))
 
