@@ -29,7 +29,7 @@
 
 @(vm: ViewMultipleReturnsViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = messages("returns.overview.title")) {
+@layout(pageTitle = titleNoForm(messages("returns.overview.title"))) {
 
     @h1(messages("returns.overview.heading"))
 
