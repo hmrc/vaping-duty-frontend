@@ -47,8 +47,8 @@
     @h1(messages("payments.viewPayments.heading"))
 
     @if(vm.hasOutstandingBalance) {
-        @p(Seq(messages("payments.viewPayments.youOwe")), classes = "govuk-heading-m govuk-!-margin-bottom-0")
-        @h1(vm.totalOwed, classes = "govuk-heading-xl")
+        @h2(messages("payments.viewPayments.youOwe"), classes="govuk-heading-m govuk-!-margin-bottom-0")
+        @p(Seq(vm.totalOwed), classes = "govuk-heading-xl")
     }
 
     <div class="govuk-grid-row">
