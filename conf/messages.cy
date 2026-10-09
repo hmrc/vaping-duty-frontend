@@ -157,7 +157,7 @@ returns.taskList.title = Cwblhewch eich datganiad Toll Cynhyrchion Fepio
 returns.taskList.heading = Cwblhewch eich datganiad Toll Cynhyrchion Fepio
 returns.taskList.bodyL = Cwblhewch yr holl dasgau a chyflwynwch y ffurflen hon ar neu cyn {0}&nbsp;{1}&nbsp;{2}.
 returns.taskList.body = Gellir newid eich atebion nes bod y datganiad hwn yn cael ei chyflwyno.
-returns.taskList.taskStatus.tasksRemaining = Tasgau sy’n weddill
+returns.taskList.taskStatus.tasksRemaining =
 returns.taskList.taskStatus.notStarted = Heb ddechrau
 returns.taskList.taskStatus.inProgress = Ar y gweill
 returns.taskList.taskStatus.completed = Wedi cwblhau
@@ -170,7 +170,6 @@ returns.taskList.section.dutySuspended.heading = Rhoi gwybod am ddosbarthiadau o
 returns.taskList.section.dutySuspended.task1 = Rhowch wybod i ni os ydych wedi cael neu wedi symud unrhyw gynhyrchion fepio o dan ohiriad tollau
 returns.taskList.section.submitReturn.heading = Cyflwyno Datganiad
 returns.taskList.submitReturn.task1 = Gwiriwch eich atebion a chyflwynwch eich datganiad
-returns.taskList.submitReturn.task1.hint = Mae’n rhaid cwblhau pob tasg cyn ei chyflwyno
 
 returns.taskList.button.clearReturn = Dileu cynnwys y datganiad a dechrau eto
 
