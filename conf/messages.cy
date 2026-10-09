@@ -235,7 +235,6 @@ returns.declareDutyCheckAnswers.volume.change.hidden = cyfanswm mililitrau o hyl
 returns.declareSpoiltProducts.title = Datgan cynhyrchion sydd wedi’u difetha o ddatganiad cynharach
 returns.declareSpoiltProducts.heading = Datgan cynhyrchion sydd wedi’u difetha o ddatganiad cynharach
 returns.declareSpoiltProducts.caption.text = Cynhyrchion sydd wedi’u difetha
-returns.declareSpoiltProducts.p = Rhowch wybod i ni am unrhyw gynhyrchion fepio a ddatganwyd mewn datganiadau blaenorol sydd wedi’u difetha.
 returns.declareSpoiltProducts.details.summary = Beth yw ystyr ‘cynhyrchion sydd wedi’u difetha’ ac ‘addas i’w defnyddio’?
 returns.declareSpoiltProducts.details.content.p1 = Cynhyrchion fepio sydd wedi’u difetha yw:
 returns.declareSpoiltProducts.details.content.bullet1 = cynhyrchion rydych eisoes wedi talu treth arnynt
