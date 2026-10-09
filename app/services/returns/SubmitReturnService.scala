@@ -24,6 +24,7 @@ import models.returns.*
 import models.returns.submit.ReturnSubmittedResponse
 import services.contactPreference.AuditService
 import services.email.ReturnSubmittedEmailService
+import services.nrs.NrsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -37,6 +38,7 @@ class SubmitReturnService @Inject()(
   buildReturnSubmissionService: BuildReturnSubmissionService,
   auditService: AuditService,
   returnSubmittedEmailService: ReturnSubmittedEmailService,
+  nrsService: NrsService,
   appConfig: FrontendAppConfig,
 )(using ExecutionContext) {
 
@@ -54,6 +56,7 @@ class SubmitReturnService @Inject()(
       }
       submission  = buildReturnSubmissionService.buildSubmission(ua, obligation, request.enrolmentVpdId, periodKeyToDutyRate)
       result     <- submitReturnConnector.submitReturn(submission, request.enrolmentVpdId)
+      _          <- nrsService.submitNrsData(submission, request.enrolmentVpdId, request.periodKey)(summon[HeaderCarrier], request.request)
     } yield {
       auditService.auditReturnSubmitted(
         SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, result, request.identifiers, obligations))

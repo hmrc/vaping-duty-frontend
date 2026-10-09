@@ -36,6 +36,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   private lazy val returnsHost: String = servicesConfig.baseUrl("vaping-duty")
   private lazy val financeHost: String = servicesConfig.baseUrl("vaping-duty-finance")
   private lazy val emailHost: String = servicesConfig.baseUrl("email")
+  private lazy val nrsHost: String = servicesConfig.baseUrl("vaping-duty")
 
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?useServiceNavigation&service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
@@ -103,8 +104,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   def getObligationsUrl(vpdId: VpdId): String                                     = s"$returnsBaseUrl/obligations/$vpdId"
 
-  def submitReturnUrl(vpdId: VpdId, periodKey: PeriodKey)                         = s"$returnsBaseUrl/vpd-return/$vpdId/$periodKey"
+  def submitReturnUrl(vpdId: VpdId, periodKey: PeriodKey): String                 = s"$returnsBaseUrl/vpd-return/$vpdId/$periodKey"
   def getReturnUrl(vpdReference: VpdId, periodKey: PeriodKey): String             = s"$returnsBaseUrl/vpd-return/$periodKey/$vpdReference"
+  def nrsSubmissionUrl: String                                                    = s"$nrsHost/vaping-duty/nrs-submission"
 
   private val financeBaseUrl                                     = s"$financeHost/vaping-duty-finance"
   def getPaymentsUrl(vpdId: VpdId): String                       = s"$financeBaseUrl/financial-data/payments"
