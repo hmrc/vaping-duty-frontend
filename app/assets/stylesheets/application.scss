@@ -1,17 +1,13 @@
-/*
-    Styling in this and other .scss files will be compiled by the sbt-sass-compiler plugin: https://github.com/hmrc/sbt-sass-compiler
-    If you encounter any issue with Sass compilation using the plugin, please reach out to the PlatUI team.
- */
-
 .js-visible {
   display: none !important;
 }
+
 .js-enabled .js-visible {
   display: inline-block !important;
 }
 
 .not-working-link {
-    margin-top: 2rem
+  margin-top: 2rem
 }
 
 .wrap-text {
@@ -19,20 +15,27 @@
 }
 
 .app-task-list__item {
-        display: flex;
-        justify-content: flex-start;
-    }
+  display: flex;
+  justify-content: flex-start;
+}
 
 .govuk-tag {
-        margin-left: auto;
-        align-self: center;
-        text-wrap: nowrap;
-    }
+  margin-left: auto;
+  align-self: center;
+  text-wrap: nowrap;
+}
 
 .govuk-table__header {
   margin-left: auto;
   align-self: center;
-  text-wrap: nowrap;
+}
+
+span.govuk-visually-hidden {
+  max-width: 0 !important;
+}
+
+.scrollable {
+  overflow: auto;
 }
 
 .no-wrap-link {
@@ -42,11 +45,11 @@
 }
 
 @media screen and (max-width: 449px) {
-    .app-task-list__item {
-            flex-direction: column;
-    }
-    .govuk-tag {
-        margin-right: auto;
-        margin-left: 0;
-    }
+  .app-task-list__item {
+    flex-direction: column;
+  }
+  .govuk-tag {
+    margin-right: auto;
+    margin-left: 0;
+  }
 }

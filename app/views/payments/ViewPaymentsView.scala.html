@@ -19,7 +19,7 @@
 
 @this(
     layout: templates.Layout,
-    govukTable: GovukTable,
+    scrollableTable: ScrollableTable,
     govukDetails: GovukDetails,
     caption: Caption,
     h1: Heading,
@@ -53,7 +53,7 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            @h2(messages("payments.viewPayments.outstanding.heading"))
+            @h2(messages("payments.viewPayments.outstanding.heading"), id = Some("outstanding-payments-heading"))
 
             @if(vm.outstandingRows.isEmpty) {
                 @p(Seq(messages("payments.viewPayments.noPayments")))
@@ -64,7 +64,7 @@
     </div>
 
     @if(vm.outstandingRows.nonEmpty) {
-        @govukTable(Table(
+        @scrollableTable(messages("payments.viewPayments.outstanding.heading"), Table(
             head = Some(Seq(
                 HeadCell(content = Text(messages("payments.viewPayments.table.toBePaidBy"))),
                 HeadCell(content = Text(messages("payments.viewPayments.table.description"))),
@@ -72,15 +72,14 @@
                 HeadCell(content = Text(messages("payments.viewPayments.table.status"))),
                 HeadCell(content = Text(messages("payments.viewPayments.table.action")))
             )),
-            rows = vm.outstandingRows,
-            classes = "govuk-table"
+            rows = vm.outstandingRows
         ))
     }
 
     @if(vm.paymentOnAccountRows.nonEmpty) {
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                @h2(messages("payments.viewPayments.unallocated.heading"))
+                @h2(messages("payments.viewPayments.unallocated.heading"), id = Some("unallocated-payments-heading"))
 
                 @govukDetails(Details(
                     summary = Text(messages("payments.viewPayments.unallocated.details.summary")),
@@ -89,21 +88,21 @@
             </div>
         </div>
 
-        @govukTable(Table(
+
+        @scrollableTable(messages("payments.viewPayments.unallocated.heading"), Table(
             head = Some(Seq(
                 HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.paymentDate"))),
                 HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.description"))),
                 HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.amount")), classes = "govuk-table__header--numeric"),
                 HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.action")))
             )),
-            rows = vm.paymentOnAccountRows,
-            classes = "govuk-table"
+            rows = vm.paymentOnAccountRows
         ))
     }
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            @h2(messages("payments.viewPayments.cleared.heading", vm.clearedPaymentsYear))
+            @h2(messages("payments.viewPayments.cleared.heading", vm.clearedPaymentsYear), id = Some("cleared-payments-heading"))
 
             @if(vm.clearedRows.isEmpty) {
                 @p(Seq(messages("payments.viewPayments.cleared.designPlaceholder", vm.clearedPaymentsYear)))
@@ -114,14 +113,13 @@
     </div>
 
     @if(vm.clearedRows.nonEmpty) {
-        @govukTable(Table(
+        @scrollableTable(messages("payments.viewPayments.cleared.heading", vm.clearedPaymentsYear), Table(
             head = Some(Seq(
                 HeadCell(content = Text(messages("payments.viewPayments.cleared.table.period"))),
                 HeadCell(content = Text(messages("payments.viewPayments.cleared.table.description"))),
                 HeadCell(content = Text(messages("payments.viewPayments.cleared.table.amount")), classes = "govuk-table__header--numeric")
             )),
-            rows = vm.clearedRows,
-            classes = "govuk-table"
+            rows = vm.clearedRows
         ))
     }
 }
