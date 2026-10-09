@@ -171,7 +171,7 @@ returns.taskList.heading = Complete your Vaping Products Duty return
 returns.taskList.bodyL = Complete all the tasks and submit this return on or before {0}&nbsp;{1}&nbsp;{2}.
 returns.taskList.body = Your answers can be changed until this return is submitted.
 
-returns.taskList.taskStatus.tasksRemaining = Tasks remaining
+returns.taskList.taskStatus.tasksRemaining = Cannot start yet
 returns.taskList.taskStatus.notStarted = Not started
 returns.taskList.taskStatus.inProgress = In progress
 returns.taskList.taskStatus.completed = Completed
@@ -188,7 +188,6 @@ returns.taskList.section.dutySuspended.task1 = Tell us if you have received or m
 
 returns.taskList.section.submitReturn.heading = Submit return
 returns.taskList.submitReturn.task1 = Check your answers and submit return
-returns.taskList.submitReturn.task1.hint = All tasks must be completed before submitting
 
 returns.taskList.button.clearReturn = Clear return and start again
 
