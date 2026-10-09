@@ -62,7 +62,7 @@ class DeclareDutyCheckAnswersController @Inject()(
       yield {
         DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk, mode, returnPeriod) match {
           case Some(vm) => Ok(view(pk, vm, mode))
-          case None => Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${pk.value}")
+          case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         }
       }
     }
