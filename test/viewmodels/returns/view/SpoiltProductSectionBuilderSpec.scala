@@ -164,8 +164,8 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
       }
 
       "throw exception when period key not found" in {
-        val obligationDetailsWithMissingPeriod = Seq(fulfilledObligation(PeriodKey("26AF")))
-        val itemWithMissingPeriod = spoiltProductItem.copy(returnPeriodAffected = "24AC")
+        val obligationDetailsWithMissingPeriod = Seq(fulfilledObligation(PeriodKey("26KF")))
+        val itemWithMissingPeriod = spoiltProductItem.copy(returnPeriodAffected = "24KC")
         val spoiltProduct = SpoiltProduct(spoiltProductFilled = "1", spoiltProducts = Some(Seq(itemWithMissingPeriod)))
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
@@ -178,7 +178,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
           builder.build()
         }
 
-        exception.getMessage must include("Period key 24AC not found in obligations")
+        exception.getMessage must include("Period key 24KC not found in obligations")
       }
     }
   }

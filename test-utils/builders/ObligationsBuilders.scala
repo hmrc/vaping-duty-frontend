@@ -23,28 +23,28 @@ import java.time.LocalDate
 
 trait ObligationsBuilders {
 
-  val december2022  = PeriodKey("22AL")
+  val december2022  = PeriodKey("22KL")
 
-  val december2023  = PeriodKey("23AL")
+  val december2023  = PeriodKey("23KL")
 
-  val january2024  = PeriodKey("24AA")
-  val february2024 = PeriodKey("24AB")
-  val march2024    = PeriodKey("24AC")
-  
-  val september2025 = PeriodKey("25AI")
-  
-  val january2026  = PeriodKey("26AA")
-  val february2026 = PeriodKey("26AB")
-  val march2026    = PeriodKey("26AC")
-  val june2026     = PeriodKey("26AF")
-  val july2026     = PeriodKey("26AG")
-  val october2026  = PeriodKey("26AJ")
-  val november2026 = PeriodKey("26AK")
-  val december2026 = PeriodKey("26AL")
+  val january2024  = PeriodKey("24KA")
+  val february2024 = PeriodKey("24KB")
+  val march2024    = PeriodKey("24KC")
 
-  val october2027  = PeriodKey("27AJ")
-  val november2027 = PeriodKey("27AK")
-  val december2027 = PeriodKey("27AL")
+  val september2025 = PeriodKey("25KI")
+
+  val january2026  = PeriodKey("26KA")
+  val february2026 = PeriodKey("26KB")
+  val march2026    = PeriodKey("26KC")
+  val june2026     = PeriodKey("26KF")
+  val july2026     = PeriodKey("26KG")
+  val october2026  = PeriodKey("26KJ")
+  val november2026 = PeriodKey("26KK")
+  val december2026 = PeriodKey("26KL")
+
+  val october2027  = PeriodKey("27KJ")
+  val november2027 = PeriodKey("27KK")
+  val december2027 = PeriodKey("27KL")
 
   val id: VpdId = VpdId(id = "VPPAID01")
   

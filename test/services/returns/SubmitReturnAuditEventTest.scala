@@ -28,7 +28,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers, ObligationsBuild
   private val etmpSubmission = Json.parse(
     """
           {
-            "periodKey": "26AL",
+            "periodKey": "26KL",
             "vapingProductsProduced": {
               "vapingProdManufactured": "1",
               "returns": [
@@ -45,7 +45,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers, ObligationsBuild
               "reasonForUnderDecl": "Incorrect reporting in previous return",
               "underDeclarationProducts": [
                 {
-                  "returnPeriodAffected": "26AJ",
+                  "returnPeriodAffected": "26KJ",
                   "taxType": "641",
                   "dutyRate": 10.5,
                   "amountUnderDeclared": 200,
@@ -58,7 +58,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers, ObligationsBuild
               "reasonForOverDecl": "Duplicate entry in prior submission",
               "overDeclarationProducts": [
                 {
-                  "returnPeriodAffected": "26AK",
+                  "returnPeriodAffected": "26KK",
                   "taxType": "641",
                   "dutyRate": 10.5,
                   "amountOverDeclared": 100,
@@ -70,7 +70,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers, ObligationsBuild
               "spoiltProductFilled": "1",
               "spoiltProducts": [
                 {
-                  "returnPeriodAffected": "26AK",
+                  "returnPeriodAffected": "26KK",
                   "taxType": "641",
                   "dutyRate": 10.5,
                   "amountSpoilt": 50,
@@ -393,7 +393,7 @@ class SubmitReturnAuditEventTest extends AnyFreeSpec, Matchers, ObligationsBuild
             val submissionObj = SubmitReturnAuditEvent.buildSubmission(etmpSubmission, obligationsWithoutNovember).as[JsObject]
             val overDeclaredProductObj = submissionObj("overDeclaration")("overDeclarationProducts").as[JsArray].head.as[JsObject]
 
-            overDeclaredProductObj("returnPeriodAffected") mustBe JsString("26AK")
+            overDeclaredProductObj("returnPeriodAffected") mustBe JsString("26KK")
           }
         }
       }

@@ -52,7 +52,7 @@ class TotalDutyDueCalculationServiceSpec extends SpecBase {
           underDeclFilled = "1",
           reasonForUnderDecl = Some("Test reason"),
           underDeclarationProducts = Some(Seq(
-            UnderDeclarationProduct("23KB", "641", BigDecimal("10.50"), BigDecimal("10.00"), BigDecimal("105.00"))
+            UnderDeclarationProduct("23KK", "641", BigDecimal("10.50"), BigDecimal("10.00"), BigDecimal("105.00"))
           ))
         ))
 
@@ -76,7 +76,7 @@ class TotalDutyDueCalculationServiceSpec extends SpecBase {
           overDeclFilled = "1",
           reasonForOverDecl = Some("Test reason"),
           overDeclarationProducts = Some(Seq(
-            OverDeclarationProduct("23KC", "641", BigDecimal("10.50"), BigDecimal("5.00"), BigDecimal("52.50"))
+            OverDeclarationProduct("23KK", "641", BigDecimal("10.50"), BigDecimal("5.00"), BigDecimal("52.50"))
           ))
         ))
 
@@ -123,8 +123,8 @@ class TotalDutyDueCalculationServiceSpec extends SpecBase {
           underDeclFilled = "1",
           reasonForUnderDecl = Some("Test reason"),
           underDeclarationProducts = Some(Seq(
-            UnderDeclarationProduct("23KB", "641", BigDecimal("10.50"), BigDecimal("10.00"), BigDecimal("105.00")),
-            UnderDeclarationProduct("23KC", "641", BigDecimal("10.50"), BigDecimal("5.00"), BigDecimal("52.50"))
+            UnderDeclarationProduct("23KK", "641", BigDecimal("10.50"), BigDecimal("10.00"), BigDecimal("105.00")),
+            UnderDeclarationProduct("23KK", "641", BigDecimal("10.50"), BigDecimal("5.00"), BigDecimal("52.50"))
           ))
         ))
         val overDeclaration = Some(OverDeclaration(

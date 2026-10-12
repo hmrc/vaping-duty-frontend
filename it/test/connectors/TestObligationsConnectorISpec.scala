@@ -191,7 +191,7 @@ class TestObligationsConnectorISpec extends ISpecBase with WireMockHelper {
                 "iCToDate" -> "2027-12-31",
                 "iCDateReceived" -> Json.obj(),
                 "iCDueDate" -> "2028-01-31",
-                "periodKey" -> "27AL"
+                "periodKey" -> "27KL"
               )
             )
           )

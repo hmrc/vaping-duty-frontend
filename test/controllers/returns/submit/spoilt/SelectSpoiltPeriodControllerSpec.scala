@@ -112,7 +112,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
 
     "must exclude periods that already have spoilt data entered" in {
       val mockService = mock[ObligationService]
-      val alreadyDeclaredPeriod = PeriodKey("26AJ")
+      val alreadyDeclaredPeriod = PeriodKey("26KJ")
 
       when(mockService.getObligations(any())(using any())).thenReturn(Future.successful(obligationsSpanning3Years))
 

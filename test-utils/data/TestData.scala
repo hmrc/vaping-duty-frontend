@@ -39,7 +39,7 @@ trait TestData extends ObligationsBuilders {
   val host = "http://localhost:8140"
   val btaLink = "http://localhost:9020/business-account?useServiceNavigation"
   val groupId: GroupId = GroupId(id = "groupid")
-  val periodKey = PeriodKey("26AF")
+  val periodKey = PeriodKey("26KF")
   val ukTimeZoneStringId = "Europe/London"
   val clock: Clock = Clock.fixed(LocalDateTime.parse("2026-02-12T11:13:06").toInstant(ZoneOffset.UTC), ZoneId.of(ukTimeZoneStringId))
   val testDutyRate = DutyRate(315)
@@ -82,7 +82,7 @@ trait TestData extends ObligationsBuilders {
   )
 
   val adjustmentEntry: AdjustmentEntry = AdjustmentEntry(
-    period = PeriodKey("26AE"),
+    period = PeriodKey("26KE"),
     adjustmentType = AdjustmentType.UnderDeclared,
     volumeInMl = BigDecimal("1000")
   )
@@ -311,7 +311,7 @@ trait TestData extends ObligationsBuilders {
             overDeclarationProducts = Some(
               Seq(
                 OverDeclarationProduct(
-                  returnPeriodAffected = "26AE",
+                  returnPeriodAffected = "26KE",
                   taxType = "311",
                   dutyRate = BigDecimal("0.50"),
                   amountOverDeclared = BigDecimal("1000.00"),
@@ -328,7 +328,7 @@ trait TestData extends ObligationsBuilders {
             underDeclarationProducts = Some(
               Seq(
                 UnderDeclarationProduct(
-                  returnPeriodAffected = "26AD",
+                  returnPeriodAffected = "26KD",
                   taxType = "312",
                   dutyRate = BigDecimal("0.75"),
                   amountUnderDeclared = BigDecimal("500.00"),
@@ -344,7 +344,7 @@ trait TestData extends ObligationsBuilders {
             spoiltProducts = Some(
               Seq(
                 SpoiltProductItem(
-                  returnPeriodAffected = "26AF",
+                  returnPeriodAffected = "26KF",
                   taxType = "311",
                   dutyRate = BigDecimal("0.50"),
                   amountSpoilt = BigDecimal("200.00"),

@@ -46,8 +46,8 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
   )
 
   private val vpdId = VpdId("XMVPD0000000123")
-  private val periodKey = PeriodKey("24AA")
-  private val adjustmentPeriodKey = PeriodKey("24AB")
+  private val periodKey = PeriodKey("24KA")
+  private val adjustmentPeriodKey = PeriodKey("24KB")
 
   private val TEN_POUNDS_PER_10ML = DutyRate(1000)
 
@@ -150,7 +150,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     }
 
     "must correctly calculate duty rates for multiple periods" in {
-      val adjustmentPeriodKey2 = PeriodKey("24AC")
+      val adjustmentPeriodKey2 = PeriodKey("24KC")
       
       val obligationForAdjustment1 = openObligation(adjustmentPeriodKey)
       val obligationForAdjustment2 = openObligation(adjustmentPeriodKey2)
@@ -194,7 +194,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     }
 
     "must throw RuntimeException when obligation not found for adjustment period" in {
-      val nonExistentPeriodKey = PeriodKey("24ZZ")
+      val nonExistentPeriodKey = PeriodKey("24KZ")
       val adjustmentEntry = AdjustmentEntry(
         period = nonExistentPeriodKey,
         adjustmentType = AdjustmentType.UnderDeclared,

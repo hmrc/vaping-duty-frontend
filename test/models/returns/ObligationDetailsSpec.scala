@@ -29,15 +29,15 @@ class ObligationDetailsSpec extends SpecBase {
     iCToDate = LocalDate.of(2024, 7, 5),
     iCDateReceived = Some(LocalDate.of(2024, 6, 15)),
     iCDueDate = LocalDate.of(2024, 8, 5),
-    periodKey = "24AB"
+    periodKey = "24KB"
   )
 
   val obligationDetailsWithoutDateReceived: ObligationDetails = obligationDetails.copy(iCDateReceived = None)
 
   "ObligationDetails" - {
-    val json = """{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24AB"}"""
+    val json = """{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24KB"}"""
 
-    val jsonWithoutDateReceived = """{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDueDate":"2024-08-05","periodKey":"24AB"}"""
+    val jsonWithoutDateReceived = """{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDueDate":"2024-08-05","periodKey":"24KB"}"""
 
     "must serialise to json" in {
       Json.toJson(obligationDetails).toString() mustBe json

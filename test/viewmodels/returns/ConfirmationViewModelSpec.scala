@@ -40,7 +40,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
     )
   }
 
-  private val obligationDetailsJuly = fulfilledObligation(PeriodKey("24AG"))
+  private val obligationDetailsJuly = fulfilledObligation(PeriodKey("24KG"))
 
   "ConfirmationViewModel" - {
 

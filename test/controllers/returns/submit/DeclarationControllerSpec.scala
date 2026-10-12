@@ -46,7 +46,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
     signeesEmailAddress = "john.smith@example.com"
   )
 
-  private val june2026 = PeriodKey("26AF")
+  private val june2026 = PeriodKey("26KF")
 
   private val obligationDataSingleOpen: ObligationsResponse = ObligationsResponse(
     obligation = obligations(Seq(openObligation(june2026)))

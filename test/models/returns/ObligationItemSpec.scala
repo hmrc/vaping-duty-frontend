@@ -35,7 +35,7 @@ class ObligationItemSpec extends SpecBase {
     iCToDate = LocalDate.of(2024, 7, 5),
     iCDateReceived = Some(LocalDate.of(2024, 6, 15)),
     iCDueDate = LocalDate.of(2024, 8, 5),
-    periodKey = "24AB"
+    periodKey = "24KB"
   )
 
   val obligationItem: ObligationItem = ObligationItem(
@@ -46,9 +46,9 @@ class ObligationItemSpec extends SpecBase {
   val obligationItemWithoutIdentification: ObligationItem = obligationItem.copy(identification = None)
 
   "ObligationItem" - {
-    val json = """{"identification":{"referenceType":"ZVPD","referenceNumber":"GBWK1234567WK","incomeSourceType":"ITSA"},"obligationDetails":[{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24AB"}]}"""
+    val json = """{"identification":{"referenceType":"ZVPD","referenceNumber":"GBWK1234567WK","incomeSourceType":"ITSA"},"obligationDetails":[{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24KB"}]}"""
 
-    val jsonWithoutIdentification = """{"obligationDetails":[{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24AB"}]}"""
+    val jsonWithoutIdentification = """{"obligationDetails":[{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24KB"}]}"""
 
     "must serialise to json with nested models" in {
       Json.toJson(obligationItem).toString() mustBe json
@@ -63,7 +63,7 @@ class ObligationItemSpec extends SpecBase {
     }
 
     "must deserialise from json when identification is absent" in {
-      val jsonWithoutIdentification = """{"obligationDetails":[{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24AB"}]}"""
+      val jsonWithoutIdentification = """{"obligationDetails":[{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24KB"}]}"""
       Json.parse(jsonWithoutIdentification).as[ObligationItem] mustBe obligationItemWithoutIdentification
     }
   }
