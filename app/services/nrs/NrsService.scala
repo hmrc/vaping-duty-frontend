@@ -164,6 +164,7 @@ class NrsService @Inject()(
       case Some(authToken) => authToken.value
       case _ =>
         logger.warn("[NrsService] - No auth token available for NRS")
+        // scalafix:off DisableSyntax.throw
         throw new InternalServerException("No auth token available for NRS")
     }
   }
