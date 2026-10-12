@@ -18,7 +18,10 @@ package models.nrs
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class NrsSubmissionWorkItem(payload: NrsPayload)
+final case class NrsSubmissionWorkItem(payload: NrsPayload) {
+  def vpdId: String = payload.metadata.searchKeys("approvalId")
+  def periodKey: String = payload.metadata.searchKeys("periodKey")
+}
 
 object NrsSubmissionWorkItem {
   implicit val format: OFormat[NrsSubmissionWorkItem] = Json.format[NrsSubmissionWorkItem]

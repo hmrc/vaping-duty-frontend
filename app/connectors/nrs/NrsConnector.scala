@@ -62,7 +62,7 @@ class NrsConnector @Inject()(
         newId
     }
     
-    val vpdReference = payload.metadata.searchKeys.getOrElse("zvpd", "No VPD reference")
+    val vpdReference = payload.metadata.searchKeys.getOrElse("approvalId", "No VPD reference")
 
     logger.info(s"NRS submission: CorrelationId: $correlationId, VPD Reference: $vpdReference")
 

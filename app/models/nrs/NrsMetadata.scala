@@ -33,7 +33,7 @@ final case class NrsMetadata(
 object NrsMetadata {
   private val BUSINESS_ID = "vpd"
   private val NOTABLE_EVENT = "vpd-return-submitted"
-  private val SEARCH_KEY_ZVPD = "zvpd"
+  private val SEARCH_KEY_APPROVAL_ID = "approvalId"
   private val SEARCH_KEY_PERIOD = "periodKey"
   private val PAYLOAD_CONTENT_TYPE = "application/json"
   
@@ -59,7 +59,7 @@ object NrsMetadata {
       userAuthToken = userAuthToken,
       headerData = userHeaderData,
       searchKeys = Map(
-        SEARCH_KEY_ZVPD -> vpdId,
+        SEARCH_KEY_APPROVAL_ID -> vpdId,
         SEARCH_KEY_PERIOD -> periodKey
       )
     )
