@@ -16,14 +16,13 @@
 
 package connectors.nrs
 
+import base.ISpecBase
+import models.nrs.{IdentityData, NrsMetadata, NrsPayload, NrsSubmissionResult}
 import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE}
 import play.api.libs.json.Json
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, CredentialStrength}
 import uk.gov.hmrc.http.HeaderCarrier
-import base.ISpecBase
-import config.FrontendAppConfig
-import models.nrs.{IdentityData, NrsMetadata, NrsPayload, NrsSubmissionResult}
 import utils.ConnectorTestHelpers
 
 import java.time.Instant
