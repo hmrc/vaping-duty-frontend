@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.InternalServerException
-import util.WireMockHelper
+import utils.WireMockHelper
 
 class PaymentConnectorISpec extends ISpecBase with WireMockHelper with TestData {
 

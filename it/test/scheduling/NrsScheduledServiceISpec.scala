@@ -32,7 +32,7 @@ import data.NrsTestData
 import models.nrs.{NrsPayload, NrsSubmissionWorkItem}
 import repositories.NrsWorkItemRepository
 import services.nrs.NrsService
-import util.WireMockHelper
+import utils.WireMockHelper
 
 import java.time.Instant
 
