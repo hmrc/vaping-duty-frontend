@@ -36,6 +36,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import services.contactPreference.AuditService
 import services.email.ReturnSubmittedEmailService
+import services.nrs.NrsService
 
 import java.time.{Instant, LocalDate}
 import scala.concurrent.Future
@@ -49,6 +50,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
   private val mockAuditService = mock[AuditService]
   private val mockReturnSubmittedEmailService = mock[ReturnSubmittedEmailService]
   private val mockConfig = mock[FrontendAppConfig]
+  private val mockNrsService = mock[NrsService]
 
   private val service = new SubmitReturnService(
     mockSubmitReturnConnector,
@@ -57,6 +59,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     mockBuildReturnSubmissionService,
     mockAuditService,
     mockReturnSubmittedEmailService,
+    mockNrsService,
     mockConfig
   )
 
@@ -107,6 +110,9 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
       .thenReturn(Future.successful(()))
     reset(mockConfig)
     when(mockConfig.returnSubmittedEmailEnabled).thenReturn(true)
+    reset(mockNrsService)
+    when(mockNrsService.makeWorkItemAndQueue(any(), any(), any(), any())(using any(), any()))
+      .thenReturn(Future.successful(()))
   }
 
   private val yes = "1"

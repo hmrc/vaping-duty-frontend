@@ -17,7 +17,7 @@
 package utils
 
 import java.time.format.DateTimeFormatter
-import java.time.{Clock, ZonedDateTime}
+import java.time.{Clock, Instant, ZonedDateTime}
 import javax.inject.{Inject, Singleton}
 
 @Singleton
@@ -26,4 +26,7 @@ class DateTimeService @Inject()(clock: Clock) {
   private val formatter: DateTimeFormatter = DateTimeFormatter.ISO_INSTANT
 
   def timestamp: String = ZonedDateTime.now(clock).format(formatter)
+
+  def now: Instant =
+    Instant.now(clock)
 }

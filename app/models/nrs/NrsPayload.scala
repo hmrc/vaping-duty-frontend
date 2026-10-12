@@ -16,12 +16,14 @@
 
 package models.nrs
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{JsObject, Json, OFormat}
 
 final case class NrsPayload(
   payload: String,
   metadata: NrsMetadata
-)
+) {
+  def toJsObject: JsObject = Json.toJson(this).as[JsObject]
+}
 
 object NrsPayload {
   implicit val format: OFormat[NrsPayload] = Json.format[NrsPayload]
