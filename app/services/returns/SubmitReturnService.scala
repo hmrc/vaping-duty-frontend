@@ -22,6 +22,7 @@ import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
 import models.returns.submit.ReturnSubmittedResponse
+import play.api.libs.json.Json
 import services.contactPreference.AuditService
 import services.email.ReturnSubmittedEmailService
 import services.nrs.NrsService
@@ -56,7 +57,12 @@ class SubmitReturnService @Inject()(
       }
       submission  = buildReturnSubmissionService.buildSubmission(ua, obligation, request.enrolmentVpdId, periodKeyToDutyRate)
       result     <- submitReturnConnector.submitReturn(submission, request.enrolmentVpdId)
-      _          <- nrsService.submitNrsData(submission, request.enrolmentVpdId, request.periodKey)(summon[HeaderCarrier], request.request)
+      _          <- nrsService.makeWorkItemAndQueue(
+                      Json.toJson(submission),
+                      "vpd-return-submitted",
+                      request.periodKey.value,
+                      request.enrolmentVpdId
+                    )
     } yield {
       auditService.auditReturnSubmitted(
         SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, result, request.identifiers, obligations))

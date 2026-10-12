@@ -16,13 +16,10 @@
 
 package models.nrs
 
-import play.api.libs.json.{Json, OFormat}
+sealed trait NrsSubmissionResult
 
-final case class Credentials(
-  providerId: String,
-  providerType: String
-)
-
-object Credentials {
-  implicit val format: OFormat[Credentials] = Json.format[Credentials]
+object NrsSubmissionResult {
+  case object Success extends NrsSubmissionResult
+  case object RetryableFailure extends NrsSubmissionResult
+  case object PermanentFailure extends NrsSubmissionResult
 }

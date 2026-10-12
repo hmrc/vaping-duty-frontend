@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 final case class NrsPayload(
   payload: String,
-  meta: NrsMetadata
+  metadata: NrsMetadata
 )
 
 object NrsPayload {

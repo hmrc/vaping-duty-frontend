@@ -17,7 +17,8 @@
 package models.nrs
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
+import uk.gov.hmrc.auth.core.retrieve._
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, CredentialRole}
 
 final case class IdentityData(
   internalId: Option[String] = None,
@@ -30,5 +31,6 @@ final case class IdentityData(
 )
 
 object IdentityData {
-  implicit val format: OFormat[IdentityData] = Json.format[IdentityData]
+  given credFormat: OFormat[Credentials]            = Json.format[Credentials]
+  given format: OFormat[IdentityData]               = Json.format[IdentityData]
 }

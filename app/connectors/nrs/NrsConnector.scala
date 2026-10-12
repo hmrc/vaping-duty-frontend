@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,40 +17,80 @@
 package connectors.nrs
 
 import config.FrontendAppConfig
-import models.nrs.NrsSubmissionWorkItem
+import models.nrs.{NrsPayload, NrsSubmissionResult}
+import org.apache.pekko.pattern.CircuitBreaker
 import play.api.Logging
 import play.api.http.Status.ACCEPTED
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpErrorFunctions.is5xx
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import utils.RandomUUIDGenerator
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
+
+object NrsConnector {
+  case class NrsCircuitBreaker(breaker: CircuitBreaker)
+}
 
 @Singleton
 class NrsConnector @Inject()(
-                              config: FrontendAppConfig,
-                              httpClient: HttpClientV2
+                              httpClient: HttpClientV2,
+                              appConfig: FrontendAppConfig,
+                              nrsCircuitBreaker: NrsConnector.NrsCircuitBreaker,
+                              uuidGenerator: RandomUUIDGenerator
                             )(implicit ec: ExecutionContext) extends Logging {
 
-  def submitNrsWorkItem(workItem: NrsSubmissionWorkItem)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val url = config.nrsSubmissionUrl
+  private val CORRELATION_ID_HEADER = "X-Correlation-Id"
 
-    httpClient
-      .post(url"$url")
-      .withBody(Json.toJson(workItem))
+  private def shouldTripCircuitBreaker: Try[HttpResponse] => Boolean = {
+    case Success(response) => is5xx(response.status)
+    case Failure(_) => true
+  }
+
+  def submitToNrs(payload: NrsPayload)(implicit hc: HeaderCarrier): Future[NrsSubmissionResult] = {
+    // Get or generate correlation ID
+    val correlationId = hc.headers(Seq(CORRELATION_ID_HEADER)).headOption match {
+      case Some((_, existingId)) => existingId
+      case None => 
+        val newId = uuidGenerator.uuid
+        logger.info(s"Generated correlation ID for NRS submission: $newId")
+        newId
+    }
+    
+    val vpdReference = payload.metadata.searchKeys.getOrElse("zvpd", "No VPD reference")
+
+    logger.info(s"NRS submission: CorrelationId: $correlationId, VPD Reference: $vpdReference")
+
+    val httpCall = httpClient
+      .post(url"${appConfig.nrsSubmissionUrl}")(hc)
+      .setHeader("X-API-KEY" -> appConfig.nrsApiKey)
+      .setHeader("X-Correlation-Id" -> correlationId)
+      .withBody(Json.toJson(payload))
       .execute[HttpResponse]
-      .flatMap { response =>
+
+    nrsCircuitBreaker.breaker
+      .withCircuitBreaker(httpCall, shouldTripCircuitBreaker)
+      .map { response =>
         response.status match {
           case ACCEPTED =>
-            logger.info("NRS work item successfully submitted")
-            Future.successful(())
+            logger.info(s"NRS submission successful for CorrelationId: $correlationId")
+            NrsSubmissionResult.Success
+          case status if is5xx(status) =>
+            logger.warn(s"NRS submission failed with retryable 5xx status: $status for CorrelationId: $correlationId")
+            NrsSubmissionResult.RetryableFailure
           case status =>
-            logger.warn(s"NRS submission returned unexpected status: $status")
-            Future.failed(UpstreamErrorResponse(s"NRS submission failed with status $status", status))
+            logger.warn(s"NRS submission failed with permanent 4xx status: $status for CorrelationId: $correlationId")
+            NrsSubmissionResult.PermanentFailure
         }
+      }
+      .recover { case e: Exception =>
+        logger.error(s"NRS submission failed with error for CorrelationId: $correlationId: ${e.getMessage}", e)
+        NrsSubmissionResult.RetryableFailure
       }
   }
 }

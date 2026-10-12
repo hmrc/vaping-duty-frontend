@@ -17,10 +17,12 @@
 package config
 
 import com.google.inject.AbstractModule
+import connectors.nrs.{NrsCircuitBreakerProvider, NrsConnector}
 import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, DataRetrievalActionImpl}
 import controllers.actions.enrolment.*
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRequiredActionImpl, ReturnsDataRetrievalAction, ReturnsDataRetrievalActionImpl, ReturnsEnabledAction, ReturnsEnabledActionImpl}
+import scheduling.NrsScheduledService
 
 import java.time.{Clock, ZoneOffset}
 
@@ -41,6 +43,8 @@ class Module extends AbstractModule {
     bind(classOf[ReturnsEnabledAction]).to(classOf[ReturnsEnabledActionImpl]).asEagerSingleton()
     bind(classOf[DirectDebitEnabledAction]).to(classOf[DirectDebitEnabledActionImpl]).asEagerSingleton()
     bind(classOf[DutyRateConfig]).asEagerSingleton()
+    bind(classOf[NrsConnector.NrsCircuitBreaker]).toProvider(classOf[NrsCircuitBreakerProvider])
+    bind(classOf[NrsScheduledService]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
   }
