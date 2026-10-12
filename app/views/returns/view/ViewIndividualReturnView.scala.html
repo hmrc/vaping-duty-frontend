@@ -80,19 +80,19 @@
     )))
 
     @h2(messages("viewIndividualReturn.h2.dutySummary"))
-    @h3(messages("viewIndividualReturn.h3.declareDutySummary"), classes = "govuk-heading-s")
 
     @vm.dutyDeclarationSummaryList.map { summaryList =>
+        @h3(messages("viewIndividualReturn.h3.declareDutySummary"), classes = "govuk-heading-s")
         @govukSummaryList(summaryList)
     }
 
-    @h3(messages("viewIndividualReturn.spoiltProducts.h3"), classes = "govuk-heading-s")
     @vm.spoiltSummaryLists.zipWithIndex.map { case (summaryList, index) =>
+    @h3(messages("viewIndividualReturn.spoiltProducts.h3"), classes = "govuk-heading-s")
         @govukSummaryList(summaryList)
     }
 
-    @h3(messages("viewIndividualReturn.adjustments.h3"), classes = "govuk-heading-s")
     @vm.adjustmentsSummaryLists.zipWithIndex.map { case (summaryList, index) =>
+    @h3(messages("viewIndividualReturn.adjustments.h3"), classes = "govuk-heading-s")
         @govukSummaryList(summaryList)
     }
 
