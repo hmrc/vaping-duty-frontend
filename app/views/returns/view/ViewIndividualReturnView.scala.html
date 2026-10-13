@@ -1,19 +1,18 @@
 @*
- * Copyright 2026 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *@
-
+* Copyright 2026 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
 @import uk.gov.hmrc.govukfrontend.views.html.components.*
 @import views.html.components.*
 @import viewmodels.returns.view.ViewIndividualReturnViewModel
@@ -49,8 +48,8 @@
         ) { ref =>
             HtmlContent(
                 s"${messages("viewIndividualReturn.chargeDetails.chargeReference")}  <span class=$boldFontWeight>$ref</span>" +
-                "<br>" +
-                s"${messages("viewIndividualReturn.chargeDetails.submittedOn", vm.submittedOn)}"
+                        "<br>" +
+                        s"${messages("viewIndividualReturn.chargeDetails.submittedOn", vm.submittedOn)}"
             )
         }
     }))
@@ -60,10 +59,10 @@
     @govukSummaryList(vm.personalDetailsSummaryList)
 
     @h2(messages("viewIndividualReturn.h2.amountDue"))
-        @list(Seq(
-            messages("viewIndividualReturn.li.amountDue"),
-            messages("viewIndividualReturn.li2.amountDue")
-        ), classes = "govuk-list govuk-list--bullet")
+    @list(Seq(
+        messages("viewIndividualReturn.li.amountDue"),
+        messages("viewIndividualReturn.li2.amountDue")
+    ), classes = "govuk-list govuk-list--bullet")
 
     @h2(messages("viewIndividualReturn.h2.dutyDetails"))
 
@@ -80,19 +79,19 @@
     )))
 
     @h2(messages("viewIndividualReturn.h2.dutySummary"))
-    @h3(messages("viewIndividualReturn.h3.declareDutySummary"), classes = "govuk-heading-s")
 
     @vm.dutyDeclarationSummaryList.map { summaryList =>
+        @h3(messages("viewIndividualReturn.h3.declareDutySummary"), classes = "govuk-heading-s")
         @govukSummaryList(summaryList)
     }
 
-    @h3(messages("viewIndividualReturn.spoiltProducts.h3"), classes = "govuk-heading-s")
     @vm.spoiltSummaryLists.zipWithIndex.map { case (summaryList, index) =>
+        @h3(messages("viewIndividualReturn.spoiltProducts.h3"), classes = "govuk-heading-s")
         @govukSummaryList(summaryList)
     }
 
-    @h3(messages("viewIndividualReturn.adjustments.h3"), classes = "govuk-heading-s")
     @vm.adjustmentsSummaryLists.zipWithIndex.map { case (summaryList, index) =>
+        @h3(messages("viewIndividualReturn.adjustments.h3"), classes = "govuk-heading-s")
         @govukSummaryList(summaryList)
     }
 
@@ -106,7 +105,7 @@
 
     @govukButton(
         ButtonViewModel(messages("viewIndividualReturn.goToBta"))
-            .asLink(btaLink)
+        .asLink(btaLink)
     )
 
 }
