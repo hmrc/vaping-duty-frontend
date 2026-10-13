@@ -21,13 +21,10 @@ import models.identifiers.{PeriodKey, VpdId}
 import models.returns.DutySuspenseVolumes
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.FormError
-import services.returns.{DutyRateService, VolumePrecisionService}
 
 class EnterDutySuspenseFormProviderSpec extends SpecBase with MockitoSugar {
 
-  private val mockDutyRateService = mock[DutyRateService]
-  private val mockVolumePrecisionService = mock[VolumePrecisionService]
-  private val formProvider = new EnterDutySuspenseFormProvider(mockDutyRateService, mockVolumePrecisionService)
+  private val formProvider = new EnterDutySuspenseFormProvider()
 
   private val testPeriodKey = PeriodKey("24KA")
   private val testVpdId = VpdId("VPDID123")

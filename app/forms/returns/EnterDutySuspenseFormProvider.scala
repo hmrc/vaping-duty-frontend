@@ -21,16 +21,12 @@ import models.identifiers.{PeriodKey, VpdId}
 import models.returns.DutySuspenseVolumes
 import play.api.data.Form
 import play.api.data.Forms.mapping
-import services.returns.{DutyRateService, VolumePrecisionService}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class EnterDutySuspenseFormProvider @Inject()(
-                                               dutyRateService: DutyRateService,
-                                               volumePrecisionService: VolumePrecisionService
-                                             ) extends Mappings {
+class EnterDutySuspenseFormProvider @Inject()() extends Mappings {
 
   private val VOLUME_RECEIVED_FIELD = "volumeReceived"
   private val VOLUME_MOVED_FIELD = "volumeMoved"
