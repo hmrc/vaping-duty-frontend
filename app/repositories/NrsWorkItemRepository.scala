@@ -18,6 +18,7 @@ package repositories
 
 import com.mongodb.client.model.Filters
 import config.FrontendAppConfig
+import crypto.CryptoProvider
 import models.nrs.NrsSubmissionWorkItem
 import org.bson.types.ObjectId
 import play.api.Logging
@@ -32,12 +33,13 @@ import scala.concurrent.{ExecutionContext, Future}
 class NrsWorkItemRepository @Inject()(
                                        mongoComponent: MongoComponent,
                                        appConfig: FrontendAppConfig,
-                                       clock: Clock
+                                       clock: Clock,
+                                       cryptoProvider: CryptoProvider
                                      )(using ec: ExecutionContext)
   extends WorkItemRepository[NrsSubmissionWorkItem](
     collectionName = "nrs-work-items",
     mongoComponent = mongoComponent,
-    itemFormat = NrsSubmissionWorkItem.format,
+    itemFormat = NrsSubmissionWorkItem.mongoFormat(cryptoProvider.getCrypto),
     workItemFields = WorkItemFields.default
   ) with Logging {
 
