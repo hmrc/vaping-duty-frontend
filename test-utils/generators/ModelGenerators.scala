@@ -18,13 +18,12 @@ package generators
 
 import models.*
 import models.contactPreference.HowToBeContacted
-import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 
 trait ModelGenerators {
 
   implicit lazy val arbitraryHowToBeContacted: Arbitrary[HowToBeContacted] =
     Arbitrary {
-      Gen.oneOf(HowToBeContacted.values.toSeq)
+      Gen.oneOf(HowToBeContacted.values)
     }
 }

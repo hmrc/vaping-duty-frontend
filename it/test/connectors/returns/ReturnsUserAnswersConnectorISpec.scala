@@ -26,7 +26,7 @@ import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import util.WireMockHelper
 
-import java.time.{Instant, Month}
+import java.time.Instant
 
 class ReturnsUserAnswersConnectorISpec extends ISpecBase with TestData with WireMockHelper {
 
