@@ -21,7 +21,7 @@ import controllers.actions.returns.*
 import models.{CheckMode, Mode, NormalMode, TaskStatus}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{DutyRateService, TaskStatusService}
+import services.returns.{DutyRateService, ObligationService, TaskStatusService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.DeclareDutyCheckAnswersViewModel
@@ -37,6 +37,7 @@ class DeclareDutyCheckAnswersController @Inject()(
                                                    getData: ReturnsDataRetrievalAction,
                                                    requireData: ReturnsDataRequiredAction,
                                                    returnsEnabled: ReturnsEnabledAction,
+                                                   obligationService: ObligationService,
                                                    dutyRateService: DutyRateService,
                                                    val controllerComponents: MessagesControllerComponents,
                                                    view: DeclareDutyCheckAnswersView,
@@ -49,10 +50,19 @@ class DeclareDutyCheckAnswersController @Inject()(
     if (TaskStatusService.declareDutyTaskStatus(request.userAnswers) != TaskStatus.Completed) {
       Future.successful(Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${pk.value}"))
     } else {
-      dutyRateService.getDutyRate(request.enrolmentVpdId, pk).map { dutyRate =>
-        DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk, mode, returnsDateUtils) match {
+      for {
+        obligationOpt <- obligationService.getObligationByPeriodKey(request.enrolmentVpdId, pk)
+        obligation <- obligationOpt match {
+          case Some(obligation) => Future.successful(obligation)
+          case None => Future.failed(Exception(s"Failed to find obligation for $pk"))
+        }
+        dutyRate = dutyRateService.getDutyRateForDate(obligation.iCFromDate)
+        returnPeriod = returnsDateUtils.getPeriodDisplay(obligation)
+      }
+      yield {
+        DeclareDutyCheckAnswersViewModel(request.userAnswers, dutyRate, pk, mode, returnPeriod) match {
           case Some(vm) => Ok(view(pk, vm, mode))
-          case None => Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${pk.value}")
+          case None => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
         }
       }
     }
