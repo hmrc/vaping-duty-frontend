@@ -168,7 +168,7 @@ returns.beforeYouStart.youCannot = You cannot use this service to declare or pay
 returns.taskList.caption = Return for {0} {1}
 returns.taskList.title = Complete your Vaping Products Duty return
 returns.taskList.heading = Complete your Vaping Products Duty return
-returns.taskList.bodyL = Complete all the tasks and submit this return on or before {0}&nbsp;{1}&nbsp;{2}.
+returns.taskList.bodyL = You must submit this return on or before {0}&nbsp;{1}&nbsp;{2}.
 returns.taskList.body = Your answers can be changed until this return is submitted.
 
 returns.taskList.taskStatus.tasksRemaining = Cannot start yet
@@ -179,7 +179,7 @@ returns.taskList.taskStatus.completed = Completed
 returns.taskList.section.declareDuty.heading = Declare vaping products for duty
 returns.taskList.section.declareDuty.task1 = Tell us if you need to declare duty
 
-returns.taskList.section.declareAdjustments.heading = Declare adjustments
+returns.taskList.section.declareAdjustments.heading = Declare vaping adjustments
 returns.taskList.declareAdjustments.task1 = Tell us if any products have become spoilt
 returns.taskList.declareAdjustments.task2 = Tell us if you have any over or under-declared adjustments
 
