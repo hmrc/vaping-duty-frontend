@@ -87,35 +87,6 @@ class ReturnsDateUtilSpec extends SpecBase with Matchers {
     }
   }
 
-  "ReturnsDateUtil.formatPeriodDisplay with ObligationsResponse" - {
-
-    "must format period display correctly when period key is found" in {
-      lazy val app = applicationBuilder().build()
-      val obligationsResponse = models.obligations.ObligationsResponse(
-        obligation = obligations(Seq(fulfilledObligation(october2027)))
-      )
-
-      val result = returnsDateUtils.formatPeriodDisplay(october2027, obligationsResponse)(messages(app))
-
-      result mustBe "October 2027"
-    }
-
-    "must throw IllegalStateException when period key is not found" in {
-      lazy val app = applicationBuilder().build()
-      val obligationsResponse = models.obligations.ObligationsResponse(
-        obligation = obligations(Seq(fulfilledObligation(october2027)))
-      )
-      val unknownPeriodKey = periodKey
-
-      val exception = intercept[IllegalStateException] {
-        returnsDateUtils.formatPeriodDisplay(unknownPeriodKey, obligationsResponse)(messages(app))
-      }
-
-      exception.getMessage must include(s"Period key '${unknownPeriodKey.value}' not found in obligations")
-      exception.getMessage must include("Available period keys:")
-    }
-  }
-
   "ReturnsDateUtil.formatPeriodDisplay with ObligationDetails sequence" - {
 
     "must format period display correctly when period key is found" in {
