@@ -62,19 +62,32 @@ class NrsWorkItemRepository @Inject()(
           .flatMap {
             case Some(workItem) =>
               val failureCount = workItem.failureCount + 1
+              val maxRetries = appConfig.nrsWorkItemMaxRetries
 
-              if (failureCount >= appConfig.nrsWorkItemMaxRetries) {
-                logger.warn(s"NRS work item $id has reached max retries ($failureCount), marking as PermanentlyFailed")
-                super.markAs(id, ProcessingStatus.PermanentlyFailed, None)
+              // Calculate delay with exponential backoff, but cap at maxRetries
+              val baseDelayMinutes = appConfig.nrsWorkItemRetryAfter.toMinutes
+              val backoffFactor = appConfig.nrsWorkItemExponentialBackoffFactor
+              
+              // Cap the effective failure count to prevent delay from growing beyond max retries
+              val effectiveFailureCount = Math.min(failureCount, maxRetries)
+              val delayMinutes = (baseDelayMinutes * Math.pow(backoffFactor, effectiveFailureCount - 1)).toLong
+              val nextAvailableAt = now().plus(Duration.ofMinutes(delayMinutes))
+
+              if (failureCount >= maxRetries) {
+                logger.info(
+                  s"NRS work item $id has reached max retries ($failureCount), " +
+                  s"continuing with capped delay of $delayMinutes minutes"
+                )
               } else {
-                val baseDelayMinutes = appConfig.nrsWorkItemRetryAfter.toMinutes
-                val backoffFactor = appConfig.nrsWorkItemExponentialBackoffFactor
-                val delayMinutes = (baseDelayMinutes * Math.pow(backoffFactor, failureCount - 1)).toLong
-                val nextAvailableAt = now().plus(Duration.ofMinutes(delayMinutes))
-
-                logger.info(s"NRS work item $id failed (attempt $failureCount/${appConfig.nrsWorkItemMaxRetries}), retrying in $delayMinutes minutes")
-                super.markAs(id, status, Some(nextAvailableAt))
+                logger.info(
+                  s"NRS work item $id failed (attempt $failureCount/$maxRetries), " +
+                  s"retrying in $delayMinutes minutes"
+                )
               }
+
+              // Always mark as Failed (never PermanentlyFailed) to allow continued retries
+              super.markAs(id, status, Some(nextAvailableAt))
+              
             case None =>
               logger.warn(s"NRS work item $id not found when marking as Failed, using default behavior")
               super.markAs(id, status, availableAt)
