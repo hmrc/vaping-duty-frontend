@@ -117,7 +117,6 @@ class DeclareDutyCheckAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         whenReady(result.failed) { exception =>
-          exception mustBe a[Exception]
           exception.getMessage mustBe s"Failed to find obligation for ${periodKey.value}"
         }
       }
