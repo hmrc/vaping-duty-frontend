@@ -17,6 +17,7 @@
 package config
 
 import com.google.inject.AbstractModule
+import config.nrs.Initialise
 import connectors.nrs.{NrsCircuitBreakerProvider, NrsConnector}
 import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, DataRetrievalActionImpl}
@@ -30,6 +31,7 @@ class Module extends AbstractModule {
 
   override def configure(): Unit = {
 
+    bind(classOf[Initialise]).asEagerSingleton()
     bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
     bind(classOf[ReturnsDataRetrievalAction]).to(classOf[ReturnsDataRetrievalActionImpl]).asEagerSingleton()
