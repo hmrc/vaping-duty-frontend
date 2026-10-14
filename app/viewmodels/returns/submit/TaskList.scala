@@ -135,7 +135,6 @@ object TaskList {
           linkText = messages("returns.taskList.submitReturn.task1"),
           link = controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(),
           status = TaskStatusService.submitTaskStatus(userAnswers, adjustmentsEligibility),
-          hint = Some(messages("returns.taskList.submitReturn.task1.hint")),
           periodKey = Some(periodKey)
         ).toTaskListItem
       )

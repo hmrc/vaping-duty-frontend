@@ -153,22 +153,21 @@ returns.beforeYouStart.youCannot = Ni allwch ddefnyddio’r gwasanaeth hwn i dda
 returns.taskList.caption = Dychwelyd am {0} {1}
 returns.taskList.title = Cwblhewch eich datganiad Toll Cynhyrchion Fepio
 returns.taskList.heading = Cwblhewch eich datganiad Toll Cynhyrchion Fepio
-returns.taskList.bodyL = Cwblhewch yr holl dasgau a chyflwynwch y ffurflen hon ar neu cyn {0}&nbsp;{1}&nbsp;{2}.
+returns.taskList.bodyL = Mae’n rhaid i chi gyflwyno’r datganiad hwn ar neu cyn {0}&nbsp;{1}&nbsp;{2}.
 returns.taskList.body = Gellir newid eich atebion nes bod y datganiad hwn yn cael ei chyflwyno.
-returns.taskList.taskStatus.tasksRemaining = Tasgau sy’n weddill
+returns.taskList.taskStatus.tasksRemaining = Methu dechrau eto
 returns.taskList.taskStatus.notStarted = Heb ddechrau
 returns.taskList.taskStatus.inProgress = Ar y gweill
 returns.taskList.taskStatus.completed = Wedi cwblhau
 returns.taskList.section.declareDuty.heading = Datgan cynhyrchion fepio at ddiben toll
 returns.taskList.section.declareDuty.task1 = Rhowch wybod i ni os oes angen i chi ddatgan toll
-returns.taskList.section.declareAdjustments.heading = Datgan addasiadau
+returns.taskList.section.declareAdjustments.heading = Datgan addasiadau fepio
 returns.taskList.declareAdjustments.task1 = Rhowch wybod i ni os oes unrhyw gynhyrchion wedi cael eu difetha
 returns.taskList.declareAdjustments.task2 = Rhowch wybod i ni os oes gennych unrhyw addasiadau sydd wedi’u gor-ddatgan neu eu tan-ddatgan
 returns.taskList.section.dutySuspended.heading = Rhoi gwybod am ddosbarthiadau o fêps y gohiriwyd tollau arno
 returns.taskList.section.dutySuspended.task1 = Rhowch wybod i ni os ydych wedi cael neu wedi symud unrhyw gynhyrchion fepio o dan ohiriad tollau
 returns.taskList.section.submitReturn.heading = Cyflwyno Datganiad
 returns.taskList.submitReturn.task1 = Gwiriwch eich atebion a chyflwynwch eich datganiad
-returns.taskList.submitReturn.task1.hint = Mae’n rhaid cwblhau pob tasg cyn ei chyflwyno
 
 returns.taskList.button.clearReturn = Dileu cynnwys y datganiad a dechrau eto
 
