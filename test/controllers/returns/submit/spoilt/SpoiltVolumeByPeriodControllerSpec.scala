@@ -38,7 +38,7 @@ import scala.concurrent.Future
 
 class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
-  val spoiltPeriodKey = PeriodKey("24AA")
+  val spoiltPeriodKey = PeriodKey("24KA")
   val testVolume = BigDecimal(1000)
 
   private val mockFormProvider = mock[SpoiltVolumeByPeriodFormProvider]

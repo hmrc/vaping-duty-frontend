@@ -59,18 +59,18 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
 
     "must return the correct display for all twelve months" in {
       val allMonthPeriodKeys = Seq(
-        PeriodKey("26AA") -> "January 2026",
-        PeriodKey("26AB") -> "February 2026",
-        PeriodKey("26AC") -> "March 2026",
-        PeriodKey("26AD") -> "April 2026",
-        PeriodKey("26AE") -> "May 2026",
-        PeriodKey("26AF") -> "June 2026",
-        PeriodKey("26AG") -> "July 2026",
-        PeriodKey("26AH") -> "August 2026",
-        PeriodKey("26AI") -> "September 2026",
-        PeriodKey("26AJ") -> "October 2026",
-        PeriodKey("26AK") -> "November 2026",
-        PeriodKey("26AL") -> "December 2026"
+        PeriodKey("26KA") -> "January 2026",
+        PeriodKey("26KB") -> "February 2026",
+        PeriodKey("26KC") -> "March 2026",
+        PeriodKey("26KD") -> "April 2026",
+        PeriodKey("26KE") -> "May 2026",
+        PeriodKey("26KF") -> "June 2026",
+        PeriodKey("26KG") -> "July 2026",
+        PeriodKey("26KH") -> "August 2026",
+        PeriodKey("26KI") -> "September 2026",
+        PeriodKey("26KJ") -> "October 2026",
+        PeriodKey("26KK") -> "November 2026",
+        PeriodKey("26KL") -> "December 2026"
       )
 
       allMonthPeriodKeys.foreach { case (key, expectedDisplay) =>

@@ -62,7 +62,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
     iCToDate = LocalDate.of(2026, 1, 31),
     iCDateReceived = None,
     iCDueDate = LocalDate.of(2026, 2, 28),
-    periodKey = "26AA"
+    periodKey = "26KA"
   )
 
   "DutyRateService" - {

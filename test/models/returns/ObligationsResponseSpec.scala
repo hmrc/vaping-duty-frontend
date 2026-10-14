@@ -35,7 +35,7 @@ class ObligationsResponseSpec extends SpecBase {
     iCToDate = LocalDate.of(2024, 7, 5),
     iCDateReceived = Some(LocalDate.of(2024, 6, 15)),
     iCDueDate = LocalDate.of(2024, 8, 5),
-    periodKey = "24AB"
+    periodKey = "24KB"
   )
 
   val obligationItem: ObligationItem = ObligationItem(
@@ -54,9 +54,9 @@ class ObligationsResponseSpec extends SpecBase {
   )
 
   "ObligationsResponse" - {
-    val jsonMultiple = """{"obligation":[{"identification":{"referenceType":"ZVPD","referenceNumber":"GBWK1234567WK","incomeSourceType":"ITSA"},"obligationDetails":[{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24AB"}]},{"obligationDetails":[{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24AB"}]}]}"""
+    val jsonMultiple = """{"obligation":[{"identification":{"referenceType":"ZVPD","referenceNumber":"GBWK1234567WK","incomeSourceType":"ITSA"},"obligationDetails":[{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24KB"}]},{"obligationDetails":[{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24KB"}]}]}"""
 
-    val jsonSingle = """{"obligation":[{"identification":{"referenceType":"ZVPD","referenceNumber":"GBWK1234567WK","incomeSourceType":"ITSA"},"obligationDetails":[{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24AB"}]}]}"""
+    val jsonSingle = """{"obligation":[{"identification":{"referenceType":"ZVPD","referenceNumber":"GBWK1234567WK","incomeSourceType":"ITSA"},"obligationDetails":[{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24KB"}]}]}"""
 
     "must serialise to json with multiple obligation items" in {
       Json.toJson(obligationsResponseMultiple).toString() mustBe jsonMultiple

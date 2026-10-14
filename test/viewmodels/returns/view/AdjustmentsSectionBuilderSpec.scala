@@ -29,14 +29,14 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
 
   private val returnsDateUtils = new ReturnsDateUtils(clock)
   private val obligationDetailsItem = fulfilledObligation(periodKey)
-  private val obligationDetailsJuly = fulfilledObligation(PeriodKey("24AG"))
+  private val obligationDetailsJuly = fulfilledObligation(PeriodKey("24KG"))
   private val obligationDetails = Seq(
     obligationDetailsItem,
     obligationDetailsJuly
   )
 
   private val underDeclarationProduct = UnderDeclarationProduct(
-    returnPeriodAffected = "24AG",
+    returnPeriodAffected = "24KG",
     taxType = "614",
     dutyRate = BigDecimal("1.00"),
     amountUnderDeclared = BigDecimal("100.00"),
@@ -44,7 +44,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
   )
 
   private val overDeclarationProduct = OverDeclarationProduct(
-    returnPeriodAffected = "24AG",
+    returnPeriodAffected = "24KG",
     taxType = "614",
     dutyRate = BigDecimal("1.00"),
     amountOverDeclared = BigDecimal("50.00"),

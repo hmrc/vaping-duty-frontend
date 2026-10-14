@@ -45,8 +45,8 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
   )
 
   private val vpdId = VpdId("XMVPD0000000123")
-  private val periodKey = PeriodKey("24AA")
-  private val spoiltPeriodKey = PeriodKey("24AB")
+  private val periodKey = PeriodKey("24KA")
+  private val spoiltPeriodKey = PeriodKey("24KB")
 
   private val obligationDetails = Seq(
     openObligation(periodKey)
@@ -98,7 +98,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
     }
 
     "must correctly calculate duty rates for multiple periods" in {
-      val spoiltPeriodKey2 = PeriodKey("24AC")
+      val spoiltPeriodKey2 = PeriodKey("24KC")
 
       val obligationForSpoilt1 = openObligation(spoiltPeriodKey)
       val obligationForSpoilt2 = openObligation(spoiltPeriodKey2)
@@ -145,7 +145,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
     }
 
     "must throw RuntimeException when obligation not found for spoilt period" in {
-      val nonExistentPeriodKey = PeriodKey("24ZZ")
+      val nonExistentPeriodKey = PeriodKey("24KZ")
       val spoiltEntry = SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = nonExistentPeriodKey)
 
       when(mockObligationService.getObligations(eqTo(vpdId))(using any()))

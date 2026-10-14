@@ -244,7 +244,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
         val application = applicationBuilder().build()
         running(application) {
           val adjustmentEntry = AdjustmentEntry(
-            period = PeriodKey("24AI"),
+            period = PeriodKey("24KI"),
             adjustmentType = AdjustmentType.UnderDeclared,
             volumeInMl = BigDecimal(1000)
           )
@@ -330,7 +330,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
       "must link to SpoiltCheckYourAnswersController when spoilt data exists" in {
         val application = applicationBuilder().build()
         running(application) {
-          val spoiltList = List(SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = PeriodKey("24AI")))
+          val spoiltList = List(SpoiltVolumeByPeriod(volume = BigDecimal(1000), periodKey = PeriodKey("24KI")))
           val userAnswers = returnsUserAnswers
             .set(DeclareSpoiltProductsPage, true).success.value
             .set(SpoiltVolumeByPeriodPage, spoiltList).success.value

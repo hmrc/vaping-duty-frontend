@@ -47,7 +47,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
 
       val mockService = mock[ReturnsUserAnswersService]
       val mockObligationService = mock[ObligationService]
-      val validPeriodKey = PeriodKey("27AJ")
+      val validPeriodKey = PeriodKey("27KJ")
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(
@@ -78,7 +78,7 @@ class BeforeYouStartControllerSpec extends SpecBase {
 
       val mockService = mock[ReturnsUserAnswersService]
       val mockObligationService = mock[ObligationService]
-      val validPeriodKey = PeriodKey("27AJ")
+      val validPeriodKey = PeriodKey("27KJ")
 
       val application = applicationBuilder()
         .overrides(

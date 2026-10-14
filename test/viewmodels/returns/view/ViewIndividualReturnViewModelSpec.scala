@@ -52,11 +52,11 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
   )
   
   private val obligationDetails = fulfilledObligation(periodKey)
-  private val obligationDetailsJuly = fulfilledObligation(PeriodKey("24AG"))
+  private val obligationDetailsJuly = fulfilledObligation(PeriodKey("24KG"))
   private val obligationsForAdjustments = Seq(obligationDetails, obligationDetailsJuly)
 
   private val chargeDetails = ChargeDetails(
-    periodKey = "24AI",
+    periodKey = "24KI",
     chargeReference = Some("VPD38270541977"),
     periodFrom = LocalDate.of(2027, 9, 1),
     periodTo = LocalDate.of(2027, 9, 30),
@@ -74,7 +74,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     Some("Additional products found"),
     Option(Seq(
       UnderDeclarationProduct(
-        returnPeriodAffected = "24AG",
+        returnPeriodAffected = "24KG",
         taxType = "614",
         dutyRate = BigDecimal("1.00"),
         amountUnderDeclared = BigDecimal("100.00"),
@@ -88,7 +88,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     Some("Correction of previous return"),
     Option(Seq(
       OverDeclarationProduct(
-        returnPeriodAffected = "24AG",
+        returnPeriodAffected = "24KG",
         taxType = "614",
         dutyRate = BigDecimal("1.00"),
         amountOverDeclared = BigDecimal("50.00"),
@@ -237,7 +237,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
   "period key lookup" - {
 
     "must throw IllegalStateException when period key not found in obligations during view model creation" in {
-      val obligationDetailsWithMissingPeriod = Seq(fulfilledObligation(PeriodKey("26AF")))
+      val obligationDetailsWithMissingPeriod = Seq(fulfilledObligation(PeriodKey("26KF")))
 
       val responseWithSpoiltProduct = returnResponse.copy(
         success = returnResponse.success.copy(
@@ -245,7 +245,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
             spoiltProductFilled = "1",
             spoiltProducts = Some(Seq(
               SpoiltProductItem(
-                returnPeriodAffected = "24AC",
+                returnPeriodAffected = "24KC",
                 taxType = "311",
                 dutyRate = BigDecimal("0.50"),
                 amountSpoilt = BigDecimal("200.00"),
@@ -260,7 +260,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         ViewIndividualReturnViewModel(responseWithSpoiltProduct, obligationDetailsWithMissingPeriod, returnsDateUtils)
       }
 
-      exception.getMessage must include("Period key 24AC not found in obligations")
+      exception.getMessage must include("Period key 24KC not found in obligations")
     }
   }
 

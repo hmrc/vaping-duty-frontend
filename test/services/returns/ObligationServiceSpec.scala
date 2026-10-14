@@ -99,7 +99,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
 
         val service = new ObligationService(mockObligationsConnector, mockAppConfig)
 
-        val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26AB")).futureValue
+        val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26KB")).futureValue
 
         result mustBe Some(openObligation(february2026))
       }
@@ -110,7 +110,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
 
         val service = new ObligationService(mockObligationsConnector, mockAppConfig)
 
-        val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26AB")).futureValue
+        val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26KB")).futureValue
 
         result mustBe Some(openObligation(february2026))
       }
