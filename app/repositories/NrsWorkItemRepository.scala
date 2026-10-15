@@ -62,25 +62,25 @@ class NrsWorkItemRepository @Inject()(
           .flatMap {
             case Some(workItem) =>
               val failureCount = workItem.failureCount + 1
-              val maxRetries = appConfig.nrsWorkItemMaxRetries
+              val maxBackoffSteps = appConfig.nrsWorkItemMaxRetries
 
-              // Calculate delay with exponential backoff, but cap at maxRetries
+              // Calculate delay with exponential backoff, but cap at maxBackoffSteps
               val baseDelayMinutes = appConfig.nrsWorkItemRetryAfter.toMinutes
               val backoffFactor = appConfig.nrsWorkItemExponentialBackoffFactor
               
               // Cap the effective failure count to prevent delay from growing beyond max retries
-              val effectiveFailureCount = Math.min(failureCount, maxRetries)
-              val delayMinutes = (baseDelayMinutes * Math.pow(backoffFactor, effectiveFailureCount - 1)).toLong
+              val numBackoffSteps = Math.min(failureCount, maxBackoffSteps)
+              val delayMinutes = (baseDelayMinutes * Math.pow(backoffFactor, numBackoffSteps - 1)).toLong
               val nextAvailableAt = now().plus(Duration.ofMinutes(delayMinutes))
 
-              if (failureCount >= maxRetries) {
+              if (failureCount >= maxBackoffSteps) {
                 logger.info(
                   s"NRS work item $id has reached max retries ($failureCount), " +
                   s"continuing with capped delay of $delayMinutes minutes"
                 )
               } else {
                 logger.info(
-                  s"NRS work item $id failed (attempt $failureCount/$maxRetries), " +
+                  s"NRS work item $id failed (attempt $failureCount/$maxBackoffSteps), " +
                   s"retrying in $delayMinutes minutes"
                 )
               }
