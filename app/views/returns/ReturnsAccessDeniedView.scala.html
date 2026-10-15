@@ -46,7 +46,7 @@
     @defining("vapingenquiries@hmrc.gov.uk") { email =>
         @listWithLinks(
             items = Seq(
-                Html(s"""send an email to: ${link(
+                Html(s"""${messages("returnsAccessDenied.youMust.bullet1")} ${link(
                     id = "email-link",
                     text = email,
                     href = s"mailto:$email"

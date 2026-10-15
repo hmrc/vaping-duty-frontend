@@ -1,4 +1,3 @@
-
 service.name = Vaping Products Duty
 
 site.back = Back
@@ -676,7 +675,7 @@ returnsAccessDenied.p1 = You must request access using your registered business 
 returnsAccessDenied.p2 = You only need to do this once.
 
 returnsAccessDenied.youMust.heading = You must:
-returnsAccessDenied.youMust.bullet1 = send an email to: vapingenquiries@hmrc.gov.uk
+returnsAccessDenied.youMust.bullet1 = send an email to:
 returnsAccessDenied.youMust.bullet2 = use the subject: VPD access
 returnsAccessDenied.youMust.bullet3 = copy and paste the following message
 returnsAccessDenied.youMust.bullet4 = add your details to the message
