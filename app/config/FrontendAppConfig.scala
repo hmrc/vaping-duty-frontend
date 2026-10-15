@@ -24,6 +24,8 @@ import play.api.mvc.RequestHeader
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import scala.concurrent.duration.{Duration, FiniteDuration}
+
 @Singleton
 class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig: ServicesConfig) {
 
@@ -103,8 +105,55 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   def getObligationsUrl(vpdId: VpdId): String                                     = s"$returnsBaseUrl/obligations/$vpdId"
 
-  def submitReturnUrl(vpdId: VpdId, periodKey: PeriodKey)                         = s"$returnsBaseUrl/vpd-return/$vpdId/$periodKey"
+  def submitReturnUrl(vpdId: VpdId, periodKey: PeriodKey): String                 = s"$returnsBaseUrl/vpd-return/$vpdId/$periodKey"
   def getReturnUrl(vpdReference: VpdId, periodKey: PeriodKey): String             = s"$returnsBaseUrl/vpd-return/$periodKey/$vpdReference"
+
+  // NRS Orchestrator Configuration
+  private lazy val nrsOrchestratorHost: String = servicesConfig.baseUrl("nrs-orchestrator")
+  private lazy val nrsOrchestratorUrl: String = configuration.get[String]("microservice.services.nrs-orchestrator.url")
+  
+  def nrsSubmissionUrl: String = s"$nrsOrchestratorHost$nrsOrchestratorUrl"
+  
+  def nrsApiKey: String = configuration.get[String]("microservice.services.nrs-orchestrator.api-key")
+  
+  // NRS Work Item Configuration
+  def nrsWorkItemTTL: Int = Duration(configuration.get[String]("mongodb.nrs-work-item.ttl")).toDays.toInt
+  
+  def nrsWorkItemRetryAfter: FiniteDuration =
+    configuration.get[FiniteDuration]("mongodb.nrs-work-item.retry-after")
+  
+  def nrsWorkItemMaxRetries: Int = configuration.get[Int]("mongodb.nrs-work-item.max-retries")
+  
+  def nrsWorkItemExponentialBackoffFactor: Double = 
+    configuration.get[Double]("mongodb.nrs-work-item.exponential-backoff-factor")
+  
+  // NRS Scheduler Configuration
+  def nrsSchedulerInitialDelay: FiniteDuration =
+    configuration.get[FiniteDuration]("nrs-submission-scheduler.initial-delay")
+  
+  def nrsSchedulerInterval: FiniteDuration =
+    configuration.get[FiniteDuration]("nrs-submission-scheduler.interval")
+  
+  // NRS Circuit Breaker Configuration
+  def nrsCircuitBreakerMaxFailures: Int =
+    configuration.get[Int]("microservice.services.nrs-orchestrator.max-failures")
+  
+  def nrsCircuitBreakerCallTimeout: FiniteDuration =
+    configuration.get[FiniteDuration]("microservice.services.nrs-orchestrator.call-timeout")
+  
+  def nrsCircuitBreakerResetTimeout: FiniteDuration =
+    configuration.get[FiniteDuration]("microservice.services.nrs-orchestrator.reset-timeout")
+  
+  def nrsCircuitBreakerMaxResetTimeout: FiniteDuration =
+    configuration.get[FiniteDuration]("microservice.services.nrs-orchestrator.max-reset-timeout")
+  
+  def nrsCircuitBreakerExponentialBackoffFactor: Double =
+    configuration.get[Double]("microservice.services.nrs-orchestrator.exponential-backoff-factor")
+  
+  // NRS Feature Flags
+  def nrsSubmissionEnabled: Boolean = configuration.get[Boolean]("features.nrs-submission-enabled")
+  
+  def nrsGenerationEnabled: Boolean = configuration.get[Boolean]("features.nrs-generation-enabled")
 
   private val financeBaseUrl                                     = s"$financeHost/vaping-duty-finance"
   def getPaymentsUrl(vpdId: VpdId): String                       = s"$financeBaseUrl/financial-data/payments"

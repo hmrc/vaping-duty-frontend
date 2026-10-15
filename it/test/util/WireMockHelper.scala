@@ -36,8 +36,9 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
+import uk.gov.hmrc.http.test.WireMockSupport
 
-trait WireMockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
+trait WireMockHelper extends WireMockSupport with BeforeAndAfterAll with BeforeAndAfterEach {
   this: Suite =>
   protected val server: WireMockServer = new WireMockServer(wireMockConfig().dynamicPort())
 
