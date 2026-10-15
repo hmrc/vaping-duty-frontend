@@ -93,7 +93,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
     val submittedOnMonth = returnsDateUtils.getMonthMessage(submittedOn.getMonth)
 
     val monthYearString = s"${returnsDateUtils.getMonthMessage(monthFromLocalDate)} $year"
-    val submittedOnString = s"$submittedOnDay $submittedOnMonth $year"
+    val submittedOnString = s"$submittedOnDay $submittedOnMonth ${submittedOn.getYear}"
 
     val personalDetails = PersonalDetailsSectionBuilder(success.declaration).build()
     val dutyDeclaration = DutyDeclarationSectionBuilder(hasDeclaration, amountProduced, dutyDueAmount).build()
