@@ -13,6 +13,7 @@ site.signIn = Mewngofnodi
 site.govuk = GOV.UK
 site.newTab = (yn agor tab newydd)
 site.backToBta = Ewch yn ôl i’ch cyfrif treth busnes
+site.goToBta = Go to your business tax account
 site.getAccess = Darganfyddwch sut i gael mynediad at wasanaeth ar-lein y Doll Cynhyrchion Fepio
 site.warning = Rhybudd
 site.print = Argraffwch y dudalen hon
@@ -44,6 +45,13 @@ journeyRecovery.continue.guidance = Rhowch gynnig arall arni yn nes ymlaen.
 journeyRecovery.startAgain.title = Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth
 journeyRecovery.startAgain.heading = Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth
 journeyRecovery.startAgain.guidance = Rhowch gynnig arall arni yn nes ymlaen.
+
+returnSubmissionRecovery.title = Mae problem
+returnSubmissionRecovery.heading = Mae problem
+returnSubmissionRecovery.guidance = Dewiswch ‘Parhau’ i ddychwelyd i’r dudalen Tasgau.
+returnSubmissionRecovery.youCan = Gallwch wneud y canlynol:
+returnSubmissionRecovery.bullet1 = cwblhau unrhyw dasgau sydd wedi eu nodi: Ar y gweill
+returnSubmissionRecovery.bullet2 = Clirio’ch holl wybodaeth
 
 signedOut.title = Er eich diogelwch, gwnaethom eich allgofnodi
 signedOut.heading = Er eich diogelwch, gwnaethom eich allgofnodi
@@ -627,3 +635,26 @@ payments.viewPayments.cleared.table.description = Math o daliad
 payments.viewPayments.cleared.table.amount = Swm
 payments.viewPayments.cleared.description.text = Taliad wedi’i glirio
 payments.viewPayments.notAvailable = N/A
+
+returnsAccessDenied.title = Rydym yn rheoli mynediad at y gwasanaeth hwn
+returnsAccessDenied.heading = Rydym yn rheoli mynediad at y gwasanaeth hwn
+
+returnsAccessDenied.p1 = Cynhyrchion Fepio, mae’n rhaid i chi wneud cais am fynediad gan ddefnyddio cyfeiriad e-bost cofrestredig eich busnes.
+returnsAccessDenied.p2 = Dim ond unwaith y bydd angen i chi wneud hyn.
+
+returnsAccessDenied.youMust.heading = Bydd yn rhaid i chi wneud y canlynol:
+returnsAccessDenied.youMust.bullet1 = anfon e-bost at: vapingenquiries@hmrc.gov.uk
+returnsAccessDenied.youMust.bullet2 = nodi’r canlynol yn y llinell pwnc: Mynediad at VPD/VPD access
+returnsAccessDenied.youMust.bullet3 = copïo a gludo’r neges ganlynol
+returnsAccessDenied.youMust.bullet4 = ychwanegu eich manylion chi at y neges
+
+returnsAccessDenied.emailTemplate.greeting = Helô,
+returnsAccessDenied.emailTemplate.body = Hoffwn gael mynediad at y gwasanaeth Toll Cynhyrchion Fepio.
+returnsAccessDenied.emailTemplate.vpdId = ID Toll Cynhyrchion Fepio (VPD): {0}
+returnsAccessDenied.emailTemplate.thankYou = Diolch,
+returnsAccessDenied.emailTemplate.name = Enw [nodwch eich enw]
+returnsAccessDenied.emailTemplate.role = Rôl [nodwch eich rôl]
+returnsAccessDenied.emailTemplate.businessName = Enw’r busnes [nodwch enw’r busnes]
+
+returnsAccessDenied.p3 = Byddwn yn ymateb i’ch e-bost i roi gwybod i chi pryd y gallwch gael mynediad at y gwasanaeth.
+returnsAccessDenied.p4 = Byddwch yn gallu cael mynediad at y gwasanaeth cyn y dyddiad cau ar gyfer cyflwyno’r datganiad, sef 7 Tachwedd 2026.
