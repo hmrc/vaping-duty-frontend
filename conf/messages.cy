@@ -181,7 +181,7 @@ returns.taskList.button.clearReturn = Dileu cynnwys y datganiad a dechrau eto
 
 clearReturnAreYouSure.title = A ydych yn siŵr eich bod am ddileu cynnwys eich datganiad?
 clearReturnAreYouSure.heading = A ydych yn siŵr eich bod am ddileu cynnwys eich datganiad?
-clearReturnAreYouSure.warning = Bydd gwneud hyn yn dileu’r holl wybodaeth rydych wedi’i nodi ar gyfer y datganiad hwn..
+clearReturnAreYouSure.warning = Bydd gwneud hyn yn dileu’r holl wybodaeth rydych wedi’i nodi ar gyfer y datganiad hwn.
 clearReturnAreYouSure.error.required = Dewiswch ‘Iawn’ os ydych am glirio’ch datganiad
 
 month.jan = Ionawr
@@ -639,11 +639,11 @@ payments.viewPayments.notAvailable = N/A
 returnsAccessDenied.title = Rydym yn rheoli mynediad at y gwasanaeth hwn
 returnsAccessDenied.heading = Rydym yn rheoli mynediad at y gwasanaeth hwn
 
-returnsAccessDenied.p1 = Cynhyrchion Fepio, mae’n rhaid i chi wneud cais am fynediad gan ddefnyddio cyfeiriad e-bost cofrestredig eich busnes.
+returnsAccessDenied.p1 = Cyn y gallwch gyflwyno datganiad Toll Cynhyrchion Fepio, mae’n rhaid i chi wneud cais am fynediad gan ddefnyddio cyfeiriad e-bost cofrestredig eich busnes.
 returnsAccessDenied.p2 = Dim ond unwaith y bydd angen i chi wneud hyn.
 
 returnsAccessDenied.youMust.heading = Bydd yn rhaid i chi wneud y canlynol:
-returnsAccessDenied.youMust.bullet1 = anfon e-bost at: vapingenquiries@hmrc.gov.uk
+returnsAccessDenied.youMust.bullet1 = anfon e-bost at:
 returnsAccessDenied.youMust.bullet2 = nodi’r canlynol yn y llinell pwnc: Mynediad at VPD/VPD access
 returnsAccessDenied.youMust.bullet3 = copïo a gludo’r neges ganlynol
 returnsAccessDenied.youMust.bullet4 = ychwanegu eich manylion chi at y neges
