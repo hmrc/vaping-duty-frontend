@@ -171,10 +171,10 @@ returns.taskList.submitReturn.task1 = Gwiriwch eich atebion a chyflwynwch eich d
 
 returns.taskList.button.clearReturn = Dileu cynnwys y datganiad a dechrau eto
 
-clearReturnAreYouSure.title = A ydych yn siŵr eich bod am ddileu cynnwys eich Datganiad?
-clearReturnAreYouSure.heading = A ydych yn siŵr eich bod am ddileu cynnwys eich Datganiad?
-clearReturnAreYouSure.warning = Bydd gwneud hyn yn dileu’r holl wybodaeth yr ydych wedi’i nodi yn y Datganiad hwn.
-clearReturnAreYouSure.error.required = Dewiswch ‘Iawn’ os hoffech glirio’ch Datganiad
+clearReturnAreYouSure.title = A ydych yn siŵr eich bod am ddileu cynnwys eich datganiad?
+clearReturnAreYouSure.heading = A ydych yn siŵr eich bod am ddileu cynnwys eich datganiad?
+clearReturnAreYouSure.warning = Bydd gwneud hyn yn dileu’r holl wybodaeth rydych wedi’i nodi ar gyfer y datganiad hwn..
+clearReturnAreYouSure.error.required = Dewiswch ‘Iawn’ os ydych am glirio’ch datganiad
 
 month.jan = Ionawr
 month.feb = Chwefror
