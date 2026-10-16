@@ -21,7 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.identifiers.VpdId
 import play.api.http.Status.*
 import play.api.libs.json.Json
-import util.WireMockHelper
+import utils.WireMockHelper
 
 class TestFinancialDataConnectorISpec extends ISpecBase with WireMockHelper {
 

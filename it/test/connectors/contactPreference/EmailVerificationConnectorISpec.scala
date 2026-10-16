@@ -23,7 +23,7 @@ import models.emailverification.{ErrorModel, RedirectUri}
 import play.api.Application
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
-import util.WireMockHelper
+import utils.WireMockHelper
 
 class EmailVerificationConnectorISpec extends ISpecBase with WireMockHelper with TestData {
 

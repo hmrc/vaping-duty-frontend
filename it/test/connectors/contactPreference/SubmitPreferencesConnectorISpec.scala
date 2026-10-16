@@ -23,7 +23,7 @@ import models.emailverification.ErrorModel
 import play.api.Application
 import play.api.http.Status.{BAD_GATEWAY, CREATED, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
-import util.WireMockHelper
+import utils.WireMockHelper
 
 class SubmitPreferencesConnectorISpec extends ISpecBase with WireMockHelper with TestData {
 

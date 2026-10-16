@@ -149,11 +149,14 @@ class NrsWorkItemRepositoryISpec extends ISpecBase with BeforeAndAfterEach {
       Math.abs(actualDelayMinutes - expectedDelay) must be <= 1L
     }
 
-    "mark as PermanentlyFailed after max retries" in {
+    "continue retrying indefinitely with capped delay after max retries" in {
       val appConfig = app.injector.instanceOf[FrontendAppConfig]
       val workItem = await(repository.pushNew(testWorkItem, Instant.now(clock).minusSeconds(1), _ => ProcessingStatus.ToDo))
       
       val maxRetries = appConfig.nrsWorkItemMaxRetries
+      val baseDelayMinutes = appConfig.nrsWorkItemRetryAfter.toMinutes
+      val backoffFactor = appConfig.nrsWorkItemExponentialBackoffFactor
+      val maxDelayMinutes = (baseDelayMinutes * Math.pow(backoffFactor, maxRetries - 1)).toLong
       
       // Update the work item to have failureCount = maxRetries - 1
       await(repository.collection.updateOne(
@@ -161,15 +164,26 @@ class NrsWorkItemRepositoryISpec extends ISpecBase with BeforeAndAfterEach {
         Updates.set("failureCount", maxRetries - 1)
       ).toFuture())
       
-      // Now mark as failed one more time - this should trigger PermanentlyFailed
-      // The failureCount will be incremented to maxRetries (10) in memory during the check,
-      // but when we mark as PermanentlyFailed, the parent implementation doesn't increment it
+      // Mark as failed to reach max retries
       await(repository.markAs(workItem.id, ProcessingStatus.Failed))
       
-      val finalItem = await(repository.collection.find(Filters.equal("_id", workItem.id)).toFuture()).head
-      // The failureCount remains at maxRetries - 1 because PermanentlyFailed doesn't increment it
-      finalItem.failureCount mustBe (maxRetries - 1)
-      finalItem.status mustBe ProcessingStatus.PermanentlyFailed
+      val atMaxRetries = await(repository.collection.find(Filters.equal("_id", workItem.id)).toFuture()).head
+      atMaxRetries.failureCount mustBe maxRetries
+      atMaxRetries.status mustBe ProcessingStatus.Failed
+      
+      // Continue failing beyond max retries - delay should be capped
+      (1 to 3).foreach { extraAttempt =>
+        val beforeMark = Instant.now()
+        await(repository.markAs(atMaxRetries.id, ProcessingStatus.Failed))
+        
+        val item = await(repository.collection.find(Filters.equal("_id", workItem.id)).toFuture()).head
+        item.status mustBe ProcessingStatus.Failed
+        item.failureCount mustBe (maxRetries + extraAttempt)
+        
+        // Verify delay is capped at max delay
+        val actualDelayMinutes = Duration.between(beforeMark, item.availableAt).toMinutes
+        Math.abs(actualDelayMinutes - maxDelayMinutes) must be <= 1L
+      }
     }
 
     "handle marking as failed when work item not found" in {

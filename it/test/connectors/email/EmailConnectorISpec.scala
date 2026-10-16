@@ -22,7 +22,7 @@ import models.email.{DutyDueEmail, DutyDueEmailParameters}
 import play.api.Application
 import play.api.http.Status.*
 import play.api.libs.json.Json
-import util.WireMockHelper
+import utils.WireMockHelper
 
 class EmailConnectorISpec extends ISpecBase with WireMockHelper {
 

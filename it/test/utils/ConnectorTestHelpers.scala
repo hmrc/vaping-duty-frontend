@@ -21,8 +21,6 @@ import com.github.tomakehurst.wiremock.http.Fault
 import org.scalatest.Suite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import util.WireMockHelper
-
 trait ConnectorTestHelpers extends WireMockHelper {
   this: Suite =>
 

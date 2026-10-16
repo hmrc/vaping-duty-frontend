@@ -24,7 +24,7 @@ import play.api.Application
 import play.api.http.Status.{CREATED, INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.UpstreamErrorResponse
-import util.WireMockHelper
+import utils.WireMockHelper
 
 import java.time.Instant
 

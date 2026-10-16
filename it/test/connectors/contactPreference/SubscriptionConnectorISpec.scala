@@ -27,7 +27,7 @@ import play.api.Application
 import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.bootstrap.http.ErrorResponse
-import util.WireMockHelper
+import utils.WireMockHelper
 
 class SubscriptionConnectorISpec extends ISpecBase with WireMockHelper with TestData {
 
