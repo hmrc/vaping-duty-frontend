@@ -16,11 +16,24 @@
 
 package models.nrs
 
+import base.SpecBase
 import play.api.libs.json.Json
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import base.SpecBase
+import uk.gov.hmrc.crypto.{Crypted, Decrypter, Encrypter, PlainBytes, PlainContent, PlainText}
 
 class NrsSubmissionWorkItemSpec extends SpecBase {
+
+  // Mock crypto for testing
+  private implicit val mockCrypto: Encrypter with Decrypter = new Encrypter with Decrypter {
+    override def encrypt(plain: PlainContent): Crypted = plain match {
+      case PlainText(text) => Crypted(s"encrypted-$text")
+      case PlainBytes(bytes) => Crypted(s"encrypted-${new String(bytes)}")
+    }
+    override def decrypt(crypted: Crypted): PlainText = 
+      PlainText(crypted.value.stripPrefix("encrypted-"))
+    override def decryptAsBytes(crypted: Crypted): PlainBytes = 
+      PlainBytes(crypted.value.stripPrefix("encrypted-").getBytes)
+  }
 
   private val testEncodedPayload = "eyJ0ZXN0IjoicGF5bG9hZCJ9"
   private val testSha256Hash = "a7c976db1723adb41274178dc82e9b777941ab201c69de61d0f2bc6d27a32534"
@@ -124,6 +137,38 @@ class NrsSubmissionWorkItemSpec extends SpecBase {
       val workItem = NrsSubmissionWorkItem(testPayload)
       
       workItem.periodKey mustBe testPeriodKey
+    }
+
+    "mongoFormat must" - {
+      "encrypt and decrypt the payload correctly" in {
+        val workItem = NrsSubmissionWorkItem(testPayload)
+        
+        val json = NrsSubmissionWorkItem.mongoFormat.writes(workItem)
+        val result = NrsSubmissionWorkItem.mongoFormat.reads(json).get
+        
+        result mustBe workItem
+      }
+
+      "round-trip through encryption" in {
+        val workItem = NrsSubmissionWorkItem(testPayload)
+        
+        val encrypted = NrsSubmissionWorkItem.mongoFormat.writes(workItem)
+        val decrypted = NrsSubmissionWorkItem.mongoFormat.reads(encrypted).get
+        
+        decrypted.payload.payload mustBe testPayload.payload
+        decrypted.payload.metadata.businessId mustBe testPayload.metadata.businessId
+        decrypted.payload.metadata.searchKeys mustBe testPayload.metadata.searchKeys
+      }
+
+      "store encrypted data" in {
+        val workItem = NrsSubmissionWorkItem(testPayload)
+        
+        val json = NrsSubmissionWorkItem.mongoFormat.writes(workItem)
+        val jsonString = Json.stringify(json)
+        
+        // The JSON should contain encrypted data (prefixed with "encrypted-")
+        jsonString must include("encrypted-")
+      }
     }
   }
 }
