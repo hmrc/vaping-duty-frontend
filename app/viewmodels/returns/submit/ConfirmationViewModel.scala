@@ -36,7 +36,6 @@ case class ConfirmationViewModel(
   submissionDate: String,
   periodMonthYear: String,
   totalDutyAmount: BigDecimal,
-  totalDutyFormatted: String,
   paymentDueDate: String,
   chargeReference: Option[String],
   content: Html,
@@ -55,12 +54,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
     returnsDateUtils: ReturnsDateUtils
   )(implicit messages: Messages): ConfirmationViewModel = {
 
-    val totalDutyDue = returnsResponse.success.totalDutyDue
-      .map(_.totalDue)
-      .getOrElse(
-        // scalafix:off DisableSyntax.throw
-        throw new RuntimeException("Total duty due not found")
-      )
+    val totalDutyDue = returnsResponse.success.totalDutyDue.fold(BigDecimal("0"))(_.totalDue)
 
     val chargeReference = returnsResponse.success.chargeDetails
       .flatMap(_.chargeReference)
@@ -81,7 +75,6 @@ object ConfirmationViewModel extends CurrencyFormatter {
       submissionDate = submissionDateFormatted,
       periodMonthYear = periodMonthYearFormatted,
       totalDutyAmount = totalDutyDue,
-      totalDutyFormatted = currencyFormat(totalDutyDue.abs),
       paymentDueDate = paymentDueDateFormatted,
       chargeReference = chargeReference,
       content = getContent(totalDutyDue, paymentDueDateFormatted, btaLink),

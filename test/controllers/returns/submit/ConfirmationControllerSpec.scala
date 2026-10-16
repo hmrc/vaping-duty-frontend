@@ -109,40 +109,6 @@ class ConfirmationControllerSpec extends SpecBase {
       }
     }
 
-    "must allow framework to handle the error when totalDutyDue is None" in {
-
-      val mockGetReturnsConnector = mock[GetReturnsConnector]
-      val mockObligationService = mock[ObligationService]
-
-      val application = applicationBuilder(returnsUserAnswers = Option(returnsUserAnswers))
-        .overrides(bind[GetReturnsConnector].toInstance(mockGetReturnsConnector))
-        .overrides(bind[ObligationService].toInstance(mockObligationService))
-        .build()
-
-      running(application) {
-
-        val responseWithoutDuty = createReturnDisplayResponse().copy(
-          success = createReturnDisplayResponse().success.copy(totalDutyDue = None)
-        )
-        val obligation = createObligation()
-
-        when(mockGetReturnsConnector.getReturn(any(), any())(using any()))
-          .thenReturn(Future.successful(responseWithoutDuty))
-
-        when(mockObligationService.getObligationByPeriodKey(any(), any())(using any()))
-          .thenReturn(Future.successful(Some(obligation)))
-
-        val request = FakeRequest(GET, controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        whenReady(result.failed) { exception =>
-          exception mustBe a[RuntimeException]
-          exception.getMessage mustBe "Total duty due not found"
-        }
-      }
-    }
-
     "must allow framework to handle the error when obligation is not found" in {
 
       val mockGetReturnsConnector = mock[GetReturnsConnector]
