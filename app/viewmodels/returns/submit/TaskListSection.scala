@@ -22,7 +22,8 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.TaskListItem
 
  case class TaskListSection(
   headingKey: String,
-  rows: Seq[TaskListItem]
+  rows: Seq[TaskListItem],
+  idPrefix: String
 ) {
    def heading(implicit messages: Messages): String = messages(headingKey)
  }

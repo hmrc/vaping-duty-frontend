@@ -41,7 +41,7 @@
 
     @vm.sections.map { section =>
         <h2 class="govuk-heading-m">@section.heading</h2>
-        @govukTaskList(TaskList(section.rows))
+        @govukTaskList(TaskList(section.rows, idPrefix = section.idPrefix))
     }
 
     @govukButton(
