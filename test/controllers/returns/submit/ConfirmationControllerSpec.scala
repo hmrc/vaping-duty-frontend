@@ -109,7 +109,7 @@ class ConfirmationControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to journey recovery when totalDutyDue is None" in {
+    "must allow framework to handle the error when totalDutyDue is None" in {
 
       val mockGetReturnsConnector = mock[GetReturnsConnector]
       val mockObligationService = mock[ObligationService]
@@ -136,12 +136,14 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[RuntimeException]
+          exception.getMessage mustBe "Total duty due not found"
+        }
       }
     }
 
-    "must redirect to journey recovery when obligation is not found" in {
+    "must allow framework to handle the error when obligation is not found" in {
 
       val mockGetReturnsConnector = mock[GetReturnsConnector]
       val mockObligationService = mock[ObligationService]
@@ -165,8 +167,10 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[RuntimeException]
+          exception.getMessage mustBe "Obligation not found"
+        }
       }
     }
   }

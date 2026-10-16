@@ -49,9 +49,7 @@ class ConfirmationController @Inject()(
                                       )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled).async { implicit request =>
-    buildConfirmationPage(getPeriodKey()).recover {
-      case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-    }
+    buildConfirmationPage(getPeriodKey())
   }
 
   private def buildConfirmationPage(periodKey: PeriodKey)
