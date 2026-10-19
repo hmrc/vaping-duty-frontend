@@ -224,7 +224,7 @@ class NrsWorkItemRepositoryISpec extends ISpecBase with BeforeAndAfterEach {
       retryCounter.getCount mustBe before + 1
     }
 
-    "not increment the retry counter when a work item becomes PermanentlyFailed" in {
+    "increment the retry counter when a work item fails at or beyond max retries" in {
       val appConfig = app.injector.instanceOf[FrontendAppConfig]
       val workItem = await(repository.pushNew(testWorkItem, Instant.now(clock).minusSeconds(1), _ => ProcessingStatus.ToDo))
       await(repository.collection.updateOne(
@@ -234,6 +234,16 @@ class NrsWorkItemRepositoryISpec extends ISpecBase with BeforeAndAfterEach {
       val before = retryCounter.getCount
 
       await(repository.markAs(workItem.id, ProcessingStatus.Failed))
+      retryCounter.getCount mustBe before + 1
+
+      await(repository.markAs(workItem.id, ProcessingStatus.Failed))
+      retryCounter.getCount mustBe before + 2
+    }
+
+    "not increment the retry counter when the failed work item is not found" in {
+      val before = retryCounter.getCount
+
+      await(repository.markAs(new org.bson.types.ObjectId(), ProcessingStatus.Failed))
 
       retryCounter.getCount mustBe before
     }

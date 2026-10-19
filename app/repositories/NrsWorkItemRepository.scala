@@ -73,14 +73,15 @@ class NrsWorkItemRepository @Inject()(
               // Calculate delay with exponential backoff, but cap at maxBackoffSteps
               val baseDelayMinutes = appConfig.nrsWorkItemRetryAfter.toMinutes
               val backoffFactor = appConfig.nrsWorkItemExponentialBackoffFactor
-              
+
               // Cap the effective failure count to prevent delay from growing beyond max retries
               val numBackoffSteps = Math.min(failureCount, maxBackoffSteps)
               val delayMinutes = (baseDelayMinutes * Math.pow(backoffFactor, numBackoffSteps - 1)).toLong
               val nextAvailableAt = now().plus(Duration.ofMinutes(delayMinutes))
 
+              retryCounter.inc()
+
               if (failureCount >= maxBackoffSteps) {
-                retryCounter.inc()
                 logger.info(
                   s"NRS work item $id has reached max retries ($failureCount), " +
                   s"continuing with capped delay of $delayMinutes minutes"
@@ -94,7 +95,7 @@ class NrsWorkItemRepository @Inject()(
 
               // Always mark as Failed (never PermanentlyFailed) to allow continued retries
               super.markAs(id, status, Some(nextAvailableAt))
-              
+
             case None =>
               logger.warn(s"NRS work item $id not found when marking as Failed, using default behavior")
               super.markAs(id, status, availableAt)
