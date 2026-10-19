@@ -16,7 +16,8 @@
 
 package repositories
 
-import com.mongodb.client.model.Filters
+import com.codahale.metrics.MetricRegistry
+import com.mongodb.client.model.{Filters, Sorts}
 import config.FrontendAppConfig
 import crypto.CryptoProvider
 import models.nrs.NrsSubmissionWorkItem
@@ -34,7 +35,8 @@ class NrsWorkItemRepository @Inject()(
                                        mongoComponent: MongoComponent,
                                        appConfig: FrontendAppConfig,
                                        clock: Clock,
-                                       cryptoProvider: CryptoProvider
+                                       cryptoProvider: CryptoProvider,
+                                       metricRegistry: MetricRegistry
                                      )(using ec: ExecutionContext)
   extends WorkItemRepository[NrsSubmissionWorkItem](
     collectionName = "nrs-work-items",
@@ -42,6 +44,8 @@ class NrsWorkItemRepository @Inject()(
     itemFormat = NrsSubmissionWorkItem.mongoFormat(cryptoProvider.getCrypto),
     workItemFields = WorkItemFields.default
   ) with Logging {
+
+  private val retryCounter = metricRegistry.counter("nrs-work-items.retry")
 
   override def now(): Instant = Instant.now(clock)
 
@@ -76,6 +80,7 @@ class NrsWorkItemRepository @Inject()(
               val nextAvailableAt = now().plus(Duration.ofMinutes(delayMinutes))
 
               if (failureCount >= maxBackoffSteps) {
+                retryCounter.inc()
                 logger.info(
                   s"NRS work item $id has reached max retries ($failureCount), " +
                   s"continuing with capped delay of $delayMinutes minutes"
@@ -99,4 +104,12 @@ class NrsWorkItemRepository @Inject()(
         super.markAs(id, status, availableAt)
     }
   }
+
+  def maxFailureCount(): Future[Int] =
+    collection
+      .find(Filters.in(workItemFields.status, ProcessingStatus.ToDo.name, ProcessingStatus.InProgress.name, ProcessingStatus.Failed.name))
+      .sort(Sorts.descending(workItemFields.failureCount))
+      .limit(1)
+      .headOption()
+      .map(_.fold(0)(_.failureCount))
 }
