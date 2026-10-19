@@ -19,6 +19,7 @@ package viewmodels.returns.view
 import base.SpecBase
 import models.returns.TotalDutyDue
 import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import utils.CssConstants
 
 class TotalDutySectionBuilderSpec extends SpecBase {
@@ -44,11 +45,12 @@ class TotalDutySectionBuilderSpec extends SpecBase {
         result.rows.size mustBe 5
       }
 
-      "return empty summary list when totalDutyDue is None" in {
+      "return summary list with all zeroes when totalDutyDue is None" in {
         val builder = TotalDutySectionBuilder(None)
         val result = builder.build()
 
-        result.rows.size mustBe 0
+        result.rows.foreach(_.value.content mustBe Text("£0.00"))
+        result.rows.size mustBe 5
       }
 
       "format totalDutyDueVapingProducts correctly" in {
