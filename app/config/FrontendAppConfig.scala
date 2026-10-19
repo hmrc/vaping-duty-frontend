@@ -164,8 +164,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   def sendEmailUrl: String                                       = s"$emailHost/hmrc/email"
 
-  val startEmailVerificationContinueUrl: String = s"$host/vaping-duty/contact-preferences/confirm-email-address"
-  val startEmailVerificationBackUrl: String     = s"$host/vaping-duty/contact-preferences/enter-email-address"
+  private val emailVerificationHost: String = configuration.get[String]("emailVerificationHost")
+  val startEmailVerificationContinueUrl: String = s"$emailVerificationHost/vaping-duty/contact-preferences/confirm-email-address"
+  val startEmailVerificationBackUrl: String     = s"$emailVerificationHost/vaping-duty/contact-preferences/enter-email-address"
 
   private val startEmailVerificationJourneyBaseUrl: String   = servicesConfig.baseUrl("email-verification")
   private val startEmailVerificationJourneyUrlSuffix: String =
