@@ -58,7 +58,8 @@ object TaskList {
           status   = TaskStatusService.declareDutyTaskStatus(userAnswers),
           periodKey = Some(periodKey)
         ).toTaskListItem
-      )
+      ),
+      idPrefix = "declare-duty-task"
     )
   }
 
@@ -98,7 +99,8 @@ object TaskList {
           status = TaskStatusService.declareAdjustmentsTaskStatus(userAnswers),
           periodKey = Some(periodKey)
         ).toTaskListItem
-      )
+      ),
+      idPrefix = "declare-adjustments-task"
     )
   }
 
@@ -122,7 +124,8 @@ object TaskList {
           status = TaskStatusService.dutySuspenseTaskStatus(userAnswers),
           periodKey = Some(periodKey)
         ).toTaskListItem
-      )
+      ),
+      idPrefix = "duty-suspended-task"
     )
   }
 
@@ -137,7 +140,8 @@ object TaskList {
           status = TaskStatusService.submitTaskStatus(userAnswers, adjustmentsEligibility),
           periodKey = Some(periodKey)
         ).toTaskListItem
-      )
+      ),
+      idPrefix = "submission-task"
     )
   }
 
