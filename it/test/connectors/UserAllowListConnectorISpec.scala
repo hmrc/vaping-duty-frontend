@@ -24,7 +24,7 @@ import models.requests.CheckRequest
 import play.api.Application
 import play.api.http.Status.*
 import play.api.libs.json.Json
-import util.WireMockHelper
+import utils.WireMockHelper
 
 class UserAllowListConnectorISpec extends ISpecBase with WireMockHelper {
 

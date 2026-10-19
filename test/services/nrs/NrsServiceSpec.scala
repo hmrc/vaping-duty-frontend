@@ -281,13 +281,13 @@ class NrsServiceSpec extends SpecBase {
         when(mockNrsConnector.submitToNrs(any[NrsPayload])(any()))
           .thenReturn(Future.successful(NrsSubmissionResult.PermanentFailure))
 
-        when(mockNrsWorkItemRepository.markAs(any(), eqTo(ProcessingStatus.PermanentlyFailed), any()))
+        when(mockNrsWorkItemRepository.markAs(any(), eqTo(ProcessingStatus.Failed), any()))
           .thenReturn(Future.successful(true))
 
         whenReady(service.processAll()) { result =>
           result mustBe ()
           verify(mockNrsConnector).submitToNrs(any[NrsPayload])(any())
-          verify(mockNrsWorkItemRepository).markAs(any(), eqTo(ProcessingStatus.PermanentlyFailed), any())
+          verify(mockNrsWorkItemRepository).markAs(any(), eqTo(ProcessingStatus.Failed), any())
         }
       }
 
