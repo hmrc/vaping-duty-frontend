@@ -185,6 +185,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val internalAuthToken: String = configuration.get[String]("internal-auth.token")
 
+  // Crypto configuration
+  val cryptoEnabled: Boolean = configuration.get[Boolean]("crypto.enabled")
+  val cryptoKey: String = configuration.get[String]("crypto.key")
+
   private lazy val userAllowListHost: String = servicesConfig.baseUrl("user-allow-list")
   def userAllowListUrl(feature: String): String =
     s"$userAllowListHost/user-allow-list/$appName/$feature/check"
