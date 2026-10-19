@@ -24,7 +24,7 @@ import javax.inject.Inject
 class CryptoProvider @Inject() (appConfig: FrontendAppConfig) {
   def getCrypto: Encrypter with Decrypter =
     if (appConfig.cryptoEnabled) {
-      SymmetricCryptoFactory.aesCrypto(appConfig.cryptoKey)
+      SymmetricCryptoFactory.aesGcmCrypto(appConfig.cryptoKey)
     } else {
       NoCrypto
     }

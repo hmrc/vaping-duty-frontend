@@ -23,13 +23,15 @@ import java.util.Base64
 
 object NoCrypto extends Encrypter with Decrypter {
 
-  def encrypt(plain: PlainContent): Crypted = plain match {
+  override def encrypt(plain: PlainContent): Crypted = plain match {
     case PlainText(text) => Crypted(text)
     case PlainBytes(bytes) => Crypted(new String(Base64.getEncoder.encode(bytes), StandardCharsets.UTF_8))
   }
 
-  def decrypt(notEncrypted: Crypted): PlainText = PlainText(notEncrypted.value)
+  override def decrypt(notEncrypted: Crypted): PlainText = 
+    PlainText(notEncrypted.value)
 
-  def decryptAsBytes(nullEncrypted: Crypted): PlainBytes = PlainBytes(Base64.getDecoder.decode(nullEncrypted.value))
+  override def decryptAsBytes(nullEncrypted: Crypted): PlainBytes = 
+    PlainBytes(Base64.getDecoder.decode(nullEncrypted.value))
 
 }
