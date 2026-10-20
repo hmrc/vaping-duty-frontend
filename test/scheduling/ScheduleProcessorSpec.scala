@@ -23,7 +23,7 @@ import org.scalatest.BeforeAndAfterEach
 import base.SpecBase
 import config.FrontendAppConfig
 import org.scalatestplus.mockito.MockitoSugar.mock
-import services.nrs.NrsService
+import services.nrs.{NrsService, NrsWorkItemMetrics}
 
 import scala.concurrent.Future
 import scala.concurrent.duration.*
@@ -33,6 +33,7 @@ class ScheduleProcessorSpec extends SpecBase with BeforeAndAfterEach {
   private val mockActorSystem: ActorSystem      = mock[ActorSystem]
   private val mockScheduler: Scheduler          = mock[Scheduler]
   private val mockNrsService: NrsService        = mock[NrsService]
+  private val mockNrsWorkItemMetrics            = mock[NrsWorkItemMetrics]
   private val mockAppConfig: FrontendAppConfig  = mock[FrontendAppConfig]
   private val mockCancellable: Cancellable      = mock[Cancellable]
 
@@ -40,7 +41,8 @@ class ScheduleProcessorSpec extends SpecBase with BeforeAndAfterEach {
   private val expectedInterval     = 30.seconds
 
   override def beforeEach(): Unit = {
-    reset(mockNrsService)
+    reset(mockNrsService, mockNrsWorkItemMetrics)
+    when(mockNrsWorkItemMetrics.updateStatusCount()).thenReturn(Future.successful(()))
     super.beforeEach()
   }
 
@@ -56,7 +58,7 @@ class ScheduleProcessorSpec extends SpecBase with BeforeAndAfterEach {
           .thenReturn(mockCancellable)
         when(mockNrsService.processAll()).thenReturn(Future.successful(()))
 
-        val processor = new ScheduleProcessor(mockActorSystem, mockNrsService, mockAppConfig)
+        val processor = new ScheduleProcessor(mockActorSystem, mockNrsService, mockNrsWorkItemMetrics, mockAppConfig)
         processor.scheduleProcessing()
 
         verify(mockScheduler).scheduleAtFixedRate(
@@ -80,7 +82,7 @@ class ScheduleProcessorSpec extends SpecBase with BeforeAndAfterEach {
             mockCancellable
           }
 
-        val processor = new ScheduleProcessor(mockActorSystem, mockNrsService, mockAppConfig)
+        val processor = new ScheduleProcessor(mockActorSystem, mockNrsService, mockNrsWorkItemMetrics, mockAppConfig)
         processor.scheduleProcessing()
 
         // Execute the captured runnable to simulate scheduler execution
@@ -103,13 +105,35 @@ class ScheduleProcessorSpec extends SpecBase with BeforeAndAfterEach {
             mockCancellable
           }
 
-        val processor = new ScheduleProcessor(mockActorSystem, mockNrsService, mockAppConfig)
+        val processor = new ScheduleProcessor(mockActorSystem, mockNrsService, mockNrsWorkItemMetrics, mockAppConfig)
         processor.scheduleProcessing()
 
         // Execute the captured runnable to simulate scheduler execution
         capturedRunnable.foreach(_.run())
 
         verify(mockNrsService, never()).processAll()
+      }
+
+      "refresh NRS work item metrics on each run, even when nrsSubmissionEnabled is false" in {
+        when(mockAppConfig.nrsSchedulerInitialDelay).thenReturn(expectedInitialDelay)
+        when(mockAppConfig.nrsSchedulerInterval).thenReturn(expectedInterval)
+        when(mockAppConfig.nrsSubmissionEnabled).thenReturn(false)
+        when(mockActorSystem.scheduler).thenReturn(mockScheduler)
+
+        // Capture the runnable that gets scheduled
+        var capturedRunnable: Option[Runnable] = None
+        when(mockScheduler.scheduleAtFixedRate(any[FiniteDuration], any[FiniteDuration])(any[Runnable])(any()))
+          .thenAnswer { invocation =>
+            capturedRunnable = Some(invocation.getArgument[Runnable](2))
+            mockCancellable
+          }
+
+        val processor = new ScheduleProcessor(mockActorSystem, mockNrsService, mockNrsWorkItemMetrics, mockAppConfig)
+        processor.scheduleProcessing()
+
+        capturedRunnable.foreach(_.run())
+
+        verify(mockNrsWorkItemMetrics).updateStatusCount()
       }
 
       "handle errors from nrsService.processAll() without crashing" in {
@@ -128,7 +152,7 @@ class ScheduleProcessorSpec extends SpecBase with BeforeAndAfterEach {
             mockCancellable
           }
 
-        val processor = new ScheduleProcessor(mockActorSystem, mockNrsService, mockAppConfig)
+        val processor = new ScheduleProcessor(mockActorSystem, mockNrsService, mockNrsWorkItemMetrics, mockAppConfig)
         processor.scheduleProcessing()
 
         // Execute the captured runnable - should not throw despite the error

@@ -19,7 +19,7 @@ package scheduling
 import config.FrontendAppConfig
 import org.apache.pekko.actor.ActorSystem
 import play.api.Logging
-import services.nrs.NrsService
+import services.nrs.{NrsService, NrsWorkItemMetrics}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
@@ -28,6 +28,7 @@ import scala.concurrent.duration.FiniteDuration
 @Singleton
 class ScheduleProcessor @Inject()(actorSystem: ActorSystem,
                                   nrsService: NrsService,
+                                  nrsWorkItemMetrics: NrsWorkItemMetrics,
                                   appConfig: FrontendAppConfig)
                                  (using ec: ExecutionContext) extends Logging {
 
@@ -48,6 +49,7 @@ class ScheduleProcessor @Inject()(actorSystem: ActorSystem,
       } else {
         logger.debug("NRS submission disabled - skipping scheduled processing")
       }
+      nrsWorkItemMetrics.updateStatusCount()
       ()
     }
 }

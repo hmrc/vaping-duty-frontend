@@ -16,9 +16,11 @@
 
 package repositories
 
+import com.codahale.metrics.MetricRegistry
 import org.mongodb.scala.{ObservableFuture, SingleObservableFuture}
 import org.mongodb.scala.model.{Filters, Updates}
 import org.scalatest.BeforeAndAfterEach
+import play.api.Application
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, CredentialStrength}
 import uk.gov.hmrc.mongo.workitem.ProcessingStatus
 import base.ISpecBase
@@ -30,7 +32,12 @@ import scala.concurrent.Future
 
 class NrsWorkItemRepositoryISpec extends ISpecBase with BeforeAndAfterEach {
 
+  // metrics are disabled by default in tests, which swaps in a no-op MetricRegistry
+  override def fakeApplication(): Application =
+    applicationBuilder().configure("metrics.enabled" -> true).build()
+
   private val repository = app.injector.instanceOf[NrsWorkItemRepository]
+  private val retryCounter = app.injector.instanceOf[MetricRegistry].counter("nrs-work-items.retry")
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -207,6 +214,61 @@ class NrsWorkItemRepositoryISpec extends ISpecBase with BeforeAndAfterEach {
       
       val updatedItem = await(repository.collection.find(Filters.equal("_id", workItem.id)).toFuture()).head
       updatedItem.status mustBe ProcessingStatus.InProgress
+    }
+    "increment the retry counter when a failed work item is scheduled for retry" in {
+      val workItem = await(repository.pushNew(testWorkItem, Instant.now(clock).minusSeconds(1), _ => ProcessingStatus.ToDo))
+      val before = retryCounter.getCount
+
+      await(repository.markAs(workItem.id, ProcessingStatus.Failed))
+
+      retryCounter.getCount mustBe before + 1
+    }
+
+    "increment the retry counter when a work item fails at or beyond max retries" in {
+      val appConfig = app.injector.instanceOf[FrontendAppConfig]
+      val workItem = await(repository.pushNew(testWorkItem, Instant.now(clock).minusSeconds(1), _ => ProcessingStatus.ToDo))
+      await(repository.collection.updateOne(
+        Filters.equal("_id", workItem.id),
+        Updates.set("failureCount", appConfig.nrsWorkItemMaxRetries - 1)
+      ).toFuture())
+      val before = retryCounter.getCount
+
+      await(repository.markAs(workItem.id, ProcessingStatus.Failed))
+      retryCounter.getCount mustBe before + 1
+
+      await(repository.markAs(workItem.id, ProcessingStatus.Failed))
+      retryCounter.getCount mustBe before + 2
+    }
+
+    "not increment the retry counter when the failed work item is not found" in {
+      val before = retryCounter.getCount
+
+      await(repository.markAs(new org.bson.types.ObjectId(), ProcessingStatus.Failed))
+
+      retryCounter.getCount mustBe before
+    }
+
+    "return 0 for maxFailureCount when there are no work items" in {
+      await(repository.maxFailureCount()) mustBe 0
+    }
+
+    "return the highest failureCount of retryable work items, ignoring PermanentlyFailed and Succeeded" in {
+      def pushWith(status: ProcessingStatus, failureCount: Int, payload: String) = {
+        val item = await(repository.pushNew(
+          testWorkItem.copy(payload = testNrsPayload.copy(payload = payload)),
+          Instant.now(clock),
+          _ => status
+        ))
+        await(repository.collection.updateOne(Filters.equal("_id", item.id), Updates.set("failureCount", failureCount)).toFuture())
+      }
+
+      pushWith(ProcessingStatus.ToDo, 0, "todo")
+      pushWith(ProcessingStatus.Failed, 3, "failed")
+      pushWith(ProcessingStatus.InProgress, 2, "in-progress")
+      pushWith(ProcessingStatus.PermanentlyFailed, 9, "permanently-failed")
+      pushWith(ProcessingStatus.Succeeded, 5, "succeeded")
+
+      await(repository.maxFailureCount()) mustBe 3
     }
   }
 

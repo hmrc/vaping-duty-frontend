@@ -16,7 +16,8 @@
 
 package repositories
 
-import com.mongodb.client.model.Filters
+import com.codahale.metrics.MetricRegistry
+import com.mongodb.client.model.{Filters, Sorts}
 import config.FrontendAppConfig
 import crypto.CryptoProvider
 import models.nrs.NrsSubmissionWorkItem
@@ -34,7 +35,8 @@ class NrsWorkItemRepository @Inject()(
                                        mongoComponent: MongoComponent,
                                        appConfig: FrontendAppConfig,
                                        clock: Clock,
-                                       cryptoProvider: CryptoProvider
+                                       cryptoProvider: CryptoProvider,
+                                       metricRegistry: MetricRegistry
                                      )(using ec: ExecutionContext)
   extends WorkItemRepository[NrsSubmissionWorkItem](
     collectionName = "nrs-work-items",
@@ -42,6 +44,8 @@ class NrsWorkItemRepository @Inject()(
     itemFormat = NrsSubmissionWorkItem.mongoFormat(cryptoProvider.getCrypto),
     workItemFields = WorkItemFields.default
   ) with Logging {
+
+  private val retryCounter = metricRegistry.counter("nrs-work-items.retry")
 
   override def now(): Instant = Instant.now(clock)
 
@@ -69,11 +73,13 @@ class NrsWorkItemRepository @Inject()(
               // Calculate delay with exponential backoff, but cap at maxBackoffSteps
               val baseDelayMinutes = appConfig.nrsWorkItemRetryAfter.toMinutes
               val backoffFactor = appConfig.nrsWorkItemExponentialBackoffFactor
-              
+
               // Cap the effective failure count to prevent delay from growing beyond max retries
               val numBackoffSteps = Math.min(failureCount, maxBackoffSteps)
               val delayMinutes = (baseDelayMinutes * Math.pow(backoffFactor, numBackoffSteps - 1)).toLong
               val nextAvailableAt = now().plus(Duration.ofMinutes(delayMinutes))
+
+              retryCounter.inc()
 
               if (failureCount >= maxBackoffSteps) {
                 logger.info(
@@ -89,7 +95,7 @@ class NrsWorkItemRepository @Inject()(
 
               // Always mark as Failed (never PermanentlyFailed) to allow continued retries
               super.markAs(id, status, Some(nextAvailableAt))
-              
+
             case None =>
               logger.warn(s"NRS work item $id not found when marking as Failed, using default behavior")
               super.markAs(id, status, availableAt)
@@ -99,4 +105,12 @@ class NrsWorkItemRepository @Inject()(
         super.markAs(id, status, availableAt)
     }
   }
+
+  def maxFailureCount(): Future[Int] =
+    collection
+      .find(Filters.in(workItemFields.status, ProcessingStatus.ToDo.name, ProcessingStatus.InProgress.name, ProcessingStatus.Failed.name))
+      .sort(Sorts.descending(workItemFields.failureCount))
+      .limit(1)
+      .headOption()
+      .map(_.fold(0)(_.failureCount))
 }
