@@ -53,7 +53,7 @@ class NrsWorkItemMetricsSpec extends SpecBase {
       when(mockRepository.maxFailureCount()).thenReturn(Future.successful(7))
 
       val metrics = new NrsWorkItemMetrics(mockRepository, registry)
-      metrics.refresh().futureValue
+      metrics.updateStatusCount().futureValue
 
       gauge(registry, "todo") mustBe 3L
       gauge(registry, "in-progress") mustBe 1L
@@ -74,7 +74,7 @@ class NrsWorkItemMetricsSpec extends SpecBase {
       when(mockRepository.maxFailureCount()).thenReturn(Future.successful(7))
 
       val metrics = new NrsWorkItemMetrics(mockRepository, registry)
-      metrics.refresh().futureValue
+      metrics.updateStatusCount().futureValue
 
       gauge(registry, "todo") mustBe 0L
     }

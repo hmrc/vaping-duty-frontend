@@ -54,7 +54,7 @@ class NrsWorkItemMetrics @Inject()(
     value
   }
 
-  def refresh(): Future[Unit] =
+  def updateStatusCount(): Future[Unit] =
     (
       statuses.traverse(status => nrsWorkItemRepository.count(status).map(status -> _)),
       nrsWorkItemRepository.maxFailureCount()

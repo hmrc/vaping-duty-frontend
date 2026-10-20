@@ -49,7 +49,7 @@ class ScheduleProcessor @Inject()(actorSystem: ActorSystem,
       } else {
         logger.debug("NRS submission disabled - skipping scheduled processing")
       }
-      nrsWorkItemMetrics.refresh()
+      nrsWorkItemMetrics.updateStatusCount()
       ()
     }
 }

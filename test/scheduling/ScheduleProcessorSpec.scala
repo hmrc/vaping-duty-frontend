@@ -42,7 +42,7 @@ class ScheduleProcessorSpec extends SpecBase with BeforeAndAfterEach {
 
   override def beforeEach(): Unit = {
     reset(mockNrsService, mockNrsWorkItemMetrics)
-    when(mockNrsWorkItemMetrics.refresh()).thenReturn(Future.successful(()))
+    when(mockNrsWorkItemMetrics.updateStatusCount()).thenReturn(Future.successful(()))
     super.beforeEach()
   }
 
@@ -133,7 +133,7 @@ class ScheduleProcessorSpec extends SpecBase with BeforeAndAfterEach {
 
         capturedRunnable.foreach(_.run())
 
-        verify(mockNrsWorkItemMetrics).refresh()
+        verify(mockNrsWorkItemMetrics).updateStatusCount()
       }
 
       "handle errors from nrsService.processAll() without crashing" in {
