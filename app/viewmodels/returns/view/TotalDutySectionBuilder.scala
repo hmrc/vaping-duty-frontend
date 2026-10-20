@@ -27,45 +27,48 @@ final case class TotalDutySectionBuilder(totalDutyDue: Option[TotalDutyDue]) ext
   def build()(implicit messages: Messages): SummaryList = {
     val zeroValue = BigDecimal("0")
 
-    totalDutyDue match {
-      case Some(tdd) =>
-        val rows = Seq(
-          SummaryListRow(
-            key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyDueVapingProducts")), classes = CssConstants.boldFontWeight),
-            value = Value(content = Text(currencyFormatInTable(tdd.totalDutyDueVapingProducts)))
+    val tdd = totalDutyDue.getOrElse(TotalDutyDue(
+      totalDutyDueVapingProducts = zeroValue,
+      totalDutyOverDeclaration = zeroValue,
+      totalDutyUnderDeclaration = zeroValue,
+      totalDutySpoiltProduct = zeroValue,
+      totalDue = zeroValue
+    ))
+
+    val rows = Seq(
+      SummaryListRow(
+        key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyDueVapingProducts")), classes = CssConstants.boldFontWeight),
+        value = Value(content = Text(currencyFormatInTable(tdd.totalDutyDueVapingProducts)))
+      ),
+      SummaryListRow(
+        key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutySpoiltProduct")), classes = CssConstants.boldFontWeight),
+        value = Value(content = Text(
+          if (tdd.totalDutySpoiltProduct == zeroValue) currencyFormatInTable(tdd.totalDutySpoiltProduct)
+          else currencyFormatInTable(tdd.totalDutySpoiltProduct.abs).replace("£", "-£")
+        ))
+      ),
+      SummaryListRow(
+        key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyUnderDeclaration")), classes = CssConstants.boldFontWeight),
+        value = Value(content = Text(currencyFormatInTable(tdd.totalDutyUnderDeclaration)))
+      ),
+      SummaryListRow(
+        key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyOverDeclaration")), classes = CssConstants.boldFontWeight),
+        value = Value(content = Text(
+          if (tdd.totalDutyOverDeclaration == zeroValue) currencyFormatInTable(tdd.totalDutyOverDeclaration)
+          else currencyFormatInTable(tdd.totalDutyOverDeclaration.abs).replace("£", "-£")
+        ))
+      ),
+      SummaryListRow(
+        key = Key(content = Text(messages("viewIndividualReturn.totals.totalDue")), classes = CssConstants.boldFontWeight),
+        value = Value(
+          content = Text(
+            if (tdd.totalDue < zeroValue) currencyFormatInTable(tdd.totalDue.abs).replace("£", "-£")
+            else currencyFormatInTable(tdd.totalDue)
           ),
-          SummaryListRow(
-            key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutySpoiltProduct")), classes = CssConstants.boldFontWeight),
-            value = Value(content = Text(
-              if (tdd.totalDutySpoiltProduct == zeroValue) currencyFormatInTable(tdd.totalDutySpoiltProduct)
-              else currencyFormatInTable(tdd.totalDutySpoiltProduct.abs).replace("£", "-£")
-            ))
-          ),
-          SummaryListRow(
-            key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyUnderDeclaration")), classes = CssConstants.boldFontWeight),
-            value = Value(content = Text(currencyFormatInTable(tdd.totalDutyUnderDeclaration)))
-          ),
-          SummaryListRow(
-            key = Key(content = Text(messages("viewIndividualReturn.totals.totalDutyOverDeclaration")), classes = CssConstants.boldFontWeight),
-            value = Value(content = Text(
-              if (tdd.totalDutyOverDeclaration == zeroValue) currencyFormatInTable(tdd.totalDutyOverDeclaration)
-              else currencyFormatInTable(tdd.totalDutyOverDeclaration.abs).replace("£", "-£")
-            ))
-          ),
-          SummaryListRow(
-            key = Key(content = Text(messages("viewIndividualReturn.totals.totalDue")), classes = CssConstants.boldFontWeight),
-            value = Value(
-              content = Text(
-                if (tdd.totalDue < zeroValue) currencyFormatInTable(tdd.totalDue.abs).replace("£", "-£")
-                else currencyFormatInTable(tdd.totalDue)
-              ),
-              classes = CssConstants.boldFontWeight
-            )
-          )
+          classes = CssConstants.boldFontWeight
         )
-        SummaryList(rows = rows)
-      case None =>
-        SummaryList(rows = Seq.empty)
-    }
+      )
+    )
+    SummaryList(rows = rows)
   }
 }
