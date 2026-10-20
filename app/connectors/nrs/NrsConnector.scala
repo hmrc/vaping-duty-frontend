@@ -20,13 +20,13 @@ import config.FrontendAppConfig
 import models.nrs.{NrsPayload, NrsSubmissionResult}
 import org.apache.pekko.pattern.CircuitBreaker
 import play.api.Logging
-import play.api.http.Status.ACCEPTED
+import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpErrorFunctions.is5xx
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.{BadGatewayException, GatewayTimeoutException, HeaderCarrier, HttpResponse, StringContextOps}
 import utils.RandomUUIDGenerator
 
 import javax.inject.{Inject, Singleton}
@@ -93,4 +93,42 @@ class NrsConnector @Inject()(
         NrsSubmissionResult.RetryableFailure
       }
   }
+
+  def invalidSubmit: Future[Result] =
+    given HeaderCarrier = HeaderCarrier()
+
+    val headers: Seq[(String, String)] =
+      Seq("X-API-Key" -> appConfig.nrsApiKey)
+
+    httpClient
+      .post(url"${appConfig.nrsSubmissionUrl}")
+      .setHeader(headers: _*)
+      .withBody(Json.obj())
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match
+          case ACCEPTED =>
+            logger.warn("received ACCEPTED response for invalid submission")
+            Result.Successful
+          case FORBIDDEN | UNAUTHORIZED =>
+            logger.warn("received FORBIDDEN or UNAUTHORIZED response for invalid submission")
+            Result.Unauthorized
+          case BAD_REQUEST =>
+            logger.warn("received BAD_REQUEST response for invalid submission")
+            Result.BadRequest
+          case status if status >= 500 =>
+            logger.warn(s"received server error response ($status) for invalid submission")
+            Result.ServerError(status)
+          case status =>
+            logger.warn(s"Unexpected response status code $status returned")
+            Result.OtherError(
+              status,
+              if response.body.nonEmpty then Some(response.body) else None
+            )
+      }
+      .recover {
+        case exception: GatewayTimeoutException => Result.NetworkError(exception.message, exception)
+        case exception: BadGatewayException => Result.NetworkError(exception.message, exception)
+      }
+
 }
