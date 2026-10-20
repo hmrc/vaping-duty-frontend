@@ -42,7 +42,7 @@ class NrsWorkItemMetricsSpec extends SpecBase {
       }
     }
 
-    "refresh must update gauges from the repository" in {
+    "updateStatusCount must update gauges from the repository" in {
       val registry       = new MetricRegistry
       val mockRepository = mock[NrsWorkItemRepository]
       when(mockRepository.count(ProcessingStatus.ToDo)).thenReturn(Future.successful(3L))
@@ -63,7 +63,7 @@ class NrsWorkItemMetricsSpec extends SpecBase {
       gauge(registry, "max-failure-count") mustBe 7L
     }
 
-    "refresh must not fail when the repository errors" in {
+    "updateStatusCount must still update the other gauges when one status count fails" in {
       val registry       = new MetricRegistry
       val mockRepository = mock[NrsWorkItemRepository]
       when(mockRepository.count(ProcessingStatus.ToDo)).thenReturn(Future.failed(new RuntimeException("mongo down")))
@@ -77,6 +77,33 @@ class NrsWorkItemMetricsSpec extends SpecBase {
       metrics.updateStatusCount().futureValue
 
       gauge(registry, "todo") mustBe 0L
+      gauge(registry, "in-progress") mustBe 1L
+      gauge(registry, "failed") mustBe 2L
+      gauge(registry, "permanently-failed") mustBe 4L
+      gauge(registry, "succeeded") mustBe 10L
+      gauge(registry, "max-failure-count") mustBe 7L
+    }
+
+    "updateStatusCount must still update the status counts when maxFailureCount fails" in {
+      val registry       = new MetricRegistry
+      val mockRepository = mock[NrsWorkItemRepository]
+      when(mockRepository.count(ProcessingStatus.ToDo)).thenReturn(Future.successful(3L))
+      when(mockRepository.count(ProcessingStatus.InProgress)).thenReturn(Future.successful(1L))
+      when(mockRepository.count(ProcessingStatus.Failed)).thenReturn(Future.successful(2L))
+      when(mockRepository.count(ProcessingStatus.PermanentlyFailed)).thenReturn(Future.successful(4L))
+      when(mockRepository.count(ProcessingStatus.Succeeded)).thenReturn(Future.successful(10L))
+      when(mockRepository.maxFailureCount())
+        .thenReturn(Future.failed(new SecurityException("Failed decrypting data")))
+
+      val metrics = new NrsWorkItemMetrics(mockRepository, registry)
+      metrics.updateStatusCount().futureValue
+
+      gauge(registry, "todo") mustBe 3L
+      gauge(registry, "in-progress") mustBe 1L
+      gauge(registry, "failed") mustBe 2L
+      gauge(registry, "permanently-failed") mustBe 4L
+      gauge(registry, "succeeded") mustBe 10L
+      gauge(registry, "max-failure-count") mustBe 0L
     }
   }
 }

@@ -16,7 +16,6 @@
 
 package services.nrs
 
-import cats.implicits.*
 import com.codahale.metrics.{Gauge, MetricRegistry}
 import play.api.Logging
 import repositories.NrsWorkItemRepository
@@ -54,14 +53,19 @@ class NrsWorkItemMetrics @Inject()(
     value
   }
 
-  def updateStatusCount(): Future[Unit] =
-    (
-      statuses.traverse(status => nrsWorkItemRepository.count(status).map(status -> _)),
-      nrsWorkItemRepository.maxFailureCount()
-    ).mapN { (counts, maxFailures) =>
-      counts.foreach { case (status, count) => statusCounts(status).set(count) }
-      maxFailureCount.set(maxFailures.toLong)
-    }.recover { case ex =>
-      logger.warn("Failed to refresh NRS work item metrics", ex)
+  // Each gauge is updated independently, so one failing query can't stop the others refreshing
+  def updateStatusCount(): Future[Unit] = {
+    val statusUpdates = statuses.map { status =>
+      update(status.name)(nrsWorkItemRepository.count(status).map(statusCounts(status).set))
+    }
+    val maxFailureUpdate =
+      update("max-failure-count")(nrsWorkItemRepository.maxFailureCount().map(max => maxFailureCount.set(max.toLong)))
+
+    Future.sequence(statusUpdates :+ maxFailureUpdate).map(_ => ())
+  }
+
+  private def update(name: String)(result: => Future[Unit]): Future[Unit] =
+    Future(result).flatten.recover { case ex =>
+      logger.warn(s"Failed to refresh NRS work item metric $prefix.$name", ex)
     }
 }

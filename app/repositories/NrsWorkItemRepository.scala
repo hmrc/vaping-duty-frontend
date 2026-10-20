@@ -17,10 +17,12 @@
 package repositories
 
 import com.codahale.metrics.MetricRegistry
-import com.mongodb.client.model.{Filters, Sorts}
+import com.mongodb.client.model.Filters
+import org.mongodb.scala.model.{Accumulators, Aggregates}
 import config.FrontendAppConfig
 import crypto.CryptoProvider
 import models.nrs.NrsSubmissionWorkItem
+import org.bson.{BsonDocument, BsonNull}
 import org.bson.types.ObjectId
 import play.api.Logging
 import uk.gov.hmrc.mongo.MongoComponent
@@ -106,11 +108,13 @@ class NrsWorkItemRepository @Inject()(
     }
   }
 
+  // Aggregates over failureCount only, so it never decodes (decrypts) the item payload
   def maxFailureCount(): Future[Int] =
     collection
-      .find(Filters.in(workItemFields.status, ProcessingStatus.ToDo.name, ProcessingStatus.InProgress.name, ProcessingStatus.Failed.name))
-      .sort(Sorts.descending(workItemFields.failureCount))
-      .limit(1)
+      .aggregate[BsonDocument](Seq(
+        Aggregates.filter(Filters.in(workItemFields.status, ProcessingStatus.ToDo.name, ProcessingStatus.InProgress.name, ProcessingStatus.Failed.name)),
+        Aggregates.group(BsonNull.VALUE, Accumulators.max("maxFailureCount", "$" + workItemFields.failureCount))
+      ))
       .headOption()
-      .map(_.fold(0)(_.failureCount))
+      .map(_.fold(0)(_.getNumber("maxFailureCount").intValue()))
 }
