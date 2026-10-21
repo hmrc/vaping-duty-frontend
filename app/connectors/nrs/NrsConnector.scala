@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import models.nrs.{NrsPayload, NrsSubmissionResult}
 import org.apache.pekko.pattern.CircuitBreaker
 import play.api.Logging
-import play.api.http.Status.*
+import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpErrorFunctions.is5xx
@@ -82,6 +82,10 @@ class NrsConnector @Inject()(
             NrsSubmissionResult.Success
           case status if is5xx(status) =>
             logger.warn(s"NRS submission failed with retryable 5xx status: $status for CorrelationId: $correlationId")
+            NrsSubmissionResult.RetryableFailure
+          case TOO_MANY_REQUESTS | UNPROCESSABLE_ENTITY | 499 =>
+            logger.warn(s"NRS submission failed with retryable " +
+              s"TOO_MANY_REQUESTS/UNPROCESSABLE_ENTITY/499 for CorrelationId: $correlationId")
             NrsSubmissionResult.RetryableFailure
           case status =>
             logger.warn(s"NRS submission failed with permanent 4xx status: $status for CorrelationId: $correlationId")
