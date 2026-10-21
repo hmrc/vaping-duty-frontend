@@ -18,7 +18,7 @@ package connectors.nrs
 
 import base.ISpecBase
 import models.nrs.{IdentityData, NrsMetadata, NrsPayload, NrsSubmissionResult}
-import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE}
+import play.api.http.Status.{ACCEPTED, BAD_REQUEST, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE, TOO_MANY_REQUESTS, UNPROCESSABLE_ENTITY}
 import play.api.libs.json.Json
 import uk.gov.hmrc.auth.core.AffinityGroup.Organisation
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, CredentialStrength}
@@ -69,6 +69,39 @@ class NrsConnectorISpec extends ISpecBase with ConnectorTestHelpers {
       val nrsPayload: NrsPayload = createTestPayload()
 
       stubPost(url, SERVICE_UNAVAILABLE, Json.toJson(nrsPayload).toString, "Unexpected error")
+
+      whenReady(connector.submitToNrs(nrsPayload)) { result =>
+        result mustBe NrsSubmissionResult.RetryableFailure
+        verifyPost(url)
+      }
+    }
+
+    "return RetryableFailure when NRS returns TOO_MANY_REQUESTS" in new SetUp {
+      val nrsPayload: NrsPayload = createTestPayload()
+
+      stubPost(url, TOO_MANY_REQUESTS, Json.toJson(nrsPayload).toString, "Too many requests")
+
+      whenReady(connector.submitToNrs(nrsPayload)) { result =>
+        result mustBe NrsSubmissionResult.RetryableFailure
+        verifyPost(url)
+      }
+    }
+
+    "return RetryableFailure when NRS returns UNPROCESSABLE_ENTITY" in new SetUp {
+      val nrsPayload: NrsPayload = createTestPayload()
+
+      stubPost(url, UNPROCESSABLE_ENTITY, Json.toJson(nrsPayload).toString, "Unprocessable entity")
+
+      whenReady(connector.submitToNrs(nrsPayload)) { result =>
+        result mustBe NrsSubmissionResult.RetryableFailure
+        verifyPost(url)
+      }
+    }
+
+    "return RetryableFailure when NRS returns 499" in new SetUp {
+      val nrsPayload: NrsPayload = createTestPayload()
+
+      stubPost(url, 499, Json.toJson(nrsPayload).toString, "Client closed request")
 
       whenReady(connector.submitToNrs(nrsPayload)) { result =>
         result mustBe NrsSubmissionResult.RetryableFailure
