@@ -64,6 +64,16 @@ class CurrencyFormatterSpec extends UnitSpec with CurrencyFormatter {
     }
   }
 
+  "currencyFormatInTableWithLeadingSign" - {
+    "must format positive amounts with two decimal places" in {
+      currencyFormatInTableWithLeadingSign(BigDecimal("1234.00")) mustBe "£1,234.00"
+    }
+
+    "must format negative amounts with leading minus sign and two decimal places" in {
+      currencyFormatInTableWithLeadingSign(BigDecimal("-2577.40")) mustBe "-£2,577.40"
+    }
+  }
+
   "currencyFormatTwoDp" - {
     "must retain trailing zeros for whole-pound amounts" in {
       currencyFormatInTable(BigDecimal("15.00")) mustBe "£15.00"

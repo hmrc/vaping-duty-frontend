@@ -52,43 +52,62 @@ object ViewPaymentsViewModel {
     )
   }
 
-  private def buildOutstandingRow(payment: OutstandingPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
+  private def buildOutstandingRow(payment: OutstandingPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] = {
+    val isRefund = payment.amountDue < 0
+    val descriptionKey = if (isRefund) "payments.viewPayments.table.description.repayment" else descriptionMessageKey(payment)
+    val status = if (isRefund) PaymentStatus.NothingToPay else payment.status
+
     Seq(
       TableRow(
-        content = Text(formatDateWithTranslatedMonth(Some(payment.dueDate), returnsDateUtils))
+        content = Text(formatDateWithTranslatedMonth(if (isRefund) None else Some(payment.dueDate), returnsDateUtils))
       ),
       TableRow(
         content = HtmlContent(
-          s"""<strong>${messages(descriptionMessageKey(payment))}</strong><br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference}"""
+          s"""<strong>${messages(descriptionKey)}</strong><br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference}"""
         )
       ),
       TableRow(
-        content = Text(CurrencyFormatter.currencyFormatInTable(payment.amountDue)),
-        classes = CssConstants.tableCellNumeric
+        content = Text(CurrencyFormatter.currencyFormatInTableWithLeadingSign(payment.amountDue)),
+        classes = CssConstants.tableCellNumericNoWrap
       ),
       TableRow(
         content = HtmlContent(
           govukTag(Tag(
-            content = Text(messages(statusMessageKey(payment.status))),
-            classes = statusTagStyle(payment.status)
+            content = Text(messages(statusMessageKey(status))),
+            classes = statusTagStyle(status)
           ))
         )
       ),
       TableRow(
         content = HtmlContent(
-          s"""<a href="${routes.StartPaymentController.startPayment(payment.chargeReference).url}" class="govuk-link">
-             |${messages("payments.viewPayments.table.payNow")}
-             |<span class="govuk-visually-hidden">
-             | ${messages(
-               "payments.viewPayments.table.payNow.hidden",
-               CurrencyFormatter.currencyFormat(payment.amountDue),
-               formatDateWithTranslatedMonth(Some(payment.dueDate), returnsDateUtils)
-             )}
-             |</span>
-             |</a>""".stripMargin
+          if (isRefund) claimRefundLink(payment) else payNowLink(payment, returnsDateUtils)
         )
       )
     )
+  }
+
+  private def payNowLink(payment: OutstandingPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String =
+    s"""<a href="${routes.StartPaymentController.startPayment(payment.chargeReference).url}" class="govuk-link">
+       |${messages("payments.viewPayments.table.payNow")}
+       |<span class="govuk-visually-hidden">
+       | ${messages(
+         "payments.viewPayments.table.payNow.hidden",
+         CurrencyFormatter.currencyFormat(payment.amountDue),
+         formatDateWithTranslatedMonth(Some(payment.dueDate), returnsDateUtils)
+       )}
+       |</span>
+       |</a>""".stripMargin
+
+  private def claimRefundLink(payment: OutstandingPayment)(implicit messages: Messages): String =
+    s"""<a href="#" class="${CssConstants.linkNoWrap}">
+       |${messages("payments.viewPayments.table.claimRepayment")}
+       |<span class="govuk-visually-hidden">
+       | ${messages(
+         "payments.viewPayments.table.claimRepayment.hidden",
+         CurrencyFormatter.currencyFormat(payment.amountDue.abs)
+       )}
+       |</span>
+       |</a>""".stripMargin
 
   private def buildPaymentOnAccountRow(payment: PaymentOnAccount, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
     Seq(
@@ -153,6 +172,6 @@ object ViewPaymentsViewModel {
   private def statusTagStyle(status: PaymentStatus): String = status match {
     case PaymentStatus.Due => CssConstants.tagLightBlue
     case PaymentStatus.Overdue => CssConstants.tagRed
-    case PaymentStatus.NothingToPay => CssConstants.tagGreen
+    case PaymentStatus.NothingToPay => CssConstants.tagGrey
   }
 }

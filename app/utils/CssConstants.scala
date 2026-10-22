@@ -26,6 +26,7 @@ object CssConstants {
   // Table styling
   val tableHeader = "govuk-table__header"
   val tableCellNumeric = "govuk-table__cell--numeric"
+  val tableCellNumericNoWrap = s"$tableCellNumeric app-table__cell--nowrap"
   
   // Link styling
   val linkNoWrap = "govuk-link no-wrap-link"
@@ -35,4 +36,5 @@ object CssConstants {
   val tagLightBlue = "govuk-tag--light-blue"
   val tagRed = "govuk-tag--red"
   val tagGreen = "govuk-tag--green"
+  val tagGrey = "govuk-tag--grey"
 }
