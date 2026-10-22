@@ -38,6 +38,10 @@ span.govuk-visually-hidden {
   overflow: auto;
 }
 
+.app-table__cell--nowrap {
+  white-space: nowrap;
+}
+
 .no-wrap-link {
   margin-left: auto;
   align-self: center;

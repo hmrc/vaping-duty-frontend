@@ -27,6 +27,9 @@ trait CurrencyFormatter {
   // This formatter is only used for amounts displayed in tables, to improve readability for users
   def currencyFormatInTable(amt: BigDecimal): String = simpleCurrencyFormat(amt)
 
+  def currencyFormatInTableWithLeadingSign(amt: BigDecimal): String =
+    if (amt < 0) s"-${simpleCurrencyFormat(amt.abs)}" else simpleCurrencyFormat(amt)
+
   def currencyFormatWithLeadingSign(amt: BigDecimal): String = {
     val isNegative = amt < 0
     val absoluteAmount = amt.abs

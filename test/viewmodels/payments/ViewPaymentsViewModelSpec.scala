@@ -59,6 +59,14 @@ class ViewPaymentsViewModelSpec extends SpecBase {
     mainTransaction = MainTransactionType.LatePaymentInterest
   )
 
+  private val testPaymentRefund = OutstandingPayment(
+    chargeReference = "XF123456789012",
+    amountDue = BigDecimal("-2577.44"),
+    dueDate = LocalDate.of(2025, 2, 25),
+    status = PaymentStatus.Overdue,
+    mainTransaction = MainTransactionType.Return
+  )
+
   private val testUnallocatedPayment = PaymentOnAccount(
     amount = BigDecimal("5000.00"),
     paymentDate = Some(LocalDate.of(2025, 1, 15))
@@ -151,6 +159,34 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         val descriptionCell = vm.outstandingRows.head(1)
         descriptionCell.content.asHtml.body must include("<strong>Payment</strong>")
         descriptionCell.content.asHtml.body must not include "Late payment interest"
+      }
+
+      "must build a refund row for an outstanding payment with a negative amount" in {
+        val vm  = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentRefund), Seq.empty, Seq.empty, None), returnsDateUtils)
+        val row = vm.outstandingRows.head
+
+        row.head.content.asHtml.body mustBe "N/A"
+        row(1).content.asHtml.body must include("<strong>Refund</strong>")
+        row(1).content.asHtml.body must include("XF123456789012")
+        row(2).content.asHtml.body mustBe "-£2,577.44"
+        row(2).classes must include("app-table__cell--nowrap")
+        row(3).content.asHtml.body must include("Nothing to pay")
+        row(3).content.asHtml.body must include("govuk-tag--grey")
+        row(4).content.asHtml.body must include("Claim refund")
+        row(4).content.asHtml.body must include("""href="#"""")
+        row(4).content.asHtml.body must not include "Pay now"
+      }
+
+      "must keep payment description and pay now link for an outstanding payment with a positive amount" in {
+        val vm  = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils)
+        val row = vm.outstandingRows.head
+
+        row.head.content.asHtml.body mustBe "25 February 2025"
+        row(1).content.asHtml.body must include("<strong>Payment</strong>")
+        row(2).content.asHtml.body mustBe "£167,000.80"
+        row(3).content.asHtml.body must include("Overdue")
+        row(4).content.asHtml.body must include("Pay now")
+        row(4).content.asHtml.body must not include "Claim refund"
       }
     }
 
