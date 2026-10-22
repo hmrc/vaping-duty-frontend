@@ -46,7 +46,7 @@ class ReturnSubmittedEmailService @Inject()(
     result: ReturnSubmittedResponse,
     obligation: ObligationDetails
   )(using HeaderCarrier): Future[Unit] =
-    getPaymentDueDate(vpdId, result, obligation).flatMap { paymentDueDate =>
+    getPaymentDueDate(vpdId, result).flatMap { paymentDueDate =>
       val recipient      = List(submission.declaration.signeesEmailAddress)
       val returnPeriod   = obligation.iCFromDate.format(RETURN_PERIOD_FORMATTER)
       val submissionDate = LocalDate.ofInstant(result.processingDate, ZONE_ID).format(SUBMISSION_DATE_FORMATTER)
@@ -61,7 +61,7 @@ class ReturnSubmittedEmailService @Inject()(
               submissionDate  = submissionDate,
               chargeReference = result.chargeReference.getOrElse(""),
               amountDue       = currencyFormat(result.amount),
-              paymentDueDate  = paymentDueDate.format(PAYMENT_DUE_FORMATTER)
+              paymentDueDate  = paymentDueDate.fold("")(_.format(PAYMENT_DUE_FORMATTER))
             )
           )
         } else if (result.amount < 0) {
@@ -90,12 +90,10 @@ class ReturnSubmittedEmailService @Inject()(
 
   private def getPaymentDueDate(
     vpdId: VpdId,
-    result: ReturnSubmittedResponse,
-    obligation: ObligationDetails
-  )(using HeaderCarrier): Future[LocalDate] = {
+    result: ReturnSubmittedResponse
+  )(using HeaderCarrier): Future[Option[LocalDate]] = {
     val chargeRef    = result.chargeReference.getOrElse("")
-    val fallbackDate = obligation.iCDueDate.withDayOfMonth(15)
     
-    financialDataService.getPaymentDueDate(vpdId, chargeRef, fallbackDate)
+    financialDataService.getPaymentDueDate(vpdId, chargeRef)
   }
 }
