@@ -63,8 +63,8 @@ class ConfirmationControllerSpec extends SpecBase {
         when(mockObligationService.getObligationByPeriodKey(any(), any())(using any()))
           .thenReturn(Future.successful(Some(obligation)))
 
-        when(mockFinancialDataService.getPaymentDueDate(any(), any(), any())(using any()))
-          .thenReturn(Future.successful(paymentDueDate))
+        when(mockFinancialDataService.getPaymentDueDate(any(), any())(using any()))
+          .thenReturn(Future.successful(Some(paymentDueDate)))
 
         val request = FakeRequest(GET, s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=$periodKey")
 
@@ -72,7 +72,7 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[ConfirmationEmailView]
 
-        val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentDueDate ,returnsDateUtils)(messages(application))
+        val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, Some(paymentDueDate), returnsDateUtils)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
@@ -87,6 +87,7 @@ class ConfirmationControllerSpec extends SpecBase {
       val application = applicationBuilder(returnsUserAnswers = Option(returnsUserAnswers))
         .overrides(bind[GetReturnsConnector].toInstance(mockGetReturnsConnector))
         .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(bind[FinancialDataService].toInstance(mockFinancialDataService))
         .build()
 
       running(application) {
@@ -97,7 +98,6 @@ class ConfirmationControllerSpec extends SpecBase {
           )
         )
         val obligation = createObligation()
-        val paymentDueDate = obligation.iCDueDate.withDayOfMonth(13)
 
         when(mockGetReturnsConnector.getReturn(any(), any())(using any()))
           .thenReturn(Future.successful(nilReturnResponse))
@@ -111,7 +111,7 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[ConfirmationEmailView]
 
-        val vm = ConfirmationViewModel(nilReturnResponse, obligation, btaLink, paymentDueDate, returnsDateUtils)(messages(application))
+        val vm = ConfirmationViewModel(nilReturnResponse, obligation, btaLink, None, returnsDateUtils)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
@@ -126,6 +126,7 @@ class ConfirmationControllerSpec extends SpecBase {
       val application = applicationBuilder(returnsUserAnswers = Option(returnsUserAnswers))
         .overrides(bind[GetReturnsConnector].toInstance(mockGetReturnsConnector))
         .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(bind[FinancialDataService].toInstance(mockFinancialDataService))
         .build()
 
       running(application) {
