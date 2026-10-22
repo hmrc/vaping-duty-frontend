@@ -24,9 +24,12 @@ import models.BtaLink
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.requests.IdentifierRequest
+import models.returns.view.ReturnDisplayResponse
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.*
+import services.payments.FinancialDataService
 import services.returns.ObligationService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.ConfirmationViewModel
@@ -44,6 +47,7 @@ class ConfirmationController @Inject()(
                                         view: ConfirmationEmailView,
                                         getReturnsConnector: GetReturnsConnector,
                                         obligationService: ObligationService,
+                                        financialDataService: FinancialDataService,
                                         config: FrontendAppConfig,
                                         returnsDateUtils: ReturnsDateUtils
                                       )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
@@ -56,11 +60,22 @@ class ConfirmationController @Inject()(
                                    (using request: IdentifierRequest[?]): Future[Result] =
     for {
       returnsResponse <- getReturnsConnector.getReturn(periodKey, request.enrolmentVpdId)
+      paymentDueDate  <- getPaymentDetail(request, returnsResponse)
       obligation      <- getObligation(periodKey)
     } yield {
-      val viewModel = ConfirmationViewModel(returnsResponse, obligation, BtaLink(config), returnsDateUtils)
+      val viewModel = ConfirmationViewModel(returnsResponse, obligation, BtaLink(config), paymentDueDate, returnsDateUtils)
       Ok(view(viewModel))
     }
+
+  private def getPaymentDetail(request: IdentifierRequest[?], returnsResponse: ReturnDisplayResponse)
+                              (using HeaderCarrier) = {
+    
+    val chargeRef = returnsResponse.success.chargeDetails.flatMap(_.chargeReference).getOrElse("")
+    
+    financialDataService.getOutstandingPayment(request.enrolmentVpdId, chargeRef).map { outstandingPayment =>
+      outstandingPayment.dueDate
+    }
+  }
 
   private def getObligation(periodKey: PeriodKey)
                            (using request: IdentifierRequest[?]): Future[ObligationDetails] =

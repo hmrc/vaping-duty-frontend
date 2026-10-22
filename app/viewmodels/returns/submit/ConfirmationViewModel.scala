@@ -51,6 +51,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
     returnsResponse: ReturnDisplayResponse,
     obligation: ObligationDetails,
     btaLink: String,
+    paymentDueDate: LocalDate,
     returnsDateUtils: ReturnsDateUtils
   )(implicit messages: Messages): ConfirmationViewModel = {
 
@@ -68,7 +69,6 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
     val periodMonthYearFormatted = s"${returnsDateUtils.getMonthMessage(obligation.iCFromDate.getMonth)} ${obligation.iCFromDate.getYear}"
 
-    val paymentDueDate = obligation.iCDueDate.withDayOfMonth(15)
     val paymentDueDateFormatted = s"${paymentDueDate.getDayOfMonth} ${returnsDateUtils.getMonthMessage(paymentDueDate.getMonth)} ${paymentDueDate.getYear}"
 
     new ConfirmationViewModel(
