@@ -70,7 +70,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
     val dueDate = paymentDueDate match {
       case Some(date) => s"${date.getDayOfMonth} ${returnsDateUtils.getMonthMessage(date.getMonth)} ${date.getYear}"
-      case None       => ""
+      case None => ""
     }
 
     val submissionDateFormatted = s"${submissionDate.getDayOfMonth} ${returnsDateUtils.getMonthMessage(submissionDate.getMonth)} ${submissionDate.getYear}"
@@ -139,11 +139,16 @@ object ConfirmationViewModel extends CurrencyFormatter {
     }
   }
 
-  private def warningSection(dutyDue: BigDecimal, paymentDueDate: String)(implicit messages: Messages) =
+  private def warningSection(dutyDue: BigDecimal, paymentDueDate: String)(implicit messages: Messages) = {
+    val warningMessage =
+      if (paymentDueDate.isEmpty) messages("returns.confirmation.warning.youMustNoDueDate", currencyFormat(dutyDue))
+      else messages("returns.confirmation.warning.youMust", currencyFormat(dutyDue), paymentDueDate)
+
     warning(WarningText(
       iconFallbackText = Some(messages("site.warning")),
-      content = Text(messages("returns.confirmation.warning.youMust", currencyFormat(dutyDue), paymentDueDate))
+      content = Text(warningMessage)
     ))
+  }
 
   private def chargeReferenceParagraph()(implicit messages: Messages) =
     p(Seq(Text(messages("returns.confirmation.p.chargeReferenceReminder"))))
