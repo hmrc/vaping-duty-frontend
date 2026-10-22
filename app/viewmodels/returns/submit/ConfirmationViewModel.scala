@@ -33,27 +33,27 @@ import views.html.components.{Heading2, Link, ListWithLinks, Paragraph}
 import java.time.{LocalDate, ZoneId}
 
 case class ConfirmationViewModel(
-  submissionDate: String,
-  periodMonthYear: String,
-  totalDutyAmount: BigDecimal,
-  paymentDueDate: String,
-  chargeReference: Option[String],
-  content: Html,
-  btaLink: String,
-  periodKey: PeriodKey
-)
+                                  submissionDate: String,
+                                  periodMonthYear: String,
+                                  totalDutyAmount: BigDecimal,
+                                  paymentDueDate: String,
+                                  chargeReference: Option[String],
+                                  content: Html,
+                                  btaLink: String,
+                                  periodKey: PeriodKey
+                                )
 
 object ConfirmationViewModel extends CurrencyFormatter {
 
   private val ZONE_ID = ZoneId.of("Europe/London")
 
   def apply(
-    returnsResponse: ReturnDisplayResponse,
-    obligation: ObligationDetails,
-    btaLink: String,
-    paymentDueDate: Option[LocalDate],
-    returnsDateUtils: ReturnsDateUtils
-  )(implicit messages: Messages): ConfirmationViewModel = {
+             returnsResponse: ReturnDisplayResponse,
+             obligation: ObligationDetails,
+             btaLink: String,
+             paymentDueDate: Option[LocalDate],
+             returnsDateUtils: ReturnsDateUtils
+           )(implicit messages: Messages): ConfirmationViewModel = {
 
     val totalDutyDue = returnsResponse.success.totalDutyDue.fold(BigDecimal("0"))(_.totalDue)
 
@@ -68,7 +68,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
     val dueDate = paymentDueDate match {
       case Some(date) => s"${date.getDayOfMonth} ${returnsDateUtils.getMonthMessage(date.getMonth)} ${date.getYear}"
-      case None       => ""
+      case None => ""
     }
 
     val submissionDateFormatted = s"${submissionDate.getDayOfMonth} ${returnsDateUtils.getMonthMessage(submissionDate.getMonth)} ${submissionDate.getYear}"
@@ -110,8 +110,8 @@ object ConfirmationViewModel extends CurrencyFormatter {
     val isChapsRequired = dutyDue >= ReturnsConstants.MAX_DIRECT_DEBIT_THRESHOLD
 
     HtmlFormat.fill(
-      topSection(dutyDue, paymentDueDate, isChapsRequired) ++ 
-      whatsNext(btaLink, isChapsRequired))
+      topSection(dutyDue, paymentDueDate, isChapsRequired) ++
+        whatsNext(btaLink, isChapsRequired))
   }
 
   private def topSection(dutyDue: BigDecimal, paymentDueDate: String, isChapsRequired: Boolean)(implicit messages: Messages): Seq[HtmlFormat.Appendable] = {
@@ -124,10 +124,10 @@ object ConfirmationViewModel extends CurrencyFormatter {
         chargeReferenceParagraph()
       )
     } else {
-      val interestMessage = 
+      val interestMessage =
         if (paymentDueDate.isEmpty) messages("returns.confirmation.p.interestNoDate")
         else messages("returns.confirmation.p.interest", paymentDueDate)
-      
+
       Seq(
         warningSection(dutyDue, paymentDueDate),
         chargeReferenceParagraph(),
@@ -136,11 +136,16 @@ object ConfirmationViewModel extends CurrencyFormatter {
     }
   }
 
-  private def warningSection(dutyDue: BigDecimal, paymentDueDate: String)(implicit messages: Messages) =
+  private def warningSection(dutyDue: BigDecimal, paymentDueDate: String)(implicit messages: Messages) = {
+    val warningMessage =
+      if (paymentDueDate.isEmpty) messages("returns.confirmation.warning.youMustNoDueDate", currencyFormat(dutyDue))
+      else messages("returns.confirmation.warning.youMust", currencyFormat(dutyDue), paymentDueDate)
+
     warning(WarningText(
       iconFallbackText = Some(messages("site.warning")),
-      content = Text(messages("returns.confirmation.warning.youMust", currencyFormat(dutyDue), paymentDueDate))
+      content = Text(warningMessage)
     ))
+  }
 
   private def chargeReferenceParagraph()(implicit messages: Messages) =
     p(Seq(Text(messages("returns.confirmation.p.chargeReferenceReminder"))))

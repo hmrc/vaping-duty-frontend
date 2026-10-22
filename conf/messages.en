@@ -430,6 +430,7 @@ returns.confirmation.panel.chargeReference = Your charge reference number is
 returns.confirmation.p.submitted = You submitted your Vaping Products Duty return on {0} for {1}.
 returns.confirmation.h2.whatYou = What you must do next
 returns.confirmation.warning.youMust = You must pay {0} by {1}.
+returns.confirmation.warning.youMustNoDueDate = You must pay {0}.
 returns.confirmation.h2.whatNext = What you can do next
 returns.confirmation.bullet.bta.prefix = Pay your duty now or later from your
 returns.confirmation.bullet.bta.linkText = business tax account
