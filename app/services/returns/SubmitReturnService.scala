@@ -66,7 +66,7 @@ class SubmitReturnService @Inject()(
         SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, result, request.identifiers, obligations))
 
       if (appConfig.returnSubmittedEmailEnabled) {
-        returnSubmittedEmailService.sendReturnSubmittedEmail(submission, result, obligation)
+        returnSubmittedEmailService.sendReturnSubmittedEmail(request.enrolmentVpdId, submission, result, obligation)
       }
 
       result

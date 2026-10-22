@@ -18,11 +18,14 @@ package services.payments
 
 import base.SpecBase
 import connectors.payments.FinancialDataConnector
-import models.payments.PaymentsResponse
+import models.identifiers.VpdId
+import models.payments.{OutstandingPayment, PaymentsResponse}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar.mock
+import uk.gov.hmrc.vapingdutyfinance.models.{MainTransactionType, PaymentStatus}
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class FinancialDataServiceSpec extends SpecBase {
@@ -118,6 +121,76 @@ class FinancialDataServiceSpec extends SpecBase {
 
       whenReady(service.getOutstandingPayment(vpdId, chargeReference).failed) { exception =>
         exception.getMessage mustBe "Connector error"
+      }
+    }
+  }
+
+  "getPaymentDueDate" - {
+    "must return the due date from outstanding payment when charge reference exists" in {
+      val mockConnector = mock[FinancialDataConnector]
+      val service = new FinancialDataService(mockConnector)
+      val chargeReference = "XYZ123"
+      val expectedDueDate = LocalDate.of(2024, 3, 15)
+      val fallbackDate    = LocalDate.of(2024, 2, 15)
+      
+      val outstandingPayment = OutstandingPayment(
+        chargeReference = chargeReference,
+        amountDue = 100.00,
+        dueDate = expectedDueDate,
+        status = PaymentStatus.Due,
+        mainTransaction = MainTransactionType.PaymentOnAccount
+      )
+      
+      val paymentsResponse = PaymentsResponse(Seq(outstandingPayment), Seq.empty, Seq.empty, Some(BigDecimal("100")))
+      
+      when(mockConnector.getPayments(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(paymentsResponse))
+      
+      whenReady(service.getPaymentDueDate(vpdId, chargeReference, fallbackDate)) { result =>
+        result mustBe expectedDueDate
+      }
+    }
+
+    "must return fallback date when charge reference is empty" in {
+      val mockConnector = mock[FinancialDataConnector]
+      val service = new FinancialDataService(mockConnector)
+      val chargeReference = ""
+      val fallbackDate    = LocalDate.of(2024, 2, 15)
+      
+      whenReady(service.getPaymentDueDate(vpdId, chargeReference, fallbackDate)) { result =>
+        result mustBe fallbackDate
+      }
+      
+      verify(mockConnector, never()).getPayments(any[VpdId])(using any())
+    }
+
+    "must return fallback date when payment not found" in {
+      val mockConnector = mock[FinancialDataConnector]
+      val service = new FinancialDataService(mockConnector)
+      val chargeReference = "XYZ123"
+      val fallbackDate    = LocalDate.of(2024, 2, 15)
+      
+      val paymentsResponse = PaymentsResponse(Seq.empty, Seq.empty, Seq.empty, None)
+      
+      when(mockConnector.getPayments(eqTo(vpdId))(using any()))
+        .thenReturn(Future.successful(paymentsResponse))
+      
+      whenReady(service.getPaymentDueDate(vpdId, chargeReference, fallbackDate)) { result =>
+        result mustBe fallbackDate
+      }
+    }
+
+    "must return fallback date when connector fails" in {
+      val mockConnector = mock[FinancialDataConnector]
+      val service = new FinancialDataService(mockConnector)
+      val chargeReference = "XYZ123"
+      val fallbackDate    = LocalDate.of(2024, 2, 15)
+      
+      when(mockConnector.getPayments(eqTo(vpdId))(using any()))
+        .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
+      
+      whenReady(service.getPaymentDueDate(vpdId, chargeReference, fallbackDate)) { result =>
+        result mustBe fallbackDate
       }
     }
   }
