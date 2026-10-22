@@ -27,7 +27,7 @@ import services.nrs.NrsService.nonRepudiationIdentityRetrievals
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
-import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException, SessionKeys}
 import uk.gov.hmrc.mongo.workitem.{ProcessingStatus, WorkItem}
 import utils.{DateTimeService, NrsUtils}
 
@@ -187,7 +187,11 @@ class NrsService @Inject()(
     }
 
   private def extractHeaders()(using request: Request[_]): Map[String, String] = {
-    request.headers.toSimpleMap
+    request.headers.toSimpleMap ++ getSessionId(request)
+  }
+
+  private def getSessionId(request: Request[_]) = {
+    request.session.data.filter((k, _) => k == SessionKeys.sessionId)
   }
 }
 
