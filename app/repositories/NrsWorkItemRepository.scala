@@ -82,12 +82,13 @@ class NrsWorkItemRepository @Inject()(
               retryCounter.inc()
 
               if (failureCount >= maxBackoffSteps) {
-                logger.info(
-                  s"NRS work item $id has reached max retries ($failureCount), " +
+                //DO NOT change this log line without changing the alert in alert-config.
+                logger.warn(
+                  s"NRS work item has reached max retries for $id($failureCount), " +
                   s"continuing with capped delay of $delayMinutes minutes"
                 )
               } else {
-                logger.info(
+                logger.warn(
                   s"NRS work item $id failed (attempt $failureCount/$maxBackoffSteps), " +
                   s"retrying in $delayMinutes minutes"
                 )

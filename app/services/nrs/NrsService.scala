@@ -150,6 +150,7 @@ class NrsService @Inject()(
         }
       case NrsSubmissionResult.PermanentFailure =>
         nrsWorkItemRepository.markAs(workItem.id, ProcessingStatus.PermanentlyFailed).map { _ =>
+          //DO NOT change this log line without changing the alert in alert-config.
           logger.warn(s"Permanently failed to process NRS work item: ${workItem.id} with permanent error. Will not retry.")
           ()
         }
