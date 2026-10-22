@@ -84,7 +84,8 @@ class NrsConnector @Inject()(
             logger.warn(s"NRS submission failed with retryable 5xx status: $status for CorrelationId: $correlationId")
             NrsSubmissionResult.RetryableFailure
           case TOO_MANY_REQUESTS | UNPROCESSABLE_ENTITY | 499 =>
-            logger.warn(s"NRS submission failed with retryable TOO_MANY_REQUESTS/UNPROCESSABLE_ENTITY/499 for CorrelationId: $correlationId")
+            logger.warn("NRS submission failed with retryable " +
+              s"TOO_MANY_REQUESTS/UNPROCESSABLE_ENTITY/499 for CorrelationId: $correlationId")
             NrsSubmissionResult.RetryableFailure
           case status =>
             logger.warn(s"NRS submission failed with permanent 4xx status: $status for CorrelationId: $correlationId")
