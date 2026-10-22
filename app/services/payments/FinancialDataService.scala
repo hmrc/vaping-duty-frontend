@@ -21,6 +21,7 @@ import models.identifiers.VpdId
 import models.payments.{OutstandingPayment, PaymentsResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,5 +40,15 @@ class FinancialDataService @Inject()(
           // scalafix:off DisableSyntax.throw
           throw new NoSuchElementException(s"No outstanding payment found for charge reference: $chargeReference")
         )
+    }
+
+  def getPaymentDueDate(vpdId: VpdId, chargeReference: String, fallbackDate: LocalDate)
+                       (using HeaderCarrier): Future[LocalDate] =
+    if (chargeReference.isEmpty) {
+      Future.successful(fallbackDate)
+    } else {
+      getOutstandingPayment(vpdId, chargeReference)
+        .map(_.dueDate)
+        .recover { case _ => fallbackDate }
     }
 }

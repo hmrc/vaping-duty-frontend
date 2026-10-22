@@ -106,7 +106,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     reset(mockAuditService)
     reset(mockSubmitReturnConnector)
     reset(mockReturnSubmittedEmailService)
-    when(mockReturnSubmittedEmailService.sendReturnSubmittedEmail(any(), any(), any())(using any()))
+    when(mockReturnSubmittedEmailService.sendReturnSubmittedEmail(any(), any(), any(), any())(using any()))
       .thenReturn(Future.successful(()))
     reset(mockConfig)
     when(mockConfig.returnSubmittedEmailEnabled).thenReturn(true)
@@ -159,7 +159,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         verify(mockSubmitReturnConnector).submitReturn(eqTo(nonNilReturnCreatedRequest), eqTo(vpdId))(any())
         verify(mockAuditService).auditReturnSubmitted(any[JsObject])(any())
         verify(mockReturnSubmittedEmailService)
-          .sendReturnSubmittedEmail(eqTo(nonNilReturnCreatedRequest), eqTo(submittedResponse), eqTo(obligation))(using any())
+          .sendReturnSubmittedEmail(eqTo(vpdId), eqTo(nonNilReturnCreatedRequest), eqTo(submittedResponse), eqTo(obligation))(using any())
       }
 
       "must not send a confirmation email when returnSubmittedEmailEnabled is false" in {
@@ -182,7 +182,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         result mustBe submittedResponse
         verify(mockReturnSubmittedEmailService, never())
-          .sendReturnSubmittedEmail(any(), any(), any())(using any())
+          .sendReturnSubmittedEmail(any(), any(), any(), any())(using any())
       }
 
       "fail when no obligation found" in {

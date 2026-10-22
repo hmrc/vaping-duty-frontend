@@ -19,20 +19,24 @@ package services.email
 import base.SpecBase
 import connectors.email.EmailConnector
 import models.email.*
+import models.identifiers.VpdId
 import models.obligations.ObligationDetails
 import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, UnderDeclaration}
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar.mock
+import services.payments.FinancialDataService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.{Instant, LocalDate}
 import scala.concurrent.Future
 
 class ReturnSubmittedEmailServiceSpec extends SpecBase {
+
+  private val vpdId = VpdId("XMVPD0000100000")
 
   private val declaration = DeclarationDetails(
     fullName = "John Smith",
@@ -75,29 +79,84 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
 
   "sendReturnSubmittedEmail" - {
 
-    "must send a DutyDueEmail when the amount is positive" in new SetUp {
-      stubSuccessfulPost()
+    "must send a DutyDueEmail when the amount is positive" - {
 
-      service.sendReturnSubmittedEmail(submission(220.00), response(220.00), obligation).futureValue
+      "using actual payment due date from financial data service" in new SetUp {
+        val actualPaymentDueDate = LocalDate.of(2026, 11, 20)
 
-      val sent = captureEmail()
-      sent mustBe a[DutyDueEmail]
-      val email = sent.asInstanceOf[DutyDueEmail]
-      email.to mustBe List("john.smith@example.com")
-      email.parameters mustBe DutyDueEmailParameters(
-        recipientName = "John Smith",
-        returnPeriod = "October 2026",
-        submissionDate = "3 November 2026",
-        chargeReference = "VPD38270541977",
-        amountDue = "£220",
-        paymentDueDate = "15 November 2026"
-      )
+        when(mockFinancialDataService.getPaymentDueDate(
+          eqTo(vpdId),
+          eqTo("VPD38270541977"),
+          eqTo(LocalDate.of(2026, 11, 15))
+        )(using any[HeaderCarrier]))
+          .thenReturn(Future.successful(actualPaymentDueDate))
+
+        stubSuccessfulPost()
+
+        service.sendReturnSubmittedEmail(vpdId, submission(220.00), response(220.00), obligation).futureValue
+
+        val sent = captureEmail()
+        sent mustBe a[DutyDueEmail]
+        val email = sent.asInstanceOf[DutyDueEmail]
+        email.to mustBe List("john.smith@example.com")
+        email.parameters mustBe DutyDueEmailParameters(
+          recipientName = "John Smith",
+          returnPeriod = "October 2026",
+          submissionDate = "3 November 2026",
+          chargeReference = "VPD38270541977",
+          amountDue = "£220",
+          paymentDueDate = "20 November 2026"
+        )
+      }
+
+      "using fallback date when financial data service fails" in new SetUp {
+        when(mockFinancialDataService.getPaymentDueDate(
+          eqTo(vpdId),
+          eqTo("VPD38270541977"),
+          eqTo(LocalDate.of(2026, 11, 15))
+        )(using any[HeaderCarrier]))
+          .thenReturn(Future.successful(LocalDate.of(2026, 11, 15)))
+
+        stubSuccessfulPost()
+
+        service.sendReturnSubmittedEmail(vpdId, submission(220.00), response(220.00), obligation).futureValue
+
+        val sent = captureEmail()
+        sent mustBe a[DutyDueEmail]
+        val email = sent.asInstanceOf[DutyDueEmail]
+        email.parameters.paymentDueDate mustBe "15 November 2026"
+      }
+
+      "using fallback date when charge reference is empty" in new SetUp {
+        when(mockFinancialDataService.getPaymentDueDate(
+          eqTo(vpdId),
+          eqTo(""),
+          eqTo(LocalDate.of(2026, 11, 15))
+        )(using any[HeaderCarrier]))
+          .thenReturn(Future.successful(LocalDate.of(2026, 11, 15)))
+
+        stubSuccessfulPost()
+
+        service.sendReturnSubmittedEmail(vpdId, submission(220.00), response(220.00, None), obligation).futureValue
+
+        val sent = captureEmail()
+        sent mustBe a[DutyDueEmail]
+        val email = sent.asInstanceOf[DutyDueEmail]
+        email.parameters.paymentDueDate mustBe "15 November 2026"
+      }
     }
 
     "must send a NilReturnEmail when the amount is zero" in new SetUp {
+      when(mockFinancialDataService.getPaymentDueDate(
+        eqTo(vpdId),
+        eqTo("VPD38270541977"),
+        eqTo(LocalDate.of(2026, 11, 15))
+      )(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(LocalDate.of(2026, 11, 15)))
+
       stubSuccessfulPost()
 
-      service.sendReturnSubmittedEmail(submission(0), response(0), obligation).futureValue
+      service.sendReturnSubmittedEmail(vpdId, submission(0), response(0), obligation).futureValue
 
       val sent = captureEmail()
       sent mustBe a[NilReturnEmail]
@@ -109,9 +168,16 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
     }
 
     "must send a CreditDueEmail with the absolute amount when the amount is negative" in new SetUp {
+      when(mockFinancialDataService.getPaymentDueDate(
+        eqTo(vpdId),
+        eqTo("VPD38270541977"),
+        eqTo(LocalDate.of(2026, 11, 15))
+      )(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(LocalDate.of(2026, 11, 15)))
+
       stubSuccessfulPost()
 
-      service.sendReturnSubmittedEmail(submission(-50.00), response(-50.00), obligation).futureValue
+      service.sendReturnSubmittedEmail(vpdId, submission(-50.00), response(-50.00), obligation).futureValue
 
       val sent = captureEmail()
       sent mustBe a[CreditDueEmail]
@@ -127,7 +193,8 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
 
   class SetUp {
     val mockEmailConnector: EmailConnector = mock[EmailConnector]
-    val service = new ReturnSubmittedEmailService(mockEmailConnector)
+    val mockFinancialDataService: FinancialDataService = mock[FinancialDataService]
+    val service = new ReturnSubmittedEmailService(mockEmailConnector, mockFinancialDataService)
 
     def stubSuccessfulPost(): Unit =
       when(mockEmailConnector.postEmail(any(), any())(using any()))

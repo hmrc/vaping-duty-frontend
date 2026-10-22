@@ -35,6 +35,7 @@ import utils.ReturnsDateUtils
 import viewmodels.returns.submit.ConfirmationViewModel
 import views.html.returns.submit.ConfirmationEmailView
 
+import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -68,13 +69,11 @@ class ConfirmationController @Inject()(
     }
 
   private def getPaymentDetail(request: IdentifierRequest[?], returnsResponse: ReturnDisplayResponse)
-                              (using HeaderCarrier) = {
+                              (using HeaderCarrier): Future[LocalDate] = {
+    val chargeRef    = returnsResponse.success.chargeDetails.flatMap(_.chargeReference).getOrElse("")
+    val fallbackDate = LocalDate.now().plusMonths(1).withDayOfMonth(15)
 
-    val chargeRef = returnsResponse.success.chargeDetails.flatMap(_.chargeReference).getOrElse("")
-
-    financialDataService.getOutstandingPayment(request.enrolmentVpdId, chargeRef).map { outstandingPayment =>
-      outstandingPayment.dueDate
-    }
+    financialDataService.getPaymentDueDate(request.enrolmentVpdId, chargeRef, fallbackDate)
   }
 
   private def getObligation(periodKey: PeriodKey)
