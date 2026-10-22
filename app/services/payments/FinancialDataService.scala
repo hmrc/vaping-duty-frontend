@@ -42,13 +42,16 @@ class FinancialDataService @Inject()(
         )
     }
 
-  def getPaymentDueDate(vpdId: VpdId, chargeReference: String, fallbackDate: LocalDate)
-                       (using HeaderCarrier): Future[LocalDate] =
+  def getPaymentDueDate(vpdId: VpdId, chargeReference: String)
+                       (using HeaderCarrier): Future[Option[LocalDate]] =
     if (chargeReference.isEmpty) {
-      Future.successful(fallbackDate)
+      Future.successful(None)
     } else {
       getOutstandingPayment(vpdId, chargeReference)
-        .map(_.dueDate)
-        .recover { case _ => fallbackDate }
+        .map(outstandingPayment => Some(outstandingPayment.dueDate))
+        .recover {
+          case _: NoSuchElementException => None
+          case _                         => None
+        }
     }
 }

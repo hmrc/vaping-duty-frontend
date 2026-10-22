@@ -53,7 +53,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
     obligation: ObligationDetails,
     btaLink: String,
     paymentLink: String,
-    paymentDueDate: LocalDate,
+    paymentDueDate: Option[LocalDate],
     returnsDateUtils: ReturnsDateUtils
   )(implicit messages: Messages): ConfirmationViewModel = {
 
@@ -67,19 +67,23 @@ object ConfirmationViewModel extends CurrencyFormatter {
       returnsResponse.success.processingDate,
       ZONE_ID
     )
+
+    val dueDate = paymentDueDate match {
+      case Some(date) => s"${date.getDayOfMonth} ${returnsDateUtils.getMonthMessage(date.getMonth)} ${date.getYear}"
+      case None       => ""
+    }
+
     val submissionDateFormatted = s"${submissionDate.getDayOfMonth} ${returnsDateUtils.getMonthMessage(submissionDate.getMonth)} ${submissionDate.getYear}"
 
     val periodMonthYearFormatted = s"${returnsDateUtils.getMonthMessage(obligation.iCFromDate.getMonth)} ${obligation.iCFromDate.getYear}"
-
-    val paymentDueDateFormatted = s"${paymentDueDate.getDayOfMonth} ${returnsDateUtils.getMonthMessage(paymentDueDate.getMonth)} ${paymentDueDate.getYear}"
 
     new ConfirmationViewModel(
       submissionDate = submissionDateFormatted,
       periodMonthYear = periodMonthYearFormatted,
       totalDutyAmount = totalDutyDue,
-      paymentDueDate = paymentDueDateFormatted,
+      paymentDueDate = dueDate,
       chargeReference = chargeReference,
-      content = getContent(totalDutyDue, paymentDueDateFormatted, btaLink, paymentLink),
+      content = getContent(totalDutyDue, dueDate, btaLink, paymentLink),
       btaLink = btaLink,
       paymentLink = paymentLink,
       periodKey = PeriodKey(obligation.periodKey)
@@ -123,10 +127,14 @@ object ConfirmationViewModel extends CurrencyFormatter {
         chargeReferenceParagraph()
       )
     } else {
+      val interestMessage =
+        if (paymentDueDate.isEmpty) messages("returns.confirmation.p.interestNoDate")
+        else messages("returns.confirmation.p.interest", paymentDueDate)
+
       Seq(
         warningSection(dutyDue, paymentDueDate),
         chargeReferenceParagraph(),
-        p(Seq(Text(messages("returns.confirmation.p.interest", paymentDueDate))))
+        p(Seq(Text(interestMessage)))
       )
     }
   }

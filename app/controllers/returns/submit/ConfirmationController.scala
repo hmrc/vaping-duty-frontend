@@ -69,11 +69,10 @@ class ConfirmationController @Inject()(
     }
 
   private def getPaymentDetail(request: IdentifierRequest[?], returnsResponse: ReturnDisplayResponse)
-                              (using HeaderCarrier): Future[LocalDate] = {
-    val chargeRef    = returnsResponse.success.chargeDetails.flatMap(_.chargeReference).getOrElse("")
-    val fallbackDate = LocalDate.now().plusMonths(1).withDayOfMonth(15)
+                              (using HeaderCarrier): Future[Option[LocalDate]] = {
+    val chargeRef = returnsResponse.success.chargeDetails.flatMap(_.chargeReference).getOrElse("")
 
-    financialDataService.getPaymentDueDate(request.enrolmentVpdId, chargeRef, fallbackDate)
+    financialDataService.getPaymentDueDate(request.enrolmentVpdId, chargeRef)
   }
 
   private def getObligation(periodKey: PeriodKey)

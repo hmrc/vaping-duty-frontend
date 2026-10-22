@@ -131,8 +131,7 @@ class FinancialDataServiceSpec extends SpecBase {
       val service = new FinancialDataService(mockConnector)
       val chargeReference = "XYZ123"
       val expectedDueDate = LocalDate.of(2024, 3, 15)
-      val fallbackDate    = LocalDate.of(2024, 2, 15)
-      
+
       val outstandingPayment = OutstandingPayment(
         chargeReference = chargeReference,
         amountDue = 100.00,
@@ -146,51 +145,48 @@ class FinancialDataServiceSpec extends SpecBase {
       when(mockConnector.getPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(paymentsResponse))
       
-      whenReady(service.getPaymentDueDate(vpdId, chargeReference, fallbackDate)) { result =>
-        result mustBe expectedDueDate
+      whenReady(service.getPaymentDueDate(vpdId, chargeReference)) { result =>
+        result mustBe Some(expectedDueDate)
       }
     }
 
-    "must return fallback date when charge reference is empty" in {
+    "must return None when charge reference is empty" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
       val chargeReference = ""
-      val fallbackDate    = LocalDate.of(2024, 2, 15)
       
-      whenReady(service.getPaymentDueDate(vpdId, chargeReference, fallbackDate)) { result =>
-        result mustBe fallbackDate
+      whenReady(service.getPaymentDueDate(vpdId, chargeReference)) { result =>
+        result mustBe None
       }
       
       verify(mockConnector, never()).getPayments(any[VpdId])(using any())
     }
 
-    "must return fallback date when payment not found" in {
+    "must return None when payment not found" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
       val chargeReference = "XYZ123"
-      val fallbackDate    = LocalDate.of(2024, 2, 15)
       
       val paymentsResponse = PaymentsResponse(Seq.empty, Seq.empty, Seq.empty, None)
       
       when(mockConnector.getPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(paymentsResponse))
       
-      whenReady(service.getPaymentDueDate(vpdId, chargeReference, fallbackDate)) { result =>
-        result mustBe fallbackDate
+      whenReady(service.getPaymentDueDate(vpdId, chargeReference)) { result =>
+        result mustBe None
       }
     }
 
-    "must return fallback date when connector fails" in {
+    "must return None when connector fails" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
       val chargeReference = "XYZ123"
-      val fallbackDate    = LocalDate.of(2024, 2, 15)
-      
+
       when(mockConnector.getPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.failed(new RuntimeException("Service unavailable")))
       
-      whenReady(service.getPaymentDueDate(vpdId, chargeReference, fallbackDate)) { result =>
-        result mustBe fallbackDate
+      whenReady(service.getPaymentDueDate(vpdId, chargeReference)) { result =>
+        result mustBe None
       }
     }
   }
