@@ -54,7 +54,7 @@ object ViewPaymentsViewModel {
 
   private def buildOutstandingRow(payment: OutstandingPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] = {
     val isRefund = payment.amountDue < 0
-    val descriptionKey = if (isRefund) "payments.viewPayments.table.description.refund" else descriptionMessageKey(payment)
+    val descriptionKey = if (isRefund) "payments.viewPayments.table.description.repayment" else descriptionMessageKey(payment)
     val status = if (isRefund) PaymentStatus.NothingToPay else payment.status
 
     Seq(
@@ -100,10 +100,10 @@ object ViewPaymentsViewModel {
 
   private def claimRefundLink(payment: OutstandingPayment)(implicit messages: Messages): String =
     s"""<a href="#" class="${CssConstants.linkNoWrap}">
-       |${messages("payments.viewPayments.table.claimRefund")}
+       |${messages("payments.viewPayments.table.claimRepayment")}
        |<span class="govuk-visually-hidden">
        | ${messages(
-         "payments.viewPayments.table.claimRefund.hidden",
+         "payments.viewPayments.table.claimRepayment.hidden",
          CurrencyFormatter.currencyFormat(payment.amountDue.abs)
        )}
        |</span>
