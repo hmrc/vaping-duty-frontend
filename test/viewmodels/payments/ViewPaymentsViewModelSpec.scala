@@ -166,13 +166,13 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         val row = vm.outstandingRows.head
 
         row.head.content.asHtml.body mustBe "N/A"
-        row(1).content.asHtml.body must include("<strong>Refund</strong>")
+        row(1).content.asHtml.body must include("<strong>Repayment</strong>")
         row(1).content.asHtml.body must include("XF123456789012")
         row(2).content.asHtml.body mustBe "-£2,577.44"
         row(2).classes must include("app-table__cell--nowrap")
         row(3).content.asHtml.body must include("Nothing to pay")
         row(3).content.asHtml.body must include("govuk-tag--grey")
-        row(4).content.asHtml.body must include("Claim refund")
+        row(4).content.asHtml.body must include("Claim repayment")
         row(4).content.asHtml.body must include("""href="#"""")
         row(4).content.asHtml.body must not include "Pay now"
       }
