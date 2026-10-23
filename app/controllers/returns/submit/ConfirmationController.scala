@@ -61,14 +61,14 @@ class ConfirmationController @Inject()(
                                    (using request: IdentifierRequest[?]): Future[Result] =
     for {
       returnsResponse <- getReturnsConnector.getReturn(periodKey, request.enrolmentVpdId)
-      paymentDueDate <- getPaymentDetail(request, returnsResponse)
-      obligation <- getObligation(periodKey)
+      paymentDueDate  <- getPaymentDueDate(request, returnsResponse)
+      obligation      <- getObligation(periodKey)
     } yield {
       val viewModel = ConfirmationViewModel(returnsResponse, obligation, BtaLink(config), config.makeChapsPayment, paymentDueDate, returnsDateUtils)
       Ok(view(viewModel))
     }
 
-  private def getPaymentDetail(request: IdentifierRequest[?], returnsResponse: ReturnDisplayResponse)
+  private def getPaymentDueDate(request: IdentifierRequest[?], returnsResponse: ReturnDisplayResponse)
                               (using HeaderCarrier): Future[Option[LocalDate]] = {
     returnsResponse.success.chargeDetails
       .flatMap(_.chargeReference)
