@@ -102,9 +102,9 @@ class ReturnSubmittedEmailService @Inject()(
   private def getPaymentDueDate(
                                  vpdId: VpdId,
                                  result: ReturnSubmittedResponse
-                               )(using HeaderCarrier): Future[Option[LocalDate]] = {
-    val chargeRef = result.chargeReference.getOrElse("")
-
-    financialDataService.getPaymentDueDate(vpdId, chargeRef)
-  }
+                               )(using HeaderCarrier): Future[Option[LocalDate]] =
+    result.chargeReference match {
+      case Some(chargeRef) => financialDataService.getPaymentDueDate(vpdId, chargeRef)
+      case None            => Future.successful(None)
+    }
 }

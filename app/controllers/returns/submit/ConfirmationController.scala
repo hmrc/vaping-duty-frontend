@@ -61,8 +61,8 @@ class ConfirmationController @Inject()(
                                    (using request: IdentifierRequest[?]): Future[Result] =
     for {
       returnsResponse <- getReturnsConnector.getReturn(periodKey, request.enrolmentVpdId)
-      paymentDueDate  <- getPaymentDetail(request, returnsResponse)
-      obligation      <- getObligation(periodKey)
+      paymentDueDate <- getPaymentDetail(request, returnsResponse)
+      obligation <- getObligation(periodKey)
     } yield {
       val viewModel = ConfirmationViewModel(returnsResponse, obligation, BtaLink(config), config.makeChapsPayment, paymentDueDate, returnsDateUtils)
       Ok(view(viewModel))
@@ -70,16 +70,18 @@ class ConfirmationController @Inject()(
 
   private def getPaymentDetail(request: IdentifierRequest[?], returnsResponse: ReturnDisplayResponse)
                               (using HeaderCarrier): Future[Option[LocalDate]] = {
-    val chargeRef = returnsResponse.success.chargeDetails.flatMap(_.chargeReference).getOrElse("")
-
-    financialDataService.getPaymentDueDate(request.enrolmentVpdId, chargeRef)
+    returnsResponse.success.chargeDetails
+      .flatMap(_.chargeReference)
+      .fold(Future.successful(None))(chargeRef =>
+        financialDataService.getPaymentDueDate(request.enrolmentVpdId, chargeRef)
+      )
   }
 
   private def getObligation(periodKey: PeriodKey)
                            (using request: IdentifierRequest[?]): Future[ObligationDetails] =
     obligationService.getObligationByPeriodKey(request.enrolmentVpdId, periodKey).map {
       case Some(obligation) => obligation
-      case None             =>
+      case None =>
         // scalafix:off DisableSyntax.throw
         throw new RuntimeException("Obligation not found")
     }
