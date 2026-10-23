@@ -31,55 +31,66 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ReturnSubmittedEmailService @Inject()(
-  emailConnector: EmailConnector,
-  financialDataService: FinancialDataService
-)(using ExecutionContext) extends CurrencyFormatter {
+                                             emailConnector: EmailConnector,
+                                             financialDataService: FinancialDataService
+                                           )(using ExecutionContext) extends CurrencyFormatter {
 
-  private val RETURN_PERIOD_FORMATTER   = DateTimeFormatter.ofPattern("MMMM yyyy")
+  private val RETURN_PERIOD_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy")
   private val SUBMISSION_DATE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
-  private val PAYMENT_DUE_FORMATTER     = DateTimeFormatter.ofPattern("d MMMM yyyy")
-  private val ZONE_ID                   = ZoneId.of("Europe/London")
+  private val PAYMENT_DUE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private val ZONE_ID = ZoneId.of("Europe/London")
 
   def sendReturnSubmittedEmail(
-    vpdId: VpdId,
-    submission: ReturnCreateRequest,
-    result: ReturnSubmittedResponse,
-    obligation: ObligationDetails
-  )(using HeaderCarrier): Future[Unit] =
+                                vpdId: VpdId,
+                                submission: ReturnCreateRequest,
+                                result: ReturnSubmittedResponse,
+                                obligation: ObligationDetails
+                              )(using HeaderCarrier): Future[Unit] =
     getPaymentDueDate(vpdId, result).flatMap { paymentDueDate =>
-      val recipient      = List(submission.declaration.signeesEmailAddress)
-      val returnPeriod   = obligation.iCFromDate.format(RETURN_PERIOD_FORMATTER)
+      val recipient = List(submission.declaration.signeesEmailAddress)
+      val returnPeriod = obligation.iCFromDate.format(RETURN_PERIOD_FORMATTER)
       val submissionDate = LocalDate.ofInstant(result.processingDate, ZONE_ID).format(SUBMISSION_DATE_FORMATTER)
 
       val email: Email =
-        if (result.amount > 0) {
+        if (result.amount > 0 && paymentDueDate.nonEmpty) {
           DutyDueEmail(
             to = recipient,
             parameters = DutyDueEmailParameters(
-              recipientName   = submission.declaration.fullName,
-              returnPeriod    = returnPeriod,
-              submissionDate  = submissionDate,
+              recipientName = submission.declaration.fullName,
+              returnPeriod = returnPeriod,
+              submissionDate = submissionDate,
               chargeReference = result.chargeReference.getOrElse(""),
-              amountDue       = currencyFormat(result.amount),
-              paymentDueDate  = paymentDueDate.fold("")(_.format(PAYMENT_DUE_FORMATTER))
+              amountDue = currencyFormat(result.amount),
+              paymentDueDate = paymentDueDate.fold("")(_.format(PAYMENT_DUE_FORMATTER))
+            )
+          )
+        } else if (result.amount > 0) {
+          DutyDueNoDueDateEmail(
+            to = recipient,
+            parameters = DutyDueNoDueDateEmailParameters(
+              recipientName = submission.declaration.fullName,
+              returnPeriod = returnPeriod,
+              submissionDate = submissionDate,
+              chargeReference = result.chargeReference.getOrElse(""),
+              amountDue = currencyFormat(result.amount)
             )
           )
         } else if (result.amount < 0) {
           CreditDueEmail(
             to = recipient,
             parameters = CreditDueEmailParameters(
-              recipientName  = submission.declaration.fullName,
-              returnPeriod   = returnPeriod,
+              recipientName = submission.declaration.fullName,
+              returnPeriod = returnPeriod,
               submissionDate = submissionDate,
-              creditAmount   = currencyFormat(result.amount.abs)
+              creditAmount = currencyFormat(result.amount.abs)
             )
           )
         } else {
           NilReturnEmail(
             to = recipient,
             parameters = NilReturnEmailParameters(
-              recipientName  = submission.declaration.fullName,
-              returnPeriod   = returnPeriod,
+              recipientName = submission.declaration.fullName,
+              returnPeriod = returnPeriod,
               submissionDate = submissionDate
             )
           )
@@ -89,11 +100,11 @@ class ReturnSubmittedEmailService @Inject()(
     }
 
   private def getPaymentDueDate(
-    vpdId: VpdId,
-    result: ReturnSubmittedResponse
-  )(using HeaderCarrier): Future[Option[LocalDate]] = {
-    val chargeRef    = result.chargeReference.getOrElse("")
-    
+                                 vpdId: VpdId,
+                                 result: ReturnSubmittedResponse
+                               )(using HeaderCarrier): Future[Option[LocalDate]] = {
+    val chargeRef = result.chargeReference.getOrElse("")
+
     financialDataService.getPaymentDueDate(vpdId, chargeRef)
   }
 }
