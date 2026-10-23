@@ -36,7 +36,7 @@ case class ConfirmationViewModel(
                                   submissionDate: String,
                                   periodMonthYear: String,
                                   totalDutyAmount: BigDecimal,
-                                  paymentDueDate: String,
+                                  paymentDueDate: Option[String],
                                   chargeReference: Option[String],
                                   content: Html,
                                   btaLink: String,
@@ -66,17 +66,12 @@ object ConfirmationViewModel extends CurrencyFormatter {
       ZONE_ID
     )
 
-    val dueDate = paymentDueDate match {
-      case Some(date) => s"${date.getDayOfMonth} ${returnsDateUtils.getMonthMessage(date.getMonth)} ${date.getYear}"
-      case None => ""
-    }
-
-    val submissionDateFormatted = s"${submissionDate.getDayOfMonth} ${returnsDateUtils.getMonthMessage(submissionDate.getMonth)} ${submissionDate.getYear}"
+    val dueDate = paymentDueDate.map(date => returnsDateUtils.formatDayMonthYear(date))
 
     val periodMonthYearFormatted = s"${returnsDateUtils.getMonthMessage(obligation.iCFromDate.getMonth)} ${obligation.iCFromDate.getYear}"
 
     new ConfirmationViewModel(
-      submissionDate = submissionDateFormatted,
+      submissionDate = returnsDateUtils.formatDayMonthYear(submissionDate),
       periodMonthYear = periodMonthYearFormatted,
       totalDutyAmount = totalDutyDue,
       paymentDueDate = dueDate,
@@ -87,7 +82,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
     )
   }
 
-  private def getContent(dutyDue: BigDecimal, paymentDueDate: String, btaLink: String)
+  private def getContent(dutyDue: BigDecimal, paymentDueDate: Option[String], btaLink: String)
                         (implicit messages: Messages): Html = {
     if (dutyDue > 0) {
       getPositiveContent(dutyDue, paymentDueDate, btaLink)
@@ -105,7 +100,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
   private val link = Link()
   private val govukInsetText = GovukInsetText()
 
-  private def getPositiveContent(dutyDue: BigDecimal, paymentDueDate: String, btaLink: String)
+  private def getPositiveContent(dutyDue: BigDecimal, paymentDueDate: Option[String], btaLink: String)
                                 (implicit messages: Messages): Html = {
     val isChapsRequired = dutyDue >= ReturnsConstants.MAX_DIRECT_DEBIT_THRESHOLD
 
@@ -114,19 +109,20 @@ object ConfirmationViewModel extends CurrencyFormatter {
         whatsNext(btaLink, isChapsRequired))
   }
 
-  private def topSection(dutyDue: BigDecimal, paymentDueDate: String, isChapsRequired: Boolean)(implicit messages: Messages): Seq[HtmlFormat.Appendable] = {
+  private def topSection(dutyDue: BigDecimal, paymentDueDate: Option[String], isChapsRequired: Boolean)
+                        (implicit messages: Messages): Seq[HtmlFormat.Appendable] = {
     if (isChapsRequired) {
       Seq(
         warningSection(dutyDue, paymentDueDate),
         h2(Text(messages("returns.confirmation.chaps.h2.title"))),
         p(Seq(Text(messages("returns.confirmation.chaps.p.cannotCollect")))),
-        p(Seq(Text(messages("returns.confirmation.chaps.p.mustPayByChaps", paymentDueDate)))),
+        p(Seq(Text(messages("returns.confirmation.chaps.p.mustPayByChaps", paymentDueDate.getOrElse(""))))),
         chargeReferenceParagraph()
       )
     } else {
-      val interestMessage =
-        if (paymentDueDate.isEmpty) messages("returns.confirmation.p.interestNoDate")
-        else messages("returns.confirmation.p.interest", paymentDueDate)
+      val interestMessage = paymentDueDate.fold(messages("returns.confirmation.p.interestNoDate"))(date =>
+        messages("returns.confirmation.p.interest", date)
+      )
 
       Seq(
         warningSection(dutyDue, paymentDueDate),
@@ -136,10 +132,10 @@ object ConfirmationViewModel extends CurrencyFormatter {
     }
   }
 
-  private def warningSection(dutyDue: BigDecimal, paymentDueDate: String)(implicit messages: Messages) = {
-    val warningMessage =
-      if (paymentDueDate.isEmpty) messages("returns.confirmation.warning.youMustNoDueDate", currencyFormat(dutyDue))
-      else messages("returns.confirmation.warning.youMust", currencyFormat(dutyDue), paymentDueDate)
+  private def warningSection(dutyDue: BigDecimal, paymentDueDate: Option[String])(implicit messages: Messages) = {
+    val warningMessage = paymentDueDate.fold(messages("returns.confirmation.warning.youMustNoDueDate", currencyFormat(dutyDue)))(date =>
+      messages("returns.confirmation.warning.youMust", currencyFormat(dutyDue), date)
+    )
 
     warning(WarningText(
       iconFallbackText = Some(messages("site.warning")),

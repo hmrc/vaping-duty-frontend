@@ -82,7 +82,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
     "must send a DutyDueEmail when the amount is positive" - {
 
       "using actual payment due date from financial data service" in new SetUp {
-        val actualPaymentDueDate = LocalDate.of(2026, 11, 20)
+        val actualPaymentDueDate: LocalDate = LocalDate.of(2026, 11, 20)
 
         when(mockFinancialDataService.getPaymentDueDate(
           eqTo(vpdId),
@@ -94,9 +94,9 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
 
         service.sendReturnSubmittedEmail(vpdId, submission(220.00), response(220.00), obligation).futureValue
 
-        val sent = captureEmail()
+        val sent: Email = captureEmail()
         sent mustBe a[DutyDueEmail]
-        val email = sent.asInstanceOf[DutyDueEmail]
+        val email: DutyDueEmail = sent.asInstanceOf[DutyDueEmail]
         email.to mustBe List("john.smith@example.com")
         email.parameters mustBe DutyDueEmailParameters(
           recipientName = "John Smith",
@@ -119,13 +119,13 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
 
         service.sendReturnSubmittedEmail(vpdId, submission(220.00), response(220.00), obligation).futureValue
 
-        val sent = captureEmail()
+        val sent: Email = captureEmail()
         sent mustBe a[DutyDueEmail]
-        val email = sent.asInstanceOf[DutyDueEmail]
+        val email: DutyDueEmail = sent.asInstanceOf[DutyDueEmail]
         email.parameters.paymentDueDate mustBe "15 November 2026"
       }
 
-      "using fallback date when charge reference is empty" in new SetUp {
+      "must send DutyDueNoDueDateEmail when charge reference is empty" in new SetUp {
         when(mockFinancialDataService.getPaymentDueDate(
           eqTo(vpdId),
           eqTo("")
@@ -136,10 +136,9 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
 
         service.sendReturnSubmittedEmail(vpdId, submission(220.00), response(220.00, None), obligation).futureValue
 
-        val sent = captureEmail()
-        sent mustBe a[DutyDueEmail]
-        val email = sent.asInstanceOf[DutyDueEmail]
-        email.parameters.paymentDueDate mustBe "15 November 2026"
+        val sent: Email = captureEmail()
+        sent mustBe a[DutyDueNoDueDateEmail]
+        val email: DutyDueNoDueDateEmail = sent.asInstanceOf[DutyDueNoDueDateEmail]
       }
     }
 
@@ -154,7 +153,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
 
       service.sendReturnSubmittedEmail(vpdId, submission(0), response(0), obligation).futureValue
 
-      val sent = captureEmail()
+      val sent: Email = captureEmail()
       sent mustBe a[NilReturnEmail]
       sent.asInstanceOf[NilReturnEmail].parameters mustBe NilReturnEmailParameters(
         recipientName = "John Smith",
@@ -174,7 +173,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
 
       service.sendReturnSubmittedEmail(vpdId, submission(-50.00), response(-50.00), obligation).futureValue
 
-      val sent = captureEmail()
+      val sent: Email = captureEmail()
       sent mustBe a[CreditDueEmail]
       sent.asInstanceOf[CreditDueEmail].parameters mustBe CreditDueEmailParameters(
         recipientName = "John Smith",

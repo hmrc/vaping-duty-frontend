@@ -115,4 +115,8 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
                          )(implicit messages: Messages): String = {
     getPeriodDisplay(periodKey, obligationDetails).formatted
   }
+
+  def formatDayMonthYear(date: LocalDate)(implicit messages: Messages): String = {
+    s"${date.getDayOfMonth} ${getMonthMessage(date.getMonth)} ${date.getYear}"
+  }
 }
