@@ -637,7 +637,7 @@ payments.viewPayments.cleared.table.period = Dyddiad talu
 payments.viewPayments.cleared.table.description = Math o daliad
 payments.viewPayments.cleared.table.amount = Swm
 payments.viewPayments.cleared.description.text = Taliad wedi’i glirio
-payments.viewPayments.notAvailable = N/A
+payments.viewPayments.notAvailable = Ddim yn berthnasol
 
 returnsAccessDenied.title = Rydym yn rheoli mynediad at y gwasanaeth hwn
 returnsAccessDenied.heading = Rydym yn rheoli mynediad at y gwasanaeth hwn

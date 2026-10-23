@@ -669,7 +669,7 @@ payments.viewPayments.cleared.table.period = Date paid
 payments.viewPayments.cleared.table.description = Payment type
 payments.viewPayments.cleared.table.amount = Amount
 payments.viewPayments.cleared.description.text = Cleared payment
-payments.viewPayments.notAvailable = N/A
+payments.viewPayments.notAvailable = Not applicable
 
 returnsAccessDenied.title = We are managing access to this service
 returnsAccessDenied.heading = We are managing access to this service
