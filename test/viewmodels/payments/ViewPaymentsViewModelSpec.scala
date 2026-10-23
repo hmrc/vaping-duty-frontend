@@ -165,7 +165,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         val vm  = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentRefund), Seq.empty, Seq.empty, None), returnsDateUtils)
         val row = vm.outstandingRows.head
 
-        row.head.content.asHtml.body mustBe "N/A"
+        row.head.content.asHtml.body mustBe "Not applicable"
         row(1).content.asHtml.body must include("<strong>Repayment</strong>")
         row(1).content.asHtml.body must include("XF123456789012")
         row(2).content.asHtml.body mustBe "-£2,577.44"
