@@ -45,6 +45,26 @@ class EmailSpec extends AnyFreeSpec with Matchers {
       (json \ "parameters" \ "amountDue").as[String] mustBe "£1,234.50"
     }
 
+    "must serialise a DutyDueNoDueDateEmail with its templateId and parameters" in {
+      val email = DutyDueNoDueDateEmail(
+        to = List("test@example.com"),
+        parameters = DutyDueNoDueDateEmailParameters(
+          recipientName = "John Smith",
+          returnPeriod = "October 2026",
+          submissionDate = "3 November 2026",
+          chargeReference = "VPD38270541977",
+          amountDue = "£1,234.50"
+        )
+      )
+
+      val json = Json.toJson[Email](email)
+
+      (json \ "to").as[List[String]] mustBe List("test@example.com")
+      (json \ "templateId").as[String] mustBe "vpd_duty_due_confirmation_no_due_date"
+      (json \ "parameters" \ "chargeReference").as[String] mustBe "VPD38270541977"
+      (json \ "parameters" \ "amountDue").as[String] mustBe "£1,234.50"
+    }
+
     "must serialise a NilReturnEmail with its templateId and parameters" in {
       val email = NilReturnEmail(
         to = List("test@example.com"),

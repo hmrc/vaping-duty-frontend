@@ -26,12 +26,14 @@ class EmailTemplateSpec extends AnyFreeSpec with Matchers {
 
     "must write the correct templateId string for each case" in {
       Json.toJson[EmailTemplate](EmailTemplate.DutyDueConfirmation) mustBe JsString("vpd_duty_due_confirmation")
+      Json.toJson[EmailTemplate](EmailTemplate.DutyDueConfirmationNoDueDate) mustBe JsString("vpd_duty_due_confirmation_no_due_date")
       Json.toJson[EmailTemplate](EmailTemplate.NilReturnConfirmation) mustBe JsString("vpd_nil_return_confirmation")
       Json.toJson[EmailTemplate](EmailTemplate.CreditDueConfirmation) mustBe JsString("vpd_credit_due_confirmation")
     }
 
     "must read the correct case for each templateId string" in {
       Json.fromJson[EmailTemplate](JsString("vpd_duty_due_confirmation")) mustBe JsSuccess(EmailTemplate.DutyDueConfirmation)
+      Json.fromJson[EmailTemplate](JsString("vpd_duty_due_confirmation_no_due_date")) mustBe JsSuccess(EmailTemplate.DutyDueConfirmationNoDueDate)
       Json.fromJson[EmailTemplate](JsString("vpd_nil_return_confirmation")) mustBe JsSuccess(EmailTemplate.NilReturnConfirmation)
       Json.fromJson[EmailTemplate](JsString("vpd_credit_due_confirmation")) mustBe JsSuccess(EmailTemplate.CreditDueConfirmation)
     }
