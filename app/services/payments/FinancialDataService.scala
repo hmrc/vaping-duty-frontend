@@ -17,6 +17,7 @@
 package services.payments
 
 import connectors.payments.FinancialDataConnector
+import models.ChargeReference
 import models.identifiers.VpdId
 import models.payments.{OutstandingPayment, PaymentsResponse}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -32,26 +33,22 @@ class FinancialDataService @Inject()(
   def getPayments(vpdId: VpdId)(using HeaderCarrier): Future[PaymentsResponse] =
     connector.getPayments(vpdId)
 
-  def getOutstandingPayment(vpdId: VpdId, chargeReference: String)(using HeaderCarrier): Future[OutstandingPayment] =
+  def getOutstandingPayment(vpdId: VpdId, chargeReference: ChargeReference)(using HeaderCarrier): Future[OutstandingPayment] =
     getPayments(vpdId).map { payments =>
       payments.outstanding
         .find(_.chargeReference == chargeReference)
         .getOrElse(
           // scalafix:off DisableSyntax.throw
-          throw new NoSuchElementException(s"No outstanding payment found for charge reference: $chargeReference")
+          throw new NoSuchElementException(s"No outstanding payment found for charge reference: ${chargeReference.value}")
         )
     }
 
-  def getPaymentDueDate(vpdId: VpdId, chargeReference: String)
+  def getPaymentDueDate(vpdId: VpdId, chargeReference: ChargeReference)
                        (using HeaderCarrier): Future[Option[LocalDate]] =
-    if (chargeReference.isEmpty) {
-      Future.successful(None)
-    } else {
-      getOutstandingPayment(vpdId, chargeReference)
-        .map(outstandingPayment => Some(outstandingPayment.dueDate))
-        .recover {
-          case _: NoSuchElementException => None
-          case _                         => None
-        }
-    }
+    getOutstandingPayment(vpdId, chargeReference)
+      .map(outstandingPayment => Some(outstandingPayment.dueDate))
+      .recover {
+        case _: NoSuchElementException => None
+        case _                         => None
+      }
 }

@@ -16,12 +16,13 @@
 
 package models.payments
 
+import models.ChargeReference
 import play.api.libs.json.*
 
 final case class StartPaymentRequest(
   vapingDutyReference: String,
   amountInPence: Long,
-  chargeReferenceNumber: Option[String],
+  chargeReferenceNumber: Option[ChargeReference],
   returnUrl: String,
   backUrl: String
 )

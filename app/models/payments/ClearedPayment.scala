@@ -16,12 +16,13 @@
 
 package models.payments
 
+import models.ChargeReference
 import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
 final case class ClearedPayment(
-  chargeReference: String,
+  chargeReference: ChargeReference,
   amountPaid: BigDecimal,
   clearedDate: Option[LocalDate]
 )

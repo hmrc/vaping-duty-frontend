@@ -19,6 +19,7 @@ package controllers.payments
 import config.FrontendAppConfig
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.ReturnsEnabledAction
+import models.ChargeReference
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.payments.PaymentService
@@ -35,7 +36,7 @@ class StartPaymentController @Inject()(
   val controllerComponents: MessagesControllerComponents
 )(using ExecutionContext) extends FrontendBaseController with Logging {
 
-  def startPayment(chargeReference: String): Action[AnyContent] =
+  def startPayment(chargeReference: ChargeReference): Action[AnyContent] =
     (identify andThen returnsEnabled).async { implicit request =>
       // This route is the same right now but when we add the ability to start a payment from other parts of the app
       // this will need to be more dynamic
@@ -50,7 +51,7 @@ class StartPaymentController @Inject()(
         Redirect(response.nextUrl)
       }.recover {
         case e: Exception =>
-          logger.warn(s"Error starting payment for charge reference $chargeReference: ${e.getMessage}")
+          logger.warn(s"Error starting payment for charge reference ${chargeReference.value}: ${e.getMessage}")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }

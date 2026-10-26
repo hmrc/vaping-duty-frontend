@@ -16,13 +16,14 @@
 
 package models.payments
 
+import models.ChargeReference
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.vapingdutyfinance.models.{MainTransactionType, PaymentStatus}
 
 import java.time.LocalDate
 
 final case class OutstandingPayment(
-  chargeReference: String,
+  chargeReference: ChargeReference,
   amountDue: BigDecimal,
   dueDate: LocalDate,
   status: PaymentStatus,

@@ -61,7 +61,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
     val chargeReference = returnsResponse.success.chargeDetails
       .flatMap(_.chargeReference)
-      .map(_.toUpperCase)
+      .map(_.value.toUpperCase)
 
     val submissionDate = LocalDate.ofInstant(
       returnsResponse.success.processingDate,
