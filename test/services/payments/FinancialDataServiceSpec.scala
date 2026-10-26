@@ -18,6 +18,7 @@ package services.payments
 
 import base.SpecBase
 import connectors.payments.FinancialDataConnector
+import models.ChargeReference
 import models.identifiers.VpdId
 import models.payments.{OutstandingPayment, PaymentsResponse}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -72,7 +73,7 @@ class FinancialDataServiceSpec extends SpecBase {
     "must return the outstanding payment when charge reference exists" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
-      val chargeReference = "VPD38270541980"
+      val chargeReference = ChargeReference("VPD38270541980")
       
       when(mockConnector.getPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(testPaymentsResponse))
@@ -86,35 +87,35 @@ class FinancialDataServiceSpec extends SpecBase {
     "must throw NoSuchElementException when charge reference does not exist" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
-      val nonExistentReference = "DOES_NOT_EXIST"
+      val nonExistentReference = ChargeReference("DOES_NOT_EXIST")
 
       when(mockConnector.getPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(testPaymentsResponse))
 
       whenReady(service.getOutstandingPayment(vpdId, nonExistentReference).failed) { exception =>
         exception mustBe a[NoSuchElementException]
-        exception.getMessage must include(nonExistentReference)
+        exception.getMessage must include(nonExistentReference.value)
       }
     }
 
     "must throw NoSuchElementException when there are no outstanding payments" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
-      val chargeReference = "XYZ123"
+      val chargeReference = ChargeReference("XYZ123")
 
       when(mockConnector.getPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.successful(PaymentsResponse.empty))
 
       whenReady(service.getOutstandingPayment(vpdId, chargeReference).failed) { exception =>
         exception mustBe a[NoSuchElementException]
-        exception.getMessage must include(chargeReference)
+        exception.getMessage must include(chargeReference.value)
       }
     }
 
     "must propagate errors from the connector" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
-      val chargeReference = "XYZ123"
+      val chargeReference = ChargeReference("XYZ123")
 
       when(mockConnector.getPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.failed(new RuntimeException("Connector error")))
@@ -129,11 +130,11 @@ class FinancialDataServiceSpec extends SpecBase {
     "must return the due date from outstanding payment when charge reference exists" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
-      val chargeReference = "XYZ123"
+      val chargeReference = ChargeReference("XYZ123")
       val expectedDueDate = LocalDate.of(2024, 3, 15)
 
       val outstandingPayment = OutstandingPayment(
-        chargeReference = chargeReference,
+        chargeReference = ChargeReference(chargeReference.value),
         amountDue = 100.00,
         dueDate = expectedDueDate,
         status = PaymentStatus.Due,
@@ -153,7 +154,7 @@ class FinancialDataServiceSpec extends SpecBase {
     "must return None when charge reference is empty" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
-      val chargeReference = ""
+      val chargeReference = ChargeReference("")
       
       whenReady(service.getPaymentDueDate(vpdId, chargeReference)) { result =>
         result mustBe None
@@ -165,7 +166,7 @@ class FinancialDataServiceSpec extends SpecBase {
     "must return None when payment not found" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
-      val chargeReference = "XYZ123"
+      val chargeReference = ChargeReference("XYZ123")
       
       val paymentsResponse = PaymentsResponse(Seq.empty, Seq.empty, Seq.empty, None)
       
@@ -180,7 +181,7 @@ class FinancialDataServiceSpec extends SpecBase {
     "must return None when connector fails" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
-      val chargeReference = "XYZ123"
+      val chargeReference = ChargeReference("XYZ123")
 
       when(mockConnector.getPayments(eqTo(vpdId))(using any()))
         .thenReturn(Future.failed(new RuntimeException("Service unavailable")))

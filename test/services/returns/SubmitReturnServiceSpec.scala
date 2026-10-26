@@ -20,6 +20,7 @@ import base.SpecBase
 import builders.ObligationsBuilders
 import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
+import models.ChargeReference
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
@@ -86,7 +87,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
     processingDate = Instant.parse("2026-05-08T10:30:00Z"),
     vpdReferenceNumber = vpdId.value,
     submissionId = Some("123456789012"),
-    chargeReference = Some("AB123456789012"),
+    chargeReference = Some(ChargeReference("AB123456789012")),
     amount = BigDecimal("100.00"),
     paymentDueDate = Some(LocalDate.parse("2026-06-07"))
   )

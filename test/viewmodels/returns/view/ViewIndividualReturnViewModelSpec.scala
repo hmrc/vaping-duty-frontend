@@ -18,6 +18,7 @@ package viewmodels.returns.view
 
 import base.SpecBase
 import data.TestData
+import models.ChargeReference
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.returns.view.*
@@ -57,7 +58,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
 
   private val chargeDetails = ChargeDetails(
     periodKey = "24KI",
-    chargeReference = Some("VPD38270541977"),
+    chargeReference = Some(ChargeReference("VPD38270541977")),
     periodFrom = LocalDate.of(2027, 9, 1),
     periodTo = LocalDate.of(2027, 9, 30),
     receiptDate = Instant.parse("2027-10-06T10:00:00Z")
