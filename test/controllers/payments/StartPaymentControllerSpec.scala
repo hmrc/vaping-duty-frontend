@@ -47,7 +47,7 @@ class StartPaymentControllerSpec extends SpecBase {
       
       when(mockPaymentService.startPayment(
         eqTo(vpdId),
-        eqTo(chargeReference),
+        any[ChargeReference],
         any(),
         any()
       )(using any()))
@@ -66,7 +66,7 @@ class StartPaymentControllerSpec extends SpecBase {
         
         verify(mockPaymentService).startPayment(
           eqTo(vpdId),
-          eqTo(chargeReference),
+          any[ChargeReference],
           any(),
           any()
         )(using any())

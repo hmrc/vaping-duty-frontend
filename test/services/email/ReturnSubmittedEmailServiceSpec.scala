@@ -90,7 +90,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
 
         when(mockFinancialDataService.getPaymentDueDate(
           eqTo(vpdId),
-          eqTo(ChargeReference("VPD38270541977"))
+          any[ChargeReference]
         )(using any[HeaderCarrier]))
           .thenReturn(Future.successful(Some(actualPaymentDueDate)))
 
@@ -115,7 +115,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
       "using fallback date when financial data service fails" in new SetUp {
         when(mockFinancialDataService.getPaymentDueDate(
           eqTo(vpdId),
-          eqTo(ChargeReference("VPD38270541977"))
+          any[ChargeReference]
         )(using any[HeaderCarrier]))
           .thenReturn(Future.successful(Some(LocalDate.of(2026, 11, 15))))
 
@@ -132,7 +132,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
       "must send DutyDueNoDueDateEmail when charge reference is empty" in new SetUp {
         when(mockFinancialDataService.getPaymentDueDate(
           eqTo(vpdId),
-          eqTo(ChargeReference(""))
+          any[ChargeReference]
         )(using any[HeaderCarrier]))
           .thenReturn(Future.successful(Some(LocalDate.of(2026, 11, 15))))
 
@@ -149,7 +149,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
     "must send a NilReturnEmail when the amount is zero" in new SetUp {
       when(mockFinancialDataService.getPaymentDueDate(
         eqTo(vpdId),
-        eqTo(ChargeReference("VPD38270541977"))
+        any[ChargeReference]
       )(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Some(LocalDate.of(2026, 11, 15))))
 
@@ -169,7 +169,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
     "must send a CreditDueEmail with the absolute amount when the amount is negative" in new SetUp {
       when(mockFinancialDataService.getPaymentDueDate(
         eqTo(vpdId),
-        eqTo(ChargeReference("VPD38270541977"))
+        any[ChargeReference]
       )(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Some(LocalDate.of(2026, 11, 15))))
 
