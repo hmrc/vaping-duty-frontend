@@ -45,10 +45,14 @@ class FinancialDataService @Inject()(
 
   def getPaymentDueDate(vpdId: VpdId, chargeReference: ChargeReference)
                        (using HeaderCarrier): Future[Option[LocalDate]] =
-    getOutstandingPayment(vpdId, chargeReference)
-      .map(outstandingPayment => Some(outstandingPayment.dueDate))
-      .recover {
-        case _: NoSuchElementException => None
-        case _                         => None
-      }
+    if (chargeReference.value.isEmpty) {
+      Future.successful(None)
+    } else {
+      getOutstandingPayment(vpdId, chargeReference)
+        .map(outstandingPayment => Some(outstandingPayment.dueDate))
+        .recover {
+          case _: NoSuchElementException => None
+          case _                         => None
+        }
+    }
 }

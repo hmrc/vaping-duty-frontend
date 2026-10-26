@@ -102,7 +102,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     "must create view model with all fields from ReturnDisplayResponse" in {
       val result = ViewIndividualReturnViewModel(returnResponse, Seq(obligationDetails), returnsDateUtils)
 
-      result.chargeReference mustBe Some("XVC123456789012")
+      result.chargeReference mustBe Some(ChargeReference("XVC123456789012"))
       result.hasVapingProductsDeclaration mustBe true
       result.amountProducedLiquid mustBe Some("1,000,000.00")
       result.dutyDue mustBe Some("£3,150.00")

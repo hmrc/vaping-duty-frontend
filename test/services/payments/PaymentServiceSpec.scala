@@ -52,7 +52,7 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
   private val expectedRequest = StartPaymentRequest(
     vapingDutyReference = vpdId.value,
     amountInPence = amountInPence,
-        chargeReferenceNumber = Some(chargeReference),
+    chargeReferenceNumber = Some(chargeReference.value),
     returnUrl = returnUrl,
     backUrl = backUrl
   )
@@ -65,7 +65,7 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
   "startPayment must" - {
 
     "build correct StartPaymentRequest and call connector" in {
-      when(mockFinancialDataService.getOutstandingPayment(eqTo(vpdId), eqTo(chargeReference))(using any()))
+      when(mockFinancialDataService.getOutstandingPayment(eqTo(vpdId), any[ChargeReference])(using any()))
         .thenReturn(Future.successful(outstandingPayment))
       when(mockConnector.startPayment(eqTo(expectedRequest))(using any()))
         .thenReturn(Future.successful(expectedResponse))
@@ -79,7 +79,7 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
 
       whenReady(result) { response =>
         response mustBe expectedResponse
-        verify(mockFinancialDataService).getOutstandingPayment(eqTo(vpdId), eqTo(chargeReference))(using any())
+        verify(mockFinancialDataService).getOutstandingPayment(eqTo(vpdId), any[ChargeReference])(using any())
         verify(mockConnector).startPayment(eqTo(expectedRequest))(using any())
       }
     }
@@ -126,7 +126,7 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
     "propagate financial data service failures" in {
       val expectedException = new NoSuchElementException("Payment not found")
 
-      when(mockFinancialDataService.getOutstandingPayment(eqTo(vpdId), eqTo(chargeReference))(using any()))
+      when(mockFinancialDataService.getOutstandingPayment(eqTo(vpdId), any[ChargeReference])(using any()))
         .thenReturn(Future.failed(expectedException))
 
       val result = service.startPayment(
@@ -175,10 +175,10 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
       val request = expectedBtaRequest.copy(
         vapingDutyReference = vpdId.value,
         amountInPence = (outstandingPayment.amountDue * 100).toLong,
-        chargeReferenceNumber = Some(outstandingPayment.chargeReference)
+        chargeReferenceNumber = Some(outstandingPayment.chargeReference.value)
       )
 
-      when(mockFinancialDataService.getOutstandingPayment(eqTo(vpdId), eqTo(outstandingPayment.chargeReference))(using any()))
+      when(mockFinancialDataService.getOutstandingPayment(eqTo(vpdId), any[ChargeReference])(using any()))
         .thenReturn(Future.successful(outstandingPayment))
       when(mockConnector.startBtaPayment(eqTo(request))(using any()))
         .thenReturn(Future.successful(expectedResponse))
