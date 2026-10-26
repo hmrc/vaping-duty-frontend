@@ -40,6 +40,7 @@ case class ConfirmationViewModel(
   chargeReference: Option[String],
   content: Html,
   btaLink: String,
+  paymentLink: String,
   periodKey: PeriodKey
 )
 
@@ -51,6 +52,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
     returnsResponse: ReturnDisplayResponse,
     obligation: ObligationDetails,
     btaLink: String,
+    paymentLink: String,
     returnsDateUtils: ReturnsDateUtils
   )(implicit messages: Messages): ConfirmationViewModel = {
 
@@ -77,16 +79,17 @@ object ConfirmationViewModel extends CurrencyFormatter {
       totalDutyAmount = totalDutyDue,
       paymentDueDate = paymentDueDateFormatted,
       chargeReference = chargeReference,
-      content = getContent(totalDutyDue, paymentDueDateFormatted, btaLink),
+      content = getContent(totalDutyDue, paymentDueDateFormatted, btaLink, paymentLink),
       btaLink = btaLink,
+      paymentLink = paymentLink,
       periodKey = PeriodKey(obligation.periodKey)
     )
   }
 
-  private def getContent(dutyDue: BigDecimal, paymentDueDate: String, btaLink: String)
+  private def getContent(dutyDue: BigDecimal, paymentDueDate: String, btaLink: String, paymentLink: String)
                         (implicit messages: Messages): Html = {
     if (dutyDue > 0) {
-      getPositiveContent(dutyDue, paymentDueDate, btaLink)
+      getPositiveContent(dutyDue, paymentDueDate, btaLink, paymentLink)
     } else if (dutyDue < 0) {
       getNegativeContent(dutyDue)
     } else {
@@ -101,13 +104,13 @@ object ConfirmationViewModel extends CurrencyFormatter {
   private val link = Link()
   private val govukInsetText = GovukInsetText()
 
-  private def getPositiveContent(dutyDue: BigDecimal, paymentDueDate: String, btaLink: String)
+  private def getPositiveContent(dutyDue: BigDecimal, paymentDueDate: String, btaLink: String, paymentLink: String)
                                 (implicit messages: Messages): Html = {
     val isChapsRequired = dutyDue >= ReturnsConstants.MAX_DIRECT_DEBIT_THRESHOLD
 
     HtmlFormat.fill(
       topSection(dutyDue, paymentDueDate, isChapsRequired) ++ 
-      whatsNext(btaLink, isChapsRequired))
+      whatsNext(btaLink, paymentLink, isChapsRequired))
   }
 
   private def topSection(dutyDue: BigDecimal, paymentDueDate: String, isChapsRequired: Boolean)(implicit messages: Messages): Seq[HtmlFormat.Appendable] = {
@@ -137,27 +140,27 @@ object ConfirmationViewModel extends CurrencyFormatter {
   private def chargeReferenceParagraph()(implicit messages: Messages) =
     p(Seq(Text(messages("returns.confirmation.p.chargeReferenceReminder"))))
 
-  private def whatsNext(btaLink: String, isChapsRequired: Boolean)(implicit messages: Messages) =
+  private def whatsNext(btaLink: String, paymentLink: String, isChapsRequired: Boolean)(implicit messages: Messages) =
     Seq(
       whatsNextHeading(),
-      paymentLinkList(btaLink, isChapsRequired)
+      paymentLinkList(btaLink, paymentLink, isChapsRequired)
     )
 
   private def whatsNextHeading()(implicit messages: Messages) =
     h2(Text(messages("returns.confirmation.h2.whatNext")))
 
-  private def paymentLinkList(btaLink: String, isChapsRequired: Boolean)(implicit messages: Messages) =
+  private def paymentLinkList(btaLink: String, paymentLink: String, isChapsRequired: Boolean)(implicit messages: Messages) =
     list(Seq(
-      paymentLink(isChapsRequired),
+      paymentLinks(isChapsRequired, paymentLink),
       businessTaxAccountLink(btaLink, isChapsRequired))
     )
 
-  private def paymentLink(isChapsRequired: Boolean)(implicit messages: Messages) = {
+  private def paymentLinks(isChapsRequired: Boolean, paymentLink: String)(implicit messages: Messages) = {
     if (isChapsRequired) {
       p(Seq(HtmlContent(
         link(
           id = "chaps-payment-link",
-          href = "https://www.gov.uk/guidance/hmrc-bank-account-details", //TODO replace with actual link when available
+          href = paymentLink,
           text = messages("returns.confirmation.chaps.bullet.linkText"),
           newTabText = Some(messages("site.newTab"))
         )

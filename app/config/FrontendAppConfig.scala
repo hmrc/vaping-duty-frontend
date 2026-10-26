@@ -55,6 +55,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val claimDutyBackGuidance: String          = configuration.get[String]("urls.claimDutyBackGuidance")
   val insolvencyGuidanceUrl: String          = configuration.get[String]("urls.insolvencyGuidance")
   val contactHmrcUrl: String                 = configuration.get[String]("urls.contactHmrc")
+  val makeChapsPayment: String               = configuration.get[String]("urls.makeChapsPayment")
   val continueToBta: String                  = configuration.get[String]("urls.businessTaxAccount") + "?useServiceNavigation"
   val startPaymentBtaReturnUrl: String       = configuration.get[String]("payments.returnUrl") + "?useServiceNavigation"
   val startPaymentBtaBackUrl: String         = configuration.get[String]("payments.backUrl") + "?useServiceNavigation"
