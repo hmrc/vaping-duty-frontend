@@ -59,7 +59,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""<strong>${messages(descriptionMessageKey(payment))}</strong><br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference}"""
+          s"""<strong>${messages(descriptionMessageKey(payment))}</strong><br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference.value}"""
         )
       ),
       TableRow(
@@ -123,7 +123,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""<strong>${messages("payments.viewPayments.cleared.description.text")}</strong><br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference}"""
+          s"""<strong>${messages("payments.viewPayments.cleared.description.text")}</strong><br>${messages("payments.viewPayments.table.chargeReference")}: ${payment.chargeReference.value}"""
         )
       ),
       TableRow(

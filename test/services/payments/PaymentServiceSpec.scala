@@ -18,6 +18,7 @@ package services.payments
 
 import base.SpecBase
 import connectors.payments.PaymentConnector
+import models.ChargeReference
 import models.payments.{OutstandingPayment, PaymentsResponse, StartPaymentRequest, StartPaymentResponse}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
@@ -34,7 +35,7 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
   private val mockFinancialDataService: FinancialDataService = mock[FinancialDataService]
   private val service = new PaymentService(mockConnector, mockFinancialDataService)
 
-  private val chargeReference = "VPD38270541977"
+  private val chargeReference = ChargeReference("VPD38270541977")
   private val amountDue = BigDecimal("330000.00")
   private val amountInPence = 33000000L
   private val returnUrl = "http://localhost:9000/vaping-duty/view-payments"
@@ -51,7 +52,7 @@ class PaymentServiceSpec extends SpecBase with ScalaFutures {
   private val expectedRequest = StartPaymentRequest(
     vapingDutyReference = vpdId.value,
     amountInPence = amountInPence,
-    chargeReferenceNumber = Some(chargeReference),
+        chargeReferenceNumber = Some(chargeReference),
     returnUrl = returnUrl,
     backUrl = backUrl
   )

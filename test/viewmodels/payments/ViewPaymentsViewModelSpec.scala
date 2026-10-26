@@ -17,6 +17,7 @@
 package viewmodels.payments
 
 import base.SpecBase
+import models.ChargeReference
 import models.payments.{ClearedPayment, OutstandingPayment, PaymentOnAccount, PaymentsResponse}
 import uk.gov.hmrc.vapingdutyfinance.models.{MainTransactionType, PaymentStatus}
 import utils.ReturnsDateUtils
@@ -28,7 +29,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
   private val returnsDateUtils = new ReturnsDateUtils(clock)
 
   private val testPaymentDue = OutstandingPayment(
-    chargeReference = "XA123456789012",
+    chargeReference = ChargeReference("XA123456789012"),
     amountDue = BigDecimal("330000.00"),
     dueDate = LocalDate.of(2025, 3, 25),
     status = PaymentStatus.Due,
@@ -36,7 +37,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
   )
 
   private val testPaymentOverdue = OutstandingPayment(
-    chargeReference = "XB123456789012",
+    chargeReference = ChargeReference("XB123456789012"),
     amountDue = BigDecimal("167000.80"),
     dueDate = LocalDate.of(2025, 2, 25),
     status = PaymentStatus.Overdue,
@@ -44,7 +45,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
   )
 
   private val testPaymentNothingToPay = OutstandingPayment(
-    chargeReference = "XC123456789012",
+    chargeReference = ChargeReference("XC123456789012"),
     amountDue = BigDecimal("0.00"),
     dueDate = LocalDate.of(2025, 4, 25),
     status = PaymentStatus.NothingToPay,
@@ -52,7 +53,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
   )
 
   private val testPaymentOverdueInterest = OutstandingPayment(
-    chargeReference = "XE123456789012",
+    chargeReference = ChargeReference("XE123456789012"),
     amountDue = BigDecimal("123.45"),
     dueDate = LocalDate.of(2025, 2, 25),
     status = PaymentStatus.Overdue,
@@ -65,7 +66,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
   )
 
   private val testClearedPayment = ClearedPayment(
-    chargeReference = "XD123456789012",
+    chargeReference = ChargeReference("XD123456789012"),
     amountPaid = BigDecimal("10000.00"),
     clearedDate = Some(LocalDate.of(2025, 1, 10))
   )

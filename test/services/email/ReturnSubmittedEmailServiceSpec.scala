@@ -18,6 +18,7 @@ package services.email
 
 import base.SpecBase
 import connectors.email.EmailConnector
+import models.ChargeReference
 import models.email.*
 import models.identifiers.VpdId
 import models.obligations.ObligationDetails
@@ -66,14 +67,17 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
     periodKey = "24KA"
   )
 
-  private def response(amount: BigDecimal, chargeReference: Option[String] = Some("VPD38270541977")) = ReturnSubmittedResponse(
-    processingDate = Instant.parse("2026-11-03T10:15:00Z"),
-    vpdReferenceNumber = "GBWK1234567WK",
-    submissionId = Some("123456789012"),
-    chargeReference = chargeReference,
-    amount = amount,
-    paymentDueDate = Some(LocalDate.of(2026, 11, 15))
-  )
+  private def response(
+                        amount: BigDecimal,
+                        chargeReference: Option[ChargeReference] = Some(ChargeReference("VPD38270541977"))) =
+    ReturnSubmittedResponse(
+      processingDate = Instant.parse("2026-11-03T10:15:00Z"),
+      vpdReferenceNumber = "GBWK1234567WK",
+      submissionId = Some("123456789012"),
+      chargeReference = chargeReference,
+      amount = amount,
+      paymentDueDate = Some(LocalDate.of(2026, 11, 15))
+    )
 
   private given HeaderCarrier = HeaderCarrier()
 
@@ -86,7 +90,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
 
         when(mockFinancialDataService.getPaymentDueDate(
           eqTo(vpdId),
-          eqTo("VPD38270541977")
+          eqTo(ChargeReference("VPD38270541977"))
         )(using any[HeaderCarrier]))
           .thenReturn(Future.successful(Some(actualPaymentDueDate)))
 
@@ -111,7 +115,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
       "using fallback date when financial data service fails" in new SetUp {
         when(mockFinancialDataService.getPaymentDueDate(
           eqTo(vpdId),
-          eqTo("VPD38270541977")
+          eqTo(ChargeReference("VPD38270541977"))
         )(using any[HeaderCarrier]))
           .thenReturn(Future.successful(Some(LocalDate.of(2026, 11, 15))))
 
@@ -128,7 +132,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
       "must send DutyDueNoDueDateEmail when charge reference is empty" in new SetUp {
         when(mockFinancialDataService.getPaymentDueDate(
           eqTo(vpdId),
-          eqTo("")
+          eqTo(ChargeReference(""))
         )(using any[HeaderCarrier]))
           .thenReturn(Future.successful(Some(LocalDate.of(2026, 11, 15))))
 
@@ -145,7 +149,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
     "must send a NilReturnEmail when the amount is zero" in new SetUp {
       when(mockFinancialDataService.getPaymentDueDate(
         eqTo(vpdId),
-        eqTo("VPD38270541977")
+        eqTo(ChargeReference("VPD38270541977"))
       )(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Some(LocalDate.of(2026, 11, 15))))
 
@@ -165,7 +169,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
     "must send a CreditDueEmail with the absolute amount when the amount is negative" in new SetUp {
       when(mockFinancialDataService.getPaymentDueDate(
         eqTo(vpdId),
-        eqTo("VPD38270541977")
+        eqTo(ChargeReference("VPD38270541977"))
       )(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Some(LocalDate.of(2026, 11, 15))))
 
