@@ -16,6 +16,7 @@
 
 package viewmodels.returns.view
 
+import models.ChargeReference
 import models.obligations.ObligationDetails
 import models.returns.ConvertToMl
 import models.returns.view.*
@@ -26,7 +27,7 @@ import utils.{CurrencyFormatter, ReturnsDateUtils}
 import java.time.{Instant, LocalDate, LocalDateTime, ZoneId}
 
 case class ViewIndividualReturnViewModel(
-                                          chargeReference: Option[String],
+                                          chargeReference: Option[ChargeReference],
                                           hasVapingProductsDeclaration: Boolean,
                                           amountProducedLiquid: Option[String],
                                           dutyDue: Option[String],

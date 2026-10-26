@@ -59,7 +59,7 @@ class ReturnSubmittedEmailService @Inject()(
               recipientName = submission.declaration.fullName,
               returnPeriod = returnPeriod,
               submissionDate = submissionDate,
-              chargeReference = result.chargeReference.getOrElse(""),
+              chargeReference = result.chargeReference.fold("")(_.value),
               amountDue = currencyFormat(result.amount),
               paymentDueDate = paymentDueDate.fold("")(_.format(PAYMENT_DUE_FORMATTER))
             )
@@ -71,7 +71,7 @@ class ReturnSubmittedEmailService @Inject()(
               recipientName = submission.declaration.fullName,
               returnPeriod = returnPeriod,
               submissionDate = submissionDate,
-              chargeReference = result.chargeReference.getOrElse(""),
+              chargeReference = result.chargeReference.fold("")(_.value),
               amountDue = currencyFormat(result.amount)
             )
           )

@@ -17,6 +17,7 @@
 package services.payments
 
 import connectors.payments.PaymentConnector
+import models.ChargeReference
 import models.identifiers.VpdId
 import models.payments.{StartPaymentRequest, StartPaymentResponse}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -31,7 +32,7 @@ class PaymentService @Inject()(
 
   def startPayment(
                     vpdId: VpdId,
-                    chargeReference: String,
+                    chargeReference: ChargeReference,
                     returnUrl: String,
                     backUrl: String
                   )(using HeaderCarrier): Future[StartPaymentResponse] = {
@@ -51,13 +52,13 @@ class PaymentService @Inject()(
 
   def startBtaPayment(
                        vpdId: VpdId,
-                       chargeReference: Option[String],
+                       chargeReference: Option[ChargeReference],
                        returnUrl: String,
                        backUrl: String
                      )(using HeaderCarrier): Future[StartPaymentResponse] =
     startBtaPayment(vpdId, chargeReference, amountInPence(vpdId, chargeReference), returnUrl, backUrl)
 
-  private def amountInPence(vpdId: VpdId, chargeReference: Option[String])(using HeaderCarrier) =
+  private def amountInPence(vpdId: VpdId, chargeReference: Option[ChargeReference])(using HeaderCarrier) =
     chargeReference.fold(
       amountInPenceForMultipleCharges(vpdId))
       (chargeReference => amountInPenceForChargeRef(vpdId, chargeReference))
@@ -73,14 +74,14 @@ class PaymentService @Inject()(
     }
     yield amountInPence
 
-  private def amountInPenceForChargeRef(vpdId: VpdId, chargeReference: String)(using HeaderCarrier) =
+  private def amountInPenceForChargeRef(vpdId: VpdId, chargeReference: ChargeReference)(using HeaderCarrier) =
     for {
       payment <- financialDataService.getOutstandingPayment(vpdId, chargeReference)
       amountInPence = (payment.amountDue * 100).toLong
     } yield amountInPence
 
   private def startBtaPayment(vpdId: VpdId,
-                              chargeRef: Option[String],
+                              chargeRef: Option[ChargeReference],
                               amountInPenceFuture: Future[Long],
                               returnUrl: String,
                               backUrl: String)(using HeaderCarrier) = {
