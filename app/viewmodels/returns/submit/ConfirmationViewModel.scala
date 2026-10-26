@@ -123,9 +123,10 @@ object ConfirmationViewModel extends CurrencyFormatter {
         chargeReferenceParagraph()
       )
     } else {
-      val interestMessage = paymentDueDate.fold(messages("returns.confirmation.p.interestNoDate"))(date =>
-        messages("returns.confirmation.p.interest", date)
-      )
+      val interestMessage = paymentDueDate match {
+        case Some(date) => messages("returns.confirmation.p.interest", date)
+        case _          => messages("returns.confirmation.p.interestNoDate")
+      }
 
       Seq(
         warningSection(dutyDue, paymentDueDate),
@@ -136,9 +137,10 @@ object ConfirmationViewModel extends CurrencyFormatter {
   }
 
   private def warningSection(dutyDue: BigDecimal, paymentDueDate: Option[String])(implicit messages: Messages) = {
-    val warningMessage = paymentDueDate.fold(messages("returns.confirmation.warning.youMustNoDueDate", currencyFormat(dutyDue)))(date =>
-      messages("returns.confirmation.warning.youMust", currencyFormat(dutyDue), date)
-    )
+    val warningMessage = paymentDueDate match {
+      case Some(date) => messages("returns.confirmation.warning.youMust", currencyFormat(dutyDue), date)
+      case None       => messages("returns.confirmation.warning.youMustNoDueDate", currencyFormat(dutyDue))
+    }
 
     warning(WarningText(
       iconFallbackText = Some(messages("site.warning")),
