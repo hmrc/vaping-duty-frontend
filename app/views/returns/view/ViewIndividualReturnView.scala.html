@@ -87,12 +87,16 @@
     }
 
     @vm.spoiltSummaryLists.zipWithIndex.map { case (summaryList, index) =>
-        @h3(messages("viewIndividualReturn.spoiltProducts.h3"), classes = "govuk-heading-s")
+        @if(index == 0){
+            @h3(messages("viewIndividualReturn.spoiltProducts.h3"), classes = "govuk-heading-s")
+        }
         @govukSummaryList(summaryList)
     }
 
     @vm.adjustmentsSummaryLists.zipWithIndex.map { case (summaryList, index) =>
-        @h3(messages("viewIndividualReturn.adjustments.h3"), classes = "govuk-heading-s")
+        @if(index == 0) {
+            @h3(messages("viewIndividualReturn.adjustments.h3"), classes = "govuk-heading-s")
+        }
         @govukSummaryList(summaryList)
     }
 
