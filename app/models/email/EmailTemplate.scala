@@ -19,22 +19,25 @@ package models.email
 import play.api.libs.json.*
 
 enum EmailTemplate(val templateId: JsString) {
-  case DutyDueConfirmation extends EmailTemplate(JsString("vpd_duty_due_confirmation"))
-  case NilReturnConfirmation extends EmailTemplate(JsString("vpd_nil_return_confirmation"))
-  case CreditDueConfirmation extends EmailTemplate(JsString("vpd_credit_due_confirmation"))
+  case DutyDueConfirmation          extends EmailTemplate(JsString("vpd_duty_due_confirmation"))
+  case DutyDueConfirmationNoDueDate extends EmailTemplate(JsString("vpd_duty_due_confirmation_no_due_date"))
+  case NilReturnConfirmation        extends EmailTemplate(JsString("vpd_nil_return_confirmation"))
+  case CreditDueConfirmation        extends EmailTemplate(JsString("vpd_credit_due_confirmation"))
 }
 
 object EmailTemplate {
   given Writes[EmailTemplate] = Writes {
-    case EmailTemplate.DutyDueConfirmation   => EmailTemplate.DutyDueConfirmation.templateId
-    case EmailTemplate.NilReturnConfirmation => EmailTemplate.NilReturnConfirmation.templateId
-    case EmailTemplate.CreditDueConfirmation => EmailTemplate.CreditDueConfirmation.templateId
+    case EmailTemplate.DutyDueConfirmation            => EmailTemplate.DutyDueConfirmation.templateId
+    case EmailTemplate.DutyDueConfirmationNoDueDate   => EmailTemplate.DutyDueConfirmationNoDueDate.templateId
+    case EmailTemplate.NilReturnConfirmation          => EmailTemplate.NilReturnConfirmation.templateId
+    case EmailTemplate.CreditDueConfirmation          => EmailTemplate.CreditDueConfirmation.templateId
   }
 
   given Reads[EmailTemplate] = Reads {
-    case EmailTemplate.DutyDueConfirmation.templateId   => JsSuccess(EmailTemplate.DutyDueConfirmation)
-    case EmailTemplate.NilReturnConfirmation.templateId => JsSuccess(EmailTemplate.NilReturnConfirmation)
-    case EmailTemplate.CreditDueConfirmation.templateId => JsSuccess(EmailTemplate.CreditDueConfirmation)
-    case other                                          => JsError(s"Unknown EmailTemplate: $other")
+    case EmailTemplate.DutyDueConfirmation.templateId             => JsSuccess(EmailTemplate.DutyDueConfirmation)
+    case EmailTemplate.DutyDueConfirmationNoDueDate.templateId    => JsSuccess(EmailTemplate.DutyDueConfirmationNoDueDate)
+    case EmailTemplate.NilReturnConfirmation.templateId           => JsSuccess(EmailTemplate.NilReturnConfirmation)
+    case EmailTemplate.CreditDueConfirmation.templateId           => JsSuccess(EmailTemplate.CreditDueConfirmation)
+    case other                                                    => JsError(s"Unknown EmailTemplate: $other")
   }
 }

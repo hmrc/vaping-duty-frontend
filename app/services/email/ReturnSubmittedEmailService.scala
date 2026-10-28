@@ -18,8 +18,10 @@ package services.email
 
 import connectors.email.EmailConnector
 import models.email.*
+import models.identifiers.VpdId
 import models.obligations.ObligationDetails
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
+import services.payments.FinancialDataService
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.CurrencyFormatter
 
@@ -28,58 +30,81 @@ import java.time.{LocalDate, ZoneId}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReturnSubmittedEmailService @Inject()(emailConnector: EmailConnector)(using ExecutionContext)
-  extends CurrencyFormatter {
+class ReturnSubmittedEmailService @Inject()(
+                                             emailConnector: EmailConnector,
+                                             financialDataService: FinancialDataService
+                                           )(using ExecutionContext) extends CurrencyFormatter {
 
-  private val RETURN_PERIOD_FORMATTER   = DateTimeFormatter.ofPattern("MMMM yyyy")
+  private val RETURN_PERIOD_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy")
   private val SUBMISSION_DATE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
-  private val PAYMENT_DUE_FORMATTER     = DateTimeFormatter.ofPattern("d MMMM yyyy")
-  private val ZONE_ID                   = ZoneId.of("Europe/London")
+  private val PAYMENT_DUE_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private val ZONE_ID = ZoneId.of("Europe/London")
 
   def sendReturnSubmittedEmail(
-    submission: ReturnCreateRequest,
-    result: ReturnSubmittedResponse,
-    obligation: ObligationDetails
-  )(using HeaderCarrier): Future[Unit] = {
+                                vpdId: VpdId,
+                                submission: ReturnCreateRequest,
+                                result: ReturnSubmittedResponse,
+                                obligation: ObligationDetails
+                              )(using HeaderCarrier): Future[Unit] =
+    getPaymentDueDate(vpdId, result).flatMap { paymentDueDate =>
+      val recipient = List(submission.declaration.signeesEmailAddress)
+      val returnPeriod = obligation.iCFromDate.format(RETURN_PERIOD_FORMATTER)
+      val submissionDate = LocalDate.ofInstant(result.processingDate, ZONE_ID).format(SUBMISSION_DATE_FORMATTER)
 
-    val recipient      = List(submission.declaration.signeesEmailAddress)
-    val returnPeriod   = obligation.iCFromDate.format(RETURN_PERIOD_FORMATTER)
-    val submissionDate = LocalDate.ofInstant(result.processingDate, ZONE_ID).format(SUBMISSION_DATE_FORMATTER)
+      val email: Email =
+        if (result.amount > 0 && paymentDueDate.nonEmpty) {
+          DutyDueEmail(
+            to = recipient,
+            parameters = DutyDueEmailParameters(
+              recipientName = submission.declaration.fullName,
+              returnPeriod = returnPeriod,
+              submissionDate = submissionDate,
+              chargeReference = result.chargeReference.getOrElse(""),
+              amountDue = currencyFormat(result.amount),
+              paymentDueDate = paymentDueDate.fold("")(_.format(PAYMENT_DUE_FORMATTER))
+            )
+          )
+        } else if (result.amount > 0) {
+          DutyDueNoDueDateEmail(
+            to = recipient,
+            parameters = DutyDueNoDueDateEmailParameters(
+              recipientName = submission.declaration.fullName,
+              returnPeriod = returnPeriod,
+              submissionDate = submissionDate,
+              chargeReference = result.chargeReference.getOrElse(""),
+              amountDue = currencyFormat(result.amount)
+            )
+          )
+        } else if (result.amount < 0) {
+          CreditDueEmail(
+            to = recipient,
+            parameters = CreditDueEmailParameters(
+              recipientName = submission.declaration.fullName,
+              returnPeriod = returnPeriod,
+              submissionDate = submissionDate,
+              creditAmount = currencyFormat(result.amount.abs)
+            )
+          )
+        } else {
+          NilReturnEmail(
+            to = recipient,
+            parameters = NilReturnEmailParameters(
+              recipientName = submission.declaration.fullName,
+              returnPeriod = returnPeriod,
+              submissionDate = submissionDate
+            )
+          )
+        }
 
-    val email: Email =
-      if (result.amount > 0) {
-        DutyDueEmail(
-          to = recipient,
-          parameters = DutyDueEmailParameters(
-            recipientName   = submission.declaration.fullName,
-            returnPeriod    = returnPeriod,
-            submissionDate  = submissionDate,
-            chargeReference = result.chargeReference.getOrElse(""),
-            amountDue       = currencyFormat(result.amount),
-            paymentDueDate  = obligation.iCDueDate.withDayOfMonth(15).format(PAYMENT_DUE_FORMATTER)
-          )
-        )
-      } else if (result.amount < 0) {
-        CreditDueEmail(
-          to = recipient,
-          parameters = CreditDueEmailParameters(
-            recipientName  = submission.declaration.fullName,
-            returnPeriod   = returnPeriod,
-            submissionDate = submissionDate,
-            creditAmount   = currencyFormat(result.amount.abs)
-          )
-        )
-      } else {
-        NilReturnEmail(
-          to = recipient,
-          parameters = NilReturnEmailParameters(
-            recipientName  = submission.declaration.fullName,
-            returnPeriod   = returnPeriod,
-            submissionDate = submissionDate
-          )
-        )
-      }
+      emailConnector.postEmail(email, emailType = "return submitted")
+    }
 
-    emailConnector.postEmail(email, emailType = "return submitted")
-  }
+  private def getPaymentDueDate(
+                                 vpdId: VpdId,
+                                 result: ReturnSubmittedResponse
+                               )(using HeaderCarrier): Future[Option[LocalDate]] =
+    result.chargeReference match {
+      case Some(chargeRef) => financialDataService.getPaymentDueDate(vpdId, chargeRef)
+      case None            => Future.successful(None)
+    }
 }
