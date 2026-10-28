@@ -87,7 +87,7 @@
     }
 
     @vm.spoiltSummaryLists.zipWithIndex.map { case (summaryList, index) =>
-        @if(index == 0){
+        @if(index == 0) {
             @h3(messages("viewIndividualReturn.spoiltProducts.h3"), classes = "govuk-heading-s")
         }
         @govukSummaryList(summaryList)
