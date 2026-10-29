@@ -97,7 +97,7 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect when obligation service request fails" in {
+    "must allow the framework to handle the error when obligation service request fails" in {
       val mockService = mock[ObligationService]
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
@@ -111,8 +111,9 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[Exception]
+        }
       }
     }
 

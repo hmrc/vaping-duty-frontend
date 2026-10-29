@@ -25,6 +25,7 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.http.InternalServerException
 import viewmodels.contactPreference.SubmitAddressViewModel
 import views.html.contactPreference.SubmitAddressView
 
@@ -55,7 +56,7 @@ class SubmitAddressControllerSpec extends SpecBase {
       }
     }
 
-    "must return SEE_OTHER when there is an issue during submission" in {
+    "must allow the framework to handle the error when there is an issue during submission" in {
 
       val mockSubmitPreferencesConnector = mock[SubmitPreferencesConnector]
 
@@ -71,8 +72,9 @@ class SubmitAddressControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
 

@@ -29,7 +29,7 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.mvc.Results.{Ok, Redirect}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HttpResponse, InternalServerException}
 
 import scala.concurrent.Future
 
@@ -224,7 +224,7 @@ class EmailVerificationServiceSpec extends SpecBase {
       }
     }
 
-    "must redirect to journey recovery if submission fails" in new Setup {
+    "must fail with an InternalServerException if submission fails" in new Setup {
 
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
@@ -234,13 +234,13 @@ class EmailVerificationServiceSpec extends SpecBase {
       whenReady(testService.submitVerifiedEmail(
         emailAddress,
         verified = true
-      )(hc, DataRequest(FakeRequest(), vpdId, internalId, credId, userAnswers))) {
+      )(hc, DataRequest(FakeRequest(), vpdId, internalId, credId, userAnswers)).failed) {
 
-        _ mustBe Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        _ mustBe a[InternalServerException]
       }
     }
 
-    "must redirect to journey recovery if trying to submit unverified email address" in new Setup {
+    "must fail with an InternalServerException if trying to submit unverified email address" in new Setup {
 
       when(mockSubmitPreferencesConnector.submitContactPreferences(any(), any())(any()))
         .thenReturn(Future.successful(Right(testSubmissionResponse)))
@@ -248,9 +248,9 @@ class EmailVerificationServiceSpec extends SpecBase {
       whenReady(testService.submitVerifiedEmail(
         emailAddress,
         verified = false
-      )(hc, DataRequest(FakeRequest(), vpdId, internalId, credId, userAnswers))) {
+      )(hc, DataRequest(FakeRequest(), vpdId, internalId, credId, userAnswers)).failed) {
 
-        _ mustBe Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        _ mustBe a[InternalServerException]
       }
     }
   }

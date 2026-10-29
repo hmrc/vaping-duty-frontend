@@ -18,6 +18,7 @@ package controllers.returns.submit
 
 import config.FrontendAppConfig
 import connectors.returns.GetReturnsConnector
+import controllers.returns.PeriodKeyExtraction
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import models.BtaLink
@@ -46,10 +47,12 @@ class ConfirmationController @Inject()(
                                         obligationService: ObligationService,
                                         config: FrontendAppConfig,
                                         returnsDateUtils: ReturnsDateUtils
-                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled).async { implicit request =>
-    buildConfirmationPage(getPeriodKey())
+    withPeriodKey("period") { periodKey =>
+      buildConfirmationPage(periodKey)
+    }
   }
 
   private def buildConfirmationPage(periodKey: PeriodKey)
@@ -70,7 +73,4 @@ class ConfirmationController @Inject()(
         // scalafix:off DisableSyntax.throw
         throw new RuntimeException("Obligation not found")
     }
-
-  private def getPeriodKey()(using request: Request[?]): PeriodKey =
-    request.getQueryString("period").fold(PeriodKey("99XX"))(PeriodKey(_))
 }

@@ -25,8 +25,9 @@ import models.Mode
 import navigation.Navigator
 import pages.contactPreference.HowToBeContactedPage
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.contactPreference.PreferenceUserAnswersService
+import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.HowToBeContactedViewModel
 import views.html.contactPreference.HowToBeContactedView
@@ -51,9 +52,8 @@ class HowToBeContactedController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
 
-    getUserAnswers().map {
-      case Left(redirect) => redirect
-      case Right(ua)      => Ok(view(prepareForm(ua), HowToBeContactedViewModel(ua), mode))
+    getUserAnswers().map { ua =>
+      Ok(view(prepareForm(ua), HowToBeContactedViewModel(ua), mode))
     }
   }
 
@@ -80,19 +80,18 @@ class HowToBeContactedController @Inject()(
     ua.get(HowToBeContactedPage).fold(form)(form.fill)
 
 
-  private def getUserAnswers()(implicit request: OptionalDataRequest[?]): Future[Either[Result, PreferenceUserAnswers]] = {
+  private def getUserAnswers()(implicit request: OptionalDataRequest[?]): Future[PreferenceUserAnswers] =
     request.userAnswers match {
-      case Some(ua) => Future.successful(Right(ua))
-      case None     => createUserAnswers().map {
-        case Some(newUa)    => Right(newUa)
-        case None           => Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-      }
+      case Some(ua) => Future.successful(ua)
+      case None     => createUserAnswers()
     }
-  }
 
-  private def createUserAnswers()(implicit request: OptionalDataRequest[?]): Future[Option[PreferenceUserAnswers]] =
-    sessionService.createUserAnswers(UserDetails(request.enrolmentVpdId.value, request.internalId.value)).map {
-      case Left(err) => None
-      case Right(ua) => Some(ua)
+  private def createUserAnswers()(implicit request: OptionalDataRequest[?]): Future[PreferenceUserAnswers] =
+    sessionService.createUserAnswers(UserDetails(request.enrolmentVpdId.value, request.internalId.value)).flatMap {
+      case Left(err) =>
+        Future.failed(InternalServerException(
+          s"[HowToBeContactedController][createUserAnswers] Failed to create user answers: ${err.statusCode} - ${err.message}"
+        ))
+      case Right(ua) => Future.successful(ua)
     }
 }

@@ -24,10 +24,9 @@ import models.contactPreference.PreferenceUserAnswers
 import models.emailverification.*
 import models.requests.contactPreference.DataRequest
 import models.returns.{Failure, Success}
-import play.api.Logging
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerificationConnector,
                                           userAnswersService: PreferenceUserAnswersService,
                                           submissionService: PerformSubmissionService
-                                         )(implicit ec: ExecutionContext) extends Logging {
+                                         )(implicit ec: ExecutionContext) {
 
   def retrieveAddressStatus(verificationDetails: VerificationDetails, emailAddress: String, userAnswers: PreferenceUserAnswers)
                            (implicit hc: HeaderCarrier): EitherT[Future, ErrorModel, EmailVerificationDetails] =
@@ -75,16 +74,16 @@ class EmailVerificationService @Inject() (emailVerificationConnector: EmailVerif
             emailVerification = Some(verified),
             bouncedEmail = Some(false)
           ), request)
-        .map {
-          case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        .flatMap {
+          case _: Failure =>
+            Future.failed(InternalServerException("[EmailVerificationService][submitVerifiedEmail] Failed to submit email contact preference"))
           case _: Success =>
             userAnswersService.clear(request.internalId)
-            Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
+            Future.successful(Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad()))
         }
     } else {
-      // Should never enter this case
-      logger.warn("[EmailVerificationService][submit] Unverified email attempted to submit")
-      Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      // Should never enter this case - fail loudly so it is logged as an error and we find out if it ever happens
+      Future.failed(InternalServerException("[EmailVerificationService][submitVerifiedEmail] Unverified email attempted to submit"))
     }
   }
 }

@@ -24,7 +24,6 @@ import models.requests.returns.ReturnsDataRequest
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
 import navigation.ReturnsNavigator
 import pages.returns.DeclarationPage
-import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -52,7 +51,7 @@ class DeclarationController @Inject()(
                                        view: DeclarationView,
                                        navigator: ReturnsNavigator,
                                        userAnswersService: ReturnsUserAnswersService
-                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                     )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[DeclarationDetails] = formProvider()
 
@@ -94,9 +93,5 @@ class DeclarationController @Inject()(
     submitReturnService.submit(updatedAnswers)
       .flatMap(_ => userAnswersService.clear(request.enrolmentVpdId, request.periodKey))
       .map(_ => Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers)))
-      .recover { case e =>
-        logger.error("Failed to submit return", e)  
-        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      }
   }
 }

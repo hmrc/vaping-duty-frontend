@@ -19,7 +19,6 @@ package controllers.payments
 import config.FrontendAppConfig
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.ReturnsEnabledAction
-import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.payments.PaymentService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -34,16 +33,12 @@ class StartBtaPaymentController @Inject()(
                                            paymentService: PaymentService,
                                            config: FrontendAppConfig,
                                            val controllerComponents: MessagesControllerComponents
-                                         )(using ExecutionContext) extends FrontendBaseController with Logging {
+                                         )(using ExecutionContext) extends FrontendBaseController {
 
   def startPayment(chargeReference: Option[String]): Action[AnyContent] =
     (identify andThen checkInsolvencyAction andThen returnsEnabled).async { implicit request =>
       paymentService.startBtaPayment(request.enrolmentVpdId, chargeReference, config.startPaymentBtaReturnUrl, config.startPaymentBtaBackUrl).map { response =>
         Redirect(response.nextUrl)
-      }.recover {
-        case e: Exception =>
-          logger.warn(s"Error starting BTA payment for charge reference $chargeReference: ${e.getMessage}")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }
 }

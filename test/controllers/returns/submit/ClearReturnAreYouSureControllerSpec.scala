@@ -26,7 +26,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.returns.ReturnsUserAnswersService
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{InternalServerException, UpstreamErrorResponse}
 import views.html.returns.submit.ClearReturnAreYouSureView
 
 import scala.concurrent.Future
@@ -102,7 +102,7 @@ class ClearReturnAreYouSureControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to JourneyRecovery when clear fails" in {
+    "must allow the framework to handle the error when clear fails" in {
 
       val mockUserAnswersService = mock[ReturnsUserAnswersService]
 
@@ -123,8 +123,9 @@ class ClearReturnAreYouSureControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
 
         verify(mockUserAnswersService).clear(eqTo(vpdId), eqTo(periodKey))(any())
       }

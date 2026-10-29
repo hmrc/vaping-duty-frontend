@@ -24,10 +24,10 @@ import models.contactPreference.PaperlessPreference.{Email, Post, toValue}
 import models.contactPreference.PaperlessPreference
 import models.emailverification.PaperlessPreferenceSubmission
 import models.returns.{Failure, Success}
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.contactPreference.{PerformSubmissionService, PreferenceUserAnswersService}
+import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.contactPreference.SubmitAddressViewModel
 import views.html.contactPreference.SubmitAddressView
@@ -45,7 +45,7 @@ class SubmitAddressController @Inject()(
                                          config: FrontendAppConfig,
                                          userAnswersService: PreferenceUserAnswersService,
                                          submissionService: PerformSubmissionService
-                                        )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                        )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val vm = SubmitAddressViewModel(config, request.userAnswers.subscriptionSummary.correspondenceAddress)
@@ -66,11 +66,12 @@ class SubmitAddressController @Inject()(
               emailVerification = request.userAnswers.subscriptionSummary.emailVerification,
               bouncedEmail = request.userAnswers.subscriptionSummary.bouncedEmail
             ), request)
-          .map {
-            case _: Failure => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          .flatMap {
+            case _: Failure =>
+              Future.failed(InternalServerException("[SubmitAddressController][onSubmit] Failed to submit postal contact preference"))
             case _: Success =>
               userAnswersService.clear(request.internalId)
-              Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad())
+              Future.successful(Redirect(controllers.contactPreference.routes.ConfirmationController.onPageLoad()))
           }
       case Post  =>
         Future.successful(Redirect(controllers.contactPreference.routes.ChangeAddressController.onPageLoad()))

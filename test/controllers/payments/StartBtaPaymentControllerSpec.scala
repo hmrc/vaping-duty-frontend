@@ -17,7 +17,6 @@
 package controllers.payments
 
 import base.SpecBase
-import controllers.routes
 import models.payments.StartPaymentResponse
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
@@ -62,7 +61,7 @@ class StartBtaPaymentControllerSpec extends SpecBase {
       }
     }
 
-    "redirect to journey recovery when payment service fails" in {
+    "allow the framework to handle the error when payment service fails" in {
       val mockPaymentService = mock[PaymentService]
 
       when(mockPaymentService.startBtaPayment(any(), any(), any(), any())(using any()))
@@ -76,12 +75,13 @@ class StartBtaPaymentControllerSpec extends SpecBase {
         val request = FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startPayment().url)
         val result = route(application, request).value
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[RuntimeException]
+        }
       }
     }
 
-    "redirect to journey recovery when there is no positive outstanding balance" in {
+    "allow the framework to handle the error when there is no positive outstanding balance" in {
       val mockPaymentService = mock[PaymentService]
 
       when(mockPaymentService.startBtaPayment(any(), any(), any(), any())(using any()))
@@ -95,8 +95,9 @@ class StartBtaPaymentControllerSpec extends SpecBase {
         val request = FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startPayment().url)
         val result = route(application, request).value
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[NoSuchElementException]
+        }
       }
     }
   }
@@ -125,7 +126,7 @@ class StartBtaPaymentControllerSpec extends SpecBase {
       }
     }
 
-    "redirect to journey recovery when payment service fails" in {
+    "allow the framework to handle the error when payment service fails" in {
       val mockPaymentService = mock[PaymentService]
 
       when(mockPaymentService.startBtaPayment(any(), any(), any(), any())(using any()))
@@ -140,12 +141,13 @@ class StartBtaPaymentControllerSpec extends SpecBase {
           FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startPayment(Some(chargeReference)).url)
         val result = route(application, request).value
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[RuntimeException]
+        }
       }
     }
 
-    "redirect to journey recovery when payment not found" in {
+    "allow the framework to handle the error when payment not found" in {
       val mockPaymentService = mock[PaymentService]
 
       when(mockPaymentService.startBtaPayment(any(), any(), any(), any())(using any()))
@@ -160,12 +162,13 @@ class StartBtaPaymentControllerSpec extends SpecBase {
           FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startPayment(Some(chargeReference)).url)
         val result = route(application, request).value
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[NoSuchElementException]
+        }
       }
     }
 
-    "redirect to journey recovery when connector throws InternalServerException" in {
+    "allow the framework to handle the error when connector throws InternalServerException" in {
       val mockPaymentService = mock[PaymentService]
 
       when(mockPaymentService.startBtaPayment(any(), any(), any(), any())(using any()))
@@ -180,8 +183,9 @@ class StartBtaPaymentControllerSpec extends SpecBase {
           FakeRequest(GET, controllers.payments.routes.StartBtaPaymentController.startPayment(Some(chargeReference)).url)
         val result = route(application, request).value
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
   }

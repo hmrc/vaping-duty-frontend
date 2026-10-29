@@ -243,7 +243,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
         }
       }
-      "must redirect to journey recovery when there is an issue submitting" in {
+      "must allow the framework to handle the error when there is an issue submitting" in {
 
         val mockService = mock[SubmitReturnService]
         val mockSessionRepository = mock[ReturnsUserAnswersService]
@@ -273,8 +273,9 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
           val result = route(application, request).value
 
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+          whenReady(result.failed) { exception =>
+            exception mustBe a[Exception]
+          }
         }
       }
     }

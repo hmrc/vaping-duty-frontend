@@ -19,7 +19,6 @@ package controllers.payments
 import config.FrontendAppConfig
 import controllers.actions.ApprovedVapingManufacturerAuthAction
 import controllers.actions.returns.ReturnsEnabledAction
-import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.payments.PaymentService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -33,7 +32,7 @@ class StartPaymentController @Inject()(
   paymentService: PaymentService,
   config: FrontendAppConfig,
   val controllerComponents: MessagesControllerComponents
-)(using ExecutionContext) extends FrontendBaseController with Logging {
+)(using ExecutionContext) extends FrontendBaseController {
 
   def startPayment(chargeReference: String): Action[AnyContent] =
     (identify andThen returnsEnabled).async { implicit request =>
@@ -48,10 +47,6 @@ class StartPaymentController @Inject()(
         returnBackUrl
       ).map { response =>
         Redirect(response.nextUrl)
-      }.recover {
-        case e: Exception =>
-          logger.warn(s"Error starting payment for charge reference $chargeReference: ${e.getMessage}")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }
 }

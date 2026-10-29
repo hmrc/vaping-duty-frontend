@@ -20,7 +20,6 @@ import config.FrontendAppConfig
 import connectors.payments.DirectDebitConnector
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction, DirectDebitEnabledAction}
 import models.payments.StartDirectDebitRequest
-import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -34,7 +33,7 @@ class StartBtaDirectDebitController @Inject()(
                                                connector: DirectDebitConnector,
                                                config: FrontendAppConfig,
                                                val controllerComponents: MessagesControllerComponents
-                                             )(using ExecutionContext) extends FrontendBaseController with Logging {
+                                             )(using ExecutionContext) extends FrontendBaseController {
 
   def startDirectDebit(): Action[AnyContent] =
     (identify andThen checkInsolvencyAction andThen directDebitEnabled).async { implicit request =>
@@ -43,10 +42,6 @@ class StartBtaDirectDebitController @Inject()(
 
       connector.startBtaDirectDebit(startRequest).map { response =>
         Redirect(response.nextUrl)
-      }.recover {
-        case e: Exception =>
-          logger.warn(s"Error starting direct debit journey for BTA: ${e.getMessage}")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }
 }

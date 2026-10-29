@@ -29,12 +29,12 @@ import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.contactPreference.EnterEmailPage
 import play.api.inject.bind
-import play.api.mvc.Call
+import play.api.mvc.{Call, Result}
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.contactPreference.{EmailVerificationService, PreferenceUserAnswersService}
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HttpResponse, InternalServerException}
 import views.html.contactPreference.EnterEmailView
 
 import scala.concurrent.Future
@@ -122,7 +122,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to journey recovery when receiving an error starting email verification" in {
+    "must allow the framework to handle the error when starting email verification fails" in {
 
       val mockUserAnswersService = mock[PreferenceUserAnswersService]
 
@@ -147,12 +147,13 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
 
-    "must redirect to journey recovery if failing to set user answers" in {
+    "must allow the framework to handle the error when setting user answers fails" in {
 
       val mockUserAnswersService = mock[PreferenceUserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
@@ -161,7 +162,7 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, true, false)))
 
       when(mockEmailVerificationService.redirectIfLocked(any(), any()))
-        .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
+        .thenAnswer(invocation => invocation.getArgument[Future[Result]](0))
 
       when(mockUserAnswersService.set(any())(any()))
         .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
@@ -182,12 +183,13 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
 
-    "must redirect to journey recovery if failing to retrieve verified emails" in {
+    "must allow the framework to handle the error when retrieving verified emails fails" in {
 
       val mockUserAnswersService = mock[PreferenceUserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
@@ -211,8 +213,9 @@ class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
 

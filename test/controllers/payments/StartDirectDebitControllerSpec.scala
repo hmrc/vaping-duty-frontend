@@ -18,7 +18,6 @@ package controllers.payments
 
 import base.SpecBase
 import connectors.payments.DirectDebitConnector
-import controllers.routes
 import models.payments.StartDirectDebitResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -57,7 +56,7 @@ class StartDirectDebitControllerSpec extends SpecBase {
       }
     }
 
-    "redirect to journey recovery when connector fails" in {
+    "allow the framework to handle the error when connector fails" in {
       val mockConnector = mock[DirectDebitConnector]
 
       when(mockConnector.startDirectDebit(any())(using any()))
@@ -71,8 +70,9 @@ class StartDirectDebitControllerSpec extends SpecBase {
         val request = FakeRequest(GET, controllers.payments.routes.StartDirectDebitController.startDirectDebit().url)
         val result = route(application, request).value
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
   }

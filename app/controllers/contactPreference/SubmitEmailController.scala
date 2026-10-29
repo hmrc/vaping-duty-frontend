@@ -20,12 +20,10 @@ import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRetrievalAction}
 import models.emailverification.{EmailVerificationDetails, VerificationDetails}
 import models.requests.contactPreference.DataRequest
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.contactPreference.EmailVerificationService
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.SubmitEmailView
 
@@ -40,7 +38,7 @@ class SubmitEmailController @Inject()(
                                        emailVerificationService: EmailVerificationService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: SubmitEmailView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
@@ -48,7 +46,8 @@ class SubmitEmailController @Inject()(
 
       retrieveStatus(emailVerificationService, request, email).value.flatMap {
         case Left(error) =>
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+          Future.failed(InternalServerException("[SubmitEmailController][onPageLoad] Error retrieving verified email list: " +
+            s"${error.status} and message: ${error.message}"))
         case Right(verificationDetails) =>
           emailVerificationService.redirectIfLocked(
             Future.successful(Ok(view(verificationDetails.emailAddress))),
@@ -63,7 +62,8 @@ class SubmitEmailController @Inject()(
 
       retrieveStatus(emailVerificationService, request, email).value.flatMap {
         case Left(error) =>
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+          Future.failed(InternalServerException("[SubmitEmailController][onSubmit] Error retrieving verified email list: " +
+            s"${error.status} and message: ${error.message}"))
         case Right(emailVerificationDetails) =>
             emailVerificationService.submitVerifiedEmail(
               emailVerificationDetails.emailAddress,

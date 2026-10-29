@@ -28,7 +28,7 @@ import play.api.mvc.Results.{Ok, Redirect}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.contactPreference.{EmailVerificationService, PreferenceUserAnswersService}
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HttpResponse, InternalServerException}
 import views.html.contactPreference.SubmitEmailView
 
 import java.time.Instant
@@ -96,7 +96,7 @@ class SubmitEmailControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to journey recovery when email verification service fails on GET" in {
+    "must allow the framework to handle the error when email verification service fails on GET" in {
 
       val mockUserAnswersService = mock[PreferenceUserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
@@ -116,12 +116,13 @@ class SubmitEmailControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
 
-    "must redirect to journey recovery when email verification service fails on POST" in {
+    "must allow the framework to handle the error when email verification service fails on POST" in {
 
       val mockUserAnswersService = mock[PreferenceUserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
@@ -141,12 +142,13 @@ class SubmitEmailControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
 
-    "must redirect to journey recovery when submitting preferences fails" in {
+    "must allow the framework to handle the error when submitting preferences fails" in {
 
       val mockUserAnswersService = mock[PreferenceUserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
@@ -157,7 +159,7 @@ class SubmitEmailControllerSpec extends SpecBase {
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, true, true)))
 
       when(mockEmailVerificationService.submitVerifiedEmail(any(), any())(any(), any()))
-        .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
+        .thenReturn(Future.failed(InternalServerException("There was a problem")))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
         .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
@@ -169,12 +171,13 @@ class SubmitEmailControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
 
-    "must redirect to journey recovery when attempting to submit unverified email" in {
+    "must allow the framework to handle the error when attempting to submit unverified email" in {
       // Should not be a scenario that executes in the application, covered for safety.
       val mockUserAnswersService = mock[PreferenceUserAnswersService]
       val mockEmailVerificationService = mock[EmailVerificationService]
@@ -186,7 +189,7 @@ class SubmitEmailControllerSpec extends SpecBase {
         .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress, false, false)))
 
       when(mockEmailVerificationService.submitVerifiedEmail(any(), any())(any(), any()))
-        .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
+        .thenReturn(Future.failed(InternalServerException("There was a problem")))
 
       val application = applicationBuilder(userAnswers = Some(userAnswersPostWithEmail))
         .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
@@ -199,8 +202,9 @@ class SubmitEmailControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
   }

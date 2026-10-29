@@ -20,7 +20,7 @@ import base.SpecBase
 import connectors.returns.GetReturnsConnector
 import models.obligations.ObligationDetails
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verifyNoInteractions, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -130,7 +130,7 @@ class ConfirmationControllerSpec extends SpecBase {
         when(mockObligationService.getObligationByPeriodKey(any(), any())(using any()))
           .thenReturn(Future.successful(None))
 
-        val request = FakeRequest(GET, controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
+        val request = FakeRequest(GET, s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=$periodKey")
 
         val result = route(application, request).value
 
@@ -138,6 +138,27 @@ class ConfirmationControllerSpec extends SpecBase {
           exception mustBe a[RuntimeException]
           exception.getMessage mustBe "Obligation not found"
         }
+      }
+    }
+
+    "must redirect to journey recovery when the period query parameter is missing" in {
+
+      val mockGetReturnsConnector = mock[GetReturnsConnector]
+      val mockObligationService = mock[ObligationService]
+
+      val application = applicationBuilder(returnsUserAnswers = Option(returnsUserAnswers))
+        .overrides(bind[GetReturnsConnector].toInstance(mockGetReturnsConnector))
+        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        verifyNoInteractions(mockGetReturnsConnector)
       }
     }
   }

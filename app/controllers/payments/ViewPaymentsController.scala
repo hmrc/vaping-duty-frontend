@@ -18,10 +18,7 @@ package controllers.payments
 
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.ReturnsEnabledAction
-import controllers.routes
-import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.payments.FinancialDataService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -41,17 +38,13 @@ class ViewPaymentsController @Inject()(
   returnsDateUtils: ReturnsDateUtils,
   val controllerComponents: MessagesControllerComponents,
   view: ViewPaymentsView
-)(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+)(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled).async { implicit request =>
     service.getPayments(request.enrolmentVpdId)
       .map { payments =>
         val vm = ViewPaymentsViewModel(payments, returnsDateUtils)
         Ok(view(vm))
-      }
-      .recover { case e: Exception =>
-        logger.warn(s"Error retrieving payments: ${e.getMessage}")
-        Redirect(routes.JourneyRecoveryController.onPageLoad())
       }
   }
 }

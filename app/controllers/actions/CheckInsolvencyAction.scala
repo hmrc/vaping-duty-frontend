@@ -22,7 +22,7 @@ import models.requests.IdentifierRequest
 import play.api.Logging
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
@@ -38,18 +38,19 @@ class CheckInsolvencyActionImpl @Inject()(
   override protected def refine[A](request: IdentifierRequest[A]): Future[Either[Result, IdentifierRequest[A]]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    subscriptionConnector.getInsolvencyStatus(request.enrolmentVpdId).map {
+    subscriptionConnector.getInsolvencyStatus(request.enrolmentVpdId).flatMap {
       case Right(subscription) =>
         subscription.insolvencyStatus match {
           case InsolvencyStatus.Solvent =>
-            Right(request)
+            Future.successful(Right(request))
           case _ =>
             logger.info(s"User with VpdId ${request.enrolmentVpdId.value} is insolvent, redirecting")
-            Left(Redirect(controllers.routes.InsolventController.onPageLoad()))
+            Future.successful(Left(Redirect(controllers.routes.InsolventController.onPageLoad())))
         }
       case Left(error) =>
-        logger.warn(s"Failed to fetch subscription data for VpdId ${request.enrolmentVpdId.value}: ${error.statusCode} - ${error.message}")
-        Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        Future.failed(InternalServerException(
+          s"Failed to fetch insolvency status for VpdId ${request.enrolmentVpdId.value}: ${error.statusCode} - ${error.message}"
+        ))
     }
   }
 }

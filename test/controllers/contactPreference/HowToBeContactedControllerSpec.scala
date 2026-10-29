@@ -31,7 +31,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.contactPreference.PreferenceUserAnswersService
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{InternalServerException, UpstreamErrorResponse}
 import viewmodels.contactPreference.HowToBeContactedViewModel
 import views.html.contactPreference.HowToBeContactedView
 
@@ -96,7 +96,7 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to JourneyRecoveryController when there is an error creating user answers" in {
+    "must allow the framework to handle the error when creating user answers fails" in {
 
       val mockUserAnswersService = mock[PreferenceUserAnswersService]
 
@@ -112,8 +112,9 @@ class HowToBeContactedControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
         
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
 

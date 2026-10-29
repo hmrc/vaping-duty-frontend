@@ -23,11 +23,12 @@ import models.BtaLink
 import models.contactPreference.PaperlessPreference
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.contactPreference.{EmailConfirmationView, PostalConfirmationView}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmationController @Inject()(
                                        override val messagesApi: MessagesApi,
@@ -43,12 +44,15 @@ class ConfirmationController @Inject()(
     implicit request =>
       val btaUrl = BtaLink(config)
 
-      subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).map {
-        case Left(error)                => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+      subscriptionConnector.getSubscriptionContactPreferences(request.enrolmentVpdId).flatMap {
+        case Left(error)                =>
+          Future.failed(InternalServerException(
+            s"Failed to fetch subscription contact preferences: ${error.statusCode} - ${error.message}"
+          ))
         case Right(subscriptionSummary) =>
           PaperlessPreference(subscriptionSummary.paperlessPreference) match {
-            case PaperlessPreference.Email  => Ok(emailConfirmationView(subscriptionSummary.emailAddress.getOrElse(""), btaUrl))
-            case PaperlessPreference.Post   => Ok(postalConfirmationView(btaUrl))
+            case PaperlessPreference.Email  => Future.successful(Ok(emailConfirmationView(subscriptionSummary.emailAddress.getOrElse(""), btaUrl)))
+            case PaperlessPreference.Post   => Future.successful(Ok(postalConfirmationView(btaUrl)))
           }
       }
   }

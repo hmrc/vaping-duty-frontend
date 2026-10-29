@@ -26,12 +26,11 @@ import models.emailverification.{EmailVerificationDetails, EmailVerificationRequ
 import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.contactPreference.EnterEmailPage
-import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.contactPreference.{EmailVerificationService, PreferenceUserAnswersService}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.StartEmailVerificationJourneyHelper
 import views.html.contactPreference.EnterEmailView
@@ -52,7 +51,7 @@ class EnterEmailController @Inject()(
                                       emailVerificationService: EmailVerificationService,
                                       val controllerComponents: MessagesControllerComponents,
                                       view: EnterEmailView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[String] = formProvider()
 
@@ -79,9 +78,8 @@ class EnterEmailController @Inject()(
           emailVerificationService
             .retrieveAddressStatus(VerificationDetails(request.credId), value, updatedAnswers).value.flatMap {
               case Left(error) =>
-                logger.warn("[EnterEmailController][onSubmit] Error retrieving verified email list: " +
-                  s"${error.status} and message: ${error.message}")
-                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+                Future.failed(InternalServerException("[EnterEmailController][onSubmit] Error retrieving verified email list: " +
+                  s"${error.status} and message: ${error.message}"))
               case Right(verificationDetails) =>
                 emailVerificationService.redirectIfLocked(
                   handleRedirect(updatedAnswers, verificationDetails, request.credId.toString),
@@ -96,9 +94,8 @@ class EnterEmailController @Inject()(
                             (implicit hc: HeaderCarrier, messages: Messages) = {
     sessionService.set(updatedAnswers).flatMap {
       case Left(error) =>
-        logger.warn("[EnterEmailController][handleRedirect] Error setting user answers with status: " +
-          s"${error.status} and message: ${error.message}")
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        Future.failed(InternalServerException("[EnterEmailController][handleRedirect] Error setting user answers with status: " +
+          s"${error.status} and message: ${error.message}"))
       case Right(_) =>
         if (details.isVerified) {
           Future.successful(Redirect(navigator.nextPage(EnterEmailPage, NormalMode, updatedAnswers)))
@@ -118,14 +115,13 @@ class EnterEmailController @Inject()(
   private def handoffToEmailVerification(evRequest: EmailVerificationRequest)
                                         (implicit hc: HeaderCarrier) = {
 
-    emailVerificationConnector.startEmailVerification(evRequest).map {
+    emailVerificationConnector.startEmailVerification(evRequest).flatMap {
       case Left(error) =>
-        logger.warn("[EnterEmailController][handoffToEmailVerification] Error starting email verification with status: " +
-          s"${error.status} and message: ${error.message}")
-        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        Future.failed(InternalServerException("[EnterEmailController][handoffToEmailVerification] Error starting email verification with status: " +
+          s"${error.status} and message: ${error.message}"))
       case Right(redirectUri) =>
         val redirectTo = s"${config.emailVerificationRedirectBaseUrl}${redirectUri.redirectUri}"
-        Redirect(redirectTo)
+        Future.successful(Redirect(redirectTo))
     }
   }
 }

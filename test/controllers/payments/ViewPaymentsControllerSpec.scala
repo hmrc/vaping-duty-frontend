@@ -48,7 +48,7 @@ class ViewPaymentsControllerSpec extends SpecBase {
         }
       }
 
-      "must redirect to journey recovery when service returns an error" in {
+      "must allow the framework to handle the error when service returns an error" in {
         val mockService = mock[FinancialDataService]
         when(mockService.getPayments(eqTo(vpdId))(using any()))
           .thenReturn(Future.failed(new RuntimeException("Service error")))
@@ -61,8 +61,10 @@ class ViewPaymentsControllerSpec extends SpecBase {
           val request = FakeRequest(GET, routes.ViewPaymentsController.onPageLoad().url)
           val result = route(application, request).value
 
-          status(result) mustBe SEE_OTHER
-          redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+          whenReady(result.failed) { exception =>
+            exception mustBe a[RuntimeException]
+            exception.getMessage mustBe "Service error"
+          }
         }
       }
     }

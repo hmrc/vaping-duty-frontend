@@ -26,6 +26,7 @@ import org.scalatest.BeforeAndAfterEach
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.play.bootstrap.http.ErrorResponse
 import views.html.contactPreference.{EmailConfirmationView, PostalConfirmationView}
 
@@ -84,7 +85,7 @@ class ConfirmationControllerSpec extends SpecBase with BeforeAndAfterEach {
       }
     }
 
-    "must redirect to journey recovery when there is no entry in user answers for HowToBeContacted" in {
+    "must allow the framework to handle the error when fetching contact preferences fails" in {
 
       when(mockSubscriptionConnector.getSubscriptionContactPreferences(any())(any()))
         .thenReturn(Future.successful(Left(ErrorResponse(INTERNAL_SERVER_ERROR, "Whoops"))))
@@ -98,8 +99,9 @@ class ConfirmationControllerSpec extends SpecBase with BeforeAndAfterEach {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
   }

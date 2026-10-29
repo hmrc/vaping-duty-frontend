@@ -59,7 +59,7 @@ class StartBtaDirectDebitControllerSpec extends SpecBase {
         }
       }
 
-      "redirect to journey recovery when connector fails" in {
+      "allow the framework to handle the error when connector fails" in {
         val mockConnector = mock[DirectDebitConnector]
 
         when(mockConnector.startBtaDirectDebit(any())(using any()))
@@ -73,8 +73,9 @@ class StartBtaDirectDebitControllerSpec extends SpecBase {
           val request = FakeRequest(GET, controllers.payments.routes.StartBtaDirectDebitController.startDirectDebit().url)
           val result = route(application, request).value
 
-          status(result) mustBe SEE_OTHER
-          redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+          whenReady(result.failed) { exception =>
+            exception mustBe a[InternalServerException]
+          }
         }
       }
     }

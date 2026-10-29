@@ -25,6 +25,7 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.returns.ReturnsUserAnswersService
+import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.ClearReturnAreYouSureView
 
@@ -59,13 +60,14 @@ class ClearReturnAreYouSureController @Inject()(
 
         confirmed =>
           if (confirmed) {
-            userAnswersService.clear(request.enrolmentVpdId, request.periodKey).map {
+            userAnswersService.clear(request.enrolmentVpdId, request.periodKey).flatMap {
               case Right(_) =>
                 logger.info(s"Return ${request.enrolmentVpdId.value}/${request.periodKey.value} cleared")
-                Redirect(withPeriod(controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url, request.periodKey))
+                Future.successful(Redirect(withPeriod(controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url, request.periodKey)))
               case Left(error) =>
-                logger.warn(s"Unable to clear user answers: ${request.enrolmentVpdId.value}/${request.periodKey.value}: ${error.statusCode} ${error.message}")
-                Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+                Future.failed(InternalServerException(
+                  s"Unable to clear user answers: ${request.enrolmentVpdId.value}/${request.periodKey.value}: ${error.statusCode} ${error.message}"
+                ))
             }
           } else {
             Future.successful(Redirect(withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad().url, request.periodKey)))
