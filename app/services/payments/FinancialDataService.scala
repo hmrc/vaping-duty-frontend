@@ -27,8 +27,8 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class FinancialDataService @Inject()(
-  connector: FinancialDataConnector
-)(using ExecutionContext) {
+                                      connector: FinancialDataConnector
+                                    )(using ExecutionContext) {
 
   def getPayments(vpdId: VpdId)(using HeaderCarrier): Future[PaymentsResponse] =
     connector.getPayments(vpdId)
@@ -45,14 +45,10 @@ class FinancialDataService @Inject()(
 
   def getPaymentDueDate(vpdId: VpdId, chargeReference: ChargeReference)
                        (using HeaderCarrier): Future[Option[LocalDate]] =
-    if (chargeReference.value.isEmpty) {
-      Future.successful(None)
-    } else {
-      getOutstandingPayment(vpdId, chargeReference)
-        .map(outstandingPayment => Some(outstandingPayment.dueDate))
-        .recover {
-          case _: NoSuchElementException => None
-          case _                         => None
-        }
-    }
+    getOutstandingPayment(vpdId, chargeReference)
+      .map(outstandingPayment => Some(outstandingPayment.dueDate))
+      .recover {
+        case _: NoSuchElementException => None
+        case _ => None
+      }
 }

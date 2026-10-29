@@ -151,18 +151,6 @@ class FinancialDataServiceSpec extends SpecBase {
       }
     }
 
-    "must return None when charge reference is empty" in {
-      val mockConnector = mock[FinancialDataConnector]
-      val service = new FinancialDataService(mockConnector)
-      val chargeReference = ChargeReference("")
-      
-      whenReady(service.getPaymentDueDate(vpdId, chargeReference)) { result =>
-        result mustBe None
-      }
-      
-      verify(mockConnector, never()).getPayments(any[VpdId])(using any())
-    }
-
     "must return None when payment not found" in {
       val mockConnector = mock[FinancialDataConnector]
       val service = new FinancialDataService(mockConnector)
