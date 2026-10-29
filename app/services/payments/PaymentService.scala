@@ -90,7 +90,7 @@ class PaymentService @Inject()(
       request = StartPaymentRequest(
         vapingDutyReference = vpdId.value,
         amountInPence = amountInPence,
-        chargeReferenceNumber = chargeRef.fold(None)(ref => Some(ref.value)),
+        chargeReferenceNumber = chargeRef.map(_.value),
         returnUrl = returnUrl,
         backUrl = backUrl
       )
