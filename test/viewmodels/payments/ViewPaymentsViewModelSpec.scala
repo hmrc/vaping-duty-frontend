@@ -61,7 +61,7 @@ class ViewPaymentsViewModelSpec extends SpecBase {
   )
 
   private val testPaymentRefund = OutstandingPayment(
-    chargeReference = "XF123456789012",
+    chargeReference = ChargeReference("XF123456789012"),
     amountDue = BigDecimal("-2577.44"),
     dueDate = LocalDate.of(2025, 2, 25),
     status = PaymentStatus.Overdue,
