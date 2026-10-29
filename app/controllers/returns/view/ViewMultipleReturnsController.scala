@@ -51,7 +51,6 @@ class ViewMultipleReturnsController @Inject()(
     implicit request =>
 
       renderView(request, year)
-        .recover(_ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
   }
 
   private def renderView(request: OptionalDataRequest[?], year: Option[Int])

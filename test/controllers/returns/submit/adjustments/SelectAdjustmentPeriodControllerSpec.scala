@@ -79,7 +79,7 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery when obligation service fails" in {
+    "must allow the framework to handle the error when obligation service fails" in {
       val mockObligationService = mock[ObligationService]
 
       when(mockObligationService.getObligations(any())(using any()))
@@ -94,8 +94,9 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[Exception]
+        }
       }
     }
   }

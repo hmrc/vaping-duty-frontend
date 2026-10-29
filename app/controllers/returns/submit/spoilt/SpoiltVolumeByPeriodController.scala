@@ -105,8 +105,6 @@ class SpoiltVolumeByPeriodController @Inject()(
     obligationService.getObligationByPeriodKey(request.enrolmentVpdId, spoiltPeriod).flatMap {
       case Some(spoiltObligation) => block(spoiltObligation)
       case None => Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-    }.recover {
-      case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
     }
   }
 

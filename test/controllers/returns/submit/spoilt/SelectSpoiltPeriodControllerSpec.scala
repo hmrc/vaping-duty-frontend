@@ -136,7 +136,7 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to JourneyRecovery when the service fails" in {
+    "must allow the framework to handle the error when the service fails" in {
       val mockService = mock[ObligationService]
 
       when(mockService.getObligations(any())(using any())).thenReturn(Future.failed(InternalServerException("")))
@@ -152,8 +152,9 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[Exception]
+        }
       }
     }
 
