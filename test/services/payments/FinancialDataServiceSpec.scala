@@ -134,7 +134,7 @@ class FinancialDataServiceSpec extends SpecBase {
       val expectedDueDate = LocalDate.of(2024, 3, 15)
 
       val outstandingPayment = OutstandingPayment(
-        chargeReference = ChargeReference(chargeReference.value),
+        chargeReference = chargeReference,
         amountDue = 100.00,
         dueDate = expectedDueDate,
         status = PaymentStatus.Due,
