@@ -152,7 +152,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery when obligation service fails on a GET" in {
+    "must allow the framework to handle the error when obligation service fails on a GET" in {
       val mockObligationService = mock[ObligationService]
 
       when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(spoiltPeriodKey))(using any()))
@@ -170,8 +170,9 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
 
@@ -288,7 +289,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery when obligation service fails on a POST" in {
+    "must allow the framework to handle the error when obligation service fails on a POST" in {
       val mockObligationService = mock[ObligationService]
 
       when(mockObligationService.getObligationByPeriodKey(eqTo(vpdId), eqTo(spoiltPeriodKey))(using any()))
@@ -307,8 +308,9 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        whenReady(result.failed) { exception =>
+          exception mustBe a[InternalServerException]
+        }
       }
     }
 

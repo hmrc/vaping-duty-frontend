@@ -51,8 +51,6 @@ class SelectSpoiltPeriodController @Inject()(
         val spoiltList = request.userAnswers.get(SpoiltVolumeByPeriodPage)
         val viewModel = SelectSpoiltPeriodViewModel(obligationDetails, year, request.periodKey, spoiltList, returnsDateUtils, mode)
         Ok(view(viewModel))
-      }.recover {
-        case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }
 }

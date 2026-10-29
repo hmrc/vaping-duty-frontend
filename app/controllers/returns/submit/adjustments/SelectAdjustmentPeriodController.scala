@@ -58,8 +58,6 @@ class SelectAdjustmentPeriodController @Inject()(
           mode
         )
         Ok(view(vm, request.periodKey))
-      }.recover {
-        case _ => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }
 }
