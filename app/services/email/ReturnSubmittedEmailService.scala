@@ -52,28 +52,31 @@ class ReturnSubmittedEmailService @Inject()(
       val submissionDate = LocalDate.ofInstant(result.processingDate, ZONE_ID).format(SUBMISSION_DATE_FORMATTER)
 
       val email: Email =
-        if (result.amount > 0 && paymentDueDate.nonEmpty) {
-          DutyDueEmail(
-            to = recipient,
-            parameters = DutyDueEmailParameters(
-              recipientName = submission.declaration.fullName,
-              returnPeriod = returnPeriod,
-              submissionDate = submissionDate,
-              chargeReference = result.chargeReference.fold("")(_.value),
-              amountDue = currencyFormat(result.amount),
-              paymentDueDate = paymentDueDate.fold("")(_.format(PAYMENT_DUE_FORMATTER))
+        if (result.amount > 0) {
+          paymentDueDate.fold(
+            DutyDueNoDueDateEmail(
+              to = recipient,
+              parameters = DutyDueNoDueDateEmailParameters(
+                recipientName = submission.declaration.fullName,
+                returnPeriod = returnPeriod,
+                submissionDate = submissionDate,
+                chargeReference = result.chargeReference.fold("")(_.value),
+                amountDue = currencyFormat(result.amount)
+              )
             )
-          )
-        } else if (result.amount > 0) {
-          DutyDueNoDueDateEmail(
-            to = recipient,
-            parameters = DutyDueNoDueDateEmailParameters(
-              recipientName = submission.declaration.fullName,
-              returnPeriod = returnPeriod,
-              submissionDate = submissionDate,
-              chargeReference = result.chargeReference.fold("")(_.value),
-              amountDue = currencyFormat(result.amount)
-            )
+          )(
+            dueDate =>
+              DutyDueEmail(
+                to = recipient,
+                parameters = DutyDueEmailParameters(
+                  recipientName = submission.declaration.fullName,
+                  returnPeriod = returnPeriod,
+                  submissionDate = submissionDate,
+                  chargeReference = result.chargeReference.fold("")(_.value),
+                  amountDue = currencyFormat(result.amount),
+                  paymentDueDate = dueDate.format(PAYMENT_DUE_FORMATTER)
+                )
+              )
           )
         } else if (result.amount < 0) {
           CreditDueEmail(
