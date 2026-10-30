@@ -17,6 +17,7 @@
 package models.returns
 
 import base.SpecBase
+import models.ChargeReference
 import models.returns.submit.{ReturnCreateResponse, ReturnSubmittedResponse}
 import play.api.libs.json.Json
 
@@ -28,7 +29,7 @@ class ReturnCreateResponseSpec extends SpecBase {
       processingDate = Instant.parse("2024-01-01T00:00:00Z"),
       vpdReferenceNumber = "VPD1234567890",
       submissionId = Some("SUbID"),
-      chargeReference = Some("CR123"),
+      chargeReference = Some(ChargeReference("CR123")),
       amount = BigDecimal(1.0),
       paymentDueDate = Some(java.time.LocalDate.parse("2024-01-31"))))
 

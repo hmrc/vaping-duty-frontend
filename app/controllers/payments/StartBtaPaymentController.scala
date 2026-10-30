@@ -19,6 +19,7 @@ package controllers.payments
 import config.FrontendAppConfig
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.ReturnsEnabledAction
+import models.ChargeReference
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.payments.PaymentService
@@ -36,13 +37,13 @@ class StartBtaPaymentController @Inject()(
                                            val controllerComponents: MessagesControllerComponents
                                          )(using ExecutionContext) extends FrontendBaseController with Logging {
 
-  def startPayment(chargeReference: Option[String]): Action[AnyContent] =
+  def startPayment(chargeReference: Option[ChargeReference]): Action[AnyContent] =
     (identify andThen checkInsolvencyAction andThen returnsEnabled).async { implicit request =>
       paymentService.startBtaPayment(request.enrolmentVpdId, chargeReference, config.startPaymentBtaReturnUrl, config.startPaymentBtaBackUrl).map { response =>
         Redirect(response.nextUrl)
       }.recover {
         case e: Exception =>
-          logger.warn(s"Error starting BTA payment for charge reference $chargeReference: ${e.getMessage}")
+          logger.warn(s"Error starting BTA payment for charge reference ${chargeReference.map(_.value)}: ${e.getMessage}")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }

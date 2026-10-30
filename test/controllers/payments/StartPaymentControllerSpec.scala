@@ -18,6 +18,7 @@ package controllers.payments
 
 import base.SpecBase
 import controllers.routes
+import models.ChargeReference
 import models.payments.StartPaymentResponse
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
@@ -32,7 +33,7 @@ import scala.concurrent.Future
 
 class StartPaymentControllerSpec extends SpecBase {
 
-  private val chargeReference = "VPD38270541977"
+  private val chargeReference = ChargeReference("VPD38270541977")
 
   private val paymentResponse = StartPaymentResponse(
     journeyId = "journey-123",
@@ -46,7 +47,7 @@ class StartPaymentControllerSpec extends SpecBase {
       
       when(mockPaymentService.startPayment(
         eqTo(vpdId),
-        eqTo(chargeReference),
+        any[ChargeReference],
         any(),
         any()
       )(using any()))
@@ -65,7 +66,7 @@ class StartPaymentControllerSpec extends SpecBase {
         
         verify(mockPaymentService).startPayment(
           eqTo(vpdId),
-          eqTo(chargeReference),
+          any[ChargeReference],
           any(),
           any()
         )(using any())

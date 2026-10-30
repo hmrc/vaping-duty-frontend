@@ -27,6 +27,7 @@ import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentTy
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
 import models.returns.*
+import models.ChargeReference
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.vapingdutyfinance.models.{MainTransactionType, PaymentStatus}
@@ -234,7 +235,7 @@ trait TestData extends ObligationsBuilders {
     processingDate = Instant.now(),
     vpdReferenceNumber = "vpdReferenceNumber",
     submissionId = Option("submissionID"),
-    chargeReference = Option("chargeReference"),
+    chargeReference = Option(ChargeReference("chargeReference")),
     amount = BigDecimal(0),
     paymentDueDate = Option(LocalDate.now())
   )
@@ -290,7 +291,7 @@ trait TestData extends ObligationsBuilders {
         chargeDetails = Some(
           ChargeDetails(
             periodKey = periodKey.value,
-            chargeReference = Some("XVC123456789012"),
+            chargeReference = Some(ChargeReference("XVC123456789012")),
             periodFrom = LocalDate.of(2026, 6, 1),
             periodTo = LocalDate.of(2026, 6, 30),
             receiptDate = Instant.now(clock)
@@ -383,7 +384,7 @@ trait TestData extends ObligationsBuilders {
   }
 
   val testOutstandingPayment: OutstandingPayment = OutstandingPayment(
-    chargeReference = "VPD38270541980",
+    chargeReference = ChargeReference("VPD38270541980"),
     amountDue = BigDecimal("500.00"),
     dueDate = LocalDate.parse("2026-10-25"),
     status = PaymentStatus.Due,
@@ -391,7 +392,7 @@ trait TestData extends ObligationsBuilders {
   )
 
   val testClearedPayment: ClearedPayment = ClearedPayment(
-    chargeReference = "VPD38270541980",
+    chargeReference = ChargeReference("VPD38270541980"),
     amountPaid = BigDecimal("750.00"),
     clearedDate = Some(LocalDate.parse("2026-10-09"))
   )

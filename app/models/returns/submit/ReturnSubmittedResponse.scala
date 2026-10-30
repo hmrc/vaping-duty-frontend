@@ -16,6 +16,7 @@
 
 package models.returns.submit
 
+import models.ChargeReference
 import play.api.libs.json.{Json, OFormat}
 
 import java.time.{Instant, LocalDate}
@@ -24,7 +25,7 @@ case class ReturnSubmittedResponse(
   processingDate: Instant,
   vpdReferenceNumber: String,
   submissionId: Option[String],
-  chargeReference: Option[String],
+  chargeReference: Option[ChargeReference],
   amount: BigDecimal,
   paymentDueDate: Option[LocalDate]
 )

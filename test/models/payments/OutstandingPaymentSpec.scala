@@ -17,13 +17,14 @@
 package models.payments
 
 import base.SpecBase
+import models.ChargeReference
 import play.api.libs.json.{JsSuccess, Json}
 import uk.gov.hmrc.vapingdutyfinance.models.{MainTransactionType, PaymentStatus}
 
 class OutstandingPaymentSpec extends SpecBase {
 
   val testPayment = OutstandingPayment(
-    chargeReference = "VPD38270541977",
+    chargeReference = ChargeReference("VPD38270541977"),
     amountDue = BigDecimal("330000.00"),
     dueDate = java.time.LocalDate.parse("2026-12-15"),
     status = PaymentStatus.Due,

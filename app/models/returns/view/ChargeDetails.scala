@@ -16,13 +16,14 @@
 
 package models.returns.view
 
+import models.ChargeReference
 import play.api.libs.json.{Json, OFormat}
 
 import java.time.{Instant, LocalDate}
 
 final case class ChargeDetails(
   periodKey: String,
-  chargeReference: Option[String],
+  chargeReference: Option[ChargeReference],
   periodFrom: LocalDate,
   periodTo: LocalDate,
   receiptDate: Instant

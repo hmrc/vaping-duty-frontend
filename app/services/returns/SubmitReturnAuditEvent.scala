@@ -87,7 +87,7 @@ object SubmitReturnAuditEvent {
   def buildResponse(etmpResponse: ReturnSubmittedResponse): JsValue = {
     JsObject(Seq(
       etmpResponse.submissionId   .map(submissionId    => "submissionId"    -> JsString(submissionId)),
-      etmpResponse.chargeReference.map(chargeReference => "chargeReference" -> JsString(chargeReference)),
+      etmpResponse.chargeReference.map(chargeReference => "chargeReference" -> JsString(chargeReference.value)),
       etmpResponse.paymentDueDate .map(paymentDueDate  => "paymentDueDate"  -> JsString(paymentDueDate.toString))
     ).flatten)
   }
