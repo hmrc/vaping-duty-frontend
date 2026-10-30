@@ -38,21 +38,21 @@ final case class ViewPaymentsViewModel(
 object ViewPaymentsViewModel {
   private val govukTag = GovukTag()
 
-  def apply(payments: PaymentsResponse, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): ViewPaymentsViewModel = {
+  def apply(payments: PaymentsResponse, returnsDateUtils: ReturnsDateUtils, repaymentGuidanceUrl: String)(implicit messages: Messages): ViewPaymentsViewModel = {
     val totalOwed = payments.totalAccountBalance.getOrElse(BigDecimal(0))
     val clearedYear = returnsDateUtils.getYear.toString
 
     ViewPaymentsViewModel(
       totalOwed = CurrencyFormatter.currencyFormat(totalOwed),
       hasOutstandingBalance = totalOwed > 0,
-      outstandingRows = payments.outstanding.map(buildOutstandingRow(_, returnsDateUtils)),
-      paymentOnAccountRows = payments.paymentOnAccount.map(buildPaymentOnAccountRow(_, returnsDateUtils)),
+      outstandingRows = payments.outstanding.map(buildOutstandingRow(_, returnsDateUtils, repaymentGuidanceUrl)),
+      paymentOnAccountRows = payments.paymentOnAccount.map(buildPaymentOnAccountRow(_, returnsDateUtils, repaymentGuidanceUrl)),
       clearedRows = payments.cleared.map(buildClearedRow(_, returnsDateUtils)),
       clearedPaymentsYear = clearedYear
     )
   }
 
-  private def buildOutstandingRow(payment: OutstandingPayment, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] = {
+  private def buildOutstandingRow(payment: OutstandingPayment, returnsDateUtils: ReturnsDateUtils, repaymentGuidanceUrl: String)(implicit messages: Messages): Seq[TableRow] = {
     val isRefund = payment.amountDue < 0
     val descriptionKey = if (isRefund) "payments.viewPayments.table.description.repayment" else descriptionMessageKey(payment)
     val status = if (isRefund) PaymentStatus.NothingToPay else payment.status
@@ -80,7 +80,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          if (isRefund) claimRefundLink(payment) else payNowLink(payment, returnsDateUtils)
+          if (isRefund) claimRefundLink(payment, repaymentGuidanceUrl) else payNowLink(payment, returnsDateUtils)
         )
       )
     )
@@ -98,8 +98,8 @@ object ViewPaymentsViewModel {
        |</span>
        |</a>""".stripMargin
 
-  private def claimRefundLink(payment: OutstandingPayment)(implicit messages: Messages): String =
-    s"""<a href="#" class="${CssConstants.linkNoWrap}">
+  private def claimRefundLink(payment: OutstandingPayment, repaymentGuidanceUrl: String)(implicit messages: Messages): String =
+    s"""<a href="$repaymentGuidanceUrl" class="${CssConstants.linkNoWrap}">
        |${messages("payments.viewPayments.table.claimRepayment")}
        |<span class="govuk-visually-hidden">
        | ${messages(
@@ -109,7 +109,7 @@ object ViewPaymentsViewModel {
        |</span>
        |</a>""".stripMargin
 
-  private def buildPaymentOnAccountRow(payment: PaymentOnAccount, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Seq[TableRow] =
+  private def buildPaymentOnAccountRow(payment: PaymentOnAccount, returnsDateUtils: ReturnsDateUtils, repaymentGuidanceUrl: String)(implicit messages: Messages): Seq[TableRow] =
     Seq(
       TableRow(
         content = Text(formatDateWithTranslatedMonth(payment.paymentDate, returnsDateUtils))
@@ -121,7 +121,7 @@ object ViewPaymentsViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""<a href="#" class="govuk-link">
+          s"""<a href="$repaymentGuidanceUrl" class="govuk-link">
              |${messages("payments.viewPayments.unallocated.action.claimRepayment")}
              |<span class="govuk-visually-hidden">
              | ${messages(

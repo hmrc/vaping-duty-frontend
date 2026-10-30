@@ -64,7 +64,7 @@ class ConfirmationController @Inject()(
       paymentDueDate <- getPaymentDueDate(request, returnsResponse)
       obligation <- getObligation(periodKey)
     } yield {
-      val viewModel = ConfirmationViewModel(returnsResponse, obligation, BtaLink(config), config.makeChapsPayment, paymentDueDate, returnsDateUtils)
+      val viewModel = ConfirmationViewModel(returnsResponse, obligation, BtaLink(config), config.makeChapsPayment, config.repaymentGuidanceUrl, paymentDueDate, returnsDateUtils)
       Ok(view(viewModel))
     }
 
