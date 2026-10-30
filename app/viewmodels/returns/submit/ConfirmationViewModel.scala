@@ -16,6 +16,7 @@
 
 package viewmodels.returns.submit
 
+import models.ChargeReference
 import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.returns.ReturnsConstants
@@ -37,7 +38,7 @@ case class ConfirmationViewModel(
                                   periodMonthYear: String,
                                   totalDutyAmount: BigDecimal,
                                   paymentDueDate: Option[String],
-                                  chargeReference: Option[String],
+                                  chargeReference: Option[ChargeReference],
                                   content: Html,
                                   btaLink: String,
                                   paymentLink: String,
@@ -61,7 +62,6 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
     val chargeReference = returnsResponse.success.chargeDetails
       .flatMap(_.chargeReference)
-      .map(_.value.toUpperCase)
 
     val submissionDate = LocalDate.ofInstant(
       returnsResponse.success.processingDate,

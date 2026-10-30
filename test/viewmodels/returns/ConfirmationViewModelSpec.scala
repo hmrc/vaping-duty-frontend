@@ -80,7 +80,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
       val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, Some(paymentDueDate), returnsDateUtils)
 
       vm.chargeReference mustBe defined
-      vm.chargeReference.get mustBe returnsResponse.success.chargeDetails.get.chargeReference.get.value.toUpperCase
+      vm.chargeReference mustBe returnsResponse.success.chargeDetails.get.chargeReference
     }
 
     "must handle missing charge reference" in {
