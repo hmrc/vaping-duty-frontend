@@ -85,7 +85,6 @@ class ViewPaymentsViewModelSpec extends SpecBase {
     Seq(testClearedPayment),
     None
   )
-
   "ViewPaymentsViewModel" - {
     "when payments exist" - {
       "must format total owed correctly from outstanding payments only" in {
@@ -94,9 +93,9 @@ class ViewPaymentsViewModelSpec extends SpecBase {
       }
 
       "must build a table row for each outstanding payment status" in {
-        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentUrl).outstandingRows must have size 1
-        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentUrl).outstandingRows must have size 1
-        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentNothingToPay), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentUrl).outstandingRows must have size 1
+        outstandingRows(testPaymentDue) must have size 1
+        outstandingRows(testPaymentOverdue) must have size 1
+        outstandingRows(testPaymentNothingToPay) must have size 1
       }
 
       "must sum multiple outstanding payments correctly" in {
@@ -224,4 +223,8 @@ class ViewPaymentsViewModelSpec extends SpecBase {
       }
     }
   }
+
+  private def outstandingRows(payment: OutstandingPayment) =
+    ViewPaymentsViewModel(PaymentsResponse(Seq(payment), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentUrl).outstandingRows
+
 }
