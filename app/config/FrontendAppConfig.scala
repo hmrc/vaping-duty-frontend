@@ -69,7 +69,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     configuration.get[String]("urls.enrolmentManagementFrontend") +
       s"/$enrolmentServiceName/request-access-tax-scheme?useServiceNavigation&continue=$continueToBta"
 
-  private val enrolmentContinuePath: String  = "http://localhost:8140/vaping-duty/enrolment/do-you-have-an-approval-id"
+  private val enrolmentContinuePath: String  = "/vaping-duty/enrolment/do-you-have-an-approval-id"
 
   val orgSignInUrl: String =
     s"$loginUrl?useServiceNavigation&continue=${host + enrolmentContinuePath}&affinityGroup=${AffinityGroup.Organisation}"
