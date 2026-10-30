@@ -16,6 +16,7 @@
 
 package controllers.payments
 
+import config.FrontendAppConfig
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.ReturnsEnabledAction
 import controllers.routes
@@ -39,6 +40,7 @@ class ViewPaymentsController @Inject()(
   checkInsolvency: CheckInsolvencyAction,                          
   service: FinancialDataService,
   returnsDateUtils: ReturnsDateUtils,
+  config: FrontendAppConfig,
   val controllerComponents: MessagesControllerComponents,
   view: ViewPaymentsView
 )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
@@ -46,7 +48,7 @@ class ViewPaymentsController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled).async { implicit request =>
     service.getPayments(request.enrolmentVpdId)
       .map { payments =>
-        val vm = ViewPaymentsViewModel(payments, returnsDateUtils)
+        val vm = ViewPaymentsViewModel(payments, returnsDateUtils, config.repaymentUrl)
         Ok(view(vm))
       }
       .recover { case e: Exception =>

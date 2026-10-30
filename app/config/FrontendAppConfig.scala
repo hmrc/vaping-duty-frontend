@@ -61,6 +61,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val startPaymentBtaBackUrl: String         = configuration.get[String]("payments.backUrl") + "?useServiceNavigation"
   val accessibilityStatementUrl: String      = configuration.get[String]("accessibility-statement.host") ++
     configuration.get[String]("accessibility-statement.url")
+  val repaymentUrl: String                   = configuration.get[String]("urls.repaymentUrl")
 
   private val exitSurveyBaseUrl: String      = configuration.get[String]("urls.feedback-frontend-base-url")
   val exitSurveyUrl: String                  = s"$exitSurveyBaseUrl/feedback/vaping-duty-frontend"
