@@ -26,7 +26,7 @@ import java.time.LocalDate
 class ViewPaymentsViewModelSpec extends SpecBase {
 
   private val returnsDateUtils = new ReturnsDateUtils(clock)
-  private val repaymentGuidanceUrl = "repaymentGuidanceUrl"
+  private val repaymentUrl = "repaymentUrl"
 
   private val testPaymentDue = OutstandingPayment(
     chargeReference = "XA123456789012",
@@ -89,81 +89,81 @@ class ViewPaymentsViewModelSpec extends SpecBase {
   "ViewPaymentsViewModel" - {
     "when payments exist" - {
       "must format total owed correctly from outstanding payments only" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, Some(BigDecimal("330000.00"))), returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, Some(BigDecimal("330000.00"))), returnsDateUtils, repaymentUrl)
         vm.totalOwed mustBe "£330,000"
       }
 
       "must build a table row for each outstanding payment status" in {
-        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentGuidanceUrl).outstandingRows must have size 1
-        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentGuidanceUrl).outstandingRows must have size 1
-        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentNothingToPay), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentGuidanceUrl).outstandingRows must have size 1
+        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentUrl).outstandingRows must have size 1
+        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentUrl).outstandingRows must have size 1
+        ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentNothingToPay), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentUrl).outstandingRows must have size 1
       }
 
       "must sum multiple outstanding payments correctly" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue, testPaymentOverdue), Seq.empty, Seq.empty, Some(BigDecimal("497000.80"))), returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue, testPaymentOverdue), Seq.empty, Seq.empty, Some(BigDecimal("497000.80"))), returnsDateUtils, repaymentUrl)
         vm.totalOwed mustBe "£497,000.80"
         vm.outstandingRows must have size 2
       }
 
       "must build a table row for each payment on account" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq.empty, Seq(testUnallocatedPayment), Seq.empty, None), returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq.empty, Seq(testUnallocatedPayment), Seq.empty, None), returnsDateUtils, repaymentUrl)
         vm.paymentOnAccountRows must have size 1
       }
 
       "must build a table row for each cleared payment" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq.empty, Seq.empty, Seq(testClearedPayment), None), returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq.empty, Seq.empty, Seq(testClearedPayment), None), returnsDateUtils, repaymentUrl)
         vm.clearedRows must have size 1
       }
 
       "must build rows for all three sections independently when all are populated" in {
-        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils, repaymentUrl)
         vm.outstandingRows must have size 1
         vm.paymentOnAccountRows must have size 1
         vm.clearedRows must have size 1
       }
 
       "must build unallocated payment rows with 4 columns (date, description, amount, action)" in {
-        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils, repaymentUrl)
         vm.paymentOnAccountRows.head must have size 4
       }
 
       "must build cleared payment rows with 3 columns (period, description, amount)" in {
-        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils, repaymentUrl)
         vm.clearedRows.head must have size 3
       }
 
       "must display the full date for cleared payment period" in {
-        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils, repaymentUrl)
         val periodCell = vm.clearedRows.head.head
         periodCell.content.asHtml.body mustBe "10 January 2025"
       }
 
       "must show a bold 'Cleared payment' heading for a cleared payment" in {
-        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(testPaymentsResponse, returnsDateUtils, repaymentUrl)
         val descriptionCell = vm.clearedRows.head(1)
         descriptionCell.content.asHtml.body must include("<strong>Cleared payment</strong>")
       }
 
       "must indicate an outstanding balance when totalAccountBalance is positive" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, Some(BigDecimal("330000.00"))), returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq.empty, Some(BigDecimal("330000.00"))), returnsDateUtils, repaymentUrl)
         vm.hasOutstandingBalance mustBe true
       }
 
       "must show a bold 'Late payment interest' heading for an outstanding payment with MainTransactionType.LatePaymentInterest" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdueInterest), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdueInterest), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentUrl)
         val descriptionCell = vm.outstandingRows.head(1)
         descriptionCell.content.asHtml.body must include("<strong>Late payment interest</strong>")
       }
 
       "must show the normal bold payment heading for an outstanding payment with MainTransactionType.Return" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentUrl)
         val descriptionCell = vm.outstandingRows.head(1)
         descriptionCell.content.asHtml.body must include("<strong>Payment</strong>")
         descriptionCell.content.asHtml.body must not include "Late payment interest"
       }
 
       "must build a refund row for an outstanding payment with a negative amount" in {
-        val vm  = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentRefund), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentGuidanceUrl)
+        val vm  = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentRefund), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentUrl)
         val row = vm.outstandingRows.head
 
         row.head.content.asHtml.body mustBe "Not applicable"
@@ -174,12 +174,12 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         row(3).content.asHtml.body must include("Nothing to pay")
         row(3).content.asHtml.body must include("govuk-tag--grey")
         row(4).content.asHtml.body must include("Claim repayment")
-        row(4).content.asHtml.body must include(s"""href="$repaymentGuidanceUrl"""")
+        row(4).content.asHtml.body must include(s"""href="$repaymentUrl"""")
         row(4).content.asHtml.body must not include "Pay now"
       }
 
       "must keep payment description and pay now link for an outstanding payment with a positive amount" in {
-        val vm  = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentGuidanceUrl)
+        val vm  = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentOverdue), Seq.empty, Seq.empty, None), returnsDateUtils, repaymentUrl)
         val row = vm.outstandingRows.head
 
         row.head.content.asHtml.body mustBe "25 February 2025"
@@ -193,31 +193,31 @@ class ViewPaymentsViewModelSpec extends SpecBase {
 
     "when no payments exist" - {
       "must show £0 as total owed" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils, repaymentUrl)
         vm.totalOwed mustBe "£0"
       }
 
       "must indicate no outstanding balance" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils, repaymentUrl)
         vm.hasOutstandingBalance mustBe false
       }
 
       "must have no rows in any section" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils, repaymentUrl)
         vm.outstandingRows mustBe Seq.empty
         vm.paymentOnAccountRows mustBe Seq.empty
         vm.clearedRows mustBe Seq.empty
       }
 
       "must use current year when no cleared payments exist" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils, repaymentUrl)
         vm.clearedPaymentsYear mustBe LocalDate.now(clock).getYear.toString
       }
     }
 
     "when only some sections have data" - {
       "must independently reflect emptiness per section" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq(testClearedPayment), None), returnsDateUtils, repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(PaymentsResponse(Seq(testPaymentDue), Seq.empty, Seq(testClearedPayment), None), returnsDateUtils, repaymentUrl)
         vm.outstandingRows must have size 1
         vm.paymentOnAccountRows mustBe Seq.empty
         vm.clearedRows must have size 1

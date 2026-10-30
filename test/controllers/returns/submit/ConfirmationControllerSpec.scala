@@ -36,7 +36,7 @@ class ConfirmationControllerSpec extends SpecBase {
 
   private def createObligation(): ObligationDetails = fulfilledObligation(periodKey)
   private val paymentLink = "paymentLink"
-  private val repaymentGuidanceUrl = "repaymentGuidanceUrl"
+  private val repaymentUrl = "repaymentUrl"
 
   "ConfirmationController" - {
 
@@ -74,7 +74,7 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[ConfirmationEmailView]
 
-        val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentGuidanceUrl, Some(paymentDueDate), returnsDateUtils)(messages(application))
+        val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString
@@ -113,7 +113,7 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[ConfirmationEmailView]
 
-        val vm = ConfirmationViewModel(nilReturnResponse, obligation, btaLink, paymentLink, repaymentGuidanceUrl, None, returnsDateUtils)(messages(application))
+        val vm = ConfirmationViewModel(nilReturnResponse, obligation, btaLink, paymentLink, repaymentUrl, None, returnsDateUtils)(messages(application))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(vm)(request, messages(application)).toString

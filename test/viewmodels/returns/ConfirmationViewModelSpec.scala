@@ -42,7 +42,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
 
   private val obligationDetailsJuly = fulfilledObligation(PeriodKey("24KG"))
   private val paymentLink = "paymentLink"
-  private val repaymentGuidanceUrl = "repaymentGuidanceUrl"
+  private val repaymentUrl = "repaymentUrl"
 
   "ConfirmationViewModel" - {
 
@@ -51,7 +51,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
     val paymentDueDate = LocalDate.of(2024, 8, 15)
 
     "must extract and format submission date correctly" in {
-      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentGuidanceUrl, Some(paymentDueDate), returnsDateUtils)
+      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)
 
       val expectedFormat = DateTimeFormatter.ofPattern("d MMMM yyyy")
       val expectedDate = java.time.LocalDate.ofInstant(
@@ -63,7 +63,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
     }
 
     "must extract and format period month/year correctly" in {
-      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentGuidanceUrl, Some(paymentDueDate), returnsDateUtils)
+      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)
 
       val expectedFormat = DateTimeFormatter.ofPattern("MMMM yyyy")
       val expectedPeriod = obligation.iCFromDate.format(expectedFormat)
@@ -72,13 +72,13 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
     }
     
     "must extract total duty amount correctly" in {
-      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentGuidanceUrl, Some(paymentDueDate), returnsDateUtils)
+      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)
 
       vm.totalDutyAmount mustBe returnsResponse.success.totalDutyDue.get.totalDue
     }
 
     "must extract and uppercase charge reference when present" in {
-      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentGuidanceUrl, Some(paymentDueDate), returnsDateUtils)
+      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)
 
       vm.chargeReference mustBe defined
       vm.chargeReference.get mustBe returnsResponse.success.chargeDetails.get.chargeReference.get.toUpperCase
@@ -91,7 +91,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
         )
       )
 
-      val vm = ConfirmationViewModel(responseWithoutChargeRef, obligation, btaLink, paymentLink, repaymentGuidanceUrl, Some(paymentDueDate), returnsDateUtils)
+      val vm = ConfirmationViewModel(responseWithoutChargeRef, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)
 
       vm.chargeReference mustBe None
     }
@@ -104,7 +104,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
         )
       )
 
-      val vm = ConfirmationViewModel(responseWithNegativeAmount, obligation, btaLink, paymentLink, repaymentGuidanceUrl, Some(paymentDueDate), returnsDateUtils)
+      val vm = ConfirmationViewModel(responseWithNegativeAmount, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)
 
       vm.totalDutyAmount mustBe negativeAmount
       vm.content.toString must include("You are owed")
@@ -115,7 +115,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
     }
 
     "must generate correct content for positive duty amount (user owes money)" in {
-      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentGuidanceUrl, Some(paymentDueDate), returnsDateUtils)
+      val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)
 
       vm.totalDutyAmount must be > BigDecimal(0)
       vm.content.toString must include("You must pay")
@@ -136,7 +136,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
         )
       )
 
-      val vm = ConfirmationViewModel(responseWithChapsAmount, obligation, btaLink, paymentLink, repaymentGuidanceUrl, Some(paymentDueDate), returnsDateUtils)
+      val vm = ConfirmationViewModel(responseWithChapsAmount, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)
 
       vm.totalDutyAmount mustBe chapsAmount
       vm.content.toString must include("You must pay")
@@ -151,7 +151,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
         )
       )
 
-      val vm = ConfirmationViewModel(responseWithChapsAmount, obligation, btaLink, paymentLink, repaymentGuidanceUrl, Some(paymentDueDate), returnsDateUtils)
+      val vm = ConfirmationViewModel(responseWithChapsAmount, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)
 
       vm.content.toString must include("You must pay by CHAPS")
       vm.content.toString must not include "direct-debit-link"
@@ -165,7 +165,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
         )
       )
 
-      val vm = ConfirmationViewModel(responseWithBelowChapsAmount, obligation, btaLink, paymentLink, repaymentGuidanceUrl, Some(paymentDueDate), returnsDateUtils)
+      val vm = ConfirmationViewModel(responseWithBelowChapsAmount, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)
 
       vm.content.toString must not include "You must pay by CHAPS"
       vm.content.toString must include("direct-debit-link")
@@ -180,7 +180,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
         )
       )
 
-      val vm = ConfirmationViewModel(responseWithZeroAmount, obligation, btaLink, paymentLink, repaymentGuidanceUrl, Some(paymentDueDate), returnsDateUtils)
+      val vm = ConfirmationViewModel(responseWithZeroAmount, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)
 
       vm.totalDutyAmount mustBe zeroAmount
       vm.content.toString must include("You have nothing to pay for this return period")

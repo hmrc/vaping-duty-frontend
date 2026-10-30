@@ -53,7 +53,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
     obligation: ObligationDetails,
     btaLink: String,
     paymentLink: String,
-    repaymentGuidanceUrl: String,
+    repaymentUrl: String,
     paymentDueDate: Option[LocalDate],
     returnsDateUtils: ReturnsDateUtils
   )(implicit messages: Messages): ConfirmationViewModel = {
@@ -79,19 +79,19 @@ object ConfirmationViewModel extends CurrencyFormatter {
       totalDutyAmount = totalDutyDue,
       paymentDueDate = dueDate,
       chargeReference = chargeReference,
-      content = getContent(totalDutyDue, dueDate, btaLink, paymentLink, repaymentGuidanceUrl),
+      content = getContent(totalDutyDue, dueDate, btaLink, paymentLink, repaymentUrl),
       btaLink = btaLink,
       paymentLink = paymentLink,
       periodKey = PeriodKey(obligation.periodKey)
     )
   }
 
-  private def getContent(dutyDue: BigDecimal, paymentDueDate: Option[String], btaLink: String, paymentLink: String, repaymentGuidanceUrl: String)
+  private def getContent(dutyDue: BigDecimal, paymentDueDate: Option[String], btaLink: String, paymentLink: String, repaymentUrl: String)
                         (implicit messages: Messages): Html = {
     if (dutyDue > 0) {
       getPositiveContent(dutyDue, paymentDueDate, btaLink, paymentLink)
     } else if (dutyDue < 0) {
-      getNegativeContent(dutyDue, repaymentGuidanceUrl)
+      getNegativeContent(dutyDue, repaymentUrl)
     } else {
       getZeroContent()
     }
@@ -202,11 +202,11 @@ object ConfirmationViewModel extends CurrencyFormatter {
     businessTaxAccountLink
   }
 
-  private def getNegativeContent(dutyDue: BigDecimal, repaymentGuidanceUrl: String)(implicit messages: Messages): Html = {
+  private def getNegativeContent(dutyDue: BigDecimal, repaymentUrl: String)(implicit messages: Messages): Html = {
     val prefix = messages("returns.confirmation.inset.negative.prefix", currencyFormat(dutyDue.abs))
     val repaymentLink = link(
       id = "repayment-link",
-      href = repaymentGuidanceUrl,
+      href = repaymentUrl,
       text = messages("returns.confirmation.inset.negative.linkText")
     )
     val suffix = messages("returns.confirmation.inset.negative.suffix")

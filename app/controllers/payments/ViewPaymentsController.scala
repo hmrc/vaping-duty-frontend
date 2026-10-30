@@ -48,7 +48,7 @@ class ViewPaymentsController @Inject()(
   def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled).async { implicit request =>
     service.getPayments(request.enrolmentVpdId)
       .map { payments =>
-        val vm = ViewPaymentsViewModel(payments, returnsDateUtils, config.repaymentGuidanceUrl)
+        val vm = ViewPaymentsViewModel(payments, returnsDateUtils, config.repaymentUrl)
         Ok(view(vm))
       }
       .recover { case e: Exception =>
