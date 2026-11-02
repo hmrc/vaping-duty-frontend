@@ -72,6 +72,8 @@
 
         @p(Seq(messages("returns.declaration.makingFalse")))
 
-        @govukButton(ButtonViewModel(messages("returns.declaration.button")))
+        @govukButton(ButtonViewModel(messages("returns.declaration.button"))
+            .preventingDoubleClick()
+        )
     }
 }
