@@ -65,8 +65,8 @@ class AdjustmentVolumeWithTypeController @Inject()(
             adjustmentPeriodKey
           )
           val preparedForm = adjustmentVolumeService.prepareFormWithData(form, existingAdjustment)
-          val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, adjustmentPeriodKey, returnsDateUtils)
-          Ok(view(request.periodKey, adjustmentPeriodKey, preparedForm, mode, vm))
+          val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, request.periodKey, adjustmentPeriodKey, mode, returnsDateUtils)
+          Ok(view(preparedForm, vm))
         }
       }
   }
@@ -85,8 +85,8 @@ class AdjustmentVolumeWithTypeController @Inject()(
             form.bind(cleanedData).fold(
               formWithErrors => {
                 val updatedForm = adjustmentVolumeService.prepareFormForDisplay(formWithErrors)
-                val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, adjustmentPeriodKey, returnsDateUtils)
-                Future.successful(BadRequest(view(request.periodKey, adjustmentPeriodKey, updatedForm, mode, vm)))
+                val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, request.periodKey, adjustmentPeriodKey, mode, returnsDateUtils)
+                Future.successful(BadRequest(view(updatedForm, vm)))
               },
 
               formData => {
