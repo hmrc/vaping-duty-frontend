@@ -56,7 +56,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
   private val service = new SubmitReturnService(
     mockSubmitReturnConnector,
     mockDutyRateService,
-    mockObligationService,
     mockBuildReturnSubmissionService,
     mockAuditService,
     mockReturnSubmittedEmailService,
@@ -148,13 +147,12 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
-        stubManufacturersObligations(vpdId, Seq(obligation))
         when(mockBuildReturnSubmissionService.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(1050))))
           .thenReturn(nonNilReturnCreatedRequest)
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
           .thenReturn(Future.successful(submittedResponse))
 
-        val result = service.submit(userAnswers).futureValue
+        val result = service.submit(userAnswers, Seq(obligation)).futureValue
 
         result mustBe submittedResponse
         verify(mockSubmitReturnConnector).submitReturn(eqTo(nonNilReturnCreatedRequest), eqTo(vpdId))(any())
@@ -173,13 +171,12 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
-        stubManufacturersObligations(vpdId, Seq(obligation))
         when(mockBuildReturnSubmissionService.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(1050))))
           .thenReturn(nonNilReturnCreatedRequest)
         when(mockSubmitReturnConnector.submitReturn(any(), eqTo(vpdId))(any()))
           .thenReturn(Future.successful(submittedResponse))
 
-        val result = service.submit(userAnswers).futureValue
+        val result = service.submit(userAnswers, Seq(obligation)).futureValue
 
         result mustBe submittedResponse
         verify(mockReturnSubmittedEmailService, never())
@@ -192,22 +189,13 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
-        when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
-          .thenReturn(Future.successful(Seq()))
-
-        val exception = service.submit(userAnswers).failed.futureValue
+        val exception = service.submit(userAnswers, Seq.empty).failed.futureValue
 
         exception mustBe an[IllegalStateException]
         exception.getMessage must include("No obligation found")
         verify(mockAuditService, never()).auditReturnSubmitted(any[JsObject])(any())
       }
-
     }
-  }
-
-  private def stubManufacturersObligations(vpdId: VpdId, obligations: Seq[ObligationDetails]) = {
-    when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
-      .thenReturn(Future.successful(obligations))
   }
 
   private def buildReturnsDataRequest(answers: ReturnsUserAnswers, periodKey: PeriodKey) = {

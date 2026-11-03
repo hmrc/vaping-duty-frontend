@@ -129,7 +129,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         val mockObligationService = mock[ObligationService]
 
         when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
-        when(mockSubmitReturnService.submit(any())(any())) thenReturn Future.successful(testReturnSubmissionResponse)
+        when(mockSubmitReturnService.submit(any(), any())(any())) thenReturn Future.successful(testReturnSubmissionResponse)
         when(mockSessionRepository.clear(any(), any())(any()))
           .thenReturn(Future.successful(Right(())))
         when(mockObligationService.getObligations(any())(using any()))
@@ -160,7 +160,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           redirectLocation(result).value must include(s"period=${june2026.value}")
 
           verify(mockSessionRepository).set(any())(any())
-          verify(mockSubmitReturnService).submit(any())(any())
+          verify(mockSubmitReturnService).submit(any(), any())(any())
         }
       }
 
@@ -249,7 +249,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         val mockSessionRepository = mock[ReturnsUserAnswersService]
         val mockObligationService = mock[ObligationService]
 
-        when(mockService.submit(any())(any())).thenReturn(Future.successful(Left(ErrorModel(BAD_GATEWAY, "Bad gateway"))))
+        when(mockService.submit(any(), any())(any())).thenReturn(Future.successful(Left(ErrorModel(BAD_GATEWAY, "Bad gateway"))))
         when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
         when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))

@@ -20,6 +20,7 @@ import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvenc
 import controllers.actions.returns.*
 import forms.returns.DeclarationFormProvider
 import models.NormalMode
+import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
 import navigation.ReturnsNavigator
@@ -83,15 +84,17 @@ class DeclarationController @Inject()(
             Future.fromTry(request.userAnswers.set(DeclarationPage, value))
               .flatMap { updatedAnswers =>
                 sessionRepository.set(updatedAnswers).flatMap { _ =>
-                  submitAndContinue(updatedAnswers)
+                  submitAndContinue(updatedAnswers, obligations)
                 }
               }
         )
       }
   }
 
-  private def submitAndContinue(updatedAnswers: ReturnsUserAnswers)(using request: ReturnsDataRequest[?]): Future[Result] = {
-    submitReturnService.submit(updatedAnswers)
+  private def submitAndContinue(updatedAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
+                               (using request: ReturnsDataRequest[?]): Future[Result] = {
+                               
+    submitReturnService.submit(updatedAnswers, obligations)
       .flatMap(_ => userAnswersService.clear(request.enrolmentVpdId, request.periodKey))
       .map(_ => Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers)))
       .recover { case e =>
