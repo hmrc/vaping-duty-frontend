@@ -18,6 +18,7 @@
 @import models.identifiers.PeriodKey
 @import models.returns.DeclarationDetails
 @import forms.returns.DeclarationFormProvider
+@import views.html.helper.CSPNonce
 
 @this(
         layout: templates.ReturnsLayout,
@@ -28,6 +29,7 @@
         caption: Caption,
         h1: Heading,
         p: Paragraph,
+        spinner: SubmissionSpinner,
         declarationFormProvider: DeclarationFormProvider
 )
 
@@ -35,45 +37,54 @@
 
 @layout(pageTitle = title(form, messages("returns.declaration.title"))) {
 
-    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclarationController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
-        @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form))
+    <div id="main-content">
+        @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclarationController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
+            @if(form.errors.nonEmpty) {
+                @govukErrorSummary(ErrorSummaryViewModel(form))
+            }
+
+            @caption(messages("returns.caption", periodMonth, periodYear))
+            @h1(messages("returns.declaration.heading"))
+
+            @p(Seq(messages("returns.declaration.authorised")))
+
+            @govukInput(
+                InputViewModel(
+                    field = form(declarationFormProvider.FULL_NAME),
+                    label = LabelViewModel(messages("returns.declaration.fullName.label"))
+                )
+                .withAutocomplete("name")
+            )
+            
+            @govukInput(
+                InputViewModel(
+                    field = form(declarationFormProvider.CAPACITY),
+                    label = LabelViewModel(messages("returns.declaration.capacity.label"))
+                )
+                .withAutocomplete("organization")
+            )
+
+            @govukInput(
+                InputViewModel(
+                    field = form(declarationFormProvider.EMAIL),
+                    label = LabelViewModel(messages("returns.declaration.emailAddress.label"))
+                ).asEmail()
+            )
+
+            @p(Seq(messages("returns.declaration.bySubmitting")))
+
+            @p(Seq(messages("returns.declaration.makingFalse")))
+
+            @govukButton(ButtonViewModel(messages("returns.declaration.button"))
+                .preventingDoubleClick()
+            )
         }
+    </div>
 
-        @caption(messages("returns.caption", periodMonth, periodYear))
-        @h1(messages("returns.declaration.heading"))
+    @spinner(
+        heading = messages("returns.declaration.processing.heading"),
+        text = messages("returns.declaration.processing.body")
+    )
 
-        @p(Seq(messages("returns.declaration.authorised")))
-
-        @govukInput(
-            InputViewModel(
-                field = form(declarationFormProvider.FULL_NAME),
-                label = LabelViewModel(messages("returns.declaration.fullName.label"))
-            )
-            .withAutocomplete("name")
-        )
-        
-        @govukInput(
-            InputViewModel(
-                field = form(declarationFormProvider.CAPACITY),
-                label = LabelViewModel(messages("returns.declaration.capacity.label"))
-            )
-            .withAutocomplete("organization")
-        )
-
-        @govukInput(
-            InputViewModel(
-                field = form(declarationFormProvider.EMAIL),
-                label = LabelViewModel(messages("returns.declaration.emailAddress.label"))
-            ).asEmail()
-        )
-
-        @p(Seq(messages("returns.declaration.bySubmitting")))
-
-        @p(Seq(messages("returns.declaration.makingFalse")))
-
-        @govukButton(ButtonViewModel(messages("returns.declaration.button"))
-            .preventingDoubleClick()
-        )
-    }
+    <script src="@controllers.routes.Assets.versioned("javascripts/declarationSubmit.js")" @CSPNonce.attr defer></script>
 }
