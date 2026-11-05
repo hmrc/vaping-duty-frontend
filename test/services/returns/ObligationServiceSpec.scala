@@ -21,8 +21,9 @@ import connectors.returns.ObligationsConnector
 import models.identifiers.PeriodKey
 import models.obligations.{Identification, ObligationDetails, ObligationItem, ObligationsResponse}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import queries.returns.ObligationsQuery
 
 import scala.concurrent.Future
 
@@ -137,6 +138,67 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
         val result = service.getObligationByPeriodKey(vpdId, periodKey).futureValue
 
         result mustBe None
+      }
+    }
+
+    "getCachedObligations" - {
+
+      "must return the cached obligations without calling the connector when they are in the user answers" in {
+        val connector = mock[ObligationsConnector]
+        val service = new ObligationService(connector, mockAppConfig)
+
+        val cachedAnswers = returnsUserAnswers.set(ObligationsQuery, obligations).success.value
+
+        val result = service.getCachedObligations(cachedAnswers, vpdId).futureValue
+
+        result mustBe obligations
+        verify(connector, never()).getObligations(any())(using any())
+      }
+
+      "must call the connector and return the filtered obligations when they are not in the user answers" in {
+        val connector = mock[ObligationsConnector]
+        when(connector.getObligations(any())(using any()))
+          .thenReturn(Future.successful(mockObligationsResponseWithNonMatchingId))
+
+        val service = new ObligationService(connector, mockAppConfig)
+
+        val result = service.getCachedObligations(returnsUserAnswers, vpdId).futureValue
+
+        result mustBe obligations
+        verify(connector).getObligations(any())(using any())
+      }
+
+      "must return an empty cached list without calling the connector" in {
+        val connector = mock[ObligationsConnector]
+        val service = new ObligationService(connector, mockAppConfig)
+
+        val cachedAnswers = returnsUserAnswers.set(ObligationsQuery, Seq.empty[ObligationDetails]).success.value
+
+        val result = service.getCachedObligations(cachedAnswers, vpdId).futureValue
+
+        result mustBe Seq.empty
+        verify(connector, never()).getObligations(any())(using any())
+      }
+    }
+
+    "withCachedObligations" - {
+
+      "must store the obligations in the user answers" in {
+        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
+
+        val result = service.withCachedObligations(returnsUserAnswers, obligations)
+
+        result.get(ObligationsQuery) mustBe Some(obligations)
+      }
+
+      "must replace any previously cached obligations" in {
+        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
+
+        val previous = returnsUserAnswers.set(ObligationsQuery, Seq(openObligation(january2026))).success.value
+
+        val result = service.withCachedObligations(previous, obligations)
+
+        result.get(ObligationsQuery) mustBe Some(obligations)
       }
     }
   }
