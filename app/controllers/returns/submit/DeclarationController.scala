@@ -71,7 +71,7 @@ class DeclarationController @Inject()(
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
         val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
