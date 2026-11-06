@@ -8,16 +8,11 @@
 
     if (!form || !mainContent || !spinnerOverlay || !gridColumn || !backLink) { return; }
 
-    function showSpinner() {
-        form.addEventListener('submit', function () {
-
-            gridColumn.classList.remove('govuk-grid-column-two-thirds');
-            gridColumn.classList.add('govuk-grid-column-full');
-            mainContent.style.display = 'none';
-            spinnerOverlay.style.display = 'flex';
-            backLink.style.display = 'none';
-        });
-    }
-
-    showSpinner()
+    form.addEventListener('submit', function () {
+        gridColumn.classList.remove('govuk-grid-column-two-thirds');
+        gridColumn.classList.add('govuk-grid-column-full');
+        mainContent.style.display = 'none';
+        spinnerOverlay.style.display = 'flex';
+        backLink.style.display = 'none';
+    });
 })();
