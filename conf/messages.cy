@@ -444,6 +444,8 @@ returns.declaration.capacity.error.length = Mae’n rhaid i’r capasiti fod yn 
 returns.declaration.emailAddress.error.required = Nodwch gyfeiriad e-bost eich busnes
 returns.declaration.emailAddress.error.length = Mae’n rhaid i’r cyfeiriad e-bost fod yn 132 o gymeriadau neu lai
 returns.declaration.emailAddress.error.format = Nodwch gyfeiriad e-bost yn y fformat cywir, fel enw@enghraifft.com
+returns.declaration.processing.heading = Mae’ch Ffurflen Dreth yn cael ei chyflwyno
+returns.declaration.processing.body = Peidiwch ag adnewyddu na gadael y dudalen hon.
 
 returns.overview.title = Eich datganiadau Toll Cynhyrchion Fepio
 returns.overview.heading = Eich datganiadau Toll Cynhyrchion Fepio

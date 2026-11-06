@@ -460,6 +460,8 @@ returns.declaration.capacity.label = Your role in the company, for example, prop
 returns.declaration.emailAddress.label = Your business email address
 returns.declaration.bySubmitting = By submitting this return, you are confirming that the details you are providing are correct.
 returns.declaration.makingFalse = Making a false declaration carries serious consequences, such as a financial penalty.
+returns.declaration.processing.heading = Your return is being submitted
+returns.declaration.processing.body = Do not refresh or leave this page.
 returns.declaration.button = Confirm and submit
 
 returns.declaration.fullName.error.required = Enter your full name

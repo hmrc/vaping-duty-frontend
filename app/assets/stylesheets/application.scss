@@ -57,3 +57,47 @@ span.govuk-visually-hidden {
     margin-left: 0;
   }
 }
+
+.spinner {
+  margin: 0 auto;
+  border: 12px solid #DEE0E2;
+  border-radius: 50%;
+  border-top-color: #005EA5;
+  width: 50px;
+  height: 50px;
+  -webkit-animation: spin 2.25s linear infinite;
+  animation: spin 2.25s linear infinite;
+}
+
+#spinner-overlay {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: white;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
