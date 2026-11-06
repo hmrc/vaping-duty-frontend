@@ -427,7 +427,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must return a Bad Request with the period heading and not call the Obligations API when obligations are cached" in {
+      "must return a Bad Request using the saved obligations and not call the Obligations API" in {
 
         val mockObligationsConnector = mock[ObligationsConnector]
 
