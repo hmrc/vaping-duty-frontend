@@ -33,7 +33,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
     "returns four sections in the correct order when adjustments are eligible" in {
       val application = applicationBuilder().build()
       running(application) {
-        val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.Eligible)
+        val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
 
         sections.length mustBe 4
         sections(0).headingKey mustBe "returns.taskList.section.declareDuty.heading"
@@ -46,7 +46,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
     "returns three sections excluding adjustments when not eligible" in {
       val application = applicationBuilder().build()
       running(application) {
-        val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.NotEligible)
+        val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = false)
 
         sections.length mustBe 3
         sections(0).headingKey mustBe "returns.taskList.section.declareDuty.heading"
@@ -55,6 +55,66 @@ class TaskListSpec extends UnitSpec with SpecBase {
 
         // Verify adjustments section is NOT present
         sections.map(_.headingKey) must not contain "returns.taskList.section.declareAdjustments.heading"
+      }
+    }
+
+    "your details section" - {
+
+      "is placed before submit return when enabled and adjustments are eligible" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = true)
+
+          sections.length mustBe 5
+          sections(3).headingKey mustBe "returns.taskList.section.yourDetails.heading"
+          sections(4).headingKey mustBe "returns.taskList.section.submitReturn.heading"
+        }
+      }
+
+      "is placed before submit return when enabled and adjustments are not eligible" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = true)
+
+          sections.length mustBe 4
+          sections(2).headingKey mustBe "returns.taskList.section.yourDetails.heading"
+          sections(3).headingKey mustBe "returns.taskList.section.submitReturn.heading"
+        }
+      }
+
+      "is not shown when disabled" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
+
+          sections.map(_.headingKey) must not contain "returns.taskList.section.yourDetails.heading"
+        }
+      }
+
+      "shows a not started task with no link" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = true)
+          val yourDetailsSection = sections(3)
+          val yourDetailsTask = yourDetailsSection.rows.head
+
+          yourDetailsSection.idPrefix mustBe "your-details-task"
+          yourDetailsSection.rows.length mustBe 1
+          yourDetailsTask.href mustBe None
+          yourDetailsTask.status.tag.value.content.asHtml.toString mustBe messages(application)("returns.taskList.taskStatus.notStarted")
+          yourDetailsTask.status.tag.value.classes mustBe "govuk-tag--blue"
+        }
+      }
+
+      "does not change the submit task status" in {
+        val application = applicationBuilder().build()
+        running(application) {
+          val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = true)
+          val submitTask = sections(4).rows.head
+
+          submitTask.href mustBe None
+          submitTask.status.content.asHtml.toString mustBe messages(application)("returns.taskList.taskStatus.tasksRemaining")
+        }
       }
     }
 
@@ -231,7 +291,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
       "must link to DeclareAdjustmentQuestionController when no adjustment data exists" in {
         val application = applicationBuilder().build()
         running(application) {
-          val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.Eligible)
+          val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
 
           val adjustmentsSection = sections(1)
           val adjustmentsTask = adjustmentsSection.rows(1)
@@ -253,7 +313,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
             .set(DeclareAdjustmentPage, true).success.value
             .set(AdjustmentListPage, adjustmentList).success.value
 
-          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
 
           val adjustmentsSection = sections(1)
           val adjustmentsTask = adjustmentsSection.rows(1)
@@ -269,7 +329,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
             .set(DeclareAdjustmentPage, true).success.value
             .remove(AdjustmentListPage).success.value
 
-          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
 
           val adjustmentsSection = sections(1)
           val adjustmentsTask = adjustmentsSection.rows(1)
@@ -288,7 +348,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
             .set(DeclareAdjustmentPage, true).success.value
             .set(AdjustmentListPage, AdjustmentList(Seq.empty)).success.value
 
-          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
 
           val adjustmentsSection = sections(1)
           val adjustmentsTask = adjustmentsSection.rows(1)
@@ -303,7 +363,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
           val userAnswers = returnsUserAnswers
             .set(DeclareAdjustmentPage, false).success.value
 
-          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
 
           val adjustmentsSection = sections(1)
           val adjustmentsTask = adjustmentsSection.rows(1)
@@ -318,7 +378,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
       "must link to DeclareSpoiltProductsController when no spoilt data exists" in {
         val application = applicationBuilder().build()
         running(application) {
-          val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.Eligible)
+          val sections = TaskList.sections(returnsUserAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
 
           val adjustmentsSection = sections(1)
           val spoiltTask = adjustmentsSection.rows(0)
@@ -335,7 +395,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
             .set(DeclareSpoiltProductsPage, true).success.value
             .set(SpoiltVolumeByPeriodPage, spoiltList).success.value
 
-          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
 
           val adjustmentsSection = sections(1)
           val spoiltTask = adjustmentsSection.rows(0)
@@ -354,7 +414,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
             .set(DeclareSpoiltProductsPage, true).success.value
             .remove(SpoiltVolumeByPeriodPage).success.value
 
-          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
 
           val adjustmentsSection = sections(1)
           val spoiltTask = adjustmentsSection.rows(0)
@@ -370,7 +430,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
             .set(DeclareSpoiltProductsPage, true).success.value
             .set(SpoiltVolumeByPeriodPage, List.empty).success.value
 
-          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
 
           val adjustmentsSection = sections(1)
           val spoiltTask = adjustmentsSection.rows(0)
@@ -385,7 +445,7 @@ class TaskListSpec extends UnitSpec with SpecBase {
           val userAnswers = returnsUserAnswers
             .set(DeclareSpoiltProductsPage, false).success.value
 
-          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible)
+          val sections = TaskList.sections(userAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
 
           val adjustmentsSection = sections(1)
           val spoiltTask = adjustmentsSection.rows(0)

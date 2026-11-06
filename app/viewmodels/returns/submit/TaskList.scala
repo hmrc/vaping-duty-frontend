@@ -21,10 +21,11 @@ import models.{NormalMode, TaskStatus}
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import services.returns.TaskStatusService
+import uk.gov.hmrc.govukfrontend.views.Aliases.{TaskListItem, TaskListItemStatus, TaskListItemTitle, Tag, Text}
 
 object TaskList {
 
-  def sections(userAnswers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility)(implicit messages: Messages): Seq[TaskListSection] = {
+  def sections(userAnswers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility, yourDetailsEnabled: Boolean)(implicit messages: Messages): Seq[TaskListSection] = {
     val periodKey = userAnswers.periodKey
     
     Seq(
@@ -34,6 +35,7 @@ object TaskList {
         case AdjustmentsEligibility.NotEligible => None
       },
       Some(dutySuspendedSection(userAnswers, periodKey)),
+      Option.when(yourDetailsEnabled)(yourDetailsSection),
       Some(submissionSection(userAnswers, periodKey, adjustmentsEligibility))
     ).flatten
   }
@@ -126,6 +128,30 @@ object TaskList {
         ).toTaskListItem
       ),
       idPrefix = "duty-suspended-task"
+    )
+  }
+
+  // TODO: replace with TaskRows using the real link and status once the your details journey pages exist
+  private def yourDetailsSection(implicit messages: Messages): TaskListSection = {
+    TaskListSection(
+      headingKey = "returns.taskList.section.yourDetails.heading",
+      rows = Seq(
+        TaskListItem(
+          title = TaskListItemTitle(Text(messages("returns.taskList.section.yourDetails.task1"))),
+          href = None,
+          status = TaskListItemStatus(
+            tag = Some(
+              Tag(
+                content = Text(messages("returns.taskList.taskStatus.notStarted")),
+                classes = "govuk-tag--blue",
+                attributes = Map("id" -> "your-details-status")
+              )
+            )
+          ),
+          classes = "govuk-task-list__status--cannot-start-yet"
+        )
+      ),
+      idPrefix = "your-details-task"
     )
   }
 

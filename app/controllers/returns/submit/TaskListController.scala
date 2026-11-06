@@ -16,6 +16,7 @@
 
 package controllers.returns.submit
 
+import config.FrontendAppConfig
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
 import models.returns.AdjustmentsEligibility
@@ -40,6 +41,7 @@ class TaskListController @Inject()(
                                     obligationService: ObligationService,
                                     preparationService: TaskListPreparationService,
                                     returnsDateUtils: ReturnsDateUtils,
+                                    appConfig: FrontendAppConfig,
                                     val controllerComponents: MessagesControllerComponents,
                                     view: TaskListView
                                   )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
@@ -55,7 +57,7 @@ class TaskListController @Inject()(
           obligations,
           request.periodKey
         ).map { updatedAnswers =>
-          Ok(view(TaskListPageViewModel(updatedAnswers, obligations, request.periodKey, returnsDateUtils)))
+          Ok(view(TaskListPageViewModel(updatedAnswers, obligations, request.periodKey, returnsDateUtils, appConfig.yourDetailsEnabled)))
         }
       }
   }
