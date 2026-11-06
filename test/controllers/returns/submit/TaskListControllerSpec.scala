@@ -62,11 +62,42 @@ class TaskListControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          TaskListPageViewModel(returnsUserAnswers, Seq(fulfilledObligation(june2026)), periodKey, returnsDateUtils)
+          TaskListPageViewModel(returnsUserAnswers, Seq(fulfilledObligation(june2026)), periodKey, returnsDateUtils, yourDetailsEnabled = false)
         )(request).toString
       }
     }
     
+    "must return OK and show the your details task when the feature is enabled" in {
+      val mockObligationService = mock[ObligationService]
+      val mockRepository = mock[ReturnsUserAnswersService]
+
+      when(mockObligationService.getObligations(any())(using any()))
+        .thenReturn(Future.successful(Seq(fulfilledObligation(june2026))))
+
+      when(mockRepository.set(any())(using any()))
+        .thenReturn(Future.successful(Right(HttpResponse(OK))))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), yourDetailsEnabled = true)
+        .overrides(bind[ObligationService].toInstance(mockObligationService))
+        .overrides(bind[ReturnsUserAnswersService].toInstance(mockRepository))
+        .build()
+
+      given Messages = messages(application)
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.TaskListController.onPageLoad().url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[TaskListView]
+        val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          TaskListPageViewModel(returnsUserAnswers, Seq(fulfilledObligation(june2026)), periodKey, returnsDateUtils, yourDetailsEnabled = true)
+        )(request).toString
+        contentAsString(result) must include(messages(application)("returns.taskList.section.yourDetails.heading"))
+      }
+    }
+
     "must return OK and the correct view for a GET with no fulfilled obligations" in {
       val mockObligationService = mock[ObligationService]
       val mockRepository = mock[ReturnsUserAnswersService]
@@ -92,7 +123,7 @@ class TaskListControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
-          TaskListPageViewModel(returnsUserAnswers, Seq(openObligation(june2026)), periodKey, returnsDateUtils)
+          TaskListPageViewModel(returnsUserAnswers, Seq(openObligation(june2026)), periodKey, returnsDateUtils, yourDetailsEnabled = false)
         )(request).toString
       }
     }
