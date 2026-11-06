@@ -29,6 +29,7 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import queries.returns.ObligationsQuery
 import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
@@ -59,26 +60,28 @@ class DeclarationController @Inject()(
 
   def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
-      obligationService.getObligations(request.enrolmentVpdId).map { obligations =>
+      obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
         val preparedForm = request.userAnswers.get(DeclarationPage) match {
           case None => form
           case Some(value) => form.fill(value)
         }
-        
+
         val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
-        
-        Ok(view(request.periodKey, preparedForm, periodDisplay.month, periodDisplay.year))
+
+        saveObligations(request.userAnswers, obligations).map { _ =>
+          Ok(view(request.periodKey, preparedForm, periodDisplay.month, periodDisplay.year))
+        }
       }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
-      obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-        val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
-        
+      getObligations.flatMap { obligations =>
         form.bindFromRequest().fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(request.periodKey, formWithErrors, periodDisplay.month, periodDisplay.year))),
+          formWithErrors => {
+            val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
+            Future.successful(BadRequest(view(request.periodKey, formWithErrors, periodDisplay.month, periodDisplay.year)))
+          },
 
           value =>
             Future.fromTry(request.userAnswers.set(DeclarationPage, value))
@@ -90,6 +93,25 @@ class DeclarationController @Inject()(
         )
       }
   }
+
+  // Uses the obligations saved by onPageLoad so the submit doesn't wait on the Obligations API.
+  // Falls back to the live call if nothing has been saved.
+  private def getObligations(using request: ReturnsDataRequest[?]): Future[Seq[ObligationDetails]] =
+    request.userAnswers.get(ObligationsQuery) match {
+      case Some(obligations) => Future.successful(obligations)
+      case None              => obligationService.getObligations(request.enrolmentVpdId)
+    }
+
+  // Saves the obligations in the user answers so onSubmit does not have to wait on the Obligations API.
+  // An error response is logged and the page still renders; any other failure is left to the framework's error handler.
+  private def saveObligations(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
+                             (using request: ReturnsDataRequest[?]): Future[Unit] =
+    Future.fromTry(userAnswers.set(ObligationsQuery, obligations))
+      .flatMap(sessionRepository.set)
+      .map {
+        case Right(_) => ()
+        case Left(error) => logger.warn(s"Failed to save obligations in user answers: ${error.message}")
+      }
 
   private def submitAndContinue(updatedAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
                                (using request: ReturnsDataRequest[?]): Future[Result] = {
