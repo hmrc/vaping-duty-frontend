@@ -183,6 +183,9 @@ returns.taskList.declareAdjustments.task2 = Tell us if you have any over or unde
 returns.taskList.section.dutySuspended.heading = Report duty suspended vaping deliveries
 returns.taskList.section.dutySuspended.task1 = Tell us if you have received or moved any vaping products in duty suspense
 
+returns.taskList.section.yourDetails.heading = Your details
+returns.taskList.section.yourDetails.task1 = Tell us your name, role and business email address
+
 returns.taskList.section.submitReturn.heading = Submit return
 returns.taskList.submitReturn.task1 = Check your answers and submit return
 
