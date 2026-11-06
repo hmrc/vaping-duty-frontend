@@ -68,7 +68,7 @@ class DeclarationController @Inject()(
 
         val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
 
-        cacheObligations(request.userAnswers, obligations).map { _ =>
+        saveObligations(request.userAnswers, obligations).map { _ =>
           Ok(view(request.periodKey, preparedForm, periodDisplay.month, periodDisplay.year))
         }
       }
@@ -76,7 +76,7 @@ class DeclarationController @Inject()(
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
-      obligationService.getCachedObligations(request.userAnswers, request.enrolmentVpdId).flatMap { obligations =>
+      getObligations.flatMap { obligations =>
         form.bindFromRequest().fold(
           formWithErrors => {
             val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
@@ -94,22 +94,24 @@ class DeclarationController @Inject()(
       }
   }
 
-  // Saves the obligations in the user answers so onSubmit does not have to wait on the Obligations API.
-  // A failure to save must not break the page: onSubmit falls back to the live call when nothing is saved.
-  private def cacheObligations(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
-                              (using request: ReturnsDataRequest[?]): Future[Unit] =
-    if (userAnswers.get(ObligationsQuery).contains(obligations)) {
-      Future.unit
-    } else {
-      sessionRepository.set(obligationService.withCachedObligations(userAnswers, obligations))
-        .map {
-          case Right(_) => ()
-          case Left(error) => logger.warn(s"Failed to cache obligations in user answers: ${error.message}")
-        }
-        .recover { case e =>
-          logger.warn("Failed to cache obligations in user answers", e)
-        }
+  // Uses the obligations saved by onPageLoad so the submit doesn't wait on the Obligations API.
+  // Falls back to the live call if nothing has been saved.
+  private def getObligations(using request: ReturnsDataRequest[?]): Future[Seq[ObligationDetails]] =
+    request.userAnswers.get(ObligationsQuery) match {
+      case Some(obligations) => Future.successful(obligations)
+      case None              => obligationService.getObligations(request.enrolmentVpdId)
     }
+
+  // Saves the obligations in the user answers so onSubmit does not have to wait on the Obligations API.
+  // An error response is logged and the page still renders; any other failure is left to the framework's error handler.
+  private def saveObligations(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
+                             (using request: ReturnsDataRequest[?]): Future[Unit] =
+    Future.fromTry(userAnswers.set(ObligationsQuery, obligations))
+      .flatMap(sessionRepository.set)
+      .map {
+        case Right(_) => ()
+        case Left(error) => logger.warn(s"Failed to save obligations in user answers: ${error.message}")
+      }
 
   private def submitAndContinue(updatedAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
                                (using request: ReturnsDataRequest[?]): Future[Result] = {

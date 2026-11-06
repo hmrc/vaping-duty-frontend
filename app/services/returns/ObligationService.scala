@@ -21,8 +21,6 @@ import config.FrontendAppConfig
 import connectors.returns.ObligationsConnector
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.{ObligationDetails, ObligationItem}
-import models.returns.ReturnsUserAnswers
-import queries.returns.ObligationsQuery
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,16 +35,6 @@ class ObligationService @Inject()(
     obligationsConnector.getObligations(vpdId).map { response =>
       filterObligationsByVpdId(response.obligation, vpdId)
     }
-
-  def getCachedObligations(ua: ReturnsUserAnswers, vpdId: VpdId)
-                          (using HeaderCarrier): Future[Seq[ObligationDetails]] =
-    ua.get(ObligationsQuery) match {
-      case Some(obligations) => Future.successful(obligations)
-      case None              => getObligations(vpdId)
-    }
-
-  def withCachedObligations(ua: ReturnsUserAnswers, obligations: Seq[ObligationDetails]): ReturnsUserAnswers =
-    ua.set(ObligationsQuery, obligations).getOrElse(ua)
 
   def getObligationByPeriodKey(vpdId: VpdId, periodKey: PeriodKey)
                               (using HeaderCarrier): Future[Option[ObligationDetails]] =

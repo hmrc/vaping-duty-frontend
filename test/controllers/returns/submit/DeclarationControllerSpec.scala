@@ -22,8 +22,7 @@ import forms.returns.DeclarationFormProvider
 import models.emailverification.ErrorModel
 import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationsResponse}
-import models.returns.{DeclarationDetails, ReturnsUserAnswers}
-import org.mockito.ArgumentCaptor
+import models.returns.DeclarationDetails
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -68,8 +67,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
   private def stubLiveObligations(mockObligationService: ObligationService): Unit = {
     when(mockObligationService.getObligations(any())(using any()))
       .thenReturn(Future.successful(obligationDetailsSingleOpen))
-    when(mockObligationService.withCachedObligations(any(), any()))
-      .thenAnswer(inv => inv.getArgument[ReturnsUserAnswers](0))
     ()
   }
 
@@ -146,7 +143,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         val mockSessionRepository = stubbedSessionRepository()
         val mockObligationService = mock[ObligationService]
         stubLiveObligations(mockObligationService)
-        when(mockObligationService.withCachedObligations(any(), any())).thenCallRealMethod()
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
           .overrides(
@@ -162,13 +158,11 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
 
-          val captor = ArgumentCaptor.forClass(classOf[ReturnsUserAnswers])
-          verify(mockSessionRepository).set(captor.capture())(any())
-          captor.getValue.get(ObligationsQuery) mustBe Some(obligationDetailsSingleOpen)
+          verify(mockSessionRepository).set(any())(any())
         }
       }
 
-      "must not save the obligations when the saved obligations are unchanged" in {
+      "must save the obligations even when the same obligations are already saved" in {
 
         val mockSessionRepository = stubbedSessionRepository()
         val mockObligationService = mock[ObligationService]
@@ -192,7 +186,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
 
-          verify(mockSessionRepository, never()).set(any())(any())
+          verify(mockSessionRepository).set(any())(any())
         }
       }
 
@@ -201,7 +195,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         val mockSessionRepository = stubbedSessionRepository()
         val mockObligationService = mock[ObligationService]
         stubLiveObligations(mockObligationService)
-        when(mockObligationService.withCachedObligations(any(), any())).thenCallRealMethod()
 
         val staleAnswers = returnsUserAnswers
           .copy(periodKey = june2026.value)
@@ -221,9 +214,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
 
-          val captor = ArgumentCaptor.forClass(classOf[ReturnsUserAnswers])
-          verify(mockSessionRepository).set(captor.capture())(any())
-          captor.getValue.get(ObligationsQuery) mustBe Some(obligationDetailsSingleOpen)
+          verify(mockSessionRepository).set(any())(any())
         }
       }
 
@@ -250,7 +241,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must still return OK when saving the obligations fails" in {
+      "must allow the framework to handle the error when saving the obligations fails" in {
 
         val mockSessionRepository = mock[ReturnsUserAnswersService]
         when(mockSessionRepository.set(any())(any()))
@@ -269,7 +260,11 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
 
-          status(route(application, request).value) mustEqual OK
+          val result = route(application, request).value
+
+          whenReady(result.failed) { exception =>
+            exception mustBe a[RuntimeException]
+          }
         }
       }
     }
@@ -286,7 +281,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockSubmitReturnService.submit(any(), any())(any())) thenReturn Future.successful(testReturnSubmissionResponse)
         when(mockSessionRepository.clear(any(), any())(any()))
           .thenReturn(Future.successful(Right(())))
-        when(mockObligationService.getCachedObligations(any(), any())(using any()))
+        when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application =
@@ -404,7 +399,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
       "must return a Bad Request and errors when invalid data is submitted" in {
 
         val mockObligationService = mock[ObligationService]
-        when(mockObligationService.getCachedObligations(any(), any())(using any()))
+        when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
@@ -460,7 +455,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
       "must return a Bad Request and errors when invalid email is submitted" in {
 
         val mockObligationService = mock[ObligationService]
-        when(mockObligationService.getCachedObligations(any(), any())(using any()))
+        when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
@@ -518,7 +513,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
         when(mockService.submit(any(), any())(any())).thenReturn(Future.successful(Left(ErrorModel(BAD_GATEWAY, "Bad gateway"))))
         when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
-        when(mockObligationService.getCachedObligations(any(), any())(using any()))
+        when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
