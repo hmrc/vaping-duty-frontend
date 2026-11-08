@@ -69,7 +69,7 @@ class DeclarationController @Inject()(
         val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
 
         saveObligations(request.userAnswers, obligations).map { _ =>
-          Ok(view(request.periodKey, preparedForm, periodDisplay.month, periodDisplay.year))
+          Ok(view(request.periodKey, preparedForm, periodDisplay))
         }
       }
   }
@@ -80,7 +80,7 @@ class DeclarationController @Inject()(
         form.bindFromRequest().fold(
           formWithErrors => {
             val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
-            Future.successful(BadRequest(view(request.periodKey, formWithErrors, periodDisplay.month, periodDisplay.year)))
+            Future.successful(BadRequest(view(request.periodKey, formWithErrors, periodDisplay)))
           },
 
           value =>

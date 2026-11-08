@@ -17,6 +17,7 @@
 @import components.*
 @import models.identifiers.PeriodKey
 @import models.returns.DeclarationDetails
+@import models.returns.PeriodDisplay
 @import forms.returns.DeclarationFormProvider
 @import views.html.helper.CSPNonce
 
@@ -33,7 +34,7 @@
         declarationFormProvider: DeclarationFormProvider
 )
 
-@(periodKey: PeriodKey, form: Form[DeclarationDetails], periodMonth: String, periodYear: String)(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, form: Form[DeclarationDetails], period: PeriodDisplay)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("returns.declaration.title"))) {
 
@@ -43,7 +44,7 @@
                 @govukErrorSummary(ErrorSummaryViewModel(form))
             }
 
-            @caption(messages("returns.caption", periodMonth, periodYear))
+            @caption(messages("returns.caption", period.month, period.year))
             @h1(messages("returns.declaration.heading"))
 
             @p(Seq(messages("returns.declaration.authorised")))
