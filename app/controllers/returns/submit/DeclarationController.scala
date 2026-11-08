@@ -16,11 +16,10 @@
 
 package controllers.returns.submit
 
-import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import forms.returns.DeclarationFormProvider
 import models.NormalMode
-import models.identifiers.VpdId
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
@@ -30,9 +29,7 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import queries.returns.ObligationsQuery
-import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
-import uk.gov.hmrc.http.HeaderCarrier
+import services.returns.{ReturnsUserAnswersService, StoredObligationsService, SubmitReturnService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.DeclarationViewModel
@@ -51,7 +48,7 @@ class DeclarationController @Inject()(
                                        returnsEnabled: ReturnsEnabledAction,
                                        formProvider: DeclarationFormProvider,
                                        submitReturnService: SubmitReturnService,
-                                       obligationService: ObligationService,
+                                       storedObligationsService: StoredObligationsService,
                                        returnsDateUtils: ReturnsDateUtils,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: DeclarationView,
@@ -67,7 +64,7 @@ class DeclarationController @Inject()(
       val periodKey = request.periodKey
       val userAnswers = request.userAnswers
 
-      savingObligations(vpdId, userAnswers) { obligations =>
+      storedObligationsService.savingObligations(vpdId, userAnswers) { obligations =>
         val preparedForm = userAnswers.get(DeclarationPage) match {
           case None => form
           case Some(value) => form.fill(value)
@@ -87,7 +84,7 @@ class DeclarationController @Inject()(
       val periodKey = request.periodKey
       val userAnswers = request.userAnswers
 
-      getObligations(vpdId, userAnswers).flatMap { obligations =>
+      storedObligationsService.getObligations(vpdId, userAnswers).flatMap { obligations =>
         form.bindFromRequest().fold(
           formWithErrors => {
             val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
@@ -108,37 +105,6 @@ class DeclarationController @Inject()(
       }
     }
   }
-
-  // Uses the obligations saved by onPageLoad so the submit doesn't wait on the Obligations API.
-  // Falls back to the live call if nothing has been saved.
-  private def getObligations(vpdId: VpdId, userAnswers: ReturnsUserAnswers)
-                            (using HeaderCarrier): Future[Seq[ObligationDetails]] =
-    userAnswers.get(ObligationsQuery) match {
-      case Some(obligations) => Future.successful(obligations)
-      case None              => obligationService.getObligations(vpdId)
-    }
-
-  private def savingObligations[T](vpdId: VpdId,
-                                    userAnswers: ReturnsUserAnswers)
-                                   (block: Seq[ObligationDetails] => T)
-                                   (using HeaderCarrier): Future[T] = {
-    obligationService.getObligations(vpdId).flatMap { obligations =>
-      saveObligations(userAnswers, obligations).map { _ =>
-        block(obligations)
-      }
-    }
-  }
-
-  // Saves the obligations in the user answers so onSubmit does not have to wait on the Obligations API.
-  // An error response is logged and the page still renders; any other failure is left to the framework's error handler.
-  private def saveObligations(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
-                             (using HeaderCarrier): Future[Unit] =
-    Future.fromTry(userAnswers.set(ObligationsQuery, obligations))
-      .flatMap(sessionRepository.set)
-      .map {
-        case Right(_) => ()
-        case Left(error) => logger.warn(s"Failed to save obligations in user answers: ${error.message}")
-      }
 
   private def submitAndContinue(updatedAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
                                (using request: ReturnsDataRequest[?]): Future[Result] = {
