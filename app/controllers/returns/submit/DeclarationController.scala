@@ -67,19 +67,16 @@ class DeclarationController @Inject()(
       val periodKey = request.periodKey
       val userAnswers = request.userAnswers
 
-      obligationService.getObligations(vpdId).flatMap { obligations =>
-        saveObligations(userAnswers, obligations).map { _ =>
-
-          val preparedForm = userAnswers.get(DeclarationPage) match {
-            case None => form
-            case Some(value) => form.fill(value)
-          }
-
-          val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
-          val viewModel = DeclarationViewModel(periodKey, periodDisplay)
-
-          Ok(view(preparedForm, viewModel))
+      savingObligations(vpdId, userAnswers) { obligations =>
+        val preparedForm = userAnswers.get(DeclarationPage) match {
+          case None => form
+          case Some(value) => form.fill(value)
         }
+
+        val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
+        val viewModel = DeclarationViewModel(periodKey, periodDisplay)
+
+        Ok(view(preparedForm, viewModel))
       }
     }
   }
@@ -120,6 +117,17 @@ class DeclarationController @Inject()(
       case Some(obligations) => Future.successful(obligations)
       case None              => obligationService.getObligations(vpdId)
     }
+
+  private def savingObligations[T](vpdId: VpdId,
+                                    userAnswers: ReturnsUserAnswers)
+                                   (block: Seq[ObligationDetails] => T)
+                                   (using HeaderCarrier): Future[T] = {
+    obligationService.getObligations(vpdId).flatMap { obligations =>
+      saveObligations(userAnswers, obligations).map { _ =>
+        block(obligations)
+      }
+    }
+  }
 
   // Saves the obligations in the user answers so onSubmit does not have to wait on the Obligations API.
   // An error response is logged and the page still renders; any other failure is left to the framework's error handler.
