@@ -20,6 +20,7 @@ import controllers.actions.returns.*
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import forms.returns.DeclarationFormProvider
 import models.NormalMode
+import models.identifiers.PeriodKey
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
@@ -27,7 +28,7 @@ import navigation.ReturnsNavigator
 import pages.returns.DeclarationPage
 import play.api.Logging
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.returns.{ReturnsUserAnswersService, StoredObligationsService, SubmitReturnService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -70,10 +71,7 @@ class DeclarationController @Inject()(
           case Some(value) => form.fill(value)
         }
 
-        val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
-        val viewModel = DeclarationViewModel(periodKey, periodDisplay)
-
-        Ok(view(preparedForm, viewModel))
+        Ok(view(preparedForm, buildViewModel(periodKey, obligations)))
       }
     }
   }
@@ -87,10 +85,7 @@ class DeclarationController @Inject()(
       storedObligationsService.getObligations(vpdId, userAnswers).flatMap { obligations =>
         form.bindFromRequest().fold(
           formWithErrors => {
-            val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
-            val viewModel = DeclarationViewModel(periodKey, periodDisplay)
-
-            Future.successful(BadRequest(view(formWithErrors, viewModel)))
+            Future.successful(BadRequest(view(formWithErrors, buildViewModel(periodKey, obligations))))
           },
 
           value => {
@@ -104,6 +99,13 @@ class DeclarationController @Inject()(
         )
       }
     }
+  }
+
+  private def buildViewModel(periodKey: PeriodKey,
+                             obligations: Seq[ObligationDetails])
+                            (using Messages) = {
+    val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
+    DeclarationViewModel(periodKey, periodDisplay)
   }
 
   private def submitAndContinue(updatedAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
