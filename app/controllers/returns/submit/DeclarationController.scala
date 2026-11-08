@@ -20,6 +20,7 @@ import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvenc
 import controllers.actions.returns.*
 import forms.returns.DeclarationFormProvider
 import models.NormalMode
+import models.identifiers.VpdId
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
@@ -31,6 +32,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import queries.returns.ObligationsQuery
 import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.DeclarationViewModel
@@ -60,53 +62,66 @@ class DeclarationController @Inject()(
   val form: Form[DeclarationDetails] = formProvider()
 
   def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
-    implicit request =>
-      obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-        val preparedForm = request.userAnswers.get(DeclarationPage) match {
+    implicit request => {
+      val vpdId = request.enrolmentVpdId
+      val periodKey = request.periodKey
+      val userAnswers = request.userAnswers
+
+      obligationService.getObligations(vpdId).flatMap { obligations =>
+
+        val preparedForm = userAnswers.get(DeclarationPage) match {
           case None => form
           case Some(value) => form.fill(value)
         }
 
-        val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
+        val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
 
-        saveObligations(request.userAnswers, obligations).map { _ =>
-          Ok(view(preparedForm, DeclarationViewModel(request.periodKey, periodDisplay)))
+        saveObligations(userAnswers, obligations).map { _ =>
+          Ok(view(preparedForm, DeclarationViewModel(periodKey, periodDisplay)))
         }
       }
+    }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
-    implicit request =>
-      getObligations.flatMap { obligations =>
+    implicit request => {
+      val vpdId = request.enrolmentVpdId
+      val periodKey = request.periodKey
+      val userAnswers = request.userAnswers
+
+      getObligations(vpdId, userAnswers).flatMap { obligations =>
         form.bindFromRequest().fold(
           formWithErrors => {
-            val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
-            Future.successful(BadRequest(view(formWithErrors, DeclarationViewModel(request.periodKey, periodDisplay))))
+            val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
+            Future.successful(BadRequest(view(formWithErrors, DeclarationViewModel(periodKey, periodDisplay))))
           },
 
-          value =>
-            Future.fromTry(request.userAnswers.set(DeclarationPage, value))
+          value => {
+            Future.fromTry(userAnswers.set(DeclarationPage, value))
               .flatMap { updatedAnswers =>
                 sessionRepository.set(updatedAnswers).flatMap { _ =>
                   submitAndContinue(updatedAnswers, obligations)
                 }
               }
+          }
         )
       }
+    }
   }
 
   // Uses the obligations saved by onPageLoad so the submit doesn't wait on the Obligations API.
   // Falls back to the live call if nothing has been saved.
-  private def getObligations(using request: ReturnsDataRequest[?]): Future[Seq[ObligationDetails]] =
-    request.userAnswers.get(ObligationsQuery) match {
+  private def getObligations(vpdId: VpdId, userAnswers: ReturnsUserAnswers)
+                            (using HeaderCarrier): Future[Seq[ObligationDetails]] =
+    userAnswers.get(ObligationsQuery) match {
       case Some(obligations) => Future.successful(obligations)
-      case None              => obligationService.getObligations(request.enrolmentVpdId)
+      case None              => obligationService.getObligations(vpdId)
     }
 
   // Saves the obligations in the user answers so onSubmit does not have to wait on the Obligations API.
   // An error response is logged and the page still renders; any other failure is left to the framework's error handler.
   private def saveObligations(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
-                             (using request: ReturnsDataRequest[?]): Future[Unit] =
+                             (using HeaderCarrier): Future[Unit] =
     Future.fromTry(userAnswers.set(ObligationsQuery, obligations))
       .flatMap(sessionRepository.set)
       .map {
