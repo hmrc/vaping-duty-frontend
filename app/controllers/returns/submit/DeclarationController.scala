@@ -33,6 +33,7 @@ import queries.returns.ObligationsQuery
 import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
+import viewmodels.returns.submit.DeclarationViewModel
 import views.html.returns.submit.DeclarationView
 
 import javax.inject.Inject
@@ -69,7 +70,7 @@ class DeclarationController @Inject()(
         val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
 
         saveObligations(request.userAnswers, obligations).map { _ =>
-          Ok(view(request.periodKey, preparedForm, periodDisplay))
+          Ok(view(preparedForm, DeclarationViewModel(request.periodKey, periodDisplay)))
         }
       }
   }
@@ -80,7 +81,7 @@ class DeclarationController @Inject()(
         form.bindFromRequest().fold(
           formWithErrors => {
             val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
-            Future.successful(BadRequest(view(request.periodKey, formWithErrors, periodDisplay)))
+            Future.successful(BadRequest(view(formWithErrors, DeclarationViewModel(request.periodKey, periodDisplay))))
           },
 
           value =>
