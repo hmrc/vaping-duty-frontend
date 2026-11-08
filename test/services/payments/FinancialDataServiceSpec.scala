@@ -19,7 +19,6 @@ package services.payments
 import base.SpecBase
 import connectors.payments.FinancialDataConnector
 import models.ChargeReference
-import models.identifiers.VpdId
 import models.payments.{OutstandingPayment, PaymentsResponse}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
