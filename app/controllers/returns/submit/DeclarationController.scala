@@ -68,16 +68,16 @@ class DeclarationController @Inject()(
       val userAnswers = request.userAnswers
 
       obligationService.getObligations(vpdId).flatMap { obligations =>
-
-        val preparedForm = userAnswers.get(DeclarationPage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
-
-        val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
-        val viewModel = DeclarationViewModel(periodKey, periodDisplay)
-
         saveObligations(userAnswers, obligations).map { _ =>
+
+          val preparedForm = userAnswers.get(DeclarationPage) match {
+            case None => form
+            case Some(value) => form.fill(value)
+          }
+
+          val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
+          val viewModel = DeclarationViewModel(periodKey, periodDisplay)
+
           Ok(view(preparedForm, viewModel))
         }
       }
