@@ -41,7 +41,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DeclarationController @Inject()(
                                        override val messagesApi: MessagesApi,
-                                       sessionRepository: ReturnsUserAnswersService,
+                                       userAnswersService: ReturnsUserAnswersService,
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        checkInsolvency: CheckInsolvencyAction,
                                        getData: ReturnsDataRetrievalAction,
@@ -54,7 +54,6 @@ class DeclarationController @Inject()(
                                        val controllerComponents: MessagesControllerComponents,
                                        view: DeclarationView,
                                        navigator: ReturnsNavigator,
-                                       userAnswersService: ReturnsUserAnswersService
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   val form: Form[DeclarationDetails] = formProvider()
@@ -91,7 +90,7 @@ class DeclarationController @Inject()(
           value => {
             Future.fromTry(userAnswers.set(DeclarationPage, value))
               .flatMap { updatedAnswers =>
-                sessionRepository.set(updatedAnswers).flatMap { _ =>
+                userAnswersService.set(updatedAnswers).flatMap { _ =>
                   submitAndContinue(updatedAnswers, obligations)
                 }
               }
