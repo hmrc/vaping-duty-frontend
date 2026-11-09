@@ -423,16 +423,19 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must return a Bad Request using the saved obligations and not call the Obligations API" in {
+      "must return a Bad Request when input is invalid, refreshing the obligations" in {
 
-        val mockObligationsConnector = mock[ObligationsConnector]
+        val mockObligationService = mock[ObligationService]
+        when(mockObligationService.getObligations(any())(using any()))
+          .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val cachedAnswers = returnsUserAnswers
           .copy(periodKey = june2026.value)
-          .set(ObligationsQuery, obligationDetailsSingleOpen).success.value
+          // Do not set up cached obligations, even though they would be present, to show that they are re-fetched.
+          //.set(ObligationsQuery, obligationDetailsSingleOpen).success.value
 
         val application = applicationBuilder(returnsUserAnswers = Some(cachedAnswers))
-          .overrides(bind[ObligationsConnector].toInstance(mockObligationsConnector))
+          .overrides(bind[ObligationService].toInstance(mockObligationService))
           .build()
 
         running(application) {
@@ -448,8 +451,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           contentAsString(result) mustEqual view(boundForm, DeclarationViewModel(june2026, PeriodDisplay("June", "2026")))(request, messages(application)).toString
-
-          verify(mockObligationsConnector, never()).getObligations(any())(using any())
         }
       }
 
