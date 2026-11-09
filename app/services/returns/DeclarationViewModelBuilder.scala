@@ -21,12 +21,13 @@ import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.ReturnsUserAnswers
+import models.returns.submit.ReturnSubmittedResponse
 import play.api.i18n.Messages
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.DeclarationViewModel
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class DeclarationViewModelBuilder @Inject() (
                                               storedObligationsService: StoredObligationsService,
@@ -37,7 +38,7 @@ class DeclarationViewModelBuilder @Inject() (
   def buildDeclarationViewModel(vpdId: VpdId,
                                 periodKey: PeriodKey,
                                 userAnswers: ReturnsUserAnswers)
-                               (using HeaderCarrier, Messages) = {
+                               (using HeaderCarrier, Messages): Future[DeclarationViewModel] = {
     storedObligationsService.savingObligations(vpdId, userAnswers) { obligations =>
       buildViewModel(periodKey, obligations)
     }
@@ -53,7 +54,7 @@ class DeclarationViewModelBuilder @Inject() (
   def submitReturn(vpdId: VpdId,
                    userAnswers: ReturnsUserAnswers,
                    updatedAnswers: ReturnsUserAnswers)
-                  (using HeaderCarrier, ReturnsDataRequest[?], ExecutionContext)= {
+                  (using HeaderCarrier, ReturnsDataRequest[?], ExecutionContext): Future[ReturnSubmittedResponse] = {
     storedObligationsService.getObligations(vpdId, userAnswers).flatMap { obligations =>
       submitReturnService.submit(updatedAnswers, obligations)
     }
