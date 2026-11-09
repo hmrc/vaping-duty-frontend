@@ -44,6 +44,7 @@ class Module extends AbstractModule {
     bind(classOf[CheckSignedInAction]).to(classOf[CheckSignedInActionImpl]).asEagerSingleton()
     bind(classOf[ReturnsEnabledAction]).to(classOf[ReturnsEnabledActionImpl]).asEagerSingleton()
     bind(classOf[DirectDebitEnabledAction]).to(classOf[DirectDebitEnabledActionImpl]).asEagerSingleton()
+    bind(classOf[YourDetailsEnabledAction]).to(classOf[YourDetailsEnabledActionImpl]).asEagerSingleton()
     bind(classOf[DutyRateConfig]).asEagerSingleton()
     bind(classOf[NrsConnector.NrsCircuitBreaker]).toProvider(classOf[NrsCircuitBreakerProvider])
     bind(classOf[NrsScheduledService]).asEagerSingleton()

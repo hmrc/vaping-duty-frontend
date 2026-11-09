@@ -23,6 +23,7 @@ import models.returns.ReturnsUserAnswers
 import pages.*
 import pages.returns.*
 import pages.returns.adjustments.*
+import pages.returns.yourdetails.*
 import play.api.Logging
 import play.api.http.HttpVerbs.GET
 import play.api.mvc.Call
@@ -50,6 +51,9 @@ class ReturnsNavigator @Inject()(
     case DeclareDutySuspensePage        => ua  => declareDutySuspensePageRoutes(ua, periodKey)
     case EnterDutySuspensePage          => _   => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(NormalMode), periodKey)
     case DeclarationPage                => _   => withPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad(), periodKey)
+    case YourFullNamePage               => _   => withPeriod(controllers.returns.submit.yourdetails.routes.YourRoleController.onPageLoad(NormalMode), periodKey)
+    case YourRolePage                   => _   => withPeriod(controllers.returns.submit.yourdetails.routes.YourBusinessEmailController.onPageLoad(NormalMode), periodKey)
+    case YourBusinessEmailPage          => _   => withPeriod(controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad(), periodKey)
     case _                              => _   => Call(GET, BtaLink(config))
   }
 
@@ -65,6 +69,8 @@ class ReturnsNavigator @Inject()(
     case AdjustmentReasonPage       => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage    => ua => checkDeclareDutySuspensePageRoutes(ua, periodKey)
     case EnterDutySuspensePage      => _  => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(CheckMode), periodKey)
+    case YourFullNamePage | YourRolePage | YourBusinessEmailPage =>
+                                       _  => withPeriod(controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad(), periodKey)
     case _                          => _  => routes.JourneyRecoveryController.onPageLoad()
   }
 

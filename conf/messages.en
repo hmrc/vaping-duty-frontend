@@ -184,7 +184,7 @@ returns.taskList.section.dutySuspended.heading = Report duty suspended vaping de
 returns.taskList.section.dutySuspended.task1 = Tell us if you have received or moved any vaping products in duty suspense
 
 returns.taskList.section.yourDetails.heading = Your details
-returns.taskList.section.yourDetails.task1 = Tell us your name, role and business email address
+returns.taskList.section.yourDetails.task1 = Tell us who is submitting this return
 
 returns.taskList.section.submitReturn.heading = Submit return
 returns.taskList.submitReturn.task1 = Check your answers and submit return
@@ -475,6 +475,23 @@ returns.declaration.capacity.error.length = Capacity must be 100 characters or f
 returns.declaration.emailAddress.error.required = Enter your business email address
 returns.declaration.emailAddress.error.length = Email address must be 132 characters or fewer
 returns.declaration.emailAddress.error.format = Enter an email address in the correct format, like name@example.com
+
+returns.yourDetails.caption = Your details
+returns.yourDetails.fullName.title = What is your full name?
+returns.yourDetails.fullName.heading = What is your full name?
+returns.yourDetails.role.title = What is your role in the company?
+returns.yourDetails.role.heading = What is your role in the company?
+returns.yourDetails.email.title = What is your business email address?
+returns.yourDetails.email.heading = What is your business email address?
+returns.yourDetails.email.hint = We will only email you to confirm when your return has been submitted, and if we need more information.
+returns.yourDetails.checkAnswers.title = Check your answers
+returns.yourDetails.checkAnswers.heading = Check your answers
+returns.yourDetails.checkAnswers.fullName = Your full name
+returns.yourDetails.checkAnswers.fullName.change.hidden = your full name
+returns.yourDetails.checkAnswers.role = Your role
+returns.yourDetails.checkAnswers.role.change.hidden = your role
+returns.yourDetails.checkAnswers.email = Your business email address
+returns.yourDetails.checkAnswers.email.change.hidden = your business email address
 
 returns.overview.title = Your Vaping Products Duty returns
 returns.overview.heading = Your Vaping Products Duty returns

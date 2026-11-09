@@ -20,6 +20,7 @@ import models.TaskStatus
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
 import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
+import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 
 object TaskStatusService {
 
@@ -61,7 +62,21 @@ object TaskStatusService {
     }
   }
 
-  def allTasksCompleted(answers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility): Boolean = {
+  def yourDetailsTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
+    val answered = Seq(
+      answers.get(YourFullNamePage),
+      answers.get(YourRolePage),
+      answers.get(YourBusinessEmailPage)
+    ).count(_.isDefined)
+
+    answered match {
+      case 0 => TaskStatus.NotStarted
+      case 3 => TaskStatus.Completed
+      case _ => TaskStatus.InProgress
+    }
+  }
+
+  def allTasksCompleted(answers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility, yourDetailsEnabled: Boolean): Boolean = {
     val declareDutyComplete = declareDutyTaskStatus(answers) == TaskStatus.Completed
     val dutySuspenseComplete = dutySuspenseTaskStatus(answers) == TaskStatus.Completed
     
@@ -79,11 +94,13 @@ object TaskStatusService {
         true
     }
     
-    declareDutyComplete && dutySuspenseComplete && spoiltComplete && adjustmentsComplete
+    val yourDetailsComplete = !yourDetailsEnabled || yourDetailsTaskStatus(answers) == TaskStatus.Completed
+
+    declareDutyComplete && dutySuspenseComplete && spoiltComplete && adjustmentsComplete && yourDetailsComplete
   }
 
-  def submitTaskStatus(answers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility): TaskStatus = {
-    if (allTasksCompleted(answers, adjustmentsEligibility)) TaskStatus.NotStarted
+  def submitTaskStatus(answers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility, yourDetailsEnabled: Boolean): TaskStatus = {
+    if (allTasksCompleted(answers, adjustmentsEligibility, yourDetailsEnabled)) TaskStatus.NotStarted
     else TaskStatus.TasksRemaining
   }
 }

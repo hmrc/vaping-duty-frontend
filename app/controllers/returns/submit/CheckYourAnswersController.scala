@@ -16,6 +16,7 @@
 
 package controllers.returns.submit
 
+import config.FrontendAppConfig
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import models.returns.AdjustmentsEligibility
@@ -43,7 +44,8 @@ class CheckYourAnswersController @Inject()(
                                             obligationService: ObligationService,
                                             val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourAnswersView,
-                                            returnsDateUtils: ReturnsDateUtils
+                                            returnsDateUtils: ReturnsDateUtils,
+                                            appConfig: FrontendAppConfig
                                           )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
@@ -65,7 +67,7 @@ class CheckYourAnswersController @Inject()(
       returnPeriod = returnsDateUtils.getPeriodDisplay(pk, obligationDetails)
     } yield {
       val adjustmentsEligibility = AdjustmentsEligibility.fromObligationDetails(obligationDetails)
-      if (TaskStatusService.allTasksCompleted(request.userAnswers, adjustmentsEligibility)) {
+      if (TaskStatusService.allTasksCompleted(request.userAnswers, adjustmentsEligibility, appConfig.yourDetailsEnabled)) {
         Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRates, pk, adjustmentsEligibility, returnPeriod)))
       } else {
         Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${pk.value}")

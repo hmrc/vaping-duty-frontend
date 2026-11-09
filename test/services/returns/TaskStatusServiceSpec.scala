@@ -22,6 +22,7 @@ import models.returns.{AdjustmentsEligibility, DutySuspenseVolumes, ReturnsUserA
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import pages.returns.*
 import pages.returns.adjustments.*
+import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 
 class TaskStatusServiceSpec extends SpecBase {
 
@@ -173,10 +174,38 @@ class TaskStatusServiceSpec extends SpecBase {
     }
   }
 
+  "yourDetailsTaskStatus" - {
+
+    "must return NotStarted when no questions are answered" in {
+      TaskStatusService.yourDetailsTaskStatus(emptyAnswers) mustBe TaskStatus.NotStarted
+    }
+
+    "must return InProgress when some questions are answered" in {
+      val answers = emptyAnswers
+        .set(YourFullNamePage, "John Smith")
+        .flatMap(_.set(YourRolePage, "Director"))
+        .success
+        .value
+
+      TaskStatusService.yourDetailsTaskStatus(answers) mustBe TaskStatus.InProgress
+    }
+
+    "must return Completed when all questions are answered" in {
+      val answers = emptyAnswers
+        .set(YourFullNamePage, "John Smith")
+        .flatMap(_.set(YourRolePage, "Director"))
+        .flatMap(_.set(YourBusinessEmailPage, "john@example.com"))
+        .success
+        .value
+
+      TaskStatusService.yourDetailsTaskStatus(answers) mustBe TaskStatus.Completed
+    }
+  }
+
   "allTasksCompleted" - {
 
     "must return false when no tasks are completed" in {
-      val result = TaskStatusService.allTasksCompleted(emptyAnswers, AdjustmentsEligibility.Eligible)
+      val result = TaskStatusService.allTasksCompleted(emptyAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
       result mustBe false
     }
 
@@ -186,7 +215,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.Eligible)
+      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
       result mustBe false
     }
 
@@ -201,7 +230,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.Eligible)
+      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
       result mustBe true
     }
 
@@ -212,7 +241,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.NotEligible)
+      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = false)
       result mustBe true
     }
   }
@@ -220,7 +249,7 @@ class TaskStatusServiceSpec extends SpecBase {
   "submitTaskStatus" - {
 
     "must return TasksRemaining when no tasks are completed" in {
-      val result = TaskStatusService.submitTaskStatus(emptyAnswers, AdjustmentsEligibility.Eligible)
+      val result = TaskStatusService.submitTaskStatus(emptyAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
       result mustBe TaskStatus.TasksRemaining
     }
 
@@ -230,7 +259,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.Eligible)
+      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
       result mustBe TaskStatus.TasksRemaining
     }
 
@@ -245,7 +274,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.Eligible)
+      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
       result mustBe TaskStatus.NotStarted
     }
 
@@ -256,8 +285,34 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.NotEligible)
+      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = false)
       result mustBe TaskStatus.NotStarted
+    }
+  }
+
+  "allTasksCompleted and submitTaskStatus with your details enabled" - {
+
+    val otherTasksCompleted = emptyAnswers
+      .set(DeclareDutyPage, false)
+      .flatMap(_.set(DeclareDutySuspensePage, false))
+      .success
+      .value
+
+    "must be incomplete when your details is not completed" in {
+      TaskStatusService.allTasksCompleted(otherTasksCompleted, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = true) mustBe false
+      TaskStatusService.submitTaskStatus(otherTasksCompleted, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = true) mustBe TaskStatus.TasksRemaining
+    }
+
+    "must be complete when your details is also completed" in {
+      val answers = otherTasksCompleted
+        .set(YourFullNamePage, "John Smith")
+        .flatMap(_.set(YourRolePage, "Director"))
+        .flatMap(_.set(YourBusinessEmailPage, "john@example.com"))
+        .success
+        .value
+
+      TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = true) mustBe true
+      TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = true) mustBe TaskStatus.NotStarted
     }
   }
 }

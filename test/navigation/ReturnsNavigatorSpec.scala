@@ -23,6 +23,7 @@ import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPe
 import pages.*
 import pages.returns.{SpoiltCheckYourAnswersPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
+import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 import play.api.libs.json.Json
 import play.api.mvc.Call
 
@@ -35,6 +36,18 @@ class ReturnsNavigatorSpec extends SpecBase {
   "ReturnsNavigator" - {
 
     "in Normal mode" - {
+
+      "must go from YourFullName to YourRole" in {
+        navigator.nextPage(YourFullNamePage, NormalMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourRoleController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go from YourRole to YourBusinessEmail" in {
+        navigator.nextPage(YourRolePage, NormalMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourBusinessEmailController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go from YourBusinessEmail to YourDetailsCheckAnswers (mini CYA)" in {
+        navigator.nextPage(YourBusinessEmailPage, NormalMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad().url}?period=$periodKey"
+      }
 
       "must go from DeclareDuty to EnterAmount when there IS duty to declare" in {
         val ua = returnsUserAnswers.set(DeclareDutyPage, true).success.value
@@ -196,6 +209,12 @@ class ReturnsNavigatorSpec extends SpecBase {
     }
 
     "in Check mode" - {
+
+      "must go from each your details page to YourDetailsCheckAnswers (mini CYA)" in {
+        Seq(YourFullNamePage, YourRolePage, YourBusinessEmailPage).foreach { page =>
+          navigator.nextPage(page, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad().url}?period=$periodKey"
+        }
+      }
 
       "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
 

@@ -17,11 +17,11 @@
 package viewmodels.returns.submit
 
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
+import pages.returns.yourdetails.{YourFullNamePage, YourRolePage}
 import models.{NormalMode, TaskStatus}
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import services.returns.TaskStatusService
-import uk.gov.hmrc.govukfrontend.views.Aliases.{TaskListItem, TaskListItemStatus, TaskListItemTitle, Tag, Text}
 
 object TaskList {
 
@@ -35,8 +35,8 @@ object TaskList {
         case AdjustmentsEligibility.NotEligible => None
       },
       Some(dutySuspendedSection(userAnswers, periodKey)),
-      Option.when(yourDetailsEnabled)(yourDetailsSection),
-      Some(submissionSection(userAnswers, periodKey, adjustmentsEligibility))
+      Option.when(yourDetailsEnabled)(yourDetailsSection(userAnswers, periodKey)),
+      Some(submissionSection(userAnswers, periodKey, adjustmentsEligibility, yourDetailsEnabled))
     ).flatten
   }
 
@@ -131,31 +131,36 @@ object TaskList {
     )
   }
 
-  // TODO: replace with TaskRows using the real link and status once the your details journey pages exist
-  private def yourDetailsSection(implicit messages: Messages): TaskListSection = {
+  // Resumes at the first question not yet answered, or the check answers page once all are answered
+  private def determineYourDetailsLink(userAnswers: ReturnsUserAnswers): Call = {
+    if (TaskStatusService.yourDetailsTaskStatus(userAnswers) == TaskStatus.Completed) {
+      controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad()
+    } else if (userAnswers.get(YourFullNamePage).isEmpty) {
+      controllers.returns.submit.yourdetails.routes.YourFullNameController.onPageLoad(NormalMode)
+    } else if (userAnswers.get(YourRolePage).isEmpty) {
+      controllers.returns.submit.yourdetails.routes.YourRoleController.onPageLoad(NormalMode)
+    } else {
+      controllers.returns.submit.yourdetails.routes.YourBusinessEmailController.onPageLoad(NormalMode)
+    }
+  }
+
+  private def yourDetailsSection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
       headingKey = "returns.taskList.section.yourDetails.heading",
       rows = Seq(
-        TaskListItem(
-          title = TaskListItemTitle(Text(messages("returns.taskList.section.yourDetails.task1"))),
-          href = None,
-          status = TaskListItemStatus(
-            tag = Some(
-              Tag(
-                content = Text(messages("returns.taskList.taskStatus.notStarted")),
-                classes = "govuk-tag--blue",
-                attributes = Map("id" -> "your-details-status")
-              )
-            )
-          ),
-          classes = "govuk-task-list__status--cannot-start-yet"
-        )
+        TaskRows(
+          id = "your-details",
+          linkText = messages("returns.taskList.section.yourDetails.task1"),
+          link = determineYourDetailsLink(userAnswers),
+          status = TaskStatusService.yourDetailsTaskStatus(userAnswers),
+          periodKey = Some(periodKey)
+        ).toTaskListItem
       ),
       idPrefix = "your-details-task"
     )
   }
 
-  def submissionSection(userAnswers: ReturnsUserAnswers, periodKey: String, adjustmentsEligibility: AdjustmentsEligibility)(implicit messages: Messages): TaskListSection = {
+  def submissionSection(userAnswers: ReturnsUserAnswers, periodKey: String, adjustmentsEligibility: AdjustmentsEligibility, yourDetailsEnabled: Boolean)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
       headingKey = "returns.taskList.section.submitReturn.heading",
       rows = Seq(
@@ -163,7 +168,7 @@ object TaskList {
           id = "submit",
           linkText = messages("returns.taskList.submitReturn.task1"),
           link = controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(),
-          status = TaskStatusService.submitTaskStatus(userAnswers, adjustmentsEligibility),
+          status = TaskStatusService.submitTaskStatus(userAnswers, adjustmentsEligibility, yourDetailsEnabled),
           periodKey = Some(periodKey)
         ).toTaskListItem
       ),
