@@ -88,14 +88,14 @@ class DeclarationController @Inject()(
             .flatMap { updatedAnswers =>
               userAnswersService.set(updatedAnswers).flatMap { _ =>
                 storedObligationsService.getObligations(vpdId, userAnswers).flatMap { obligations =>
-                  submitReturnService.submit(updatedAnswers, obligations)
-                    .flatMap(_ => userAnswersService.clear(request.enrolmentVpdId, request.periodKey))
-                    .map(_ => Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers)))
-                    .recover { case e =>
-                      logger.error("Failed to submit return", e)
-                      Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-                    }
-                }
+                    submitReturnService.submit(updatedAnswers, obligations)
+                  }
+                  .flatMap(_ => userAnswersService.clear(request.enrolmentVpdId, request.periodKey))
+                  .map(_ => Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers)))
+                  .recover { case e =>
+                    logger.error("Failed to submit return", e)
+                    Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+                  }
               }
             }
         }
