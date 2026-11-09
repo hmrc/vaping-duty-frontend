@@ -70,7 +70,9 @@ class DeclarationController @Inject()(
           case Some(value) => form.fill(value)
         }
 
-        Ok(view(preparedForm, buildViewModel(periodKey, obligations)))
+        val vm = buildViewModel(periodKey, obligations)
+        
+        Ok(view(preparedForm, vm))
       }
     }
   }
@@ -84,7 +86,8 @@ class DeclarationController @Inject()(
       storedObligationsService.getObligations(vpdId, userAnswers).flatMap { obligations =>
         form.bindFromRequest().fold(
           formWithErrors => {
-            Future.successful(BadRequest(view(formWithErrors, buildViewModel(periodKey, obligations))))
+            val vm = buildViewModel(periodKey, obligations)
+            Future.successful(BadRequest(view(formWithErrors, vm)))
           },
 
           value => {
