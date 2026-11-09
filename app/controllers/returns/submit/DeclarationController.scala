@@ -26,8 +26,8 @@ import pages.returns.DeclarationPage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.returns.{DeclarationViewModelBuilder, ReturnsUserAnswersService, StoredObligationsService}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.{DeclarationViewModelBuilder, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.DeclarationView
 
@@ -80,18 +80,18 @@ class DeclarationController @Inject()(
         },
 
         value => {
-          Future.fromTry(userAnswers.set(DeclarationPage, value))
-            .flatMap { updatedAnswers =>
-              userAnswersService.set(updatedAnswers).flatMap { _ =>
-                vmBuilder.submitReturn(vpdId, userAnswers, updatedAnswers)
-                  .flatMap(_ => userAnswersService.clear(request.enrolmentVpdId, request.periodKey))
-                  .map(_ => Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers)))
-                  .recover { case e =>
-                    logger.error("Failed to submit return", e)
-                    Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-                  }
-              }
-            }
+          (for {
+            updatedAnswers <- Future.fromTry(userAnswers.set(DeclarationPage, value))
+            _              <- userAnswersService.set(updatedAnswers)
+            _              <- vmBuilder.submitReturn(vpdId, userAnswers, updatedAnswers)
+            _              <- userAnswersService.clear(vpdId, periodKey)
+          }
+          yield {
+            Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers))
+          }).recover { case e =>
+            logger.error("Failed to submit return", e)
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          }
         }
       )
     }
