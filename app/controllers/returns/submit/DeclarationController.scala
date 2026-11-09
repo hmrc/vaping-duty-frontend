@@ -20,7 +20,7 @@ import controllers.actions.returns.*
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import forms.returns.DeclarationFormProvider
 import models.NormalMode
-import models.obligations.ObligationDetails
+import models.identifiers.VpdId
 import models.requests.returns.ReturnsDataRequest
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
 import navigation.ReturnsNavigator
@@ -30,6 +30,7 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.returns.{DeclarationViewModelBuilder, ReturnsUserAnswersService, StoredObligationsService, SubmitReturnService}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.DeclarationView
 
@@ -87,9 +88,7 @@ class DeclarationController @Inject()(
           Future.fromTry(userAnswers.set(DeclarationPage, value))
             .flatMap { updatedAnswers =>
               userAnswersService.set(updatedAnswers).flatMap { _ =>
-                storedObligationsService.getObligations(vpdId, userAnswers).flatMap { obligations =>
-                    submitReturnService.submit(updatedAnswers, obligations)
-                  }
+                submitReturn(vpdId, userAnswers, updatedAnswers)
                   .flatMap(_ => userAnswersService.clear(request.enrolmentVpdId, request.periodKey))
                   .map(_ => Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers)))
                   .recover { case e =>
@@ -103,4 +102,12 @@ class DeclarationController @Inject()(
     }
   }
 
+  private def submitReturn(vpdId: VpdId,
+                           userAnswers: ReturnsUserAnswers,
+                           updatedAnswers: ReturnsUserAnswers)
+                          (using HeaderCarrier, ReturnsDataRequest[?])= {
+    storedObligationsService.getObligations(vpdId, userAnswers).flatMap { obligations =>
+      submitReturnService.submit(updatedAnswers, obligations)
+    }
+  }
 }
