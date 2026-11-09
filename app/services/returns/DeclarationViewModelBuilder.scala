@@ -32,7 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class DeclarationViewModelBuilder @Inject() (
                                               storedObligationsService: StoredObligationsService,
                                               submitReturnService: SubmitReturnService,
-                                              returnsDateUtils: ReturnsDateUtils,
+                                              returnsDateUtils: ReturnsDateUtils
                                             ){
 
   def buildDeclarationViewModel(vpdId: VpdId,
@@ -40,15 +40,9 @@ class DeclarationViewModelBuilder @Inject() (
                                 userAnswers: ReturnsUserAnswers)
                                (using HeaderCarrier, Messages): Future[DeclarationViewModel] = {
     storedObligationsService.savingObligations(vpdId, userAnswers) { obligations =>
-      buildViewModel(periodKey, obligations)
+      val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
+      DeclarationViewModel(periodKey, periodDisplay)
     }
-  }
-
-  private def buildViewModel(periodKey: PeriodKey,
-                             obligations: Seq[ObligationDetails])
-                            (using Messages) = {
-    val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
-    DeclarationViewModel(periodKey, periodDisplay)
   }
 
   def submitReturn(vpdId: VpdId,
