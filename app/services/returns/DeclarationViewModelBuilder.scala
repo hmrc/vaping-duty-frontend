@@ -18,7 +18,6 @@ package services.returns
 
 import com.google.inject.Inject
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.ReturnsUserAnswers
 import models.returns.submit.ReturnSubmittedResponse
@@ -38,9 +37,11 @@ class DeclarationViewModelBuilder @Inject() (
   def buildDeclarationViewModel(vpdId: VpdId,
                                 periodKey: PeriodKey,
                                 userAnswers: ReturnsUserAnswers)
-                               (using HeaderCarrier, Messages): Future[DeclarationViewModel] = {
-    storedObligationsService.savingObligations(vpdId, userAnswers) { obligations =>
-      val periodDisplay = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
+                               (using HeaderCarrier, Messages, ExecutionContext): Future[DeclarationViewModel] = {
+    for {
+      obligations   <- storedObligationsService.savingObligations(vpdId, userAnswers)
+      periodDisplay  = returnsDateUtils.getPeriodDisplay(periodKey, obligations)
+    } yield {
       DeclarationViewModel(periodKey, periodDisplay)
     }
   }

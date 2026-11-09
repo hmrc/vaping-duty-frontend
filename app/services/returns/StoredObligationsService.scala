@@ -35,13 +35,12 @@ class StoredObligationsService @Inject() (
   // An error response is logged and the page still renders; any other failure is left to the framework's error handler.
   def savingObligations[T](vpdId: VpdId,
                            userAnswers: ReturnsUserAnswers)
-                          (block: Seq[ObligationDetails] => T)
-                          (using HeaderCarrier): Future[T] = {
-    obligationService.getObligations(vpdId).flatMap { obligations =>
-      saveObligations(userAnswers, obligations).map { _ =>
-        block(obligations)
-      }
+                          (using HeaderCarrier): Future[Seq[ObligationDetails]] = {
+    for {
+      obligations <- obligationService.getObligations(vpdId)
+      _           <- saveObligations(userAnswers, obligations)
     }
+    yield obligations
   }
 
   private def saveObligations(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
