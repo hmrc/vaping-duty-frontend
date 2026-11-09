@@ -64,16 +64,16 @@ class DeclarationController @Inject()(
       val periodKey = request.periodKey
       val userAnswers = request.userAnswers
 
-      storedObligationsService.savingObligations(vpdId, userAnswers) { obligations =>
-        val preparedForm = userAnswers.get(DeclarationPage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
-
-        val vm = buildViewModel(periodKey, obligations)
-        
-        Ok(view(preparedForm, vm))
+      val preparedForm = userAnswers.get(DeclarationPage) match {
+        case None => form
+        case Some(value) => form.fill(value)
       }
+
+      storedObligationsService.savingObligations(vpdId, userAnswers) { obligations =>
+        buildViewModel(periodKey, obligations)
+      }.map( vm =>
+        Ok(view(preparedForm, vm))
+      )
     }
   }
 
@@ -83,23 +83,25 @@ class DeclarationController @Inject()(
       val periodKey = request.periodKey
       val userAnswers = request.userAnswers
 
-      storedObligationsService.getObligations(vpdId, userAnswers).flatMap { obligations =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
+      form.bindFromRequest().fold(
+        formWithErrors => {
+          storedObligationsService.getObligations(vpdId, userAnswers).map { obligations =>
             val vm = buildViewModel(periodKey, obligations)
-            Future.successful(BadRequest(view(formWithErrors, vm)))
-          },
+            BadRequest(view(formWithErrors, vm))
+          }
+        },
 
-          value => {
-            Future.fromTry(userAnswers.set(DeclarationPage, value))
-              .flatMap { updatedAnswers =>
+        value => {
+          Future.fromTry(userAnswers.set(DeclarationPage, value))
+            .flatMap { updatedAnswers =>
+              storedObligationsService.getObligations(vpdId, userAnswers).flatMap { obligations =>
                 userAnswersService.set(updatedAnswers).flatMap { _ =>
                   submitAndContinue(updatedAnswers, obligations)
                 }
               }
-          }
-        )
-      }
+            }
+        }
+      )
     }
   }
 
