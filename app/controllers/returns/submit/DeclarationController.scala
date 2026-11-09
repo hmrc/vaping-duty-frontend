@@ -27,7 +27,7 @@ import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{DeclarationViewModelBuilder, ReturnsUserAnswersService}
+import services.returns.{ReturnDeclarationPageService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.returns.submit.DeclarationView
 
@@ -43,7 +43,7 @@ class DeclarationController @Inject()(
                                        requireData: ReturnsDataRequiredAction,
                                        returnsEnabled: ReturnsEnabledAction,
                                        formProvider: DeclarationFormProvider,
-                                       vmBuilder: DeclarationViewModelBuilder,
+                                       pageService: ReturnDeclarationPageService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: DeclarationView,
                                        navigator: ReturnsNavigator,
@@ -62,7 +62,7 @@ class DeclarationController @Inject()(
         case Some(value) => form.fill(value)
       }
 
-      vmBuilder.buildDeclarationViewModel(vpdId, periodKey, userAnswers)
+      pageService.buildDeclarationViewModel(vpdId, periodKey, userAnswers)
         .map(vm => Ok(view(preparedForm, vm)))
     }
   }
@@ -75,7 +75,7 @@ class DeclarationController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors => {
-          vmBuilder.buildDeclarationViewModel(vpdId, periodKey, userAnswers)
+          pageService.buildDeclarationViewModel(vpdId, periodKey, userAnswers)
             .map(vm => BadRequest(view(formWithErrors, vm)))
         },
 
@@ -83,7 +83,7 @@ class DeclarationController @Inject()(
           (for {
             updatedAnswers <- Future.fromTry(userAnswers.set(DeclarationPage, value))
             _              <- userAnswersService.set(updatedAnswers)
-            _              <- vmBuilder.submitReturn(vpdId, userAnswers, updatedAnswers)
+            _              <- pageService.submitReturn(vpdId, userAnswers, updatedAnswers)
             _              <- userAnswersService.clear(vpdId, periodKey)
           }
           yield {

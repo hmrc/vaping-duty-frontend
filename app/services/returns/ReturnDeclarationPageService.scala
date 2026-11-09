@@ -28,7 +28,7 @@ import viewmodels.returns.submit.DeclarationViewModel
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeclarationViewModelBuilder @Inject() (
+class ReturnDeclarationPageService @Inject()(
                                               storedObligationsService: StoredObligationsService,
                                               submitReturnService: SubmitReturnService,
                                               returnsDateUtils: ReturnsDateUtils
