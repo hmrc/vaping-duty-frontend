@@ -86,9 +86,10 @@ class DeclarationController @Inject()(
       form.bindFromRequest().fold(
         formWithErrors => {
           storedObligationsService.savingObligations(vpdId, userAnswers) { obligations =>
-            val vm = buildViewModel(periodKey, obligations)
+            buildViewModel(periodKey, obligations)
+          }.map(vm => 
             BadRequest(view(formWithErrors, vm))
-          }
+          )
         },
 
         value => {
