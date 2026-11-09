@@ -20,7 +20,7 @@ import controllers.actions.returns.*
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import forms.returns.DeclarationFormProvider
 import models.NormalMode
-import models.identifiers.PeriodKey
+import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
@@ -31,6 +31,7 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.returns.{ReturnsUserAnswersService, StoredObligationsService, SubmitReturnService}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.DeclarationViewModel
@@ -69,11 +70,8 @@ class DeclarationController @Inject()(
         case Some(value) => form.fill(value)
       }
 
-      storedObligationsService.savingObligations(vpdId, userAnswers) { obligations =>
-        buildViewModel(periodKey, obligations)
-      }.map( vm =>
-        Ok(view(preparedForm, vm))
-      )
+      buildDeclarationViewModel(vpdId, periodKey, userAnswers)
+        .map(vm => Ok(view(preparedForm, vm)))
     }
   }
 
@@ -85,11 +83,8 @@ class DeclarationController @Inject()(
 
       form.bindFromRequest().fold(
         formWithErrors => {
-          storedObligationsService.savingObligations(vpdId, userAnswers) { obligations =>
-            buildViewModel(periodKey, obligations)
-          }.map(vm => 
-            BadRequest(view(formWithErrors, vm))
-          )
+          buildDeclarationViewModel(vpdId, periodKey, userAnswers)
+            .map(vm => BadRequest(view(formWithErrors, vm)))
         },
 
         value => {
@@ -103,6 +98,15 @@ class DeclarationController @Inject()(
             }
         }
       )
+    }
+  }
+
+  private def buildDeclarationViewModel(vpdId: VpdId,
+                                        periodKey: PeriodKey,
+                                        userAnswers: ReturnsUserAnswers)
+                                       (using HeaderCarrier, Messages) = {
+    storedObligationsService.savingObligations(vpdId, userAnswers) { obligations =>
+      buildViewModel(periodKey, obligations)
     }
   }
 
