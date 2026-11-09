@@ -86,8 +86,8 @@ class DeclarationController @Inject()(
         value => {
           Future.fromTry(userAnswers.set(DeclarationPage, value))
             .flatMap { updatedAnswers =>
-              storedObligationsService.getObligations(vpdId, userAnswers).flatMap { obligations =>
-                userAnswersService.set(updatedAnswers).flatMap { _ =>
+              userAnswersService.set(updatedAnswers).flatMap { _ =>
+                storedObligationsService.getObligations(vpdId, userAnswers).flatMap { obligations =>
                   submitAndContinue(updatedAnswers, obligations)
                 }
               }
