@@ -18,19 +18,44 @@ package controllers.returns.submit
 
 import base.SpecBase
 import models.returns.{AdjustmentsEligibility, PeriodDisplay}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.{DutyRateService, ObligationService}
+import models.returns.{DeclarationDetails, ReturnsUserAnswers}
+import pages.returns.DeclarationPage
+import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
+import services.returns.{DutyRateService, ObligationService, ReturnsUserAnswersService, SubmitReturnService}
 import viewmodels.returns.submit.CheckYourAnswersViewModel
 import views.html.returns.submit.CheckYourAnswersView
 
 import scala.concurrent.Future
 
 class CheckYourAnswersControllerSpec extends SpecBase {
+
+  private val otherTasksCompleted = returnsUserAnswers
+    .set(pages.returns.DeclareDutyPage, false).success.value
+    .set(pages.returns.DeclareDutySuspensePage, false).success.value
+
+  private val allTasksCompleted = otherTasksCompleted
+    .set(YourFullNamePage, "John Smith").success.value
+    .set(YourRolePage, "Director").success.value
+    .set(YourBusinessEmailPage, "john.smith@example.com").success.value
+
+  private def submissionMocks(): (SubmitReturnService, ReturnsUserAnswersService, ObligationService) = {
+    val mockSubmitReturnService = mock[SubmitReturnService]
+    val mockUserAnswersService = mock[ReturnsUserAnswersService]
+    val mockObligationService = mock[ObligationService]
+
+    when(mockSubmitReturnService.submit(any(), any())(any())).thenReturn(Future.successful(testReturnSubmissionResponse))
+    when(mockUserAnswersService.clear(any(), any())(any())).thenReturn(Future.successful(Right(())))
+    when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(Seq(openObligation(periodKey))))
+
+    (mockSubmitReturnService, mockUserAnswersService, mockObligationService)
+  }
 
   "ReturnsCheckYourAnswers Controller" - {
 
@@ -68,7 +93,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val vm = CheckYourAnswersViewModel(completedAnswers, dutyRates, periodKey, AdjustmentsEligibility.Eligible, PeriodDisplay("June", "2026"))(messages(application))
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, vm)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, vm, yourDetailsEnabled = false)(request, messages(application)).toString
       }
     }
 
@@ -234,6 +259,152 @@ class CheckYourAnswersControllerSpec extends SpecBase {
           exception mustBe a[RuntimeException]
           exception.getMessage mustBe "Obligation service failed"
         }
+      }
+    }
+
+    "must show a Save and continue button when your details is disabled" in {
+
+      val mockDutyRateService = mock[DutyRateService]
+      val (_, _, mockObligationService) = submissionMocks()
+
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any())).thenReturn(Map(periodKey -> testDutyRate))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(otherTasksCompleted))
+        .overrides(
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[ObligationService].toInstance(mockObligationService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url)
+
+        val content = contentAsString(route(application, request).value)
+
+        content must include(messages(application)("site.saveAndContinue"))
+        content must not include messages(application)("returns.declaration.button")
+      }
+    }
+
+    "must show a Confirm and submit button when your details is enabled" in {
+
+      val mockDutyRateService = mock[DutyRateService]
+      val (_, _, mockObligationService) = submissionMocks()
+
+      when(mockDutyRateService.getDutyRatesForPeriods(any(), any())).thenReturn(Map(periodKey -> testDutyRate))
+
+      val application = applicationBuilder(returnsUserAnswers = Some(allTasksCompleted), yourDetailsEnabled = true)
+        .overrides(
+          bind[DutyRateService].toInstance(mockDutyRateService),
+          bind[ObligationService].toInstance(mockObligationService)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url)
+
+        val content = contentAsString(route(application, request).value)
+
+        content must include(messages(application)("returns.declaration.button"))
+        content must include("data-prevent-double-click")
+      }
+    }
+
+    "when your details is enabled, POST" - {
+
+      "must submit the return once with the your details answers, clear the answers and redirect to Confirmation" in {
+
+        val (mockSubmitReturnService, mockUserAnswersService, mockObligationService) = submissionMocks()
+
+        val application = applicationBuilder(returnsUserAnswers = Some(allTasksCompleted), yourDetailsEnabled = true)
+          .overrides(
+            bind[SubmitReturnService].toInstance(mockSubmitReturnService),
+            bind[ReturnsUserAnswersService].toInstance(mockUserAnswersService),
+            bind[ObligationService].toInstance(mockObligationService)
+          )
+          .build()
+
+        running(application) {
+          val request = FakeRequest(POST, controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ConfirmationController.onPageLoad().url}?period=${periodKey.value}"
+
+          val captor = ArgumentCaptor.forClass(classOf[ReturnsUserAnswers])
+          verify(mockSubmitReturnService, times(1)).submit(captor.capture(), any())(any())
+          captor.getValue.get(DeclarationPage).value mustBe DeclarationDetails("John Smith", "Director", "john.smith@example.com")
+
+          verify(mockUserAnswersService, times(1)).clear(any(), any())(any())
+        }
+      }
+
+      "must redirect to Journey Recovery when the submission fails" in {
+
+        val (mockSubmitReturnService, mockUserAnswersService, mockObligationService) = submissionMocks()
+
+        when(mockSubmitReturnService.submit(any(), any())(any())).thenReturn(Future.failed(new RuntimeException("submission failed")))
+
+        val application = applicationBuilder(returnsUserAnswers = Some(allTasksCompleted), yourDetailsEnabled = true)
+          .overrides(
+            bind[SubmitReturnService].toInstance(mockSubmitReturnService),
+            bind[ReturnsUserAnswersService].toInstance(mockUserAnswersService),
+            bind[ObligationService].toInstance(mockObligationService)
+          )
+          .build()
+
+        running(application) {
+          val request = FakeRequest(POST, controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+          verify(mockUserAnswersService, never()).clear(any(), any())(any())
+        }
+      }
+
+      "must redirect to return submission recovery and not submit when your details is not complete" in {
+
+        val (mockSubmitReturnService, mockUserAnswersService, mockObligationService) = submissionMocks()
+
+        val application = applicationBuilder(returnsUserAnswers = Some(otherTasksCompleted), yourDetailsEnabled = true)
+          .overrides(
+            bind[SubmitReturnService].toInstance(mockSubmitReturnService),
+            bind[ReturnsUserAnswersService].toInstance(mockUserAnswersService),
+            bind[ObligationService].toInstance(mockObligationService)
+          )
+          .build()
+
+        running(application) {
+          val request = FakeRequest(POST, controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${periodKey.value}"
+          verify(mockSubmitReturnService, never()).submit(any(), any())(any())
+        }
+      }
+    }
+
+    "must redirect to Declaration page and not submit for a POST when your details is disabled" in {
+
+      val (mockSubmitReturnService, _, _) = submissionMocks()
+
+      val application = applicationBuilder(returnsUserAnswers = Some(allTasksCompleted))
+        .overrides(bind[SubmitReturnService].toInstance(mockSubmitReturnService))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.DeclarationController.onPageLoad().url}?period=${periodKey.value}"
+        verify(mockSubmitReturnService, never()).submit(any(), any())(any())
       }
     }
 

@@ -72,6 +72,51 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
   "DeclarationController" - {
 
+    "when your details is enabled" - {
+
+      "must return Not Found for a GET" in {
+
+        val mockObligationService = mock[ObligationService]
+
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), yourDetailsEnabled = true)
+          .overrides(bind[ObligationService].toInstance(mockObligationService))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual NOT_FOUND
+          verify(mockObligationService, never()).getObligations(any())(using any())
+        }
+      }
+
+      "must return Not Found and not submit the return for a POST" in {
+
+        val mockSubmitReturnService = mock[SubmitReturnService]
+
+        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), yourDetailsEnabled = true)
+          .overrides(bind[SubmitReturnService].toInstance(mockSubmitReturnService))
+          .build()
+
+        running(application) {
+          val request =
+            FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
+              .withFormUrlEncodedBody(
+                (formProvider.FULL_NAME, "John Smith"),
+                (formProvider.CAPACITY, "Director"),
+                (formProvider.EMAIL, "john.smith@example.com")
+              )
+
+          val result = route(application, request).value
+
+          status(result) mustEqual NOT_FOUND
+          verify(mockSubmitReturnService, never()).submit(any(), any())(any())
+        }
+      }
+    }
+
     "onPageLoad" - {
 
       "must return OK and the correct view for a GET" in {

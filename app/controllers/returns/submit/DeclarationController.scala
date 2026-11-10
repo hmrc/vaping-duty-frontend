@@ -16,9 +16,11 @@
 
 package controllers.returns.submit
 
+import config.FrontendAppConfig
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import forms.returns.DeclarationFormProvider
+import handlers.ErrorHandler
 import models.NormalMode
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
@@ -53,46 +55,60 @@ class DeclarationController @Inject()(
                                        val controllerComponents: MessagesControllerComponents,
                                        view: DeclarationView,
                                        navigator: ReturnsNavigator,
-                                       userAnswersService: ReturnsUserAnswersService
+                                       userAnswersService: ReturnsUserAnswersService,
+                                       appConfig: FrontendAppConfig,
+                                       errorHandler: ErrorHandler
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   val form: Form[DeclarationDetails] = formProvider()
 
   def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
-      obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-        val preparedForm = request.userAnswers.get(DeclarationPage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
+      if (appConfig.yourDetailsEnabled) {
+        notFound()
+      } else {
+        obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
+          val preparedForm = request.userAnswers.get(DeclarationPage) match {
+            case None => form
+            case Some(value) => form.fill(value)
+          }
 
-        val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
+          val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
 
-        saveObligations(request.userAnswers, obligations).map { _ =>
-          Ok(view(request.periodKey, preparedForm, periodDisplay.month, periodDisplay.year))
+          saveObligations(request.userAnswers, obligations).map { _ =>
+            Ok(view(request.periodKey, preparedForm, periodDisplay.month, periodDisplay.year))
+          }
         }
       }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
-      getObligations.flatMap { obligations =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
-            val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
-            Future.successful(BadRequest(view(request.periodKey, formWithErrors, periodDisplay.month, periodDisplay.year)))
-          },
+      if (appConfig.yourDetailsEnabled) {
+        notFound()
+      } else {
+        getObligations.flatMap { obligations =>
+          form.bindFromRequest().fold(
+            formWithErrors => {
+              val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
+              Future.successful(BadRequest(view(request.periodKey, formWithErrors, periodDisplay.month, periodDisplay.year)))
+            },
 
-          value =>
-            Future.fromTry(request.userAnswers.set(DeclarationPage, value))
-              .flatMap { updatedAnswers =>
-                sessionRepository.set(updatedAnswers).flatMap { _ =>
-                  submitAndContinue(updatedAnswers, obligations)
+            value =>
+              Future.fromTry(request.userAnswers.set(DeclarationPage, value))
+                .flatMap { updatedAnswers =>
+                  sessionRepository.set(updatedAnswers).flatMap { _ =>
+                    submitAndContinue(updatedAnswers, obligations)
+                  }
                 }
-              }
-        )
+          )
+        }
       }
   }
+
+  // With your details enabled the return is submitted from the check your answers page, so this page is not available
+  private def notFound()(using request: ReturnsDataRequest[?]): Future[Result] =
+    errorHandler.notFoundTemplate.map(NotFound(_))
 
   // Uses the obligations saved by onPageLoad so the submit doesn't wait on the Obligations API.
   // Falls back to the live call if nothing has been saved.
