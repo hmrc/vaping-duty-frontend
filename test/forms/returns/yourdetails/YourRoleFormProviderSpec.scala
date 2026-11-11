@@ -23,9 +23,9 @@ class YourRoleFormProviderSpec extends StringFieldBehaviours {
 
   val form = new YourRoleFormProvider()()
 
-  ".value" - {
+  ".capacityInWhichSigned" - {
 
-    val fieldName = "value"
+    val fieldName = "capacityInWhichSigned"
     val requiredKey = "returns.declaration.capacity.error.required"
     val lengthKey = "returns.declaration.capacity.error.length"
     val maxLength = 100

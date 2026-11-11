@@ -25,7 +25,7 @@ class YourFullNameFormProvider @Inject() extends Mappings {
 
   def apply(): Form[String] =
     Form(
-      "value" -> textWithSpaces("returns.declaration.fullName.error.required")
+      "fullName" -> textWithSpaces("returns.declaration.fullName.error.required")
         .verifying(maxLength(120, "returns.declaration.fullName.error.length"))
         .verifying(regexp("""^[a-zA-Z0-9\-\.\s']+$""", "returns.declaration.fullName.error.invalidCharacters"))
     )

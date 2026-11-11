@@ -47,7 +47,7 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
   "YourFullNameController" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), yourDetailsEnabled = true).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, normalRoute)
@@ -64,7 +64,7 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
     "must populate the view correctly on a GET when the question has previously been answered" in {
       val userAnswers = returnsUserAnswers.set(YourFullNamePage, validAnswer).success.value
 
-      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers), yourDetailsEnabled = true).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, checkRoute)
@@ -84,7 +84,7 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
-        applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), yourDetailsEnabled = true)
+        applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
@@ -94,7 +94,7 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, normalRoute)
-            .withFormUrlEncodedBody(("value", validAnswer))
+            .withFormUrlEncodedBody(("fullName", validAnswer))
 
         val result = route(application, request).value
 
@@ -104,14 +104,14 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), yourDetailsEnabled = true).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
       running(application) {
         val request =
           FakeRequest(POST, normalRoute)
-            .withFormUrlEncodedBody(("value", ""))
+            .withFormUrlEncodedBody(("fullName", ""))
 
-        val boundForm = form.bind(Map("value" -> ""))
+        val boundForm = form.bind(Map("fullName" -> ""))
 
         val view = application.injector.instanceOf[YourFullNameView]
 
@@ -122,36 +122,8 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery for a GET when the your details feature is disabled" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), yourDetailsEnabled = false).build()
-
-      running(application) {
-        val request = FakeRequest(GET, normalRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Journey Recovery for a POST when the your details feature is disabled" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), yourDetailsEnabled = false).build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, normalRoute)
-            .withFormUrlEncodedBody(("value", validAnswer))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-      val application = applicationBuilder(returnsUserAnswers = None, yourDetailsEnabled = true).build()
+      val application = applicationBuilder(returnsUserAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, normalRoute)

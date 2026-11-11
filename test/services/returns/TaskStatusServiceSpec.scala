@@ -205,7 +205,7 @@ class TaskStatusServiceSpec extends SpecBase {
   "allTasksCompleted" - {
 
     "must return false when no tasks are completed" in {
-      val result = TaskStatusService.allTasksCompleted(emptyAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
+      val result = TaskStatusService.allTasksCompleted(emptyAnswers, AdjustmentsEligibility.Eligible)
       result mustBe false
     }
 
@@ -215,7 +215,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
+      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.Eligible)
       result mustBe false
     }
 
@@ -230,7 +230,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
+      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.Eligible)
       result mustBe true
     }
 
@@ -241,7 +241,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = false)
+      val result = TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.NotEligible)
       result mustBe true
     }
   }
@@ -249,7 +249,7 @@ class TaskStatusServiceSpec extends SpecBase {
   "submitTaskStatus" - {
 
     "must return TasksRemaining when no tasks are completed" in {
-      val result = TaskStatusService.submitTaskStatus(emptyAnswers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
+      val result = TaskStatusService.submitTaskStatus(emptyAnswers, AdjustmentsEligibility.Eligible)
       result mustBe TaskStatus.TasksRemaining
     }
 
@@ -259,7 +259,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
+      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.Eligible)
       result mustBe TaskStatus.TasksRemaining
     }
 
@@ -274,7 +274,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.Eligible, yourDetailsEnabled = false)
+      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.Eligible)
       result mustBe TaskStatus.NotStarted
     }
 
@@ -285,34 +285,8 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = false)
+      val result = TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.NotEligible)
       result mustBe TaskStatus.NotStarted
-    }
-  }
-
-  "allTasksCompleted and submitTaskStatus with your details enabled" - {
-
-    val otherTasksCompleted = emptyAnswers
-      .set(DeclareDutyPage, false)
-      .flatMap(_.set(DeclareDutySuspensePage, false))
-      .success
-      .value
-
-    "must be incomplete when your details is not completed" in {
-      TaskStatusService.allTasksCompleted(otherTasksCompleted, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = true) mustBe false
-      TaskStatusService.submitTaskStatus(otherTasksCompleted, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = true) mustBe TaskStatus.TasksRemaining
-    }
-
-    "must be complete when your details is also completed" in {
-      val answers = otherTasksCompleted
-        .set(YourFullNamePage, "John Smith")
-        .flatMap(_.set(YourRolePage, "Director"))
-        .flatMap(_.set(YourBusinessEmailPage, "john@example.com"))
-        .success
-        .value
-
-      TaskStatusService.allTasksCompleted(answers, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = true) mustBe true
-      TaskStatusService.submitTaskStatus(answers, AdjustmentsEligibility.NotEligible, yourDetailsEnabled = true) mustBe TaskStatus.NotStarted
     }
   }
 }

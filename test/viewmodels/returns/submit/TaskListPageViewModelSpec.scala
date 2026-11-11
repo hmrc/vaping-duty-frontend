@@ -30,7 +30,7 @@ class TaskListPageViewModelSpec extends SpecBase {
     "must create a view model successfully when matching obligation exists" in {
       val obligations = Seq(openObligation(june2026))
 
-      val result = TaskListPageViewModel(returnsUserAnswers, obligations, june2026, returnsDateUtils, yourDetailsEnabled = false)
+      val result = TaskListPageViewModel(returnsUserAnswers, obligations, june2026, returnsDateUtils)
 
       result.returnPeriod must not be empty
       result.year must not be empty
@@ -40,7 +40,7 @@ class TaskListPageViewModelSpec extends SpecBase {
     "must create a view model successfully when multiple obligations exist with matching period key" in {
       val obligations = Seq(openObligation(june2026), openObligation(july2026))
 
-      val result = TaskListPageViewModel(returnsUserAnswers, obligations, june2026, returnsDateUtils, yourDetailsEnabled = false)
+      val result = TaskListPageViewModel(returnsUserAnswers, obligations, june2026, returnsDateUtils)
 
       result.returnPeriod must not be empty
       result.year must not be empty
@@ -51,7 +51,7 @@ class TaskListPageViewModelSpec extends SpecBase {
       val obligations = Seq(openObligation(july2026))
 
       val exception = intercept[IllegalStateException] {
-        TaskListPageViewModel(returnsUserAnswers, obligations, june2026, returnsDateUtils, yourDetailsEnabled = false)
+        TaskListPageViewModel(returnsUserAnswers, obligations, june2026, returnsDateUtils)
       }
 
       exception.getMessage must include(s"No obligation found for period key: ${june2026.value}")
@@ -61,7 +61,7 @@ class TaskListPageViewModelSpec extends SpecBase {
       val obligations = Seq.empty[ObligationDetails]
 
       val exception = intercept[IllegalStateException] {
-        TaskListPageViewModel(returnsUserAnswers, obligations, june2026, returnsDateUtils, yourDetailsEnabled = false)
+        TaskListPageViewModel(returnsUserAnswers, obligations, june2026, returnsDateUtils)
       }
 
       exception.getMessage must include(s"No obligation found for period key: ${june2026.value}")

@@ -34,7 +34,7 @@ case class TaskListPageViewModel(
 
 object TaskListPageViewModel {
 
-  def apply(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils, yourDetailsEnabled: Boolean)(implicit messages: Messages): TaskListPageViewModel = {
+  def apply(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): TaskListPageViewModel = {
     
     val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations)
 
@@ -50,7 +50,7 @@ object TaskListPageViewModel {
     val yearDue           = currentObligation.iCDueDate.getYear.toString
 
     TaskListPageViewModel(
-      sections     = TaskList.sections(userAnswers, adjustmentsEligibility, yourDetailsEnabled),
+      sections     = TaskList.sections(userAnswers, adjustmentsEligibility),
       returnPeriod = returnsDateUtils.getReturnMonth(monthOfObligation),
       year         = yearOfObligation,
       dueYear      = yearDue,

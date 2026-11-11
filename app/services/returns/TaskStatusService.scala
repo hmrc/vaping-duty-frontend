@@ -76,7 +76,7 @@ object TaskStatusService {
     }
   }
 
-  def allTasksCompleted(answers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility, yourDetailsEnabled: Boolean): Boolean = {
+  def allTasksCompleted(answers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility): Boolean = {
     val declareDutyComplete = declareDutyTaskStatus(answers) == TaskStatus.Completed
     val dutySuspenseComplete = dutySuspenseTaskStatus(answers) == TaskStatus.Completed
     
@@ -94,13 +94,11 @@ object TaskStatusService {
         true
     }
     
-    val yourDetailsComplete = !yourDetailsEnabled || yourDetailsTaskStatus(answers) == TaskStatus.Completed
-
-    declareDutyComplete && dutySuspenseComplete && spoiltComplete && adjustmentsComplete && yourDetailsComplete
+    declareDutyComplete && dutySuspenseComplete && spoiltComplete && adjustmentsComplete
   }
 
-  def submitTaskStatus(answers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility, yourDetailsEnabled: Boolean): TaskStatus = {
-    if (allTasksCompleted(answers, adjustmentsEligibility, yourDetailsEnabled)) TaskStatus.NotStarted
+  def submitTaskStatus(answers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility): TaskStatus = {
+    if (allTasksCompleted(answers, adjustmentsEligibility)) TaskStatus.NotStarted
     else TaskStatus.TasksRemaining
   }
 }

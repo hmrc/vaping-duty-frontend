@@ -208,6 +208,29 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
     }
 
+    "yourDetailsStart" - {
+
+      val fullNameAnswered = returnsUserAnswers.set(YourFullNamePage, "John Smith").success.value
+      val roleAnswered = fullNameAnswered.set(YourRolePage, "Director").success.value
+      val allAnswered = roleAnswered.set(YourBusinessEmailPage, "john@example.com").success.value
+
+      "must go to YourFullName when nothing is answered" in {
+        navigator.yourDetailsStart(returnsUserAnswers).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourFullNameController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go to YourRole when only the full name is answered" in {
+        navigator.yourDetailsStart(fullNameAnswered).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourRoleController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go to YourBusinessEmail when the full name and role are answered" in {
+        navigator.yourDetailsStart(roleAnswered).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourBusinessEmailController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go to YourDetailsCheckAnswers when all questions are answered" in {
+        navigator.yourDetailsStart(allAnswered).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad().url}?period=$periodKey"
+      }
+    }
+
     "in Check mode" - {
 
       "must go from each your details page to YourDetailsCheckAnswers (mini CYA)" in {

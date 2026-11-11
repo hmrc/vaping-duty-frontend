@@ -24,9 +24,9 @@ class YourBusinessEmailFormProviderSpec extends FormSpec with Constraints {
 
   private val form = new YourBusinessEmailFormProvider()()
 
-  ".value" - {
+  ".email" - {
 
-    val fieldName = "value"
+    val fieldName = "email"
     val requiredKey = "returns.declaration.emailAddress.error.required"
     val lengthKey = "returns.declaration.emailAddress.error.length"
     val formatKey = "returns.declaration.emailAddress.error.format"

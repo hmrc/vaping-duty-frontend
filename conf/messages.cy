@@ -174,10 +174,6 @@ returns.taskList.declareAdjustments.task1 = Rhowch wybod i ni os oes unrhyw gynh
 returns.taskList.declareAdjustments.task2 = Rhowch wybod i ni os oes gennych unrhyw addasiadau sydd wedi’u gor-ddatgan neu eu tan-ddatgan
 returns.taskList.section.dutySuspended.heading = Rhoi gwybod am ddosbarthiadau o fêps y gohiriwyd tollau arno
 returns.taskList.section.dutySuspended.task1 = Rhowch wybod i ni os ydych wedi cael neu wedi symud unrhyw gynhyrchion fepio o dan ohiriad tollau
-
-returns.taskList.section.yourDetails.heading = Eich manylion
-returns.taskList.section.yourDetails.task1 = Rhowch wybod i ni pwy sy’n cyflwyno’r datganiad hwn
-
 returns.taskList.section.submitReturn.heading = Cyflwyno Datganiad
 returns.taskList.submitReturn.task1 = Gwiriwch eich atebion a chyflwynwch eich datganiad
 
@@ -433,10 +429,6 @@ returns.confirmation.inset.negative.suffix = .
 
 returns.declaration.title = Datganiad
 returns.declaration.heading = Datganiad
-returns.declaration.authorised = Rwyf wedi fy awdurdodi i gyflwyno’r datganiad hwn.
-returns.declaration.fullName.label = Eich enw llawn
-returns.declaration.capacity.label = Eich rôl yn y cwmni, er enghraifft, perchennog, cyfarwyddwr
-returns.declaration.emailAddress.label = Cyfeiriad e-bost eich busnes
 returns.declaration.bySubmitting = Drwy gyflwyno’r datganiad hwn, rydych yn cadarnhau, fod y manylion a rowch yn gywir.
 returns.declaration.makingFalse = Mae gwneud datganiad ffug yn arwain at ganlyniadau difrifol, fel cosb ariannol.
 returns.declaration.button = Cadarnhau a chyflwyno

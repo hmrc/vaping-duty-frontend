@@ -184,7 +184,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val returnsAllowListEnabled: Boolean = configuration.get[Boolean]("features.returnsAllowListEnabled")
   val returnSubmittedEmailEnabled: Boolean = configuration.get[Boolean]("features.returnSubmittedEmailEnabled")
   val directDebitEnabled: Boolean = configuration.get[Boolean]("features.directDebitEnabled")
-  val yourDetailsEnabled: Boolean = configuration.get[Boolean]("features.yourDetailsEnabled")
 
   val internalAuthToken: String = configuration.get[String]("internal-auth.token")
 

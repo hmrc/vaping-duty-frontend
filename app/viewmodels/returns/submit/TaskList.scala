@@ -17,7 +17,6 @@
 package viewmodels.returns.submit
 
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
-import pages.returns.yourdetails.{YourFullNamePage, YourRolePage}
 import models.{NormalMode, TaskStatus}
 import play.api.i18n.Messages
 import play.api.mvc.Call
@@ -25,7 +24,7 @@ import services.returns.TaskStatusService
 
 object TaskList {
 
-  def sections(userAnswers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility, yourDetailsEnabled: Boolean)(implicit messages: Messages): Seq[TaskListSection] = {
+  def sections(userAnswers: ReturnsUserAnswers, adjustmentsEligibility: AdjustmentsEligibility)(implicit messages: Messages): Seq[TaskListSection] = {
     val periodKey = userAnswers.periodKey
     
     Seq(
@@ -35,8 +34,7 @@ object TaskList {
         case AdjustmentsEligibility.NotEligible => None
       },
       Some(dutySuspendedSection(userAnswers, periodKey)),
-      Option.when(yourDetailsEnabled)(yourDetailsSection(userAnswers, periodKey)),
-      Some(submissionSection(userAnswers, periodKey, adjustmentsEligibility, yourDetailsEnabled))
+      Some(submissionSection(userAnswers, periodKey, adjustmentsEligibility))
     ).flatten
   }
 
@@ -131,36 +129,7 @@ object TaskList {
     )
   }
 
-  // Resumes at the first question not yet answered, or the check answers page once all are answered
-  private def determineYourDetailsLink(userAnswers: ReturnsUserAnswers): Call = {
-    if (TaskStatusService.yourDetailsTaskStatus(userAnswers) == TaskStatus.Completed) {
-      controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad()
-    } else if (userAnswers.get(YourFullNamePage).isEmpty) {
-      controllers.returns.submit.yourdetails.routes.YourFullNameController.onPageLoad(NormalMode)
-    } else if (userAnswers.get(YourRolePage).isEmpty) {
-      controllers.returns.submit.yourdetails.routes.YourRoleController.onPageLoad(NormalMode)
-    } else {
-      controllers.returns.submit.yourdetails.routes.YourBusinessEmailController.onPageLoad(NormalMode)
-    }
-  }
-
-  private def yourDetailsSection(userAnswers: ReturnsUserAnswers, periodKey: String)(implicit messages: Messages): TaskListSection = {
-    TaskListSection(
-      headingKey = "returns.taskList.section.yourDetails.heading",
-      rows = Seq(
-        TaskRows(
-          id = "your-details",
-          linkText = messages("returns.taskList.section.yourDetails.task1"),
-          link = determineYourDetailsLink(userAnswers),
-          status = TaskStatusService.yourDetailsTaskStatus(userAnswers),
-          periodKey = Some(periodKey)
-        ).toTaskListItem
-      ),
-      idPrefix = "your-details-task"
-    )
-  }
-
-  def submissionSection(userAnswers: ReturnsUserAnswers, periodKey: String, adjustmentsEligibility: AdjustmentsEligibility, yourDetailsEnabled: Boolean)(implicit messages: Messages): TaskListSection = {
+  def submissionSection(userAnswers: ReturnsUserAnswers, periodKey: String, adjustmentsEligibility: AdjustmentsEligibility)(implicit messages: Messages): TaskListSection = {
     TaskListSection(
       headingKey = "returns.taskList.section.submitReturn.heading",
       rows = Seq(
@@ -168,7 +137,7 @@ object TaskList {
           id = "submit",
           linkText = messages("returns.taskList.submitReturn.task1"),
           link = controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(),
-          status = TaskStatusService.submitTaskStatus(userAnswers, adjustmentsEligibility, yourDetailsEnabled),
+          status = TaskStatusService.submitTaskStatus(userAnswers, adjustmentsEligibility),
           periodKey = Some(periodKey)
         ).toTaskListItem
       ),

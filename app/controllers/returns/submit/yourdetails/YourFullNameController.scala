@@ -16,7 +16,7 @@
 
 package controllers.returns.submit.yourdetails
 
-import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction, YourDetailsEnabledAction}
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import forms.returns.yourdetails.YourFullNameFormProvider
 import models.Mode
@@ -39,7 +39,6 @@ class YourFullNameController @Inject()(
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        checkInsolvency: CheckInsolvencyAction,
                                        returnsEnabled: ReturnsEnabledAction,
-                                       yourDetailsEnabled: YourDetailsEnabledAction,
                                        getData: ReturnsDataRetrievalAction,
                                        requireData: ReturnsDataRequiredAction,
                                        formProvider: YourFullNameFormProvider,
@@ -49,7 +48,7 @@ class YourFullNameController @Inject()(
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen yourDetailsEnabled andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) {
     implicit request =>
       val preparedForm = request.userAnswers.get(YourFullNamePage) match {
         case None => form
@@ -59,7 +58,7 @@ class YourFullNameController @Inject()(
       Ok(view(request.periodKey, preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen yourDetailsEnabled andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors =>

@@ -23,9 +23,9 @@ class YourFullNameFormProviderSpec extends StringFieldBehaviours {
 
   val form = new YourFullNameFormProvider()()
 
-  ".value" - {
+  ".fullName" - {
 
-    val fieldName = "value"
+    val fieldName = "fullName"
     val requiredKey = "returns.declaration.fullName.error.required"
     val lengthKey = "returns.declaration.fullName.error.length"
     val invalidCharactersKey = "returns.declaration.fullName.error.invalidCharacters"

@@ -16,7 +16,7 @@
 
 package controllers.returns.submit.yourdetails
 
-import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction, YourDetailsEnabledAction}
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import models.TaskStatus
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -33,14 +33,13 @@ class YourDetailsCheckAnswersController @Inject()(
                                                    identify: ApprovedVapingManufacturerAuthAction,
                                                    checkInsolvency: CheckInsolvencyAction,
                                                    returnsEnabled: ReturnsEnabledAction,
-                                                   yourDetailsEnabled: YourDetailsEnabledAction,
                                                    getData: ReturnsDataRetrievalAction,
                                                    requireData: ReturnsDataRequiredAction,
                                                    val controllerComponents: MessagesControllerComponents,
                                                    view: YourDetailsCheckAnswersView
                                                  ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen yourDetailsEnabled andThen getData andThen requireData) {
+  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) {
     implicit request =>
       val pk = request.periodKey
 
@@ -54,8 +53,8 @@ class YourDetailsCheckAnswersController @Inject()(
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen yourDetailsEnabled andThen getData andThen requireData) {
+  def onSubmit(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) {
     implicit request =>
-      Redirect(controllers.returns.submit.routes.TaskListController.onPageLoad().url + s"?period=${request.periodKey.value}")
+      Redirect(controllers.returns.submit.routes.DeclarationController.onPageLoad().url + s"?period=${request.periodKey.value}")
   }
 }

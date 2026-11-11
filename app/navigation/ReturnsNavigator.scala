@@ -168,6 +168,17 @@ class ReturnsNavigator @Inject()(
       case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
   }
 
+  // Resumes your details at the first question not yet answered, or its check answers page once all are answered
+  def yourDetailsStart(userAnswers: ReturnsUserAnswers): Call = {
+    val page =
+      if (userAnswers.get(YourFullNamePage).isEmpty) controllers.returns.submit.yourdetails.routes.YourFullNameController.onPageLoad(NormalMode)
+      else if (userAnswers.get(YourRolePage).isEmpty) controllers.returns.submit.yourdetails.routes.YourRoleController.onPageLoad(NormalMode)
+      else if (userAnswers.get(YourBusinessEmailPage).isEmpty) controllers.returns.submit.yourdetails.routes.YourBusinessEmailController.onPageLoad(NormalMode)
+      else controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad()
+
+    withPeriod(page, userAnswers.periodKey)
+  }
+
   def nextPage(page: Page, mode: Mode, userAnswers: ReturnsUserAnswers, adjustmentReasonMandatory: Boolean = false): Call = mode match {
     case NormalMode =>
       normalRoutes(userAnswers.periodKey, adjustmentReasonMandatory)(page)(userAnswers)

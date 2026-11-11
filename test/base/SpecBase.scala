@@ -61,7 +61,6 @@ trait SpecBase
                                    returnsUserAnswers: Option[ReturnsUserAnswers] = None,
                                    returnsEnabled: Boolean = true,
                                    directDebitEnabled: Boolean = true,
-                                   yourDetailsEnabled: Boolean = false,
                                    userAllowListEnabled: Boolean = false): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
@@ -77,7 +76,6 @@ trait SpecBase
       .configure(
         "features.returnsEnabled" -> returnsEnabled,
         "features.directDebitEnabled" -> directDebitEnabled,
-        "features.yourDetailsEnabled" -> yourDetailsEnabled,
         "features.returnsAllowListEnabled" -> userAllowListEnabled
       )
   

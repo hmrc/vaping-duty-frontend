@@ -18,16 +18,17 @@ package controllers.returns.submit
 
 import base.SpecBase
 import connectors.returns.ObligationsConnector
-import forms.returns.DeclarationFormProvider
 import models.emailverification.ErrorModel
 import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationsResponse}
-import models.returns.DeclarationDetails
+import models.returns.{DeclarationDetails, ReturnsUserAnswers}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.returns.DeclarationPage
+import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -40,9 +41,6 @@ import scala.concurrent.Future
 
 class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
-  private val formProvider = new DeclarationFormProvider()
-  private val form = formProvider()
-
   private val validDeclaration = DeclarationDetails(
     fullName = "John Smith",
     capacityInWhichSigned = "Director",
@@ -50,6 +48,19 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
   )
 
   private val june2026 = PeriodKey("26KF")
+
+  private val yourDetailsAnswers: ReturnsUserAnswers = returnsUserAnswers
+    .copy(periodKey = june2026.value)
+    .set(YourFullNamePage, validDeclaration.fullName).success.value
+    .set(YourRolePage, validDeclaration.capacityInWhichSigned).success.value
+    .set(YourBusinessEmailPage, validDeclaration.signeesEmailAddress).success.value
+
+  private val yourDetailsIncomplete: ReturnsUserAnswers = returnsUserAnswers
+    .copy(periodKey = june2026.value)
+    .set(YourFullNamePage, validDeclaration.fullName).success.value
+
+  private lazy val returnSubmissionRecoveryUrl =
+    s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${june2026.value}"
 
   private val obligationDataSingleOpen: ObligationsResponse = ObligationsResponse(
     obligation = obligations(Seq(openObligation(june2026)))
@@ -72,13 +83,37 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
   "DeclarationController" - {
 
-    "when your details is enabled" - {
+    "onPageLoad" - {
 
-      "must return Not Found for a GET" in {
+      "must return OK and the correct view for a GET" in {
+
+        val mockObligationService = mock[ObligationService]
+        stubLiveObligations(mockObligationService)
+
+        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
+          .overrides(
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[ReturnsUserAnswersService].toInstance(stubbedSessionRepository())
+          )
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[DeclarationView]
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(june2026, "June", "2026")(request, messages(application)).toString
+        }
+      }
+
+      "must redirect to return submission recovery for a GET when your details is not complete" in {
 
         val mockObligationService = mock[ObligationService]
 
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), yourDetailsEnabled = true)
+        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsIncomplete))
           .overrides(bind[ObligationService].toInstance(mockObligationService))
           .build()
 
@@ -87,85 +122,9 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
           val result = route(application, request).value
 
-          status(result) mustEqual NOT_FOUND
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual returnSubmissionRecoveryUrl
           verify(mockObligationService, never()).getObligations(any())(using any())
-        }
-      }
-
-      "must return Not Found and not submit the return for a POST" in {
-
-        val mockSubmitReturnService = mock[SubmitReturnService]
-
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), yourDetailsEnabled = true)
-          .overrides(bind[SubmitReturnService].toInstance(mockSubmitReturnService))
-          .build()
-
-        running(application) {
-          val request =
-            FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
-              .withFormUrlEncodedBody(
-                (formProvider.FULL_NAME, "John Smith"),
-                (formProvider.CAPACITY, "Director"),
-                (formProvider.EMAIL, "john.smith@example.com")
-              )
-
-          val result = route(application, request).value
-
-          status(result) mustEqual NOT_FOUND
-          verify(mockSubmitReturnService, never()).submit(any(), any())(any())
-        }
-      }
-    }
-
-    "onPageLoad" - {
-
-      "must return OK and the correct view for a GET" in {
-
-        val mockObligationService = mock[ObligationService]
-        stubLiveObligations(mockObligationService)
-
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
-          .overrides(
-            bind[ObligationService].toInstance(mockObligationService),
-            bind[ReturnsUserAnswersService].toInstance(stubbedSessionRepository())
-          )
-          .build()
-
-        running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          val view = application.injector.instanceOf[DeclarationView]
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(june2026, form, "June", "2026")(request, messages(application)).toString
-        }
-      }
-
-      "must populate the view correctly on a GET when the question has previously been answered" in {
-
-        val userAnswers = returnsUserAnswers.set(DeclarationPage, validDeclaration).success.value
-
-        val mockObligationService = mock[ObligationService]
-        stubLiveObligations(mockObligationService)
-
-        val application = applicationBuilder(returnsUserAnswers = Some(userAnswers.copy(periodKey = june2026.value)))
-          .overrides(
-            bind[ObligationService].toInstance(mockObligationService),
-            bind[ReturnsUserAnswersService].toInstance(stubbedSessionRepository())
-          )
-          .build()
-
-        running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
-
-          val view = application.injector.instanceOf[DeclarationView]
-
-          val result = route(application, request).value
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(june2026, form.fill(validDeclaration), "June", "2026")(request, messages(application)).toString
         }
       }
 
@@ -189,7 +148,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         val mockObligationService = mock[ObligationService]
         stubLiveObligations(mockObligationService)
 
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
+        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
           .overrides(
             bind[ObligationService].toInstance(mockObligationService),
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
@@ -213,8 +172,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         val mockObligationService = mock[ObligationService]
         stubLiveObligations(mockObligationService)
 
-        val savedAnswers = returnsUserAnswers
-          .copy(periodKey = june2026.value)
+        val savedAnswers = yourDetailsAnswers
           .set(ObligationsQuery, obligationDetailsSingleOpen).success.value
 
         val application = applicationBuilder(returnsUserAnswers = Some(savedAnswers))
@@ -241,8 +199,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         val mockObligationService = mock[ObligationService]
         stubLiveObligations(mockObligationService)
 
-        val staleAnswers = returnsUserAnswers
-          .copy(periodKey = june2026.value)
+        val staleAnswers = yourDetailsAnswers
           .set(ObligationsQuery, Seq(fulfilledObligation(june2026))).success.value
 
         val application = applicationBuilder(returnsUserAnswers = Some(staleAnswers))
@@ -272,7 +229,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         val mockObligationService = mock[ObligationService]
         stubLiveObligations(mockObligationService)
 
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
+        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
           .overrides(
             bind[ObligationService].toInstance(mockObligationService),
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
@@ -295,7 +252,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         val mockObligationService = mock[ObligationService]
         stubLiveObligations(mockObligationService)
 
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
+        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
           .overrides(
             bind[ObligationService].toInstance(mockObligationService),
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
@@ -316,7 +273,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
     "onSubmit" - {
 
-      "must save the answer, submit the return and redirect to Confirmation page when valid data is submitted" in {
+      "must submit the return once with the your details answers and redirect to Confirmation page" in {
 
         val mockSessionRepository = mock[ReturnsUserAnswersService]
         val mockSubmitReturnService = mock[SubmitReturnService]
@@ -330,7 +287,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application =
-          applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
+          applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
             .overrides(
               bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
               bind[SubmitReturnService].toInstance(mockSubmitReturnService),
@@ -341,11 +298,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request =
             FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
-              .withFormUrlEncodedBody(
-                (formProvider.FULL_NAME, "John Smith"),
-                (formProvider.CAPACITY, "Director"),
-                (formProvider.EMAIL, "john.smith@example.com")
-              )
 
           val result = route(application, request).value
 
@@ -354,7 +306,10 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           redirectLocation(result).value must include(s"period=${june2026.value}")
 
           verify(mockSessionRepository).set(any())(any())
-          verify(mockSubmitReturnService).submit(any(), any())(any())
+
+          val captor = ArgumentCaptor.forClass(classOf[ReturnsUserAnswers])
+          verify(mockSubmitReturnService, times(1)).submit(captor.capture(), any())(any())
+          captor.getValue.get(DeclarationPage).value mustEqual validDeclaration
         }
       }
 
@@ -369,8 +324,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockSessionRepository.clear(any(), any())(any()))
           .thenReturn(Future.successful(Right(())))
 
-        val cachedAnswers = returnsUserAnswers
-          .copy(periodKey = june2026.value)
+        val cachedAnswers = yourDetailsAnswers
           .set(ObligationsQuery, obligationDetailsSingleOpen).success.value
 
         val application =
@@ -385,11 +339,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request =
             FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
-              .withFormUrlEncodedBody(
-                (formProvider.FULL_NAME, "John Smith"),
-                (formProvider.CAPACITY, "Director"),
-                (formProvider.EMAIL, "john.smith@example.com")
-              )
 
           val result = route(application, request).value
 
@@ -415,7 +364,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Future.successful(obligationDataSingleOpen))
 
         val application =
-          applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
+          applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
             .overrides(
               bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
               bind[SubmitReturnService].toInstance(mockSubmitReturnService),
@@ -426,11 +375,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request =
             FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
-              .withFormUrlEncodedBody(
-                (formProvider.FULL_NAME, "John Smith"),
-                (formProvider.CAPACITY, "Director"),
-                (formProvider.EMAIL, "john.smith@example.com")
-              )
 
           val result = route(application, request).value
 
@@ -441,93 +385,22 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must return a Bad Request and errors when invalid data is submitted" in {
+      "must redirect to return submission recovery and not submit for a POST when your details is not complete" in {
 
-        val mockObligationService = mock[ObligationService]
-        when(mockObligationService.getObligations(any())(using any()))
-          .thenReturn(Future.successful(obligationDetailsSingleOpen))
+        val mockSubmitReturnService = mock[SubmitReturnService]
 
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
-          .overrides(bind[ObligationService].toInstance(mockObligationService))
+        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsIncomplete))
+          .overrides(bind[SubmitReturnService].toInstance(mockSubmitReturnService))
           .build()
 
         running(application) {
-          val request =
-            FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
-              .withFormUrlEncodedBody(("fullName", ""))
-
-          val boundForm = form.bind(Map("fullName" -> ""))
-
-          val view = application.injector.instanceOf[DeclarationView]
+          val request = FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
 
           val result = route(application, request).value
 
-          status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(june2026, boundForm, "June", "2026")(request, messages(application)).toString
-        }
-      }
-
-      "must return a Bad Request using the saved obligations and not call the Obligations API" in {
-
-        val mockObligationsConnector = mock[ObligationsConnector]
-
-        val cachedAnswers = returnsUserAnswers
-          .copy(periodKey = june2026.value)
-          .set(ObligationsQuery, obligationDetailsSingleOpen).success.value
-
-        val application = applicationBuilder(returnsUserAnswers = Some(cachedAnswers))
-          .overrides(bind[ObligationsConnector].toInstance(mockObligationsConnector))
-          .build()
-
-        running(application) {
-          val request =
-            FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
-              .withFormUrlEncodedBody(("fullName", ""))
-
-          val boundForm = form.bind(Map("fullName" -> ""))
-
-          val view = application.injector.instanceOf[DeclarationView]
-
-          val result = route(application, request).value
-
-          status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(june2026, boundForm, "June", "2026")(request, messages(application)).toString
-
-          verify(mockObligationsConnector, never()).getObligations(any())(using any())
-        }
-      }
-
-      "must return a Bad Request and errors when invalid email is submitted" in {
-
-        val mockObligationService = mock[ObligationService]
-        when(mockObligationService.getObligations(any())(using any()))
-          .thenReturn(Future.successful(obligationDetailsSingleOpen))
-
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers.copy(periodKey = june2026.value)))
-          .overrides(bind[ObligationService].toInstance(mockObligationService))
-          .build()
-
-        running(application) {
-          val request =
-            FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
-              .withFormUrlEncodedBody(
-                ("fullName", "John Smith"),
-                ("capacityInWhichSigned", "Director"),
-                ("signeesEmailAddress", "invalid-email")
-              )
-
-          val boundForm = form.bind(Map(
-            "fullName" -> "John Smith",
-            "capacityInWhichSigned" -> "Director",
-            "signeesEmailAddress" -> "invalid-email"
-          ))
-
-          val view = application.injector.instanceOf[DeclarationView]
-
-          val result = route(application, request).value
-
-          status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(june2026, boundForm, "June", "2026")(request, messages(application)).toString
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual returnSubmissionRecoveryUrl
+          verify(mockSubmitReturnService, never()).submit(any(), any())(any())
         }
       }
 
@@ -538,11 +411,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           val request =
             FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
-              .withFormUrlEncodedBody(
-                ("fullName", "John Smith"),
-                ("capacityInWhichSigned", "Director"),
-                ("signeesEmailAddress", "john.smith@example.com")
-              )
 
           val result = route(application, request).value
 
@@ -550,6 +418,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
         }
       }
+
       "must redirect to journey recovery when there is an issue submitting" in {
 
         val mockService = mock[SubmitReturnService]
@@ -561,7 +430,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockObligationService.getObligations(any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
-        val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
           .overrides(
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
             bind[SubmitReturnService].to(mockService),
@@ -572,11 +441,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
         running(application) {
           val request = FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
-            .withFormUrlEncodedBody(
-              (formProvider.FULL_NAME, "John Smith"),
-              (formProvider.CAPACITY, "Director"),
-              (formProvider.EMAIL, "john.smith@example.com")
-            )
 
           val result = route(application, request).value
 

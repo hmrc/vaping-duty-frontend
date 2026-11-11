@@ -25,7 +25,7 @@ class YourRoleFormProvider @Inject() extends Mappings {
 
   def apply(): Form[String] =
     Form(
-      "value" -> textWithSpaces("returns.declaration.capacity.error.required")
+      "capacityInWhichSigned" -> textWithSpaces("returns.declaration.capacity.error.required")
         .verifying(maxLength(100, "returns.declaration.capacity.error.length"))
     )
 }

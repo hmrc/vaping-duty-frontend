@@ -25,6 +25,6 @@ class YourBusinessEmailFormProvider @Inject() extends Mappings {
 
   def apply(): Form[String] =
     Form(
-      "value" -> email(errorPrefix = "returns.declaration.emailAddress.error.", maxEmailLength = 132)
+      "email" -> email(errorPrefix = "returns.declaration.emailAddress.error.", maxEmailLength = 132)
     )
 }

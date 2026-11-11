@@ -31,7 +31,7 @@
         list: List
 )
 
-@(periodKey: PeriodKey, vm: CheckYourAnswersViewModel, yourDetailsEnabled: Boolean)(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, vm: CheckYourAnswersViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(
     if(vm.nilReturn)
@@ -104,10 +104,6 @@
     @p(Seq(messages("returns.CheckYourAnswers.p.making")))
 
     @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
-        @if(yourDetailsEnabled) {
-            @govukButton(ButtonViewModel(messages("returns.declaration.button")).preventingDoubleClick())
-        } else {
-            @govukButton(ButtonViewModel(messages("site.saveAndContinue")))
-        }
+        @govukButton(ButtonViewModel(messages("site.saveAndContinue")))
     }
 }

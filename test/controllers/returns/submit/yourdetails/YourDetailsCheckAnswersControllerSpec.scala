@@ -35,7 +35,7 @@ class YourDetailsCheckAnswersControllerSpec extends SpecBase {
   "YourDetailsCheckAnswersController" - {
 
     "must return OK and the correct view for a GET when all questions are answered" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(completedAnswers), yourDetailsEnabled = true).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(completedAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, checkAnswersRoute)
@@ -51,7 +51,7 @@ class YourDetailsCheckAnswersControllerSpec extends SpecBase {
     }
 
     "must show each answer with a change link to its check mode page" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(completedAnswers), yourDetailsEnabled = true).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(completedAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, checkAnswersRoute)
@@ -70,7 +70,7 @@ class YourDetailsCheckAnswersControllerSpec extends SpecBase {
     "must redirect to return submission recovery when the task is not complete" in {
       val incompleteAnswers = returnsUserAnswers.set(YourFullNamePage, "John Smith").success.value
 
-      val application = applicationBuilder(returnsUserAnswers = Some(incompleteAnswers), yourDetailsEnabled = true).build()
+      val application = applicationBuilder(returnsUserAnswers = Some(incompleteAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, checkAnswersRoute)
@@ -82,8 +82,8 @@ class YourDetailsCheckAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to the task list for a POST" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(completedAnswers), yourDetailsEnabled = true).build()
+    "must redirect to the declaration page for a POST" in {
+      val application = applicationBuilder(returnsUserAnswers = Some(completedAnswers)).build()
 
       running(application) {
         val request = FakeRequest(POST, routes.YourDetailsCheckAnswersController.onSubmit().url)
@@ -91,21 +91,9 @@ class YourDetailsCheckAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.TaskListController.onPageLoad().url}?period=${periodKey.value}"
+        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.DeclarationController.onPageLoad().url}?period=${periodKey.value}"
       }
     }
 
-    "must redirect to Journey Recovery when the your details feature is disabled" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(completedAnswers), yourDetailsEnabled = false).build()
-
-      running(application) {
-        val request = FakeRequest(GET, checkAnswersRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
   }
 }
