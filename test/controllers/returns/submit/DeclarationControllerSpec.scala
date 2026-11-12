@@ -22,12 +22,10 @@ import models.emailverification.ErrorModel
 import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationsResponse}
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
-import pages.returns.DeclarationPage
 import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import play.api.inject.bind
@@ -59,8 +57,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
     .copy(periodKey = june2026.value)
     .set(YourFullNamePage, validDeclaration.fullName).success.value
 
-  private lazy val returnSubmissionRecoveryUrl =
-    s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${june2026.value}"
 
   private val obligationDataSingleOpen: ObligationsResponse = ObligationsResponse(
     obligation = obligations(Seq(openObligation(june2026)))
@@ -106,25 +102,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(june2026, "June", "2026")(request, messages(application)).toString
-        }
-      }
-
-      "must redirect to return submission recovery for a GET when your details is not complete" in {
-
-        val mockObligationService = mock[ObligationService]
-
-        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsIncomplete))
-          .overrides(bind[ObligationService].toInstance(mockObligationService))
-          .build()
-
-        running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual returnSubmissionRecoveryUrl
-          verify(mockObligationService, never()).getObligations(any())(using any())
         }
       }
 
@@ -273,7 +250,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
     "onSubmit" - {
 
-      "must submit the return once with the your details answers and redirect to Confirmation page" in {
+      "must submit the return once with the user answers, clear them and redirect to Confirmation page" in {
 
         val mockSessionRepository = mock[ReturnsUserAnswersService]
         val mockSubmitReturnService = mock[SubmitReturnService]
@@ -305,11 +282,8 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           redirectLocation(result).value must include(controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
           redirectLocation(result).value must include(s"period=${june2026.value}")
 
-          verify(mockSessionRepository).set(any())(any())
-
-          val captor = ArgumentCaptor.forClass(classOf[ReturnsUserAnswers])
-          verify(mockSubmitReturnService, times(1)).submit(captor.capture(), any())(any())
-          captor.getValue.get(DeclarationPage).value mustEqual validDeclaration
+          verify(mockSubmitReturnService, times(1)).submit(eqTo(yourDetailsAnswers), any())(any())
+          verify(mockSessionRepository, times(1)).clear(any(), any())(any())
         }
       }
 
@@ -385,12 +359,22 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to return submission recovery and not submit for a POST when your details is not complete" in {
+      "must redirect to Journey Recovery and not clear the answers when submission fails because your details is not complete" in {
 
+        val mockSessionRepository = mock[ReturnsUserAnswersService]
         val mockSubmitReturnService = mock[SubmitReturnService]
 
-        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsIncomplete))
-          .overrides(bind[SubmitReturnService].toInstance(mockSubmitReturnService))
+        when(mockSubmitReturnService.submit(any(), any())(any()))
+          .thenReturn(Future.failed(new IllegalStateException("Declaration details are required for submission")))
+
+        val cachedAnswers = yourDetailsIncomplete
+          .set(ObligationsQuery, obligationDetailsSingleOpen).success.value
+
+        val application = applicationBuilder(returnsUserAnswers = Some(cachedAnswers))
+          .overrides(
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
+            bind[SubmitReturnService].toInstance(mockSubmitReturnService)
+          )
           .build()
 
         running(application) {
@@ -399,8 +383,8 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual returnSubmissionRecoveryUrl
-          verify(mockSubmitReturnService, never()).submit(any(), any())(any())
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+          verify(mockSessionRepository, never()).clear(any(), any())(any())
         }
       }
 

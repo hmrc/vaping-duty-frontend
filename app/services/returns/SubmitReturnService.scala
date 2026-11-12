@@ -32,6 +32,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class SubmitReturnService @Inject()(
                                      submitReturnConnector: SubmitReturnConnector,
@@ -52,22 +53,24 @@ class SubmitReturnService @Inject()(
 
     obligations.find(_.periodKey == request.periodKey.toString) match {
       case Some(obligation) =>
-        val submission = buildReturnSubmissionService.buildSubmission(ua, obligation, request.enrolmentVpdId, periodKeyToDutyRate)
+        // Built inside the Future so a missing answer fails the Future rather than throwing to the caller
+        Future.fromTry(Try(buildReturnSubmissionService.buildSubmission(ua, obligation, request.enrolmentVpdId, periodKeyToDutyRate)))
+          .flatMap { submission =>
+            submitReturnConnector.submitReturn(submission, request.enrolmentVpdId).map { result =>
 
-        submitReturnConnector.submitReturn(submission, request.enrolmentVpdId).map { result =>
+              submitNrs(submission)
 
-          submitNrs(submission)
+              auditService.auditReturnSubmitted(
+                SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, result, request.identifiers, obligations)
+              )
 
-          auditService.auditReturnSubmitted(
-            SubmitReturnAuditEvent.buildExplicitAuditEvent(submission, result, request.identifiers, obligations)
-          )
+              if (appConfig.returnSubmittedEmailEnabled) {
+                returnSubmittedEmailService.sendReturnSubmittedEmail(request.enrolmentVpdId, submission, result, obligation)
+              }
 
-          if (appConfig.returnSubmittedEmailEnabled) {
-            returnSubmittedEmailService.sendReturnSubmittedEmail(request.enrolmentVpdId, submission, result, obligation)
+              result
+            }
           }
-
-          result
-        }
 
       case None =>
         Future.failed(new IllegalStateException(s"No obligation found for period key: ${ua.periodKey}"))

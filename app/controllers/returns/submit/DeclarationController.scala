@@ -21,10 +21,9 @@ import controllers.actions.returns.*
 import models.NormalMode
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
-import models.returns.{DeclarationDetails, ReturnsUserAnswers}
+import models.returns.ReturnsUserAnswers
 import navigation.ReturnsNavigator
 import pages.returns.DeclarationPage
-import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -56,45 +55,21 @@ class DeclarationController @Inject()(
 
   def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
-      declarationDetails(request.userAnswers) match {
-        case None => Future.successful(yourDetailsIncomplete)
-        case Some(_) =>
-          obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-            val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
+      obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
+        val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
 
-            saveObligations(request.userAnswers, obligations).map { _ =>
-              Ok(view(request.periodKey, periodDisplay.month, periodDisplay.year))
-            }
-          }
+        saveObligations(request.userAnswers, obligations).map { _ =>
+          Ok(view(request.periodKey, periodDisplay.month, periodDisplay.year))
+        }
       }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
-      declarationDetails(request.userAnswers) match {
-        case None => Future.successful(yourDetailsIncomplete)
-        case Some(declaration) =>
-          getObligations.flatMap { obligations =>
-            Future.fromTry(request.userAnswers.set(DeclarationPage, declaration))
-              .flatMap { updatedAnswers =>
-                sessionRepository.set(updatedAnswers).flatMap { _ =>
-                  submitAndContinue(updatedAnswers, obligations)
-                }
-              }
-          }
+      getObligations.flatMap { obligations =>
+        submitAndContinue(request.userAnswers, obligations)
       }
   }
-
-  // The declaration is made up of the answers from the your details pages
-  private def declarationDetails(userAnswers: ReturnsUserAnswers): Option[DeclarationDetails] =
-    for {
-      fullName <- userAnswers.get(YourFullNamePage)
-      role     <- userAnswers.get(YourRolePage)
-      email    <- userAnswers.get(YourBusinessEmailPage)
-    } yield DeclarationDetails(fullName, role, email)
-
-  private def yourDetailsIncomplete(using request: ReturnsDataRequest[?]): Result =
-    Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${request.periodKey.value}")
 
   // Uses the obligations saved by onPageLoad so the submit doesn't wait on the Obligations API.
   // Falls back to the live call if nothing has been saved.

@@ -29,6 +29,7 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.*
 import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage}
+import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 
 import java.time.LocalDate
 
@@ -61,6 +62,13 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
     signeesEmailAddress = "john.smith@example.com"
   )
 
+  extension (userAnswers: ReturnsUserAnswers)
+    private def withYourDetails: ReturnsUserAnswers =
+      userAnswers
+        .set(YourFullNamePage, declaration.fullName).success.value
+        .set(YourRolePage, declaration.capacityInWhichSigned).success.value
+        .set(YourBusinessEmailPage, declaration.signeesEmailAddress).success.value
+
   override def beforeEach(): Unit = {
     super.beforeEach()
     when(mockConfig.taxType).thenReturn(taxType)
@@ -77,7 +85,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
         val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-          .set(DeclarationPage, declaration).success.value
+          .withYourDetails
 
         val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(10500)))
         
@@ -106,7 +114,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
       "successfully build a return submission for a nil return" in {
         val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
           .set(DeclareDutyPage, false).success.value
-          .set(DeclarationPage, declaration).success.value
+          .withYourDetails
 
 
         val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(1050)))
@@ -142,7 +150,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
           .set(SpoiltVolumeByPeriodPage, spoiltVolumes).success.value
-          .set(DeclarationPage, declaration).success.value
+          .withYourDetails
 
         val returnCreateRequest = service.buildSubmission(userAnswers, openObligation(december2026), vpdId, Map(october2026 -> DutyRate(10500), november2026 -> DutyRate(10500), december2026 -> DutyRate(10500)))
 
@@ -176,7 +184,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
           .set(DeclareDutySuspensePage, true).success.value
           .set(EnterDutySuspensePage, dutySuspenseVolumes).success.value
-          .set(DeclarationPage, declaration).success.value
+          .withYourDetails
 
         val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(10500)))
 
@@ -213,7 +221,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
         val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
           .set(AdjustmentListPage, adjustmentList).success.value
           .set(AdjustmentReasonPage, "a reason").success.value
-          .set(DeclarationPage, declaration).success.value
+          .withYourDetails
 
         val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(periodKey -> DutyRate(1000)))
 
@@ -232,7 +240,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
         val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
           .set(AdjustmentListPage, adjustmentList).success.value
           .set(AdjustmentReasonPage, "a reason").success.value
-          .set(DeclarationPage, declaration).success.value
+          .withYourDetails
 
         val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(periodKey -> DutyRate(1000)))
 
@@ -249,7 +257,7 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
         val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
           .set(AdjustmentListPage, adjustmentList).success.value
           .set(AdjustmentReasonPage, "a reason").success.value
-          .set(DeclarationPage, declaration).success.value
+          .withYourDetails
 
         val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(periodKey -> DutyRate(100)))
 
@@ -263,6 +271,42 @@ class BuildReturnSubmissionServiceSpec extends SpecBase with MockitoSugar with B
         val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
+
+        val exception = intercept[IllegalStateException] {
+          service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(1050)))
+        }
+
+        exception.getMessage must include("Declaration details are required")
+      }
+
+      "fail to build a return submission when only some your details answers are present" in {
+        val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
+          .set(DeclareDutyPage, false).success.value
+          .set(YourFullNamePage, declaration.fullName).success.value
+          .set(YourRolePage, declaration.capacityInWhichSigned).success.value
+
+        val exception = intercept[IllegalStateException] {
+          service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(1050)))
+        }
+
+        exception.getMessage must include("Declaration details are required")
+      }
+
+      "build the declaration from the your details answers rather than a saved declaration" in {
+        val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
+          .set(DeclareDutyPage, false).success.value
+          .set(DeclarationPage, declaration.copy(fullName = "Someone Else")).success.value
+          .withYourDetails
+
+        val returnCreateRequest = service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(1050)))
+
+        returnCreateRequest.declaration mustBe declaration
+      }
+
+      "fail to build a return submission when only a saved declaration is present" in {
+        val userAnswers = nilReturnUserAnswers(vpdId, periodKey)
+          .set(DeclareDutyPage, false).success.value
+          .set(DeclarationPage, declaration).success.value
 
         val exception = intercept[IllegalStateException] {
           service.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(1050)))
