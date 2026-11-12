@@ -22,11 +22,13 @@ import config.FrontendAppConfig
 import crypto.CryptoProvider
 import models.nrs.NrsSubmissionWorkItem
 import org.bson.types.ObjectId
+import org.mongodb.scala.model.{IndexModel, IndexOptions, Indexes}
 import play.api.Logging
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.workitem.{ProcessingStatus, WorkItem, WorkItemFields, WorkItemRepository}
 
 import java.time.{Clock, Duration, Instant}
+import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,7 +44,15 @@ class NrsWorkItemRepository @Inject()(
     collectionName = "nrs-work-items",
     mongoComponent = mongoComponent,
     itemFormat = NrsSubmissionWorkItem.mongoFormat(cryptoProvider.getCrypto),
-    workItemFields = WorkItemFields.default
+    workItemFields = WorkItemFields.default,
+    extraIndexes = Seq(
+      IndexModel(
+        Indexes.ascending("updatedAt"),
+        IndexOptions()
+          .name("updatedAt_ttl_idx")
+          .expireAfter(appConfig.nrsWorkItemTTL, TimeUnit.SECONDS)
+      )
+    )
   ) with Logging {
 
   private val retryCounter = metricRegistry.counter("nrs-work-items.retry")
