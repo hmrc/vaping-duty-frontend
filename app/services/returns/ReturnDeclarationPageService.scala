@@ -47,11 +47,10 @@ class ReturnDeclarationPageService @Inject()(
   }
 
   def submitReturn(vpdId: VpdId,
-                   userAnswers: ReturnsUserAnswers,
-                   updatedAnswers: ReturnsUserAnswers)
+                   userAnswers: ReturnsUserAnswers)
                   (using HeaderCarrier, ReturnsDataRequest[?], ExecutionContext): Future[ReturnSubmittedResponse] = {
     storedObligationsService.getObligations(vpdId, userAnswers).flatMap { obligations =>
-      submitReturnService.submit(updatedAnswers, obligations)
+      submitReturnService.submit(userAnswers, obligations)
     }
   }
 

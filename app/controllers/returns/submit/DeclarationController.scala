@@ -83,7 +83,7 @@ class DeclarationController @Inject()(
           (for {
             updatedAnswers <- Future.fromTry(userAnswers.set(DeclarationPage, value))
             _              <- userAnswersService.set(updatedAnswers)
-            _              <- pageService.submitReturn(vpdId, userAnswers, updatedAnswers)
+            _              <- pageService.submitReturn(vpdId, updatedAnswers)
             _              <- userAnswersService.clear(vpdId, periodKey)
           }
           yield {
