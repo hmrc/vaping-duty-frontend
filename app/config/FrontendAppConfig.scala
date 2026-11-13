@@ -119,7 +119,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   def nrsApiKey: String = configuration.get[String]("microservice.services.nrs-orchestrator.api-key")
   
   // NRS Work Item Configuration
-  def nrsWorkItemTTL: Int = Duration(configuration.get[String]("mongodb.nrs-work-item.ttl")).toDays.toInt
+  def nrsWorkItemTTL: Long = Duration(configuration.get[String]("mongodb.nrs-work-item.ttl")).toSeconds
   
   def nrsWorkItemRetryAfter: FiniteDuration =
     configuration.get[FiniteDuration]("mongodb.nrs-work-item.retry-after")
