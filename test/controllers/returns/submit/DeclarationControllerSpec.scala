@@ -260,7 +260,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockSubmitReturnService.submit(any(), any())(any())) thenReturn Future.successful(testReturnSubmissionResponse)
         when(mockSessionRepository.clear(any(), any())(any()))
           .thenReturn(Future.successful(Right(())))
-        when(mockObligationService.getObligations(any())(using any()))
+        when(mockObligationService.getObligations(any(), any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application =
@@ -411,7 +411,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
         when(mockService.submit(any(), any())(any())).thenReturn(Future.successful(Left(ErrorModel(BAD_GATEWAY, "Bad gateway"))))
         when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
-        when(mockObligationService.getObligations(any())(using any()))
+        when(mockObligationService.getObligations(any(), any())(using any()))
           .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))

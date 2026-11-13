@@ -27,7 +27,7 @@
     caption: Caption
 )
 
-@(periodKey: PeriodKey, form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, form: Form[_], mode: Mode, periodMonth: String, periodYear: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("returns.yourDetails.email.title"))) {
 
@@ -37,7 +37,7 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        @caption(messages("returns.yourDetails.caption"))
+        @caption(messages("returns.caption", periodMonth, periodYear))
 
         @govukInput(
             InputViewModel(

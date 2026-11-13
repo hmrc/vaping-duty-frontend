@@ -19,16 +19,18 @@ package controllers.returns.submit.yourdetails
 import base.SpecBase
 import forms.returns.yourdetails.YourFullNameFormProvider
 import models.{CheckMode, NormalMode}
+import queries.returns.ObligationsQuery
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.yourdetails.YourFullNamePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.returns.ReturnsUserAnswersService
+import models.returns.ReturnsUserAnswers
+import services.returns.{ObligationService, ReturnsUserAnswersService}
 import views.html.returns.submit.yourdetails.YourFullNameView
 
 import scala.concurrent.Future
@@ -41,13 +43,24 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
 
   private val validAnswer = "John Smith"
 
+  private def stubbedObligationService(): ObligationService = {
+    val mockObligationService = mock[ObligationService]
+    when(mockObligationService.getObligations(any(), any())(using any()))
+      .thenReturn(Future.successful(Seq(openObligation(periodKey))))
+    mockObligationService
+  }
+
+  private def appWith(answers: Option[ReturnsUserAnswers], obligationService: ObligationService = stubbedObligationService()) =
+    applicationBuilder(returnsUserAnswers = answers)
+      .overrides(bind[ObligationService].toInstance(obligationService))
+
   lazy val normalRoute: String = routes.YourFullNameController.onPageLoad(NormalMode).url
   lazy val checkRoute: String = routes.YourFullNameController.onPageLoad(CheckMode).url
 
   "YourFullNameController" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val application = appWith(Some(returnsUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, normalRoute)
@@ -57,14 +70,14 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[YourFullNameView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, form, NormalMode, "June", "2026")(request, messages(application)).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
       val userAnswers = returnsUserAnswers.set(YourFullNamePage, validAnswer).success.value
 
-      val application = applicationBuilder(returnsUserAnswers = Some(userAnswers)).build()
+      val application = appWith(Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, checkRoute)
@@ -74,17 +87,18 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, form.fill(validAnswer), CheckMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, form.fill(validAnswer), CheckMode, "June", "2026")(request, messages(application)).toString
       }
     }
 
     "must save the answer and redirect to the next page when valid data is submitted" in {
       val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockObligationService = stubbedObligationService()
 
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
-        applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+        appWith(Some(returnsUserAnswers), mockObligationService)
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
@@ -100,11 +114,12 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockObligationService, never()).getObligations(any(), any())(using any())
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
+      val application = appWith(Some(returnsUserAnswers)).build()
 
       running(application) {
         val request =
@@ -118,7 +133,31 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(periodKey, boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, boundForm, NormalMode, "June", "2026")(request, messages(application)).toString
+      }
+    }
+
+    "must show the return period caption" in {
+      val application = appWith(Some(returnsUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, normalRoute)
+
+        contentAsString(route(application, request).value) must include("Return for June 2026")
+      }
+    }
+
+    "must use the obligations saved in the user answers for the caption" in {
+      val mockObligationService = stubbedObligationService()
+      val cachedAnswers = returnsUserAnswers.set(ObligationsQuery, Seq(openObligation(periodKey))).success.value
+
+      val application = appWith(Some(cachedAnswers), mockObligationService).build()
+
+      running(application) {
+        val request = FakeRequest(GET, normalRoute)
+
+        status(route(application, request).value) mustEqual OK
+        verify(mockObligationService).getObligations(org.mockito.ArgumentMatchers.eq(cachedAnswers), any())(using any())
       }
     }
 

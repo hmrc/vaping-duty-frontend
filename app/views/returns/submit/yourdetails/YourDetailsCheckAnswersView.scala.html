@@ -26,11 +26,11 @@
     h1: Heading
 )
 
-@(periodKey: PeriodKey, summaryList: SummaryList)(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, summaryList: SummaryList, periodMonth: String, periodYear: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("returns.yourDetails.checkAnswers.title"))) {
 
-    @caption(messages("returns.yourDetails.caption"))
+    @caption(messages("returns.caption", periodMonth, periodYear))
     @h1(messages("returns.yourDetails.checkAnswers.heading"))
 
     @govukSummaryList(summaryList)

@@ -184,7 +184,7 @@ returns.taskList.section.dutySuspended.heading = Report duty suspended vaping de
 returns.taskList.section.dutySuspended.task1 = Tell us if you have received or moved any vaping products in duty suspense
 
 returns.taskList.section.submitReturn.heading = Submit return
-returns.taskList.submitReturn.task1 = Check your answers and submit return
+returns.taskList.submitReturn.task1 = View your final duty summary, tell us who is submitting this return and submit return
 
 returns.taskList.button.clearReturn = Clear return and start again
 
@@ -469,7 +469,6 @@ returns.declaration.emailAddress.error.required = Enter your business email addr
 returns.declaration.emailAddress.error.length = Email address must be 132 characters or fewer
 returns.declaration.emailAddress.error.format = Enter an email address in the correct format, like name@example.com
 
-returns.yourDetails.caption = Your details
 returns.yourDetails.fullName.title = What is your full name?
 returns.yourDetails.fullName.heading = What is your full name?
 returns.yourDetails.role.title = What is your role in the company?

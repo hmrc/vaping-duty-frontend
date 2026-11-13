@@ -20,13 +20,16 @@ import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvenc
 import controllers.actions.returns.*
 import forms.returns.yourdetails.YourBusinessEmailFormProvider
 import models.Mode
+import models.requests.returns.ReturnsDataRequest
+import models.returns.PeriodDisplay
 import navigation.ReturnsNavigator
 import pages.returns.yourdetails.YourBusinessEmailPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.ReturnsUserAnswersService
+import services.returns.{ObligationService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.ReturnsDateUtils
 import views.html.returns.submit.yourdetails.YourBusinessEmailView
 
 import javax.inject.Inject
@@ -41,6 +44,8 @@ class YourBusinessEmailController @Inject()(
                                        returnsEnabled: ReturnsEnabledAction,
                                        getData: ReturnsDataRetrievalAction,
                                        requireData: ReturnsDataRequiredAction,
+                                       obligationService: ObligationService,
+                                       returnsDateUtils: ReturnsDateUtils,
                                        formProvider: YourBusinessEmailFormProvider,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: YourBusinessEmailView
@@ -48,21 +53,25 @@ class YourBusinessEmailController @Inject()(
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       val preparedForm = request.userAnswers.get(YourBusinessEmailPage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(request.periodKey, preparedForm, mode))
+      periodDisplay.map { period =>
+        Ok(view(request.periodKey, preparedForm, mode, period.month, period.year))
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(request.periodKey, formWithErrors, mode))),
+          periodDisplay.map { period =>
+            BadRequest(view(request.periodKey, formWithErrors, mode, period.month, period.year))
+          },
 
         value =>
           for {
@@ -71,4 +80,8 @@ class YourBusinessEmailController @Inject()(
           } yield Redirect(navigator.nextPage(YourBusinessEmailPage, mode, updatedAnswers))
       )
   }
+
+  private def periodDisplay(using request: ReturnsDataRequest[?]): Future[PeriodDisplay] =
+    obligationService.getObligations(request.userAnswers, request.enrolmentVpdId)
+      .map(obligations => returnsDateUtils.getPeriodDisplay(request.periodKey, obligations))
 }

@@ -74,10 +74,7 @@ class DeclarationController @Inject()(
   // Uses the obligations saved by onPageLoad so the submit doesn't wait on the Obligations API.
   // Falls back to the live call if nothing has been saved.
   private def getObligations(using request: ReturnsDataRequest[?]): Future[Seq[ObligationDetails]] =
-    request.userAnswers.get(ObligationsQuery) match {
-      case Some(obligations) => Future.successful(obligations)
-      case None              => obligationService.getObligations(request.enrolmentVpdId)
-    }
+    obligationService.getObligations(request.userAnswers, request.enrolmentVpdId)
 
   // Saves the obligations in the user answers so onSubmit does not have to wait on the Obligations API.
   // An error response is logged and the page still renders; any other failure is left to the framework's error handler.

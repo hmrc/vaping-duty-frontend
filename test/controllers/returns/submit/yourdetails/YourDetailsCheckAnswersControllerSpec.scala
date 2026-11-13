@@ -17,25 +17,44 @@
 package controllers.returns.submit.yourdetails
 
 import base.SpecBase
+import models.returns.ReturnsUserAnswers
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.inject.bind
+import services.returns.ObligationService
 import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import viewmodels.returns.submit.YourDetailsCheckAnswersViewModel
 import views.html.returns.submit.yourdetails.YourDetailsCheckAnswersView
 
-class YourDetailsCheckAnswersControllerSpec extends SpecBase {
+import scala.concurrent.Future
+
+class YourDetailsCheckAnswersControllerSpec extends SpecBase with MockitoSugar {
 
   private val completedAnswers = returnsUserAnswers
     .set(YourFullNamePage, "John Smith").success.value
     .set(YourRolePage, "Director").success.value
     .set(YourBusinessEmailPage, "john@example.com").success.value
 
+  private def stubbedObligationService(): ObligationService = {
+    val mockObligationService = mock[ObligationService]
+    when(mockObligationService.getObligations(any(), any())(using any()))
+      .thenReturn(Future.successful(Seq(openObligation(periodKey))))
+    mockObligationService
+  }
+
+  private def appWith(answers: Option[ReturnsUserAnswers], obligationService: ObligationService = stubbedObligationService()) =
+    applicationBuilder(returnsUserAnswers = answers)
+      .overrides(bind[ObligationService].toInstance(obligationService))
+
   lazy val checkAnswersRoute: String = routes.YourDetailsCheckAnswersController.onPageLoad().url
 
   "YourDetailsCheckAnswersController" - {
 
     "must return OK and the correct view for a GET when all questions are answered" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(completedAnswers)).build()
+      val application = appWith(Some(completedAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, checkAnswersRoute)
@@ -46,18 +65,19 @@ class YourDetailsCheckAnswersControllerSpec extends SpecBase {
         val summaryList = YourDetailsCheckAnswersViewModel(completedAnswers, periodKey)(messages(application)).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(periodKey, summaryList)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(periodKey, summaryList, "June", "2026")(request, messages(application)).toString
       }
     }
 
     "must show each answer with a change link to its check mode page" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(completedAnswers)).build()
+      val application = appWith(Some(completedAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, checkAnswersRoute)
 
         val content = contentAsString(route(application, request).value)
 
+        content must include("Return for June 2026")
         content must include("John Smith")
         content must include("Director")
         content must include("john@example.com")
@@ -70,7 +90,7 @@ class YourDetailsCheckAnswersControllerSpec extends SpecBase {
     "must redirect to return submission recovery when the task is not complete" in {
       val incompleteAnswers = returnsUserAnswers.set(YourFullNamePage, "John Smith").success.value
 
-      val application = applicationBuilder(returnsUserAnswers = Some(incompleteAnswers)).build()
+      val application = appWith(Some(incompleteAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, checkAnswersRoute)
@@ -83,7 +103,7 @@ class YourDetailsCheckAnswersControllerSpec extends SpecBase {
     }
 
     "must redirect to the declaration page for a POST" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(completedAnswers)).build()
+      val application = appWith(Some(completedAnswers)).build()
 
       running(application) {
         val request = FakeRequest(POST, routes.YourDetailsCheckAnswersController.onSubmit().url)
