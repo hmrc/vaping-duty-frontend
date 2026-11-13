@@ -17,6 +17,7 @@
 @import components.*
 @import models.identifiers.PeriodKey
 @import models.returns.DeclarationDetails
+@import viewmodels.returns.submit.DeclarationViewModel
 @import forms.returns.DeclarationFormProvider
 @import views.html.helper.CSPNonce
 
@@ -33,17 +34,17 @@
         declarationFormProvider: DeclarationFormProvider
 )
 
-@(periodKey: PeriodKey, form: Form[DeclarationDetails], periodMonth: String, periodYear: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[DeclarationDetails], vm: DeclarationViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("returns.declaration.title"))) {
 
     <div id="main-content">
-        @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclarationController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
+        @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclarationController.onSubmit().url}?period=${vm.periodKey.value}"), Symbol("autoComplete") -> "off") {
             @if(form.errors.nonEmpty) {
                 @govukErrorSummary(ErrorSummaryViewModel(form))
             }
 
-            @caption(messages("returns.caption", periodMonth, periodYear))
+            @caption(messages("returns.caption", vm.period.month, vm.period.year))
             @h1(messages("returns.declaration.heading"))
 
             @p(Seq(messages("returns.declaration.authorised")))

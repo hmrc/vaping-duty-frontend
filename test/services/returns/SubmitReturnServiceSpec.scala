@@ -46,7 +46,6 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
 
   private val mockSubmitReturnConnector = mock[SubmitReturnConnector]
   private val mockDutyRateService = mock[DutyRateService]
-  private val mockObligationService = mock[ObligationService]
   private val mockBuildReturnSubmissionService: BuildReturnSubmissionService = mock[BuildReturnSubmissionService]
   private val mockAuditService = mock[AuditService]
   private val mockReturnSubmittedEmailService = mock[ReturnSubmittedEmailService]

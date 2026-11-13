@@ -16,23 +16,19 @@
 
 package controllers.returns.submit
 
-import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import forms.returns.DeclarationFormProvider
 import models.NormalMode
-import models.obligations.ObligationDetails
-import models.requests.returns.ReturnsDataRequest
-import models.returns.{DeclarationDetails, ReturnsUserAnswers}
+import models.returns.DeclarationDetails
 import navigation.ReturnsNavigator
 import pages.returns.DeclarationPage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import queries.returns.ObligationsQuery
-import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.{ReturnDeclarationPageService, ReturnsUserAnswersService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.ReturnsDateUtils
 import views.html.returns.submit.DeclarationView
 
 import javax.inject.Inject
@@ -40,88 +36,65 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DeclarationController @Inject()(
                                        override val messagesApi: MessagesApi,
-                                       sessionRepository: ReturnsUserAnswersService,
+                                       userAnswersService: ReturnsUserAnswersService,
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        checkInsolvency: CheckInsolvencyAction,
                                        getData: ReturnsDataRetrievalAction,
                                        requireData: ReturnsDataRequiredAction,
                                        returnsEnabled: ReturnsEnabledAction,
                                        formProvider: DeclarationFormProvider,
-                                       submitReturnService: SubmitReturnService,
-                                       obligationService: ObligationService,
-                                       returnsDateUtils: ReturnsDateUtils,
+                                       pageService: ReturnDeclarationPageService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: DeclarationView,
                                        navigator: ReturnsNavigator,
-                                       userAnswersService: ReturnsUserAnswersService
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   val form: Form[DeclarationDetails] = formProvider()
 
   def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
-    implicit request =>
-      obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-        val preparedForm = request.userAnswers.get(DeclarationPage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
+    implicit request => {
+      val vpdId = request.enrolmentVpdId
+      val periodKey = request.periodKey
+      val userAnswers = request.userAnswers
 
-        val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
-
-        saveObligations(request.userAnswers, obligations).map { _ =>
-          Ok(view(request.periodKey, preparedForm, periodDisplay.month, periodDisplay.year))
-        }
+      val preparedForm = userAnswers.get(DeclarationPage) match {
+        case None => form
+        case Some(value) => form.fill(value)
       }
+
+      pageService.buildDeclarationViewModel(vpdId, periodKey, userAnswers)
+        .map(vm => Ok(view(preparedForm, vm)))
+    }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
-    implicit request =>
-      getObligations.flatMap { obligations =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
-            val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
-            Future.successful(BadRequest(view(request.periodKey, formWithErrors, periodDisplay.month, periodDisplay.year)))
-          },
+    implicit request => {
+      val vpdId = request.enrolmentVpdId
+      val periodKey = request.periodKey
+      val userAnswers = request.userAnswers
 
-          value =>
-            Future.fromTry(request.userAnswers.set(DeclarationPage, value))
-              .flatMap { updatedAnswers =>
-                sessionRepository.set(updatedAnswers).flatMap { _ =>
-                  submitAndContinue(updatedAnswers, obligations)
-                }
-              }
-        )
-      }
-  }
+      form.bindFromRequest().fold(
+        formWithErrors => {
+          pageService.buildDeclarationViewModel(vpdId, periodKey, userAnswers)
+            .map(vm => BadRequest(view(formWithErrors, vm)))
+        },
 
-  // Uses the obligations saved by onPageLoad so the submit doesn't wait on the Obligations API.
-  // Falls back to the live call if nothing has been saved.
-  private def getObligations(using request: ReturnsDataRequest[?]): Future[Seq[ObligationDetails]] =
-    request.userAnswers.get(ObligationsQuery) match {
-      case Some(obligations) => Future.successful(obligations)
-      case None              => obligationService.getObligations(request.enrolmentVpdId)
+        value => {
+          (for {
+            updatedAnswers <- Future.fromTry(userAnswers.set(DeclarationPage, value))
+            _              <- userAnswersService.set(updatedAnswers)
+            _              <- pageService.submitReturn(vpdId, updatedAnswers)
+            _              <- userAnswersService.clear(vpdId, periodKey)
+          }
+          yield {
+            Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers))
+          }).recover { case e =>
+            logger.error("Failed to submit return", e)
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          }
+        }
+      )
     }
-
-  // Saves the obligations in the user answers so onSubmit does not have to wait on the Obligations API.
-  // An error response is logged and the page still renders; any other failure is left to the framework's error handler.
-  private def saveObligations(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
-                             (using request: ReturnsDataRequest[?]): Future[Unit] =
-    Future.fromTry(userAnswers.set(ObligationsQuery, obligations))
-      .flatMap(sessionRepository.set)
-      .map {
-        case Right(_) => ()
-        case Left(error) => logger.warn(s"Failed to save obligations in user answers: ${error.message}")
-      }
-
-  private def submitAndContinue(updatedAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
-                               (using request: ReturnsDataRequest[?]): Future[Result] = {
-                               
-    submitReturnService.submit(updatedAnswers, obligations)
-      .flatMap(_ => userAnswersService.clear(request.enrolmentVpdId, request.periodKey))
-      .map(_ => Redirect(navigator.nextPage(DeclarationPage, NormalMode, updatedAnswers)))
-      .recover { case e =>
-        logger.error("Failed to submit return", e)  
-        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      }
   }
+
 }

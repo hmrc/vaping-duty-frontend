@@ -22,7 +22,7 @@ import forms.returns.DeclarationFormProvider
 import models.emailverification.ErrorModel
 import models.identifiers.PeriodKey
 import models.obligations.{ObligationDetails, ObligationsResponse}
-import models.returns.DeclarationDetails
+import models.returns.{DeclarationDetails, PeriodDisplay}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -34,6 +34,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import queries.returns.ObligationsQuery
 import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
+import viewmodels.returns.submit.DeclarationViewModel
 import views.html.returns.submit.DeclarationView
 
 import scala.concurrent.Future
@@ -94,7 +95,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val view = application.injector.instanceOf[DeclarationView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(june2026, form, "June", "2026")(request, messages(application)).toString
+          contentAsString(result) mustEqual view(form, DeclarationViewModel(june2026, PeriodDisplay("June", "2026")))(request, messages(application)).toString
         }
       }
 
@@ -120,7 +121,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(june2026, form.fill(validDeclaration), "June", "2026")(request, messages(application)).toString
+          contentAsString(result) mustEqual view(form.fill(validDeclaration), DeclarationViewModel(june2026, PeriodDisplay("June", "2026")))(request, messages(application)).toString
         }
       }
 
@@ -418,20 +419,23 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(june2026, boundForm, "June", "2026")(request, messages(application)).toString
+          contentAsString(result) mustEqual view(boundForm, DeclarationViewModel(june2026, PeriodDisplay("June", "2026")))(request, messages(application)).toString
         }
       }
 
-      "must return a Bad Request using the saved obligations and not call the Obligations API" in {
+      "must return a Bad Request when input is invalid, refreshing the obligations" in {
 
-        val mockObligationsConnector = mock[ObligationsConnector]
+        val mockObligationService = mock[ObligationService]
+        when(mockObligationService.getObligations(any())(using any()))
+          .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val cachedAnswers = returnsUserAnswers
           .copy(periodKey = june2026.value)
-          .set(ObligationsQuery, obligationDetailsSingleOpen).success.value
+          // Do not set up cached obligations, even though they would be present, to show that they are re-fetched.
+          //.set(ObligationsQuery, obligationDetailsSingleOpen).success.value
 
         val application = applicationBuilder(returnsUserAnswers = Some(cachedAnswers))
-          .overrides(bind[ObligationsConnector].toInstance(mockObligationsConnector))
+          .overrides(bind[ObligationService].toInstance(mockObligationService))
           .build()
 
         running(application) {
@@ -446,9 +450,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(june2026, boundForm, "June", "2026")(request, messages(application)).toString
-
-          verify(mockObligationsConnector, never()).getObligations(any())(using any())
+          contentAsString(result) mustEqual view(boundForm, DeclarationViewModel(june2026, PeriodDisplay("June", "2026")))(request, messages(application)).toString
         }
       }
 
@@ -482,7 +484,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(june2026, boundForm, "June", "2026")(request, messages(application)).toString
+          contentAsString(result) mustEqual view(boundForm, DeclarationViewModel(june2026, PeriodDisplay("June", "2026")))(request, messages(application)).toString
         }
       }
 
