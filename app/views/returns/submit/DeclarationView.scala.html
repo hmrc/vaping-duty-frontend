@@ -17,68 +17,35 @@
 @import components.*
 @import models.identifiers.PeriodKey
 @import models.returns.DeclarationDetails
-@import forms.returns.DeclarationFormProvider
 @import views.html.helper.CSPNonce
 
 @this(
         layout: templates.ReturnsLayout,
         formHelper: FormWithCSRF,
-        govukErrorSummary: GovukErrorSummary,
-        govukInput: GovukInput,
         govukButton: GovukButton,
         caption: Caption,
         h1: Heading,
         p: Paragraph,
-        spinner: SubmissionSpinner,
-        declarationFormProvider: DeclarationFormProvider
+        spinner: SubmissionSpinner
 )
 
-@(periodKey: PeriodKey, form: Form[DeclarationDetails], periodMonth: String, periodYear: String)(implicit request: Request[_], messages: Messages)
+@(periodKey: PeriodKey, periodMonth: String, periodYear: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("returns.declaration.title"))) {
+@layout(pageTitle = titleNoForm(messages("returns.declaration.title"))) {
 
     <div id="main-content">
-        @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclarationController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
-            @if(form.errors.nonEmpty) {
-                @govukErrorSummary(ErrorSummaryViewModel(form))
-            }
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclarationController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
+        @caption(messages("returns.caption", periodMonth, periodYear))
+        @h1(messages("returns.declaration.heading"))
 
-            @caption(messages("returns.caption", periodMonth, periodYear))
-            @h1(messages("returns.declaration.heading"))
+        @p(Seq(messages("returns.declaration.bySubmitting")))
 
-            @p(Seq(messages("returns.declaration.authorised")))
+        @p(Seq(messages("returns.declaration.makingFalse")))
 
-            @govukInput(
-                InputViewModel(
-                    field = form(declarationFormProvider.FULL_NAME),
-                    label = LabelViewModel(messages("returns.declaration.fullName.label"))
-                )
-                .withAutocomplete("name")
-            )
-            
-            @govukInput(
-                InputViewModel(
-                    field = form(declarationFormProvider.CAPACITY),
-                    label = LabelViewModel(messages("returns.declaration.capacity.label"))
-                )
-                .withAutocomplete("organization")
-            )
-
-            @govukInput(
-                InputViewModel(
-                    field = form(declarationFormProvider.EMAIL),
-                    label = LabelViewModel(messages("returns.declaration.emailAddress.label"))
-                ).asEmail()
-            )
-
-            @p(Seq(messages("returns.declaration.bySubmitting")))
-
-            @p(Seq(messages("returns.declaration.makingFalse")))
-
-            @govukButton(ButtonViewModel(messages("returns.declaration.button"))
-                .preventingDoubleClick()
-            )
-        }
+        @govukButton(ButtonViewModel(messages("returns.declaration.button"))
+        .preventingDoubleClick()
+        )
+    }
     </div>
 
     @spinner(
@@ -86,5 +53,6 @@
         text = messages("returns.declaration.processing.body")
     )
 
-    <script src="@controllers.routes.Assets.versioned("javascripts/declarationSubmit.js")" @CSPNonce.attr defer></script>
+    <script src="@controllers.routes.Assets.versioned("javascripts/declarationSubmit.js")"
+    @CSPNonce.attr defer></script>
 }

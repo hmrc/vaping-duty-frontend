@@ -23,6 +23,7 @@ import models.returns.ReturnsUserAnswers
 import pages.*
 import pages.returns.*
 import pages.returns.adjustments.*
+import pages.returns.yourdetails.*
 import play.api.Logging
 import play.api.http.HttpVerbs.GET
 import play.api.mvc.Call
@@ -50,6 +51,9 @@ class ReturnsNavigator @Inject()(
     case DeclareDutySuspensePage        => ua  => declareDutySuspensePageRoutes(ua, periodKey)
     case EnterDutySuspensePage          => _   => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(NormalMode), periodKey)
     case DeclarationPage                => _   => withPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad(), periodKey)
+    case YourFullNamePage               => _   => withPeriod(controllers.returns.submit.yourdetails.routes.YourRoleController.onPageLoad(NormalMode), periodKey)
+    case YourRolePage                   => _   => withPeriod(controllers.returns.submit.yourdetails.routes.YourBusinessEmailController.onPageLoad(NormalMode), periodKey)
+    case YourBusinessEmailPage          => _   => withPeriod(controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad(), periodKey)
     case _                              => _   => Call(GET, BtaLink(config))
   }
 
@@ -65,6 +69,8 @@ class ReturnsNavigator @Inject()(
     case AdjustmentReasonPage       => _  => withPeriod(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage    => ua => checkDeclareDutySuspensePageRoutes(ua, periodKey)
     case EnterDutySuspensePage      => _  => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(CheckMode), periodKey)
+    case YourFullNamePage | YourRolePage | YourBusinessEmailPage =>
+                                       _  => withPeriod(controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad(), periodKey)
     case _                          => _  => routes.JourneyRecoveryController.onPageLoad()
   }
 
@@ -160,6 +166,17 @@ class ReturnsNavigator @Inject()(
               withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
         }
       case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
+  }
+
+  // Resumes your details at the first question not yet answered, or its check answers page once all are answered
+  def yourDetailsStart(userAnswers: ReturnsUserAnswers): Call = {
+    val page =
+      if (userAnswers.get(YourFullNamePage).isEmpty) controllers.returns.submit.yourdetails.routes.YourFullNameController.onPageLoad(NormalMode)
+      else if (userAnswers.get(YourRolePage).isEmpty) controllers.returns.submit.yourdetails.routes.YourRoleController.onPageLoad(NormalMode)
+      else if (userAnswers.get(YourBusinessEmailPage).isEmpty) controllers.returns.submit.yourdetails.routes.YourBusinessEmailController.onPageLoad(NormalMode)
+      else controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad()
+
+    withPeriod(page, userAnswers.periodKey)
   }
 
   def nextPage(page: Page, mode: Mode, userAnswers: ReturnsUserAnswers, adjustmentReasonMandatory: Boolean = false): Call = mode match {

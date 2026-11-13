@@ -175,7 +175,7 @@ returns.taskList.declareAdjustments.task2 = Rhowch wybod i ni os oes gennych unr
 returns.taskList.section.dutySuspended.heading = Rhoi gwybod am ddosbarthiadau o fêps y gohiriwyd tollau arno
 returns.taskList.section.dutySuspended.task1 = Rhowch wybod i ni os ydych wedi cael neu wedi symud unrhyw gynhyrchion fepio o dan ohiriad tollau
 returns.taskList.section.submitReturn.heading = Cyflwyno Datganiad
-returns.taskList.submitReturn.task1 = Gwiriwch eich atebion a chyflwynwch eich datganiad
+returns.taskList.submitReturn.task1 = Gweld eich crynodeb terfynol o ddyletswyddau, nodi pwy sy'n cyflwyno'r datganiad hwn, a chyflwyno'r datganiad
 
 returns.taskList.button.clearReturn = Dileu cynnwys y datganiad a dechrau eto
 
@@ -429,10 +429,6 @@ returns.confirmation.inset.negative.suffix = .
 
 returns.declaration.title = Datganiad
 returns.declaration.heading = Datganiad
-returns.declaration.authorised = Rwyf wedi fy awdurdodi i gyflwyno’r datganiad hwn.
-returns.declaration.fullName.label = Eich enw llawn
-returns.declaration.capacity.label = Eich rôl yn y cwmni, er enghraifft, perchennog, cyfarwyddwr
-returns.declaration.emailAddress.label = Cyfeiriad e-bost eich busnes
 returns.declaration.bySubmitting = Drwy gyflwyno’r datganiad hwn, rydych yn cadarnhau, fod y manylion a rowch yn gywir.
 returns.declaration.makingFalse = Mae gwneud datganiad ffug yn arwain at ganlyniadau difrifol, fel cosb ariannol.
 returns.declaration.button = Cadarnhau a chyflwyno
@@ -446,6 +442,22 @@ returns.declaration.emailAddress.error.length = Mae’n rhaid i’r cyfeiriad e-
 returns.declaration.emailAddress.error.format = Nodwch gyfeiriad e-bost yn y fformat cywir, fel enw@enghraifft.com
 returns.declaration.processing.heading = Mae’ch Ffurflen Dreth yn cael ei chyflwyno
 returns.declaration.processing.body = Peidiwch ag adnewyddu na gadael y dudalen hon.
+
+returns.yourDetails.fullName.title = Beth yw’ch enw llawn?
+returns.yourDetails.fullName.heading = Beth yw’ch enw llawn?
+returns.yourDetails.role.title = Beth yw’ch rôl yn y cwmni?
+returns.yourDetails.role.heading = Beth yw’ch rôl yn y cwmni?
+returns.yourDetails.email.title = Beth yw cyfeiriad e-bost eich busnes?
+returns.yourDetails.email.heading = Beth yw cyfeiriad e-bost eich busnes?
+returns.yourDetails.email.hint = Byddwn dim ond yn anfon e-bost atoch i gadarnhau bod eich datganiad wedi cael ei gyflwyno, neu os bydd angen rhagor o wybodaeth arnom.
+returns.yourDetails.checkAnswers.title = Gwiriwch eich atebion
+returns.yourDetails.checkAnswers.heading = Gwiriwch eich atebion
+returns.yourDetails.checkAnswers.fullName = Eich enw llawn
+returns.yourDetails.checkAnswers.fullName.change.hidden = eich enw llawn
+returns.yourDetails.checkAnswers.role = Eich rôl
+returns.yourDetails.checkAnswers.role.change.hidden = eich rôl
+returns.yourDetails.checkAnswers.email = Cyfeiriad e-bost eich busnes
+returns.yourDetails.checkAnswers.email.change.hidden = cyfeiriad e-bost eich busnes
 
 returns.overview.title = Eich datganiadau Toll Cynhyrchion Fepio
 returns.overview.heading = Eich datganiadau Toll Cynhyrchion Fepio

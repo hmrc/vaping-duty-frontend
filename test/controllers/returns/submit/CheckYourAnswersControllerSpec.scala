@@ -205,7 +205,7 @@ class CheckYourAnswersControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to Declaration page for a POST" in {
+    "must redirect to the first your details page for a POST when no your details are answered" in {
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers)).build()
 
@@ -215,7 +215,26 @@ class CheckYourAnswersControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.DeclarationController.onPageLoad().url}?period=${periodKey.value}"
+        redirectLocation(result).value mustBe s"${controllers.returns.submit.yourdetails.routes.YourFullNameController.onPageLoad(models.NormalMode).url}?period=${periodKey.value}"
+      }
+    }
+
+    "must redirect to the your details check answers page for a POST when all your details are answered" in {
+
+      val answers = returnsUserAnswers
+        .set(pages.returns.yourdetails.YourFullNamePage, "John Smith").success.value
+        .set(pages.returns.yourdetails.YourRolePage, "Director").success.value
+        .set(pages.returns.yourdetails.YourBusinessEmailPage, "john.smith@example.com").success.value
+
+      val application = applicationBuilder(returnsUserAnswers = Some(answers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, controllers.returns.submit.routes.CheckYourAnswersController.onSubmit().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe s"${controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad().url}?period=${periodKey.value}"
       }
     }
 

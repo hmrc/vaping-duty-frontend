@@ -20,6 +20,7 @@ import models.TaskStatus
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
 import pages.returns.adjustments.{AdjustmentListPage, DeclareAdjustmentPage}
+import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 
 object TaskStatusService {
 
@@ -58,6 +59,20 @@ object TaskStatusService {
       case (Some(true), None)    => TaskStatus.InProgress
       case (Some(true), Some(list)) if list.adjustments.isEmpty => TaskStatus.InProgress
       case (Some(true), Some(_)) => TaskStatus.Completed
+    }
+  }
+
+  def yourDetailsTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
+    val answered = Seq(
+      answers.get(YourFullNamePage),
+      answers.get(YourRolePage),
+      answers.get(YourBusinessEmailPage)
+    ).count(_.isDefined)
+
+    answered match {
+      case 0 => TaskStatus.NotStarted
+      case 3 => TaskStatus.Completed
+      case _ => TaskStatus.InProgress
     }
   }
 

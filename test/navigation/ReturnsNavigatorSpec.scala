@@ -23,6 +23,7 @@ import models.returns.{DutySuspenseVolumes, ReturnsUserAnswers, SpoiltVolumeByPe
 import pages.*
 import pages.returns.{SpoiltCheckYourAnswersPage, DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage, SpoiltVolumeByPeriodPage}
 import pages.returns.adjustments.{AddAnotherAdjustmentPage, AdjustmentListPage, AdjustmentReasonPage, DeclareAdjustmentPage}
+import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 import play.api.libs.json.Json
 import play.api.mvc.Call
 
@@ -35,6 +36,18 @@ class ReturnsNavigatorSpec extends SpecBase {
   "ReturnsNavigator" - {
 
     "in Normal mode" - {
+
+      "must go from YourFullName to YourRole" in {
+        navigator.nextPage(YourFullNamePage, NormalMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourRoleController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go from YourRole to YourBusinessEmail" in {
+        navigator.nextPage(YourRolePage, NormalMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourBusinessEmailController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go from YourBusinessEmail to YourDetailsCheckAnswers (mini CYA)" in {
+        navigator.nextPage(YourBusinessEmailPage, NormalMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad().url}?period=$periodKey"
+      }
 
       "must go from DeclareDuty to EnterAmount when there IS duty to declare" in {
         val ua = returnsUserAnswers.set(DeclareDutyPage, true).success.value
@@ -195,7 +208,36 @@ class ReturnsNavigatorSpec extends SpecBase {
       }
     }
 
+    "yourDetailsStart" - {
+
+      val fullNameAnswered = returnsUserAnswers.set(YourFullNamePage, "John Smith").success.value
+      val roleAnswered = fullNameAnswered.set(YourRolePage, "Director").success.value
+      val allAnswered = roleAnswered.set(YourBusinessEmailPage, "john@example.com").success.value
+
+      "must go to YourFullName when nothing is answered" in {
+        navigator.yourDetailsStart(returnsUserAnswers).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourFullNameController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go to YourRole when only the full name is answered" in {
+        navigator.yourDetailsStart(fullNameAnswered).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourRoleController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go to YourBusinessEmail when the full name and role are answered" in {
+        navigator.yourDetailsStart(roleAnswered).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourBusinessEmailController.onPageLoad(NormalMode).url}?period=$periodKey"
+      }
+
+      "must go to YourDetailsCheckAnswers when all questions are answered" in {
+        navigator.yourDetailsStart(allAnswered).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad().url}?period=$periodKey"
+      }
+    }
+
     "in Check mode" - {
+
+      "must go from each your details page to YourDetailsCheckAnswers (mini CYA)" in {
+        Seq(YourFullNamePage, YourRolePage, YourBusinessEmailPage).foreach { page =>
+          navigator.nextPage(page, CheckMode, returnsUserAnswers).url mustBe s"${controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad().url}?period=$periodKey"
+        }
+      }
 
       "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
 

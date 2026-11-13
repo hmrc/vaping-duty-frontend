@@ -22,6 +22,7 @@ import models.returns.{AdjustmentsEligibility, DutySuspenseVolumes, ReturnsUserA
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import pages.returns.*
 import pages.returns.adjustments.*
+import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 
 class TaskStatusServiceSpec extends SpecBase {
 
@@ -170,6 +171,34 @@ class TaskStatusServiceSpec extends SpecBase {
 
       val result = TaskStatusService.declareAdjustmentsTaskStatus(answers)
       result mustBe TaskStatus.Completed
+    }
+  }
+
+  "yourDetailsTaskStatus" - {
+
+    "must return NotStarted when no questions are answered" in {
+      TaskStatusService.yourDetailsTaskStatus(emptyAnswers) mustBe TaskStatus.NotStarted
+    }
+
+    "must return InProgress when some questions are answered" in {
+      val answers = emptyAnswers
+        .set(YourFullNamePage, "John Smith")
+        .flatMap(_.set(YourRolePage, "Director"))
+        .success
+        .value
+
+      TaskStatusService.yourDetailsTaskStatus(answers) mustBe TaskStatus.InProgress
+    }
+
+    "must return Completed when all questions are answered" in {
+      val answers = emptyAnswers
+        .set(YourFullNamePage, "John Smith")
+        .flatMap(_.set(YourRolePage, "Director"))
+        .flatMap(_.set(YourBusinessEmailPage, "john@example.com"))
+        .success
+        .value
+
+      TaskStatusService.yourDetailsTaskStatus(answers) mustBe TaskStatus.Completed
     }
   }
 

@@ -1,0 +1,177 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.returns.submit.yourdetails
+
+import base.SpecBase
+import forms.returns.yourdetails.YourRoleFormProvider
+import models.{CheckMode, NormalMode}
+import queries.returns.ObligationsQuery
+import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{never, verify, when}
+import org.scalatestplus.mockito.MockitoSugar
+import pages.returns.yourdetails.YourRolePage
+import play.api.inject.bind
+import play.api.mvc.Call
+import play.api.test.FakeRequest
+import play.api.test.Helpers.*
+import models.returns.ReturnsUserAnswers
+import services.returns.{ObligationService, ReturnsUserAnswersService}
+import views.html.returns.submit.yourdetails.YourRoleView
+
+import scala.concurrent.Future
+
+class YourRoleControllerSpec extends SpecBase with MockitoSugar {
+
+  private val form = new YourRoleFormProvider()()
+
+  def onwardRoute = Call("GET", "/foo")
+
+  private val validAnswer = "Director"
+
+  private def stubbedObligationService(): ObligationService = {
+    val mockObligationService = mock[ObligationService]
+    when(mockObligationService.getObligations(any(), any())(using any()))
+      .thenReturn(Future.successful(Seq(openObligation(periodKey))))
+    mockObligationService
+  }
+
+  private def appWith(answers: Option[ReturnsUserAnswers], obligationService: ObligationService = stubbedObligationService()) =
+    applicationBuilder(returnsUserAnswers = answers)
+      .overrides(bind[ObligationService].toInstance(obligationService))
+
+  lazy val normalRoute: String = routes.YourRoleController.onPageLoad(NormalMode).url
+  lazy val checkRoute: String = routes.YourRoleController.onPageLoad(CheckMode).url
+
+  "YourRoleController" - {
+
+    "must return OK and the correct view for a GET" in {
+      val application = appWith(Some(returnsUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, normalRoute)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[YourRoleView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(periodKey, form, NormalMode, "June", "2026")(request, messages(application)).toString
+      }
+    }
+
+    "must populate the view correctly on a GET when the question has previously been answered" in {
+      val userAnswers = returnsUserAnswers.set(YourRolePage, validAnswer).success.value
+
+      val application = appWith(Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, checkRoute)
+
+        val view = application.injector.instanceOf[YourRoleView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(periodKey, form.fill(validAnswer), CheckMode, "June", "2026")(request, messages(application)).toString
+      }
+    }
+
+    "must save the answer and redirect to the next page when valid data is submitted" in {
+      val mockSessionRepository = mock[ReturnsUserAnswersService]
+      val mockObligationService = stubbedObligationService()
+
+      when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
+
+      val application =
+        appWith(Some(returnsUserAnswers), mockObligationService)
+          .overrides(
+            bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, normalRoute)
+            .withFormUrlEncodedBody(("capacityInWhichSigned", validAnswer))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+        verify(mockObligationService, never()).getObligations(any(), any())(using any())
+      }
+    }
+
+    "must return a Bad Request and errors when invalid data is submitted" in {
+      val application = appWith(Some(returnsUserAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, normalRoute)
+            .withFormUrlEncodedBody(("capacityInWhichSigned", ""))
+
+        val boundForm = form.bind(Map("capacityInWhichSigned" -> ""))
+
+        val view = application.injector.instanceOf[YourRoleView]
+
+        val result = route(application, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(periodKey, boundForm, NormalMode, "June", "2026")(request, messages(application)).toString
+      }
+    }
+
+    "must show the return period caption" in {
+      val application = appWith(Some(returnsUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, normalRoute)
+
+        contentAsString(route(application, request).value) must include("Return for June 2026")
+      }
+    }
+
+    "must use the obligations saved in the user answers for the caption" in {
+      val mockObligationService = stubbedObligationService()
+      val cachedAnswers = returnsUserAnswers.set(ObligationsQuery, Seq(openObligation(periodKey))).success.value
+
+      val application = appWith(Some(cachedAnswers), mockObligationService).build()
+
+      running(application) {
+        val request = FakeRequest(GET, normalRoute)
+
+        status(route(application, request).value) mustEqual OK
+        verify(mockObligationService).getObligations(org.mockito.ArgumentMatchers.eq(cachedAnswers), any())(using any())
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+      val application = applicationBuilder(returnsUserAnswers = None).build()
+
+      running(application) {
+        val request = FakeRequest(GET, normalRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+  }
+}
