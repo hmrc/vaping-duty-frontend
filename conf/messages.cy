@@ -423,8 +423,8 @@ returns.confirmation.chaps.bullet.linkText = Talu’ch tollau drwy CHAPS
 returns.confirmation.chaps.bullet.bta.prefix = Ewch i’ch
 
 returns.confirmation.inset.youHave = Does dim byd gennych i’w dalu ar gyfer cyfnod y datganiad hwn.
-returns.confirmation.inset.negative.prefix = Mae {0} arnoch. Bydd y swm hwn yn cael ei ychwanegu fel credyd at eich datganiad Toll Fepio oni bai eich bod yn hawlio
-returns.confirmation.inset.negative.linkText = ad-daliad
+returns.confirmation.inset.negative.prefix = Mae {0} arnoch. Bydd y swm hwn yn cael ei ychwanegu fel credyd at eich datganiad Toll Fepio oni bai eich bod yn
+returns.confirmation.inset.negative.linkText = hawlio ad-daliad
 returns.confirmation.inset.negative.suffix = .
 
 returns.declaration.title = Datganiad
