@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.ConfirmationViewModel
-import views.html.returns.submit.ConfirmationEmailView
+import views.html.returns.submit.ReturnConfirmationView
 
 import java.time.LocalDate
 import javax.inject.Inject
@@ -45,7 +45,7 @@ class ConfirmationController @Inject()(
                                         checkInsolvency: CheckInsolvencyAction,
                                         returnsEnabled: ReturnsEnabledAction,
                                         val controllerComponents: MessagesControllerComponents,
-                                        view: ConfirmationEmailView,
+                                        view: ReturnConfirmationView,
                                         getReturnsConnector: GetReturnsConnector,
                                         obligationService: ObligationService,
                                         financialDataService: FinancialDataService,

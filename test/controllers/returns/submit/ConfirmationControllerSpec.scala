@@ -28,7 +28,7 @@ import play.api.test.Helpers.*
 import services.payments.FinancialDataService
 import services.returns.ObligationService
 import viewmodels.returns.submit.ConfirmationViewModel
-import views.html.returns.submit.ConfirmationEmailView
+import views.html.returns.submit.ReturnConfirmationView
 
 import scala.concurrent.Future
 
@@ -72,7 +72,7 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ConfirmationEmailView]
+        val view = application.injector.instanceOf[ReturnConfirmationView]
 
         val vm = ConfirmationViewModel(returnsResponse, obligation, btaLink, paymentLink, repaymentUrl, Some(paymentDueDate), returnsDateUtils)(messages(application))
 
@@ -111,7 +111,7 @@ class ConfirmationControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[ConfirmationEmailView]
+        val view = application.injector.instanceOf[ReturnConfirmationView]
 
         val vm = ConfirmationViewModel(nilReturnResponse, obligation, btaLink, paymentLink, repaymentUrl, None, returnsDateUtils)(messages(application))
 
