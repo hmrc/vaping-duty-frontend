@@ -50,10 +50,10 @@ class ReturnsNavigator @Inject()(
     case AdjustmentReasonPage           => _   => withPeriod(controllers.returns.submit.routes.TaskListController.onPageLoad(), periodKey)
     case DeclareDutySuspensePage        => ua  => declareDutySuspensePageRoutes(ua, periodKey)
     case EnterDutySuspensePage          => _   => withPeriod(controllers.returns.submit.routes.DutySuspenseCheckAnswersController.onPageLoad(NormalMode), periodKey)
-    case DeclarationPage                => _   => withPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad(), periodKey)
     case YourFullNamePage               => _   => withPeriod(controllers.returns.submit.yourdetails.routes.YourRoleController.onPageLoad(NormalMode), periodKey)
     case YourRolePage                   => _   => withPeriod(controllers.returns.submit.yourdetails.routes.YourBusinessEmailController.onPageLoad(NormalMode), periodKey)
     case YourBusinessEmailPage          => _   => withPeriod(controllers.returns.submit.yourdetails.routes.YourDetailsCheckAnswersController.onPageLoad(), periodKey)
+    case DeclarationPage                => _   => withPeriod(controllers.returns.submit.routes.ConfirmationController.onPageLoad(), periodKey)
     case _                              => _   => Call(GET, BtaLink(config))
   }
 
