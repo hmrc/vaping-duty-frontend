@@ -175,7 +175,7 @@ returns.taskList.declareAdjustments.task2 = Rhowch wybod i ni os oes gennych unr
 returns.taskList.section.dutySuspended.heading = Rhoi gwybod am ddosbarthiadau o fêps y gohiriwyd tollau arno
 returns.taskList.section.dutySuspended.task1 = Rhowch wybod i ni os ydych wedi cael neu wedi symud unrhyw gynhyrchion fepio o dan ohiriad tollau
 returns.taskList.section.submitReturn.heading = Cyflwyno Datganiad
-returns.taskList.submitReturn.task1 = Gweld eich crynodeb terfynol o ddyletswyddau, nodi pwy sy'n cyflwyno'r datganiad hwn, a chyflwyno'r datganiad
+returns.taskList.submitReturn.task1 = Gwiriwch eich atebion a Cyflwyno Datganiad
 
 returns.taskList.button.clearReturn = Dileu cynnwys y datganiad a dechrau eto
 

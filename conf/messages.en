@@ -184,7 +184,7 @@ returns.taskList.section.dutySuspended.heading = Report duty suspended vaping de
 returns.taskList.section.dutySuspended.task1 = Tell us if you have received or moved any vaping products in duty suspense
 
 returns.taskList.section.submitReturn.heading = Submit return
-returns.taskList.submitReturn.task1 = View your final duty summary, tell us who is submitting this return and submit return
+returns.taskList.submitReturn.task1 = Check your answers and Submit return
 
 returns.taskList.button.clearReturn = Clear return and start again
 
