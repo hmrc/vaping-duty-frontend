@@ -23,7 +23,7 @@ import models.requests.returns.ReturnsDataRequest
 import models.returns.PeriodDisplay
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{ObligationService, TaskStatusService}
+import services.returns.{ObligationService, TaskStatusService, YourDetailsService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import viewmodels.returns.submit.YourDetailsCheckAnswersViewModel
@@ -41,6 +41,7 @@ class YourDetailsCheckAnswersController @Inject()(
                                                    requireData: ReturnsDataRequiredAction,
                                                    obligationService: ObligationService,
                                                    returnsDateUtils: ReturnsDateUtils,
+                                                   yourDetailsService: YourDetailsService,
                                                    val controllerComponents: MessagesControllerComponents,
                                                    view: YourDetailsCheckAnswersView
                                                  )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
@@ -49,15 +50,19 @@ class YourDetailsCheckAnswersController @Inject()(
     implicit request =>
       val pk = request.periodKey
 
-      if (TaskStatusService.yourDetailsTaskStatus(request.userAnswers) != TaskStatus.Completed) {
-        Future.successful(Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${pk.value}"))
-      } else {
-        YourDetailsCheckAnswersViewModel(request.userAnswers, pk) match {
-          case Some(summaryList) =>
-            periodDisplay.map(period => Ok(view(pk, summaryList, period.month, period.year)))
-          case None =>
-            Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-        }
+      yourDetailsService.allTasksCompleted(request.userAnswers, request.enrolmentVpdId).flatMap {
+        case false => Future.successful(Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${pk.value}"))
+        case true  =>
+          if (TaskStatusService.yourDetailsTaskStatus(request.userAnswers) != TaskStatus.Completed) {
+            Future.successful(Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${pk.value}"))
+          } else {
+            YourDetailsCheckAnswersViewModel(request.userAnswers, pk) match {
+              case Some(summaryList) =>
+                periodDisplay.map(period => Ok(view(pk, summaryList, period.month, period.year)))
+              case None =>
+                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+            }
+          }
       }
   }
 

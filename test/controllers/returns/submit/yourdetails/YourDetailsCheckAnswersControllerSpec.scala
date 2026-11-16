@@ -34,6 +34,8 @@ import scala.concurrent.Future
 class YourDetailsCheckAnswersControllerSpec extends SpecBase with MockitoSugar {
 
   private val completedAnswers = returnsUserAnswers
+    .set(pages.returns.DeclareDutyPage, false).success.value
+    .set(pages.returns.DeclareDutySuspensePage, false).success.value
     .set(YourFullNamePage, "John Smith").success.value
     .set(YourRolePage, "Director").success.value
     .set(YourBusinessEmailPage, "john@example.com").success.value
@@ -87,10 +89,28 @@ class YourDetailsCheckAnswersControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to return submission recovery when the task is not complete" in {
-      val incompleteAnswers = returnsUserAnswers.set(YourFullNamePage, "John Smith").success.value
+    "must redirect to return submission recovery when your details is not complete" in {
+      val incompleteAnswers = completedAnswers.remove(YourBusinessEmailPage).success.value
 
       val application = appWith(Some(incompleteAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, checkAnswersRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${periodKey.value}"
+      }
+    }
+
+    "must redirect to return submission recovery when another task is not yet complete" in {
+      val yourDetailsOnly = returnsUserAnswers
+        .set(YourFullNamePage, "John Smith").success.value
+        .set(YourRolePage, "Director").success.value
+        .set(YourBusinessEmailPage, "john.smith@example.com").success.value
+
+      val application = appWith(Some(yourDetailsOnly)).build()
 
       running(application) {
         val request = FakeRequest(GET, checkAnswersRoute)

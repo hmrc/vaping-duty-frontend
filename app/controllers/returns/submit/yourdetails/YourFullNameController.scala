@@ -27,7 +27,7 @@ import pages.returns.yourdetails.YourFullNamePage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.returns.{ObligationService, ReturnsUserAnswersService}
+import services.returns.{ObligationService, ReturnsUserAnswersService, YourDetailsService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import views.html.returns.submit.yourdetails.YourFullNameView
@@ -46,6 +46,7 @@ class YourFullNameController @Inject()(
                                        requireData: ReturnsDataRequiredAction,
                                        obligationService: ObligationService,
                                        returnsDateUtils: ReturnsDateUtils,
+                                       yourDetailsService: YourDetailsService,
                                        formProvider: YourFullNameFormProvider,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: YourFullNameView
@@ -60,8 +61,12 @@ class YourFullNameController @Inject()(
         case Some(value) => form.fill(value)
       }
 
-      periodDisplay.map { period =>
-        Ok(view(request.periodKey, preparedForm, mode, period.month, period.year))
+      yourDetailsService.allTasksCompleted(request.userAnswers, request.enrolmentVpdId).flatMap {
+        case false => Future.successful(Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${request.periodKey.value}"))
+        case true  =>
+          periodDisplay.map { period =>
+            Ok(view(request.periodKey, preparedForm, mode, period.month, period.year))
+          }
       }
   }
 

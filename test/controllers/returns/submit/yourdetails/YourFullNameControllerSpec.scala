@@ -19,11 +19,13 @@ package controllers.returns.submit.yourdetails
 import base.SpecBase
 import forms.returns.yourdetails.YourFullNameFormProvider
 import models.{CheckMode, NormalMode}
+import models.identifiers.PeriodKey
 import queries.returns.ObligationsQuery
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage}
 import pages.returns.yourdetails.YourFullNamePage
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -43,6 +45,11 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
 
   private val validAnswer = "John Smith"
 
+  // The obligations are open, so adjustments are not eligible and only these tasks need completing
+  private val tasksCompleted: ReturnsUserAnswers = returnsUserAnswers
+    .set(DeclareDutyPage, false).success.value
+    .set(DeclareDutySuspensePage, false).success.value
+
   private def stubbedObligationService(): ObligationService = {
     val mockObligationService = mock[ObligationService]
     when(mockObligationService.getObligations(any(), any())(using any()))
@@ -60,7 +67,7 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
   "YourFullNameController" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = appWith(Some(returnsUserAnswers)).build()
+      val application = appWith(Some(tasksCompleted)).build()
 
       running(application) {
         val request = FakeRequest(GET, normalRoute)
@@ -75,7 +82,7 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-      val userAnswers = returnsUserAnswers.set(YourFullNamePage, validAnswer).success.value
+      val userAnswers = tasksCompleted.set(YourFullNamePage, validAnswer).success.value
 
       val application = appWith(Some(userAnswers)).build()
 
@@ -98,7 +105,7 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
 
       val application =
-        appWith(Some(returnsUserAnswers), mockObligationService)
+        appWith(Some(tasksCompleted), mockObligationService)
           .overrides(
             bind[ReturnsNavigator].toInstance(new ReturnsFakeNavigator(onwardRoute, mockAppConfig)),
             bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
@@ -119,7 +126,7 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val application = appWith(Some(returnsUserAnswers)).build()
+      val application = appWith(Some(tasksCompleted)).build()
 
       running(application) {
         val request =
@@ -138,7 +145,7 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must show the return period caption" in {
-      val application = appWith(Some(returnsUserAnswers)).build()
+      val application = appWith(Some(tasksCompleted)).build()
 
       running(application) {
         val request = FakeRequest(GET, normalRoute)
@@ -149,7 +156,7 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
 
     "must use the obligations saved in the user answers for the caption" in {
       val mockObligationService = stubbedObligationService()
-      val cachedAnswers = returnsUserAnswers.set(ObligationsQuery, Seq(openObligation(periodKey))).success.value
+      val cachedAnswers = tasksCompleted.set(ObligationsQuery, Seq(openObligation(periodKey))).success.value
 
       val application = appWith(Some(cachedAnswers), mockObligationService).build()
 
@@ -157,7 +164,54 @@ class YourFullNameControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, normalRoute)
 
         status(route(application, request).value) mustEqual OK
-        verify(mockObligationService).getObligations(org.mockito.ArgumentMatchers.eq(cachedAnswers), any())(using any())
+        // Both the task check and the caption read the saved obligations, so neither goes to the Obligations API
+        verify(mockObligationService, times(2)).getObligations(org.mockito.ArgumentMatchers.eq(cachedAnswers), any())(using any())
+        verify(mockObligationService, never()).getObligations(any[models.identifiers.VpdId]())(using any())
+      }
+    }
+
+    "must redirect to return submission recovery for a GET when a task is not yet complete" in {
+      val application = appWith(Some(returnsUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, normalRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${periodKey.value}"
+      }
+    }
+
+    "must redirect to return submission recovery for a GET in check mode when a task is not yet complete" in {
+      val userAnswers = returnsUserAnswers.set(YourFullNamePage, validAnswer).success.value
+
+      val application = appWith(Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, checkRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${periodKey.value}"
+      }
+    }
+
+    "must redirect to return submission recovery for a GET when adjustments are eligible and not yet complete" in {
+      val mockObligationService = mock[ObligationService]
+      when(mockObligationService.getObligations(any(), any())(using any()))
+        .thenReturn(Future.successful(Seq(openObligation(periodKey), fulfilledObligation(PeriodKey("26KE")))))
+
+      val application = appWith(Some(tasksCompleted), mockObligationService).build()
+
+      running(application) {
+        val request = FakeRequest(GET, normalRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${periodKey.value}"
       }
     }
 
