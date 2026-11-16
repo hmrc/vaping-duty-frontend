@@ -190,6 +190,15 @@ class TaskStatusServiceSpec extends SpecBase {
       TaskStatusService.yourDetailsTaskStatus(answers) mustBe TaskStatus.InProgress
     }
 
+    "must return InProgress when only a later question is answered" in {
+      val answers = emptyAnswers
+        .set(YourBusinessEmailPage, "john@example.com")
+        .success
+        .value
+
+      TaskStatusService.yourDetailsTaskStatus(answers) mustBe TaskStatus.InProgress
+    }
+
     "must return Completed when all questions are answered" in {
       val answers = emptyAnswers
         .set(YourFullNamePage, "John Smith")

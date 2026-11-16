@@ -63,16 +63,10 @@ object TaskStatusService {
   }
 
   def yourDetailsTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
-    val answered = Seq(
-      answers.get(YourFullNamePage),
-      answers.get(YourRolePage),
-      answers.get(YourBusinessEmailPage)
-    ).count(_.isDefined)
-
-    answered match {
-      case 0 => TaskStatus.NotStarted
-      case 3 => TaskStatus.Completed
-      case _ => TaskStatus.InProgress
+    (answers.get(YourFullNamePage), answers.get(YourRolePage), answers.get(YourBusinessEmailPage)) match {
+      case (None, None, None)          => TaskStatus.NotStarted
+      case (Some(_), Some(_), Some(_)) => TaskStatus.Completed
+      case _                           => TaskStatus.InProgress
     }
   }
 
