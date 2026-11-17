@@ -62,7 +62,7 @@ object TaskStatusService {
     }
   }
 
-  def yourDetailsTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
+  def yourDetailsSubTaskStatus(answers: ReturnsUserAnswers): TaskStatus = {
     (answers.get(YourFullNamePage), answers.get(YourRolePage), answers.get(YourBusinessEmailPage)) match {
       case (None, None, None)          => TaskStatus.NotStarted
       case (Some(_), Some(_), Some(_)) => TaskStatus.Completed

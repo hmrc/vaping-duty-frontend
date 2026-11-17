@@ -26,6 +26,7 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage}
 import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import play.api.inject.bind
@@ -49,6 +50,8 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
   private val yourDetailsAnswers: ReturnsUserAnswers = returnsUserAnswers
     .copy(periodKey = june2026.value)
+    .set(DeclareDutyPage, false).success.value
+    .set(DeclareDutySuspensePage, false).success.value
     .set(YourFullNamePage, validDeclaration.fullName).success.value
     .set(YourRolePage, validDeclaration.capacityInWhichSigned).success.value
     .set(YourBusinessEmailPage, validDeclaration.signeesEmailAddress).success.value
@@ -102,6 +105,56 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(june2026, "June", "2026")(request, messages(application)).toString
+        }
+      }
+
+      "must redirect to return submission recovery for a GET when a task is not yet complete" in {
+
+        val mockSessionRepository = stubbedSessionRepository()
+        val mockObligationService = mock[ObligationService]
+        stubLiveObligations(mockObligationService)
+
+        val tasksIncomplete = yourDetailsAnswers.remove(DeclareDutySuspensePage).success.value
+
+        val application = applicationBuilder(returnsUserAnswers = Some(tasksIncomplete))
+          .overrides(
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
+          )
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${june2026.value}"
+          verify(mockSessionRepository, never()).set(any())(any())
+        }
+      }
+
+      "must redirect to return submission recovery for a GET when your details is not complete" in {
+
+        val mockObligationService = mock[ObligationService]
+        stubLiveObligations(mockObligationService)
+
+        val yourDetailsMissing = yourDetailsAnswers.remove(YourBusinessEmailPage).success.value
+
+        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsMissing))
+          .overrides(
+            bind[ObligationService].toInstance(mockObligationService),
+            bind[ReturnsUserAnswersService].toInstance(stubbedSessionRepository())
+          )
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${june2026.value}"
         }
       }
 

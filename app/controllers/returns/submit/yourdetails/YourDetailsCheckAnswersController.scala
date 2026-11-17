@@ -53,7 +53,7 @@ class YourDetailsCheckAnswersController @Inject()(
       yourDetailsService.allTasksCompleted(request.userAnswers, request.enrolmentVpdId).flatMap {
         case false => Future.successful(Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${pk.value}"))
         case true  =>
-          if (TaskStatusService.yourDetailsTaskStatus(request.userAnswers) != TaskStatus.Completed) {
+          if (TaskStatusService.yourDetailsSubTaskStatus(request.userAnswers) != TaskStatus.Completed) {
             Future.successful(Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${pk.value}"))
           } else {
             YourDetailsCheckAnswersViewModel(request.userAnswers, pk) match {
