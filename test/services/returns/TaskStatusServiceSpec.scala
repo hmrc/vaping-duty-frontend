@@ -174,10 +174,10 @@ class TaskStatusServiceSpec extends SpecBase {
     }
   }
 
-  "yourDetailsTaskStatus" - {
+  "yourDetailsSubTaskStatus" - {
 
     "must return NotStarted when no questions are answered" in {
-      TaskStatusService.yourDetailsTaskStatus(emptyAnswers) mustBe TaskStatus.NotStarted
+      TaskStatusService.yourDetailsSubTaskStatus(emptyAnswers) mustBe TaskStatus.NotStarted
     }
 
     "must return InProgress when some questions are answered" in {
@@ -187,7 +187,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      TaskStatusService.yourDetailsTaskStatus(answers) mustBe TaskStatus.InProgress
+      TaskStatusService.yourDetailsSubTaskStatus(answers) mustBe TaskStatus.InProgress
     }
 
     "must return InProgress when only a later question is answered" in {
@@ -196,7 +196,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      TaskStatusService.yourDetailsTaskStatus(answers) mustBe TaskStatus.InProgress
+      TaskStatusService.yourDetailsSubTaskStatus(answers) mustBe TaskStatus.InProgress
     }
 
     "must return Completed when all questions are answered" in {
@@ -207,7 +207,7 @@ class TaskStatusServiceSpec extends SpecBase {
         .success
         .value
 
-      TaskStatusService.yourDetailsTaskStatus(answers) mustBe TaskStatus.Completed
+      TaskStatusService.yourDetailsSubTaskStatus(answers) mustBe TaskStatus.Completed
     }
   }
 

@@ -77,7 +77,7 @@ class DeclarationController @Inject()(
 
   private def readyToSubmit(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails]): Boolean =
     TaskStatusService.allTasksCompleted(userAnswers, AdjustmentsEligibility.fromObligationDetails(obligations)) &&
-      TaskStatusService.yourDetailsTaskStatus(userAnswers) == TaskStatus.Completed
+      TaskStatusService.yourDetailsSubTaskStatus(userAnswers) == TaskStatus.Completed
 
  
   private def getObligations(using request: ReturnsDataRequest[?]): Future[Seq[ObligationDetails]] =
