@@ -18,15 +18,13 @@ package controllers.returns.submit
 
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
-import forms.returns.DeclarationFormProvider
 import models.NormalMode
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
-import models.returns.{DeclarationDetails, ReturnsUserAnswers}
+import models.returns.ReturnsUserAnswers
 import navigation.ReturnsNavigator
 import pages.returns.DeclarationPage
 import play.api.Logging
-import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import queries.returns.ObligationsQuery
@@ -46,7 +44,6 @@ class DeclarationController @Inject()(
                                        getData: ReturnsDataRetrievalAction,
                                        requireData: ReturnsDataRequiredAction,
                                        returnsEnabled: ReturnsEnabledAction,
-                                       formProvider: DeclarationFormProvider,
                                        submitReturnService: SubmitReturnService,
                                        obligationService: ObligationService,
                                        returnsDateUtils: ReturnsDateUtils,
@@ -56,20 +53,13 @@ class DeclarationController @Inject()(
                                        userAnswersService: ReturnsUserAnswersService
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
-  val form: Form[DeclarationDetails] = formProvider()
-
   def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-        val preparedForm = request.userAnswers.get(DeclarationPage) match {
-          case None => form
-          case Some(value) => form.fill(value)
-        }
-
         val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
 
         saveObligations(request.userAnswers, obligations).map { _ =>
-          Ok(view(request.periodKey, preparedForm, periodDisplay.month, periodDisplay.year))
+          Ok(view(request.periodKey, periodDisplay.month, periodDisplay.year))
         }
       }
   }
@@ -77,30 +67,14 @@ class DeclarationController @Inject()(
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       getObligations.flatMap { obligations =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
-            val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
-            Future.successful(BadRequest(view(request.periodKey, formWithErrors, periodDisplay.month, periodDisplay.year)))
-          },
-
-          value =>
-            Future.fromTry(request.userAnswers.set(DeclarationPage, value))
-              .flatMap { updatedAnswers =>
-                sessionRepository.set(updatedAnswers).flatMap { _ =>
-                  submitAndContinue(updatedAnswers, obligations)
-                }
-              }
-        )
+        submitAndContinue(request.userAnswers, obligations)
       }
   }
 
   // Uses the obligations saved by onPageLoad so the submit doesn't wait on the Obligations API.
   // Falls back to the live call if nothing has been saved.
   private def getObligations(using request: ReturnsDataRequest[?]): Future[Seq[ObligationDetails]] =
-    request.userAnswers.get(ObligationsQuery) match {
-      case Some(obligations) => Future.successful(obligations)
-      case None              => obligationService.getObligations(request.enrolmentVpdId)
-    }
+    obligationService.getObligations(request.userAnswers, request.enrolmentVpdId)
 
   // Saves the obligations in the user answers so onSubmit does not have to wait on the Obligations API.
   // An error response is logged and the page still renders; any other failure is left to the framework's error handler.

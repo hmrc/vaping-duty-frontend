@@ -25,6 +25,7 @@ import models.returns.submit.ReturnCreateRequest
 import models.returns.view.*
 import pages.returns.*
 import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage}
+import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -61,7 +62,7 @@ class BuildReturnSubmissionService @Inject()(
       spoiltProduct
     )
 
-    val declaration = ua.get(DeclarationPage).getOrElse(
+    val declaration = declarationDetails(ua).getOrElse(
       // scalafix:off DisableSyntax.throw
       throw new IllegalStateException("Declaration details are required for submission")
     )
@@ -77,6 +78,14 @@ class BuildReturnSubmissionService @Inject()(
       declaration = declaration
     )
   }
+
+  // The declaration is made up of the answers from the your details pages
+  private def declarationDetails(userAnswers: ReturnsUserAnswers): Option[DeclarationDetails] =
+    for {
+      fullName <- userAnswers.get(YourFullNamePage)
+      role <- userAnswers.get(YourRolePage)
+      email <- userAnswers.get(YourBusinessEmailPage)
+    } yield DeclarationDetails(fullName, role, email)
 
   private def buildVapingProductsProduced(ua: ReturnsUserAnswers,
                                           obligation: ObligationDetails,

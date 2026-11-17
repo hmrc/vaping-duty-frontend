@@ -21,8 +21,9 @@ import connectors.returns.ObligationsConnector
 import models.identifiers.PeriodKey
 import models.obligations.{Identification, ObligationDetails, ObligationItem, ObligationsResponse}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import queries.returns.ObligationsQuery
 
 import scala.concurrent.Future
 
@@ -56,6 +57,31 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
 
     when(mockAppConfig.enrolmentIdentifierKey).thenReturn("ZVPD")
     
+    "getObligations with user answers" - {
+
+      "must return the obligations saved in the user answers without calling the Obligations API" in {
+        reset(mockObligationsConnector)
+
+        val cachedAnswers = returnsUserAnswers.set(ObligationsQuery, obligations).success.value
+
+        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
+
+        service.getObligations(cachedAnswers, vpdId).futureValue mustBe obligations
+        verify(mockObligationsConnector, never()).getObligations(any())(using any())
+      }
+
+      "must call the Obligations API when no obligations are saved in the user answers" in {
+        reset(mockObligationsConnector)
+        when(mockObligationsConnector.getObligations(any())(using any()))
+          .thenReturn(Future.successful(mockObligationsResponse))
+
+        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
+
+        service.getObligations(returnsUserAnswers, vpdId).futureValue mustBe obligations
+        verify(mockObligationsConnector).getObligations(any())(using any())
+      }
+    }
+
     "getObligations" - {
       "must return the obligations response" in {
         when(mockObligationsConnector.getObligations(any())(using any()))

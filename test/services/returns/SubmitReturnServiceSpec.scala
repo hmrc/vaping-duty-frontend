@@ -32,6 +32,7 @@ import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.*
+import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
 import play.api.libs.json.JsObject
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -143,7 +144,9 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-          .set(DeclarationPage, declaration).success.value
+          .set(YourFullNamePage, declaration.fullName).success.value
+          .set(YourRolePage, declaration.capacityInWhichSigned).success.value
+          .set(YourBusinessEmailPage, declaration.signeesEmailAddress).success.value
 
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
@@ -167,7 +170,9 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
         val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
           .set(DeclareDutyPage, true).success.value
           .set(EnterDutyAmountPage, BigDecimal("1000")).success.value
-          .set(DeclarationPage, declaration).success.value
+          .set(YourFullNamePage, declaration.fullName).success.value
+          .set(YourRolePage, declaration.capacityInWhichSigned).success.value
+          .set(YourBusinessEmailPage, declaration.signeesEmailAddress).success.value
 
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 
@@ -183,9 +188,31 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
           .sendReturnSubmittedEmail(any(), any(), any(), any())(using any())
       }
 
+      "fail without submitting when the submission cannot be built" in {
+        val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
+          .set(DeclareDutyPage, false).success.value
+
+        given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
+
+        val buildFailure = new IllegalStateException("Declaration details are required for submission")
+
+        when(mockBuildReturnSubmissionService.buildSubmission(userAnswers, obligation, vpdId, Map(PeriodKey(obligation.periodKey) -> DutyRate(1050))))
+          .thenThrow(buildFailure)
+
+        val exception = service.submit(userAnswers, Seq(obligation)).failed.futureValue
+
+        exception mustBe buildFailure
+        verify(mockSubmitReturnConnector, never()).submitReturn(any(), any())(any())
+        verify(mockAuditService, never()).auditReturnSubmitted(any[JsObject])(any())
+        verify(mockReturnSubmittedEmailService, never())
+          .sendReturnSubmittedEmail(any(), any(), any(), any())(using any())
+      }
+
       "fail when no obligation found" in {
         val userAnswers = ReturnsUserAnswers.getEmptyReturnsUA(vpdId, periodKey)
-          .set(DeclarationPage, declaration).success.value
+          .set(YourFullNamePage, declaration.fullName).success.value
+          .set(YourRolePage, declaration.capacityInWhichSigned).success.value
+          .set(YourBusinessEmailPage, declaration.signeesEmailAddress).success.value
 
         given ReturnsDataRequest[AnyContentAsEmpty.type] = buildReturnsDataRequest(userAnswers, periodKey)
 

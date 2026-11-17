@@ -137,6 +137,24 @@ POST       /complete-return/duty-suspended/enter-received-or-moved-amount       
 GET        /complete-return/duty-suspended/change-enter-received-or-moved-amount            controllers.returns.submit.EnterDutySuspenseController.onPageLoad(mode: Mode = CheckMode)
 POST       /complete-return/duty-suspended/change-enter-received-or-moved-amount            controllers.returns.submit.EnterDutySuspenseController.onSubmit(mode: Mode = CheckMode)
 
+GET        /complete-return/your-details/what-is-your-full-name                             controllers.returns.submit.yourdetails.YourFullNameController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/your-details/what-is-your-full-name                             controllers.returns.submit.yourdetails.YourFullNameController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/your-details/change-what-is-your-full-name                      controllers.returns.submit.yourdetails.YourFullNameController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/your-details/change-what-is-your-full-name                      controllers.returns.submit.yourdetails.YourFullNameController.onSubmit(mode: Mode = CheckMode)
+
+GET        /complete-return/your-details/what-is-your-role-in-the-company                   controllers.returns.submit.yourdetails.YourRoleController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/your-details/what-is-your-role-in-the-company                   controllers.returns.submit.yourdetails.YourRoleController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/your-details/change-what-is-your-role-in-the-company            controllers.returns.submit.yourdetails.YourRoleController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/your-details/change-what-is-your-role-in-the-company            controllers.returns.submit.yourdetails.YourRoleController.onSubmit(mode: Mode = CheckMode)
+
+GET        /complete-return/your-details/what-is-your-business-email-address                controllers.returns.submit.yourdetails.YourBusinessEmailController.onPageLoad(mode: Mode = NormalMode)
+POST       /complete-return/your-details/what-is-your-business-email-address                controllers.returns.submit.yourdetails.YourBusinessEmailController.onSubmit(mode: Mode = NormalMode)
+GET        /complete-return/your-details/change-what-is-your-business-email-address         controllers.returns.submit.yourdetails.YourBusinessEmailController.onPageLoad(mode: Mode = CheckMode)
+POST       /complete-return/your-details/change-what-is-your-business-email-address         controllers.returns.submit.yourdetails.YourBusinessEmailController.onSubmit(mode: Mode = CheckMode)
+
+GET        /complete-return/your-details/check-your-answers                                 controllers.returns.submit.yourdetails.YourDetailsCheckAnswersController.onPageLoad()
+POST       /complete-return/your-details/check-your-answers                                 controllers.returns.submit.yourdetails.YourDetailsCheckAnswersController.onSubmit()
+
 GET        /complete-return/return-submitted                                                controllers.returns.submit.ConfirmationController.onPageLoad()
 
 GET        /complete-return/check-your-answers                                              controllers.returns.submit.CheckYourAnswersController.onPageLoad()

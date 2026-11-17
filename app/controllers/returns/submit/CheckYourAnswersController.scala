@@ -19,6 +19,7 @@ package controllers.returns.submit
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import models.returns.AdjustmentsEligibility
+import navigation.ReturnsNavigator
 import pages.returns.adjustments.AdjustmentListPage
 import pages.returns.SpoiltVolumeByPeriodPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -41,6 +42,7 @@ class CheckYourAnswersController @Inject()(
                                             returnsEnabled: ReturnsEnabledAction,
                                             dutyRateService: DutyRateService,
                                             obligationService: ObligationService,
+                                            navigator: ReturnsNavigator,
                                             val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourAnswersView,
                                             returnsDateUtils: ReturnsDateUtils
@@ -74,6 +76,6 @@ class CheckYourAnswersController @Inject()(
   }
 
   def onSubmit: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
-    Redirect(s"${controllers.returns.submit.routes.DeclarationController.onPageLoad().url}?period=${request.periodKey}")
+    Redirect(navigator.yourDetailsStart(request.userAnswers))
   }
 }
