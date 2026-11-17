@@ -18,17 +18,17 @@ package controllers.returns.submit
 
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
-import models.NormalMode
+import models.{NormalMode, TaskStatus}
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
-import models.returns.ReturnsUserAnswers
+import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import navigation.ReturnsNavigator
 import pages.returns.DeclarationPage
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import queries.returns.ObligationsQuery
-import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
+import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService, TaskStatusService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.ReturnsDateUtils
 import views.html.returns.submit.DeclarationView
@@ -56,10 +56,14 @@ class DeclarationController @Inject()(
   def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
-        val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
+        if (!readyToSubmit(request.userAnswers, obligations)) {
+          Future.successful(Redirect(s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${request.periodKey.value}"))
+        } else {
+          val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
 
-        saveObligations(request.userAnswers, obligations).map { _ =>
-          Ok(view(request.periodKey, periodDisplay.month, periodDisplay.year))
+          saveObligations(request.userAnswers, obligations).map { _ =>
+            Ok(view(request.periodKey, periodDisplay.month, periodDisplay.year))
+          }
         }
       }
   }
@@ -71,13 +75,14 @@ class DeclarationController @Inject()(
       }
   }
 
-  // Uses the obligations saved by onPageLoad so the submit doesn't wait on the Obligations API.
-  // Falls back to the live call if nothing has been saved.
+  private def readyToSubmit(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails]): Boolean =
+    TaskStatusService.allTasksCompleted(userAnswers, AdjustmentsEligibility.fromObligationDetails(obligations)) &&
+      TaskStatusService.yourDetailsTaskStatus(userAnswers) == TaskStatus.Completed
+
+ 
   private def getObligations(using request: ReturnsDataRequest[?]): Future[Seq[ObligationDetails]] =
     obligationService.getObligations(request.userAnswers, request.enrolmentVpdId)
 
-  // Saves the obligations in the user answers so onSubmit does not have to wait on the Obligations API.
-  // An error response is logged and the page still renders; any other failure is left to the framework's error handler.
   private def saveObligations(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
                              (using request: ReturnsDataRequest[?]): Future[Unit] =
     Future.fromTry(userAnswers.set(ObligationsQuery, obligations))
