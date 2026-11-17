@@ -45,7 +45,7 @@ class SubmitReturnService @Inject()(
                                    )(using ExecutionContext) extends Logging {
 
   def submit(ua: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
-            (implicit request: ReturnsDataRequest[?]): Future[ReturnSubmittedResponse] = {
+            (using request: ReturnsDataRequest[?]): Future[ReturnSubmittedResponse] = {
 
     given HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
 
