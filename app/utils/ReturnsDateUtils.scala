@@ -17,7 +17,7 @@
 package utils
 
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.PeriodDisplay
 import play.api.i18n.Messages
 
@@ -84,7 +84,7 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
 
   def getPeriodDisplay(
                         periodKey: PeriodKey,
-                        obligationDetails: Seq[ObligationDetails]
+                        obligationDetails: Seq[Obligation]
                       )(implicit messages: Messages): PeriodDisplay = {
     obligationDetails
       .find(_.periodKey == periodKey.toString)
@@ -102,7 +102,7 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
       }
   }
 
-  def getPeriodDisplay(obligation: ObligationDetails)(implicit messages: Messages): PeriodDisplay = {
+  def getPeriodDisplay(obligation: Obligation)(implicit messages: Messages): PeriodDisplay = {
     val month = obligation.iCFromDate.getMonthValue
     val year = obligation.iCFromDate.getYear
     val monthKey = getMonthMessageKey(month)
@@ -111,7 +111,7 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
 
   def formatPeriodDisplay(
                            periodKey: PeriodKey,
-                           obligationDetails: Seq[ObligationDetails]
+                           obligationDetails: Seq[Obligation]
                          )(implicit messages: Messages): String = {
     getPeriodDisplay(periodKey, obligationDetails).formatted
   }

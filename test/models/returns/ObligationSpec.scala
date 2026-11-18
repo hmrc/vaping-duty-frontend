@@ -17,13 +17,13 @@
 package models.returns
 
 import base.SpecBase
-import models.obligations.{ObligationDetails, ObligationStatus}
+import models.obligations.{Obligation, ObligationStatus}
 import play.api.libs.json.Json
 
 import java.time.LocalDate
 
-class ObligationDetailsSpec extends SpecBase {
-  val obligationDetails: ObligationDetails = ObligationDetails(
+class ObligationSpec extends SpecBase {
+  val obligationDetails: Obligation = Obligation(
     openOrFulfilledStatus = ObligationStatus.O.toString,
     iCFromDate = LocalDate.of(2024, 4, 6),
     iCToDate = LocalDate.of(2024, 7, 5),
@@ -32,9 +32,9 @@ class ObligationDetailsSpec extends SpecBase {
     periodKey = "24KB"
   )
 
-  val obligationDetailsWithoutDateReceived: ObligationDetails = obligationDetails.copy(iCDateReceived = None)
+  val obligationDetailsWithoutDateReceived: Obligation = obligationDetails.copy(iCDateReceived = None)
 
-  "ObligationDetails" - {
+  "Obligation" - {
     val json = """{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24KB"}"""
 
     val jsonWithoutDateReceived = """{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDueDate":"2024-08-05","periodKey":"24KB"}"""
@@ -44,7 +44,7 @@ class ObligationDetailsSpec extends SpecBase {
     }
 
     "must deserialise from json" in {
-      Json.parse(json).as[ObligationDetails] mustBe obligationDetails
+      Json.parse(json).as[Obligation] mustBe obligationDetails
     }
 
     "must serialise to json when iCDateReceived is None" in {
@@ -52,7 +52,7 @@ class ObligationDetailsSpec extends SpecBase {
     }
 
     "must deserialise from json when iCDateReceived is absent" in {
-      Json.parse(jsonWithoutDateReceived).as[ObligationDetails] mustBe obligationDetailsWithoutDateReceived
+      Json.parse(jsonWithoutDateReceived).as[Obligation] mustBe obligationDetailsWithoutDateReceived
     }
   }
 }

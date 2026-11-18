@@ -29,14 +29,14 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
   "AdjustmentVolumeWithTypeViewModel" - {
 
     "must return the formatted month and year when a matching obligation is found" in {
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
+      val obligationDetails = Seq(fulfilledObligation(october2027))
       val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, periodKey, october2027, NormalMode, dateUtils)
 
       vm.periodDisplay mustBe "October 2027"
     }
 
     "must build the POST submit action with the period and adjustment period query params" in {
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
+      val obligationDetails = Seq(fulfilledObligation(october2027))
       val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, periodKey, october2027, NormalMode, dateUtils)
 
       vm.submitAction.method mustBe "POST"
@@ -46,7 +46,7 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
     }
 
     "must build the submit action for CheckMode" in {
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
+      val obligationDetails = Seq(fulfilledObligation(october2027))
       val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, periodKey, october2027, CheckMode, dateUtils)
 
       vm.submitAction.url mustBe
@@ -56,7 +56,7 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
 
     "must throw IllegalStateException when no matching obligation is found" in {
       val unknownPeriodKey = PeriodKey("99ZZ")
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
+      val obligationDetails = Seq(fulfilledObligation(october2027))
 
       val exception = intercept[IllegalStateException] {
         AdjustmentVolumeWithTypeViewModel(obligationDetails, periodKey, unknownPeriodKey, NormalMode, dateUtils)
@@ -94,7 +94,7 @@ class AdjustmentVolumeWithTypeViewModelSpec extends SpecBase {
       )
 
       allMonthPeriodKeys.foreach { case (key, expectedDisplay) =>
-        val obligationDetails = obligations(Seq(fulfilledObligation(key))).flatMap(_.obligationDetails)
+        val obligationDetails = Seq(fulfilledObligation(key))
         val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, periodKey, key, NormalMode, dateUtils)
         vm.periodDisplay mustBe expectedDisplay
       }

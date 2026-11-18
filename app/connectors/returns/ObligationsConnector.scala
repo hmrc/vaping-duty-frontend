@@ -18,7 +18,7 @@ package connectors.returns
 
 import config.FrontendAppConfig
 import models.identifiers.VpdId
-import models.obligations.ObligationsResponse
+import models.obligations.Obligation
 import play.api.Logging
 import play.api.http.Status.*
 import uk.gov.hmrc.http.*
@@ -35,7 +35,7 @@ class ObligationsConnector @Inject()(
                                     (using ExecutionContext) extends HttpReadsInstances with Logging {
 
   def getObligations(vpdId: VpdId)
-                    (using HeaderCarrier): Future[ObligationsResponse] =
+                    (using HeaderCarrier): Future[Seq[Obligation]] =
 
     httpClient
       .get(url"${config.getObligationsUrl(vpdId)}")
@@ -44,7 +44,7 @@ class ObligationsConnector @Inject()(
         response.status match {
           case OK =>
             Try {
-              response.json.as[ObligationsResponse]
+              response.json.as[Seq[Obligation]]
             } match {
               case Success(doc) =>
                 Future.successful(doc)

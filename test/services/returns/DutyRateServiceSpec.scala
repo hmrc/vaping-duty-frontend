@@ -18,7 +18,7 @@ package services.returns
 
 import base.SpecBase
 import config.DutyRateConfig
-import models.obligations.{ObligationDetails, ObligationStatus}
+import models.obligations.{Obligation, ObligationStatus}
 import models.returns.{ConfigDutyRate, DutyRate}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
@@ -56,7 +56,7 @@ class DutyRateServiceSpec extends SpecBase with MockitoSugar {
     )
   )
 
-  private val testObligation = ObligationDetails(
+  private val testObligation = Obligation(
     openOrFulfilledStatus = ObligationStatus.O.toString,
     iCFromDate = LocalDate.of(2026, 1, 1),
     iCToDate = LocalDate.of(2026, 1, 31),

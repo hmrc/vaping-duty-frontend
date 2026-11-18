@@ -27,10 +27,10 @@ class SelectAdjustmentPeriodViewModelSpec extends SpecBase {
   "SelectAdjustmentPeriodViewModel" - {
 
     "must create view model with available periods" in {
-      val obligationDetails = obligations(Seq(
+      val obligationDetails = Seq(
         fulfilledObligation(october2027),
         fulfilledObligation(december2027)
-      )).flatMap(_.obligationDetails)
+      )
 
       val vm = SelectAdjustmentPeriodViewModel(
         obligationDetails,
@@ -45,10 +45,10 @@ class SelectAdjustmentPeriodViewModelSpec extends SpecBase {
     }
 
     "must filter out current return period" in {
-      val obligationDetails = obligations(Seq(
+      val obligationDetails = Seq(
         fulfilledObligation(periodKey),
         fulfilledObligation(october2027)
-      )).flatMap(_.obligationDetails)
+      )
 
       val vm = SelectAdjustmentPeriodViewModel(
         obligationDetails,
@@ -70,10 +70,10 @@ class SelectAdjustmentPeriodViewModelSpec extends SpecBase {
       )
       val adjustmentList = AdjustmentList(Seq(adjustment))
       
-      val obligationDetails = obligations(Seq(
+      val obligationDetails = Seq(
         fulfilledObligation(october2027),
         fulfilledObligation(december2027)
-      )).flatMap(_.obligationDetails)
+      )
 
       val vm = SelectAdjustmentPeriodViewModel(
         obligationDetails,

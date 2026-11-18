@@ -18,7 +18,7 @@ package services.returns
 
 import com.google.inject.{Inject, Singleton}
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.adjustments.*
 import models.returns.{ReturnsConstants, ReturnsUserAnswers}
 import pages.returns.adjustments.{AdjustmentListPage, AdjustmentReasonPage}
@@ -102,7 +102,7 @@ class AdjustmentVolumeService @Inject()(
                             userAnswers: ReturnsUserAnswers,
                             adjustmentPeriodKey: PeriodKey,
                             formData: AdjustmentVolumeWithTypeFormData,
-                            obligationDetails: Seq[ObligationDetails]
+                            obligationDetails: Seq[Obligation]
                           )(using HeaderCarrier): Future[AdjustmentUpdateResult] = {
     val existingList = userAnswers.get(AdjustmentListPage).getOrElse(AdjustmentList.empty)
 

@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-final case class ObligationDetails(
+final case class Obligation(
   openOrFulfilledStatus: String,
   iCFromDate: LocalDate,
   iCToDate: LocalDate,
@@ -29,6 +29,6 @@ final case class ObligationDetails(
   periodKey: String
 )
 
-object ObligationDetails {
-  given format: OFormat[ObligationDetails] = Json.format[ObligationDetails]
+object Obligation {
+  given format: OFormat[Obligation] = Json.format[Obligation]
 }

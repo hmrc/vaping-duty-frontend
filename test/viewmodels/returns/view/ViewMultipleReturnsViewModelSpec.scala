@@ -17,7 +17,7 @@
 package viewmodels.returns.view
 
 import base.SpecBase
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 
 import java.time.{Clock, LocalDate}
 

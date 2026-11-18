@@ -19,7 +19,7 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import models.Mode
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.{DutyRate, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import pages.returns.{DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
 import play.api.i18n.Messages
@@ -108,7 +108,7 @@ class SpoiltCheckYourAnswersService @Inject()(
 
   private def getDutyRatesForSpoiltEntries(
                                             spoiltList: Option[List[SpoiltVolumeByPeriod]],
-                                            obligationDetails: Seq[ObligationDetails]
+                                            obligationDetails: Seq[Obligation]
                                           ): Map[PeriodKey, DutyRate] = {
     val uniquePeriods = spoiltList.getOrElse(List.empty).map(_.periodKey).distinct
 

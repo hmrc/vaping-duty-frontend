@@ -17,7 +17,7 @@
 package viewmodels.returns.view
 
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationStatus}
+import models.obligations.{Obligation, ObligationStatus}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.PaginationItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -39,7 +39,7 @@ object ViewMultipleReturnsViewModel {
   private val TAG_CLASS_BLUE = "govuk-tag--blue"
   private val TAG_CLASS_RED = "govuk-tag--red"
 
-  def apply(obligationsResponse: Seq[ObligationDetails], currentYear: Int, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
+  def apply(obligationsResponse: Seq[Obligation], currentYear: Int, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
            (implicit messages: Messages): ViewMultipleReturnsViewModel = {
 
     val (outstandingObligations, fulfilledObligations) =
@@ -56,7 +56,7 @@ object ViewMultipleReturnsViewModel {
       shouldShowSection = outstandingItems.nonEmpty
     )
 
-    val completedByYear: Map[Int, Seq[ObligationDetails]] =
+    val completedByYear: Map[Int, Seq[Obligation]] =
       fulfilledObligations
         .groupBy(_.iCFromDate.getYear)
 
@@ -91,7 +91,7 @@ object ViewMultipleReturnsViewModel {
     )
   }
 
-  private def createOutstandingTaskListItem(details: ObligationDetails, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
+  private def createOutstandingTaskListItem(details: Obligation, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
                                            (implicit messages: Messages): TaskListItem = {
 
     val month = Month.of(details.iCFromDate.getMonthValue)
@@ -119,7 +119,7 @@ object ViewMultipleReturnsViewModel {
     )
   }
 
-  private def createCompletedTaskListItem(details: ObligationDetails, returnsDateUtils: ReturnsDateUtils)
+  private def createCompletedTaskListItem(details: Obligation, returnsDateUtils: ReturnsDateUtils)
                                          (implicit messages: Messages): TaskListItem = {
 
     val month = Month.of(details.iCFromDate.getMonthValue)

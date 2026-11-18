@@ -22,6 +22,7 @@ import data.TestData
 import play.api.Application
 import play.api.http.Status.*
 import play.api.libs.json.Json
+import uk.gov.hmrc.http.InternalServerException
 import utils.WireMockHelper
 
 class ObligationsConnectorISpec extends ISpecBase with WireMockHelper with TestData {
@@ -38,12 +39,12 @@ class ObligationsConnectorISpec extends ISpecBase with WireMockHelper with TestD
 
     "successfully retrieve obligation data" in {
       server.stubFor(
-        get(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(createMockObligationsResponse()).toString))
+        get(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(createMockObligations()).toString))
       )
 
       val result = connector.getObligations(vpdId).futureValue
 
-      result mustBe createMockObligationsResponse()
+      result mustBe createMockObligations()
     }
 
     "fail when invalid JSON is returned" in {
@@ -58,9 +59,22 @@ class ObligationsConnectorISpec extends ISpecBase with WireMockHelper with TestD
       }
     }
 
+    "fail when OK is returned with a body that is not a list of obligations" in {
+      server.stubFor(
+        get(url).willReturn(aResponse().withStatus(OK).withBody("""{"obligation":[]}"""))
+      )
+
+      val result = connector.getObligations(vpdId)
+
+      whenReady(result.failed) { exception =>
+        exception mustBe an[InternalServerException]
+        exception.getMessage mustBe "Parsing failed for obligations response"
+      }
+    }
+
     "fail when an unexpected status code is returned" in {
       server.stubFor(
-        get(url).willReturn(aResponse().withStatus(BAD_GATEWAY).withBody(Json.toJson(createMockObligationsResponse()).toString))
+        get(url).willReturn(aResponse().withStatus(BAD_GATEWAY).withBody(Json.toJson(createMockObligations()).toString))
       )
 
       val result = connector.getObligations(vpdId)

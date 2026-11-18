@@ -18,27 +18,12 @@ package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationItem, ObligationStatus}
 import viewmodels.returns.submit.ConfirmationViewModel
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
-
-  private def createObligation(): ObligationItem = {
-    ObligationItem(
-      identification = None,
-      obligationDetails = Seq(ObligationDetails(
-        openOrFulfilledStatus = ObligationStatus.F.toString,
-        iCFromDate = obligationDetailsJuly.iCFromDate,
-        iCToDate = obligationDetailsJuly.iCToDate,
-        iCDateReceived = obligationDetailsJuly.iCDateReceived,
-        iCDueDate = obligationDetailsJuly.iCDueDate,
-        periodKey = obligationDetailsJuly.periodKey
-      ))
-    )
-  }
 
   private val obligationDetailsJuly = fulfilledObligation(PeriodKey("24KG"))
   private val paymentLink = "paymentLink"
@@ -47,7 +32,7 @@ class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
   "ConfirmationViewModel" - {
 
     val returnsResponse = createReturnDisplayResponse()
-    val obligation = createObligation().obligationDetails.head
+    val obligation = obligationDetailsJuly
     val paymentDueDate = LocalDate.of(2024, 8, 15)
 
     "must extract and format submission date correctly" in {

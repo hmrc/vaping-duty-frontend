@@ -18,7 +18,7 @@ package services.returns
 
 import base.SpecBase
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -36,7 +36,7 @@ class YourDetailsServiceSpec extends SpecBase with MockitoSugar {
   private val notEligible = Seq(openObligation(periodKey))
   private val eligible = Seq(openObligation(periodKey), fulfilledObligation(PeriodKey("26KE")))
 
-  private def serviceWith(obligations: Seq[ObligationDetails]): YourDetailsService = {
+  private def serviceWith(obligations: Seq[Obligation]): YourDetailsService = {
     val mockObligationService = mock[ObligationService]
     when(mockObligationService.getObligations(any(), any())(using any()))
       .thenReturn(Future.successful(obligations))

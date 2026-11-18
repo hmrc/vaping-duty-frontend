@@ -18,7 +18,7 @@ package viewmodels.returns.submit.adjustments
 
 import models.{Mode, NormalMode}
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.adjustments.AdjustmentList
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -36,7 +36,7 @@ case class SelectAdjustmentPeriodViewModel(
 object SelectAdjustmentPeriodViewModel {
 
   def apply(
-             obligationDetails: Seq[ObligationDetails],
+             obligationDetails: Seq[Obligation],
              selectedYear: Option[Int],
              currentReturnPeriod: PeriodKey,
              adjustmentList: Option[AdjustmentList],

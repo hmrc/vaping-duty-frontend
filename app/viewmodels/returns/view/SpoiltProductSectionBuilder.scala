@@ -16,7 +16,7 @@
 
 package viewmodels.returns.view
 
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.ConvertToMl
 import models.returns.view.SpoiltProduct
 import play.api.i18n.Messages
@@ -27,7 +27,7 @@ import utils.{CssConstants, CurrencyFormatter, ReturnsDateUtils}
 final case class SpoiltProductSectionBuilder(
   spoiltProduct: Option[SpoiltProduct],
   totalDutySpoiltProducts: String,
-  obligationDetails: Seq[ObligationDetails],
+  obligationDetails: Seq[Obligation],
   returnsDateUtils: ReturnsDateUtils
 ) extends CurrencyFormatter {
 

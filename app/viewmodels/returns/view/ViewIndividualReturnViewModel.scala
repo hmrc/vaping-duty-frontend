@@ -17,7 +17,7 @@
 package viewmodels.returns.view
 
 import models.ChargeReference
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.ConvertToMl
 import models.returns.view.*
 import play.api.i18n.Messages
@@ -47,7 +47,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
   def apply(
              returnsData: ReturnDisplayResponse,
-             obligationDetails: Seq[ObligationDetails],
+             obligationDetails: Seq[Obligation],
              returnsDateUtils: ReturnsDateUtils
            )(using messages: Messages): ViewIndividualReturnViewModel = {
 

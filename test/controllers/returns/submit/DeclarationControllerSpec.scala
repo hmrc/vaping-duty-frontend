@@ -20,7 +20,7 @@ import base.SpecBase
 import connectors.returns.ObligationsConnector
 import models.emailverification.ErrorModel
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationsResponse}
+import models.obligations.Obligation
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
@@ -61,12 +61,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
     .set(YourFullNamePage, validDeclaration.fullName).success.value
 
 
-  private val obligationDataSingleOpen: ObligationsResponse = ObligationsResponse(
-    obligation = obligations(Seq(openObligation(june2026)))
-  )
-
-  private val obligationDetailsSingleOpen: Seq[ObligationDetails] =
-    obligationDataSingleOpen.obligation.flatMap(_.obligationDetails)
+  private val obligationDetailsSingleOpen: Seq[Obligation] = Seq(openObligation(june2026))
 
   private def stubbedSessionRepository(): ReturnsUserAnswersService = {
     val mockSessionRepository = mock[ReturnsUserAnswersService]
@@ -388,7 +383,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockSessionRepository.clear(any(), any())(any()))
           .thenReturn(Future.successful(Right(())))
         when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(obligationDataSingleOpen))
+          .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
         val application =
           applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))

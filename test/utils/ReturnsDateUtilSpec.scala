@@ -87,7 +87,7 @@ class ReturnsDateUtilSpec extends SpecBase with Matchers {
     }
   }
 
-  "ReturnsDateUtil.formatPeriodDisplay with ObligationDetails sequence" - {
+  "ReturnsDateUtil.formatPeriodDisplay with Obligation sequence" - {
 
     "must format period display correctly when period key is found" in {
       lazy val app = applicationBuilder().build()

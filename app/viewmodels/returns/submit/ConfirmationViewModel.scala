@@ -18,7 +18,7 @@ package viewmodels.returns.submit
 
 import models.ChargeReference
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.ReturnsConstants
 import models.returns.view.ReturnDisplayResponse
 import play.api.i18n.Messages
@@ -51,7 +51,7 @@ object ConfirmationViewModel extends CurrencyFormatter {
 
   def apply(
     returnsResponse: ReturnDisplayResponse,
-    obligation: ObligationDetails,
+    obligation: Obligation,
     btaLink: String,
     paymentLink: String,
     repaymentUrl: String,

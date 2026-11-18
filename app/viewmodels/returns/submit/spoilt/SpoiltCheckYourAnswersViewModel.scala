@@ -18,7 +18,7 @@ package viewmodels.returns.submit.spoilt
 
 import models.Mode
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.{DutyRate, SpoiltVolumeByPeriod}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
@@ -40,7 +40,7 @@ object SpoiltCheckYourAnswersViewModel {
   def apply(
              declareSpoiltProducts: Option[Boolean],
              spoiltList: Option[List[SpoiltVolumeByPeriod]],
-             obligationDetails: Seq[ObligationDetails],
+             obligationDetails: Seq[Obligation],
              periodKey: PeriodKey,
              dutyRates: Map[PeriodKey, DutyRate],
              returnsDateUtils: ReturnsDateUtils,
@@ -73,17 +73,17 @@ object SpoiltCheckYourAnswersViewModel {
   }
 
   def hasAvailablePeriodsToAdd(
-                                obligationDetails: Seq[ObligationDetails],
+                                obligationDetails: Seq[Obligation],
                                 periodKey: PeriodKey,
                                 spoiltList: Option[List[SpoiltVolumeByPeriod]]
                               ): Boolean =
     calculateAvailablePeriods(obligationDetails, periodKey, spoiltList.getOrElse(List.empty)).nonEmpty
 
   private def calculateAvailablePeriods(
-                                         obligationDetails: Seq[ObligationDetails],
+                                         obligationDetails: Seq[Obligation],
                                          currentReturnPeriod: PeriodKey,
                                          spoiltEntries: List[SpoiltVolumeByPeriod]
-                                       ): Seq[ObligationDetails] = {
+                                       ): Seq[Obligation] = {
     val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
       .filter(_.periodKey != currentReturnPeriod.toString)
 
@@ -102,7 +102,7 @@ object SpoiltCheckYourAnswersViewModel {
 
   private def buildSummaryCard(
                                 entry: SpoiltVolumeByPeriod,
-                                obligationDetails: Seq[ObligationDetails],
+                                obligationDetails: Seq[Obligation],
                                 currentPeriodKey: PeriodKey,
                                 dutyRates: Map[PeriodKey, DutyRate],
                                 returnsDateUtils: ReturnsDateUtils,

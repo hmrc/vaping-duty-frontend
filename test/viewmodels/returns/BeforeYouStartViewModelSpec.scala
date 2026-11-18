@@ -18,7 +18,7 @@ package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.AdjustmentsEligibility
 import viewmodels.returns.submit.BeforeYouStartViewModel
 

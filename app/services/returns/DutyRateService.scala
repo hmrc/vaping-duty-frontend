@@ -19,7 +19,7 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import config.DutyRateConfig
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.DutyRate
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -54,13 +54,13 @@ class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationServic
       }
     }
 
-  def getDutyRatesForPeriodKeys(obligations: Seq[ObligationDetails]): Map[PeriodKey, DutyRate] = {
+  def getDutyRatesForPeriodKeys(obligations: Seq[Obligation]): Map[PeriodKey, DutyRate] = {
     obligations.map(o => PeriodKey(o.periodKey) -> getDutyRateForDate(o.iCFromDate)).toMap
   }
 
   def getDutyRatesForPeriods(
                                periods: Seq[PeriodKey],
-                               obligationDetails: Seq[ObligationDetails]
+                               obligationDetails: Seq[Obligation]
                              ): Map[PeriodKey, DutyRate] = {
     periods.map { period =>
       val obligation = obligationDetails.find(_.periodKey == period.toString)

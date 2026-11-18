@@ -16,7 +16,7 @@
 
 package viewmodels.returns.submit.spoilt
 
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.{DutyRate, SpoiltVolumeByPeriod}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -29,7 +29,7 @@ object RemoveSpoiltAdjustmentViewModel {
 
   def apply(
              entry: SpoiltVolumeByPeriod,
-             obligationDetails: Seq[ObligationDetails],
+             obligationDetails: Seq[Obligation],
              dutyRate: DutyRate,
              returnsDateUtils: ReturnsDateUtils
            )(implicit messages: Messages): RemoveSpoiltAdjustmentViewModel = {

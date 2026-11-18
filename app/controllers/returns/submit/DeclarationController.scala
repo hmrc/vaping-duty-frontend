@@ -19,7 +19,7 @@ package controllers.returns.submit
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
 import models.{NormalMode, TaskStatus}
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.requests.returns.ReturnsDataRequest
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import navigation.ReturnsNavigator
@@ -75,15 +75,15 @@ class DeclarationController @Inject()(
       }
   }
 
-  private def readyToSubmit(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails]): Boolean =
+  private def readyToSubmit(userAnswers: ReturnsUserAnswers, obligations: Seq[Obligation]): Boolean =
     TaskStatusService.allTasksCompleted(userAnswers, AdjustmentsEligibility.fromObligationDetails(obligations)) &&
       TaskStatusService.yourDetailsSubTaskStatus(userAnswers) == TaskStatus.Completed
 
  
-  private def getObligations(using request: ReturnsDataRequest[?]): Future[Seq[ObligationDetails]] =
+  private def getObligations(using request: ReturnsDataRequest[?]): Future[Seq[Obligation]] =
     obligationService.getObligations(request.userAnswers, request.enrolmentVpdId)
 
-  private def saveObligations(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
+  private def saveObligations(userAnswers: ReturnsUserAnswers, obligations: Seq[Obligation])
                              (using request: ReturnsDataRequest[?]): Future[Unit] =
     Future.fromTry(userAnswers.set(ObligationsQuery, obligations))
       .flatMap(sessionRepository.set)
@@ -92,7 +92,7 @@ class DeclarationController @Inject()(
         case Left(error) => logger.warn(s"Failed to save obligations in user answers: ${error.message}")
       }
 
-  private def submitAndContinue(updatedAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
+  private def submitAndContinue(updatedAnswers: ReturnsUserAnswers, obligations: Seq[Obligation])
                                (using request: ReturnsDataRequest[?]): Future[Result] = {
                                
     submitReturnService.submit(updatedAnswers, obligations)

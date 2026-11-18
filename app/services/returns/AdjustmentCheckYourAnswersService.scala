@@ -18,7 +18,7 @@ package services.returns
 
 import com.google.inject.{Inject, Singleton}
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.adjustments.{AdjustmentDutyCalculator, AdjustmentList}
 import models.returns.{DutyRate, ReturnsUserAnswers}
 import models.{Mode, NormalMode}
@@ -136,7 +136,7 @@ class AdjustmentCheckYourAnswersService @Inject()(
 
   private def getDutyRatesForAdjustments(
                                           adjustmentList: Option[AdjustmentList],
-                                          obligationDetails: Seq[ObligationDetails]
+                                          obligationDetails: Seq[Obligation]
                                         ): Map[PeriodKey, DutyRate] = {
     val uniquePeriods = adjustmentList
       .map(_.adjustments.map(_.period).distinct)

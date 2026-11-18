@@ -179,7 +179,7 @@ class SpoiltCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar with 
         .thenReturn(Future.successful(Seq(obligationForSpoilt)))
       when(mockDutyRateService.getDutyRateForDate(any()))
         .thenReturn(TEN_POUNDS_PER_10ML)
-      when(mockReturnsDateUtils.formatPeriodDisplay(eqTo(spoiltPeriodKey), any[Seq[models.obligations.ObligationDetails]])(using any()))
+      when(mockReturnsDateUtils.formatPeriodDisplay(eqTo(spoiltPeriodKey), any[Seq[models.obligations.Obligation]])(using any()))
         .thenReturn("December 2026")
 
       val result = service.buildRemoveViewModel(

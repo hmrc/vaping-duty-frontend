@@ -19,7 +19,7 @@ package controllers.returns.submit.adjustments
 import base.SpecBase
 import models.NormalMode
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import models.returns.{DutyRate, MaxVolumeResult}
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
@@ -41,7 +41,7 @@ class AdjustmentVolumeWithTypeControllerSpec extends SpecBase with MockitoSugar 
 
   private val adjustmentPeriodKey: PeriodKey = october2027
 
-  private val fulfilledObligationDetails: Seq[ObligationDetails] = Seq(fulfilledObligation(adjustmentPeriodKey))
+  private val fulfilledObligationDetails: Seq[Obligation] = Seq(fulfilledObligation(adjustmentPeriodKey))
 
   override val testDutyRate: DutyRate = DutyRate(3370)
   val testMaxVolume: BigDecimal = BigDecimal("29000000000")

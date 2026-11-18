@@ -22,7 +22,7 @@ import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvenc
 import controllers.actions.returns.*
 import models.BtaLink
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.requests.IdentifierRequest
 import models.returns.view.ReturnDisplayResponse
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -85,7 +85,7 @@ class ConfirmationController @Inject()(
   }
 
   private def getObligation(periodKey: PeriodKey)
-                           (using request: IdentifierRequest[?]): Future[ObligationDetails] =
+                           (using request: IdentifierRequest[?]): Future[Obligation] =
     obligationService.getObligationByPeriodKey(request.enrolmentVpdId, periodKey).map {
       case Some(obligation) => obligation
       case None =>
