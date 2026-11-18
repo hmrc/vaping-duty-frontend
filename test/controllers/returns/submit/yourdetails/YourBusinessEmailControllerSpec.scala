@@ -19,11 +19,10 @@ package controllers.returns.submit.yourdetails
 import base.SpecBase
 import forms.returns.yourdetails.YourBusinessEmailFormProvider
 import models.{CheckMode, NormalMode}
-import models.identifiers.PeriodKey
-import queries.returns.ObligationsQuery
+import models.identifiers.{PeriodKey, VpdId}
 import navigation.{ReturnsFakeNavigator, ReturnsNavigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage}
 import pages.returns.yourdetails.YourBusinessEmailPage
@@ -52,7 +51,7 @@ class YourBusinessEmailControllerSpec extends SpecBase with MockitoSugar {
 
   private def stubbedObligationService(): ObligationService = {
     val mockObligationService = mock[ObligationService]
-    when(mockObligationService.getObligations(any(), any())(using any()))
+    when(mockObligationService.getObligations(any[VpdId]())(using any()))
       .thenReturn(Future.successful(Seq(openObligation(periodKey))))
     mockObligationService
   }
@@ -121,7 +120,7 @@ class YourBusinessEmailControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
-        verify(mockObligationService, never()).getObligations(any(), any())(using any())
+        verify(mockObligationService, never()).getObligations(any[VpdId]())(using any())
       }
     }
 
@@ -151,22 +150,6 @@ class YourBusinessEmailControllerSpec extends SpecBase with MockitoSugar {
         val request = FakeRequest(GET, normalRoute)
 
         contentAsString(route(application, request).value) must include("Return for June 2026")
-      }
-    }
-
-    "must use the obligations saved in the user answers for the caption" in {
-      val mockObligationService = stubbedObligationService()
-      val cachedAnswers = tasksCompleted.set(ObligationsQuery, Seq(openObligation(periodKey))).success.value
-
-      val application = appWith(Some(cachedAnswers), mockObligationService).build()
-
-      running(application) {
-        val request = FakeRequest(GET, normalRoute)
-
-        status(route(application, request).value) mustEqual OK
-        // Both the task check and the caption read the saved obligations, so neither goes to the Obligations API
-        verify(mockObligationService, times(2)).getObligations(org.mockito.ArgumentMatchers.eq(cachedAnswers), any())(using any())
-        verify(mockObligationService, never()).getObligations(any[models.identifiers.VpdId]())(using any())
       }
     }
 
@@ -200,7 +183,7 @@ class YourBusinessEmailControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to return submission recovery for a GET when adjustments are eligible and not yet complete" in {
       val mockObligationService = mock[ObligationService]
-      when(mockObligationService.getObligations(any(), any())(using any()))
+      when(mockObligationService.getObligations(any[VpdId]())(using any()))
         .thenReturn(Future.successful(Seq(openObligation(periodKey), fulfilledObligation(PeriodKey("26KE")))))
 
       val application = appWith(Some(tasksCompleted), mockObligationService).build()

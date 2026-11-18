@@ -87,6 +87,6 @@ class YourBusinessEmailController @Inject()(
   }
 
   private def periodDisplay(using request: ReturnsDataRequest[?]): Future[PeriodDisplay] =
-    obligationService.getObligations(request.userAnswers, request.enrolmentVpdId)
+    obligationService.getObligations(request.enrolmentVpdId)
       .map(obligations => returnsDateUtils.getPeriodDisplay(request.periodKey, obligations))
 }
