@@ -448,8 +448,8 @@ returns.confirmation.chaps.bullet.linkText = Pay your duty by CHAPS
 returns.confirmation.chaps.bullet.bta.prefix = Go to your
 
 returns.confirmation.inset.youHave = You have nothing to pay for this return period.
-returns.confirmation.inset.negative.prefix = You are owed {0}. This amount will be credited to your next Vaping Duty return unless you claim a
-returns.confirmation.inset.negative.linkText = repayment
+returns.confirmation.inset.negative.prefix = You are owed {0}. This amount will be credited to your next Vaping Duty return unless you
+returns.confirmation.inset.negative.linkText = claim a repayment
 returns.confirmation.inset.negative.suffix = .
 
 returns.declaration.title = Declaration
