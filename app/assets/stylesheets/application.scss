@@ -19,6 +19,10 @@
   justify-content: flex-start;
 }
 
+.govuk-task-list__status {
+  text-wrap: nowrap;
+}
+
 .govuk-tag {
   margin-left: auto;
   align-self: center;
@@ -55,6 +59,12 @@ span.govuk-visually-hidden {
   .govuk-tag {
     margin-right: auto;
     margin-left: 0;
+  }
+}
+
+@media screen and (max-width: 449px) {
+  .govuk-task-list__status {
+    text-wrap: wrap;
   }
 }
 
