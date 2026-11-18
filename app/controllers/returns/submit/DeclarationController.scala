@@ -16,8 +16,8 @@
 
 package controllers.returns.submit
 
-import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import controllers.actions.returns.*
+import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
 import models.NormalMode
 import navigation.ReturnsNavigator
 import pages.returns.DeclarationPage
@@ -46,9 +46,12 @@ class DeclarationController @Inject()(
   def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
     implicit request =>
       declarationService
-        .buildViewModel(request.enrolmentVpdId, request.periodKey, request.userAnswers).map(vm =>
-          Ok(view(vm))
-        )
+        .buildViewModel(request.enrolmentVpdId, request.periodKey, request.userAnswers).map {
+          case Some(vm) => Ok(view(vm))
+          case None =>
+            Redirect(s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}" +
+              s"?period=${request.periodKey.value}")
+        }
   }
 
   def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
@@ -57,19 +60,5 @@ class DeclarationController @Inject()(
         case Right(_) => Redirect(navigator.nextPage(DeclarationPage, NormalMode, request.userAnswers))
         case Left(_)  => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
-  }
-
-  private def readyToSubmit(userAnswers: ReturnsUserAnswers, obligations: Seq[ObligationDetails]): Boolean =
-    TaskStatusService.allTasksCompleted(userAnswers, AdjustmentsEligibility.fromObligationDetails(obligations)) &&
-      TaskStatusService.yourDetailsSubTaskStatus(userAnswers) == TaskStatus.Completed
-
-  if (!readyToSubmit(request.userAnswers, obligations)) {
-    Future.successful(Redirect(s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${request.periodKey.value}"))
-  } else {
-    val periodDisplay = returnsDateUtils.getPeriodDisplay(request.periodKey, obligations)
-
-    saveObligations(request.userAnswers, obligations).map { _ =>
-      Ok(view(request.periodKey, periodDisplay.month, periodDisplay.year))
-    }
   }
 }
