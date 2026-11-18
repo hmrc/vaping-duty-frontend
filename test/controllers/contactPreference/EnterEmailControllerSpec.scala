@@ -17,320 +17,183 @@
 package controllers.contactPreference
 
 import base.SpecBase
-import cats.data.EitherT
-import connectors.contactPreference.EmailVerificationConnector
-import controllers.routes
 import forms.contactPreference.EnterEmailFormProvider
 import models.NormalMode
-import models.emailverification.{EmailVerificationDetails, ErrorModel, RedirectUri}
+import models.contactPreference.EnterEmailOutcome
+import models.emailverification.ErrorModel
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.contactPreference.EnterEmailPage
+import play.api.Application
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
-import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.contactPreference.{EmailVerificationService, PreferenceUserAnswersService}
-import uk.gov.hmrc.http.HttpResponse
+import services.contactPreference.EnterEmailService
 import views.html.contactPreference.EnterEmailView
 
 import scala.concurrent.Future
 
 class EnterEmailControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute = Call("GET", "/foo")
+  private val ONWARD_URL = "/foo"
+  private val VERIFICATION_URL = "/email-verification/redirect"
+  private val ERROR_MESSAGE = "There was a problem"
+  private val INVALID_FIELD_KEY = "value"
+  private val EMPTY_VALUE = ""
 
-  val formProvider = new EnterEmailFormProvider()
-  val form = formProvider()
+  private val onwardRoute: Call = Call(GET, ONWARD_URL)
 
-  lazy val enterEmailRoute = controllers.contactPreference.routes.EnterEmailController.onPageLoad(NormalMode).url
+  private val formProvider = new EnterEmailFormProvider()
+  private val form: Form[String] = formProvider()
+
+  private lazy val enterEmailRoute = controllers.contactPreference.routes.EnterEmailController.onPageLoad(NormalMode).url
+  private lazy val lockedEmailRoute = controllers.contactPreference.routes.LockedEmailController.onPageLoad().url
+  private lazy val journeyRecoveryRoute = controllers.routes.JourneyRecoveryController.onPageLoad().url
+
+  private def applicationWith(mockEnterEmailService: EnterEmailService): Application =
+    applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      .overrides(
+        bind[EnterEmailService].toInstance(mockEnterEmailService),
+        bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig))
+      )
+      .build()
+
+  private def stubbedService(result: Either[ErrorModel, EnterEmailOutcome]): EnterEmailService = {
+    val mockEnterEmailService: EnterEmailService = mock[EnterEmailService]
+    when(mockEnterEmailService.submitEmail(any(), any(), any())(using any(), any()))
+      .thenReturn(Future.successful(result))
+    mockEnterEmailService
+  }
+
+  private def validPost = FakeRequest(POST, enterEmailRoute).withFormUrlEncodedBody((formProvider.EMAIL, emailAddress))
 
   "EnterEmail Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "onPageLoad" - {
 
-      val mockUserAnswersService = mock[PreferenceUserAnswersService]
+      "must return OK and the correct view for a GET" in {
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
-      when(mockUserAnswersService.get(any())(any())).thenReturn(Future.successful(emptyUserAnswers))
+        running(application) {
+          val request = FakeRequest(GET, enterEmailRoute)
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
-        .build()
+          val result = route(application, request).value
 
-      running(application) {
-        val request = FakeRequest(GET, enterEmailRoute)
+          val view = application.injector.instanceOf[EnterEmailView]
 
-        val result = route(application, request).value
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        }
+      }
 
-        val view = application.injector.instanceOf[EnterEmailView]
+      "must populate the view correctly on a GET when the question has previously been answered" in {
+        val application = applicationBuilder(userAnswers = Some(userAnswers.copy(emailAddress = Some(emailAddress)))).build()
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        running(application) {
+          val request = FakeRequest(GET, enterEmailRoute)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[EnterEmailView]
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form.fill(emailAddress), NormalMode)(request, messages(application)).toString
+        }
+      }
+
+      "must redirect to Journey Recovery for a GET if no existing data is found" in {
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val request = FakeRequest(GET, enterEmailRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual journeyRecoveryRoute
+        }
       }
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
+    "onSubmit" - {
 
-      val ua = userAnswers.copy(emailAddress = Some("answer"))
+      "must submit the entered email and redirect to the next page when the email is already verified" in {
+        val mockEnterEmailService = stubbedService(Right(EnterEmailOutcome.Verified(emptyUserAnswers)))
+        val application = applicationWith(mockEnterEmailService)
 
-      val application = applicationBuilder(userAnswers = Some(ua)).build()
+        running(application) {
+          val result = route(application, validPost).value
 
-      running(application) {
-        val request = FakeRequest(GET, enterEmailRoute)
-
-        val view = application.injector.instanceOf[EnterEmailView]
-
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode)(request, messages(application)).toString
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual ONWARD_URL
+          verify(mockEnterEmailService).submitEmail(eqTo(emailAddress), eqTo(emptyUserAnswers), eqTo(credId))(using any(), any())
+        }
       }
-    }
 
-    "must redirect to the next page when valid data is submitted" in {
+      "must redirect to the locked email page when the email is locked" in {
+        val application = applicationWith(stubbedService(Right(EnterEmailOutcome.Locked)))
 
-      val mockUserAnswersService = mock[PreferenceUserAnswersService]
+        running(application) {
+          val result = route(application, validPost).value
 
-      when(mockEmailVerificationConnector.getEmailVerification(any())(any()))
-        .thenReturn(EitherT.rightT[Future, ErrorModel](testGetVerificationStatusResponse))
-
-      when(mockEmailVerificationConnector.startEmailVerification(any())(any())).thenReturn(Future.successful(Right(RedirectUri("/redirectUri"))))
-
-      when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(BAD_REQUEST, "Bad request"))))
-
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
-          .overrides(bind[EmailVerificationConnector].toInstance(mockEmailVerificationConnector))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
-          )
-          .build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody((formProvider.EMAIL, emailAddress))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value contains "/redirectUri" mustBe true
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual lockedEmailRoute
+        }
       }
-    }
 
-    "must redirect to journey recovery when receiving an error starting email verification" in {
+      "must redirect to email verification when verification has been started" in {
+        val application = applicationWith(stubbedService(Right(EnterEmailOutcome.VerificationStarted(VERIFICATION_URL))))
 
-      val mockUserAnswersService = mock[PreferenceUserAnswersService]
+        running(application) {
+          val result = route(application, validPost).value
 
-      when(mockEmailVerificationConnector.startEmailVerification(any())(any()))
-        .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
-
-      when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
-
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
-          .overrides(bind[EmailVerificationConnector].toInstance(mockEmailVerificationConnector))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
-          )
-          .build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody((formProvider.EMAIL, emailAddress))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual VERIFICATION_URL
+        }
       }
-    }
 
-    "must redirect to journey recovery if failing to set user answers" in {
+      "must redirect to Journey Recovery when the service returns an error" in {
+        val application = applicationWith(stubbedService(Left(ErrorModel(INTERNAL_SERVER_ERROR, ERROR_MESSAGE))))
 
-      val mockUserAnswersService = mock[PreferenceUserAnswersService]
-      val mockEmailVerificationService = mock[EmailVerificationService]
+        running(application) {
+          val result = route(application, validPost).value
 
-      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
-        .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, true, false)))
-
-      when(mockEmailVerificationService.redirectIfLocked(any(), any()))
-        .thenReturn(Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
-
-      when(mockUserAnswersService.set(any())(any()))
-        .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem"))))
-
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
-          .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
-          )
-          .build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody((formProvider.EMAIL, emailAddress))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual journeyRecoveryRoute
+        }
       }
-    }
 
-    "must redirect to journey recovery if failing to retrieve verified emails" in {
+      "must return a Bad Request and errors without calling the service when invalid data is submitted" in {
+        val mockEnterEmailService: EnterEmailService = mock[EnterEmailService]
+        val application = applicationWith(mockEnterEmailService)
 
-      val mockUserAnswersService = mock[PreferenceUserAnswersService]
-      val mockEmailVerificationService = mock[EmailVerificationService]
+        running(application) {
+          val request = FakeRequest(POST, enterEmailRoute).withFormUrlEncodedBody((INVALID_FIELD_KEY, EMPTY_VALUE))
 
-      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
-        .thenReturn(EitherT.leftT[Future, EmailVerificationDetails](ErrorModel(INTERNAL_SERVER_ERROR, "There was a problem")))
+          val boundForm = form.bind(Map(INVALID_FIELD_KEY -> EMPTY_VALUE))
 
-      val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
-          .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
-          )
-          .build()
+          val view = application.injector.instanceOf[EnterEmailView]
 
-      running(application) {
-        val request =
-          FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody((formProvider.EMAIL, emailAddress))
+          val result = route(application, request).value
 
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe routes.JourneyRecoveryController.onPageLoad().url
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+          verify(mockEnterEmailService, never()).submitEmail(any(), any(), any())(using any(), any())
+        }
       }
-    }
 
-    "must redirect to email confirmation(CYA when implemented) page when address entered is already verified" in {
+      "must redirect to Journey Recovery for a POST if no existing data is found" in {
+        val application = applicationBuilder(userAnswers = None).build()
 
-      val mockUserAnswersService = mock[PreferenceUserAnswersService]
-      val mockEmailVerificationService = mock[EmailVerificationService]
+        running(application) {
+          val result = route(application, validPost).value
 
-      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
-        .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, true, false)))
-
-      when(mockEmailVerificationService.redirectIfLocked(any(), any()))
-        .thenReturn(Future.successful(Redirect(new FakeNavigator(onwardRoute, mockAppConfig).nextPage(EnterEmailPage, NormalMode, userAnswers))))
-
-      when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
-
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
-          .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
-          )
-          .build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody((formProvider.EMAIL, emailAddress2))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe onwardRoute.url
-      }
-    }
-
-    "must redirect to locked email page when attempting to verify a locked email" in {
-
-      val mockUserAnswersService = mock[PreferenceUserAnswersService]
-      val mockEmailVerificationService = mock[EmailVerificationService]
-
-      when(mockEmailVerificationService.retrieveAddressStatus(any(), any(), any())(any()))
-        .thenReturn(EitherT.rightT[Future, ErrorModel](EmailVerificationDetails(emailAddress2, false, true)))
-
-      when(mockEmailVerificationService.redirectIfLocked(any(), any()))
-        .thenReturn(Future.successful(Redirect(controllers.contactPreference.routes.LockedEmailController.onPageLoad())))
-
-      when(mockUserAnswersService.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK, "Okay"))))
-
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(bind[PreferenceUserAnswersService].toInstance(mockUserAnswersService))
-          .overrides(bind[EmailVerificationService].toInstance(mockEmailVerificationService))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute, mockAppConfig)),
-          )
-          .build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody((formProvider.EMAIL, emailAddress2))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe controllers.contactPreference.routes.LockedEmailController.onPageLoad().url
-      }
-    }
-
-    "must return a Bad Request and errors when invalid data is submitted" in {
-
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody(("value", ""))
-
-        val boundForm = form.bind(Map("value" -> ""))
-
-        val view = application.injector.instanceOf[EnterEmailView]
-
-        val result = route(application, request).value
-
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
-      }
-    }
-
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      running(application) {
-        val request = FakeRequest(GET, enterEmailRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, enterEmailRoute)
-            .withFormUrlEncodedBody(("value", "answer"))
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual journeyRecoveryRoute
+        }
       }
     }
   }

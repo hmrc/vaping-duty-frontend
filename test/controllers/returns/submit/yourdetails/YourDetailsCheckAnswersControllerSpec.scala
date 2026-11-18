@@ -17,6 +17,7 @@
 package controllers.returns.submit.yourdetails
 
 import base.SpecBase
+import models.identifiers.VpdId
 import models.returns.ReturnsUserAnswers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -42,7 +43,7 @@ class YourDetailsCheckAnswersControllerSpec extends SpecBase with MockitoSugar {
 
   private def stubbedObligationService(): ObligationService = {
     val mockObligationService = mock[ObligationService]
-    when(mockObligationService.getObligations(any(), any())(using any()))
+    when(mockObligationService.getObligations(any[VpdId]())(using any()))
       .thenReturn(Future.successful(Seq(openObligation(periodKey))))
     mockObligationService
   }

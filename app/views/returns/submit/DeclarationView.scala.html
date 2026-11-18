@@ -15,8 +15,7 @@
  *@
 
 @import components.*
-@import models.identifiers.PeriodKey
-@import models.returns.DeclarationDetails
+@import viewmodels.returns.submit.DeclarationViewModel
 @import views.html.helper.CSPNonce
 
 @this(
@@ -29,13 +28,13 @@
         spinner: SubmissionSpinner
 )
 
-@(periodKey: PeriodKey, periodMonth: String, periodYear: String)(implicit request: Request[_], messages: Messages)
+@(vm: DeclarationViewModel)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("returns.declaration.title"))) {
 
     <div id="main-content">
-    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclarationController.onSubmit().url}?period=${periodKey.value}"), Symbol("autoComplete") -> "off") {
-        @caption(messages("returns.caption", periodMonth, periodYear))
+    @formHelper(action = Call("POST", s"${controllers.returns.submit.routes.DeclarationController.onSubmit().url}?period=${vm.periodKey.value}"), Symbol("autoComplete") -> "off") {
+        @caption(messages("returns.caption", vm.periodMonth, vm.periodYear))
         @h1(messages("returns.declaration.heading"))
 
         @p(Seq(messages("returns.declaration.bySubmitting")))
@@ -53,5 +52,5 @@
         text = messages("returns.declaration.processing.body")
     )
 
-    <script src="@controllers.routes.Assets.versioned("javascripts/declarationSubmit.js")"@CSPNonce.attr defer></script>
+    <script src="@controllers.routes.Assets.versioned("javascripts/declarationSubmit.js")" @CSPNonce.attr defer></script>
 }

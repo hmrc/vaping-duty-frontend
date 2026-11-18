@@ -16,24 +16,19 @@
 
 package controllers.contactPreference
 
-import config.FrontendAppConfig
-import connectors.contactPreference.EmailVerificationConnector
 import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRetrievalAction}
 import forms.contactPreference.EnterEmailFormProvider
-import models.contactPreference.PreferenceUserAnswers
-import models.emailverification.{EmailVerificationDetails, EmailVerificationRequest, VerificationDetails}
+import models.contactPreference.EnterEmailOutcome
+import models.contactPreference.EnterEmailOutcome.{VerificationStarted, Verified}
 import models.{Mode, NormalMode}
 import navigation.Navigator
 import pages.contactPreference.EnterEmailPage
-import play.api.Logging
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.contactPreference.{EmailVerificationService, PreferenceUserAnswersService}
-import uk.gov.hmrc.http.HeaderCarrier
+import services.contactPreference.EnterEmailService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.StartEmailVerificationJourneyHelper
 import views.html.contactPreference.EnterEmailView
 
 import javax.inject.Inject
@@ -41,18 +36,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class EnterEmailController @Inject()(
                                       override val messagesApi: MessagesApi,
-                                      sessionService: PreferenceUserAnswersService,
-                                      navigator: Navigator,
                                       identify: ApprovedVapingManufacturerAuthAction,
                                       getData: DataRetrievalAction,
                                       requireData: DataRequiredAction,
                                       formProvider: EnterEmailFormProvider,
-                                      config: FrontendAppConfig,
-                                      emailVerificationConnector: EmailVerificationConnector,
-                                      emailVerificationService: EmailVerificationService,
+                                      enterEmailService: EnterEmailService,
+                                      navigator: Navigator,
                                       val controllerComponents: MessagesControllerComponents,
                                       view: EnterEmailView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                    )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[String] = formProvider()
 
@@ -70,62 +62,16 @@ class EnterEmailController @Inject()(
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
-        formWithErrors => {
-          Future.successful(BadRequest(view(formWithErrors, mode)))
-        },
-        value => {
-          val updatedAnswers = request.userAnswers.copy(emailAddress = Some(value))
+        formWithErrors =>
+          Future.successful(BadRequest(view(formWithErrors, mode))),
 
-          emailVerificationService
-            .retrieveAddressStatus(VerificationDetails(request.credId), value, updatedAnswers).value.flatMap {
-              case Left(error) =>
-                logger.warn("[EnterEmailController][onSubmit] Error retrieving verified email list: " +
-                  s"${error.status} and message: ${error.message}")
-                Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-              case Right(verificationDetails) =>
-                emailVerificationService.redirectIfLocked(
-                  handleRedirect(updatedAnswers, verificationDetails, request.credId.toString),
-                  verificationDetails.isLocked
-                )
-            }
-        }
+        email =>
+          enterEmailService.submitEmail(email, request.userAnswers, request.credId).map {
+            case Right(Verified(updatedAnswers)) => Redirect(navigator.nextPage(EnterEmailPage, NormalMode, updatedAnswers))
+            case Right(EnterEmailOutcome.Locked) => Redirect(controllers.contactPreference.routes.LockedEmailController.onPageLoad())
+            case Right(VerificationStarted(url)) => Redirect(url)
+            case Left(_)                         => Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          }
       )
-  }
-
-  private def handleRedirect(updatedAnswers: PreferenceUserAnswers, details: EmailVerificationDetails, credId: String)
-                            (implicit hc: HeaderCarrier, messages: Messages) = {
-    sessionService.set(updatedAnswers).flatMap {
-      case Left(error) =>
-        logger.warn("[EnterEmailController][handleRedirect] Error setting user answers with status: " +
-          s"${error.status} and message: ${error.message}")
-        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-      case Right(_) =>
-        if (details.isVerified) {
-          Future.successful(Redirect(navigator.nextPage(EnterEmailPage, NormalMode, updatedAnswers)))
-        } else {
-          startEmailVerification(details.emailAddress, credId)
-        }
-    }
-  }
-
-  private def startEmailVerification(email: String, credId: String)
-                                    (implicit hc: HeaderCarrier, messages: Messages) = {
-    
-    val evRequest = StartEmailVerificationJourneyHelper(config)(messagesApi).createRequest(credId, email)
-    handoffToEmailVerification(evRequest)
-  }
-
-  private def handoffToEmailVerification(evRequest: EmailVerificationRequest)
-                                        (implicit hc: HeaderCarrier) = {
-
-    emailVerificationConnector.startEmailVerification(evRequest).map {
-      case Left(error) =>
-        logger.warn("[EnterEmailController][handoffToEmailVerification] Error starting email verification with status: " +
-          s"${error.status} and message: ${error.message}")
-        Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
-      case Right(redirectUri) =>
-        val redirectTo = s"${config.emailVerificationRedirectBaseUrl}${redirectUri.redirectUri}"
-        Redirect(redirectTo)
-    }
   }
 }

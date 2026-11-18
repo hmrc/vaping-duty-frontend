@@ -17,7 +17,7 @@
 package services.returns
 
 import base.SpecBase
-import models.identifiers.PeriodKey
+import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.ObligationDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -38,7 +38,7 @@ class YourDetailsServiceSpec extends SpecBase with MockitoSugar {
 
   private def serviceWith(obligations: Seq[ObligationDetails]): YourDetailsService = {
     val mockObligationService = mock[ObligationService]
-    when(mockObligationService.getObligations(any(), any())(using any()))
+    when(mockObligationService.getObligations(any[VpdId]())(using any()))
       .thenReturn(Future.successful(obligations))
     new YourDetailsService(mockObligationService)
   }

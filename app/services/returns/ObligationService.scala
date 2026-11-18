@@ -21,8 +21,6 @@ import config.FrontendAppConfig
 import connectors.returns.ObligationsConnector
 import models.identifiers.{PeriodKey, VpdId}
 import models.obligations.{ObligationDetails, ObligationItem}
-import models.returns.ReturnsUserAnswers
-import queries.returns.ObligationsQuery
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,13 +34,6 @@ class ObligationService @Inject()(
   def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[Seq[ObligationDetails]] =
     obligationsConnector.getObligations(vpdId).map { response =>
       filterObligationsByVpdId(response.obligation, vpdId)
-    }
-
-  // Uses the obligations saved in the user answers when present, falling back to the Obligations API
-  def getObligations(userAnswers: ReturnsUserAnswers, vpdId: VpdId)(using HeaderCarrier): Future[Seq[ObligationDetails]] =
-    userAnswers.get(ObligationsQuery) match {
-      case Some(obligations) => Future.successful(obligations)
-      case None              => getObligations(vpdId)
     }
 
   def getObligationByPeriodKey(vpdId: VpdId, periodKey: PeriodKey)
