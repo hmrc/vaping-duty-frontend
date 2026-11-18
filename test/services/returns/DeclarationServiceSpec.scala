@@ -17,20 +17,16 @@
 package services.returns
 
 import base.SpecBase
-import models.emailverification.ErrorModel
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
-import models.returns.ReturnsUserAnswers
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.http.Status.{BAD_GATEWAY, INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.BAD_GATEWAY
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import queries.returns.ObligationsQuery
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import viewmodels.returns.submit.DeclarationViewModel
 
 import scala.concurrent.Future
@@ -39,13 +35,14 @@ class DeclarationServiceSpec extends SpecBase with MockitoSugar with BeforeAndAf
 
   private val JUNE = "June"
   private val YEAR_2026 = "2026"
-  private val SAVE_ERROR_MESSAGE = "failed"
   private val FAILURE_MESSAGE = "boom"
 
   private val mockSubmitReturnService: SubmitReturnService = mock[SubmitReturnService]
+  private val mockCachedObligationsService: CachedObligationsService = mock[CachedObligationsService]
 
   private val service = new DeclarationService(
     mockObligationService,
+    mockCachedObligationsService,
     mockReturnsUserAnswersService,
     mockSubmitReturnService,
     returnsDateUtils
@@ -58,7 +55,7 @@ class DeclarationServiceSpec extends SpecBase with MockitoSugar with BeforeAndAf
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    reset(mockObligationService, mockReturnsUserAnswersService, mockSubmitReturnService)
+    reset(mockObligationService, mockCachedObligationsService, mockReturnsUserAnswersService, mockSubmitReturnService)
   }
 
   private def stubLiveObligations(): Unit = {
@@ -68,8 +65,13 @@ class DeclarationServiceSpec extends SpecBase with MockitoSugar with BeforeAndAf
   }
 
   private def stubCachedObligations(): Unit = {
-    when(mockObligationService.getObligations(eqTo(returnsUserAnswers), eqTo(vpdId))(using any()))
+    when(mockCachedObligationsService.getObligations(eqTo(returnsUserAnswers), eqTo(vpdId))(using any()))
       .thenReturn(Future.successful(openObligations))
+    ()
+  }
+
+  private def stubSaveObligations(result: Future[Unit]): Unit = {
+    when(mockCachedObligationsService.saveObligations(any(), any())(using any())).thenReturn(result)
     ()
   }
 
@@ -79,36 +81,23 @@ class DeclarationServiceSpec extends SpecBase with MockitoSugar with BeforeAndAf
 
       "must return the view model for the period" in {
         stubLiveObligations()
-        when(mockReturnsUserAnswersService.set(any())(any()))
-          .thenReturn(Future.successful(Right(HttpResponse(OK))))
+        stubSaveObligations(Future.successful(()))
 
         service.buildViewModel(vpdId, periodKey, returnsUserAnswers).futureValue mustBe DeclarationViewModel(periodKey, JUNE, YEAR_2026)
       }
 
-      "must save the obligations in the user answers" in {
+      "must save the live obligations in the user answers" in {
         stubLiveObligations()
-        when(mockReturnsUserAnswersService.set(any())(any()))
-          .thenReturn(Future.successful(Right(HttpResponse(OK))))
+        stubSaveObligations(Future.successful(()))
 
         service.buildViewModel(vpdId, periodKey, returnsUserAnswers).futureValue
 
-        val captor = ArgumentCaptor.forClass(classOf[ReturnsUserAnswers])
-        verify(mockReturnsUserAnswersService).set(captor.capture())(any())
-        captor.getValue.get(ObligationsQuery).value mustBe openObligations
-      }
-
-      "must still return the view model when saving the obligations returns an error" in {
-        stubLiveObligations()
-        when(mockReturnsUserAnswersService.set(any())(any()))
-          .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, SAVE_ERROR_MESSAGE))))
-
-        service.buildViewModel(vpdId, periodKey, returnsUserAnswers).futureValue mustBe DeclarationViewModel(periodKey, JUNE, YEAR_2026)
+        verify(mockCachedObligationsService).saveObligations(eqTo(openObligations), eqTo(returnsUserAnswers))(using any())
       }
 
       "must fail when saving the obligations fails" in {
         stubLiveObligations()
-        when(mockReturnsUserAnswersService.set(any())(any()))
-          .thenReturn(Future.failed(new RuntimeException(FAILURE_MESSAGE)))
+        stubSaveObligations(Future.failed(new RuntimeException(FAILURE_MESSAGE)))
 
         service.buildViewModel(vpdId, periodKey, returnsUserAnswers).failed.futureValue mustBe a[RuntimeException]
       }
@@ -140,7 +129,7 @@ class DeclarationServiceSpec extends SpecBase with MockitoSugar with BeforeAndAf
       }
 
       "must return Left and not submit when getting the obligations fails" in {
-        when(mockObligationService.getObligations(any(), any())(using any()))
+        when(mockCachedObligationsService.getObligations(any(), any())(using any()))
           .thenReturn(Future.failed(UpstreamErrorResponse(FAILURE_MESSAGE, BAD_GATEWAY)))
 
         service.submit(vpdId, periodKey, returnsUserAnswers).futureValue.isLeft mustBe true
