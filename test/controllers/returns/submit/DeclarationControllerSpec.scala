@@ -40,6 +40,8 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
   private lazy val declarationRoute = controllers.returns.submit.routes.DeclarationController.onPageLoad().url
   private lazy val confirmationRoute = controllers.returns.submit.routes.ConfirmationController.onPageLoad().url
   private lazy val journeyRecoveryRoute = controllers.routes.JourneyRecoveryController.onPageLoad().url
+  private lazy val returnsSubmissionRecoveryRoute = controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url
+
 
   private val declarationViewModel = DeclarationViewModel(periodKey, JUNE, YEAR_2026)
 
@@ -48,14 +50,15 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
       .overrides(bind[DeclarationService].toInstance(mockDeclarationService))
       .build()
 
+  private val mockDeclarationService: DeclarationService = mock[DeclarationService]
+
   "DeclarationController" - {
 
     "onPageLoad" - {
 
       "must return OK and the correct view for a GET" in {
-        val mockDeclarationService: DeclarationService = mock[DeclarationService]
         when(mockDeclarationService.buildViewModel(eqTo(vpdId), eqTo(periodKey), eqTo(returnsUserAnswers))(using any(), any()))
-          .thenReturn(Future.successful(declarationViewModel))
+          .thenReturn(Future.successful(Some(declarationViewModel)))
 
         val application = applicationWith(mockDeclarationService)
 
@@ -68,6 +71,22 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(declarationViewModel)(request, messages(application)).toString
+        }
+      }
+
+      "must redirect to Returns Submission Recovery for a GET if tasks are not completed" in {
+        when(mockDeclarationService.buildViewModel(eqTo(vpdId), eqTo(periodKey), eqTo(returnsUserAnswers))(using any(), any()))
+          .thenReturn(Future.successful(None))
+
+        val application = applicationWith(mockDeclarationService)
+
+        running(application) {
+          val request = FakeRequest(GET, declarationRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual s"$returnsSubmissionRecoveryRoute?period=$periodKey"
         }
       }
 

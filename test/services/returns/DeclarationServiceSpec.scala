@@ -19,10 +19,14 @@ package services.returns
 import base.SpecBase
 import models.obligations.ObligationDetails
 import models.requests.returns.ReturnsDataRequest
+import models.returns.DutySuspenseVolumes
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
+import pages.returns.adjustments.DeclareAdjustmentPage
+import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
+import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage, DeclareSpoiltProductsPage, EnterDutyAmountPage, EnterDutySuspensePage}
 import play.api.http.Status.BAD_GATEWAY
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -83,7 +87,29 @@ class DeclarationServiceSpec extends SpecBase with MockitoSugar with BeforeAndAf
         stubLiveObligations()
         stubSaveObligations(Future.successful(()))
 
-        service.buildViewModel(vpdId, periodKey, returnsUserAnswers).futureValue mustBe DeclarationViewModel(periodKey, JUNE, YEAR_2026)
+        val completedAnswers = returnsUserAnswers
+          .set(DeclareDutyPage, true)
+          .flatMap(_.set(EnterDutyAmountPage, BigDecimal(1000)))
+          .flatMap(_.set(DeclareDutySuspensePage, true))
+          .flatMap(_.set(EnterDutySuspensePage, DutySuspenseVolumes(100, 50)))
+          .flatMap(_.set(DeclareSpoiltProductsPage, false))
+          .flatMap(_.set(DeclareAdjustmentPage, false))
+          .flatMap(_.set(YourFullNamePage, "John Smith"))
+          .flatMap(_.set(YourRolePage, "Director"))
+          .flatMap(_.set(YourBusinessEmailPage, "john@example.com"))
+          .success
+          .value
+
+        service.buildViewModel(vpdId, periodKey, completedAnswers).futureValue mustBe Some(DeclarationViewModel(periodKey, JUNE, YEAR_2026))
+      }
+
+      "must return None when answers are not completed for the period" in {
+        stubLiveObligations()
+        stubSaveObligations(Future.successful(()))
+
+        val incompleteAnswers = returnsUserAnswers
+        
+        service.buildViewModel(vpdId, periodKey, incompleteAnswers).futureValue mustBe None
       }
 
       "must save the live obligations in the user answers" in {
