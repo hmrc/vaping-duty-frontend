@@ -59,7 +59,6 @@ trait SpecBase
   protected def applicationBuilder(userAnswers: Option[PreferenceUserAnswers] = None,
                                    enrolmentUserAnswers: Option[EnrolmentUserAnswers] = None,
                                    returnsUserAnswers: Option[ReturnsUserAnswers] = None,
-                                   returnsEnabled: Boolean = true,
                                    directDebitEnabled: Boolean = true,
                                    userAllowListEnabled: Boolean = false): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -74,7 +73,6 @@ trait SpecBase
         bind[ReturnsDataRetrievalAction].toInstance(new FakeReturnsDataRetrievalAction(returnsUserAnswers))
       )
       .configure(
-        "features.returnsEnabled" -> returnsEnabled,
         "features.directDebitEnabled" -> directDebitEnabled,
         "features.returnsAllowListEnabled" -> userAllowListEnabled
       )

@@ -180,7 +180,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val emailVerificationRedirectBaseUrl: String =
     configuration.get[String]("microservice.services.email-verification-frontend.prefix")
 
-  val returnsEnabled: Boolean = configuration.get[Boolean]("features.returnsEnabled")
   val returnsAllowListEnabled: Boolean = configuration.get[Boolean]("features.returnsAllowListEnabled")
   val returnSubmittedEmailEnabled: Boolean = configuration.get[Boolean]("features.returnSubmittedEmailEnabled")
   val directDebitEnabled: Boolean = configuration.get[Boolean]("features.directDebitEnabled")

@@ -37,9 +37,7 @@ class ReturnsEnabledActionImpl @Inject()(
   private val FEATURE = "vpd-private-beta"
 
   override protected def refine[A](request: IdentifierRequest[A]): Future[Either[Result, IdentifierRequest[A]]] = {
-    if (!config.returnsEnabled) {
-      Future.successful(Left(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())))
-    } else if (!config.returnsAllowListEnabled) {
+    if (!config.returnsAllowListEnabled) {
       // Allow list disabled - grant access to everyone
       Future.successful(Right(IdentifierRequest(request, request.enrolmentVpdId, request.groupId, request.internalId, request.credId)))
     } else {
