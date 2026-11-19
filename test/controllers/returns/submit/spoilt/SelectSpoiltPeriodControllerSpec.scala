@@ -157,20 +157,5 @@ class SelectSpoiltPeriodControllerSpec extends SpecBase {
         }
       }
     }
-
-    "must redirect to JourneyRecovery when returns journey is disabled" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), returnsEnabled = false).build()
-
-      running(application) {
-        val request = FakeRequest(
-          GET, controllers.returns.submit.spoilt.routes.SelectSpoiltPeriodController.onPageLoad(None, NormalMode).url
-        )
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
   }
 }

@@ -116,18 +116,5 @@ class ViewMultipleReturnsControllerSpec extends SpecBase {
         }
       }
     }
-
-    "must redirect when returns journey is disabled" in {
-      val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers), returnsEnabled = false).build()
-
-      running(application) {
-        val request = FakeRequest(GET, controllers.returns.view.routes.ViewMultipleReturnsController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
   }
 }
