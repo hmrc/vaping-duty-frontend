@@ -46,12 +46,12 @@ class AdjustmentCheckYourAnswersService @Inject()(
                       vpdId: VpdId,
                       mode: Mode = NormalMode
                     )(using HeaderCarrier, Messages): Future[AdjustmentCheckYourAnswersViewModel] = {
-    obligationService.getObligations(vpdId).map { obligationDetails =>
-      val dutyRatesMap = getDutyRatesForAdjustments(adjustmentList, obligationDetails)
+    obligationService.getObligations(vpdId).map { obligations =>
+      val dutyRatesMap = getDutyRatesForAdjustments(adjustmentList, obligations)
       AdjustmentCheckYourAnswersViewModel(
         declareAdjustment,
         adjustmentList,
-        obligationDetails,
+        obligations,
         periodKey,
         dutyRatesMap,
         returnsDateUtils,
@@ -65,13 +65,13 @@ class AdjustmentCheckYourAnswersService @Inject()(
                             adjustmentPeriod: PeriodKey,
                             vpdId: VpdId
                           )(using HeaderCarrier, Messages): Future[Option[RemoveAdjustmentViewModel]] =
-    obligationService.getObligations(vpdId).map { obligationDetails =>
+    obligationService.getObligations(vpdId).map { obligations =>
       for {
         entry      <- adjustmentList.map(_.adjustments).getOrElse(Seq.empty).find(_.period == adjustmentPeriod)
-        obligation <- obligationDetails.find(_.periodKey == adjustmentPeriod.toString)
+        obligation <- obligations.find(_.periodKey == adjustmentPeriod.toString)
       } yield RemoveAdjustmentViewModel(
         entry,
-        obligationDetails,
+        obligations,
         dutyRateService.getDutyRateForDate(obligation.iCFromDate),
         returnsDateUtils
       )
@@ -104,8 +104,8 @@ class AdjustmentCheckYourAnswersService @Inject()(
                        )(using HeaderCarrier): Future[Boolean] = {
     userAnswers.get(AdjustmentListPage) match {
       case Some(adjustmentList) =>
-        obligationService.getObligations(vpdId).map { obligationDetails =>
-          val dutyRatesMap = getDutyRatesForAdjustments(Some(adjustmentList), obligationDetails)
+        obligationService.getObligations(vpdId).map { obligations =>
+          val dutyRatesMap = getDutyRatesForAdjustments(Some(adjustmentList), obligations)
           val totals = AdjustmentDutyCalculator.totals(adjustmentList.adjustments, dutyRatesMap)
           totals.reasonMandatory
         }
@@ -136,12 +136,12 @@ class AdjustmentCheckYourAnswersService @Inject()(
 
   private def getDutyRatesForAdjustments(
                                           adjustmentList: Option[AdjustmentList],
-                                          obligationDetails: Seq[Obligation]
+                                          obligations: Seq[Obligation]
                                         ): Map[PeriodKey, DutyRate] = {
     val uniquePeriods = adjustmentList
       .map(_.adjustments.map(_.period).distinct)
       .getOrElse(Seq.empty)
 
-    dutyRateService.getDutyRatesForPeriods(uniquePeriods, obligationDetails)
+    dutyRateService.getDutyRatesForPeriods(uniquePeriods, obligations)
   }
 }

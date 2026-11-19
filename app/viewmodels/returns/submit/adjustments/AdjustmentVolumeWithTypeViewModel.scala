@@ -28,13 +28,13 @@ case class AdjustmentVolumeWithTypeViewModel(periodDisplay: String, submitAction
 object AdjustmentVolumeWithTypeViewModel {
 
   def apply(
-    obligationDetails: Seq[Obligation],
+    obligations: Seq[Obligation],
     periodKey: PeriodKey,
     adjustmentPeriodKey: PeriodKey,
     mode: Mode,
     returnsDateUtils: ReturnsDateUtils
   )(implicit messages: Messages): AdjustmentVolumeWithTypeViewModel = {
-    val periodDisplay = returnsDateUtils.formatPeriodDisplay(adjustmentPeriodKey, obligationDetails)
+    val periodDisplay = returnsDateUtils.formatPeriodDisplay(adjustmentPeriodKey, obligations)
     val submitAction = Call(
       "POST",
       s"${controllers.returns.submit.adjustments.routes.AdjustmentVolumeWithTypeController.onSubmit(mode).url}?period=${periodKey.value}&adjustmentPeriod=${adjustmentPeriodKey.value}"

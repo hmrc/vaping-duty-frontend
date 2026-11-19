@@ -102,7 +102,7 @@ class AdjustmentVolumeService @Inject()(
                             userAnswers: ReturnsUserAnswers,
                             adjustmentPeriodKey: PeriodKey,
                             formData: AdjustmentVolumeWithTypeFormData,
-                            obligationDetails: Seq[Obligation]
+                            obligations: Seq[Obligation]
                           )(using HeaderCarrier): Future[AdjustmentUpdateResult] = {
     val existingList = userAnswers.get(AdjustmentListPage).getOrElse(AdjustmentList.empty)
 
@@ -117,7 +117,7 @@ class AdjustmentVolumeService @Inject()(
 
     val dutyRates = dutyRateService.getDutyRatesForPeriods(
       updatedList.adjustments.map(_.period).distinct,
-      obligationDetails
+      obligations
     )
 
     val reasonRequiredBefore = AdjustmentDutyCalculator.totals(

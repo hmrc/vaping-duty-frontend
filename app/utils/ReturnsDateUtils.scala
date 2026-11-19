@@ -84,16 +84,16 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
 
   def getPeriodDisplay(
                         periodKey: PeriodKey,
-                        obligationDetails: Seq[Obligation]
+                        obligations: Seq[Obligation]
                       )(implicit messages: Messages): PeriodDisplay = {
-    obligationDetails
+    obligations
       .find(_.periodKey == periodKey.toString)
       .map(obligation => getPeriodDisplay(obligation))
       .getOrElse {
-        val availableKeys = if (obligationDetails.isEmpty) {
+        val availableKeys = if (obligations.isEmpty) {
           "none"
         } else {
-          obligationDetails.map(_.periodKey).mkString(", ")
+          obligations.map(_.periodKey).mkString(", ")
         }
         throw new IllegalStateException(
           s"Period key '${periodKey.value}' not found in obligations. " +
@@ -111,9 +111,9 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
 
   def formatPeriodDisplay(
                            periodKey: PeriodKey,
-                           obligationDetails: Seq[Obligation]
+                           obligations: Seq[Obligation]
                          )(implicit messages: Messages): String = {
-    getPeriodDisplay(periodKey, obligationDetails).formatted
+    getPeriodDisplay(periodKey, obligations).formatted
   }
 
   def formatDayMonthYear(date: LocalDate)(implicit messages: Messages): String = {

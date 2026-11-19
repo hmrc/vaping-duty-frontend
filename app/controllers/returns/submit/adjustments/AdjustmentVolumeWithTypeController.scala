@@ -57,7 +57,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
         for {
-          obligationDetails <- obligationService.getObligations(request.enrolmentVpdId)
+          obligations <- obligationService.getObligations(request.enrolmentVpdId)
           form              <- formProvider(request.periodKey, request.enrolmentVpdId)
         } yield {
           val existingAdjustment = adjustmentVolumeService.findExistingAdjustment(
@@ -65,7 +65,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
             adjustmentPeriodKey
           )
           val preparedForm = adjustmentVolumeService.prepareFormWithData(form, existingAdjustment)
-          val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, request.periodKey, adjustmentPeriodKey, mode, returnsDateUtils)
+          val vm = AdjustmentVolumeWithTypeViewModel(obligations, request.periodKey, adjustmentPeriodKey, mode, returnsDateUtils)
           Ok(view(preparedForm, vm))
         }
       }
@@ -76,7 +76,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
         for {
-          obligationDetails <- obligationService.getObligations(request.enrolmentVpdId)
+          obligations <- obligationService.getObligations(request.enrolmentVpdId)
           form              <- formProvider(request.periodKey, request.enrolmentVpdId)
           result            <- {
             val rawData = request.body.asFormUrlEncoded.getOrElse(Map.empty)
@@ -85,7 +85,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
             form.bind(cleanedData).fold(
               formWithErrors => {
                 val updatedForm = adjustmentVolumeService.prepareFormForDisplay(formWithErrors)
-                val vm = AdjustmentVolumeWithTypeViewModel(obligationDetails, request.periodKey, adjustmentPeriodKey, mode, returnsDateUtils)
+                val vm = AdjustmentVolumeWithTypeViewModel(obligations, request.periodKey, adjustmentPeriodKey, mode, returnsDateUtils)
                 Future.successful(BadRequest(view(updatedForm, vm)))
               },
 
@@ -95,7 +95,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
                     request.userAnswers,
                     adjustmentPeriodKey,
                     formData,
-                    obligationDetails
+                    obligations
                   )
                   _ <- sessionRepository.set(updateResult.userAnswers)
                 } yield {

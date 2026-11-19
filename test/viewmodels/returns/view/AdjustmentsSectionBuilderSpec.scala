@@ -28,11 +28,11 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
   implicit val messages: Messages = messages(applicationBuilder(None).build())
 
   private val returnsDateUtils = new ReturnsDateUtils(clock)
-  private val obligationDetailsItem = fulfilledObligation(periodKey)
-  private val obligationDetailsJuly = fulfilledObligation(PeriodKey("24KG"))
-  private val obligationDetails = Seq(
-    obligationDetailsItem,
-    obligationDetailsJuly
+  private val obligationsItem = fulfilledObligation(periodKey)
+  private val obligationsJuly = fulfilledObligation(PeriodKey("24KG"))
+  private val obligations = Seq(
+    obligationsItem,
+    obligationsJuly
   )
 
   private val underDeclarationProduct = UnderDeclarationProduct(
@@ -59,7 +59,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         val builder = AdjustmentsSectionBuilder(
           overDeclaration = None,
           underDeclaration = None,
-          obligationDetails = obligationDetails,
+          obligations = obligations,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -79,7 +79,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         val builder = AdjustmentsSectionBuilder(
           overDeclaration = None,
           underDeclaration = Some(underDeclaration),
-          obligationDetails = obligationDetails,
+          obligations = obligations,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -98,7 +98,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         val builder = AdjustmentsSectionBuilder(
           overDeclaration = Some(overDeclaration),
           underDeclaration = None,
-          obligationDetails = obligationDetails,
+          obligations = obligations,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -122,7 +122,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         val builder = AdjustmentsSectionBuilder(
           overDeclaration = Some(overDeclaration),
           underDeclaration = Some(underDeclaration),
-          obligationDetails = obligationDetails,
+          obligations = obligations,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -142,7 +142,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         val builder = AdjustmentsSectionBuilder(
           overDeclaration = None,
           underDeclaration = Some(underDeclaration),
-          obligationDetails = obligationDetails,
+          obligations = obligations,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -160,7 +160,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         val builder = AdjustmentsSectionBuilder(
           overDeclaration = Some(overDeclaration),
           underDeclaration = None,
-          obligationDetails = obligationDetails,
+          obligations = obligations,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -177,7 +177,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         val builder = AdjustmentsSectionBuilder(
           overDeclaration = None,
           underDeclaration = Some(underDeclaration),
-          obligationDetails = obligationDetails,
+          obligations = obligations,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -194,7 +194,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         val builder = AdjustmentsSectionBuilder(
           overDeclaration = None,
           underDeclaration = Some(underDeclaration),
-          obligationDetails = obligationDetails,
+          obligations = obligations,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -216,7 +216,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         val builder = AdjustmentsSectionBuilder(
           overDeclaration = Some(overDeclaration),
           underDeclaration = Some(underDeclaration),
-          obligationDetails = obligationDetails,
+          obligations = obligations,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -234,7 +234,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         val builder = AdjustmentsSectionBuilder(
           overDeclaration = None,
           underDeclaration = Some(underDeclaration),
-          obligationDetails = obligationDetails,
+          obligations = obligations,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -255,7 +255,7 @@ class AdjustmentsSectionBuilderSpec extends SpecBase with TestData {
         val builder = AdjustmentsSectionBuilder(
           overDeclaration = Some(overDeclaration),
           underDeclaration = None,
-          obligationDetails = obligationDetails,
+          obligations = obligations,
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()

@@ -185,7 +185,7 @@ class TestObligationsConnectorISpec extends ISpecBase with WireMockHelper {
           "obligations" -> Json.arr(
             Json.obj(
               "identification" -> Json.obj(),
-              "obligationDetails" -> Json.obj(
+              "obligations" -> Json.obj(
                 "openOrFulfilledStatus" -> "O",
                 "iCFromDate" -> "2027-12-01",
                 "iCToDate" -> "2027-12-31",

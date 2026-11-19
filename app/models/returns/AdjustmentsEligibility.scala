@@ -34,7 +34,7 @@ object AdjustmentsEligibility {
     if (hasFulfilledReturns) Eligible else NotEligible
   }
 
-  def fromObligationDetails(details: Seq[Obligation]): AdjustmentsEligibility = {
+  def fromobligations(details: Seq[Obligation]): AdjustmentsEligibility = {
     val hasFulfilledReturns = details.exists(_.openOrFulfilledStatus == ObligationStatus.F.toString)
     if (hasFulfilledReturns) Eligible else NotEligible
   }

@@ -36,7 +36,7 @@ case class SelectAdjustmentPeriodViewModel(
 object SelectAdjustmentPeriodViewModel {
 
   def apply(
-             obligationDetails: Seq[Obligation],
+             obligations: Seq[Obligation],
              selectedYear: Option[Int],
              currentReturnPeriod: PeriodKey,
              adjustmentList: Option[AdjustmentList],
@@ -44,7 +44,7 @@ object SelectAdjustmentPeriodViewModel {
              mode: Mode = NormalMode
            )(implicit messages: Messages): SelectAdjustmentPeriodViewModel = {
 
-    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
+    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligations)
       .filter(_.periodKey != currentReturnPeriod.toString)
 
     val existingAdjustmentPeriods = adjustmentList

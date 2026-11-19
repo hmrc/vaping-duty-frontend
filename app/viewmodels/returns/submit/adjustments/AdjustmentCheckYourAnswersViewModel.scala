@@ -42,7 +42,7 @@ object AdjustmentCheckYourAnswersViewModel {
   def apply(
              declareAdjustment: Option[Boolean],
              adjustmentList: Option[AdjustmentList],
-             obligationDetails: Seq[Obligation],
+             obligations: Seq[Obligation],
              periodKey: PeriodKey,
              dutyRates: Map[PeriodKey, DutyRate],
              returnsDateUtils: ReturnsDateUtils,
@@ -58,11 +58,11 @@ object AdjustmentCheckYourAnswersViewModel {
         Seq.empty
       case _ =>
         adjustments.reverse.map { adjustment =>
-          buildSummaryCard(adjustment, obligationDetails, periodKey, dutyRates, returnsDateUtils, mode)
+          buildSummaryCard(adjustment, obligations, periodKey, dutyRates, returnsDateUtils, mode)
         }
     }
 
-    val hasAvailablePeriodsToAdd = calculateAvailablePeriods(obligationDetails, periodKey, adjustmentList).nonEmpty
+    val hasAvailablePeriodsToAdd = calculateAvailablePeriods(obligations, periodKey, adjustmentList).nonEmpty
 
     val totals = AdjustmentDutyCalculator.totals(adjustments, dutyRates)
 
@@ -78,11 +78,11 @@ object AdjustmentCheckYourAnswersViewModel {
   }
 
   private def calculateAvailablePeriods(
-                                         obligationDetails: Seq[Obligation],
+                                         obligations: Seq[Obligation],
                                          currentReturnPeriod: PeriodKey,
                                          adjustmentList: Option[AdjustmentList]
                                        ): Seq[Obligation] = {
-    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
+    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligations)
       .filter(_.periodKey != currentReturnPeriod.toString)
 
     val existingAdjustmentPeriods = adjustmentList
@@ -102,14 +102,14 @@ object AdjustmentCheckYourAnswersViewModel {
 
   private def buildSummaryCard(
                                 adjustment: AdjustmentEntry,
-                                obligationDetails: Seq[Obligation],
+                                obligations: Seq[Obligation],
                                 currentPeriodKey: PeriodKey,
                                 dutyRates: Map[PeriodKey, DutyRate],
                                 returnsDateUtils: ReturnsDateUtils,
                                 mode: Mode
                               )(implicit messages: Messages): AdjustmentSummaryCard = {
 
-    val periodDisplay = formatPeriod(adjustment.period, obligationDetails, returnsDateUtils)
+    val periodDisplay = formatPeriod(adjustment.period, obligations, returnsDateUtils)
     val dutyAmount = dutyRates.get(adjustment.period).map(_.calculateDuty(adjustment.volumeInMl)).getOrElse(BigDecimal(0))
 
     val rows = Seq(
@@ -229,8 +229,8 @@ object AdjustmentCheckYourAnswersViewModel {
     )
   }
 
-  private def formatPeriod(periodKey: PeriodKey, obligationDetails: Seq[Obligation], returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String = {
-    returnsDateUtils.formatPeriodDisplay(periodKey, obligationDetails)
+  private def formatPeriod(periodKey: PeriodKey, obligations: Seq[Obligation], returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): String = {
+    returnsDateUtils.formatPeriodDisplay(periodKey, obligations)
   }
 
 }

@@ -34,7 +34,7 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
   lazy val selectAdjustmentPeriodRoute: String =
     controllers.returns.submit.adjustments.routes.SelectAdjustmentPeriodController.onPageLoad(NormalMode, None).url
 
-  private val obligationDetails: Seq[Obligation] = Seq(
+  private val obligations: Seq[Obligation] = Seq(
     fulfilledObligation(october2027),
     fulfilledObligation(december2027)
   )
@@ -45,7 +45,7 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
       val mockObligationService = mock[ObligationService]
 
       when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(obligationDetails))
+        .thenReturn(Future.successful(obligations))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].toInstance(mockObligationService))
@@ -64,7 +64,7 @@ class SelectAdjustmentPeriodControllerSpec extends SpecBase with MockitoSugar {
       val mockObligationService = mock[ObligationService]
 
       when(mockObligationService.getObligations(any())(using any()))
-        .thenReturn(Future.successful(obligationDetails))
+        .thenReturn(Future.successful(obligations))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
         .overrides(bind[ObligationService].toInstance(mockObligationService))

@@ -25,12 +25,12 @@ import java.time.LocalDate
 object PeriodSelectionHelper {
 
   def filterFulfilledWithinThreeYears(
-    obligationDetails: Seq[Obligation]
+    obligations: Seq[Obligation]
   ): Seq[Obligation] = {
     val currentDate = LocalDate.now()
     val threeYearsAgo = currentDate.minusYears(ReturnsConstants.YEARS_TO_SHOW)
 
-    obligationDetails
+    obligations
       .filter(_.openOrFulfilledStatus == ObligationStatus.F.toString)
       .filter(_.iCFromDate.isAfter(threeYearsAgo))
   }

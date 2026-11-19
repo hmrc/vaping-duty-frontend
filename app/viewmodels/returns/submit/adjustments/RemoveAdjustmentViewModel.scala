@@ -30,12 +30,12 @@ object RemoveAdjustmentViewModel {
 
   def apply(
              entry: AdjustmentEntry,
-             obligationDetails: Seq[Obligation],
+             obligations: Seq[Obligation],
              dutyRate: DutyRate,
              returnsDateUtils: ReturnsDateUtils
            )(implicit messages: Messages): RemoveAdjustmentViewModel = {
 
-    val periodDisplay = returnsDateUtils.formatPeriodDisplay(entry.period, obligationDetails)
+    val periodDisplay = returnsDateUtils.formatPeriodDisplay(entry.period, obligations)
     val dutyAmount = dutyRate.calculateDuty(entry.volumeInMl)
 
     val (typeMessageKey, volumeLabelKey, signedDuty) = entry.adjustmentType match {

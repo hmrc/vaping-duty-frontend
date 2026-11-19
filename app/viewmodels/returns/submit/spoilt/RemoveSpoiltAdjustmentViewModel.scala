@@ -29,12 +29,12 @@ object RemoveSpoiltAdjustmentViewModel {
 
   def apply(
              entry: SpoiltVolumeByPeriod,
-             obligationDetails: Seq[Obligation],
+             obligations: Seq[Obligation],
              dutyRate: DutyRate,
              returnsDateUtils: ReturnsDateUtils
            )(implicit messages: Messages): RemoveSpoiltAdjustmentViewModel = {
 
-    val periodDisplay = returnsDateUtils.formatPeriodDisplay(entry.periodKey, obligationDetails)
+    val periodDisplay = returnsDateUtils.formatPeriodDisplay(entry.periodKey, obligations)
     val formattedDuty = CurrencyFormatter.currencyFormatWithLeadingSign(-dutyRate.calculateDuty(entry.volume))
 
     val rows = Seq(

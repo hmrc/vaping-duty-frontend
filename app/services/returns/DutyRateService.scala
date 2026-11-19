@@ -60,10 +60,10 @@ class DutyRateService @Inject()(dutyRateConfig: DutyRateConfig, obligationServic
 
   def getDutyRatesForPeriods(
                                periods: Seq[PeriodKey],
-                               obligationDetails: Seq[Obligation]
+                               obligations: Seq[Obligation]
                              ): Map[PeriodKey, DutyRate] = {
     periods.map { period =>
-      val obligation = obligationDetails.find(_.periodKey == period.toString)
+      val obligation = obligations.find(_.periodKey == period.toString)
       val dutyRate = obligation.map { obl =>
         getDutyRateForDate(obl.iCFromDate)
       }.getOrElse(

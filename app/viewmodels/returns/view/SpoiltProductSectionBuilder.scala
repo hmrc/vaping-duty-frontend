@@ -27,7 +27,7 @@ import utils.{CssConstants, CurrencyFormatter, ReturnsDateUtils}
 final case class SpoiltProductSectionBuilder(
   spoiltProduct: Option[SpoiltProduct],
   totalDutySpoiltProducts: String,
-  obligationDetails: Seq[Obligation],
+  obligations: Seq[Obligation],
   returnsDateUtils: ReturnsDateUtils
 ) extends CurrencyFormatter {
 
@@ -98,7 +98,7 @@ final case class SpoiltProductSectionBuilder(
   }
 
   private def lookupPeriodKey(periodKey: String)(implicit messages: Messages): String = {
-    obligationDetails
+    obligations
       .find(_.periodKey == periodKey)
       .map { obligation =>
         val month = obligation.iCFromDate.getMonth

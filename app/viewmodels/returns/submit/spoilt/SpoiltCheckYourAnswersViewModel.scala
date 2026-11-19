@@ -40,7 +40,7 @@ object SpoiltCheckYourAnswersViewModel {
   def apply(
              declareSpoiltProducts: Option[Boolean],
              spoiltList: Option[List[SpoiltVolumeByPeriod]],
-             obligationDetails: Seq[Obligation],
+             obligations: Seq[Obligation],
              periodKey: PeriodKey,
              dutyRates: Map[PeriodKey, DutyRate],
              returnsDateUtils: ReturnsDateUtils,
@@ -54,7 +54,7 @@ object SpoiltCheckYourAnswersViewModel {
         Seq(buildNoSpoiltProductsCard(periodKey, mode))
       case _ =>
         spoiltEntries.reverse.map { entry =>
-          buildSummaryCard(entry, obligationDetails, periodKey, dutyRates, returnsDateUtils, mode)
+          buildSummaryCard(entry, obligations, periodKey, dutyRates, returnsDateUtils, mode)
         }
     }
 
@@ -67,24 +67,24 @@ object SpoiltCheckYourAnswersViewModel {
       hasSpoiltProducts = spoiltEntries.nonEmpty,
       totalSpoiltDuty = totalSpoiltDuty,
       formattedTotalSpoiltDuty = CurrencyFormatter.currencyFormatWithLeadingSign(-totalSpoiltDuty),
-      hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd(obligationDetails, periodKey, spoiltList),
+      hasAvailablePeriodsToAdd = hasAvailablePeriodsToAdd(obligations, periodKey, spoiltList),
       mode = mode
     )
   }
 
   def hasAvailablePeriodsToAdd(
-                                obligationDetails: Seq[Obligation],
+                                obligations: Seq[Obligation],
                                 periodKey: PeriodKey,
                                 spoiltList: Option[List[SpoiltVolumeByPeriod]]
                               ): Boolean =
-    calculateAvailablePeriods(obligationDetails, periodKey, spoiltList.getOrElse(List.empty)).nonEmpty
+    calculateAvailablePeriods(obligations, periodKey, spoiltList.getOrElse(List.empty)).nonEmpty
 
   private def calculateAvailablePeriods(
-                                         obligationDetails: Seq[Obligation],
+                                         obligations: Seq[Obligation],
                                          currentReturnPeriod: PeriodKey,
                                          spoiltEntries: List[SpoiltVolumeByPeriod]
                                        ): Seq[Obligation] = {
-    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
+    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligations)
       .filter(_.periodKey != currentReturnPeriod.toString)
 
     val existingSpoiltPeriods = spoiltEntries.map(_.periodKey.toString).toSet
@@ -102,14 +102,14 @@ object SpoiltCheckYourAnswersViewModel {
 
   private def buildSummaryCard(
                                 entry: SpoiltVolumeByPeriod,
-                                obligationDetails: Seq[Obligation],
+                                obligations: Seq[Obligation],
                                 currentPeriodKey: PeriodKey,
                                 dutyRates: Map[PeriodKey, DutyRate],
                                 returnsDateUtils: ReturnsDateUtils,
                                 mode: Mode
                               )(implicit messages: Messages): SpoiltSummaryCard = {
 
-    val periodDisplay = returnsDateUtils.formatPeriodDisplay(entry.periodKey, obligationDetails)
+    val periodDisplay = returnsDateUtils.formatPeriodDisplay(entry.periodKey, obligations)
     val dutyAmount = dutyRates.get(entry.periodKey).fold(BigDecimal(0))(_.calculateDuty(entry.volume))
 
     val rows = Seq(

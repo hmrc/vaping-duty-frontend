@@ -62,11 +62,11 @@ class CheckYourAnswersController @Inject()(
     val allPeriods = (adjustmentPeriods ++ spoiltPeriods :+ pk).distinct
 
     for {
-      obligationDetails <- obligationService.getObligations(request.enrolmentVpdId)
-      dutyRates = dutyRateService.getDutyRatesForPeriods(allPeriods, obligationDetails)
-      returnPeriod = returnsDateUtils.getPeriodDisplay(pk, obligationDetails)
+      obligations <- obligationService.getObligations(request.enrolmentVpdId)
+      dutyRates = dutyRateService.getDutyRatesForPeriods(allPeriods, obligations)
+      returnPeriod = returnsDateUtils.getPeriodDisplay(pk, obligations)
     } yield {
-      val adjustmentsEligibility = AdjustmentsEligibility.fromObligationDetails(obligationDetails)
+      val adjustmentsEligibility = AdjustmentsEligibility.fromobligations(obligations)
       if (TaskStatusService.allTasksCompleted(request.userAnswers, adjustmentsEligibility)) {
         Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRates, pk, adjustmentsEligibility, returnPeriod)))
       } else {
