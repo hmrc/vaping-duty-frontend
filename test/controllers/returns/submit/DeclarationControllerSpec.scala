@@ -20,7 +20,6 @@ import base.SpecBase
 import connectors.returns.ObligationsConnector
 import models.emailverification.ErrorModel
 import models.identifiers.PeriodKey
-import models.obligations.Obligation
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, times, verify, when}

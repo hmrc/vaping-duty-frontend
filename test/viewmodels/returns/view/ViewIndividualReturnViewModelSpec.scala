@@ -20,7 +20,6 @@ import base.SpecBase
 import data.TestData
 import models.ChargeReference
 import models.identifiers.PeriodKey
-import models.obligations.Obligation
 import models.returns.view.*
 import models.returns.{DeclarationDetails, RegularReturn, VapingProductsProduced}
 import play.api.i18n.Messages
