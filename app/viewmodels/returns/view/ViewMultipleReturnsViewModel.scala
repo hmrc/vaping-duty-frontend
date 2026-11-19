@@ -39,11 +39,11 @@ object ViewMultipleReturnsViewModel {
   private val TAG_CLASS_BLUE = "govuk-tag--blue"
   private val TAG_CLASS_RED = "govuk-tag--red"
 
-  def apply(obligationsResponse: Seq[Obligation], currentYear: Int, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
+  def apply(obligations: Seq[Obligation], currentYear: Int, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
            (implicit messages: Messages): ViewMultipleReturnsViewModel = {
 
     val (outstandingObligations, fulfilledObligations) =
-      obligationsResponse.partition(_.openOrFulfilledStatus == ObligationStatus.O.toString)
+      obligations.partition(_.openOrFulfilledStatus == ObligationStatus.O.toString)
 
     val outstandingItems =
       outstandingObligations

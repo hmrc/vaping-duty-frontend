@@ -66,7 +66,7 @@ class CheckYourAnswersController @Inject()(
       dutyRates = dutyRateService.getDutyRatesForPeriods(allPeriods, obligations)
       returnPeriod = returnsDateUtils.getPeriodDisplay(pk, obligations)
     } yield {
-      val adjustmentsEligibility = AdjustmentsEligibility.fromobligations(obligations)
+      val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations)
       if (TaskStatusService.allTasksCompleted(request.userAnswers, adjustmentsEligibility)) {
         Ok(view(pk, CheckYourAnswersViewModel(request.userAnswers, dutyRates, pk, adjustmentsEligibility, returnPeriod)))
       } else {
