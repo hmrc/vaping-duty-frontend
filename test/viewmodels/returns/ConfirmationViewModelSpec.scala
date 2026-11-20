@@ -25,14 +25,13 @@ import java.time.format.DateTimeFormatter
 
 class ConfirmationViewModelSpec extends SpecBase with UnitSpec {
 
-  private val obligationsJuly = fulfilledObligation(PeriodKey("24KG"))
   private val paymentLink = "paymentLink"
   private val repaymentUrl = "repaymentUrl"
 
   "ConfirmationViewModel" - {
 
     val returnsResponse = createReturnDisplayResponse()
-    val obligation = obligationsJuly
+    val obligation = fulfilledObligation(july2024)
     val paymentDueDate = LocalDate.of(2024, 8, 15)
 
     "must extract and format submission date correctly" in {

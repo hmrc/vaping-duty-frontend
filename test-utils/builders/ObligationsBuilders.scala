@@ -30,6 +30,7 @@ trait ObligationsBuilders {
   val january2024  = PeriodKey("24KA")
   val february2024 = PeriodKey("24KB")
   val march2024    = PeriodKey("24KC")
+  val july2024     = PeriodKey("24KG")
 
   val september2025 = PeriodKey("25KI")
 
