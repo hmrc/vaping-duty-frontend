@@ -19,7 +19,7 @@ package services.returns
 import base.SpecBase
 import connectors.returns.ObligationsConnector
 import models.identifiers.PeriodKey
-import models.obligations.{Identification, ObligationDetails, ObligationItem, ObligationsResponse}
+import models.obligations.Obligation
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, reset, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -31,40 +31,22 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
 
   private val mockObligationsConnector: ObligationsConnector = mock[ObligationsConnector]
 
-  private val obligations: Seq[ObligationDetails] = Seq(
+  private val obligations: Seq[Obligation] = Seq(
     openObligation(january2026),
     openObligation(february2026),
     fulfilledObligation(march2026)
   )
 
-  private val mockObligationsResponse = ObligationsResponse(obligations(obligations))
-
-  private val mockObligationsResponseWithNonMatchingId = mockObligationsResponse.copy(
-    obligation = Seq(ObligationItem(
-      identification = Some(Identification(referenceType = "ZVPD", referenceNumber = "NonMatchingId", incomeSourceType = None)),
-      obligationDetails = Seq(fulfilledObligation(october2027)))
-    ) ++ obligations(obligations)
-  )
-
-  private val mockObligationsResponseWithNonMatchingType = mockObligationsResponse.copy(
-    obligation = Seq(ObligationItem(
-      identification = Some(Identification(referenceType = "OTHER_REGIME", referenceNumber = vpdId.value, incomeSourceType = None)),
-      obligationDetails = Seq(fulfilledObligation(october2027)))
-    ) ++ obligations(obligations)
-  )
+  private val service = new ObligationService(mockObligationsConnector)
 
   "ObligationService" - {
 
-    when(mockAppConfig.enrolmentIdentifierKey).thenReturn("ZVPD")
-    
     "getObligations with user answers" - {
 
       "must return the obligations saved in the user answers without calling the Obligations API" in {
         reset(mockObligationsConnector)
 
         val cachedAnswers = returnsUserAnswers.set(ObligationsQuery, obligations).success.value
-
-        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
 
         service.getObligations(cachedAnswers, vpdId).futureValue mustBe obligations
         verify(mockObligationsConnector, never()).getObligations(any())(using any())
@@ -73,9 +55,7 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
       "must call the Obligations API when no obligations are saved in the user answers" in {
         reset(mockObligationsConnector)
         when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(mockObligationsResponse))
-
-        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
+          .thenReturn(Future.successful(obligations))
 
         service.getObligations(returnsUserAnswers, vpdId).futureValue mustBe obligations
         verify(mockObligationsConnector).getObligations(any())(using any())
@@ -83,37 +63,11 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
     }
 
     "getObligations" - {
-      "must return the obligations response" in {
+      "must return the obligations from the Obligations API" in {
         when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(mockObligationsResponse))
+          .thenReturn(Future.successful(obligations))
 
-        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
-
-        val result = service.getObligations(vpdId).futureValue
-
-        result mustBe obligations
-      }
-
-      "must filter out obligation items without matching referenceNumber" in {
-        when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(mockObligationsResponseWithNonMatchingId))
-
-        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
-
-        val result = service.getObligations(vpdId).futureValue
-
-        result mustBe obligations
-      }
-
-      "must filter out obligation items without matching referenceType" in {
-        when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(mockObligationsResponseWithNonMatchingType))
-
-        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
-
-        val result = service.getObligations(vpdId).futureValue
-
-        result mustBe obligations
+        service.getObligations(vpdId).futureValue mustBe obligations
       }
     }
 
@@ -121,48 +75,23 @@ class ObligationServiceSpec extends SpecBase with MockitoSugar {
 
       "must return the correct obligation when periodKey exists" in {
         when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(mockObligationsResponse))
+          .thenReturn(Future.successful(obligations))
 
-        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
-
-        val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26KB")).futureValue
-
-        result mustBe Some(openObligation(february2026))
-      }
-
-      "must filter out obligation items without matching vpdids" in {
-        when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(mockObligationsResponseWithNonMatchingId))
-
-        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
-
-        val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26KB")).futureValue
-
-        result mustBe Some(openObligation(february2026))
+        service.getObligationByPeriodKey(vpdId, PeriodKey("26KB")).futureValue mustBe Some(openObligation(february2026))
       }
 
       "must return None when periodKey does not exist" in {
         when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(mockObligationsResponse))
+          .thenReturn(Future.successful(obligations))
 
-        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
-
-        val result = service.getObligationByPeriodKey(vpdId, PeriodKey("26XX")).futureValue
-
-        result mustBe None
+        service.getObligationByPeriodKey(vpdId, PeriodKey("26XX")).futureValue mustBe None
       }
 
-      "must return None when obligations response is empty" in {
-        val emptyResponse = ObligationsResponse(obligation = Seq.empty)
-
+      "must return None when there are no obligations" in {
         when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(emptyResponse))
+          .thenReturn(Future.successful(Seq.empty))
 
-        val service = new ObligationService(mockObligationsConnector, mockAppConfig)
-
-        val result = service.getObligationByPeriodKey(vpdId, periodKey).futureValue
-
-        result mustBe None
+        service.getObligationByPeriodKey(vpdId, periodKey).futureValue mustBe None
       }
     }
   }

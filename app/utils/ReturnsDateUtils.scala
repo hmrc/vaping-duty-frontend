@@ -17,7 +17,7 @@
 package utils
 
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.PeriodDisplay
 import play.api.i18n.Messages
 
@@ -84,16 +84,16 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
 
   def getPeriodDisplay(
                         periodKey: PeriodKey,
-                        obligationDetails: Seq[ObligationDetails]
+                        obligations: Seq[Obligation]
                       )(implicit messages: Messages): PeriodDisplay = {
-    obligationDetails
+    obligations
       .find(_.periodKey == periodKey.toString)
       .map(obligation => getPeriodDisplay(obligation))
       .getOrElse {
-        val availableKeys = if (obligationDetails.isEmpty) {
+        val availableKeys = if (obligations.isEmpty) {
           "none"
         } else {
-          obligationDetails.map(_.periodKey).mkString(", ")
+          obligations.map(_.periodKey).mkString(", ")
         }
         throw new IllegalStateException(
           s"Period key '${periodKey.value}' not found in obligations. " +
@@ -102,7 +102,7 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
       }
   }
 
-  def getPeriodDisplay(obligation: ObligationDetails)(implicit messages: Messages): PeriodDisplay = {
+  def getPeriodDisplay(obligation: Obligation)(implicit messages: Messages): PeriodDisplay = {
     val month = obligation.iCFromDate.getMonthValue
     val year = obligation.iCFromDate.getYear
     val monthKey = getMonthMessageKey(month)
@@ -111,9 +111,9 @@ class ReturnsDateUtils @Inject()(clock: Clock) {
 
   def formatPeriodDisplay(
                            periodKey: PeriodKey,
-                           obligationDetails: Seq[ObligationDetails]
+                           obligations: Seq[Obligation]
                          )(implicit messages: Messages): String = {
-    getPeriodDisplay(periodKey, obligationDetails).formatted
+    getPeriodDisplay(periodKey, obligations).formatted
   }
 
   def formatDayMonthYear(date: LocalDate)(implicit messages: Messages): String = {

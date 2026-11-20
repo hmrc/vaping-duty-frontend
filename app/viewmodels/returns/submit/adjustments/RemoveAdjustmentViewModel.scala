@@ -16,7 +16,7 @@
 
 package viewmodels.returns.submit.adjustments
 
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.DutyRate
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentType}
 import play.api.i18n.Messages
@@ -30,12 +30,12 @@ object RemoveAdjustmentViewModel {
 
   def apply(
              entry: AdjustmentEntry,
-             obligationDetails: Seq[ObligationDetails],
+             obligations: Seq[Obligation],
              dutyRate: DutyRate,
              returnsDateUtils: ReturnsDateUtils
            )(implicit messages: Messages): RemoveAdjustmentViewModel = {
 
-    val periodDisplay = returnsDateUtils.formatPeriodDisplay(entry.period, obligationDetails)
+    val periodDisplay = returnsDateUtils.formatPeriodDisplay(entry.period, obligations)
     val dutyAmount = dutyRate.calculateDuty(entry.volumeInMl)
 
     val (typeMessageKey, volumeLabelKey, signedDuty) = entry.adjustmentType match {

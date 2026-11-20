@@ -60,22 +60,22 @@ class AdjustmentsEligibilitySpec extends SpecBase with ObligationsBuilders {
     }
   }
 
-  "AdjustmentsEligibility.fromObligationDetails" - {
+  "AdjustmentsEligibility.fromObligations" - {
 
     "must return Eligible when obligation details contain fulfilled status" in {
       val details = Seq(fulfilledObligation(march2024))
 
-      AdjustmentsEligibility.fromObligationDetails(details) mustBe AdjustmentsEligibility.Eligible
+      AdjustmentsEligibility.fromObligations(details) mustBe AdjustmentsEligibility.Eligible
     }
 
     "must return NotEligible when obligation details only contain open status" in {
       val details = Seq(openObligation(march2024))
 
-      AdjustmentsEligibility.fromObligationDetails(details) mustBe AdjustmentsEligibility.NotEligible
+      AdjustmentsEligibility.fromObligations(details) mustBe AdjustmentsEligibility.NotEligible
     }
 
     "must return NotEligible when obligation details list is empty" in {
-      AdjustmentsEligibility.fromObligationDetails(Seq.empty) mustBe AdjustmentsEligibility.NotEligible
+      AdjustmentsEligibility.fromObligations(Seq.empty) mustBe AdjustmentsEligibility.NotEligible
     }
 
     "must return Eligible when at least one obligation detail is fulfilled among many" in {
@@ -85,7 +85,7 @@ class AdjustmentsEligibilitySpec extends SpecBase with ObligationsBuilders {
         openObligation(march2024)
       )
 
-      AdjustmentsEligibility.fromObligationDetails(details) mustBe AdjustmentsEligibility.Eligible
+      AdjustmentsEligibility.fromObligations(details) mustBe AdjustmentsEligibility.Eligible
     }
 
     "must return NotEligible when multiple obligation details are all open" in {
@@ -95,7 +95,7 @@ class AdjustmentsEligibilitySpec extends SpecBase with ObligationsBuilders {
         openObligation(march2024)
       )
 
-      AdjustmentsEligibility.fromObligationDetails(details) mustBe AdjustmentsEligibility.NotEligible
+      AdjustmentsEligibility.fromObligations(details) mustBe AdjustmentsEligibility.NotEligible
     }
   }
 }

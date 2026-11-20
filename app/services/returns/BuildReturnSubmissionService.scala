@@ -18,7 +18,7 @@ package services.returns
 
 import config.FrontendAppConfig
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.*
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentType}
 import models.returns.submit.ReturnCreateRequest
@@ -40,7 +40,7 @@ class BuildReturnSubmissionService @Inject()(
   private val FLAG_FILLED = "1"
 
   def buildSubmission(ua: ReturnsUserAnswers,
-                      obligation: ObligationDetails,
+                      obligation: Obligation,
                       vpdId: VpdId,
                       periodKeyToDutyRate: Map[PeriodKey, DutyRate]): ReturnCreateRequest = {
 
@@ -88,7 +88,7 @@ class BuildReturnSubmissionService @Inject()(
     } yield DeclarationDetails(fullName, role, email)
 
   private def buildVapingProductsProduced(ua: ReturnsUserAnswers,
-                                          obligation: ObligationDetails,
+                                          obligation: Obligation,
                                           periodKeyToDutyRate: Map[PeriodKey, DutyRate]): VapingProductsProduced = {
     val dutyDeclared = ua.get(DeclareDutyPage).getOrElse(false)
     val liquidInMl = ua.get(EnterDutyAmountPage).getOrElse(ZERO_VALUE)

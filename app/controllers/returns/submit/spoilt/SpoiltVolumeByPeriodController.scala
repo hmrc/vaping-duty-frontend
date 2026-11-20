@@ -22,7 +22,7 @@ import controllers.returns.PeriodKeyExtraction
 import forms.returns.SpoiltVolumeByPeriodFormProvider
 import models.{Mode, NormalMode}
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.requests.returns.ReturnsDataRequest
 import models.returns.SpoiltVolumeByPeriod
 import navigation.ReturnsNavigator
@@ -99,7 +99,7 @@ class SpoiltVolumeByPeriodController @Inject()(
       }
   }
 
-  private def withObligation(spoiltPeriod: PeriodKey)(block: ObligationDetails => Future[Result])
+  private def withObligation(spoiltPeriod: PeriodKey)(block: Obligation => Future[Result])
                             (implicit request: ReturnsDataRequest[AnyContent]): Future[Result] = {
 
     obligationService.getObligationByPeriodKey(request.enrolmentVpdId, spoiltPeriod).flatMap {
@@ -108,7 +108,7 @@ class SpoiltVolumeByPeriodController @Inject()(
     }
   }
 
-  private def createViewModel(spoiltObligation: ObligationDetails)
+  private def createViewModel(spoiltObligation: Obligation)
                              (implicit request: ReturnsDataRequest[AnyContent]): SpoiltVolumeByPeriodViewModel = {
 
     SpoiltVolumeByPeriodViewModel(spoiltObligation, request.periodKey)

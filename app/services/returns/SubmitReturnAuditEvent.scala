@@ -17,7 +17,7 @@
 package services.returns
 
 import models.identifiers.Identifiers
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import play.api.libs.json.*
 
@@ -26,14 +26,14 @@ object SubmitReturnAuditEvent {
   def buildExplicitAuditEvent(submission: ReturnCreateRequest,
                               result: ReturnSubmittedResponse,
                               identifiers: Identifiers,
-                              obligations: Seq[ObligationDetails]): JsObject = {
+                              obligations: Seq[Obligation]): JsObject = {
     buildExplicitAuditEvent(Json.toJson(submission), result, identifiers, obligations)
   }
 
   def buildExplicitAuditEvent(submission: JsValue,
                               response: ReturnSubmittedResponse,
                               identifiers: Identifiers,
-                              obligations: Seq[ObligationDetails]): JsObject = {
+                              obligations: Seq[Obligation]): JsObject = {
     new JsObject(Map(
       "response"         -> buildResponse(response),
       "prePopulatedData" -> buildPrePopulatedData(identifiers),
@@ -42,7 +42,7 @@ object SubmitReturnAuditEvent {
   }
 
   def buildSubmission(etmpSubmission: JsValue,
-                      obligations: Seq[ObligationDetails]): JsValue = {
+                      obligations: Seq[Obligation]): JsValue = {
     val submissionWithRenamedKeys = renameKeys(etmpSubmission)
 
     makePeriodKeysHumanReadable(
@@ -73,7 +73,7 @@ object SubmitReturnAuditEvent {
     ))
   }
 
-  def buildObligationsToHumanReadableMap(obligations: Seq[ObligationDetails]): Map[String, String] =
+  def buildObligationsToHumanReadableMap(obligations: Seq[Obligation]): Map[String, String] =
     obligations.map(ob => ob.periodKey -> s"${ob.iCFromDate} to ${ob.iCToDate}").toMap
 
   def buildPrePopulatedData(identifiers: Identifiers): JsValue = {

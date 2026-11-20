@@ -19,7 +19,7 @@ package controllers.returns.submit.spoilt
 import base.SpecBase
 import models.NormalMode
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class SelectSpoiltPeriodControllerSpec extends SpecBase {
 
-  private val obligationsSpanning3Years: Seq[ObligationDetails] = {
+  private val obligationsSpanning3Years: Seq[Obligation] = {
     Seq(fulfilledObligation(november2027), fulfilledObligation(october2026), fulfilledObligation(september2025))
   }
 

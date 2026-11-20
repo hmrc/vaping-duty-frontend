@@ -18,7 +18,7 @@ package controllers.returns.submit
 
 import base.SpecBase
 import connectors.returns.GetReturnsConnector
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -34,7 +34,7 @@ import scala.concurrent.Future
 
 class ConfirmationControllerSpec extends SpecBase {
 
-  private def createObligation(): ObligationDetails = fulfilledObligation(periodKey)
+  private def createObligation(): Obligation = fulfilledObligation(periodKey)
   private val paymentLink = "paymentLink"
   private val repaymentUrl = "repaymentUrl"
 

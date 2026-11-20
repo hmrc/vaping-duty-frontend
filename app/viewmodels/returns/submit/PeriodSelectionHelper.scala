@@ -16,7 +16,7 @@
 
 package viewmodels.returns.submit
 
-import models.obligations.{ObligationDetails, ObligationStatus}
+import models.obligations.{Obligation, ObligationStatus}
 import models.returns.ReturnsConstants
 import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.PaginationItem
 
@@ -25,18 +25,18 @@ import java.time.LocalDate
 object PeriodSelectionHelper {
 
   def filterFulfilledWithinThreeYears(
-    obligationDetails: Seq[ObligationDetails]
-  ): Seq[ObligationDetails] = {
+    obligations: Seq[Obligation]
+  ): Seq[Obligation] = {
     val currentDate = LocalDate.now()
     val threeYearsAgo = currentDate.minusYears(ReturnsConstants.YEARS_TO_SHOW)
 
-    obligationDetails
+    obligations
       .filter(_.openOrFulfilledStatus == ObligationStatus.F.toString)
       .filter(_.iCFromDate.isAfter(threeYearsAgo))
   }
 
   def extractAvailableYearsFromDetails(
-    obligations: Seq[ObligationDetails]
+    obligations: Seq[Obligation]
   ): Seq[Int] = {
     obligations
       .map(_.iCFromDate.getYear)
@@ -54,9 +54,9 @@ object PeriodSelectionHelper {
   }
 
   def filterObligationsByYearFromDetails(
-    obligations: Seq[ObligationDetails],
+    obligations: Seq[Obligation],
     year: Int
-  ): Seq[ObligationDetails] = {
+  ): Seq[Obligation] = {
     obligations
       .filter(_.iCFromDate.getYear == year)
       .sortBy(_.iCFromDate.getMonthValue)(Ordering[Int].reverse)

@@ -17,7 +17,7 @@
 package viewmodels.returns.view
 
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationStatus}
+import models.obligations.{Obligation, ObligationStatus}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.PaginationItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -39,11 +39,11 @@ object ViewMultipleReturnsViewModel {
   private val TAG_CLASS_BLUE = "govuk-tag--blue"
   private val TAG_CLASS_RED = "govuk-tag--red"
 
-  def apply(obligationsResponse: Seq[ObligationDetails], currentYear: Int, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
+  def apply(obligations: Seq[Obligation], currentYear: Int, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
            (implicit messages: Messages): ViewMultipleReturnsViewModel = {
 
     val (outstandingObligations, fulfilledObligations) =
-      obligationsResponse.partition(_.openOrFulfilledStatus == ObligationStatus.O.toString)
+      obligations.partition(_.openOrFulfilledStatus == ObligationStatus.O.toString)
 
     val outstandingItems =
       outstandingObligations
@@ -56,7 +56,7 @@ object ViewMultipleReturnsViewModel {
       shouldShowSection = outstandingItems.nonEmpty
     )
 
-    val completedByYear: Map[Int, Seq[ObligationDetails]] =
+    val completedByYear: Map[Int, Seq[Obligation]] =
       fulfilledObligations
         .groupBy(_.iCFromDate.getYear)
 
@@ -91,13 +91,13 @@ object ViewMultipleReturnsViewModel {
     )
   }
 
-  private def createOutstandingTaskListItem(details: ObligationDetails, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
+  private def createOutstandingTaskListItem(obligation: Obligation, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
                                            (implicit messages: Messages): TaskListItem = {
 
-    val month = Month.of(details.iCFromDate.getMonthValue)
-    val year = details.iCFromDate.getYear
+    val month = Month.of(obligation.iCFromDate.getMonthValue)
+    val year = obligation.iCFromDate.getYear
     val monthDisplay = s"${returnsDateUtils.getMonthMessage(month)} $year"
-    val isOverdue = details.iCDueDate.isBefore(now)
+    val isOverdue = obligation.iCDueDate.isBefore(now)
 
     val status = if (isOverdue) {
       messages("returns.overview.outstanding.status.overdue")
@@ -109,7 +109,7 @@ object ViewMultipleReturnsViewModel {
 
     TaskListItem(
       title = TaskListItemTitle(content = Text(monthDisplay)),
-      href = Some(s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${details.periodKey}"),
+      href = Some(s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${obligation.periodKey}"),
       status = TaskListItemStatus(
         tag = Some(Tag(
           content = Text(status),
@@ -119,15 +119,15 @@ object ViewMultipleReturnsViewModel {
     )
   }
 
-  private def createCompletedTaskListItem(details: ObligationDetails, returnsDateUtils: ReturnsDateUtils)
+  private def createCompletedTaskListItem(obligation: Obligation, returnsDateUtils: ReturnsDateUtils)
                                          (implicit messages: Messages): TaskListItem = {
 
-    val month = Month.of(details.iCFromDate.getMonthValue)
+    val month = Month.of(obligation.iCFromDate.getMonthValue)
     val monthDisplay = returnsDateUtils.getMonthMessage(month)
 
     TaskListItem(
       title = TaskListItemTitle(content = Text(monthDisplay)),
-      href = Some(controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(PeriodKey(details.periodKey)).url),
+      href = Some(controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(PeriodKey(obligation.periodKey)).url),
       status = TaskListItemStatus(
         content = Text(messages("returns.overview.completed.status"))
       )

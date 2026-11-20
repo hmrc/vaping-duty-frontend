@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class ViewIndividualReturnControllerSpec extends SpecBase {
   
-  private val obligationDetails = Seq(fulfilledObligation(periodKey))
+  private val obligations = Seq(fulfilledObligation(periodKey))
   
   "ViewIndividualReturn Controller" - {
 
@@ -49,7 +49,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
       ))
 
       when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(
-        obligationDetails
+        obligations
       ))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
@@ -65,7 +65,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
-        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), obligationDetails, returnsDateUtils)(using messages(application))
+        val vm = ViewIndividualReturnViewModel(createReturnDisplayResponse(), obligations, returnsDateUtils)(using messages(application))
 
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 
@@ -93,7 +93,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
       ))
 
       when(mockObligationService.getObligations(any())(using any())).thenReturn(Future.successful(
-        obligationDetails
+        obligations
       ))
 
       val application = applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
@@ -109,7 +109,7 @@ class ViewIndividualReturnControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val returnsDateUtils = application.injector.instanceOf[ReturnsDateUtils]
-        val vm = ViewIndividualReturnViewModel(returnDataWithoutRegularReturn, obligationDetails, returnsDateUtils)(using messages(application))
+        val vm = ViewIndividualReturnViewModel(returnDataWithoutRegularReturn, obligations, returnsDateUtils)(using messages(application))
 
         val view = application.injector.instanceOf[ViewIndividualReturnView]
 

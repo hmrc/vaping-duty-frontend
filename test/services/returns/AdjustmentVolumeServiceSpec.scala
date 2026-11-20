@@ -166,7 +166,7 @@ class AdjustmentVolumeServiceSpec extends SpecBase with MockitoSugar with Mappin
   }
 
   "updateAdjustmentList" - {
-    val obligationDetails = obligations(Seq(fulfilledObligation(adjustmentPeriodKey))).flatMap(_.obligationDetails)
+    val obligations = Seq(fulfilledObligation(adjustmentPeriodKey))
 
     "must add new adjustment to empty list" in {
       when(mockDutyRateService.getDutyRatesForPeriods(any(), any()))
@@ -182,7 +182,7 @@ class AdjustmentVolumeServiceSpec extends SpecBase with MockitoSugar with Mappin
         returnsUserAnswers,
         adjustmentPeriodKey,
         formData,
-        obligationDetails
+        obligations
       ).futureValue
 
       result.userAnswers.get(AdjustmentListPage).value.adjustments must have size 1
@@ -211,7 +211,7 @@ class AdjustmentVolumeServiceSpec extends SpecBase with MockitoSugar with Mappin
         userAnswers,
         adjustmentPeriodKey,
         formData,
-        obligationDetails
+        obligations
       ).futureValue
 
       result.userAnswers.get(AdjustmentListPage).value.adjustments must have size 1
@@ -242,7 +242,7 @@ class AdjustmentVolumeServiceSpec extends SpecBase with MockitoSugar with Mappin
         userAnswers,
         adjustmentPeriodKey,
         formData,
-        obligationDetails
+        obligations
       ).futureValue
 
       result.userAnswers.get(AdjustmentReasonPage) mustBe None

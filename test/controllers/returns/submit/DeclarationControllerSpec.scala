@@ -20,7 +20,6 @@ import base.SpecBase
 import connectors.returns.ObligationsConnector
 import models.emailverification.ErrorModel
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationsResponse}
 import models.returns.{DeclarationDetails, ReturnsUserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
@@ -61,12 +60,6 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
     .set(YourFullNamePage, validDeclaration.fullName).success.value
 
 
-  private val obligationDataSingleOpen: ObligationsResponse = ObligationsResponse(
-    obligation = obligations(Seq(openObligation(june2026)))
-  )
-
-  private val obligationDetailsSingleOpen: Seq[ObligationDetails] =
-    obligationDataSingleOpen.obligation.flatMap(_.obligationDetails)
 
   private def stubbedSessionRepository(): ReturnsUserAnswersService = {
     val mockSessionRepository = mock[ReturnsUserAnswersService]
@@ -76,7 +69,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
   private def stubLiveObligations(mockObligationService: ObligationService): Unit = {
     when(mockObligationService.getObligations(any())(using any()))
-      .thenReturn(Future.successful(obligationDetailsSingleOpen))
+      .thenReturn(Future.successful(Seq(openObligation(june2026))))
     ()
   }
 
@@ -203,7 +196,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         stubLiveObligations(mockObligationService)
 
         val savedAnswers = yourDetailsAnswers
-          .set(ObligationsQuery, obligationDetailsSingleOpen).success.value
+          .set(ObligationsQuery, Seq(openObligation(june2026))).success.value
 
         val application = applicationBuilder(returnsUserAnswers = Some(savedAnswers))
           .overrides(
@@ -314,7 +307,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockSessionRepository.clear(any(), any())(any()))
           .thenReturn(Future.successful(Right(())))
         when(mockObligationService.getObligations(any(), any())(using any()))
-          .thenReturn(Future.successful(obligationDetailsSingleOpen))
+          .thenReturn(Future.successful(Seq(openObligation(june2026))))
 
         val application =
           applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
@@ -352,7 +345,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Future.successful(Right(())))
 
         val cachedAnswers = yourDetailsAnswers
-          .set(ObligationsQuery, obligationDetailsSingleOpen).success.value
+          .set(ObligationsQuery, Seq(openObligation(june2026))).success.value
 
         val application =
           applicationBuilder(returnsUserAnswers = Some(cachedAnswers))
@@ -373,7 +366,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           redirectLocation(result).value must include(controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
 
           verify(mockObligationsConnector, never()).getObligations(any())(using any())
-          verify(mockSubmitReturnService).submit(any(), eqTo(obligationDetailsSingleOpen))(any())
+          verify(mockSubmitReturnService).submit(any(), eqTo(Seq(openObligation(june2026))))(any())
         }
       }
 
@@ -388,7 +381,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockSessionRepository.clear(any(), any())(any()))
           .thenReturn(Future.successful(Right(())))
         when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(obligationDataSingleOpen))
+          .thenReturn(Future.successful(Seq(openObligation(june2026))))
 
         val application =
           applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
@@ -421,7 +414,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Future.failed(new IllegalStateException("Declaration details are required for submission")))
 
         val cachedAnswers = yourDetailsIncomplete
-          .set(ObligationsQuery, obligationDetailsSingleOpen).success.value
+          .set(ObligationsQuery, Seq(openObligation(june2026))).success.value
 
         val application = applicationBuilder(returnsUserAnswers = Some(cachedAnswers))
           .overrides(
@@ -465,7 +458,7 @@ class DeclarationControllerSpec extends SpecBase with MockitoSugar {
         when(mockService.submit(any(), any())(any())).thenReturn(Future.successful(Left(ErrorModel(BAD_GATEWAY, "Bad gateway"))))
         when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
         when(mockObligationService.getObligations(any(), any())(using any()))
-          .thenReturn(Future.successful(obligationDetailsSingleOpen))
+          .thenReturn(Future.successful(Seq(openObligation(june2026))))
 
         val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
           .overrides(

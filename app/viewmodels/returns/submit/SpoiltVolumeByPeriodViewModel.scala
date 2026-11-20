@@ -17,7 +17,7 @@
 package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import play.api.i18n.Messages
 
 import java.time.format.TextStyle
@@ -31,7 +31,7 @@ case class SpoiltVolumeByPeriodViewModel(
 )
 
 object SpoiltVolumeByPeriodViewModel {
-  def apply(spoiltObligation: ObligationDetails, currentReturnPeriod: PeriodKey)(implicit messages: Messages): SpoiltVolumeByPeriodViewModel = {
+  def apply(spoiltObligation: Obligation, currentReturnPeriod: PeriodKey)(implicit messages: Messages): SpoiltVolumeByPeriodViewModel = {
     val month = spoiltObligation.iCFromDate.getMonth
     val monthName = month.getDisplayName(TextStyle.FULL, Locale.UK)
     val year = spoiltObligation.iCFromDate.getYear.toString

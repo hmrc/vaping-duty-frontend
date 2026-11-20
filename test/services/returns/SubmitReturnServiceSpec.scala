@@ -22,7 +22,7 @@ import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
 import models.ChargeReference
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.requests.returns.ReturnsDataRequest
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, UnderDeclaration}
@@ -68,7 +68,7 @@ class SubmitReturnServiceSpec extends SpecBase with MockitoSugar with BeforeAndA
   private val periodKey = PeriodKey("24KA")
   private val taxType = "641"
 
-  private val obligation = ObligationDetails(
+  private val obligation = Obligation(
     openOrFulfilledStatus = "O",
     iCFromDate = LocalDate.of(2024, 1, 1),
     iCToDate = LocalDate.of(2024, 1, 31),

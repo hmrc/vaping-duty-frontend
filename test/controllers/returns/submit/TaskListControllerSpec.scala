@@ -17,7 +17,6 @@
 package controllers.returns.submit
 
 import base.SpecBase
-import models.obligations.ObligationDetails
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

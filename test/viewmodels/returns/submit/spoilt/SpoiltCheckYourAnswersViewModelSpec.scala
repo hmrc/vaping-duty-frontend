@@ -31,12 +31,12 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
 
     "must create view model with correct summary cards for a declared spoilt entry" in {
       val entry = SpoiltVolumeByPeriod(volume = BigDecimal("100.0"), periodKey = october2027)
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
+      val obligations = Seq(fulfilledObligation(october2027))
 
       val vm = SpoiltCheckYourAnswersViewModel(
         Some(true),
         Some(List(entry)),
-        obligationDetails,
+        obligations,
         periodKey,
         dutyRatesMap,
         returnsDateUtils,
@@ -50,12 +50,12 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
 
     "must calculate correct total spoilt duty" in {
       val entry = SpoiltVolumeByPeriod(volume = BigDecimal("1000.0"), periodKey = october2027)
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
+      val obligations = Seq(fulfilledObligation(october2027))
 
       val vm = SpoiltCheckYourAnswersViewModel(
         Some(true),
         Some(List(entry)),
-        obligationDetails,
+        obligations,
         periodKey,
         dutyRatesMap,
         returnsDateUtils,
@@ -68,12 +68,12 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
 
     "must always show the per-card Duty row as a negative amount" in {
       val entry = SpoiltVolumeByPeriod(volume = BigDecimal("1000.0"), periodKey = october2027)
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
+      val obligations = Seq(fulfilledObligation(october2027))
 
       val vm = SpoiltCheckYourAnswersViewModel(
         Some(true),
         Some(List(entry)),
-        obligationDetails,
+        obligations,
         periodKey,
         dutyRatesMap,
         returnsDateUtils,
@@ -85,12 +85,12 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
     }
 
     "must handle no spoilt products declared" in {
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
+      val obligations = Seq(fulfilledObligation(october2027))
 
       val vm = SpoiltCheckYourAnswersViewModel(
         Some(false),
         None,
-        obligationDetails,
+        obligations,
         periodKey,
         dutyRatesMap,
         returnsDateUtils,
@@ -104,12 +104,12 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
     }
 
     "must handle an empty spoilt list" in {
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
+      val obligations = Seq(fulfilledObligation(october2027))
 
       val vm = SpoiltCheckYourAnswersViewModel(
         Some(true),
         Some(List.empty),
-        obligationDetails,
+        obligations,
         periodKey,
         dutyRatesMap,
         returnsDateUtils,
@@ -125,17 +125,17 @@ class SpoiltCheckYourAnswersViewModelSpec extends SpecBase {
   "hasAvailablePeriodsToAdd" - {
 
     "must return true when a fulfilled period is not in the spoilt list" in {
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027), fulfilledObligation(december2027))).flatMap(_.obligationDetails)
+      val obligations = Seq(fulfilledObligation(october2027), fulfilledObligation(december2027))
       val spoiltList = Some(List(SpoiltVolumeByPeriod(volume = BigDecimal("100.0"), periodKey = october2027)))
 
-      SpoiltCheckYourAnswersViewModel.hasAvailablePeriodsToAdd(obligationDetails, periodKey, spoiltList) mustBe true
+      SpoiltCheckYourAnswersViewModel.hasAvailablePeriodsToAdd(obligations, periodKey, spoiltList) mustBe true
     }
 
     "must return false when every fulfilled period is already in the spoilt list" in {
-      val obligationDetails = obligations(Seq(fulfilledObligation(october2027))).flatMap(_.obligationDetails)
+      val obligations = Seq(fulfilledObligation(october2027))
       val spoiltList = Some(List(SpoiltVolumeByPeriod(volume = BigDecimal("100.0"), periodKey = october2027)))
 
-      SpoiltCheckYourAnswersViewModel.hasAvailablePeriodsToAdd(obligationDetails, periodKey, spoiltList) mustBe false
+      SpoiltCheckYourAnswersViewModel.hasAvailablePeriodsToAdd(obligations, periodKey, spoiltList) mustBe false
     }
   }
 }

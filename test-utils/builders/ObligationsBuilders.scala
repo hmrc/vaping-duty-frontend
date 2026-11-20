@@ -17,7 +17,7 @@
 package builders
 
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.{Identification, ObligationDetails, ObligationItem, ObligationStatus}
+import models.obligations.{Obligation, ObligationStatus}
 
 import java.time.LocalDate
 
@@ -30,6 +30,7 @@ trait ObligationsBuilders {
   val january2024  = PeriodKey("24KA")
   val february2024 = PeriodKey("24KB")
   val march2024    = PeriodKey("24KC")
+  val july2024     = PeriodKey("24KG")
 
   val september2025 = PeriodKey("25KI")
 
@@ -49,25 +50,16 @@ trait ObligationsBuilders {
   val id: VpdId = VpdId(id = "VPPAID01")
   
   // Synonyms for obligations in terms of returns
-  def returns(returns: Seq[ObligationDetails]): Seq[ObligationItem] = obligations(returns)
-  def completedReturn(periodKey: PeriodKey): ObligationDetails = fulfilledObligation(periodKey)
-  def outstandingReturn(periodKey: PeriodKey): ObligationDetails = openObligation(periodKey)
+  def completedReturn(periodKey: PeriodKey): Obligation = fulfilledObligation(periodKey)
+  def outstandingReturn(periodKey: PeriodKey): Obligation = openObligation(periodKey)
 
-  def obligations(obligations: Seq[ObligationDetails]): Seq[ObligationItem] = {
-    
-      Seq(ObligationItem(
-        identification = Some(Identification(referenceType = "ZVPD", referenceNumber = id.value, None)),
-        obligationDetails = obligations
-      ))
-  }
-  
-  def fulfilledObligation(periodKey: PeriodKey): ObligationDetails = obligationDetails(periodKey, ObligationStatus.F)
-  def openObligation(periodKey: PeriodKey): ObligationDetails      = obligationDetails(periodKey, ObligationStatus.O)
+  def fulfilledObligation(periodKey: PeriodKey): Obligation = obligation(periodKey, ObligationStatus.F)
+  def openObligation(periodKey: PeriodKey): Obligation      = obligation(periodKey, ObligationStatus.O)
 
-  private def obligationDetails(periodKey: PeriodKey,
+  private def obligation(periodKey: PeriodKey,
                                 obligationStatus: ObligationStatus,
                                 submittedOnTime: Boolean = false) = {
-    ObligationDetails(
+    Obligation(
       openOrFulfilledStatus = obligationStatus.toString,
       iCFromDate            = firstDayOf(periodKey),
       iCToDate              = lastDayOf(periodKey),

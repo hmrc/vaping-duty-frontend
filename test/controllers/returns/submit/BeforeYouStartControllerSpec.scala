@@ -18,7 +18,7 @@ package controllers.returns.submit
 
 import base.SpecBase
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import org.apache.pekko.http.scaladsl.model.HttpResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class BeforeYouStartControllerSpec extends SpecBase {
 
-  private val obligations: Seq[ObligationDetails] = Seq(
+  private val obligations: Seq[Obligation] = Seq(
     openObligation(december2027),
     openObligation(november2027),
     fulfilledObligation(october2027)

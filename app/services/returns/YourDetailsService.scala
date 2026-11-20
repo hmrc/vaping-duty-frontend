@@ -28,6 +28,6 @@ class YourDetailsService @Inject()(obligationService: ObligationService)(using E
 
   def allTasksCompleted(userAnswers: ReturnsUserAnswers, vpdId: VpdId)(using HeaderCarrier): Future[Boolean] =
     obligationService.getObligations(userAnswers, vpdId).map { obligations =>
-      TaskStatusService.allTasksCompleted(userAnswers, AdjustmentsEligibility.fromObligationDetails(obligations))
+      TaskStatusService.allTasksCompleted(userAnswers, AdjustmentsEligibility.fromObligations(obligations))
     }
 }

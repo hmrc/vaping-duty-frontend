@@ -16,11 +16,11 @@
 
 package queries.returns
 
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import play.api.libs.json.JsPath
 import queries.{Gettable, Settable}
 
-case object ObligationsQuery extends Gettable[Seq[ObligationDetails]] with Settable[Seq[ObligationDetails]] {
+case object ObligationsQuery extends Gettable[Seq[Obligation]] with Settable[Seq[Obligation]] {
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "obligations"

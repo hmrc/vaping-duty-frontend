@@ -19,7 +19,7 @@ package services.returns
 import com.google.inject.{Inject, Singleton}
 import models.Mode
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.{DutyRate, ReturnsUserAnswers, SpoiltVolumeByPeriod}
 import pages.returns.{DeclareSpoiltProductsPage, SpoiltVolumeByPeriodPage}
 import play.api.i18n.Messages
@@ -45,12 +45,12 @@ class SpoiltCheckYourAnswersService @Inject()(
                       vpdId: VpdId,
                       mode: Mode
                     )(using HeaderCarrier, Messages): Future[SpoiltCheckYourAnswersViewModel] = {
-    obligationService.getObligations(vpdId).map { obligationDetails =>
-      val dutyRatesMap = getDutyRatesForSpoiltEntries(spoiltList, obligationDetails)
+    obligationService.getObligations(vpdId).map { obligations =>
+      val dutyRatesMap = getDutyRatesForSpoiltEntries(spoiltList, obligations)
       SpoiltCheckYourAnswersViewModel(
         declareSpoiltProducts,
         spoiltList,
-        obligationDetails,
+        obligations,
         periodKey,
         dutyRatesMap,
         returnsDateUtils,
@@ -64,13 +64,13 @@ class SpoiltCheckYourAnswersService @Inject()(
                             spoiltPeriod: PeriodKey,
                             vpdId: VpdId
                           )(using HeaderCarrier, Messages): Future[Option[RemoveSpoiltAdjustmentViewModel]] =
-    obligationService.getObligations(vpdId).map { obligationDetails =>
+    obligationService.getObligations(vpdId).map { obligations =>
       for {
         entry      <- spoiltList.getOrElse(List.empty).find(_.periodKey == spoiltPeriod)
-        obligation <- obligationDetails.find(_.periodKey == spoiltPeriod.toString)
+        obligation <- obligations.find(_.periodKey == spoiltPeriod.toString)
       } yield RemoveSpoiltAdjustmentViewModel(
         entry,
-        obligationDetails,
+        obligations,
         dutyRateService.getDutyRateForDate(obligation.iCFromDate),
         returnsDateUtils
       )
@@ -102,16 +102,16 @@ class SpoiltCheckYourAnswersService @Inject()(
                                 periodKey: PeriodKey,
                                 vpdId: VpdId
                               )(using HeaderCarrier): Future[Boolean] =
-    obligationService.getObligations(vpdId).map { obligationDetails =>
-      SpoiltCheckYourAnswersViewModel.hasAvailablePeriodsToAdd(obligationDetails, periodKey, spoiltList)
+    obligationService.getObligations(vpdId).map { obligations =>
+      SpoiltCheckYourAnswersViewModel.hasAvailablePeriodsToAdd(obligations, periodKey, spoiltList)
     }
 
   private def getDutyRatesForSpoiltEntries(
                                             spoiltList: Option[List[SpoiltVolumeByPeriod]],
-                                            obligationDetails: Seq[ObligationDetails]
+                                            obligations: Seq[Obligation]
                                           ): Map[PeriodKey, DutyRate] = {
     val uniquePeriods = spoiltList.getOrElse(List.empty).map(_.periodKey).distinct
 
-    dutyRateService.getDutyRatesForPeriods(uniquePeriods, obligationDetails)
+    dutyRateService.getDutyRatesForPeriods(uniquePeriods, obligations)
   }
 }

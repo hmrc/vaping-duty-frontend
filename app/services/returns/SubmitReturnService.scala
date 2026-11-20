@@ -18,7 +18,7 @@ package services.returns
 
 import config.FrontendAppConfig
 import connectors.returns.SubmitReturnConnector
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.requests.returns.ReturnsDataRequest
 import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
@@ -44,7 +44,7 @@ class SubmitReturnService @Inject()(
                                      appConfig: FrontendAppConfig,
                                    )(using ExecutionContext) extends Logging {
 
-  def submit(ua: ReturnsUserAnswers, obligations: Seq[ObligationDetails])
+  def submit(ua: ReturnsUserAnswers, obligations: Seq[Obligation])
             (implicit request: ReturnsDataRequest[?]): Future[ReturnSubmittedResponse] = {
 
     given HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(session = request.session, request = request.request)
