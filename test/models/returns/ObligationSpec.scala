@@ -28,11 +28,11 @@ class ObligationSpec extends SpecBase {
 
     val openObligationJson = """{"openOrFulfilledStatus":"O","iCFromDate":"2024-02-01","iCToDate":"2024-02-29","iCDueDate":"2024-03-07","periodKey":"24KB"}"""
 
-    "must serialise to json" in {
+    "must serialise to json when obligation is fulfilled" in {
       Json.toJson(fulfilledObligation(february2024)).toString() mustBe fulfilledObligationJson
     }
 
-    "must deserialise from json" in {
+    "must deserialise from json when obligation is fulfilled" in {
       Json.parse(fulfilledObligationJson).as[Obligation] mustBe fulfilledObligation(february2024)
     }
 
