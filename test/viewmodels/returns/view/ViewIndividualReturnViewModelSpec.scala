@@ -51,10 +51,6 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     success = returnResponse.success.copy(totalDutyDue = None)
   )
   
-  private val obligations = fulfilledObligation(periodKey)
-  private val obligationsJuly = fulfilledObligation(PeriodKey("24KG"))
-  private val obligationsForAdjustments = Seq(obligations, obligationsJuly)
-
   private val chargeDetails = ChargeDetails(
     periodKey = "24KI",
     chargeReference = Some(ChargeReference("VPD38270541977")),
@@ -99,7 +95,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
 
   "ViewIndividualReturnViewModel" - {
     "must create view model with all fields from ReturnDisplayResponse" in {
-      val result = ViewIndividualReturnViewModel(returnResponse, Seq(obligations), returnsDateUtils)
+      val result = ViewIndividualReturnViewModel(returnResponse, Seq(fulfilledObligation(june2026)), returnsDateUtils)
 
       result.chargeReference mustBe Some(ChargeReference("XVC123456789012"))
       result.hasVapingProductsDeclaration mustBe true
@@ -116,19 +112,19 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     }
 
     "must default duty rate to £0 when none is supplied" in {
-      val result = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Seq(obligations), returnsDateUtils)
+      val result = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Seq(fulfilledObligation(june2026)), returnsDateUtils)
 
       result.dutyRate mustBe None
     }
 
     "must handle missing charge reference" in {
-      val result = ViewIndividualReturnViewModel(returnResponseNoChargeRef, Seq(obligations), returnsDateUtils)
+      val result = ViewIndividualReturnViewModel(returnResponseNoChargeRef, Seq(fulfilledObligation(june2026)), returnsDateUtils)
 
       result.chargeReference mustBe None
     }
 
     "must handle missing vaping products declaration" in {
-      val result = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Seq(obligations), returnsDateUtils)
+      val result = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Seq(fulfilledObligation(june2026)), returnsDateUtils)
 
       result.hasVapingProductsDeclaration mustBe false
       result.amountProducedLiquid mustBe None
@@ -136,7 +132,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     }
 
     "must default to £0.00 when totalDutyDue is missing" in {
-      val result = ViewIndividualReturnViewModel(returnResponseNoTotalDuty, Seq(obligations), returnsDateUtils)
+      val result = ViewIndividualReturnViewModel(returnResponseNoTotalDuty, Seq(fulfilledObligation(june2026)), returnsDateUtils)
 
       result.totalDutySpoiltProducts mustBe "£0.00"
     }
@@ -160,7 +156,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         )
       )
 
-      val result = ViewIndividualReturnViewModel(responseWithDeclaration, Seq(obligations), returnsDateUtils)
+      val result = ViewIndividualReturnViewModel(responseWithDeclaration, Seq(fulfilledObligation(june2026)), returnsDateUtils)
 
       result.hasVapingProductsDeclaration mustBe true
       result.amountProducedLiquid mustBe Some("2,000,000.00")
@@ -189,7 +185,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         )
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration, Seq(obligations), returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(responseWithDeclaration, Seq(fulfilledObligation(june2026)), returnsDateUtils)
       val result = viewModel.dutyDeclarationSummaryList
 
       result mustBe defined
@@ -197,7 +193,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     }
 
     "must include a row with No when no declaration" in {
-      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Seq(obligations), returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(returnResponseNoDeclaration, Seq(fulfilledObligation(june2026)), returnsDateUtils)
       val result = viewModel.dutyDeclarationSummaryList.get.rows.head.value.content
 
       result mustBe Text("No")
@@ -207,7 +203,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
   "spoiltSummaryList" - {
 
     "must be pre-computed with spoilt product detail rows" in {
-      val viewModel = ViewIndividualReturnViewModel(returnResponse, Seq(obligations), returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(returnResponse, Seq(fulfilledObligation(june2026)), returnsDateUtils)
       val result = viewModel.spoiltSummaryLists
 
       result.head.rows.size mustBe 4
@@ -223,7 +219,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
           spoiltProduct = Some(SpoiltProduct(spoiltProductFilled = "0", spoiltProducts = None))
         )
       )
-      val viewModel = ViewIndividualReturnViewModel(noSpoiltResponse, Seq(obligations), returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(noSpoiltResponse, Seq(fulfilledObligation(june2026)), returnsDateUtils)
       val result = viewModel.spoiltSummaryLists
 
       result.head.rows.size mustBe 1
@@ -271,7 +267,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         success = returnResponse.success.copy(otherOptions = None)
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseNoOtherOptions, Seq(obligations), returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(responseNoOtherOptions, Seq(fulfilledObligation(june2026)), returnsDateUtils)
       val result = viewModel.dutySuspenseSummaryList
 
       result mustBe None
@@ -287,7 +283,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         success = returnResponse.success.copy(otherOptions = Some(otherOptionsNo))
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithNo, Seq(obligations), returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(responseWithNo, Seq(fulfilledObligation(june2026)), returnsDateUtils)
       val result = viewModel.dutySuspenseSummaryList
 
       result mustBe defined
@@ -306,7 +302,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         success = returnResponse.success.copy(otherOptions = Some(otherOptionsYes))
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithYes, Seq(obligations), returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(responseWithYes, Seq(fulfilledObligation(june2026)), returnsDateUtils)
       val result = viewModel.dutySuspenseSummaryList
 
       result mustBe defined
@@ -329,7 +325,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         success = returnResponse.success.copy(otherOptions = Some(otherOptionsZeroReceived))
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithZero, Seq(obligations), returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(responseWithZero, Seq(fulfilledObligation(june2026)), returnsDateUtils)
       val result = viewModel.dutySuspenseSummaryList
 
       result mustBe defined
@@ -346,7 +342,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         success = returnResponse.success.copy(otherOptions = Some(otherOptionsNoneMoved))
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithNone, Seq(obligations), returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(responseWithNone, Seq(fulfilledObligation(june2026)), returnsDateUtils)
       val result = viewModel.dutySuspenseSummaryList
 
       result mustBe defined
@@ -363,7 +359,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         success = returnResponse.success.copy(otherOptions = Some(otherOptionsBothZero))
       )
 
-      val viewModel = ViewIndividualReturnViewModel(responseWithBothZero, Seq(obligations), returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(responseWithBothZero, Seq(fulfilledObligation(june2026)), returnsDateUtils)
       val result = viewModel.dutySuspenseSummaryList
 
       result mustBe defined
@@ -390,7 +386,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
       )
 
       val returnDisplayResponse = ReturnDisplayResponse(returnDisplaySuccess)
-      val viewModel = ViewIndividualReturnViewModel(returnDisplayResponse, obligationsForAdjustments, returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(returnDisplayResponse, Seq(fulfilledObligation(june2026), fulfilledObligation(july2026)), returnsDateUtils)
 
       viewModel.adjustmentsSummaryLists.size mustBe 1
       viewModel.adjustmentsSummaryLists.head.rows.size mustBe 1
@@ -412,7 +408,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
       )
 
       val returnDisplayResponse = ReturnDisplayResponse(returnDisplaySuccess)
-      val viewModel = ViewIndividualReturnViewModel(returnDisplayResponse, obligationsForAdjustments, returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(returnDisplayResponse, Seq(fulfilledObligation(june2026), fulfilledObligation(july2026)), returnsDateUtils)
 
       // Should have 2 lists: one for the under declaration, one for the reason
       viewModel.adjustmentsSummaryLists.size mustBe 2
@@ -440,7 +436,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
       )
 
       val returnDisplayResponse = ReturnDisplayResponse(returnDisplaySuccess)
-      val viewModel = ViewIndividualReturnViewModel(returnDisplayResponse, obligationsForAdjustments, returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(returnDisplayResponse, Seq(fulfilledObligation(june2026), fulfilledObligation(july2026)), returnsDateUtils)
 
       // With 1 over declaration and a reason, should have 2 lists
       viewModel.adjustmentsSummaryLists.size mustBe 2
@@ -468,7 +464,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
       )
 
       val returnDisplayResponse = ReturnDisplayResponse(returnDisplaySuccess)
-      val viewModel = ViewIndividualReturnViewModel(returnDisplayResponse, obligationsForAdjustments, returnsDateUtils)
+      val viewModel = ViewIndividualReturnViewModel(returnDisplayResponse, Seq(fulfilledObligation(june2026), fulfilledObligation(july2026)), returnsDateUtils)
 
       // Should have 3 summary lists: one for under declaration, one for over declaration, one for reason
       viewModel.adjustmentsSummaryLists.size mustBe 3

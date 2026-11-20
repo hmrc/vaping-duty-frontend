@@ -28,9 +28,6 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
   implicit val messages: Messages = messages(applicationBuilder(None).build())
 
   private val returnsDateUtils = new ReturnsDateUtils(clock)
-  private val obligationsItem = fulfilledObligation(periodKey)
-  private val obligations = Seq(obligationsItem)
-
   private val spoiltProductItem = SpoiltProductItem(
     returnPeriodAffected = periodKey.value,
     taxType = "311",
@@ -47,7 +44,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = None,
           totalDutySpoiltProducts = "£0",
-          obligations = obligations,
+          obligations = Seq(fulfilledObligation(june2026)),
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -60,7 +57,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
           totalDutySpoiltProducts = "£0",
-          obligations = obligations,
+          obligations = Seq(fulfilledObligation(june2026)),
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -76,7 +73,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
           totalDutySpoiltProducts = "-£100",
-          obligations = obligations,
+          obligations = Seq(fulfilledObligation(june2026)),
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -95,7 +92,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
           totalDutySpoiltProducts = "-£100",
-          obligations = obligations,
+          obligations = Seq(fulfilledObligation(june2026)),
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -114,7 +111,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
           totalDutySpoiltProducts = "-£250",
-          obligations = obligations,
+          obligations = Seq(fulfilledObligation(june2026)),
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -129,7 +126,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
           totalDutySpoiltProducts = "-£100",
-          obligations = obligations,
+          obligations = Seq(fulfilledObligation(june2026)),
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -142,7 +139,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
           totalDutySpoiltProducts = "-£100",
-          obligations = obligations,
+          obligations = Seq(fulfilledObligation(june2026)),
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
@@ -155,7 +152,7 @@ class SpoiltProductSectionBuilderSpec extends SpecBase with TestData {
         val builder = SpoiltProductSectionBuilder(
           spoiltProduct = Some(spoiltProduct),
           totalDutySpoiltProducts = "-£100",
-          obligations = obligations,
+          obligations = Seq(fulfilledObligation(june2026)),
           returnsDateUtils = returnsDateUtils
         )
         val result = builder.build()
