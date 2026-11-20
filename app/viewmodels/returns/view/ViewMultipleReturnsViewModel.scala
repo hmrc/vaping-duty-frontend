@@ -91,13 +91,13 @@ object ViewMultipleReturnsViewModel {
     )
   }
 
-  private def createOutstandingTaskListItem(details: Obligation, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
+  private def createOutstandingTaskListItem(obligation: Obligation, now: LocalDate, returnsDateUtils: ReturnsDateUtils)
                                            (implicit messages: Messages): TaskListItem = {
 
-    val month = Month.of(details.iCFromDate.getMonthValue)
-    val year = details.iCFromDate.getYear
+    val month = Month.of(obligation.iCFromDate.getMonthValue)
+    val year = obligation.iCFromDate.getYear
     val monthDisplay = s"${returnsDateUtils.getMonthMessage(month)} $year"
-    val isOverdue = details.iCDueDate.isBefore(now)
+    val isOverdue = obligation.iCDueDate.isBefore(now)
 
     val status = if (isOverdue) {
       messages("returns.overview.outstanding.status.overdue")
@@ -109,7 +109,7 @@ object ViewMultipleReturnsViewModel {
 
     TaskListItem(
       title = TaskListItemTitle(content = Text(monthDisplay)),
-      href = Some(s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${details.periodKey}"),
+      href = Some(s"${controllers.returns.submit.routes.BeforeYouStartController.onPageLoad().url}?period=${obligation.periodKey}"),
       status = TaskListItemStatus(
         tag = Some(Tag(
           content = Text(status),
