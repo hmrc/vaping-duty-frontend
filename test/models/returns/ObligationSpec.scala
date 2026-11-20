@@ -23,36 +23,25 @@ import play.api.libs.json.Json
 import java.time.LocalDate
 
 class ObligationSpec extends SpecBase {
-  val obligations: Obligation = Obligation(
-    openOrFulfilledStatus = ObligationStatus.O.toString,
-    iCFromDate = LocalDate.of(2024, 4, 6),
-    iCToDate = LocalDate.of(2024, 7, 5),
-    iCDateReceived = Some(LocalDate.of(2024, 6, 15)),
-    iCDueDate = LocalDate.of(2024, 8, 5),
-    periodKey = "24KB"
-  )
-
-  val obligationsWithoutDateReceived: Obligation = obligations.copy(iCDateReceived = None)
-
   "Obligation" - {
-    val json = """{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDateReceived":"2024-06-15","iCDueDate":"2024-08-05","periodKey":"24KB"}"""
+    val fulfilledObligationJson = """{"openOrFulfilledStatus":"F","iCFromDate":"2024-02-01","iCToDate":"2024-02-29","iCDateReceived":"2024-03-08","iCDueDate":"2024-03-07","periodKey":"24KB"}"""
 
-    val jsonWithoutDateReceived = """{"openOrFulfilledStatus":"O","iCFromDate":"2024-04-06","iCToDate":"2024-07-05","iCDueDate":"2024-08-05","periodKey":"24KB"}"""
+    val openObligationJson = """{"openOrFulfilledStatus":"O","iCFromDate":"2024-02-01","iCToDate":"2024-02-29","iCDueDate":"2024-03-07","periodKey":"24KB"}"""
 
     "must serialise to json" in {
-      Json.toJson(obligations).toString() mustBe json
+      Json.toJson(fulfilledObligation(february2024)).toString() mustBe fulfilledObligationJson
     }
 
     "must deserialise from json" in {
-      Json.parse(json).as[Obligation] mustBe obligations
+      Json.parse(fulfilledObligationJson).as[Obligation] mustBe fulfilledObligation(february2024)
     }
 
-    "must serialise to json when iCDateReceived is None" in {
-      Json.toJson(obligationsWithoutDateReceived).toString() mustBe jsonWithoutDateReceived
+    "must serialise to json when obligation is open" in {
+      Json.toJson(openObligation(february2024)).toString() mustBe openObligationJson
     }
 
-    "must deserialise from json when iCDateReceived is absent" in {
-      Json.parse(jsonWithoutDateReceived).as[Obligation] mustBe obligationsWithoutDateReceived
+    "must deserialise from json when obligation is open" in {
+      Json.parse(openObligationJson).as[Obligation] mustBe openObligation(february2024)
     }
   }
 }
