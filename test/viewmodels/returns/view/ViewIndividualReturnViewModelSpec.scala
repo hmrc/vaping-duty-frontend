@@ -52,7 +52,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
   )
   
   private val chargeDetails = ChargeDetails(
-    periodKey = "24KI",
+    periodKey = "26KI",
     chargeReference = Some(ChargeReference("VPD38270541977")),
     periodFrom = LocalDate.of(2027, 9, 1),
     periodTo = LocalDate.of(2027, 9, 30),
@@ -70,7 +70,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     Some("Additional products found"),
     Option(Seq(
       UnderDeclarationProduct(
-        returnPeriodAffected = "24KG",
+        returnPeriodAffected = "26KG",
         taxType = "614",
         dutyRate = BigDecimal("1.00"),
         amountUnderDeclared = BigDecimal("100.00"),
@@ -84,7 +84,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
     Some("Correction of previous return"),
     Option(Seq(
       OverDeclarationProduct(
-        returnPeriodAffected = "24KG",
+        returnPeriodAffected = "26KG",
         taxType = "614",
         dutyRate = BigDecimal("1.00"),
         amountOverDeclared = BigDecimal("50.00"),
@@ -241,7 +241,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
             spoiltProductFilled = "1",
             spoiltProducts = Some(Seq(
               SpoiltProductItem(
-                returnPeriodAffected = "24KC",
+                returnPeriodAffected = "26KC",
                 taxType = "311",
                 dutyRate = BigDecimal("0.50"),
                 amountSpoilt = BigDecimal("200.00"),
@@ -256,7 +256,7 @@ class ViewIndividualReturnViewModelSpec extends SpecBase with TestData {
         ViewIndividualReturnViewModel(responseWithSpoiltProduct, obligationsWithMissingPeriod, returnsDateUtils)
       }
 
-      exception.getMessage must include("Period key 24KC not found in obligations")
+      exception.getMessage must include("Period key 26KC not found in obligations")
     }
   }
 
