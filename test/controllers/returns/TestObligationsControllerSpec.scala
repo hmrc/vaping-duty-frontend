@@ -152,7 +152,7 @@ class TestObligationsControllerSpec extends SpecBase with MockitoSugar with Befo
           "obligations" -> Json.arr(
             Json.obj(
               "identification" -> Json.obj(),
-              "obligations" -> Json.obj(
+              "obligationDetails" -> Json.obj(
                 "openOrFulfilledStatus" -> "O",
                 "iCFromDate" -> "2027-12-01",
                 "iCToDate" -> "2027-12-31",
