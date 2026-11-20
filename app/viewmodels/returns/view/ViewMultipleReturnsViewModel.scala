@@ -119,15 +119,15 @@ object ViewMultipleReturnsViewModel {
     )
   }
 
-  private def createCompletedTaskListItem(details: Obligation, returnsDateUtils: ReturnsDateUtils)
+  private def createCompletedTaskListItem(obligation: Obligation, returnsDateUtils: ReturnsDateUtils)
                                          (implicit messages: Messages): TaskListItem = {
 
-    val month = Month.of(details.iCFromDate.getMonthValue)
+    val month = Month.of(obligation.iCFromDate.getMonthValue)
     val monthDisplay = returnsDateUtils.getMonthMessage(month)
 
     TaskListItem(
       title = TaskListItemTitle(content = Text(monthDisplay)),
-      href = Some(controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(PeriodKey(details.periodKey)).url),
+      href = Some(controllers.returns.view.routes.ViewIndividualReturnController.onPageLoad(PeriodKey(obligation.periodKey)).url),
       status = TaskListItemStatus(
         content = Text(messages("returns.overview.completed.status"))
       )
