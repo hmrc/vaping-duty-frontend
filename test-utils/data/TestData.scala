@@ -17,17 +17,15 @@
 package data
 
 import builders.ObligationsBuilders
-import models.{InsolvencyStatus, SubscriptionInsolvencyStatus}
 import models.contactPreference.{PreferenceUserAnswers, SubscriptionSummary, UserDetails}
 import models.emailverification.*
 import models.identifiers.*
-import models.obligations.Obligation
 import models.payments.*
+import models.returns.*
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.*
-import models.returns.*
-import models.ChargeReference
+import models.{ChargeReference, InsolvencyStatus, SubscriptionInsolvencyStatus}
 import pages.returns.EnterDutyAmountPage
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.vapingdutyfinance.models.{MainTransactionType, PaymentStatus}
@@ -258,15 +256,6 @@ trait TestData extends ObligationsBuilders {
   )
 
   val testTotalAccountBalance: Option[BigDecimal] = Some(BigDecimal("496850.80"))
-
-  def createMockObligations(): Seq[Obligation] = Seq(
-    // Outstanding return - Due
-    openObligation(december2027),
-    // Outstanding return - Overdue
-    openObligation(november2027),
-    // Completed return
-    fulfilledObligation(october2027)
-  )
 
   def createReturnDisplayResponse(): ReturnDisplayResponse = {
     ReturnDisplayResponse(

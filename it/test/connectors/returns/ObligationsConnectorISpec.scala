@@ -19,6 +19,7 @@ package connectors.returns
 import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import data.TestData
+import models.obligations.Obligation
 import play.api.Application
 import play.api.http.Status.*
 import play.api.libs.json.Json
@@ -38,13 +39,22 @@ class ObligationsConnectorISpec extends ISpecBase with WireMockHelper with TestD
   "getObligations must" - {
 
     "successfully retrieve obligation data" in {
+      val testObligationData: Seq[Obligation] = Seq(
+        // Outstanding return - Due
+        openObligation(december2027),
+        // Outstanding return - Overdue
+        openObligation(november2027),
+        // Completed return
+        fulfilledObligation(october2027)
+      )
+      
       server.stubFor(
-        get(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(createMockObligations()).toString))
+        get(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(testObligationData).toString))
       )
 
       val result = connector.getObligations(vpdId).futureValue
 
-      result mustBe createMockObligations()
+      result mustBe testObligationData
     }
 
     "fail when invalid JSON is returned" in {
@@ -74,7 +84,7 @@ class ObligationsConnectorISpec extends ISpecBase with WireMockHelper with TestD
 
     "fail when an unexpected status code is returned" in {
       server.stubFor(
-        get(url).willReturn(aResponse().withStatus(BAD_GATEWAY).withBody(Json.toJson(createMockObligations()).toString))
+        get(url).willReturn(aResponse().withStatus(BAD_GATEWAY))
       )
 
       val result = connector.getObligations(vpdId)
