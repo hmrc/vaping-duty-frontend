@@ -19,7 +19,7 @@ package services.returns
 import base.SpecBase
 import builders.ObligationsBuilders
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.DutyRate
 import models.returns.adjustments.{AdjustmentEntry, AdjustmentList, AdjustmentType}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -262,7 +262,7 @@ class AdjustmentCheckYourAnswersServiceSpec extends SpecBase with MockitoSugar w
     }
   }
 
-  private def stubObligations(allObligations: Seq[ObligationDetails]): Unit =
+  private def stubObligations(allObligations: Seq[Obligation]): Unit =
     when(mockObligationService.getObligations(eqTo(vpdId))(using any()))
       .thenReturn(Future.successful(allObligations))
 

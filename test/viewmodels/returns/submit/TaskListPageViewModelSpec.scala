@@ -17,7 +17,7 @@
 package viewmodels.returns.submit
 
 import base.SpecBase
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import utils.ReturnsDateUtils
 
 class TaskListPageViewModelSpec extends SpecBase {
@@ -58,7 +58,7 @@ class TaskListPageViewModelSpec extends SpecBase {
     }
 
     "must throw IllegalStateException when obligations list is empty" in {
-      val obligations = Seq.empty[ObligationDetails]
+      val obligations = Seq.empty[Obligation]
 
       val exception = intercept[IllegalStateException] {
         TaskListPageViewModel(returnsUserAnswers, obligations, june2026, returnsDateUtils)

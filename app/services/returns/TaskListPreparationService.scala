@@ -17,7 +17,7 @@
 package services.returns
 
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.{AdjustmentsEligibility, ReturnsUserAnswers}
 import pages.returns.DeclareSpoiltProductsPage
 import uk.gov.hmrc.http.HeaderCarrier
@@ -30,7 +30,7 @@ class TaskListPreparationService @Inject()(repository: ReturnsUserAnswersService
   def prepareUserAnswers(
                           userAnswers: ReturnsUserAnswers,
                           adjustmentsEligibility: AdjustmentsEligibility,
-                          obligations: Seq[ObligationDetails],
+                          obligations: Seq[Obligation],
                           periodKey: PeriodKey
                         )(using HeaderCarrier): Future[ReturnsUserAnswers] = {
     

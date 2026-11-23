@@ -60,7 +60,7 @@ class GetReturnsConnectorISpec extends ISpecBase with WireMockHelper with TestDa
 
     "fail when an unexpected status code is returned" in {
       server.stubFor(
-        get(url).willReturn(aResponse().withStatus(BAD_GATEWAY).withBody(Json.toJson(createMockObligationsResponse()).toString))
+        get(url).willReturn(aResponse().withStatus(BAD_GATEWAY))
       )
 
       val result = connector.getReturn(periodKey, vpdId)

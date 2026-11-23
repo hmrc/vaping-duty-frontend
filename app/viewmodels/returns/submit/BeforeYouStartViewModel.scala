@@ -17,7 +17,7 @@
 package viewmodels.returns.submit
 
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.AdjustmentsEligibility
 import play.api.i18n.Messages
 import utils.ReturnsDateUtils
@@ -34,7 +34,7 @@ case class BeforeYouStartViewModel(
 
 object BeforeYouStartViewModel {
 
-  def apply(obligations: Seq[ObligationDetails], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Option[BeforeYouStartViewModel] = {
+  def apply(obligations: Seq[Obligation], periodKey: PeriodKey, returnsDateUtils: ReturnsDateUtils)(implicit messages: Messages): Option[BeforeYouStartViewModel] = {
     val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations)
 
     obligations

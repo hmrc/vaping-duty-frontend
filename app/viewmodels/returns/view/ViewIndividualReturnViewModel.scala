@@ -17,7 +17,7 @@
 package viewmodels.returns.view
 
 import models.ChargeReference
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.ConvertToMl
 import models.returns.view.*
 import play.api.i18n.Messages
@@ -47,7 +47,7 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
   def apply(
              returnsData: ReturnDisplayResponse,
-             obligationDetails: Seq[ObligationDetails],
+             obligations: Seq[Obligation],
              returnsDateUtils: ReturnsDateUtils
            )(using messages: Messages): ViewIndividualReturnViewModel = {
 
@@ -98,8 +98,8 @@ object ViewIndividualReturnViewModel extends CurrencyFormatter {
 
     val personalDetails = PersonalDetailsSectionBuilder(success.declaration).build()
     val dutyDeclaration = DutyDeclarationSectionBuilder(hasDeclaration, amountProduced, dutyDueAmount).build()
-    val spoiltLists = SpoiltProductSectionBuilder(success.spoiltProduct, totalDutySpoiltProducts, obligationDetails, returnsDateUtils).build()
-    val adjustmentsLists = AdjustmentsSectionBuilder(success.overDeclaration, success.underDeclaration, obligationDetails, returnsDateUtils).build()
+    val spoiltLists = SpoiltProductSectionBuilder(success.spoiltProduct, totalDutySpoiltProducts, obligations, returnsDateUtils).build()
+    val adjustmentsLists = AdjustmentsSectionBuilder(success.overDeclaration, success.underDeclaration, obligations, returnsDateUtils).build()
     val dutySuspenseSummary = DutySuspenseSectionBuilder(success.otherOptions).build()
     val totalDutySummary = TotalDutySectionBuilder(success.totalDutyDue).build()
 

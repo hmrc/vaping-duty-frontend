@@ -19,9 +19,11 @@ package connectors.returns
 import base.ISpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import data.TestData
+import models.obligations.Obligation
 import play.api.Application
 import play.api.http.Status.*
 import play.api.libs.json.Json
+import uk.gov.hmrc.http.InternalServerException
 import utils.WireMockHelper
 
 class ObligationsConnectorISpec extends ISpecBase with WireMockHelper with TestData {
@@ -37,13 +39,22 @@ class ObligationsConnectorISpec extends ISpecBase with WireMockHelper with TestD
   "getObligations must" - {
 
     "successfully retrieve obligation data" in {
+      val testObligationData: Seq[Obligation] = Seq(
+        // Outstanding return - Due
+        openObligation(december2027),
+        // Outstanding return - Overdue
+        openObligation(november2027),
+        // Completed return
+        fulfilledObligation(october2027)
+      )
+      
       server.stubFor(
-        get(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(createMockObligationsResponse()).toString))
+        get(url).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(testObligationData).toString))
       )
 
       val result = connector.getObligations(vpdId).futureValue
 
-      result mustBe createMockObligationsResponse()
+      result mustBe testObligationData
     }
 
     "fail when invalid JSON is returned" in {
@@ -58,9 +69,22 @@ class ObligationsConnectorISpec extends ISpecBase with WireMockHelper with TestD
       }
     }
 
+    "fail when OK is returned with a body that is not a list of obligations" in {
+      server.stubFor(
+        get(url).willReturn(aResponse().withStatus(OK).withBody("""{"obligation":[]}"""))
+      )
+
+      val result = connector.getObligations(vpdId)
+
+      whenReady(result.failed) { exception =>
+        exception mustBe an[InternalServerException]
+        exception.getMessage mustBe "Parsing failed for obligations response"
+      }
+    }
+
     "fail when an unexpected status code is returned" in {
       server.stubFor(
-        get(url).willReturn(aResponse().withStatus(BAD_GATEWAY).withBody(Json.toJson(createMockObligationsResponse()).toString))
+        get(url).willReturn(aResponse().withStatus(BAD_GATEWAY))
       )
 
       val result = connector.getObligations(vpdId)

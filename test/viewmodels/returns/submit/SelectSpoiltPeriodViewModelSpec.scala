@@ -28,13 +28,13 @@ class SelectSpoiltPeriodViewModelSpec extends SpecBase {
   "SelectSpoiltPeriodViewModel" - {
 
     "must create view model with available periods" in {
-      val obligationDetails = obligations(Seq(
+      val obligations = Seq(
         fulfilledObligation(october2027),
         fulfilledObligation(december2027)
-      )).flatMap(_.obligationDetails)
+      )
 
       val vm = SelectSpoiltPeriodViewModel(
-        obligationDetails,
+        obligations,
         None,
         periodKey,
         None,
@@ -47,13 +47,13 @@ class SelectSpoiltPeriodViewModelSpec extends SpecBase {
     }
 
     "must filter out current return period" in {
-      val obligationDetails = obligations(Seq(
+      val obligations = Seq(
         fulfilledObligation(periodKey),
         fulfilledObligation(october2027)
-      )).flatMap(_.obligationDetails)
+      )
 
       val vm = SelectSpoiltPeriodViewModel(
-        obligationDetails,
+        obligations,
         None,
         periodKey,
         None,
@@ -69,13 +69,13 @@ class SelectSpoiltPeriodViewModelSpec extends SpecBase {
       val spoiltEntry = SpoiltVolumeByPeriod(volume = BigDecimal("100.0"), periodKey = october2027)
       val spoiltList = List(spoiltEntry)
 
-      val obligationDetails = obligations(Seq(
+      val obligations = Seq(
         fulfilledObligation(october2027),
         fulfilledObligation(december2027)
-      )).flatMap(_.obligationDetails)
+      )
 
       val vm = SelectSpoiltPeriodViewModel(
-        obligationDetails,
+        obligations,
         None,
         periodKey,
         Some(spoiltList),
@@ -88,10 +88,10 @@ class SelectSpoiltPeriodViewModelSpec extends SpecBase {
     }
 
     "must handle empty obligations" in {
-      val obligationDetails = Seq.empty
+      val obligations = Seq.empty
 
       val vm = SelectSpoiltPeriodViewModel(
-        obligationDetails,
+        obligations,
         None,
         periodKey,
         None,

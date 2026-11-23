@@ -18,7 +18,7 @@ package viewmodels.returns.submit
 
 import models.Mode
 import models.identifiers.PeriodKey
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.SpoiltVolumeByPeriod
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
@@ -35,7 +35,7 @@ case class SelectSpoiltPeriodViewModel(
 object SelectSpoiltPeriodViewModel {
 
   def apply(
-             obligationDetails: Seq[ObligationDetails],
+             obligations: Seq[Obligation],
              selectedYear: Option[Int],
              currentReturnPeriod: PeriodKey,
              spoiltList: Option[List[SpoiltVolumeByPeriod]],
@@ -43,7 +43,7 @@ object SelectSpoiltPeriodViewModel {
              mode: Mode
            )(implicit messages: Messages): SelectSpoiltPeriodViewModel = {
 
-    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligationDetails)
+    val fulfilledObligations = PeriodSelectionHelper.filterFulfilledWithinThreeYears(obligations)
       .filter(_.periodKey != currentReturnPeriod.toString)
 
     val existingSpoiltPeriods = spoiltList.getOrElse(List.empty).map(_.periodKey.toString).toSet

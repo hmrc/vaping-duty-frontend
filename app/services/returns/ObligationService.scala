@@ -17,10 +17,9 @@
 package services.returns
 
 import com.google.inject.{Inject, Singleton}
-import config.FrontendAppConfig
 import connectors.returns.ObligationsConnector
 import models.identifiers.{PeriodKey, VpdId}
-import models.obligations.{ObligationDetails, ObligationItem}
+import models.obligations.Obligation
 import models.returns.ReturnsUserAnswers
 import queries.returns.ObligationsQuery
 import uk.gov.hmrc.http.HeaderCarrier
@@ -29,34 +28,20 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ObligationService @Inject()(
-                                   obligationsConnector: ObligationsConnector,
-                                   appConfig: FrontendAppConfig
+                                   obligationsConnector: ObligationsConnector
                                  )(using ExecutionContext) {
 
-  def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[Seq[ObligationDetails]] =
-    obligationsConnector.getObligations(vpdId).map { response =>
-      filterObligationsByVpdId(response.obligation, vpdId)
-    }
+  def getObligations(vpdId: VpdId)(using HeaderCarrier): Future[Seq[Obligation]] =
+    obligationsConnector.getObligations(vpdId)
 
   // Uses the obligations saved in the user answers when present, falling back to the Obligations API
-  def getObligations(userAnswers: ReturnsUserAnswers, vpdId: VpdId)(using HeaderCarrier): Future[Seq[ObligationDetails]] =
+  def getObligations(userAnswers: ReturnsUserAnswers, vpdId: VpdId)(using HeaderCarrier): Future[Seq[Obligation]] =
     userAnswers.get(ObligationsQuery) match {
       case Some(obligations) => Future.successful(obligations)
       case None              => getObligations(vpdId)
     }
 
   def getObligationByPeriodKey(vpdId: VpdId, periodKey: PeriodKey)
-                              (using HeaderCarrier): Future[Option[ObligationDetails]] =
+                              (using HeaderCarrier): Future[Option[Obligation]] =
     getObligations(vpdId).map(_.find(_.periodKey == periodKey.toString))
-
-  private def filterObligationsByVpdId(
-                                        obligations: Seq[ObligationItem],
-                                        vpdId: VpdId
-                                      ): Seq[ObligationDetails] =
-    obligations
-      .filter(_.identification.exists(id =>
-        id.referenceType == appConfig.enrolmentIdentifierKey &&
-          id.referenceNumber == vpdId.value
-      ))
-      .flatMap(_.obligationDetails)
 }

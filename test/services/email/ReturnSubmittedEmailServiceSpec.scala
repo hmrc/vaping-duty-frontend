@@ -21,7 +21,7 @@ import connectors.email.EmailConnector
 import models.ChargeReference
 import models.email.*
 import models.identifiers.VpdId
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.*
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import models.returns.view.{OtherOptions, OverDeclaration, SpoiltProduct, UnderDeclaration}
@@ -58,7 +58,7 @@ class ReturnSubmittedEmailServiceSpec extends SpecBase {
     declaration
   )
 
-  private val obligation = ObligationDetails(
+  private val obligation = Obligation(
     openOrFulfilledStatus = "O",
     iCFromDate = LocalDate.of(2026, 10, 1),
     iCToDate = LocalDate.of(2026, 10, 31),

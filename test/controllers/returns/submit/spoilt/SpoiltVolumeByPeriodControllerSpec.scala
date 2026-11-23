@@ -20,7 +20,7 @@ import base.SpecBase
 import forms.returns.SpoiltVolumeByPeriodFormProvider
 import models.NormalMode
 import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationStatus}
+import models.obligations.{Obligation, ObligationStatus}
 import models.returns.SpoiltVolumeByPeriod
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
@@ -44,7 +44,7 @@ class SpoiltVolumeByPeriodControllerSpec extends SpecBase with MockitoSugar {
   private val mockFormProvider = mock[SpoiltVolumeByPeriodFormProvider]
   private val testForm: Form[BigDecimal] = Form("value" -> play.api.data.Forms.bigDecimal)
 
-  val mockObligation: ObligationDetails = ObligationDetails(
+  val mockObligation: Obligation = Obligation(
     openOrFulfilledStatus = ObligationStatus.F.toString,
     iCFromDate = LocalDate.of(2024, 1, 1),
     iCToDate = LocalDate.of(2024, 1, 31),

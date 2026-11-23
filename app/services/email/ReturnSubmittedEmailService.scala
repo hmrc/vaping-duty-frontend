@@ -19,7 +19,7 @@ package services.email
 import connectors.email.EmailConnector
 import models.email.*
 import models.identifiers.VpdId
-import models.obligations.ObligationDetails
+import models.obligations.Obligation
 import models.returns.submit.{ReturnCreateRequest, ReturnSubmittedResponse}
 import services.payments.FinancialDataService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -44,7 +44,7 @@ class ReturnSubmittedEmailService @Inject()(
                                 vpdId: VpdId,
                                 submission: ReturnCreateRequest,
                                 result: ReturnSubmittedResponse,
-                                obligation: ObligationDetails
+                                obligation: Obligation
                               )(using HeaderCarrier): Future[Unit] =
     getPaymentDueDate(vpdId, result).flatMap { paymentDueDate =>
       val recipient = List(submission.declaration.signeesEmailAddress)
