@@ -17,472 +17,139 @@
 package controllers.returns.submit
 
 import base.SpecBase
-import connectors.returns.ObligationsConnector
 import models.emailverification.ErrorModel
-import models.identifiers.PeriodKey
-import models.obligations.{ObligationDetails, ObligationsResponse}
-import models.returns.{DeclarationDetails, ReturnsUserAnswers}
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.ArgumentMatchers.eq as eqTo
+import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.any
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.mockito.MockitoSugar.mock
-import pages.returns.{DeclareDutyPage, DeclareDutySuspensePage}
-import pages.returns.yourdetails.{YourBusinessEmailPage, YourFullNamePage, YourRolePage}
-import org.apache.pekko.http.scaladsl.model.HttpResponse
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import queries.returns.ObligationsQuery
-import services.returns.{ObligationService, ReturnsUserAnswersService, SubmitReturnService}
+import services.returns.DeclarationService
+import viewmodels.returns.submit.DeclarationViewModel
 import views.html.returns.submit.DeclarationView
 
 import scala.concurrent.Future
 
 class DeclarationControllerSpec extends SpecBase with MockitoSugar {
 
-  private val validDeclaration = DeclarationDetails(
-    fullName = "John Smith",
-    capacityInWhichSigned = "Director",
-    signeesEmailAddress = "john.smith@example.com"
-  )
+  private val JUNE = "June"
+  private val YEAR_2026 = "2026"
+  private val SUBMIT_ERROR_MESSAGE = "failed"
 
-  private val june2026 = PeriodKey("26KF")
-
-  private val yourDetailsAnswers: ReturnsUserAnswers = returnsUserAnswers
-    .copy(periodKey = june2026.value)
-    .set(DeclareDutyPage, false).success.value
-    .set(DeclareDutySuspensePage, false).success.value
-    .set(YourFullNamePage, validDeclaration.fullName).success.value
-    .set(YourRolePage, validDeclaration.capacityInWhichSigned).success.value
-    .set(YourBusinessEmailPage, validDeclaration.signeesEmailAddress).success.value
-
-  private val yourDetailsIncomplete: ReturnsUserAnswers = returnsUserAnswers
-    .copy(periodKey = june2026.value)
-    .set(YourFullNamePage, validDeclaration.fullName).success.value
+  private lazy val declarationRoute = controllers.returns.submit.routes.DeclarationController.onPageLoad().url
+  private lazy val confirmationRoute = controllers.returns.submit.routes.ConfirmationController.onPageLoad().url
+  private lazy val journeyRecoveryRoute = controllers.routes.JourneyRecoveryController.onPageLoad().url
+  private lazy val returnsSubmissionRecoveryRoute = controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url
 
 
-  private val obligationDataSingleOpen: ObligationsResponse = ObligationsResponse(
-    obligation = obligations(Seq(openObligation(june2026)))
-  )
+  private val declarationViewModel = DeclarationViewModel(periodKey, JUNE, YEAR_2026)
 
-  private val obligationDetailsSingleOpen: Seq[ObligationDetails] =
-    obligationDataSingleOpen.obligation.flatMap(_.obligationDetails)
+  private def applicationWith(mockDeclarationService: DeclarationService) =
+    applicationBuilder(returnsUserAnswers = Some(returnsUserAnswers))
+      .overrides(bind[DeclarationService].toInstance(mockDeclarationService))
+      .build()
 
-  private def stubbedSessionRepository(): ReturnsUserAnswersService = {
-    val mockSessionRepository = mock[ReturnsUserAnswersService]
-    when(mockSessionRepository.set(any())(any())).thenReturn(Future.successful(Right(HttpResponse(OK))))
-    mockSessionRepository
-  }
-
-  private def stubLiveObligations(mockObligationService: ObligationService): Unit = {
-    when(mockObligationService.getObligations(any())(using any()))
-      .thenReturn(Future.successful(obligationDetailsSingleOpen))
-    ()
-  }
+  private val mockDeclarationService: DeclarationService = mock[DeclarationService]
 
   "DeclarationController" - {
 
     "onPageLoad" - {
 
       "must return OK and the correct view for a GET" in {
+        when(mockDeclarationService.buildViewModel(eqTo(vpdId), eqTo(periodKey), eqTo(returnsUserAnswers))(using any(), any()))
+          .thenReturn(Future.successful(Some(declarationViewModel)))
 
-        val mockObligationService = mock[ObligationService]
-        stubLiveObligations(mockObligationService)
-
-        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
-          .overrides(
-            bind[ObligationService].toInstance(mockObligationService),
-            bind[ReturnsUserAnswersService].toInstance(stubbedSessionRepository())
-          )
-          .build()
+        val application = applicationWith(mockDeclarationService)
 
         running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
+          val request = FakeRequest(GET, declarationRoute)
 
           val result = route(application, request).value
 
           val view = application.injector.instanceOf[DeclarationView]
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(june2026, "June", "2026")(request, messages(application)).toString
+          contentAsString(result) mustEqual view(declarationViewModel)(request, messages(application)).toString
         }
       }
 
-      "must redirect to return submission recovery for a GET when a task is not yet complete" in {
+      "must redirect to Returns Submission Recovery for a GET if tasks are not completed" in {
+        when(mockDeclarationService.buildViewModel(eqTo(vpdId), eqTo(periodKey), eqTo(returnsUserAnswers))(using any(), any()))
+          .thenReturn(Future.successful(None))
 
-        val mockSessionRepository = stubbedSessionRepository()
-        val mockObligationService = mock[ObligationService]
-        stubLiveObligations(mockObligationService)
-
-        val tasksIncomplete = yourDetailsAnswers.remove(DeclareDutySuspensePage).success.value
-
-        val application = applicationBuilder(returnsUserAnswers = Some(tasksIncomplete))
-          .overrides(
-            bind[ObligationService].toInstance(mockObligationService),
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
-          )
-          .build()
+        val application = applicationWith(mockDeclarationService)
 
         running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
+          val request = FakeRequest(GET, declarationRoute)
 
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${june2026.value}"
-          verify(mockSessionRepository, never()).set(any())(any())
-        }
-      }
-
-      "must redirect to return submission recovery for a GET when your details is not complete" in {
-
-        val mockObligationService = mock[ObligationService]
-        stubLiveObligations(mockObligationService)
-
-        val yourDetailsMissing = yourDetailsAnswers.remove(YourBusinessEmailPage).success.value
-
-        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsMissing))
-          .overrides(
-            bind[ObligationService].toInstance(mockObligationService),
-            bind[ReturnsUserAnswersService].toInstance(stubbedSessionRepository())
-          )
-          .build()
-
-        running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual s"${controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url}?period=${june2026.value}"
+          redirectLocation(result).value mustEqual s"$returnsSubmissionRecoveryRoute?period=$periodKey"
         }
       }
 
       "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
         val application = applicationBuilder(returnsUserAnswers = None).build()
 
         running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
+          val request = FakeRequest(GET, declarationRoute)
 
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-        }
-      }
-
-      "must save the obligations in the user answers when none are saved" in {
-
-        val mockSessionRepository = stubbedSessionRepository()
-        val mockObligationService = mock[ObligationService]
-        stubLiveObligations(mockObligationService)
-
-        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
-          .overrides(
-            bind[ObligationService].toInstance(mockObligationService),
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
-          )
-          .build()
-
-        running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual OK
-
-          verify(mockSessionRepository).set(any())(any())
-        }
-      }
-
-      "must save the obligations even when the same obligations are already saved" in {
-
-        val mockSessionRepository = stubbedSessionRepository()
-        val mockObligationService = mock[ObligationService]
-        stubLiveObligations(mockObligationService)
-
-        val savedAnswers = yourDetailsAnswers
-          .set(ObligationsQuery, obligationDetailsSingleOpen).success.value
-
-        val application = applicationBuilder(returnsUserAnswers = Some(savedAnswers))
-          .overrides(
-            bind[ObligationService].toInstance(mockObligationService),
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
-          )
-          .build()
-
-        running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual OK
-
-          verify(mockSessionRepository).set(any())(any())
-        }
-      }
-
-      "must save the obligations when the saved obligations are different" in {
-
-        val mockSessionRepository = stubbedSessionRepository()
-        val mockObligationService = mock[ObligationService]
-        stubLiveObligations(mockObligationService)
-
-        val staleAnswers = yourDetailsAnswers
-          .set(ObligationsQuery, Seq(fulfilledObligation(june2026))).success.value
-
-        val application = applicationBuilder(returnsUserAnswers = Some(staleAnswers))
-          .overrides(
-            bind[ObligationService].toInstance(mockObligationService),
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
-          )
-          .build()
-
-        running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual OK
-
-          verify(mockSessionRepository).set(any())(any())
-        }
-      }
-
-      "must still return OK when saving the obligations returns an error" in {
-
-        val mockSessionRepository = mock[ReturnsUserAnswersService]
-        when(mockSessionRepository.set(any())(any()))
-          .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, "failed"))))
-
-        val mockObligationService = mock[ObligationService]
-        stubLiveObligations(mockObligationService)
-
-        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
-          .overrides(
-            bind[ObligationService].toInstance(mockObligationService),
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
-          )
-          .build()
-
-        running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
-
-          status(route(application, request).value) mustEqual OK
-        }
-      }
-
-      "must allow the framework to handle the error when saving the obligations fails" in {
-
-        val mockSessionRepository = mock[ReturnsUserAnswersService]
-        when(mockSessionRepository.set(any())(any()))
-          .thenReturn(Future.failed(new RuntimeException("boom")))
-
-        val mockObligationService = mock[ObligationService]
-        stubLiveObligations(mockObligationService)
-
-        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
-          .overrides(
-            bind[ObligationService].toInstance(mockObligationService),
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository)
-          )
-          .build()
-
-        running(application) {
-          val request = FakeRequest(GET, controllers.returns.submit.routes.DeclarationController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          whenReady(result.failed) { exception =>
-            exception mustBe a[RuntimeException]
-          }
+          redirectLocation(result).value mustEqual journeyRecoveryRoute
         }
       }
     }
 
     "onSubmit" - {
 
-      "must submit the return once with the user answers, clear them and redirect to Confirmation page" in {
-
-        val mockSessionRepository = mock[ReturnsUserAnswersService]
-        val mockSubmitReturnService = mock[SubmitReturnService]
-        val mockObligationService = mock[ObligationService]
-
-        when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
-        when(mockSubmitReturnService.submit(any(), any())(any())) thenReturn Future.successful(testReturnSubmissionResponse)
-        when(mockSessionRepository.clear(any(), any())(any()))
+      "must redirect to the Confirmation page when the return is submitted" in {
+        val mockDeclarationService: DeclarationService = mock[DeclarationService]
+        when(mockDeclarationService.submit(eqTo(vpdId), eqTo(periodKey), eqTo(returnsUserAnswers))(using any(), any()))
           .thenReturn(Future.successful(Right(())))
-        when(mockObligationService.getObligations(any(), any())(using any()))
-          .thenReturn(Future.successful(obligationDetailsSingleOpen))
 
-        val application =
-          applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
-            .overrides(
-              bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-              bind[SubmitReturnService].toInstance(mockSubmitReturnService),
-              bind[ObligationService].toInstance(mockObligationService)
-            )
-            .build()
+        val application = applicationWith(mockDeclarationService)
 
         running(application) {
-          val request =
-            FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
+          val request = FakeRequest(POST, declarationRoute)
 
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value must include(controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
-          redirectLocation(result).value must include(s"period=${june2026.value}")
-
-          verify(mockSubmitReturnService, times(1)).submit(eqTo(yourDetailsAnswers), any())(any())
-          verify(mockSessionRepository, times(1)).clear(any(), any())(any())
+          redirectLocation(result).value mustEqual s"$confirmationRoute?period=${periodKey.value}"
         }
       }
 
-      "must not call the Obligations API when the obligations are cached in the user answers" in {
+      "must redirect to Journey Recovery when the submission fails" in {
+        val mockDeclarationService: DeclarationService = mock[DeclarationService]
+        when(mockDeclarationService.submit(eqTo(vpdId), eqTo(periodKey), eqTo(returnsUserAnswers))(using any(), any()))
+          .thenReturn(Future.successful(Left(ErrorModel(INTERNAL_SERVER_ERROR, SUBMIT_ERROR_MESSAGE))))
 
-        val mockSessionRepository = mock[ReturnsUserAnswersService]
-        val mockSubmitReturnService = mock[SubmitReturnService]
-        val mockObligationsConnector = mock[ObligationsConnector]
-
-        when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
-        when(mockSubmitReturnService.submit(any(), any())(any())) thenReturn Future.successful(testReturnSubmissionResponse)
-        when(mockSessionRepository.clear(any(), any())(any()))
-          .thenReturn(Future.successful(Right(())))
-
-        val cachedAnswers = yourDetailsAnswers
-          .set(ObligationsQuery, obligationDetailsSingleOpen).success.value
-
-        val application =
-          applicationBuilder(returnsUserAnswers = Some(cachedAnswers))
-            .overrides(
-              bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-              bind[SubmitReturnService].toInstance(mockSubmitReturnService),
-              bind[ObligationsConnector].toInstance(mockObligationsConnector)
-            )
-            .build()
+        val application = applicationWith(mockDeclarationService)
 
         running(application) {
-          val request =
-            FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
+          val request = FakeRequest(POST, declarationRoute)
 
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value must include(controllers.returns.submit.routes.ConfirmationController.onPageLoad().url)
-
-          verify(mockObligationsConnector, never()).getObligations(any())(using any())
-          verify(mockSubmitReturnService).submit(any(), eqTo(obligationDetailsSingleOpen))(any())
-        }
-      }
-
-      "must fall back to the Obligations API when the obligations are not cached in the user answers" in {
-
-        val mockSessionRepository = mock[ReturnsUserAnswersService]
-        val mockSubmitReturnService = mock[SubmitReturnService]
-        val mockObligationsConnector = mock[ObligationsConnector]
-
-        when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
-        when(mockSubmitReturnService.submit(any(), any())(any())) thenReturn Future.successful(testReturnSubmissionResponse)
-        when(mockSessionRepository.clear(any(), any())(any()))
-          .thenReturn(Future.successful(Right(())))
-        when(mockObligationsConnector.getObligations(any())(using any()))
-          .thenReturn(Future.successful(obligationDataSingleOpen))
-
-        val application =
-          applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
-            .overrides(
-              bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-              bind[SubmitReturnService].toInstance(mockSubmitReturnService),
-              bind[ObligationsConnector].toInstance(mockObligationsConnector)
-            )
-            .build()
-
-        running(application) {
-          val request =
-            FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-
-          verify(mockObligationsConnector).getObligations(any())(using any())
-          verify(mockSubmitReturnService).submit(any(), any())(any())
-        }
-      }
-
-      "must redirect to Journey Recovery and not clear the answers when submission fails because your details is not complete" in {
-
-        val mockSessionRepository = mock[ReturnsUserAnswersService]
-        val mockSubmitReturnService = mock[SubmitReturnService]
-
-        when(mockSubmitReturnService.submit(any(), any())(any()))
-          .thenReturn(Future.failed(new IllegalStateException("Declaration details are required for submission")))
-
-        val cachedAnswers = yourDetailsIncomplete
-          .set(ObligationsQuery, obligationDetailsSingleOpen).success.value
-
-        val application = applicationBuilder(returnsUserAnswers = Some(cachedAnswers))
-          .overrides(
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-            bind[SubmitReturnService].toInstance(mockSubmitReturnService)
-          )
-          .build()
-
-        running(application) {
-          val request = FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-          verify(mockSessionRepository, never()).clear(any(), any())(any())
+          redirectLocation(result).value mustEqual journeyRecoveryRoute
         }
       }
 
       "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
         val application = applicationBuilder(returnsUserAnswers = None).build()
 
         running(application) {
-          val request =
-            FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
+          val request = FakeRequest(POST, declarationRoute)
 
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-        }
-      }
-
-      "must redirect to journey recovery when there is an issue submitting" in {
-
-        val mockService = mock[SubmitReturnService]
-        val mockSessionRepository = mock[ReturnsUserAnswersService]
-        val mockObligationService = mock[ObligationService]
-
-        when(mockService.submit(any(), any())(any())).thenReturn(Future.successful(Left(ErrorModel(BAD_GATEWAY, "Bad gateway"))))
-        when(mockSessionRepository.set(any())(any())) thenReturn Future.successful(Right(true))
-        when(mockObligationService.getObligations(any(), any())(using any()))
-          .thenReturn(Future.successful(obligationDetailsSingleOpen))
-
-        val application = applicationBuilder(returnsUserAnswers = Some(yourDetailsAnswers))
-          .overrides(
-            bind[ReturnsUserAnswersService].toInstance(mockSessionRepository),
-            bind[SubmitReturnService].to(mockService),
-            bind[ObligationService].toInstance(mockObligationService)
-          )
-          .build()
-
-
-        running(application) {
-          val request = FakeRequest(POST, controllers.returns.submit.routes.DeclarationController.onSubmit().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustBe controllers.routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual journeyRecoveryRoute
         }
       }
     }
