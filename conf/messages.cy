@@ -648,7 +648,7 @@ payments.viewPayments.unallocated.action.claimRepayment.hidden = o {0} o {1}
 
 payments.viewPayments.cleared.heading = Taliadau wedi’u clirio yn ystod {0}
 payments.viewPayments.cleared.body = Mae ‘Taliadau wedi’u clirio’ yn golygu achosion pan fo arian wedi dod i law CThEF, neu pan fo balans credyd presennol wedi’i ddefnyddio i dalu unrhyw doll berthnasol.
-payments.viewPayments.cleared.designPlaceholder = Nid oes gennych unrhyw daliadau datganiadau wedi’u clirio {0}.
+payments.viewPayments.cleared.designPlaceholder = Nid oes gennych unrhyw daliadau sydd wedi’u clirio.
 payments.viewPayments.cleared.table.period = Dyddiad talu
 payments.viewPayments.cleared.table.description = Math o daliad
 payments.viewPayments.cleared.table.amount = Swm
