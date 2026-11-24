@@ -102,10 +102,10 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            @h2(messages("payments.viewPayments.cleared.heading", vm.clearedPaymentsYear), id = Some("cleared-payments-heading"))
+            @h2(messages("payments.viewPayments.cleared.heading"), id = Some("cleared-payments-heading"))
 
             @if(vm.clearedRows.isEmpty) {
-                @p(Seq(messages("payments.viewPayments.cleared.designPlaceholder", vm.clearedPaymentsYear)))
+                @p(Seq(messages("payments.viewPayments.cleared.designPlaceholder")))
             } else {
                 @p(Seq(messages("payments.viewPayments.cleared.body")))
             }
@@ -113,7 +113,7 @@
     </div>
 
     @if(vm.clearedRows.nonEmpty) {
-        @scrollableTable(messages("payments.viewPayments.cleared.heading", vm.clearedPaymentsYear), Table(
+        @scrollableTable(messages("payments.viewPayments.cleared.heading"), Table(
             head = Some(Seq(
                 HeadCell(content = Text(messages("payments.viewPayments.cleared.table.period"))),
                 HeadCell(content = Text(messages("payments.viewPayments.cleared.table.description"))),

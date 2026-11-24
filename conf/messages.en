@@ -678,9 +678,9 @@ payments.viewPayments.unallocated.description.placeholder = Payment
 payments.viewPayments.unallocated.action.claimRepayment = Claim repayment
 payments.viewPayments.unallocated.action.claimRepayment.hidden = of {0} from {1}
 
-payments.viewPayments.cleared.heading = Cleared payments in {0}
+payments.viewPayments.cleared.heading = Cleared payments
 payments.viewPayments.cleared.body = This includes payments we have received and charges paid using an existing credit balance.
-payments.viewPayments.cleared.designPlaceholder = You do not have any cleared payments for {0}.
+payments.viewPayments.cleared.designPlaceholder = You do not have any cleared payments.
 payments.viewPayments.cleared.table.period = Date paid
 payments.viewPayments.cleared.table.description = Payment type
 payments.viewPayments.cleared.table.amount = Amount
