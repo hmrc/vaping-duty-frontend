@@ -73,7 +73,7 @@
                 HeadCell(content = Text(messages("payments.viewPayments.table.action")))
             )),
             rows = vm.outstandingRows
-        ))
+        ), id = "outstanding-payments-table")
     }
 
     @if(vm.paymentOnAccountRows.nonEmpty) {
@@ -97,7 +97,7 @@
                 HeadCell(content = Text(messages("payments.viewPayments.unallocated.table.action")))
             )),
             rows = vm.paymentOnAccountRows
-        ))
+        ), id = "unallocated-payments-table")
     }
 
     <div class="govuk-grid-row">
@@ -120,6 +120,6 @@
                 HeadCell(content = Text(messages("payments.viewPayments.cleared.table.amount")), classes = "govuk-table__header--numeric")
             )),
             rows = vm.clearedRows
-        ))
+        ), id = "cleared-payments-table")
     }
 }

@@ -16,6 +16,6 @@
 
 @this(govukTable: GovukTable)
 
-@(ariaLabel: String, table: Table)
+@(ariaLabel: String, table: Table, id: String)
 
-<div id="table-container" role="region" aria-label="@ariaLabel" class="scrollable" tabindex="0">@govukTable(table)</div>
+<div id=@id role="region" aria-label="@ariaLabel" class="scrollable" tabindex="0">@govukTable(table)</div>
