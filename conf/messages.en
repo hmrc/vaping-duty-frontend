@@ -686,26 +686,3 @@ payments.viewPayments.cleared.table.description = Payment type
 payments.viewPayments.cleared.table.amount = Amount
 payments.viewPayments.cleared.description.text = Cleared payment
 payments.viewPayments.notAvailable = Not applicable
-
-returnsAccessDenied.title = We are managing access to this service
-returnsAccessDenied.heading = We are managing access to this service
-
-returnsAccessDenied.p1 = You must request access using your registered business email address, before you can submit a Vaping Products Duty return.
-returnsAccessDenied.p2 = You only need to do this once.
-
-returnsAccessDenied.youMust.heading = You must:
-returnsAccessDenied.youMust.bullet1 = send an email to:
-returnsAccessDenied.youMust.bullet2 = use the subject: VPD access
-returnsAccessDenied.youMust.bullet3 = copy and paste the following message
-returnsAccessDenied.youMust.bullet4 = add your details to the message
-
-returnsAccessDenied.emailTemplate.greeting = Hello,
-returnsAccessDenied.emailTemplate.body = I would like to access the Vaping Products Duty service.
-returnsAccessDenied.emailTemplate.vpdId = Vaping Products Duty (VPD) ID: {0}
-returnsAccessDenied.emailTemplate.thankYou = Thank you,
-returnsAccessDenied.emailTemplate.name = Name [add your details]
-returnsAccessDenied.emailTemplate.role = Role [add your details]
-returnsAccessDenied.emailTemplate.businessName = Business name [add details]
-
-returnsAccessDenied.p3 = We will reply to your email to let you know when you can access the service.
-returnsAccessDenied.p4 = You will be able to access the service before the return submission deadline of 7 November 2026.
