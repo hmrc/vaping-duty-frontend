@@ -36,7 +36,6 @@ class YourDetailsCheckAnswersController @Inject()(
                                                    override val messagesApi: MessagesApi,
                                                    identify: ApprovedVapingManufacturerAuthAction,
                                                    checkInsolvency: CheckInsolvencyAction,
-                                                   returnsEnabled: ReturnsEnabledAction,
                                                    getData: ReturnsDataRetrievalAction,
                                                    requireData: ReturnsDataRequiredAction,
                                                    obligationService: ObligationService,
@@ -46,7 +45,7 @@ class YourDetailsCheckAnswersController @Inject()(
                                                    view: YourDetailsCheckAnswersView
                                                  )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
       val pk = request.periodKey
 
@@ -66,7 +65,7 @@ class YourDetailsCheckAnswersController @Inject()(
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) {
+  def onSubmit(): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData) {
     implicit request =>
       Redirect(controllers.returns.submit.routes.DeclarationController.onPageLoad().url + s"?period=${request.periodKey.value}")
   }

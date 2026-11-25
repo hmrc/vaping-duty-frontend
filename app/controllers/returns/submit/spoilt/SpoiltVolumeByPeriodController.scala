@@ -45,14 +45,13 @@ class SpoiltVolumeByPeriodController @Inject()(
                                                 getData: ReturnsDataRetrievalAction,
                                                 requireData: ReturnsDataRequiredAction,
                                                 formProvider: SpoiltVolumeByPeriodFormProvider,
-                                                returnsEnabledAction: ReturnsEnabledAction,
                                                 obligationService: ObligationService,
                                                 navigator: ReturnsNavigator,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 view: SpoiltVolumeByPeriodView
                                               )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
 
-  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey("spoiltPeriod") { spoiltPeriod =>
         withObligation(spoiltPeriod) { spoiltObligation =>
@@ -74,7 +73,7 @@ class SpoiltVolumeByPeriodController @Inject()(
       }
   }
 
-  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
       withPeriodKey("spoiltPeriod") { spoiltPeriod =>
         withObligation(spoiltPeriod) { spoiltObligation =>

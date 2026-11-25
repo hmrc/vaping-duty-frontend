@@ -39,7 +39,6 @@ class CheckYourAnswersController @Inject()(
                                             checkInsolvency: CheckInsolvencyAction,
                                             getData: ReturnsDataRetrievalAction,
                                             requireData: ReturnsDataRequiredAction,
-                                            returnsEnabled: ReturnsEnabledAction,
                                             dutyRateService: DutyRateService,
                                             obligationService: ObligationService,
                                             navigator: ReturnsNavigator,
@@ -48,7 +47,7 @@ class CheckYourAnswersController @Inject()(
                                             returnsDateUtils: ReturnsDateUtils
                                           )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
+  def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async { implicit request =>
     val pk = request.periodKey
 
     val adjustmentPeriods = request.userAnswers.get(AdjustmentListPage)
@@ -75,7 +74,7 @@ class CheckYourAnswersController @Inject()(
     }
   }
 
-  def onSubmit: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
+  def onSubmit: Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData) { implicit request =>
     Redirect(navigator.yourDetailsStart(request.userAnswers))
   }
 }

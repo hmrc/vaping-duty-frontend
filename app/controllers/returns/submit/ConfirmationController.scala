@@ -19,7 +19,6 @@ package controllers.returns.submit
 import config.FrontendAppConfig
 import connectors.returns.GetReturnsConnector
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
-import controllers.actions.returns.*
 import models.BtaLink
 import models.identifiers.PeriodKey
 import models.obligations.Obligation
@@ -43,7 +42,6 @@ class ConfirmationController @Inject()(
                                         override val messagesApi: MessagesApi,
                                         identify: ApprovedVapingManufacturerAuthAction,
                                         checkInsolvency: CheckInsolvencyAction,
-                                        returnsEnabled: ReturnsEnabledAction,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: ReturnConfirmationView,
                                         getReturnsConnector: GetReturnsConnector,
@@ -53,7 +51,7 @@ class ConfirmationController @Inject()(
                                         returnsDateUtils: ReturnsDateUtils
                                       )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled).async { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency).async { implicit request =>
     buildConfirmationPage(getPeriodKey())
   }
 

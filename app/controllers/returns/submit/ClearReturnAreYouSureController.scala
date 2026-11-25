@@ -17,7 +17,7 @@
 package controllers.returns.submit
 
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
-import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction}
 import forms.returns.ClearReturnAreYouSureFormProvider
 import models.identifiers.PeriodKey
 import play.api.Logging
@@ -37,7 +37,6 @@ class ClearReturnAreYouSureController @Inject()(
                                                   checkInsolvency: CheckInsolvencyAction,
                                                   getData: ReturnsDataRetrievalAction,
                                                   requireData: ReturnsDataRequiredAction,
-                                                  returnsEnabledAction: ReturnsEnabledAction,
                                                   formProvider: ClearReturnAreYouSureFormProvider,
                                                   userAnswersService: ReturnsUserAnswersService,
                                                   val controllerComponents: MessagesControllerComponents,
@@ -46,12 +45,12 @@ class ClearReturnAreYouSureController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData) {
     implicit request =>
       Ok(view(form, request.periodKey))
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors =>

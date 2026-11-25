@@ -17,7 +17,7 @@
 package controllers.returns.submit
 
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
-import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction}
 import models.returns.AdjustmentsEligibility
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -36,7 +36,6 @@ class TaskListController @Inject()(
                                     checkInsolvency: CheckInsolvencyAction,
                                     getData: ReturnsDataRetrievalAction,
                                     requireData: ReturnsDataRequiredAction,
-                                    returnsEnabledAction: ReturnsEnabledAction,
                                     obligationService: ObligationService,
                                     preparationService: TaskListPreparationService,
                                     returnsDateUtils: ReturnsDateUtils,
@@ -44,7 +43,7 @@ class TaskListController @Inject()(
                                     view: TaskListView
                                   )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
         val adjustmentsEligibility = AdjustmentsEligibility.fromObligations(obligations)

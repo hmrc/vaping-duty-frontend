@@ -22,7 +22,7 @@ import connectors.nrs.{NrsCircuitBreakerProvider, NrsConnector}
 import controllers.actions.*
 import controllers.actions.contactPreference.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, DataRetrievalActionImpl}
 import controllers.actions.enrolment.*
-import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRequiredActionImpl, ReturnsDataRetrievalAction, ReturnsDataRetrievalActionImpl, ReturnsEnabledAction, ReturnsEnabledActionImpl}
+import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRequiredActionImpl, ReturnsDataRetrievalAction, ReturnsDataRetrievalActionImpl}
 import scheduling.NrsScheduledService
 
 import java.time.{Clock, ZoneOffset}
@@ -42,7 +42,6 @@ class Module extends AbstractModule {
     bind(classOf[EnrolmentClaimAuthAction]).to(classOf[EnrolmentClaimAuthActionImpl]).asEagerSingleton()
     bind(classOf[NoEnrolmentAction]).to(classOf[NoEnrolmentActionImpl]).asEagerSingleton()
     bind(classOf[CheckSignedInAction]).to(classOf[CheckSignedInActionImpl]).asEagerSingleton()
-    bind(classOf[ReturnsEnabledAction]).to(classOf[ReturnsEnabledActionImpl]).asEagerSingleton()
     bind(classOf[DirectDebitEnabledAction]).to(classOf[DirectDebitEnabledActionImpl]).asEagerSingleton()
     bind(classOf[DutyRateConfig]).asEagerSingleton()
     bind(classOf[NrsConnector.NrsCircuitBreaker]).toProvider(classOf[NrsCircuitBreakerProvider])

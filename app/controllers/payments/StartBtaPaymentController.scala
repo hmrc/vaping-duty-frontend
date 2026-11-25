@@ -18,7 +18,6 @@ package controllers.payments
 
 import config.FrontendAppConfig
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
-import controllers.actions.returns.ReturnsEnabledAction
 import models.ChargeReference
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -30,7 +29,6 @@ import scala.concurrent.ExecutionContext
 
 class StartBtaPaymentController @Inject()(
                                            identify: ApprovedVapingManufacturerAuthAction,
-                                           returnsEnabled: ReturnsEnabledAction,
                                            checkInsolvencyAction: CheckInsolvencyAction,
                                            paymentService: PaymentService,
                                            config: FrontendAppConfig,
@@ -38,7 +36,7 @@ class StartBtaPaymentController @Inject()(
                                          )(using ExecutionContext) extends FrontendBaseController with Logging {
 
   def startPayment(chargeReference: Option[ChargeReference]): Action[AnyContent] =
-    (identify andThen checkInsolvencyAction andThen returnsEnabled).async { implicit request =>
+    (identify andThen checkInsolvencyAction).async { implicit request =>
       paymentService.startBtaPayment(request.enrolmentVpdId, chargeReference, config.startPaymentBtaReturnUrl, config.startPaymentBtaBackUrl).map { response =>
         Redirect(response.nextUrl)
       }.recover {

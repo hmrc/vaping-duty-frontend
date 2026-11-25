@@ -19,7 +19,6 @@ package controllers.returns.view
 import config.FrontendAppConfig
 import connectors.returns.GetReturnsConnector
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
-import controllers.actions.returns.*
 import models.BtaLink
 import models.identifiers.PeriodKey
 import play.api.Logging
@@ -42,12 +41,11 @@ class ViewIndividualReturnController @Inject()(
                                        obligationService: ObligationService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ViewIndividualReturnView,
-                                       returnsEnabled: ReturnsEnabledAction,
                                        returnsDateUtils: ReturnsDateUtils,
                                        config: FrontendAppConfig
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
-  def onPageLoad(periodKey: PeriodKey): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled).async {
+  def onPageLoad(periodKey: PeriodKey): Action[AnyContent] = (identify andThen checkInsolvency).async {
     implicit request =>
       for {
         returnData <- connector.getReturn(periodKey, request.enrolmentVpdId)

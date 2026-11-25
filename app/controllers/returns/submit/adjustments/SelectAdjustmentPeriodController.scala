@@ -17,7 +17,7 @@
 package controllers.returns.submit.adjustments
 
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
-import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction}
 import models.Mode
 import pages.returns.adjustments.AdjustmentListPage
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -35,7 +35,6 @@ class SelectAdjustmentPeriodController @Inject()(
                                                   override val messagesApi: MessagesApi,
                                                   identify: ApprovedVapingManufacturerAuthAction,
                                                   checkInsolvency: CheckInsolvencyAction,
-                                                  returnsEnabledAction: ReturnsEnabledAction,
                                                   getData: ReturnsDataRetrievalAction,
                                                   requireData: ReturnsDataRequiredAction,
                                                   obligationService: ObligationService,
@@ -45,7 +44,7 @@ class SelectAdjustmentPeriodController @Inject()(
                                                 )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(mode: Mode, year: Option[Int]): Action[AnyContent] =
-    (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async { implicit request =>
+    (identify andThen checkInsolvency andThen getData andThen requireData).async { implicit request =>
 
       obligationService.getObligations(request.enrolmentVpdId).map { obligations =>
         val adjustmentList = request.userAnswers.get(AdjustmentListPage)

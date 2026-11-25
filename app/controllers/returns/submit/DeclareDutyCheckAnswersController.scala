@@ -36,7 +36,6 @@ class DeclareDutyCheckAnswersController @Inject()(
                                                    checkInsolvency: CheckInsolvencyAction,
                                                    getData: ReturnsDataRetrievalAction,
                                                    requireData: ReturnsDataRequiredAction,
-                                                   returnsEnabled: ReturnsEnabledAction,
                                                    obligationService: ObligationService,
                                                    dutyRateService: DutyRateService,
                                                    val controllerComponents: MessagesControllerComponents,
@@ -44,7 +43,7 @@ class DeclareDutyCheckAnswersController @Inject()(
                                                    returnsDateUtils: ReturnsDateUtils
                                                  )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async { implicit request =>
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async { implicit request =>
     val pk = request.periodKey
 
     if (TaskStatusService.declareDutyTaskStatus(request.userAnswers) != TaskStatus.Completed) {
@@ -68,7 +67,7 @@ class DeclareDutyCheckAnswersController @Inject()(
     }
   }
 
-  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) { implicit request =>
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData) { implicit request =>
     mode match {
       case CheckMode => Redirect(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url + s"?period=${request.periodKey.value}")
       case NormalMode => Redirect(controllers.returns.submit.routes.TaskListController.onPageLoad().url + s"?period=${request.periodKey.value}")

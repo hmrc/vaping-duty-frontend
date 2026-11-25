@@ -17,7 +17,7 @@
 package controllers.returns.submit
 
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
-import controllers.actions.returns.{ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import controllers.actions.returns.ReturnsDataRetrievalAction
 import models.identifiers.PeriodKey
 import models.returns.ReturnsUserAnswers
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -36,7 +36,6 @@ class BeforeYouStartController @Inject()(
                                           identify: ApprovedVapingManufacturerAuthAction,
                                           checkInsolvency: CheckInsolvencyAction,
                                           sessionRepository: ReturnsUserAnswersService,
-                                          returnsEnabledAction: ReturnsEnabledAction,
                                           obligationService: ObligationService,
                                           returnsDateUtils: ReturnsDateUtils,
                                           val controllerComponents: MessagesControllerComponents,
@@ -44,7 +43,7 @@ class BeforeYouStartController @Inject()(
                                           getData: ReturnsDataRetrievalAction
                                         )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen getData).async {
     implicit request =>
       val periodKey = PeriodKey(request.getQueryString("period").getOrElse(""))
 

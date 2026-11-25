@@ -41,14 +41,13 @@ class AdjustmentReasonController @Inject()(
   getData: ReturnsDataRetrievalAction,
   requireData: ReturnsDataRequiredAction,
   formProvider: AdjustmentReasonFormProvider,
-  returnsEnabledAction: ReturnsEnabledAction,
   val controllerComponents: MessagesControllerComponents,
   view: AdjustmentReasonView
 )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData) {
     implicit request =>
       val preparedForm = request.userAnswers.get(AdjustmentReasonPage) match {
         case Some(value) => form.fill(value)
@@ -57,7 +56,7 @@ class AdjustmentReasonController @Inject()(
       Ok(view(request.periodKey, preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors =>

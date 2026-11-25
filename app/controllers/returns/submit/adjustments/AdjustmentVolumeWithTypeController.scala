@@ -17,7 +17,7 @@
 package controllers.returns.submit.adjustments
 
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
-import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction}
 import controllers.returns.PeriodKeyExtraction
 import forms.returns.adjustments.AdjustmentVolumeWithTypeFormProvider
 import models.Mode
@@ -44,7 +44,6 @@ class AdjustmentVolumeWithTypeController @Inject()(
                                                     getData: ReturnsDataRetrievalAction,
                                                     requireData: ReturnsDataRequiredAction,
                                                     formProvider: AdjustmentVolumeWithTypeFormProvider,
-                                                    returnsEnabledAction: ReturnsEnabledAction,
                                                     obligationService: ObligationService,
                                                     adjustmentVolumeService: AdjustmentVolumeService,
                                                     returnsDateUtils: ReturnsDateUtils,
@@ -52,7 +51,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
                                                     view: AdjustmentVolumeWithTypeView
                                                   )(using ExecutionContext) extends FrontendBaseController with I18nSupport with PeriodKeyExtraction {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>
@@ -71,7 +70,7 @@ class AdjustmentVolumeWithTypeController @Inject()(
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
 
       withPeriodKey(ReturnsConstants.QUERY_PARAM_ADJUSTMENT_PERIOD) { adjustmentPeriodKey =>

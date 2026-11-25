@@ -17,7 +17,7 @@
 package controllers.returns.submit.adjustments
 
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
-import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction}
 import forms.returns.DeclareDutyFormProvider
 import models.Mode
 import navigation.ReturnsNavigator
@@ -41,14 +41,13 @@ class DeclareAdjustmentQuestionController @Inject()(
                                                      getData: ReturnsDataRetrievalAction,
                                                      requireData: ReturnsDataRequiredAction,
                                                      formProvider: DeclareDutyFormProvider,
-                                                     returnsEnabledAction: ReturnsEnabledAction,
                                                      val controllerComponents: MessagesControllerComponents,
                                                      view: DeclareAdjustmentQuestionView
                                                    )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(DeclareAdjustmentPage) match {
@@ -59,7 +58,7 @@ class DeclareAdjustmentQuestionController @Inject()(
       Ok(view(request.periodKey, preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
