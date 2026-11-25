@@ -17,10 +17,9 @@
 package models.returns
 
 import base.SpecBase
-import models.obligations.{Obligation, ObligationStatus}
+import models.obligations.Obligation
 import play.api.libs.json.Json
 
-import java.time.LocalDate
 
 class ObligationSpec extends SpecBase {
   "Obligation" - {

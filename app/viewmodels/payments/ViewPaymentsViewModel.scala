@@ -39,7 +39,6 @@ object ViewPaymentsViewModel {
 
   def apply(payments: PaymentsResponse, returnsDateUtils: ReturnsDateUtils, repaymentUrl: String)(implicit messages: Messages): ViewPaymentsViewModel = {
     val totalOwed = payments.totalAccountBalance.getOrElse(BigDecimal(0))
-    val clearedYear = returnsDateUtils.getYear.toString
 
     ViewPaymentsViewModel(
       totalOwed = CurrencyFormatter.currencyFormat(totalOwed),

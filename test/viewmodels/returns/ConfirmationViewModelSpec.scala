@@ -17,7 +17,6 @@
 package viewmodels.returns
 
 import base.{SpecBase, UnitSpec}
-import models.identifiers.PeriodKey
 import viewmodels.returns.submit.ConfirmationViewModel
 
 import java.time.LocalDate
