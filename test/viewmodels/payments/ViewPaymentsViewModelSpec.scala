@@ -208,11 +208,6 @@ class ViewPaymentsViewModelSpec extends SpecBase {
         vm.paymentOnAccountRows mustBe Seq.empty
         vm.clearedRows mustBe Seq.empty
       }
-
-      "must use current year when no cleared payments exist" in {
-        val vm = ViewPaymentsViewModel(PaymentsResponse.empty, returnsDateUtils, repaymentUrl)
-        vm.clearedPaymentsYear mustBe LocalDate.now(clock).getYear.toString
-      }
     }
 
     "when only some sections have data" - {

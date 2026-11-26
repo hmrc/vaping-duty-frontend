@@ -18,7 +18,6 @@ package viewmodels.returns.view
 
 import base.SpecBase
 import data.TestData
-import models.identifiers.PeriodKey
 import models.returns.view.{OverDeclaration, OverDeclarationProduct, UnderDeclaration, UnderDeclarationProduct}
 import play.api.i18n.Messages
 import utils.ReturnsDateUtils

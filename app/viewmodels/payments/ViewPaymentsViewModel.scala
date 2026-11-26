@@ -31,8 +31,7 @@ final case class ViewPaymentsViewModel(
                                         hasOutstandingBalance: Boolean,
                                         outstandingRows: Seq[Seq[TableRow]],
                                         paymentOnAccountRows: Seq[Seq[TableRow]],
-                                        clearedRows: Seq[Seq[TableRow]],
-                                        clearedPaymentsYear: String
+                                        clearedRows: Seq[Seq[TableRow]]
                                       )
 
 object ViewPaymentsViewModel {
@@ -40,15 +39,13 @@ object ViewPaymentsViewModel {
 
   def apply(payments: PaymentsResponse, returnsDateUtils: ReturnsDateUtils, repaymentUrl: String)(implicit messages: Messages): ViewPaymentsViewModel = {
     val totalOwed = payments.totalAccountBalance.getOrElse(BigDecimal(0))
-    val clearedYear = returnsDateUtils.getYear.toString
 
     ViewPaymentsViewModel(
       totalOwed = CurrencyFormatter.currencyFormat(totalOwed),
       hasOutstandingBalance = totalOwed > 0,
       outstandingRows = payments.outstanding.map(buildOutstandingRow(_, returnsDateUtils, repaymentUrl)),
       paymentOnAccountRows = payments.paymentOnAccount.map(buildPaymentOnAccountRow(_, returnsDateUtils, repaymentUrl)),
-      clearedRows = payments.cleared.map(buildClearedRow(_, returnsDateUtils)),
-      clearedPaymentsYear = clearedYear
+      clearedRows = payments.cleared.map(buildClearedRow(_, returnsDateUtils))
     )
   }
 
