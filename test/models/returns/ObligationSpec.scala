@@ -20,7 +20,6 @@ import base.SpecBase
 import models.obligations.Obligation
 import play.api.libs.json.Json
 
-
 class ObligationSpec extends SpecBase {
   "Obligation" - {
     val fulfilledObligationJson = """{"openOrFulfilledStatus":"F","iCFromDate":"2024-02-01","iCToDate":"2024-02-29","iCDateReceived":"2024-03-08","iCDueDate":"2024-03-07","periodKey":"24KB"}"""
