@@ -18,7 +18,6 @@ package controllers.returns.view
 
 import controllers.actions.*
 import controllers.actions.contactPreference.DataRetrievalAction
-import controllers.actions.returns.ReturnsEnabledAction
 import models.obligations.ObligationStatus
 import models.requests.contactPreference.OptionalDataRequest
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -39,7 +38,6 @@ class ViewMultipleReturnsController @Inject()(
                                                clock: Clock,
                                                identify: ApprovedVapingManufacturerAuthAction,
                                                checkInsolvency: CheckInsolvencyAction,
-                                               returnsEnabledAction: ReturnsEnabledAction,
                                                obligationService: ObligationService,
                                                val controllerComponents: MessagesControllerComponents,
                                                getData: DataRetrievalAction,
@@ -47,7 +45,7 @@ class ViewMultipleReturnsController @Inject()(
                                                returnsDateUtils: ReturnsDateUtils
                                              )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(year: Option[Int] = None): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData).async {
+  def onPageLoad(year: Option[Int] = None): Action[AnyContent] = (identify andThen checkInsolvency andThen getData).async {
     implicit request =>
 
       renderView(request, year)

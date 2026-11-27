@@ -17,7 +17,7 @@
 package controllers.returns.submit.adjustments
 
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
-import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction, ReturnsEnabledAction}
+import controllers.actions.returns.{ReturnsDataRequiredAction, ReturnsDataRetrievalAction}
 import forms.returns.DeclareDutyFormProvider
 import models.requests.returns.ReturnsDataRequest
 import models.{Mode, NormalMode, TaskStatus}
@@ -43,7 +43,6 @@ class AdjustmentCheckYourAnswersController @Inject()(
                                                       getData: ReturnsDataRetrievalAction,
                                                       requireData: ReturnsDataRequiredAction,
                                                       formProvider: DeclareDutyFormProvider,
-                                                      returnsEnabledAction: ReturnsEnabledAction,
                                                       adjustmentCheckYourAnswersService: AdjustmentCheckYourAnswersService,
                                                       val controllerComponents: MessagesControllerComponents,
                                                       view: AdjustmentCheckYourAnswersView
@@ -51,7 +50,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
       if (TaskStatusService.declareAdjustmentsTaskStatus(request.userAnswers) != TaskStatus.Completed) {
         Future.successful(Redirect(controllers.returns.submit.routes.ReturnSubmissionRecoveryController.onPageLoad().url + s"?period=${request.periodKey.value}"))
@@ -67,7 +66,7 @@ class AdjustmentCheckYourAnswersController @Inject()(
       }
   }
 
-  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
       val declareAdjustment = request.userAnswers.get(DeclareAdjustmentPage)
 

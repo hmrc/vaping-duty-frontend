@@ -43,7 +43,6 @@ class DeclarationController @Inject()(
                                        checkInsolvency: CheckInsolvencyAction,
                                        getData: ReturnsDataRetrievalAction,
                                        requireData: ReturnsDataRequiredAction,
-                                       returnsEnabled: ReturnsEnabledAction,
                                        submitReturnService: SubmitReturnService,
                                        obligationService: ObligationService,
                                        returnsDateUtils: ReturnsDateUtils,
@@ -53,7 +52,7 @@ class DeclarationController @Inject()(
                                        userAnswersService: ReturnsUserAnswersService
                                      )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
+  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
       obligationService.getObligations(request.enrolmentVpdId).flatMap { obligations =>
         if (!readyToSubmit(request.userAnswers, obligations)) {
@@ -68,7 +67,7 @@ class DeclarationController @Inject()(
       }
   }
 
-  def onSubmit(): Action[AnyContent] = (identify andThen returnsEnabled andThen getData andThen requireData).async {
+  def onSubmit(): Action[AnyContent] = (identify andThen getData andThen requireData).async {
     implicit request =>
       getObligations.flatMap { obligations =>
         submitAndContinue(request.userAnswers, obligations)

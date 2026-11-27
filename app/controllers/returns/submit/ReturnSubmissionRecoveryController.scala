@@ -31,12 +31,11 @@ class ReturnSubmissionRecoveryController @Inject()(
                                                      checkInsolvency: CheckInsolvencyAction,
                                                      getData: ReturnsDataRetrievalAction,
                                                      requireData: ReturnsDataRequiredAction,
-                                                     returnsEnabled: ReturnsEnabledAction,
                                                      val controllerComponents: MessagesControllerComponents,
                                                      view: ReturnSubmissionRecoveryView
                                                    ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) {
+  def onPageLoad(): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData) {
     implicit request =>
       Ok(view(request.periodKey))
   }

@@ -18,7 +18,6 @@ package controllers.payments
 
 import config.FrontendAppConfig
 import controllers.actions.{ApprovedVapingManufacturerAuthAction, CheckInsolvencyAction}
-import controllers.actions.returns.ReturnsEnabledAction
 import controllers.routes
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -35,7 +34,6 @@ import scala.concurrent.ExecutionContext
 
 class ViewPaymentsController @Inject()(
   override val messagesApi: MessagesApi,
-  returnsEnabled: ReturnsEnabledAction,
   identify: ApprovedVapingManufacturerAuthAction,
   checkInsolvency: CheckInsolvencyAction,                          
   service: FinancialDataService,
@@ -45,7 +43,7 @@ class ViewPaymentsController @Inject()(
   view: ViewPaymentsView
 )(using ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled).async { implicit request =>
+  def onPageLoad: Action[AnyContent] = (identify andThen checkInsolvency).async { implicit request =>
     service.getPayments(request.enrolmentVpdId)
       .map { payments =>
         val vm = ViewPaymentsViewModel(payments, returnsDateUtils, config.repaymentUrl)

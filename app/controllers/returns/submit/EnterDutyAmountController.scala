@@ -40,12 +40,11 @@ class EnterDutyAmountController @Inject()(
                                            getData: ReturnsDataRetrievalAction,
                                            requireData: ReturnsDataRequiredAction,
                                            formProvider: EnterDutyAmountFormProvider,
-                                           returnsEnabledAction: ReturnsEnabledAction,
                                            val controllerComponents: MessagesControllerComponents,
                                            view: EnterDutyAmountView
                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
 
       formProvider(request.periodKey, request.enrolmentVpdId).map { form =>

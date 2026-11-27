@@ -59,8 +59,7 @@ trait SpecBase
   protected def applicationBuilder(userAnswers: Option[PreferenceUserAnswers] = None,
                                    enrolmentUserAnswers: Option[EnrolmentUserAnswers] = None,
                                    returnsUserAnswers: Option[ReturnsUserAnswers] = None,
-                                   directDebitEnabled: Boolean = true,
-                                   userAllowListEnabled: Boolean = false): GuiceApplicationBuilder =
+                                   directDebitEnabled: Boolean = true): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
@@ -73,8 +72,7 @@ trait SpecBase
         bind[ReturnsDataRetrievalAction].toInstance(new FakeReturnsDataRetrievalAction(returnsUserAnswers))
       )
       .configure(
-        "features.directDebitEnabled" -> directDebitEnabled,
-        "features.returnsAllowListEnabled" -> userAllowListEnabled
+        "features.directDebitEnabled" -> directDebitEnabled
       )
   
   given hc: HeaderCarrier = HeaderCarrier()

@@ -41,7 +41,6 @@ class YourBusinessEmailController @Inject()(
                                        navigator: ReturnsNavigator,
                                        identify: ApprovedVapingManufacturerAuthAction,
                                        checkInsolvency: CheckInsolvencyAction,
-                                       returnsEnabled: ReturnsEnabledAction,
                                        getData: ReturnsDataRetrievalAction,
                                        requireData: ReturnsDataRequiredAction,
                                        obligationService: ObligationService,
@@ -54,7 +53,7 @@ class YourBusinessEmailController @Inject()(
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
       val preparedForm = request.userAnswers.get(YourBusinessEmailPage) match {
         case None => form
@@ -70,7 +69,7 @@ class YourBusinessEmailController @Inject()(
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors =>

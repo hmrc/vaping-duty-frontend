@@ -654,26 +654,3 @@ payments.viewPayments.cleared.table.description = Math o daliad
 payments.viewPayments.cleared.table.amount = Swm
 payments.viewPayments.cleared.description.text = Taliad wedi’i glirio
 payments.viewPayments.notAvailable = Ddim yn berthnasol
-
-returnsAccessDenied.title = Rydym yn rheoli mynediad at y gwasanaeth hwn
-returnsAccessDenied.heading = Rydym yn rheoli mynediad at y gwasanaeth hwn
-
-returnsAccessDenied.p1 = Cyn y gallwch gyflwyno datganiad Toll Cynhyrchion Fepio, mae’n rhaid i chi wneud cais am fynediad gan ddefnyddio cyfeiriad e-bost cofrestredig eich busnes.
-returnsAccessDenied.p2 = Dim ond unwaith y bydd angen i chi wneud hyn.
-
-returnsAccessDenied.youMust.heading = Bydd yn rhaid i chi wneud y canlynol:
-returnsAccessDenied.youMust.bullet1 = anfon e-bost at:
-returnsAccessDenied.youMust.bullet2 = nodi’r canlynol yn y llinell pwnc: Mynediad at VPD/VPD access
-returnsAccessDenied.youMust.bullet3 = copïo a gludo’r neges ganlynol
-returnsAccessDenied.youMust.bullet4 = ychwanegu eich manylion chi at y neges
-
-returnsAccessDenied.emailTemplate.greeting = Helô,
-returnsAccessDenied.emailTemplate.body = Hoffwn gael mynediad at y gwasanaeth Toll Cynhyrchion Fepio.
-returnsAccessDenied.emailTemplate.vpdId = ID Toll Cynhyrchion Fepio (VPD): {0}
-returnsAccessDenied.emailTemplate.thankYou = Diolch,
-returnsAccessDenied.emailTemplate.name = Enw [nodwch eich enw]
-returnsAccessDenied.emailTemplate.role = Rôl [nodwch eich rôl]
-returnsAccessDenied.emailTemplate.businessName = Enw’r busnes [nodwch enw’r busnes]
-
-returnsAccessDenied.p3 = Byddwn yn ymateb i’ch e-bost i roi gwybod i chi pryd y gallwch gael mynediad at y gwasanaeth.
-returnsAccessDenied.p4 = Byddwch yn gallu cael mynediad at y gwasanaeth cyn y dyddiad cau ar gyfer cyflwyno’r datganiad, sef 7 Tachwedd 2026.

@@ -40,13 +40,12 @@ class EnterDutySuspenseController @Inject()(
                                              getData: ReturnsDataRetrievalAction,
                                              requireData: ReturnsDataRequiredAction,
                                              formProvider: EnterDutySuspenseFormProvider,
-                                             returnsEnabledAction: ReturnsEnabledAction,
                                              val controllerComponents: MessagesControllerComponents,
                                              view: EnterDutySuspenseView
                                            )(using ExecutionContext) extends FrontendBaseController with I18nSupport {
 
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData) {
     implicit request =>
       val form = formProvider(request.periodKey, request.enrolmentVpdId)
 
@@ -59,7 +58,7 @@ class EnterDutySuspenseController @Inject()(
   }
 
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
       val form = formProvider(request.periodKey, request.enrolmentVpdId)
 

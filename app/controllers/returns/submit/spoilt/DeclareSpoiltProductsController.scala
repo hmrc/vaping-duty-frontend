@@ -42,7 +42,6 @@ class DeclareSpoiltProductsController @Inject()(
                                          getData: ReturnsDataRetrievalAction,
                                          requireData: ReturnsDataRequiredAction,
                                          formProvider: DeclareSpoiltProductsFormProvider,
-                                         returnsEnabledAction: ReturnsEnabledAction,
                                          val controllerComponents: MessagesControllerComponents,
                                          view: DeclareSpoiltProductsView,
                                          config: FrontendAppConfig
@@ -50,7 +49,7 @@ class DeclareSpoiltProductsController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData) {
     implicit request =>
       val preparedForm = request.userAnswers.get(DeclareSpoiltProductsPage)
         .fold(form)(form.fill)
@@ -58,7 +57,7 @@ class DeclareSpoiltProductsController @Inject()(
       Ok(view(request.periodKey, preparedForm, mode, config.claimDutyBackGuidance))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(

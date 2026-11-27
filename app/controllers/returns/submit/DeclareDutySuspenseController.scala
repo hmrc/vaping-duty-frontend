@@ -41,14 +41,13 @@ class DeclareDutySuspenseController @Inject()(
                                          getData: ReturnsDataRetrievalAction,
                                          requireData: ReturnsDataRequiredAction,
                                          formProvider: DeclareDutySuspenseFormProvider,
-                                         returnsEnabledAction: ReturnsEnabledAction,
                                          val controllerComponents: MessagesControllerComponents,
                                          view: DeclareDutySuspenseView
                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabledAction andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData) {
     implicit request =>
       val preparedForm = request.userAnswers.get(DeclareDutySuspensePage)
         .fold(form)(form.fill)

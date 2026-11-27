@@ -34,12 +34,11 @@ class DutySuspenseCheckAnswersController @Inject()(
                                                     checkInsolvency: CheckInsolvencyAction,
                                                     getData: ReturnsDataRetrievalAction,
                                                     requireData: ReturnsDataRequiredAction,
-                                                    returnsEnabled: ReturnsEnabledAction,
                                                     val controllerComponents: MessagesControllerComponents,
                                                     view: DutySuspenseCheckAnswersView
                                                   ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData) {
     implicit request =>
       val pk = request.periodKey
 
@@ -53,7 +52,7 @@ class DutySuspenseCheckAnswersController @Inject()(
       }
   }
 
-  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen returnsEnabled andThen getData andThen requireData) {
+  def onSubmit(mode: Mode = NormalMode): Action[AnyContent] = (identify andThen checkInsolvency andThen getData andThen requireData) {
     implicit request =>
       mode match {
         case CheckMode => Redirect(controllers.returns.submit.routes.CheckYourAnswersController.onPageLoad().url + s"?period=${request.periodKey.value}")

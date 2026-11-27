@@ -18,7 +18,6 @@ package controllers
 
 import config.FrontendAppConfig
 import controllers.actions.ApprovedVapingManufacturerAuthAction
-import controllers.actions.returns.ReturnsEnabledAction
 
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
@@ -29,12 +28,11 @@ import views.html.InsolventView
 class InsolventController @Inject()(
                                       val controllerComponents: MessagesControllerComponents,
                                       identify: ApprovedVapingManufacturerAuthAction,
-                                      returnsEnabled: ReturnsEnabledAction,
                                       view: InsolventView,
                                       config: FrontendAppConfig
                                     ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen returnsEnabled) { implicit request =>
+  def onPageLoad(): Action[AnyContent] = identify { implicit request =>
     Ok(view(config.insolvencyGuidanceUrl, config.contactHmrcUrl))
   }
 }
